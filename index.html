@@ -1,0 +1,2346 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#190e0c">
+<title>Ramen Mania - Edición Horizontal Arcade</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<!-- SUPABASE JS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --bg-dark: #190e0c;
+    --sat: env(safe-area-inset-top, 0px);
+    --sar: env(safe-area-inset-right, 0px);
+    --sab: env(safe-area-inset-bottom, 0px);
+    --sal: env(safe-area-inset-left, 0px);
+    --counter-wood: #2f1712;
+    --table-wood: #44221a;
+    --ramen-red: #c62828;
+    --ramen-gold: #ffb300;
+    --text-light: #fff8f0;
+    --patience-green: #43a047;
+    --patience-yellow: #fbc02d;
+    --patience-red: #e53935;
+    --card-bg: rgba(255, 255, 255, 0.96);
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html, body {
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button, .btn, .ing-card-btn, .customer-card, .bowl-card, .pantry-tab, .order-pill-summary {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    cursor: pointer;
+  }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: #140a08;
+    color: var(--text-light);
+    width: 100vw;
+    height: 100vh;
+    height: -webkit-fill-available;
+    height: 100dvh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* OVERLAY PARA AVISAR GIRO EN MÓVILES SI ESTÁ EN VERTICAL */
+  #rotate-device-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: #190e0c;
+    z-index: 9999;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+  }
+
+  @media screen and (orientation: portrait) and (max-width: 900px) {
+    #rotate-device-overlay {
+      display: flex;
+    }
+  }
+
+  .rotate-icon {
+    font-size: 54px;
+    animation: rotatePhone 2s infinite ease-in-out;
+    margin-bottom: 16px;
+  }
+
+  @keyframes rotatePhone {
+    0%, 10% { transform: rotate(0deg); }
+    50%, 60% { transform: rotate(-90deg); }
+    90%, 100% { transform: rotate(0deg); }
+  }
+
+  /* CONTENEDOR PRINCIPAL HORIZONTAL */
+  #game-container {
+    width: 100%;
+    height: 100%;
+    height: -webkit-fill-available;
+    height: 100dvh;
+    max-width: 1200px;
+    background: #201210;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #4a281e;
+    overflow: hidden;
+    position: relative;
+    padding-left: var(--sal);
+    padding-right: var(--sar);
+  }
+
+  /* HEADER COMPACTO HORIZONTAL */
+  header {
+    background: linear-gradient(90deg, #8e0000, #b71c1c, #d32f2f, #8e0000);
+    padding: 4px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #5f0000;
+    min-height: 42px;
+    flex-shrink: 0;
+  }
+
+  .title-area {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .title-area h1 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 18px;
+    color: #fff;
+    text-shadow: 1px 1px 0px #5c0000;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .level-badge {
+    background: var(--ramen-gold);
+    color: #212121;
+    font-weight: 900;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  }
+
+  .stats-bar {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .stat-badge {
+    background: rgba(0, 0, 0, 0.45);
+    padding: 2px 8px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 700;
+    font-size: 11px;
+  }
+
+  .stat-badge .val {
+    color: var(--ramen-gold);
+    font-size: 13px;
+    font-weight: 900;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 5px;
+  }
+
+  .btn {
+    background: var(--ramen-gold);
+    color: #2c1b18;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-weight: 800;
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    transition: all 0.1s ease;
+    box-shadow: 0 2px 0 #c68400;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+  }
+
+  .btn:hover { background: #ffc107; transform: translateY(-1px); }
+  .btn:active { transform: translateY(1px); box-shadow: none; }
+
+  .btn-danger { background: #e53935; color: #fff; box-shadow: 0 2px 0 #ab000d; }
+  .btn-danger:hover { background: #f44336; }
+  
+  .btn-ranking {
+    background: linear-gradient(135deg, #ffd700, #ff9800);
+    color: #212121;
+    font-weight: 900;
+    box-shadow: 0 2px 0 #b26a00;
+  }
+
+  /* BARRA DE CLIENTES */
+  .customers-section {
+    background: linear-gradient(to bottom, #301712, #24110e);
+    padding: 6px 10px;
+    border-bottom: 3px solid #3d1f18;
+    min-height: 68px;
+    max-height: 78px;
+    flex-shrink: 0;
+  }
+
+  .counter-slots {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    height: 100%;
+  }
+
+  .customer-card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 5px 8px;
+    color: #212121;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border: 2px solid #6b3929;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+    position: relative;
+    cursor: pointer;
+    height: 64px;
+    transition: border-color 0.15s ease;
+  }
+
+  .customer-card:hover, .customer-card.active-target {
+    border-color: #ff9800;
+    box-shadow: 0 0 8px rgba(255, 152, 0, 0.5);
+  }
+
+  .customer-card.empty {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.25);
+    font-weight: 700;
+    font-size: 11px;
+    cursor: default;
+    box-shadow: none;
+  }
+
+  .customer-row-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
+  .cust-profile {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .cust-avatar {
+    font-size: 18px;
+    line-height: 1;
+    background: #ffe0b2;
+    padding: 2px;
+    border-radius: 50%;
+    border: 1px solid #ff9800;
+  }
+
+  .cust-name {
+    font-size: 11px;
+    font-weight: 800;
+    color: #4e342e;
+    max-width: 60px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .patience-mini {
+    width: 100%;
+    height: 5px;
+    background: #e0e0e0;
+    border-radius: 3px;
+    overflow: hidden;
+    margin: 3px 0;
+  }
+
+  .patience-bar-mini {
+    height: 100%;
+    background: var(--patience-green);
+    transition: width 0.2s linear, background-color 0.3s ease;
+  }
+
+  .customer-row-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+  }
+
+  .order-pill-summary {
+    background: #fff3e0;
+    border: 1px solid #ff9800;
+    color: #b71c1c;
+    border-radius: 5px;
+    padding: 2px 5px;
+    font-size: 10px;
+    font-weight: 900;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 90px;
+  }
+
+  .btn-cust-view {
+    background: #ff9800;
+    color: #fff;
+    border: none;
+    padding: 3px 6px;
+    border-radius: 5px;
+    font-size: 10px;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 1px 0 #e65100;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .btn-cust-view:hover { background: #ffa726; }
+
+  /* CUERPO PRINCIPAL */
+  .main-horizontal-split {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 8px;
+    padding: 8px;
+    background: #190e0c;
+    overflow: hidden;
+  }
+
+  /* ESTACIÓN DE TAZONES */
+  .bowls-section {
+    background: #261310;
+    border: 1px solid #4a281e;
+    border-radius: 12px;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow-y: auto;
+  }
+
+  .bowls-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    flex: 1;
+  }
+
+  .bowl-card {
+    background: #331a15;
+    border: 2px solid #5d2e22;
+    border-radius: 10px;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .bowl-card.active {
+    border-color: var(--ramen-gold);
+    box-shadow: 0 0 10px rgba(255, 179, 0, 0.4);
+    background: #42221b;
+  }
+
+  .bowl-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--ramen-gold);
+  }
+
+  .bowl-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 2px 0;
+  }
+
+  .bowl-art {
+    font-size: 26px;
+    line-height: 1;
+    margin-bottom: 2px;
+  }
+
+  .bowl-badge {
+    font-family: 'Fredoka One', cursive;
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 5px;
+    background: #424242;
+    color: #e0e0e0;
+    text-align: center;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .bowl-badge.matched {
+    background: #2e7d32;
+    color: #fff;
+    box-shadow: 0 0 6px #4caf50;
+  }
+
+  .bowl-assist-text {
+    background: rgba(0,0,0,0.35);
+    border-radius: 5px;
+    padding: 4px;
+    font-size: 9px;
+    line-height: 1.2;
+    margin: 3px 0;
+    border-left: 2px solid var(--ramen-gold);
+    min-height: 34px;
+  }
+
+  .bowl-ings-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    max-height: 50px;
+    overflow-y: auto;
+    background: rgba(0,0,0,0.25);
+    padding: 2px;
+    border-radius: 4px;
+  }
+
+  .bowl-ing-tag {
+    background: #ffe082;
+    color: #3e2723;
+    font-size: 8px;
+    font-weight: 800;
+    padding: 1px 4px;
+    border-radius: 3px;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    cursor: pointer;
+  }
+  .bowl-ing-tag:hover { background: #ffcdd2; color: #b71c1c; }
+
+  .bowl-bottom-btn {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin-top: 4px;
+  }
+
+  .btn-direct-serve {
+    background: #2e7d32;
+    color: white;
+    font-size: 10px;
+    padding: 4px;
+    border-radius: 5px;
+    border: none;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 1px 0 #1b5e20;
+    animation: pulse 1s infinite alternate;
+  }
+
+  .btn-empty-bowl {
+    background: #c62828;
+    color: white;
+    font-size: 9px;
+    padding: 3px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-weight: 800;
+  }
+
+  /* ALACENA */
+  .pantry-section {
+    background: #24110e;
+    border: 1px solid #4a281e;
+    border-radius: 12px;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .pantry-top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+    flex-shrink: 0;
+  }
+
+  .pantry-tabs {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+
+  .pantry-tab {
+    background: #3a1a14;
+    border: 1px solid #5d2e22;
+    color: #d7ccc8;
+    padding: 3px 8px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+  .pantry-tab.active {
+    background: var(--ramen-gold);
+    color: #212121;
+    border-color: var(--ramen-gold);
+  }
+
+  .ingredients-grid-scroll {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 6px;
+    padding-right: 4px;
+    align-content: flex-start;
+  }
+
+  .ing-card-btn {
+    background: linear-gradient(145deg, #3d1e17, #26110c);
+    border: 2px solid #5d2e22;
+    border-radius: 8px;
+    padding: 4px 2px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.1s ease;
+    box-shadow: 0 2px 0 #150907;
+    height: 62px;
+  }
+
+  .ing-card-btn:hover {
+    background: linear-gradient(145deg, #4f271f, #331711);
+    border-color: var(--ramen-gold);
+    transform: translateY(-1px);
+  }
+
+  .ing-card-btn:active {
+    transform: translateY(1px);
+    box-shadow: none;
+  }
+
+  .ing-card-btn.in-active-bowl {
+    border-color: #4caf50;
+    background: #18331a;
+  }
+
+  .pixel-sprite-large {
+    width: 36px;
+    height: 36px;
+    image-rendering: pixelated;
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.55));
+    transition: transform 0.1s ease;
+  }
+
+  .ing-card-btn:hover .pixel-sprite-large {
+    transform: scale(1.08);
+  }
+
+  .emoji-fallback-large {
+    font-size: 32px;
+    line-height: 1;
+  }
+
+  .ing-card-name {
+    font-size: 9px;
+    font-weight: 800;
+    color: #ffecb3;
+    text-align: center;
+    line-height: 1.1;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    padding: 0 2px;
+  }
+
+  /* MODALES Y OVERLAYS */
+  .modal-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.88);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9000;
+    padding: 8px;
+  }
+  .modal-overlay.active { display: flex !important; }
+
+  .order-detail-modal {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.85);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 8000;
+    padding: 8px;
+  }
+  .order-detail-modal.active { display: flex !important; }
+
+  .modal-card {
+    background: #fffaf0;
+    color: #212121;
+    width: 100%;
+    max-width: 820px;
+    max-height: 92vh;
+    border-radius: 14px;
+    border: 3px solid #b71c1c;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .modal-header {
+    background: #b71c1c;
+    color: white;
+    padding: 8px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .modal-header h2 { font-family: 'Fredoka One', cursive; font-size: 17px; }
+
+  .modal-body { padding: 10px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .recipes-table, .leaderboard-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .recipes-table th, .recipes-table td, .leaderboard-table th, .leaderboard-table td { border: 1px solid #e0d0c0; padding: 5px 8px; text-align: left; }
+  .recipes-table th, .leaderboard-table th { background: #ffe0b2; color: #5d4037; font-weight: 900; position: sticky; top: 0; }
+  .recipes-table tr:nth-child(even), .leaderboard-table tr:nth-child(even) { background: #fff3e0; }
+
+  .badge-ing {
+    display: inline-flex;
+    align-items: center;
+    background: #eefeeb;
+    border: 1px solid #a5d6a7;
+    color: #1b5e20;
+    font-weight: 800;
+    font-size: 9px;
+    padding: 1px 4px;
+    border-radius: 4px;
+    margin: 1px;
+  }
+
+  /* PANTALLA FIN DE NIVEL */
+  .level-end-modal {
+    text-align: center;
+    padding: 18px;
+  }
+  .level-end-modal h2 { font-family: 'Fredoka One', cursive; font-size: 26px; margin-bottom: 6px; }
+  .level-stats {
+    background: #fff3e0;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 12px 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .level-stats .val-num { font-size: 20px; font-weight: 900; color: #b71c1c; }
+  .level-stats .val-lbl { font-size: 10px; color: #5d4037; font-weight: 700; }
+
+  /* FORMULARIO DE REGISTRO DE RÉCORD */
+  .input-record {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 2px solid #ffb300;
+    background: #fff;
+    font-size: 13px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    margin-bottom: 8px;
+    outline: none;
+    box-sizing: border-box;
+  }
+  .input-record:focus {
+    border-color: #b71c1c;
+    box-shadow: 0 0 6px rgba(183, 28, 28, 0.4);
+  }
+
+  @media (max-width: 760px) {
+    .main-horizontal-split { grid-template-columns: 260px 1fr; }
+    .ingredients-grid-scroll { grid-template-columns: repeat(4, 1fr); }
+    .pixel-sprite-large { width: 38px; height: 38px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- AVISO DE GIRO PARA CELULAR EN VERTICAL -->
+<div id="rotate-device-overlay">
+  <div class="rotate-icon">📱 ➔ 📲</div>
+  <h2 style="font-family: 'Fredoka One', cursive; font-size: 22px; color: var(--ramen-gold); margin-bottom: 8px;">
+    GIRA TU CELULAR A HORIZONTAL
+  </h2>
+  <p style="font-size: 13px; color: #d7ccc8; max-width: 320px;">
+    Ramen Mania está diseñado para jugarse en formato apaisado (Landscape) como una máquina arcade.
+  </p>
+</div>
+
+<div id="game-container">
+  <!-- HEADER HORIZONTAL -->
+  <header>
+    <div class="title-area">
+      <h1>🍜 RAMEN MANIA</h1>
+      <span class="level-badge" id="hud-level-badge">NIVEL 1</span>
+      <button class="btn" id="btn-mode-toggle" onclick="openModeSelectModal()" style="background:#ff9800; color:#fff; font-size:11px; padding:2px 8px; box-shadow:0 2px 0 #b26a00;">🎮 Modo</button>
+    </div>
+    <div class="stats-bar">
+      <div class="stat-badge">💰 <span class="val" id="hud-money">S/ 0</span></div>
+      <div class="stat-badge" id="stat-goal-badge">🎯 <span id="hud-goal-label">Meta:</span> <span class="val" id="hud-goal">S/ 160</span></div>
+      <div class="stat-badge" id="stat-timer-badge"><span id="hud-timer-icon">⏱️</span> <span class="val" id="hud-timer">90s</span></div>
+      <div class="stat-badge">🍜 Atendidos: <span class="val" id="hud-served">0</span></div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-ranking" onclick="openLeaderboardModal()">🏆 Récords</button>
+      <button class="btn" onclick="openRecipeModal()">📖 Recetas</button>
+      <button class="btn" onclick="toggleFullScreen()" id="btn-fullscreen" title="Pantalla Completa" style="font-size:13px; font-weight:900;">⛶ Pantalla</button>
+      <button class="btn btn-danger" onclick="togglePause()" id="btn-pause">⏸️</button>
+    </div>
+  </header>
+
+  <!-- BARRA DE CLIENTES COMPACTA -->
+  <section class="customers-section">
+    <div class="counter-slots" id="customers-container"></div>
+  </section>
+
+  <!-- SPLIT HORIZONTAL: TAZONES A LA IZQUIERDA Y ALACENA A LA DERECHA -->
+  <div class="main-horizontal-split">
+    <!-- SECCIÓN DE TAZONES -->
+    <div class="bowls-section">
+      <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; font-weight:800; color:#cca48e;">
+        <span>Tazones de Preparación</span>
+        <span style="color:var(--ramen-gold); font-size:10px;" id="hud-target-hint">Toca un tazón</span>
+      </div>
+
+      <div class="bowls-grid">
+        <!-- Tazón 1 -->
+        <div class="bowl-card active" id="bowl-card-0" onclick="selectBowl(0)">
+          <div class="bowl-header">
+            <span>Tazón 1</span>
+            <span id="bowl-dot-0" style="color:var(--ramen-gold); font-size:9px;">● ACTIVO</span>
+          </div>
+          <div class="bowl-center">
+            <div class="bowl-art" id="bowl-art-0">🍜</div>
+            <div class="bowl-badge" id="bowl-badge-0">Vacío (0)</div>
+          </div>
+          <div class="bowl-assist-text" id="bowl-assist-0">Añade ingredientes.</div>
+          <div class="bowl-ings-wrap" id="bowl-list-0"></div>
+          <div class="bowl-bottom-btn" id="bowl-actions-0">
+            <button class="btn-empty-bowl" onclick="event.stopPropagation(); clearBowl(0)">🗑️ Vaciar</button>
+          </div>
+        </div>
+
+        <!-- Tazón 2 -->
+        <div class="bowl-card" id="bowl-card-1" onclick="selectBowl(1)">
+          <div class="bowl-header">
+            <span>Tazón 2</span>
+            <span id="bowl-dot-1" style="display:none; color:var(--ramen-gold); font-size:9px;">● ACTIVO</span>
+          </div>
+          <div class="bowl-center">
+            <div class="bowl-art" id="bowl-art-1">🍜</div>
+            <div class="bowl-badge" id="bowl-badge-1">Vacío (0)</div>
+          </div>
+          <div class="bowl-assist-text" id="bowl-assist-1">Añade ingredientes.</div>
+          <div class="bowl-ings-wrap" id="bowl-list-1"></div>
+          <div class="bowl-bottom-btn" id="bowl-actions-1">
+            <button class="btn-empty-bowl" onclick="event.stopPropagation(); clearBowl(1)">🗑️ Vaciar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALACENA DE INGREDIENTES -->
+    <div class="pantry-section">
+      <div class="pantry-top-bar">
+        <div class="pantry-tabs" id="pantry-tabs-bar">
+          <button class="pantry-tab active" onclick="filterCategory('todos')">Todos</button>
+          <button class="pantry-tab" onclick="filterCategory('bases')">Bases</button>
+          <button class="pantry-tab" onclick="filterCategory('salsas')">Salsas</button>
+          <button class="pantry-tab" onclick="filterCategory('proteinas')">Proteínas</button>
+          <button class="pantry-tab" onclick="filterCategory('vegetales')">Vegetales</button>
+        </div>
+        <span style="font-size:10px; color:#cca48e;" id="hud-unlocked-count">Ingredientes activos</span>
+      </div>
+      <div class="ingredients-grid-scroll" id="ingredients-grid"></div>
+    </div>
+  </div>
+
+  <!-- MODAL DE DETALLE DE PEDIDO DE CLIENTE -->
+  <div class="order-detail-modal" id="customer-order-modal" onclick="closeCustomerOrderModal()">
+    <div class="order-detail-box" onclick="event.stopPropagation()" style="background:#fffaf0; color:#212121; border-radius:14px; border:3px solid #b71c1c; width:100%; max-width:440px; overflow:hidden;">
+      <div class="order-detail-header" style="background:#b71c1c; color:white; padding:8px 14px; display:flex; justify-content:space-between; align-items:center;">
+        <h3 id="modal-cust-name" style="font-family:'Fredoka One', cursive; font-size:16px;">Pedido del Cliente</h3>
+        <button class="btn btn-danger" style="padding: 2px 8px;" onclick="closeCustomerOrderModal()">✕</button>
+      </div>
+      <div class="order-detail-body" id="modal-cust-items" style="padding:12px; max-height:70vh; overflow-y:auto;"></div>
+    </div>
+  </div>
+
+  <!-- MODAL DE RECETAS -->
+  <div class="modal-overlay" id="recipe-modal" onclick="closeRecipeModal()">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h2 id="modal-recipe-title">📖 Recetario de Ramen</h2>
+        <button class="btn btn-danger" style="padding: 3px 8px;" onclick="closeRecipeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 11px; color:#5d4037; margin-bottom: 6px;">
+          Platos disponibles para servir en tu nivel actual.
+        </p>
+        <table class="recipes-table" id="recipes-table">
+          <thead>
+            <tr>
+              <th>Ramen</th>
+              <th>Ingredientes Exactos</th>
+              <th>Precio</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE RESULTADO DE NIVEL CON REGISTRO DE RÉCORD -->
+  <div class="modal-overlay" id="level-end-modal">
+    <div class="modal-card level-end-modal">
+      <h2 id="end-title">¡Nivel Completado!</h2>
+      <p id="end-desc" style="font-size: 13px; color: #5d4037;">Balance de la jornada</p>
+      <div class="level-stats">
+        <div>
+          <div class="val-num" id="end-money">S/ 0</div>
+          <div class="val-lbl">Recaudado</div>
+        </div>
+        <div>
+          <div class="val-num" id="end-served" style="color:#2e7d32;">0</div>
+          <div class="val-lbl">Ramen Servidos</div>
+        </div>
+        <div>
+          <div class="val-num" id="end-lost" style="color:#c62828;">0</div>
+          <div class="val-lbl">Clientes Perdidos</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:8px;">
+        <button class="btn btn-ranking" style="font-size: 13px; padding: 8px 16px;" onclick="openSaveScoreModal()">
+          🏆 Registrar mi Récord
+        </button>
+        <button class="btn" id="btn-next-level" style="font-size: 13px; padding: 8px 16px;" onclick="handleNextLevelButton()">
+          ▶️ Continuar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL PARA REGISTRAR RÉCORD EN SUPABASE -->
+  <div class="modal-overlay" id="save-score-modal" onclick="closeSaveScoreModal()">
+    <div class="modal-card" onclick="event.stopPropagation()" style="max-width: 440px; text-align: center; border-color: var(--ramen-gold);">
+      <div class="modal-header" style="background: linear-gradient(90deg, #ff9800, #b71c1c);">
+        <h2>🏆 Registrar Puntaje</h2>
+        <button class="btn btn-danger" style="padding: 2px 8px;" onclick="closeSaveScoreModal()">✕</button>
+      </div>
+      <div class="modal-body" style="padding: 14px; text-align: left;">
+        <div style="background: #fff3e0; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; font-size: 12px; color: #4e342e;">
+          <div>💰 <strong>Recaudado:</strong> <span id="record-summary-money" style="color:#b71c1c; font-weight:900;">S/ 0</span></div>
+          <div>🍜 <strong>Ramen Servidos:</strong> <span id="record-summary-served" style="font-weight:900;">0</span></div>
+          <div>🎮 <strong>Modo / Nivel:</strong> <span id="record-summary-mode" style="font-weight:900;">Normal</span></div>
+        </div>
+
+        <label style="font-size: 11px; font-weight: 800; color: #5d4037; display: block; margin-bottom: 3px;">
+          Tu Nombre o Apodo: *
+        </label>
+        <input type="text" id="record-player-name" class="input-record" placeholder="Ej: NarutoUzumaki" maxlength="25">
+
+        <label style="font-size: 11px; font-weight: 800; color: #5d4037; display: block; margin-bottom: 3px;">
+          WhatsApp o Correo (Para reclamar tu premio si quedas en el TOP):
+        </label>
+        <input type="text" id="record-player-contact" class="input-record" placeholder="Ej: +51 987654321 o correo@gmail.com" maxlength="60">
+
+        <div id="save-record-status" style="font-size: 11px; font-weight: 800; margin-bottom: 8px; min-height: 16px;"></div>
+
+        <button class="btn" id="btn-submit-record" onclick="submitScoreToSupabase()" style="width: 100%; justify-content: center; background: #2e7d32; color: #fff; font-size: 14px; padding: 8px;">
+          🚀 Enviar al Ranking Oficial
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE TABLA DE CLASIFICACIÓN / LEADERBOARD -->
+  <div class="modal-overlay" id="leaderboard-modal" onclick="closeLeaderboardModal()">
+    <div class="modal-card" onclick="event.stopPropagation()" style="max-width: 650px;">
+      <div class="modal-header" style="background: linear-gradient(90deg, #ff9800, #b71c1c);">
+        <h2>🏆 Ranking de Mejores Jugadores</h2>
+        <button class="btn btn-danger" style="padding: 3px 8px;" onclick="closeLeaderboardModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <div class="pantry-tabs">
+            <button class="pantry-tab active" id="tab-lb-normal" onclick="switchLeaderboardTab('NORMAL')">🏮 Modo Normal</button>
+            <button class="pantry-tab" id="tab-lb-rash" onclick="switchLeaderboardTab('RASH')">⚡ Modo Rash</button>
+          </div>
+          <button class="btn" onclick="loadLeaderboard()" style="font-size:10px; padding:3px 8px;">🔄 Actualizar</button>
+        </div>
+
+        <div id="leaderboard-status-text" style="font-size:10px; color:#795548; margin-bottom:6px; font-style:italic;">
+          Cargando récords...
+        </div>
+
+        <div style="max-height: 52vh; overflow-y: auto;">
+          <table class="leaderboard-table" id="leaderboard-table">
+            <thead>
+              <tr>
+                <th style="width:40px; text-align:center;">#</th>
+                <th>Jugador</th>
+                <th>Recaudado</th>
+                <th>Atendidos</th>
+                <th>Nivel</th>
+                <th>Fecha</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboard-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE SELECCIÓN DE MODO -->
+  <div class="modal-overlay" id="mode-select-modal" onclick="closeModeSelectModal()">
+    <div class="modal-card" onclick="event.stopPropagation()" style="max-width: 540px; text-align: center; border: 2px solid var(--ramen-gold);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <h2 style="font-family: 'Fredoka One', cursive; font-size: 19px; color: var(--ramen-gold);">🕹️ Elige tu Modo de Juego</h2>
+        <button class="btn btn-danger" onclick="closeModeSelectModal()" style="padding: 2px 8px; font-size: 14px;">✕</button>
+      </div>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; text-align: left;">
+        <div style="background: rgba(255,255,255,0.06); border: 2px solid #5d352b; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="font-family: 'Fredoka One', cursive; font-size: 15px; color: #ffb300; margin-bottom: 4px;">🏮 MODO NORMAL</div>
+            <p style="font-size: 11px; line-height: 1.35; color: #e0d0cc; margin-bottom: 6px;">
+              Campaña culinaria de <strong>5 Niveles</strong>. Cumple la meta de ventas en Soles antes de que termine el tiempo.
+            </p>
+          </div>
+          <button class="btn" onclick="selectGameMode('NORMAL', 0)" style="width: 100%; justify-content: center; background: #2e7d32; color: #fff; font-size: 12px; padding: 6px 8px;">
+            ▶️ Jugar Modo Normal
+          </button>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.06); border: 2px solid #e65100; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <span style="font-family: 'Fredoka One', cursive; font-size: 15px; color: #ff9800;">⚡ MODO RASH</span>
+              <span style="background: #e65100; color: #fff; font-size: 9px; font-weight: 900; padding: 1px 6px; border-radius: 6px;">100 RONDAS</span>
+            </div>
+            <p style="font-size: 11px; line-height: 1.35; color: #e0d0cc; margin-bottom: 6px;">
+              Supervivencia acelerada: inicia con <strong>8 clientes</strong> y <strong>5 vidas</strong>. Paciencia decreciente.
+            </p>
+            <div style="background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 6px; font-size: 10px; color: var(--ramen-gold); margin-bottom: 8px;" id="mode-select-rash-stats">
+              🏆 Tu Récord: Ronda 1 / 100
+            </div>
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <button class="btn" onclick="selectGameMode('RASH', null)" id="btn-resume-rash" style="flex: 1; justify-content: center; background: #e65100; color: #fff; font-size: 11px; padding: 6px 4px;">
+              ▶️ Jugar Rash
+            </button>
+            <button class="btn" onclick="selectGameMode('RASH', 1)" title="Reiniciar desde Ronda 1" style="background: #37474f; color: #fff; font-size: 11px; padding: 6px 8px;">
+              🔄 R1
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ==========================================================================
+   CONFIGURACIÓN DE SUPABASE (BASE DE DATOS EN LA NUBE)
+   ========================================================================== */
+const SUPABASE_CONFIG = {
+  url: "https://byfvmwupbimvocmxrgab.supabase.co",
+  anonKey: "sb_publishable_cY2QwNiaJzKEIbIwsYsFIw_9kSH7h2L"
+};
+
+let supabaseClient = null;
+function initSupabase() {
+  try {
+    if (window.supabase && SUPABASE_CONFIG.url && SUPABASE_CONFIG.url !== "https://TU_PROYECTO.supabase.co") {
+      supabaseClient = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+    }
+  } catch (err) {
+    console.warn("Supabase no configurado:", err);
+  }
+}
+
+/* ==========================================================================
+   ALMACENAMIENTO SEGURO Y COMPATIBILIDAD
+   ========================================================================== */
+const safeStorage = {
+  _mem: {},
+  getItem: function(key) {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        return window.localStorage.getItem(key);
+      }
+    } catch(e) {}
+    return this._mem[key] || null;
+  },
+  setItem: function(key, val) {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.setItem(key, String(val));
+        return;
+      }
+    } catch(e) {}
+    this._mem[key] = String(val);
+  }
+};
+
+const INGREDIENTES = [{"id": 1, "name": "fideo ramen", "cat": "bases", "icon": "🥢", "display": "Fideo Ramen"}, {"id": 2, "name": "caldo shio", "cat": "bases", "icon": "🥣", "display": "Caldo Shio"}, {"id": 3, "name": "caldo tonkotsu", "cat": "bases", "icon": "🫕", "display": "Caldo Tonkotsu"}, {"id": 4, "name": "agua", "cat": "bases", "icon": "💧", "display": "Agua"}, {"id": 5, "name": "salsa shoyu", "cat": "salsas", "icon": "🍶", "display": "Salsa Shoyu"}, {"id": 6, "name": "salsa miso", "cat": "salsas", "icon": "🍲", "display": "Salsa Miso"}, {"id": 7, "name": "salsa ebi ramen", "cat": "salsas", "icon": "🦐", "display": "Salsa Ebi"}, {"id": 8, "name": "salsa tan tan", "cat": "salsas", "icon": "🌶️", "display": "Salsa Tan Tan"}, {"id": 9, "name": "salsa vegetariana", "cat": "salsas", "icon": "🥬", "display": "Salsa Vegetariana"}, {"id": 10, "name": "salsa bajiru", "cat": "salsas", "icon": "🌿", "display": "Salsa Bajiru"}, {"id": 11, "name": "laminas de chasu asado", "cat": "proteinas", "icon": "🥩", "display": "Chasu Asado"}, {"id": 12, "name": "brisket laminado", "cat": "proteinas", "icon": "🥓", "display": "Brisket Laminado"}, {"id": 13, "name": "chancho molido", "cat": "proteinas", "icon": "🍖", "display": "Chancho Molido"}, {"id": 14, "name": "langostinos", "cat": "proteinas", "icon": "🍤", "display": "Langostinos"}, {"id": 15, "name": "huevo", "cat": "proteinas", "icon": "🥚", "display": "Huevo", "img": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABZklEQVR4nO2VP2rDMBTGX0PBYPAQ6OQbBLrnBsFD15ChJ8jS3qBbD+CpJ/BQunoQuUFPkLmLFwc8GAwqKergPlVS9M8ioUP1A4MkP/n79J5kAUQikT/makpwXZVM7BebLW+T1xcp9u7+0evbXkEoLAq6QEMuI9aXIcJTjRgN1FXJdMKU5Nr4pGicRnQmtAZ04pTkkN4+/A58PJ/MG/rMakRn4sSAlzh5kictkmAT18ZInbgqjOwpN5JmPQwkd5YEmYkdU93PSbHZSsfZmYE068d64ypt7CnPwpenoZk75LI4DQx9NjaEjWbkJ4bPOYeBS6M9hsvVGubzGz5GST7uBUTdD57HsOsO8L57k46hMQNdd+DtpGjktC4S+fEU12H8Ey5XawAAKRMAYb9iFFdXb6WuSta2DWvbhh2Pn8EPfkO9yhGv29CUDRviqgECbkObEZMZsc4u4UkGVCOIaAgFEe9aRyL/nm/mDO/GJ9aeEQAAAABJRU5ErkJggg=="}, {"id": 16, "name": "triángulos de tofu", "cat": "proteinas", "icon": "🧈", "display": "Tofu Triángulos"}, {"id": 17, "name": "poro laminado", "cat": "vegetales", "icon": "🌱", "display": "Poro Laminado", "img": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACJklEQVR4nO1Wq5biQBC9vWcPgog1QRAbg8KCALEahd1v4l8wM1/ACBCMYExMbEfQBtERMbWCU72VpsNANgNmriKdTt2qWy+Ab3SEl/2KnuoAUUVPdYQdsFaTfH4YMVFFknyzXX+tA/p4qEXqO3CrnR9dOCMJiSp62712YTYMjhI4q0BU0WfRd54OJvMdCOWenzstyiYHQuT8vslWqxqIokTJVABAvx9fEM8mCxQmg1I91YbHIRSBrwJHz+T6eCDulE4QktJaTdIBvtNEbK0mazXJaXm3NEQVsaTWajqVBsN4dDamekofD5QMxu69/Pb9YwcAmE+XjrdVblgJJhzGIxQmAwD8ErXAhD6pRO2QpeMIbnECAAqTIc/z2vv5dHlRqIwoSq4r4OdQRtXvxyhLU3suTFa7EyJqws/QoW/sJAhPpUGe55hNFjVHbiX04T542a/o9+iPMySHymyycL282a4pTVNngAuwMJn7zbugKe9BB9g4/55Pl0oWmyQfxiOUpcH7xw48bICzclGUKNkpreD3/Ga7doOFe55Hr+x9ngtyRH/GdVEDcp2yImmaIhmMXWTWavLTBPwb0bIWiCoqTNbYWc4BNva2e3W5Y8nlx02rNRmMVWgCKtVTrMZdafFnOcvJ8vOZ/EfE95v6/+aVHIpE5p4dudeBEILr2M/XNflC56F1/V+Q69ZXQN4BwupdQ3AS+uRy+7WZdp3BlzWkwEPxdAe6wF9w7H2w8hMurwAAAABJRU5ErkJggg=="}, {"id": 18, "name": "cebolla laminada", "cat": "vegetales", "icon": "🧅", "display": "Cebolla Laminada", "img": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACN0lEQVR4nO1Wq27jQBQ9Xu0frIHl0EUGAUEFyUYG+wNlI3MDF0QFUaSVghZZBlVBC8ojf4SBpcjAaMGCoMWWgfsNt6C50+nUM07SarUr5aDxnfF9zJx7ZoAzzvhfERcJuaFH7/Xz+dQf622Nrmwd3a4m1TevY3CB7tTk2A09uvxxifloJm1pnqGpGmsi1h1gpwCk4zTP4E990h1z8CgQ0rbZ5ZQiQ1e2xhjGBNSKokA4D7iXc+wYAHES9bbGXMwM3swY5IBakWobryevjqWpGqTIsNnl0s5HcHIC9bbutauc4DEf1eLqWq67vbtBiv4jY3wyBWCHakVu6FFcJHR7dyPX+lNfjpknXdk6Xdk6USCclVjaajR3wXg9oaZqZAB2lOYZAEh2q1zR59jXZpeTqSOMR/D75y9nXw3c0KNF9bK1uhMm4EosZRKH4mAhUtsxCoSeDKXI5C7td426snVs1R+VABPS1mpp/pIEnnOkoR05KAGuUiWcPs9HtdcHiSEltEoxE4yrZ1JylawR3CkmEtpgXBQXCfVKqxKEeaHqxTHBAYMOMHQV5G8OPh/NMB/N0FQNVmKJlVjCn/pvLq+4SI6/tsfrCakiBDzvwHg9obhI3szpa/jbDT3681iTLt0Mqw4squtXP0qZ/TZcgBt6xIr49cuFcZ21C5jdOuppTUM336E8OOlFpN98USActROGbkAVg1nGRUIP3+97X0B9unBsF1jxEY/Ovw439Iwd8m581FP8jH8KT6PMZ3p+6TqcAAAAAElFTkSuQmCC"}, {"id": 19, "name": "ajonjolí blanco", "cat": "vegetales", "icon": "✨", "display": "Ajonjolí Blanco"}, {"id": 20, "name": "alga nori", "cat": "vegetales", "icon": "⬛", "display": "Alga Nori", "img": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAB7ElEQVR4nO2WQWviUBSFvwmzuqRSQ9CgJYIUcaDrLvvjZzlrYWQYhA6NxCE0EsNdxlmk72FFY2Lj0IVnl+TlnfPOPfcmcMUVNRGE3vYS+345V0D857X2u1X42mTxaNJDtEDFAWhFUCMBogWRKtPxgDTJGYqg4iBavBPUREwjAQDThwGbxdqSG4wmPSuKBu7UEhCE3rbjCTfjW1ZxhgCRKl1xzelJk5yu7xIlOY9P96zizN6rElTLqiD0to9P98xnS7q+azfuBx02izXAbins9S6ef/096ISzf+MYNov1QfJI1a65Gd+i4qDikCY5aZLTDzpHyRsJgDKEb5a+I1dx6AcdaztA13cZivDj+++PZ8CQAPSDDvPZEnyXIUKkat0QQERQSsvhdEecFGACCKUDqzizzyJV2xXGja7vVlq+j1olMDXfvU6TnOnDgFWcoeKY9mtEXluAqa8pg2hhyU3NAbJXbTwRa2VgFWd2CgL038hFC1LKGfB8BnltAWb+DymH0Xy2tJMweylFnfstqHwpCL3taNIDsDXfLNa2z8+xfB8nM2Cm227g4Lx6H0LtEpj2Ey34+ZK09j/QeBK2SQ41HDDJ/2jYjuHoZkHobb/d+QCtn3oXlQ5Eqq2F7RgqM3Bp8kpc6jf885Nf8b/xD1sTN/WGc7mRAAAAAElFTkSuQmCC"}, {"id": 21, "name": "alga wanji", "cat": "vegetales", "icon": "🌿", "display": "Alga Wanji"}, {"id": 22, "name": "bambú laminado", "cat": "vegetales", "icon": "🎍", "display": "Bambú Laminado"}, {"id": 23, "name": "holantao", "cat": "vegetales", "icon": "🫛", "display": "Holantao"}, {"id": 24, "name": "col cocida", "cat": "vegetales", "icon": "🥬", "display": "Col Cocida"}, {"id": 25, "name": "moyashi", "cat": "vegetales", "icon": "🌾", "display": "Moyashi", "img": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABpElEQVR4nO1VoXLDMAyVd7uQgiCD4oWWjKy/UTo00E/YZ/QTBvYH/YiShQ4NJKSgAR4xSIEHPKSepki2d9vdbnd5KIks6Vl+fgGYMWPGf8bpsIovzzfxz5rtd9ui5r9CVGrmXFdUtJRoEs51MYQxhjBG/k3LwfWlRL+Ajw0L8aZacbo+1edKC7TtHdzev1524f1wiXk/AJ2GNAXvB7C2MdY2JkVADXLmvJBzXazrJXg/QF0vJ/lIINU8SQAh7a6qFoaTAADgz1IOx3WuMR29RAonUFULg4S0PMTpsIrH/gzrh35KiipXExAVI67lefjOJxjCGOm1nDDAptY2RmLKd09Bx05j0nfUR1ID+902bh6fJuLDZyoy+p2fv0QGNZEkgGeqCYgCr6q1jUEyVA9IFmMfbxs49udcWd3t6BlrbicZF+Jb9kyLS2LLOV7KslUn5KCOiCOl956u4c2sbcx7u4Yf/RH51eJj59Pga7WRZ8VFd8ddjovTuS5ysSG0nGIrlpxNum6a/zvXRVQ+9ZUsAWpMWkwjxXcr+UrxEZQg9wedMUPCJ5NNFRoAXqlxAAAAAElFTkSuQmCC"}, {"id": 26, "name": "frijol chino", "cat": "vegetales", "icon": "🫘", "display": "Frijol Chino"}, {"id": 27, "name": "champiñones", "cat": "vegetales", "icon": "🍄", "display": "Champiñones"}, {"id": 28, "name": "shitake", "cat": "vegetales", "icon": "🟫", "display": "Shitake"}, {"id": 29, "name": "espárragos blanqueado", "cat": "vegetales", "icon": "🎋", "display": "Espárragos Blanqueados"}, {"id": 30, "name": "zanahoria", "cat": "vegetales", "icon": "🥕", "display": "Zanahoria"}];
+const RECETAS_RAMEN = [{"id": 1, "name": "Shio", "price": 38, "desc": "Caldo Shio ligero, chasu, moyashi, nori y ajonjolí", "ingredients": [1, 2, 11, 15, 17, 18, 19, 20, 25]}, {"id": 2, "name": "Shoyu", "price": 40, "desc": "Caldo Shio con salsa shoyu, chasu, bambú, holantao y nori", "ingredients": [1, 2, 5, 11, 15, 17, 18, 19, 20, 22, 23]}, {"id": 3, "name": "Miso", "price": 42, "desc": "Caldo Shio con salsa miso intensa, chasu, bambú, holantao y nori", "ingredients": [1, 2, 6, 11, 15, 17, 18, 19, 20, 22, 23]}, {"id": 4, "name": "Tonkotsu", "price": 46, "desc": "Caldo Tonkotsu espeso, col cocida, moyashi, chasu y nori", "ingredients": [1, 3, 11, 15, 17, 18, 19, 20, 24, 25]}, {"id": 5, "name": "Chashu", "price": 48, "desc": "Foco en chasu asado con caldo tonkotsu, nori y huevo", "ingredients": [1, 3, 11, 15, 17, 18, 19, 20]}, {"id": 6, "name": "Ebi", "price": 50, "desc": "Langostinos, salsa ebi ramen, champiñones y espárragos", "ingredients": [1, 2, 7, 14, 15, 17, 18, 19, 20, 27, 29]}, {"id": 7, "name": "Tan tan", "price": 45, "desc": "Chancho molido picante, salsa tan tan, moyashi y nori", "ingredients": [1, 2, 8, 13, 15, 17, 18, 19, 20, 25]}, {"id": 8, "name": "Vegetariano", "price": 42, "desc": "Base de agua, shitake, champiñones, espárragos, tofu y salsa vegetariana", "ingredients": [1, 4, 9, 16, 17, 18, 19, 20, 22, 27, 28, 29]}, {"id": 9, "name": "Bajiru", "price": 48, "desc": "Salsa bajiru (albahaca), brisket laminado, alga wanji y zanahoria", "ingredients": [1, 2, 10, 12, 15, 17, 19, 20, 21, 30]}];
+
+const NIVELES = [
+  { level: 1, name: "Nivel 1: Aprendiz de Barra", ramen_names: ["Shio", "Shoyu"], max_orders: 1, max_customers: 2, goal: 160, time: 90 },
+  { level: 2, name: "Nivel 2: Cocinero de Turno", ramen_names: ["Shio", "Shoyu", "Miso", "Chashu"], max_orders: 2, max_customers: 3, goal: 320, time: 120 },
+  { level: 3, name: "Nivel 3: Chef de Partida", ramen_names: ["Shio", "Shoyu", "Miso", "Chashu", "Tonkotsu", "Tan tan"], max_orders: 2, max_customers: 3, goal: 500, time: 140 },
+  { level: 4, name: "Nivel 4: Sous Chef", ramen_names: ["Shio", "Shoyu", "Miso", "Chashu", "Tonkotsu", "Tan tan", "Ebi", "Bajiru"], max_orders: 3, max_customers: 4, goal: 700, time: 160 },
+  { level: 5, name: "Nivel 5: Maestro del Ramen", ramen_names: ["Shio", "Shoyu", "Miso", "Chashu", "Tonkotsu", "Tan tan", "Ebi", "Bajiru", "Vegetariano"], max_orders: 3, max_customers: 4, goal: 950, time: 180 }
+];
+
+const CUSTOMER_TEMPLATES = [
+  { name: "Kenji", avatar: "👨🏻" },
+  { name: "Sakura", avatar: "👩🏻" },
+  { name: "Hiroshi", avatar: "👴🏻" },
+  { name: "Akemi", avatar: "👧🏻" },
+  { name: "Takeshi", avatar: "🧑🏻" },
+  { name: "Yuki", avatar: "👱🏻‍♀️" },
+  { name: "Ren", avatar: "👦🏻" },
+  { name: "Aoi", avatar: "👩🏻‍🦰" }
+];
+
+let currentLevelIndex = 0;
+let gameState = {
+  gameMode: 'NORMAL',
+  rashLevel: 1,
+  rashCustomersSpawned: 0,
+  rashCustomersServed: 0,
+  rashLives: 5,
+  rashMaxLives: 5,
+  elapsedTime: 0,
+  money: 0,
+  customersServed: 0,
+  customersLost: 0,
+  timeLeft: 90,
+  isPaused: false,
+  isGameOver: false,
+  activeBowlIndex: 0,
+  currentCategory: 'todos',
+  selectedCustomerModalIndex: null,
+  targetCustomerIndex: null,
+  bowls: [
+    { ingredients: [], matchedRamen: null },
+    { ingredients: [], matchedRamen: null }
+  ],
+  customerSlots: [null, null, null, null],
+  customerSpawnTimer: 0
+};
+
+let currentLbTab = 'NORMAL';
+let gameLoopInterval = null;
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+
+function initAudio() {
+  try {
+    if (!audioCtx) {
+      const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtxClass) audioCtx = new AudioCtxClass();
+    }
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume().catch(() => {});
+    }
+  } catch(e) {}
+}
+
+function playSound(type) {
+  try {
+    initAudio();
+    if (!audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    const now = audioCtx.currentTime;
+
+    if (type === 'add') {
+      osc.frequency.setValueAtTime(440, now);
+      osc.frequency.exponentialRampToValueAtTime(880, now + 0.08);
+      gain.gain.setValueAtTime(0.1, now);
+      gain.gain.linearRampToValueAtTime(0, now + 0.08);
+      osc.start(now);
+      osc.stop(now + 0.08);
+    } else if (type === 'trash') {
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(200, now);
+      osc.frequency.linearRampToValueAtTime(90, now + 0.12);
+      gain.gain.setValueAtTime(0.12, now);
+      gain.gain.linearRampToValueAtTime(0, now + 0.12);
+      osc.start(now);
+      osc.stop(now + 0.12);
+    } else if (type === 'serve') {
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(523.25, now);
+      osc.frequency.setValueAtTime(659.25, now + 0.07);
+      osc.frequency.setValueAtTime(783.99, now + 0.14);
+      osc.frequency.setValueAtTime(1046.50, now + 0.21);
+      gain.gain.setValueAtTime(0.15, now);
+      gain.gain.linearRampToValueAtTime(0, now + 0.35);
+      osc.start(now);
+      osc.stop(now + 0.35);
+    } else if (type === 'lost') {
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(160, now);
+      osc.frequency.linearRampToValueAtTime(80, now + 0.25);
+      gain.gain.setValueAtTime(0.12, now);
+      gain.gain.linearRampToValueAtTime(0, now + 0.25);
+      osc.start(now);
+      osc.stop(now + 0.25);
+    } else if (type === 'match') {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(587.33, now);
+      osc.exponentialRampToValueAtTime(880, now + 0.12);
+      gain.gain.setValueAtTime(0.15, now);
+      gain.gain.linearRampToValueAtTime(0, now + 0.12);
+      osc.start(now);
+      osc.stop(now + 0.12);
+    }
+  } catch(e) {}
+}
+
+function getRashConfig(lvl) {
+  const customers = 8 + (lvl - 1) * 4;
+  const basePatience = Math.max(14, 60 - (lvl - 1) * 2);
+  let maxOrders = 1;
+  if (lvl > 30) maxOrders = 3;
+  else if (lvl > 10) maxOrders = 2;
+  
+  let maxCustomers = 2;
+  if (lvl > 15) maxCustomers = 4;
+  else if (lvl > 5) maxCustomers = 3;
+  
+  let ramenNames = [];
+  if (lvl <= 5) ramenNames = ["Shio", "Shoyu"];
+  else if (lvl <= 15) ramenNames = ["Shio", "Shoyu", "Miso", "Chashu"];
+  else if (lvl <= 30) ramenNames = ["Shio", "Shoyu", "Miso", "Chashu", "Tonkotsu", "Tan tan"];
+  else if (lvl <= 50) ramenNames = ["Shio", "Shoyu", "Miso", "Chashu", "Tonkotsu", "Tan tan", "Ebi", "Bajiru"];
+  else ramenNames = ["Shio", "Shoyu", "Miso", "Chashu", "Tonkotsu", "Tan tan", "Ebi", "Bajiru", "Vegetariano"];
+  
+  const spawnTime = Math.max(2, Math.round(6 - (lvl - 1) * 0.05));
+  return {
+    level: lvl,
+    name: `Modo Rash - Ronda ${lvl}`,
+    customers: customers,
+    base_patience: basePatience,
+    max_orders: maxOrders,
+    max_customers: maxCustomers,
+    ramen_names: ramenNames,
+    spawn_time: spawnTime
+  };
+}
+
+function getCurrentLevelConfig() {
+  if (gameState.gameMode === 'RASH') {
+    return getRashConfig(gameState.rashLevel || 1);
+  }
+  return NIVELES[currentLevelIndex];
+}
+
+function getUnlockedRecipes() {
+  const cfg = getCurrentLevelConfig();
+  return RECETAS_RAMEN.filter(r => cfg.ramen_names.includes(r.name));
+}
+
+function getUnlockedIngredients() {
+  const unlockedRecs = getUnlockedRecipes();
+  const ingIds = new Set();
+  unlockedRecs.forEach(r => r.ingredients.forEach(id => ingIds.add(id)));
+  return INGREDIENTES.filter(i => ingIds.has(i.id));
+}
+
+function initRecipeTable() {
+  const tbody = document.querySelector("#recipes-table tbody");
+  tbody.innerHTML = "";
+  const unlocked = getUnlockedRecipes();
+
+  unlocked.forEach(r => {
+    const tr = document.createElement("tr");
+    const ingsList = r.ingredients.map(ingId => {
+      const ing = INGREDIENTES.find(i => i.id === ingId);
+      const ic = ing.img ? `<img src="${ing.img}" class="pixel-sprite-large" style="width:16px; height:16px; vertical-align:middle; margin-right:2px;">` : ing.icon;
+      return `<span class="badge-ing">${ic} ${ing.display}</span>`;
+    }).join(" ");
+
+    tr.innerHTML = `
+      <td style="font-weight:900; color:#b71c1c;">${r.name} (${r.ingredients.length})</td>
+      <td>${ingsList}</td>
+      <td style="font-weight:900; color:#2e7d32;">S/ ${r.price}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function filterCategory(cat) {
+  gameState.currentCategory = cat;
+  document.querySelectorAll(".pantry-tab").forEach(tab => {
+    if (tab.getAttribute("onclick") && tab.getAttribute("onclick").includes(cat)) tab.classList.add("active");
+    else tab.classList.remove("active");
+  });
+  renderPantryGrid();
+}
+
+function renderPantryGrid() {
+  const container = document.getElementById("ingredients-grid");
+  container.innerHTML = "";
+  const currentBowl = gameState.bowls[gameState.activeBowlIndex];
+  const unlocked = getUnlockedIngredients();
+
+  document.getElementById("hud-unlocked-count").textContent = `${unlocked.length} ingredientes disponibles`;
+
+  const filtered = unlocked.filter(ing => {
+    if (gameState.currentCategory === 'todos') return true;
+    return ing.cat === gameState.currentCategory;
+  });
+
+  filtered.forEach(ing => {
+    const btn = document.createElement("div");
+    const isInBowl = currentBowl.ingredients.includes(ing.id);
+
+    btn.className = `ing-card-btn ${isInBowl ? "in-active-bowl" : ""}`;
+    btn.onclick = () => toggleIngredientInBowl(ing.id);
+
+    const artHtml = ing.img 
+      ? `<img src="${ing.img}" class="pixel-sprite-large" alt="${ing.display}">`
+      : `<div class="emoji-fallback-large">${ing.icon}</div>`;
+
+    btn.innerHTML = `
+      ${artHtml}
+      <div class="ing-card-name">${ing.display}</div>
+    `;
+    container.appendChild(btn);
+  });
+}
+
+function analyzeBowl(bowlIndex) {
+  const bowl = gameState.bowls[bowlIndex];
+  const bowlSet = new Set(bowl.ingredients);
+
+  for (const r of RECETAS_RAMEN) {
+    const rSet = new Set(r.ingredients);
+    if (rSet.size === bowlSet.size && [...rSet].every(x => bowlSet.has(x))) {
+      return { status: "READY", recipe: r };
+    }
+  }
+
+  if (bowl.ingredients.length === 0) return { status: "EMPTY" };
+
+  const unlocked = getUnlockedRecipes();
+  const candidateRecipes = unlocked.length > 0 ? unlocked : RECETAS_RAMEN;
+  let bestRecipe = null;
+  let bestOverlap = -1;
+  let bestMissing = [];
+  let bestExtra = [];
+
+  for (const r of candidateRecipes) {
+    const rSet = new Set(r.ingredients);
+    const missing = [...rSet].filter(x => !bowlSet.has(x));
+    const extra = [...bowlSet].filter(x => !rSet.has(x));
+    const overlap = [...bowlSet].filter(x => rSet.has(x)).length;
+
+    if (overlap > bestOverlap) {
+      bestOverlap = overlap;
+      bestRecipe = r;
+      bestMissing = missing;
+      bestExtra = extra;
+    }
+  }
+
+  return {
+    status: "PROGRESS",
+    recipe: bestRecipe,
+    overlap: bestOverlap,
+    missing: bestMissing.map(id => INGREDIENTES.find(i => i.id === id).display),
+    extra: bestExtra.map(id => INGREDIENTES.find(i => i.id === id).display)
+  };
+}
+
+function renderBowls() {
+  for (let i = 0; i < 2; i++) {
+    const bowl = gameState.bowls[i];
+    const cardEl = document.getElementById(`bowl-card-${i}`);
+    const badgeEl = document.getElementById(`bowl-badge-${i}`);
+    const artEl = document.getElementById(`bowl-art-${i}`);
+    const dotEl = document.getElementById(`bowl-dot-${i}`);
+    const listEl = document.getElementById(`bowl-list-${i}`);
+    const assistEl = document.getElementById(`bowl-assist-${i}`);
+    const actionsEl = document.getElementById(`bowl-actions-${i}`);
+
+    if (gameState.activeBowlIndex === i) {
+      cardEl.classList.add("active");
+      dotEl.style.display = "inline";
+    } else {
+      cardEl.classList.remove("active");
+      dotEl.style.display = "none";
+    }
+
+    listEl.innerHTML = "";
+    bowl.ingredients.forEach(ingId => {
+      const ing = INGREDIENTES.find(x => x.id === ingId);
+      const tag = document.createElement("span");
+      tag.className = "bowl-ing-tag";
+      tag.title = "Toca para retirar";
+      tag.innerHTML = `${ing.display} ✕`;
+      tag.onclick = (e) => {
+        e.stopPropagation();
+        removeIngredientFromBowl(i, ingId);
+      };
+      listEl.appendChild(tag);
+    });
+
+    const analysis = analyzeBowl(i);
+    actionsEl.innerHTML = `<button class="btn-empty-bowl" onclick="event.stopPropagation(); clearBowl(${i})">🗑️ Vaciar</button>`;
+
+    if (analysis.status === "EMPTY") {
+      bowl.matchedRamen = null;
+      badgeEl.className = "bowl-badge";
+      badgeEl.textContent = "Vacío (0)";
+      artEl.textContent = "🍜";
+      assistEl.textContent = "Añade ingredientes de la alacena.";
+    } else if (analysis.status === "READY") {
+      bowl.matchedRamen = analysis.recipe;
+      badgeEl.className = "bowl-badge matched";
+      badgeEl.textContent = `¡Listo: ${analysis.recipe.name}!`;
+      artEl.textContent = "✨🍜✨";
+
+      let targetCustIdx = -1;
+      let targetItemIdx = -1;
+
+      for (let cIdx = 0; cIdx < gameState.customerSlots.length; cIdx++) {
+        const c = gameState.customerSlots[cIdx];
+        if (c) {
+          const pIdx = c.orders.findIndex(o => !o.served && (o.recipe.id === analysis.recipe.id || o.recipe.name === analysis.recipe.name));
+          if (pIdx !== -1) {
+            targetCustIdx = cIdx;
+            targetItemIdx = pIdx;
+            break;
+          }
+        }
+      }
+
+      if (targetCustIdx !== -1) {
+        const c = gameState.customerSlots[targetCustIdx];
+        assistEl.innerHTML = `✅ <strong>${analysis.recipe.name}:</strong> ${c.name} lo espera en Asiento ${targetCustIdx + 1}.`;
+        const deliverBtn = document.createElement("button");
+        deliverBtn.className = "btn-direct-serve";
+        deliverBtn.textContent = `⚡ Servir a ${c.name}`;
+        deliverBtn.onclick = (e) => {
+          e.stopPropagation();
+          serveRamenToCustomer(targetCustIdx, targetItemIdx, i);
+        };
+        actionsEl.prepend(deliverBtn);
+      } else {
+        assistEl.innerHTML = `⚠️ <strong>${analysis.recipe.name} listo:</strong> Ningún comensal lo espera ahora.`;
+      }
+    } else {
+      bowl.matchedRamen = null;
+      badgeEl.className = "bowl-badge";
+      badgeEl.textContent = `Armando (${bowl.ingredients.length})`;
+      artEl.textContent = "🥢";
+
+      let msg = `Hacia <strong>${analysis.recipe.name}</strong> (${analysis.overlap}/${analysis.recipe.ingredients.length}):<br>`;
+      if (analysis.missing.length > 0) {
+        msg += `<span style="color:#ffca28;">Falta: ${analysis.missing.slice(0, 2).join(', ')}</span>`;
+        if (analysis.missing.length > 2) msg += ` +${analysis.missing.length - 2}`;
+        msg += "<br>";
+      }
+      if (analysis.extra.length > 0) {
+        msg += `<span style="color:#ff8a80;">Sobra: ${analysis.extra.slice(0, 2).join(', ')}</span>`;
+      }
+      assistEl.innerHTML = msg;
+    }
+  }
+
+  renderPantryGrid();
+}
+
+function renderCustomers() {
+  const container = document.getElementById("customers-container");
+  container.innerHTML = "";
+
+  gameState.customerSlots.forEach((c, index) => {
+    if (!c) {
+      const emptyCard = document.createElement("div");
+      emptyCard.className = "customer-card empty";
+      emptyCard.textContent = `Asiento ${index + 1} Libre`;
+      container.appendChild(emptyCard);
+      return;
+    }
+
+    const card = document.createElement("div");
+    card.className = "customer-card";
+    
+    card.onclick = () => {
+      for (let bIdx = 0; bIdx < gameState.bowls.length; bIdx++) {
+        const bowl = gameState.bowls[bIdx];
+        if (bowl.matchedRamen) {
+          const matchIdx = c.orders.findIndex(o => !o.served && (o.recipe.id === bowl.matchedRamen.id || o.recipe.name === bowl.matchedRamen.name));
+          if (matchIdx !== -1) {
+            serveRamenToCustomer(index, matchIdx, bIdx);
+            return;
+          }
+        }
+      }
+      openCustomerOrderModal(index);
+    };
+
+    const pct = Math.max(0, (c.patience / c.maxPatience) * 100);
+    let pColor = "var(--patience-green)";
+    if (pct < 30) pColor = "var(--patience-red)";
+    else if (pct < 60) pColor = "var(--patience-yellow)";
+
+    const totalOrders = c.orders.length;
+    const pendingOrders = c.orders.filter(o => !o.served).length;
+
+    card.innerHTML = `
+      <div class="customer-row-top">
+        <div class="cust-profile">
+          <div class="cust-avatar">${c.avatar}</div>
+          <div class="cust-name">${c.name}</div>
+        </div>
+        <div style="font-size:10px; font-weight:900; color:#2e7d32;">
+          ${pendingOrders === 0 ? "¡Listo!" : `${pendingOrders}/${totalOrders} ramen`}
+        </div>
+      </div>
+
+      <div class="patience-mini">
+        <div class="patience-bar-mini" style="width:${pct}%; background-color:${pColor};"></div>
+      </div>
+
+      <div class="customer-row-bottom">
+        <div style="display:flex; gap:3px; overflow:hidden; max-width:85%;">
+          ${c.orders.map(o => {
+            const hasReady = gameState.bowls.some(b => b.matchedRamen && (b.matchedRamen.id === o.recipe.id || b.matchedRamen.name === o.recipe.name));
+            if (o.served) return `<span class="order-pill-summary" style="background:#2e7d32; color:#fff; font-size:9px; padding:2px 4px;">✓ ${o.recipe.name}</span>`;
+            if (hasReady) return `<span class="order-pill-summary" style="background:#ff9800; color:#fff; font-weight:900; font-size:9px; padding:2px 5px; animation:pulse 0.8s infinite alternate;">⚡ ${o.recipe.name}</span>`;
+            return `<span class="order-pill-summary" style="font-size:9px; padding:2px 4px;">${o.recipe.name}</span>`;
+          }).join('')}
+        </div>
+        <button class="btn-cust-view" onclick="event.stopPropagation(); openCustomerOrderModal(${index})" title="Ver detalle de pedidos">
+          👁️ ${pendingOrders}/${totalOrders}
+        </button>
+      </div>
+    `;
+
+    container.appendChild(card);
+  });
+}
+
+function openCustomerOrderModal(customerIndex) {
+  gameState.selectedCustomerModalIndex = customerIndex;
+  const c = gameState.customerSlots[customerIndex];
+  if (!c) return;
+
+  document.getElementById("modal-cust-name").textContent = `Pedido de ${c.name} (Asiento ${customerIndex + 1})`;
+  const itemsContainer = document.getElementById("modal-cust-items");
+  itemsContainer.innerHTML = "";
+
+  c.orders.forEach((orderItem, itemIdx) => {
+    const row = document.createElement("div");
+    row.style.background = "#fff3e0";
+    row.style.border = "1px solid #ffe0b2";
+    row.style.borderRadius = "8px";
+    row.style.padding = "8px 10px";
+    row.style.marginBottom = "8px";
+    row.style.display = "flex";
+    row.style.justifyContent = "space-between";
+    row.style.alignItems = "center";
+
+    const bowlIdx = gameState.bowls.findIndex(b => b.matchedRamen && (b.matchedRamen.id === orderItem.recipe.id || b.matchedRamen.name === orderItem.recipe.name));
+    const canServe = (!orderItem.served && bowlIdx !== -1);
+
+    let actionBtnHtml = "";
+    if (orderItem.served) {
+      actionBtnHtml = `<span style="font-size:10px; font-weight:900; padding:2px 6px; border-radius:4px; background:#c8e6c9; color:#2e7d32;">✓ Servido</span>`;
+    } else {
+      actionBtnHtml = `
+        <button class="btn" style="background:#2e7d32; color:white; font-size:11px;" ${canServe ? "" : "disabled"} onclick="serveRamenToCustomer(${customerIndex}, ${itemIdx}, ${bowlIdx})">
+          ${canServe ? `⚡ Servir (Tazón ${bowlIdx + 1})` : "Preparar"}
+        </button>
+      `;
+    }
+
+    const ingsList = orderItem.recipe.ingredients.map(ingId => {
+      const ing = INGREDIENTES.find(i => i.id === ingId);
+      const ic = ing.img ? `<img src="${ing.img}" class="pixel-sprite-large" style="width:14px; height:14px; vertical-align:middle; margin-right:2px;">` : ing.icon;
+      return `<span class="badge-ing" style="font-size:9px; padding:1px 5px; margin:1px;">${ic} ${ing.display}</span>`;
+    }).join("");
+
+    row.innerHTML = `
+      <div style="flex: 1; margin-right: 8px;">
+        <div style="font-size:13px; font-weight:800; color:#3e2723;">${itemIdx + 1}. ${orderItem.recipe.name} (S/ ${orderItem.recipe.price})</div>
+        <div style="font-size:10px; color:#5d4037; margin-bottom: 4px;">${orderItem.recipe.desc}</div>
+        <div style="display:flex; flex-wrap:wrap; gap:3px;">${ingsList}</div>
+      </div>
+      <div>${actionBtnHtml}</div>
+    `;
+    itemsContainer.appendChild(row);
+  });
+
+  document.getElementById("customer-order-modal").classList.add("active");
+}
+
+function closeCustomerOrderModal() {
+  document.getElementById("customer-order-modal").classList.remove("active");
+  gameState.selectedCustomerModalIndex = null;
+}
+
+function serveRamenToCustomer(customerIndex, itemIndex, bowlIndex) {
+  const c = gameState.customerSlots[customerIndex];
+  if (!c || bowlIndex < 0 || bowlIndex > 1) return;
+
+  const orderItem = c.orders[itemIndex];
+  if (!orderItem || orderItem.served) return;
+
+  orderItem.served = true;
+  gameState.bowls[bowlIndex] = { ingredients: [], matchedRamen: null };
+  gameState.money += orderItem.recipe.price;
+  gameState.customersServed++;
+  playSound('serve');
+
+  c.patience = Math.min(c.maxPatience, c.patience + 15);
+
+  const allServed = c.orders.every(o => o.served);
+  if (allServed) {
+    const ratio = c.patience / c.maxPatience;
+    if (ratio > 0.5) gameState.money += 8;
+    else if (ratio > 0.25) gameState.money += 4;
+    gameState.customerSlots[customerIndex] = null;
+    closeCustomerOrderModal();
+  } else {
+    if (gameState.selectedCustomerModalIndex === customerIndex) {
+      openCustomerOrderModal(customerIndex);
+    }
+  }
+
+  updateHUD();
+  renderBowls();
+  renderCustomers();
+
+  if (gameState.gameMode === 'NORMAL') {
+    const cfg = getCurrentLevelConfig();
+    if (gameState.money >= cfg.goal) {
+      winLevel();
+    }
+  } else if (gameState.gameMode === 'RASH') {
+    gameState.rashCustomersServed++;
+    const cfg = getCurrentLevelConfig();
+    const activeCount = gameState.customerSlots.filter(s => s !== null).length;
+    if (gameState.rashCustomersSpawned >= cfg.customers && activeCount === 0) {
+      if (gameState.rashLives > 0) {
+        winLevel();
+      }
+    }
+  }
+}
+
+function selectBowl(index) {
+  gameState.activeBowlIndex = index;
+  renderBowls();
+}
+
+function toggleIngredientInBowl(ingId) {
+  if (gameState.isPaused || gameState.isGameOver) return;
+  const bowl = gameState.bowls[gameState.activeBowlIndex];
+
+  if (bowl.ingredients.includes(ingId)) {
+    removeIngredientFromBowl(gameState.activeBowlIndex, ingId);
+    return;
+  }
+
+  bowl.ingredients.push(ingId);
+  playSound('add');
+
+  const analysis = analyzeBowl(gameState.activeBowlIndex);
+  if (analysis.status === "READY") {
+    playSound('match');
+  }
+
+  renderBowls();
+  renderCustomers();
+}
+
+function removeIngredientFromBowl(bowlIndex, ingId) {
+  const bowl = gameState.bowls[bowlIndex];
+  bowl.ingredients = bowl.ingredients.filter(id => id !== ingId);
+  playSound('trash');
+  renderBowls();
+  renderCustomers();
+}
+
+function clearBowl(index) {
+  playSound('trash');
+  gameState.bowls[index] = { ingredients: [], matchedRamen: null };
+  renderBowls();
+  renderCustomers();
+}
+
+function spawnCustomer() {
+  const cfg = getCurrentLevelConfig();
+  const activeCount = gameState.customerSlots.filter(s => s !== null).length;
+  if (activeCount >= cfg.max_customers) return;
+
+  if (gameState.gameMode === 'RASH') {
+    if (gameState.rashCustomersSpawned >= cfg.customers) return;
+    gameState.rashCustomersSpawned++;
+  }
+
+  const emptyIndex = gameState.customerSlots.findIndex(s => s === null);
+  if (emptyIndex === -1) return;
+
+  const template = CUSTOMER_TEMPLATES[Math.floor(Math.random() * CUSTOMER_TEMPLATES.length)];
+  const unlocked = getUnlockedRecipes();
+
+  const numOrders = Math.floor(Math.random() * cfg.max_orders) + 1;
+  const orders = [];
+  for (let i = 0; i < numOrders; i++) {
+    const r = unlocked[Math.floor(Math.random() * unlocked.length)];
+    orders.push({ recipe: r, served: false });
+  }
+
+  let totalPatience = 0;
+  if (gameState.gameMode === 'RASH') {
+    const baseP = cfg.base_patience;
+    totalPatience = baseP + (orders.length - 1) * 8;
+  } else {
+    const totalIngredients = orders.reduce((acc, o) => acc + o.recipe.ingredients.length, 0);
+    totalPatience = 25 + totalIngredients * 2.5;
+  }
+
+  gameState.customerSlots[emptyIndex] = {
+    name: template.name,
+    avatar: template.avatar,
+    orders: orders,
+    patience: totalPatience,
+    maxPatience: totalPatience
+  };
+
+  renderCustomers();
+  if (gameState.gameMode === 'RASH') {
+    updateHUD();
+  }
+}
+
+function gameTick() {
+  if (gameState.isPaused || gameState.isGameOver) return;
+
+  if (gameState.gameMode === 'NORMAL') {
+    gameState.timeLeft--;
+    if (gameState.timeLeft <= 0) {
+      loseLevel();
+      return;
+    }
+  } else {
+    gameState.elapsedTime++;
+  }
+
+  for (let i = 0; i < gameState.customerSlots.length; i++) {
+    const c = gameState.customerSlots[i];
+    if (c) {
+      c.patience -= 1;
+      if (c.patience <= 0) {
+        playSound('lost');
+        gameState.customersLost++;
+        gameState.customerSlots[i] = null;
+        if (gameState.selectedCustomerModalIndex === i) closeCustomerOrderModal();
+
+        if (gameState.gameMode === 'RASH') {
+          gameState.rashLives--;
+          if (gameState.rashLives <= 0) {
+            loseLevel();
+            return;
+          }
+          const cfg = getCurrentLevelConfig();
+          const activeCount = gameState.customerSlots.filter(s => s !== null).length;
+          if (gameState.rashCustomersSpawned >= cfg.customers && activeCount === 0) {
+            if (gameState.rashLives > 0) {
+              winLevel();
+              return;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  const cfg = getCurrentLevelConfig();
+  gameState.customerSpawnTimer++;
+  const targetSpawnTime = (gameState.gameMode === 'RASH') ? (cfg.spawn_time || 3) : 4;
+
+  if (gameState.customerSpawnTimer >= targetSpawnTime) {
+    spawnCustomer();
+    gameState.customerSpawnTimer = 0;
+  }
+
+  updateHUD();
+  renderCustomers();
+}
+
+function updateHUD() {
+  const cfg = getCurrentLevelConfig();
+  const badgeEl = document.getElementById("hud-level-badge");
+  const modeBtn = document.getElementById("btn-mode-toggle");
+  const goalLabel = document.getElementById("hud-goal-label");
+  const timerIcon = document.getElementById("hud-timer-icon");
+
+  document.getElementById("hud-money").textContent = `S/ ${gameState.money}`;
+  document.getElementById("hud-served").textContent = gameState.customersServed;
+
+  if (gameState.gameMode === 'NORMAL') {
+    badgeEl.textContent = `NIVEL ${cfg.level}/5`;
+    badgeEl.style.background = "var(--ramen-gold)";
+    badgeEl.style.color = "#212121";
+    if (modeBtn) {
+      modeBtn.textContent = "🏮 Normal";
+      modeBtn.style.background = "#ff9800";
+    }
+    if (goalLabel) goalLabel.textContent = "Meta:";
+    document.getElementById("hud-goal").textContent = `S/ ${cfg.goal}`;
+    if (timerIcon) timerIcon.textContent = "⏱️";
+    document.getElementById("hud-timer").textContent = `${gameState.timeLeft}s`;
+  } else {
+    badgeEl.textContent = `⚡ RASH: R${cfg.level}/100`;
+    badgeEl.style.background = "#e65100";
+    badgeEl.style.color = "#fff";
+    if (modeBtn) {
+      modeBtn.textContent = "⚡ Rash";
+      modeBtn.style.background = "#e65100";
+    }
+    if (goalLabel) goalLabel.textContent = "Ronda:";
+    document.getElementById("hud-goal").textContent = `${gameState.rashCustomersServed} / ${cfg.customers}`;
+    if (timerIcon) timerIcon.textContent = "❤️";
+    document.getElementById("hud-timer").textContent = `${gameState.rashLives} / ${gameState.rashMaxLives || 5}`;
+  }
+}
+
+function winLevel() {
+  gameState.isGameOver = true;
+  clearInterval(gameLoopInterval);
+
+  const modal = document.getElementById("level-end-modal");
+  const title = document.getElementById("end-title");
+  const desc = document.getElementById("end-desc");
+  const btn = document.getElementById("btn-next-level");
+
+  document.getElementById("end-money").textContent = `S/ ${gameState.money}`;
+  document.getElementById("end-served").textContent = gameState.customersServed;
+  document.getElementById("end-lost").textContent = gameState.customersLost;
+
+  if (gameState.gameMode === 'NORMAL') {
+    if (currentLevelIndex < NIVELES.length - 1) {
+      title.textContent = `🎉 ¡${NIVELES[currentLevelIndex].name} Superado!`;
+      desc.textContent = "Has alcanzado la meta de recaudación con éxito. Nuevos ramen e ingredientes serán desbloqueados.";
+      title.style.color = "#2e7d32";
+      btn.textContent = `▶️ Siguiente Nivel (${currentLevelIndex + 2})`;
+    } else {
+      title.textContent = "🏆 ¡ERES EL MAESTRO SUPREMO DEL RAMEN!";
+      desc.textContent = "¡Has dominado los 5 niveles con los 9 tipos de ramen y todos los 30 ingredientes!";
+      title.style.color = "var(--ramen-gold)";
+      btn.textContent = "🔄 Volver a Jugar Campaña";
+    }
+  } else {
+    const curLvl = gameState.rashLevel;
+    saveRashProgress(curLvl + 1);
+
+    if (curLvl < 100) {
+      title.textContent = `⚡ ¡Ronda ${curLvl} Superada!`;
+      desc.textContent = `¡Completaste los ${getCurrentLevelConfig().customers} clientes manteniendo ${gameState.rashLives} vida(s)! Siguiente ronda: +4 clientes y menor paciencia.`;
+      title.style.color = "#ff9800";
+      btn.textContent = `▶️ Iniciar Ronda ${curLvl + 1}`;
+    } else {
+      title.textContent = "🏆 ¡LEYENDA SUPREMA DEL MODO RASH: NIVEL 100!";
+      desc.textContent = "¡Increíble hazaña! Has sobrevivido a las 100 rondas del Modo Rash con la máxima velocidad culinaria.";
+      title.style.color = "var(--ramen-gold)";
+      btn.textContent = "🔄 Reiniciar Modo Rash";
+    }
+  }
+  modal.classList.add("active");
+}
+
+function loseLevel() {
+  gameState.isGameOver = true;
+  clearInterval(gameLoopInterval);
+
+  const modal = document.getElementById("level-end-modal");
+  const title = document.getElementById("end-title");
+  const desc = document.getElementById("end-desc");
+  const btn = document.getElementById("btn-next-level");
+
+  document.getElementById("end-money").textContent = `S/ ${gameState.money}`;
+  document.getElementById("end-served").textContent = gameState.customersServed;
+  document.getElementById("end-lost").textContent = gameState.customersLost;
+
+  if (gameState.gameMode === 'NORMAL') {
+    title.textContent = "⏱️ Tiempo Agotado";
+    desc.textContent = `No lograste la meta de S/ ${getCurrentLevelConfig().goal}. ¡Puedes registrar tu puntaje o volver a intentar!`;
+    title.style.color = "#c62828";
+    btn.textContent = "🔄 Reintentar Nivel";
+  } else {
+    title.textContent = "💔 Ronda Fallida";
+    desc.textContent = `Se agotaron tus vidas en la Ronda ${gameState.rashLevel}. ¡Guarda tu récord para el ranking!`;
+    title.style.color = "#c62828";
+    btn.textContent = `🔄 Reintentar Ronda ${gameState.rashLevel}`;
+  }
+  modal.classList.add("active");
+}
+
+function handleNextLevelButton() {
+  document.getElementById("level-end-modal").classList.remove("active");
+
+  if (gameState.gameMode === 'NORMAL') {
+    const cfg = getCurrentLevelConfig();
+    if (gameState.money >= cfg.goal) {
+      if (currentLevelIndex < NIVELES.length - 1) {
+        currentLevelIndex++;
+      } else {
+        currentLevelIndex = 0;
+      }
+    }
+    startLevel(currentLevelIndex);
+  } else {
+    if (gameState.rashLives > 0) {
+      if (gameState.rashLevel < 100) {
+        gameState.rashLevel++;
+      } else {
+        gameState.rashLevel = 1;
+      }
+      saveRashProgress(gameState.rashLevel);
+    }
+    startLevel(gameState.rashLevel - 1);
+  }
+}
+
+function startLevel(lvlIndex) {
+  if (gameState.gameMode === 'NORMAL') {
+    currentLevelIndex = lvlIndex !== undefined ? lvlIndex : 0;
+    const cfg = NIVELES[currentLevelIndex];
+    gameState.timeLeft = cfg.time;
+  } else {
+    if (lvlIndex !== undefined && lvlIndex !== null) {
+      gameState.rashLevel = lvlIndex + 1;
+    } else {
+      gameState.rashLevel = parseInt(safeStorage.getItem('ramen_mania_rash_level') || '1');
+    }
+    if (gameState.rashLevel > 100) gameState.rashLevel = 100;
+    gameState.rashCustomersSpawned = 0;
+    gameState.rashCustomersServed = 0;
+    const maxLivesForLevel = 5 + (gameState.rashLevel - 1);
+    gameState.rashMaxLives = maxLivesForLevel;
+    gameState.rashLives = maxLivesForLevel;
+    gameState.elapsedTime = 0;
+    saveRashProgress(gameState.rashLevel);
+  }
+
+  const cfg = getCurrentLevelConfig();
+
+  gameState.money = 0;
+  gameState.customersServed = 0;
+  gameState.customersLost = 0;
+  gameState.isPaused = false;
+  gameState.isGameOver = false;
+  gameState.activeBowlIndex = 0;
+  gameState.selectedCustomerModalIndex = null;
+  gameState.targetCustomerIndex = null;
+  gameState.customerSpawnTimer = 0;
+  gameState.bowls = [
+    { ingredients: [], matchedRamen: null },
+    { ingredients: [], matchedRamen: null }
+  ];
+  gameState.customerSlots = [null, null, null, null];
+
+  document.getElementById("btn-pause").textContent = "⏸️";
+
+  initRecipeTable();
+  updateHUD();
+  renderBowls();
+  renderCustomers();
+
+  spawnCustomer();
+  if (cfg.max_customers >= 2) spawnCustomer();
+
+  clearInterval(gameLoopInterval);
+  gameLoopInterval = setInterval(gameTick, 1000);
+}
+
+/* ==========================================================================
+   SISTEMA DE RÉCORDS Y LEADERBOARD (SUPABASE + LOCALSTORAGE)
+   ========================================================================== */
+function openSaveScoreModal() {
+  document.getElementById("record-summary-money").textContent = `S/ ${gameState.money}`;
+  document.getElementById("record-summary-served").textContent = `${gameState.customersServed} ramen`;
+  
+  const modeText = gameState.gameMode === 'NORMAL' 
+    ? `Modo Normal (Nivel ${currentLevelIndex + 1})` 
+    : `Modo Rash (Ronda ${gameState.rashLevel})`;
+  document.getElementById("record-summary-mode").textContent = modeText;
+
+  const savedName = safeStorage.getItem('ramen_player_name') || "";
+  const savedContact = safeStorage.getItem('ramen_player_contact') || "";
+  document.getElementById("record-player-name").value = savedName;
+  document.getElementById("record-player-contact").value = savedContact;
+
+  const statusEl = document.getElementById("save-record-status");
+  statusEl.textContent = "";
+  statusEl.style.color = "#5d4037";
+
+  document.getElementById("save-score-modal").classList.add("active");
+}
+
+function closeSaveScoreModal() {
+  document.getElementById("save-score-modal").classList.remove("active");
+}
+
+async function submitScoreToSupabase() {
+  const nameInput = document.getElementById("record-player-name");
+  const contactInput = document.getElementById("record-player-contact");
+  const statusEl = document.getElementById("save-record-status");
+  const btn = document.getElementById("btn-submit-record");
+
+  const playerName = nameInput.value.trim();
+  const contact = contactInput.value.trim();
+
+  if (playerName.length < 2) {
+    statusEl.textContent = "⚠️ Ingresa un nombre o apodo de al menos 2 caracteres.";
+    statusEl.style.color = "#c62828";
+    return;
+  }
+
+  safeStorage.setItem('ramen_player_name', playerName);
+  safeStorage.setItem('ramen_player_contact', contact);
+
+  btn.disabled = true;
+  btn.textContent = "⏳ Guardando récord...";
+  statusEl.textContent = "Enviando puntuación...";
+  statusEl.style.color = "#ff9800";
+
+  const levelReached = gameState.gameMode === 'NORMAL' ? (currentLevelIndex + 1) : gameState.rashLevel;
+  const newRecord = {
+    player_name: playerName,
+    contact: contact || null,
+    score_money: gameState.money,
+    customers_served: gameState.customersServed,
+    level_reached: levelReached,
+    game_mode: gameState.gameMode,
+    created_at: new Date().toISOString()
+  };
+
+  // Guardar siempre una copia local
+  saveLocalScore(newRecord);
+
+  let success = false;
+  if (supabaseClient) {
+    try {
+      const { data, error } = await supabaseClient
+        .from('leaderboard')
+        .insert([newRecord]);
+
+      if (error) {
+        console.error("Error insertando en Supabase:", error);
+        statusEl.textContent = "Guardado localmente (Supabase reportó: " + error.message + ")";
+        statusEl.style.color = "#f57c00";
+      } else {
+        success = true;
+        statusEl.textContent = "🎉 ¡Récord registrado con éxito en el Ranking Oficial!";
+        statusEl.style.color = "#2e7d32";
+      }
+    } catch(err) {
+      console.warn("Excepción guardando en Supabase:", err);
+      statusEl.textContent = "Guardado en caché local. (Revisa tus llaves de Supabase)";
+      statusEl.style.color = "#f57c00";
+    }
+  } else {
+    statusEl.textContent = "🎉 ¡Récord guardado localmente! Conecta Supabase para sincronizar con todos los jugadores.";
+    statusEl.style.color = "#2e7d32";
+  }
+
+  setTimeout(() => {
+    btn.disabled = false;
+    btn.textContent = "🚀 Enviar al Ranking Oficial";
+    closeSaveScoreModal();
+    openLeaderboardModal();
+  }, 1200);
+}
+
+function saveLocalScore(record) {
+  try {
+    const raw = safeStorage.getItem('ramen_local_scores') || "[]";
+    const scores = JSON.parse(raw);
+    scores.push(record);
+    safeStorage.setItem('ramen_local_scores', JSON.stringify(scores));
+  } catch(e) {}
+}
+
+function openLeaderboardModal() {
+  if (!gameState.isGameOver && !gameState.isPaused) {
+    togglePause();
+  }
+  document.getElementById("leaderboard-modal").classList.add("active");
+  loadLeaderboard();
+}
+
+function closeLeaderboardModal() {
+  document.getElementById("leaderboard-modal").classList.remove("active");
+  if (gameState.isPaused && !gameState.isGameOver) {
+    togglePause();
+  }
+}
+
+function switchLeaderboardTab(mode) {
+  currentLbTab = mode;
+  document.getElementById("tab-lb-normal").className = `pantry-tab ${mode === 'NORMAL' ? 'active' : ''}`;
+  document.getElementById("tab-lb-rash").className = `pantry-tab ${mode === 'RASH' ? 'active' : ''}`;
+  loadLeaderboard();
+}
+
+async function loadLeaderboard() {
+  const tbody = document.getElementById("leaderboard-body");
+  const statusEl = document.getElementById("leaderboard-status-text");
+  tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:15px; color:#5d4037;">Cargando los mejores récords...</td></tr>`;
+
+  let records = [];
+  let isFromSupabase = false;
+
+  if (supabaseClient) {
+    try {
+      const query = supabaseClient
+        .from('leaderboard')
+        .select('*')
+        .eq('game_mode', currentLbTab);
+
+      if (currentLbTab === 'NORMAL') {
+        query.order('score_money', { ascending: false }).order('customers_served', { ascending: false });
+      } else {
+        query.order('level_reached', { ascending: false }).order('score_money', { ascending: false });
+      }
+
+      const { data, error } = await query.limit(10);
+      if (!error && data && data.length > 0) {
+        records = data;
+        isFromSupabase = true;
+      }
+    } catch(e) {
+      console.warn("Fallo cargando de Supabase:", e);
+    }
+  }
+
+  // Fallback a puntuaciones locales si no hay en Supabase
+  if (records.length === 0) {
+    try {
+      const raw = safeStorage.getItem('ramen_local_scores') || "[]";
+      const local = JSON.parse(raw).filter(r => r.game_mode === currentLbTab);
+      local.sort((a, b) => {
+        if (currentLbTab === 'NORMAL') return b.score_money - a.score_money;
+        return (b.level_reached - a.level_reached) || (b.score_money - a.score_money);
+      });
+      records = local.slice(0, 10);
+    } catch(e) {}
+  }
+
+  statusEl.textContent = isFromSupabase 
+    ? "🟢 Conectado a la Base de Datos en tiempo real (Supabase)" 
+    : "🟡 Mostrando puntuaciones locales (Conecta tus llaves de Supabase para ver el ranking global).";
+
+  tbody.innerHTML = "";
+  if (records.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:15px; color:#8d6e63;">Aún no hay récords registrados en este modo. ¡Sé el primero en jugar!</td></tr>`;
+    return;
+  }
+
+  const medals = ["🥇", "🥈", "🥉"];
+  records.forEach((rec, idx) => {
+    const tr = document.createElement("tr");
+    const rankDisplay = idx < 3 ? medals[idx] : `#${idx + 1}`;
+    const dateFormatted = rec.created_at ? new Date(rec.created_at).toLocaleDateString() : "-";
+    const levelLabel = rec.game_mode === 'NORMAL' ? `Nivel ${rec.level_reached}` : `Ronda ${rec.level_reached}`;
+
+    tr.innerHTML = `
+      <td style="text-align:center; font-weight:900; font-size:13px;">${rankDisplay}</td>
+      <td style="font-weight:800; color:#3e2723;">${escapeHtml(rec.player_name)}</td>
+      <td style="font-weight:900; color:#b71c1c;">S/ ${rec.score_money}</td>
+      <td style="font-weight:700;">${rec.customers_served}</td>
+      <td style="font-size:10px; font-weight:800; color:#e65100;">${levelLabel}</td>
+      <td style="font-size:9px; color:#757575;">${dateFormatted}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function escapeHtml(str) {
+  if (!str) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function openModeSelectModal() {
+  if (!gameState.isGameOver && !gameState.isPaused) {
+    togglePause();
+  }
+  const best = parseInt(safeStorage.getItem('ramen_mania_rash_best') || '1');
+  const current = parseInt(safeStorage.getItem('ramen_mania_rash_level') || '1');
+  const statsEl = document.getElementById("mode-select-rash-stats");
+  if (statsEl) {
+    statsEl.innerHTML = `🏆 Tu Récord: <strong>Ronda ${best} / 100</strong> (Guardado: Ronda ${current})`;
+  }
+  const resumeBtn = document.getElementById("btn-resume-rash");
+  if (resumeBtn) {
+    resumeBtn.textContent = `▶️ Jugar Ronda ${current}`;
+  }
+  document.getElementById("mode-select-modal").classList.add("active");
+}
+
+function closeModeSelectModal() {
+  document.getElementById("mode-select-modal").classList.remove("active");
+  if (gameState.isPaused && !gameState.isGameOver) {
+    togglePause();
+  }
+}
+
+function selectGameMode(mode, targetLevel) {
+  document.getElementById("mode-select-modal").classList.remove("active");
+  gameState.gameMode = mode;
+  if (mode === 'NORMAL') {
+    startLevel(targetLevel !== null && targetLevel !== undefined ? targetLevel : 0);
+  } else {
+    let lvl = targetLevel;
+    if (lvl === null || lvl === undefined) {
+      lvl = parseInt(safeStorage.getItem('ramen_mania_rash_level') || '1');
+    }
+    gameState.rashLevel = lvl;
+    saveRashProgress(lvl);
+    startLevel(lvl - 1);
+  }
+}
+
+function saveRashProgress(lvl) {
+  try {
+    const l = lvl || gameState.rashLevel || 1;
+    safeStorage.setItem('ramen_mania_rash_level', l);
+    const best = Math.max(l, parseInt(safeStorage.getItem('ramen_mania_rash_best') || '1'));
+    safeStorage.setItem('ramen_mania_rash_best', best);
+  } catch(e) {}
+}
+
+function toggleFullScreen() {
+  const doc = window.document;
+  const elem = document.getElementById('game-container') || doc.documentElement;
+
+  if (isIOS) {
+    alert('📱 En iPhone/iPad Safari:\n\nApple no permite la API de pantalla completa en páginas web comunes.\n\nPara jugar en Pantalla Completa Limpia:\n1. Toca el botón Compartir de Safari (icono cuadrado con flecha hacia arriba ⎋).\n2. Elige "Agregar a pantalla de inicio".\n3. Ábrelo desde tu pantalla de inicio como una App nativa sin barras.');
+    return;
+  }
+
+  const requestFullScreen = elem.requestFullscreen || elem.webkitRequestFullscreen || elem.mozRequestFullScreen || elem.msRequestFullscreen;
+  const cancelFullScreen = doc.exitFullscreen || doc.webkitExitFullscreen || doc.mozCancelFullScreen || doc.msExitFullscreen;
+
+  if (!doc.fullscreenElement && !doc.webkitFullscreenElement) {
+    if (requestFullScreen) {
+      try {
+        const res = requestFullScreen.call(elem);
+        if (res && typeof res.then === 'function') {
+          res.then(() => updateFullscreenBtn()).catch(err => {
+            alert('Aviso: Tu navegador restringió la pantalla completa directa.\n\nPuedes agregar el juego a la Pantalla de Inicio.');
+          });
+        } else {
+          updateFullscreenBtn();
+        }
+      } catch(e) {
+        alert('Aviso: Para pantalla completa limpia, agrega el archivo a tu Pantalla de Inicio.');
+      }
+    }
+  } else {
+    if (cancelFullScreen) {
+      try {
+        const res = cancelFullScreen.call(doc);
+        if (res && typeof res.then === 'function') {
+          res.then(() => updateFullscreenBtn()).catch(() => {});
+        } else {
+          updateFullscreenBtn();
+        }
+      } catch(e) {}
+    }
+  }
+}
+
+document.addEventListener('fullscreenchange', updateFullscreenBtn);
+document.addEventListener('webkitfullscreenchange', updateFullscreenBtn);
+
+function updateFullscreenBtn() {
+  const btn = document.getElementById('btn-fullscreen');
+  if (!btn) return;
+  const isFull = !!(document.fullscreenElement || document.webkitFullscreenElement);
+  btn.innerHTML = isFull ? '🗗 Salir' : '⛶ Pantalla';
+}
+
+const isIOS = (typeof navigator !== 'undefined') && (/iPad|iPhone|iPod/.test(navigator.userAgent || '') || ((navigator.platform === 'MacIntel' || (navigator.userAgent && navigator.userAgent.includes('Macintosh'))) && navigator.maxTouchPoints > 1));
+
+let hasRequestedFullscreenOnFirstTouch = false;
+window.addEventListener('touchstart', function onFirstTouch() {
+  initAudio();
+  if (!hasRequestedFullscreenOnFirstTouch) {
+    hasRequestedFullscreenOnFirstTouch = true;
+    if (!isIOS && !document.fullscreenElement && !document.webkitFullscreenElement) {
+      try {
+        const docEl = document.documentElement;
+        const rfs = docEl.requestFullscreen || docEl.webkitRequestFullScreen;
+        if (rfs) {
+          const res = rfs.call(docEl);
+          if (res && typeof res.catch === 'function') res.catch(() => {});
+        }
+      } catch(e) {}
+    }
+  }
+}, { passive: true });
+
+['touchstart', 'touchend', 'click'].forEach(evt => {
+  window.addEventListener(evt, () => {
+    initAudio();
+  }, { passive: true });
+});
+
+function togglePause() {
+  if (gameState.isGameOver) return;
+  gameState.isPaused = !gameState.isPaused;
+  document.getElementById("btn-pause").textContent = gameState.isPaused ? "▶️" : "⏸️";
+}
+
+function openRecipeModal() {
+  initRecipeTable();
+  const titleEl = document.getElementById("modal-recipe-title");
+  if (titleEl) {
+    titleEl.textContent = `📖 Recetario (${getCurrentLevelConfig().name})`;
+  }
+  const modal = document.getElementById("recipe-modal");
+  if (modal) {
+    modal.classList.add("active");
+  }
+}
+
+function closeRecipeModal() {
+  document.getElementById("recipe-modal").classList.remove("active");
+}
+
+let userDismissedRotateOverlay = false;
+
+function checkOrientation() {
+  if (userDismissedRotateOverlay) return;
+  const overlay = document.getElementById('rotate-device-overlay');
+  if (!overlay) return;
+
+  const isPortrait = window.innerHeight > window.innerWidth;
+  const isSmallScreen = Math.min(window.innerWidth, window.innerHeight) < 750;
+
+  if (isPortrait && isSmallScreen) {
+    overlay.style.display = 'flex';
+  } else {
+    overlay.style.display = 'none';
+  }
+}
+
+window.addEventListener('resize', () => {
+  setTimeout(checkOrientation, 150);
+});
+window.addEventListener('orientationchange', () => {
+  setTimeout(checkOrientation, 250);
+});
+
+window.addEventListener("DOMContentLoaded", () => {
+  initSupabase();
+  checkOrientation();
+  startLevel(0);
+});
+</script>
+</body>
+</html>
