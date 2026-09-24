@@ -1328,6 +1328,11 @@
     margin-top: 4px;
   }
 
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.18); opacity: 0.8; }
+  }
+
   @media (max-width: 800px) {
     .admin-kpi-grid { grid-template-columns: repeat(3, 1fr); }
   }
@@ -2593,14 +2598,18 @@ let gameLoopInterval = null;
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null;
 
+let audioUnlocked = false;
 function initAudio() {
+  if (audioUnlocked && audioCtx && audioCtx.state === 'running') return;
   try {
     if (!audioCtx) {
       const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
       if (AudioCtxClass) audioCtx = new AudioCtxClass();
     }
     if (audioCtx && audioCtx.state === 'suspended') {
-      audioCtx.resume().catch(() => {});
+      audioCtx.resume().then(() => { audioUnlocked = true; }).catch(() => {});
+    } else if (audioCtx && audioCtx.state === 'running') {
+      audioUnlocked = true;
     }
   } catch(e) {}
 }
@@ -2608,14 +2617,14 @@ function initAudio() {
 function playSound(type) {
   try {
     initAudio();
-    if (!audioCtx) return;
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
+    if (!audioCtx || audioCtx.state !== 'running') return;
     const now = audioCtx.currentTime;
 
     if (type === 'add') {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
       osc.frequency.setValueAtTime(440, now);
       osc.frequency.exponentialRampToValueAtTime(880, now + 0.08);
       gain.gain.setValueAtTime(0.1, now);
@@ -2623,6 +2632,10 @@ function playSound(type) {
       osc.start(now);
       osc.stop(now + 0.08);
     } else if (type === 'trash') {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
       osc.type = 'sawtooth';
       osc.frequency.setValueAtTime(200, now);
       osc.frequency.linearRampToValueAtTime(90, now + 0.12);
@@ -2631,6 +2644,10 @@ function playSound(type) {
       osc.start(now);
       osc.stop(now + 0.12);
     } else if (type === 'serve') {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
       osc.type = 'triangle';
       osc.frequency.setValueAtTime(523.25, now);
       osc.frequency.setValueAtTime(659.25, now + 0.07);
@@ -2641,6 +2658,10 @@ function playSound(type) {
       osc.start(now);
       osc.stop(now + 0.35);
     } else if (type === 'lost') {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
       osc.type = 'square';
       osc.frequency.setValueAtTime(160, now);
       osc.frequency.linearRampToValueAtTime(80, now + 0.25);
@@ -2649,6 +2670,10 @@ function playSound(type) {
       osc.start(now);
       osc.stop(now + 0.25);
     } else if (type === 'match') {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
       osc.type = 'sine';
       osc.frequency.setValueAtTime(587.33, now);
       osc.exponentialRampToValueAtTime(880, now + 0.12);
@@ -2656,6 +2681,18 @@ function playSound(type) {
       gain.gain.linearRampToValueAtTime(0, now + 0.12);
       osc.start(now);
       osc.stop(now + 0.12);
+    } else if (type === 'click' || type === 'tap') {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(520, now);
+      osc.frequency.exponentialRampToValueAtTime(260, now + 0.04);
+      gain.gain.setValueAtTime(0.06, now);
+      gain.gain.linearRampToValueAtTime(0, now + 0.04);
+      osc.start(now);
+      osc.stop(now + 0.04);
     }
   } catch(e) {}
 }
@@ -4076,29 +4113,15 @@ function updateFullscreenBtn() {
 
 const isIOS = (typeof navigator !== 'undefined') && (/iPad|iPhone|iPod/.test(navigator.userAgent || '') || ((navigator.platform === 'MacIntel' || (navigator.userAgent && navigator.userAgent.includes('Macintosh'))) && navigator.maxTouchPoints > 1));
 
-let hasRequestedFullscreenOnFirstTouch = false;
-window.addEventListener('touchstart', function onFirstTouch() {
+function unlockAudioOnce() {
   initAudio();
-  if (!hasRequestedFullscreenOnFirstTouch) {
-    hasRequestedFullscreenOnFirstTouch = true;
-    if (!isIOS && !document.fullscreenElement && !document.webkitFullscreenElement) {
-      try {
-        const docEl = document.documentElement;
-        const rfs = docEl.requestFullscreen || docEl.webkitRequestFullScreen;
-        if (rfs) {
-          const res = rfs.call(docEl);
-          if (res && typeof res.catch === 'function') res.catch(() => {});
-        }
-      } catch(e) {}
-    }
-  }
-}, { passive: true });
-
-['touchstart', 'touchend', 'click'].forEach(evt => {
-  window.addEventListener(evt, () => {
-    initAudio();
-  }, { passive: true });
-});
+  window.removeEventListener('touchstart', unlockAudioOnce);
+  window.removeEventListener('touchend', unlockAudioOnce);
+  window.removeEventListener('click', unlockAudioOnce);
+}
+window.addEventListener('touchstart', unlockAudioOnce, { passive: true });
+window.addEventListener('touchend', unlockAudioOnce, { passive: true });
+window.addEventListener('click', unlockAudioOnce, { passive: true });
 
 function togglePause() {
   if (gameState.isGameOver) return;
@@ -4195,14 +4218,13 @@ function openAdminLoginModal() {
     statusEl.textContent = "";
     statusEl.style.color = "#5d4037";
   }
-  document.getElementById("admin-login-modal").classList.add("active");
-  setTimeout(() => {
-    if (userInp) userInp.focus();
-  }, 100);
+  const modal = document.getElementById("admin-login-modal");
+  if (modal) modal.classList.add("active");
 }
 
 function closeAdminLoginModal() {
-  document.getElementById("admin-login-modal").classList.remove("active");
+  const modal = document.getElementById("admin-login-modal");
+  if (modal) modal.classList.remove("active");
 }
 
 function handleAdminLogin() {
@@ -4215,18 +4237,15 @@ function handleAdminLogin() {
 
   if (user === ADMIN_AUTH.user && pass === ADMIN_AUTH.pass) {
     isAdminLoggedIn = true;
-    statusEl.textContent = "✅ Acceso concedido como Master Admin...";
-    statusEl.style.color = "#2e7d32";
-    setTimeout(() => {
-      closeAdminLoginModal();
-      openAdminDashboardModal();
-    }, 400);
+    closeAdminLoginModal();
+    openAdminDashboardModal();
   } else {
-    statusEl.textContent = "❌ Credenciales incorrectas. Acceso restringido.";
-    statusEl.style.color = "#c62828";
+    if (statusEl) {
+      statusEl.textContent = "❌ Credenciales incorrectas. Acceso restringido.";
+      statusEl.style.color = "#c62828";
+    }
     if (passInp) {
       passInp.value = "";
-      passInp.focus();
     }
   }
 }
@@ -4239,13 +4258,20 @@ function openAdminDashboardModal() {
   if (!gameState.isGameOver && !gameState.isPaused) {
     togglePause();
   }
-  document.getElementById("admin-dashboard-modal").classList.add("active");
+  const modal = document.getElementById("admin-dashboard-modal");
+  if (modal) modal.classList.add("active");
+  
+  // Renderizado instantáneo con datos locales (0ms)
+  processAndRenderAdminData([], [], []);
   switchAdminTab(currentAdminTab || 'users');
+
+  // Sincronizar en segundo plano con Supabase
   refreshAdminDashboard();
 }
 
 function closeAdminDashboardModal() {
-  document.getElementById("admin-dashboard-modal").classList.remove("active");
+  const modal = document.getElementById("admin-dashboard-modal");
+  if (modal) modal.classList.remove("active");
   if (gameState.isPaused && !gameState.isGameOver) {
     togglePause();
   }
@@ -4283,16 +4309,14 @@ function formatSeconds(sec) {
   return `${h}h ${remM}m`;
 }
 
-async function refreshAdminDashboard() {
-  let sessions = [];
-  let dbPlayers = [];
-  let dbLeaderboard = [];
-
-  // 1. Cargar datos locales como base
-  try {
-    const rawSessions = safeStorage.getItem('ramen_analytics_sessions') || "[]";
-    sessions = JSON.parse(rawSessions);
-  } catch(e) {}
+function processAndRenderAdminData(dbSessions = [], dbPlayers = [], dbLeaderboard = []) {
+  let sessions = (dbSessions && dbSessions.length > 0) ? dbSessions : [];
+  if (sessions.length === 0) {
+    try {
+      const rawSessions = safeStorage.getItem('ramen_analytics_sessions') || "[]";
+      sessions = JSON.parse(rawSessions);
+    } catch(e) {}
+  }
 
   let userAnalytics = {};
   try {
@@ -4306,33 +4330,7 @@ async function refreshAdminDashboard() {
     failStats = JSON.parse(rawFails);
   } catch(e) {}
 
-  // 2. Cargar desde Supabase si hay conexión activa
-  if (supabaseClient) {
-    try {
-      const [resSessions, resPlayers, resLb] = await Promise.all([
-        supabaseClient.from('game_sessions').select('*').order('created_at', { ascending: false }).limit(300),
-        supabaseClient.from('players').select('*').order('last_login', { ascending: false }),
-        supabaseClient.from('leaderboard').select('*').order('score_money', { ascending: false })
-      ]);
-
-      if (resSessions.data && resSessions.data.length > 0) {
-        sessions = resSessions.data;
-      }
-      if (resPlayers.data) {
-        dbPlayers = resPlayers.data;
-      }
-      if (resLb.data) {
-        dbLeaderboard = resLb.data;
-      }
-    } catch(err) {
-      console.warn("Error cargando analíticas de Supabase:", err);
-    }
-  }
-
-  // Sincronizar usuarios combinando Supabase players y sesiones
   const usersMap = {};
-
-  // Primero poblar desde tabla players si existen
   dbPlayers.forEach(p => {
     usersMap[p.player_name] = {
       playerName: p.player_name,
@@ -4349,7 +4347,6 @@ async function refreshAdminDashboard() {
     };
   });
 
-  // Integrar datos locales de usuarios
   Object.values(userAnalytics).forEach(u => {
     if (!usersMap[u.playerName]) {
       usersMap[u.playerName] = { ...u, avatar: '🍜' };
@@ -4363,7 +4360,6 @@ async function refreshAdminDashboard() {
     }
   });
 
-  // Recomputar métricas a partir del log de sesiones
   const levelStatsMap = {};
   const aggregatedFails = { ...failStats };
 
@@ -4392,7 +4388,6 @@ async function refreshAdminDashboard() {
     if (s.game_mode === 'RASH' && s.level_number > u.maxRashLevel) u.maxRashLevel = s.level_number;
     if (new Date(s.created_at) > new Date(u.lastActive || 0)) u.lastActive = s.created_at;
 
-    // Métricas por nivel
     const lvlKey = `${s.game_mode}_${s.level_number}`;
     if (!levelStatsMap[lvlKey]) {
       levelStatsMap[lvlKey] = {
@@ -4412,7 +4407,6 @@ async function refreshAdminDashboard() {
     else if (s.outcome === 'LOST') ls.losses += 1;
     else ls.abandoned += 1;
 
-    // Acumular ramen fallados
     if (Array.isArray(s.failed_recipes)) {
       s.failed_recipes.forEach(rName => {
         aggregatedFails[rName] = (aggregatedFails[rName] || 0) + 1;
@@ -4420,7 +4414,6 @@ async function refreshAdminDashboard() {
     }
   });
 
-  // Guardar en cache global para renderizado
   cachedAdminData = {
     sessions: sessions,
     users: usersMap,
@@ -4429,12 +4422,10 @@ async function refreshAdminDashboard() {
     leaderboard: dbLeaderboard
   };
 
-  // Calcular KPIs globales
   const totalPlayersCount = Object.keys(usersMap).length;
   const totalAttemptsCount = sessions.length;
   const totalPlaySeconds = Object.values(usersMap).reduce((acc, u) => acc + (u.totalPlayTimeSeconds || 0), 0) || sessions.reduce((acc, s) => acc + (s.duration_seconds || 0), 0);
 
-  // Determinar el ramen más fallado
   let worstRamenName = "Ninguno";
   let maxFailCount = 0;
   Object.entries(aggregatedFails).forEach(([rName, count]) => {
@@ -4444,21 +4435,20 @@ async function refreshAdminDashboard() {
     }
   });
 
-  // Puntuación récord máxima
   let maxScore = 0;
-  dbLeaderboard.forEach(r => {
-    if (r.score_money > maxScore) maxScore = r.score_money;
-  });
+  if (dbLeaderboard && dbLeaderboard.length > 0) {
+    dbLeaderboard.forEach(r => {
+      if (r.score_money > maxScore) maxScore = r.score_money;
+    });
+  }
   if (maxScore === 0) {
     try {
-      const rawLocal = safeStorage.getItem('ramen_local_scores') || "[]";
-      JSON.parse(rawLocal).forEach(r => {
-        if (r.score_money > maxScore) maxScore = r.score_money;
-      });
+      const rawScores = safeStorage.getItem('ramen_local_scores') || "[]";
+      const scores = JSON.parse(rawScores);
+      maxScore = scores.reduce((m, s) => Math.max(m, s.score_money || 0), 0);
     } catch(e) {}
   }
 
-  // Actualizar tarjetas de KPI en pantalla
   const kpiPlayersEl = document.getElementById("kpi-total-players");
   const kpiAttemptsEl = document.getElementById("kpi-total-attempts");
   const kpiTimeEl = document.getElementById("kpi-total-time");
@@ -4471,8 +4461,34 @@ async function refreshAdminDashboard() {
   if (kpiWorstRamenEl) kpiWorstRamenEl.textContent = worstRamenName;
   if (kpiMaxScoreEl) kpiMaxScoreEl.textContent = `S/ ${maxScore}`;
 
-  // Renderizar la pestaña actual
-  switchAdminTab(currentAdminTab);
+  if (currentAdminTab === 'users') renderAdminUsersTable();
+  else if (currentAdminTab === 'levels') renderAdminLevelsView();
+  else if (currentAdminTab === 'ramen') renderAdminRamenView();
+  else if (currentAdminTab === 'sessions') renderAdminSessionsView();
+}
+
+async function refreshAdminDashboard() {
+  if (!supabaseClient) {
+    processAndRenderAdminData([], [], []);
+    return;
+  }
+
+  try {
+    const [resSessions, resPlayers, resLb] = await Promise.all([
+      supabaseClient.from('game_sessions').select('*').order('created_at', { ascending: false }).limit(300),
+      supabaseClient.from('players').select('*').order('last_login', { ascending: false }),
+      supabaseClient.from('leaderboard').select('*').order('score_money', { ascending: false })
+    ]);
+
+    processAndRenderAdminData(
+      resSessions.data || [],
+      resPlayers.data || [],
+      resLb.data || []
+    );
+  } catch(err) {
+    console.warn("Error cargando analíticas de Supabase:", err);
+    processAndRenderAdminData([], [], []);
+  }
 }
 
 function renderAdminUsersTable() {
