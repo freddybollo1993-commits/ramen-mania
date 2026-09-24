@@ -812,12 +812,13 @@
      PANTALLA DE INICIO (START / TITLE SCREEN)
      ========================================================================== */
   .start-screen-overlay {
-    position: absolute;
+    position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
     background: radial-gradient(circle at 50% 35%, #3d1b15 0%, #20100d 55%, #110705 100%);
-    z-index: 7000;
+    z-index: 8500;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -829,6 +830,7 @@
   }
 
   .start-screen-overlay.hidden {
+    display: none !important;
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
@@ -2403,7 +2405,7 @@ let gameState = {
   customersLost: 0,
   timeLeft: 90,
   isPaused: false,
-  isGameOver: false,
+  isGameOver: true,
   activeBowlIndex: 0,
   currentCategory: 'todos',
   selectedCustomerModalIndex: null,
@@ -4476,6 +4478,15 @@ function renderAdminSessionsView() {
 }
 
 window.addEventListener("DOMContentLoaded", async () => {
+  if ('serviceWorker' in navigator) {
+    try {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      for (const reg of regs) { await reg.unregister(); }
+    } catch(e) {}
+  }
+  const startScr = document.getElementById("start-screen");
+  if (startScr) startScr.classList.remove("hidden");
+
   initSupabase();
   checkOrientation();
   updateStartPlayerCard();
