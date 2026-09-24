@@ -5492,11 +5492,39 @@ function loadSecret3DModel(item) {
    CONSTRUCTORES ESPECÍFICOS DE MODELOS 3D
    ========================================================================== */
 
+/* ==========================================================================
+   HELPER VOXEL RENDERER: CONVIERTE COORDENADAS MATEMÁTICAS EN ARTE VOXEL 3D
+   ========================================================================== */
+function renderVoxelBuckets(group, buckets, mats, voxelSize, offsetY = 0) {
+  const boxGeo = new THREE.BoxGeometry(voxelSize, voxelSize, voxelSize);
+  const dummy = new THREE.Object3D();
+  
+  for (const [key, positions] of Object.entries(buckets)) {
+    if (!positions || positions.length === 0) continue;
+    const mat = mats[key] || new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5 });
+    const instMesh = new THREE.InstancedMesh(boxGeo, mat, positions.length);
+    
+    for (let i = 0; i < positions.length; i++) {
+      const p = positions[i];
+      dummy.position.set(p.x, p.y + offsetY, p.z);
+      dummy.updateMatrix();
+      instMesh.setMatrixAt(i, dummy.matrix);
+    }
+    
+    instMesh.instanceMatrix.needsUpdate = true;
+    instMesh.castShadow = true;
+    instMesh.receiveShadow = true;
+    group.add(instMesh);
+  }
+}
+
+/* ==========================================================================
+   CONSTRUCTORES VOXEL 100% PUROS PARA TODOS LOS MODELOS (MISMA ESTRUCTURA DEL HUEVO)
+   ========================================================================== */
+
 // 1. HUEVO AJITSUKE VOXEL
 function buildTamago3D(group) {
-  const voxelSize = 0.35;
-  const boxGeo = new THREE.BoxGeometry(voxelSize, voxelSize, voxelSize);
-
+  const vs = 0.35;
   const mats = {
     crust: new THREE.MeshStandardMaterial({ color: 0x7a431d, roughness: 0.5 }),
     whiteOuter: new THREE.MeshStandardMaterial({ color: 0xedd6be, roughness: 0.4 }),
@@ -5546,485 +5574,578 @@ function buildTamago3D(group) {
           }
 
           if (key) {
-            const posY = (y + Ry) * voxelSize;
-            buckets[key].push({ x: x * voxelSize, y: posY, z: z * voxelSize });
+            const posY = (y + Ry) * vs;
+            buckets[key].push({ x: x * vs, y: posY, z: z * vs });
           }
         }
       }
     }
   }
 
-  const dummy = new THREE.Object3D();
-  for (const [key, positions] of Object.entries(buckets)) {
-    if (positions.length === 0) continue;
-    const instMesh = new THREE.InstancedMesh(boxGeo, mats[key], positions.length);
-    for (let i = 0; i < positions.length; i++) {
-      const p = positions[i];
-      dummy.position.set(p.x, p.y, p.z);
-      dummy.updateMatrix();
-      instMesh.setMatrixAt(i, dummy.matrix);
-    }
-    instMesh.instanceMatrix.needsUpdate = true;
-    instMesh.castShadow = true;
-    instMesh.receiveShadow = true;
-    group.add(instMesh);
-  }
+  renderVoxelBuckets(group, buckets, mats, vs, 0);
 }
 
-// 2. CHASHU CARAMELIZADO (RODAJA GRUESA CON ESPIRAL DE GRASA Y CORTEZA)
+// 2. CHASHU CARAMELIZADO (RODAJA VOXEL CON ESPIRAL DE GRASA Y SOJA)
 function buildChashu3D(group) {
-  // Base de carne exterior
-  const crustGeo = new THREE.CylinderGeometry(6.4, 6.4, 1.8, 36);
-  const crustMat = new THREE.MeshStandardMaterial({ color: 0x542615, roughness: 0.5 });
-  const crust = new THREE.Mesh(crustGeo, crustMat);
-  crust.position.y = 1.0;
-  crust.castShadow = true;
-  group.add(crust);
+  const vs = 0.35;
+  const mats = {
+    crust: new THREE.MeshStandardMaterial({ color: 0x542615, roughness: 0.5 }), // Soja caramelizada
+    meat: new THREE.MeshStandardMaterial({ color: 0xb85438, roughness: 0.4 }),  // Carne rosada
+    fat: new THREE.MeshStandardMaterial({ color: 0xfbf4e6, roughness: 0.25 }), // Grasa marfil
+    core: new THREE.MeshStandardMaterial({ color: 0x7a2817, roughness: 0.5 }), // Centro tierno
+    negi: new THREE.MeshStandardMaterial({ color: 0x2e7d32, roughness: 0.4 }), // Cebollino verde
+    sesame: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.8 }) // Sésamo blanco
+  };
+  const buckets = { crust: [], meat: [], fat: [], core: [], negi: [], sesame: [] };
 
-  // Capa rosada de carne magra
-  const meatGeo = new THREE.CylinderGeometry(6.0, 6.0, 1.85, 36);
-  const meatMat = new THREE.MeshStandardMaterial({ color: 0xb55a3c, roughness: 0.4 });
-  const meat = new THREE.Mesh(meatGeo, meatMat);
-  meat.position.y = 1.0;
-  group.add(meat);
+  const R = 15;
+  const H = 6;
+  for (let x = -R; x <= R; x++) {
+    for (let z = -R; z <= R; z++) {
+      const r = Math.sqrt(x * x + z * z);
+      if (r <= R) {
+        for (let y = 0; y < H; y++) {
+          let key = 'meat';
+          if (r >= R - 2 || y === 0 || y === H - 1) {
+            if (r >= R - 2) key = 'crust';
+          }
+          if (key !== 'crust') {
+            const theta = Math.atan2(z, x) + Math.PI;
+            const spiralVal = (r + (theta / (Math.PI * 2)) * 4.5) % 5.5;
+            if (spiralVal < 1.8 && r > 3.5 && r < R - 2) {
+              key = 'fat';
+            } else if (r <= 3.5) {
+              key = 'core';
+            }
+          }
+          buckets[key].push({ x: x * vs, y: y * vs, z: z * vs });
 
-  // Espiral de grasa marfil
-  const fatGeo = new THREE.TorusGeometry(3.6, 0.75, 16, 36);
-  const fatMat = new THREE.MeshStandardMaterial({ color: 0xf5edd6, roughness: 0.3 });
-  const fatSpiral = new THREE.Mesh(fatGeo, fatMat);
-  fatSpiral.rotation.x = Math.PI / 2;
-  fatSpiral.position.y = 1.95;
-  group.add(fatSpiral);
-
-  // Centro tierno
-  const centerGeo = new THREE.CylinderGeometry(2.0, 2.0, 1.9, 24);
-  const centerMat = new THREE.MeshStandardMaterial({ color: 0x7c2d18, roughness: 0.4 });
-  const center = new THREE.Mesh(centerGeo, centerMat);
-  center.position.y = 1.0;
-  group.add(center);
-
-  // Cebollino verde picado (negi) por encima
-  const scallionGeo = new THREE.BoxGeometry(0.35, 0.2, 0.35);
-  const scallionMat = new THREE.MeshStandardMaterial({ color: 0x388e3c, roughness: 0.4 });
-  for (let i = 0; i < 28; i++) {
-    const angle = Math.random() * Math.PI * 2;
-    const rad = Math.random() * 4.5;
-    const scallion = new THREE.Mesh(scallionGeo, scallionMat);
-    scallion.position.set(Math.cos(angle) * rad, 1.96, Math.sin(angle) * rad);
-    scallion.rotation.y = Math.random() * Math.PI;
-    group.add(scallion);
+          if (y === H - 1) {
+            if ((x * 11 + z * 17) % 7 === 0 && r < R - 3) {
+              buckets.negi.push({ x: x * vs, y: (y + 1) * vs, z: z * vs });
+            } else if ((x * 13 + z * 5) % 11 === 0 && r < R - 3) {
+              buckets.sesame.push({ x: x * vs, y: (y + 1) * vs, z: z * vs });
+            }
+          }
+        }
+      }
+    }
   }
+
+  renderVoxelBuckets(group, buckets, mats, vs, 0);
 }
 
-// 3. FIDEOS KANSUI ARTESANALES CON PALILLOS (HASHI)
+// 3. FIDEOS KANSUI ARTESANALES CON PALILLOS (VOXEL HASHI & NOODLES)
 function buildNoodles3D(group) {
-  // Palillos de bambú
-  const stickGeo = new THREE.CylinderGeometry(0.2, 0.45, 17, 12);
-  const stickMat = new THREE.MeshStandardMaterial({ color: 0xd7ccc8, roughness: 0.3 });
-  
-  const stick1 = new THREE.Mesh(stickGeo, stickMat);
-  stick1.position.set(2, 6.2, 0);
-  stick1.rotation.z = -Math.PI / 4.5;
-  stick1.rotation.x = 0.15;
-  stick1.castShadow = true;
-  group.add(stick1);
+  const vs = 0.35;
+  const mats = {
+    wood: new THREE.MeshStandardMaterial({ color: 0xbcaaa4, roughness: 0.5 }),
+    noodle: new THREE.MeshStandardMaterial({ color: 0xffc107, roughness: 0.3 }),
+    noodleDark: new THREE.MeshStandardMaterial({ color: 0xffa000, roughness: 0.35 }),
+    steam: new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: 0.65, roughness: 0.2 })
+  };
+  const buckets = { wood: [], noodle: [], noodleDark: [], steam: [] };
 
-  const stick2 = new THREE.Mesh(stickGeo, stickMat);
-  stick2.position.set(2.4, 6.4, 0.8);
-  stick2.rotation.z = -Math.PI / 4.2;
-  stick2.rotation.x = -0.15;
-  stick2.castShadow = true;
-  group.add(stick2);
+  // Palillos de bambú en voxels
+  for (let t = 0; t <= 36; t++) {
+    const px1 = Math.round(8 - t * 0.45);
+    const py1 = Math.round(18 - t * 0.28);
+    const pz1 = Math.round(-1.2 + t * 0.05);
 
-  // Bucles de fideos colgando
-  const noodleMat = new THREE.MeshStandardMaterial({ color: 0xfbc02d, roughness: 0.25 });
-  
-  for (let i = 0; i < 9; i++) {
-    const loopGeo = new THREE.TorusGeometry(1.8 + (i * 0.25), 0.28, 12, 32, Math.PI * 1.3);
-    const noodleLoop = new THREE.Mesh(loopGeo, noodleMat);
-    noodleLoop.position.set(0.5 + (i * 0.1), 3.8 - (i * 0.15), (i * 0.25) - 1.0);
-    noodleLoop.rotation.z = Math.PI / 2.5;
-    noodleLoop.rotation.y = (i * 0.2);
-    noodleLoop.castShadow = true;
-    group.add(noodleLoop);
+    const px2 = Math.round(8.5 - t * 0.45);
+    const py2 = Math.round(18.8 - t * 0.28);
+    const pz2 = Math.round(0.8 + t * 0.05);
+
+    for (let dx = 0; dx <= 1; dx++) {
+      for (let dy = 0; dy <= 1; dy++) {
+        buckets.wood.push({ x: (px1 + dx) * vs, y: (py1 + dy) * vs, z: pz1 * vs });
+        buckets.wood.push({ x: (px2 + dx) * vs, y: (py2 + dy) * vs, z: pz2 * vs });
+      }
+    }
+  }
+
+  // Cascada de hebras de fideos en voxels
+  for (let strand = 0; strand < 12; strand++) {
+    const angle = (strand / 12) * Math.PI * 2;
+    const rad = 1.5 + Math.sin(strand) * 0.8;
+    const key = (strand % 2 === 0) ? 'noodle' : 'noodleDark';
+    
+    for (let y = 3; y <= 16; y++) {
+      const waveX = Math.round(Math.sin(y * 0.6 + strand) * 1.5);
+      const waveZ = Math.round(Math.cos(y * 0.5 + strand) * 1.2);
+      const x = Math.round(Math.cos(angle) * rad + waveX);
+      const z = Math.round(Math.sin(angle) * rad + waveZ);
+      buckets[key].push({ x: x * vs, y: y * vs, z: z * vs });
+    }
   }
 
   // Montículo de fideos en el pedestal
-  const baseNoodleGeo = new THREE.SphereGeometry(3.8, 16, 12);
-  const baseNoodleMat = new THREE.MeshStandardMaterial({ color: 0xe6a800, roughness: 0.4 });
-  const baseNoodle = new THREE.Mesh(baseNoodleGeo, baseNoodleMat);
-  baseNoodle.scale.set(1.4, 0.55, 1.4);
-  baseNoodle.position.y = 1.0;
-  baseNoodle.castShadow = true;
-  group.add(baseNoodle);
-}
-
-// 4. CALDO TONKOTSU EN CALDERO TRADICIONAL (NABE)
-function buildBrothCauldron3D(group) {
-  // Caldero de hierro fundido
-  const potGeo = new THREE.CylinderGeometry(6.8, 5.0, 4.5, 32);
-  const potMat = new THREE.MeshStandardMaterial({ color: 0x1f2226, roughness: 0.7, metalness: 0.3 });
-  const pot = new THREE.Mesh(potGeo, potMat);
-  pot.position.y = 2.25;
-  pot.castShadow = true;
-  group.add(pot);
-
-  // Asas laterales del caldero
-  const handleGeo = new THREE.TorusGeometry(1.2, 0.35, 12, 24);
-  const handleMat = new THREE.MeshStandardMaterial({ color: 0x151719, roughness: 0.6 });
-  
-  const h1 = new THREE.Mesh(handleGeo, handleMat);
-  h1.position.set(6.8, 3.6, 0);
-  h1.rotation.y = Math.PI / 2;
-  group.add(h1);
-
-  const h2 = new THREE.Mesh(handleGeo, handleMat);
-  h2.position.set(-6.8, 3.6, 0);
-  h2.rotation.y = Math.PI / 2;
-  group.add(h2);
-
-  // Superficie del caldo blanco lechoso hirviendo
-  const soupGeo = new THREE.CylinderGeometry(6.4, 6.4, 0.4, 32);
-  const soupMat = new THREE.MeshStandardMaterial({ color: 0xfffaea, roughness: 0.15 });
-  const soup = new THREE.Mesh(soupGeo, soupMat);
-  soup.position.y = 4.3;
-  group.add(soup);
-
-  // Cucharón de madera (otama)
-  const ladleHandleGeo = new THREE.CylinderGeometry(0.3, 0.3, 10, 12);
-  const woodMat = new THREE.MeshStandardMaterial({ color: 0x8d6e63, roughness: 0.4 });
-  const ladleHandle = new THREE.Mesh(ladleHandleGeo, woodMat);
-  ladleHandle.position.set(2, 5.8, 2);
-  ladleHandle.rotation.z = -Math.PI / 3.8;
-  group.add(ladleHandle);
-
-  const ladleBowlGeo = new THREE.SphereGeometry(1.4, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2);
-  const ladleBowl = new THREE.Mesh(ladleBowlGeo, woodMat);
-  ladleBowl.position.set(-2.2, 4.3, 2);
-  ladleBowl.rotation.x = Math.PI;
-  group.add(ladleBowl);
-}
-
-// 5. ALGA NORI DE ARIAKE
-function buildNori3D(group) {
-  // Soporte de madera japonés en el pedestal
-  const standGeo = new THREE.BoxGeometry(7.0, 0.8, 3.0);
-  const standMat = new THREE.MeshStandardMaterial({ color: 0x3e2723, roughness: 0.5 });
-  const stand = new THREE.Mesh(standGeo, standMat);
-  stand.position.y = 0.4;
-  group.add(stand);
-
-  // Hoja de nori rectangular erguida con leve curvatura ondulada
-  const noriGeo = new THREE.BoxGeometry(6.2, 8.5, 0.3);
-  const noriMat = new THREE.MeshStandardMaterial({ color: 0x0f2416, roughness: 0.6, metalness: 0.1 });
-  const nori = new THREE.Mesh(noriGeo, noriMat);
-  nori.position.set(0, 4.6, 0);
-  nori.rotation.y = 0.15;
-  nori.castShadow = true;
-  group.add(nori);
-
-  // Relieve texturizado
-  const stripeGeo = new THREE.BoxGeometry(5.8, 0.15, 0.35);
-  const stripeMat = new THREE.MeshStandardMaterial({ color: 0x193b24, roughness: 0.8 });
-  for (let y = 1.5; y <= 8; y += 1.3) {
-    const stripe = new THREE.Mesh(stripeGeo, stripeMat);
-    stripe.position.set(0, y, 0);
-    group.add(stripe);
+  const R = 12;
+  for (let x = -R; x <= R; x++) {
+    for (let z = -R; z <= R; z++) {
+      const r = Math.sqrt(x * x + z * z);
+      if (r <= R) {
+        const maxH = Math.max(0, Math.floor((1 - (r / R)) * 6 + Math.sin(x * 1.2 + z * 1.5) * 1.5));
+        for (let y = 0; y <= maxH; y++) {
+          const key = ((x + y + z) % 3 === 0) ? 'noodleDark' : 'noodle';
+          buckets[key].push({ x: x * vs, y: y * vs, z: z * vs });
+        }
+      }
+    }
   }
+
+  // Partículas de vapor en voxel
+  for (let s = 0; s < 10; s++) {
+    const sx = Math.round(Math.sin(s * 1.7) * 3);
+    const sy = Math.round(18 + s * 1.2);
+    const sz = Math.round(Math.cos(s * 1.3) * 2);
+    buckets.steam.push({ x: sx * vs, y: sy * vs, z: sz * vs });
+  }
+
+  renderVoxelBuckets(group, buckets, mats, vs, 0);
 }
 
-// 6. LANGOSTINO EBI REAL
-function buildEbiShrimp3D(group) {
-  const orangeMat = new THREE.MeshStandardMaterial({ color: 0xff6f00, roughness: 0.3 });
-  const whiteMat = new THREE.MeshStandardMaterial({ color: 0xfff8e1, roughness: 0.3 });
-  const tailMat = new THREE.MeshStandardMaterial({ color: 0xd50000, roughness: 0.25 });
+// 4. CALDO TONKOTSU EN CALDERO VOXEL (NABE)
+function buildBrothCauldron3D(group) {
+  const vs = 0.35;
+  const mats = {
+    iron: new THREE.MeshStandardMaterial({ color: 0x1f2421, roughness: 0.7, metalness: 0.3 }),
+    broth: new THREE.MeshStandardMaterial({ color: 0xfffaea, roughness: 0.15 }),
+    oil: new THREE.MeshStandardMaterial({ color: 0xffb300, roughness: 0.2 }),
+    wood: new THREE.MeshStandardMaterial({ color: 0x8d6e63, roughness: 0.5 })
+  };
+  const buckets = { iron: [], broth: [], oil: [], wood: [] };
 
-  // Cuerpo curvado segmentado
-  for (let i = 0; i < 7; i++) {
-    const radius = 1.6 - (i * 0.15);
-    const segGeo = new THREE.CylinderGeometry(radius, radius * 1.1, 1.2, 18);
-    const mat = (i % 2 === 0) ? orangeMat : whiteMat;
-    const seg = new THREE.Mesh(segGeo, mat);
-    
-    const angle = (i * 0.32);
-    seg.position.set(Math.sin(angle) * 3.2, 1.2 + (i * 0.75), Math.cos(angle) * 1.8);
-    seg.rotation.x = angle * 0.7;
-    seg.rotation.z = -angle * 0.4;
-    seg.castShadow = true;
-    group.add(seg);
+  const H = 14;
+  for (let y = 0; y <= H; y++) {
+    const Rout = Math.round(11 + Math.sin(y / H * Math.PI) * 4);
+    const Rin = Rout - 2;
+
+    for (let x = -Rout; x <= Rout; x++) {
+      for (let z = -Rout; z <= Rout; z++) {
+        const r = Math.sqrt(x * x + z * z);
+        if (r <= Rout) {
+          if (y === 0 || y === 1) {
+            buckets.iron.push({ x: x * vs, y: y * vs, z: z * vs });
+          } else if (r >= Rin) {
+            buckets.iron.push({ x: x * vs, y: y * vs, z: z * vs });
+          } else if (y === 10) {
+            const isOil = (x * 7 + z * 13) % 9 === 0;
+            buckets[isOil ? 'oil' : 'broth'].push({ x: x * vs, y: y * vs, z: z * vs });
+          }
+        }
+      }
+    }
+
+    if (y >= 8 && y <= 11) {
+      for (let w = Rout + 1; w <= Rout + 3; w++) {
+        buckets.iron.push({ x: w * vs, y: y * vs, z: 0 });
+        buckets.iron.push({ x: -w * vs, y: y * vs, z: 0 });
+      }
+    }
+  }
+
+  // Cucharón de madera en voxels
+  for (let t = 0; t <= 24; t++) {
+    const lx = Math.round(4 - t * 0.45);
+    const ly = Math.round(13 + t * 0.15);
+    const lz = Math.round(3 + t * 0.3);
+    buckets.wood.push({ x: lx * vs, y: ly * vs, z: lz * vs });
+  }
+
+  renderVoxelBuckets(group, buckets, mats, vs, 0);
+}
+
+// 5. ALGA NORI DE ARIAKE EN VOXELS
+function buildNori3D(group) {
+  const vs = 0.35;
+  const mats = {
+    noriDark: new THREE.MeshStandardMaterial({ color: 0x091a0f, roughness: 0.6 }),
+    noriGreen: new THREE.MeshStandardMaterial({ color: 0x14351d, roughness: 0.5 }),
+    noriGloss: new THREE.MeshStandardMaterial({ color: 0x1e4a29, roughness: 0.4 }),
+    wood: new THREE.MeshStandardMaterial({ color: 0x3e2723, roughness: 0.5 }),
+    gold: new THREE.MeshStandardMaterial({ color: 0xffd54f, metalness: 0.7, roughness: 0.3 })
+  };
+  const buckets = { noriDark: [], noriGreen: [], noriGloss: [], wood: [], gold: [] };
+
+  // Base ceremonial de madera
+  for (let x = -10; x <= 10; x++) {
+    for (let z = -4; z <= 4; z++) {
+      for (let y = 0; y <= 2; y++) {
+        buckets.wood.push({ x: x * vs, y: y * vs, z: z * vs });
+      }
+    }
+  }
+  for (let x = -9; x <= 9; x++) {
+    buckets.gold.push({ x: x * vs, y: 3 * vs, z: -4 * vs });
+    buckets.gold.push({ x: x * vs, y: 3 * vs, z: 4 * vs });
+  }
+
+  // Hoja de nori erguida ondulada en voxels
+  const W = 10;
+  const H = 26;
+  for (let x = -W; x <= W; x++) {
+    for (let y = 3; y <= H; y++) {
+      const waveZ = Math.round(Math.sin(x * 0.35) * 1.5);
+      for (let dz = 0; dz <= 1; dz++) {
+        const z = waveZ + dz;
+        const rand = Math.abs((x * 13 + y * 7) % 11);
+        let key = 'noriDark';
+        if (rand === 0 || rand === 1) key = 'noriGreen';
+        else if (rand === 2) key = 'noriGloss';
+        buckets[key].push({ x: x * vs, y: y * vs, z: z * vs });
+      }
+    }
+  }
+
+  renderVoxelBuckets(group, buckets, mats, vs, 0);
+}
+
+// 6. LANGOSTINO EBI REAL EN VOXELS
+function buildEbiShrimp3D(group) {
+  const vs = 0.35;
+  const mats = {
+    orange: new THREE.MeshStandardMaterial({ color: 0xff6f00, roughness: 0.3 }),
+    white: new THREE.MeshStandardMaterial({ color: 0xfff8e1, roughness: 0.3 }),
+    red: new THREE.MeshStandardMaterial({ color: 0xd50000, roughness: 0.25 })
+  };
+  const buckets = { orange: [], white: [], red: [] };
+
+  // Cuerpo segmentado curvado en voxels
+  const segments = 10;
+  for (let s = 0; s < segments; s++) {
+    const t = s / segments;
+    const angle = t * Math.PI * 0.75;
+    const cy = Math.round(Math.sin(angle) * 14 + 2);
+    const cz = Math.round(Math.cos(angle) * 12 - 4);
+    const radius = Math.max(2, Math.round(5 - t * 3.2));
+    const isWhite = (s % 2 === 1);
+
+    for (let dx = -radius; dx <= radius; dx++) {
+      for (let dy = -radius; dy <= radius; dy++) {
+        if (dx * dx + dy * dy <= radius * radius) {
+          const key = isWhite ? 'white' : 'orange';
+          buckets[key].push({ x: dx * vs, y: (cy + dy) * vs, z: cz * vs });
+        }
+      }
+    }
   }
 
   // Cola en abanico rojo
-  const tailGeo = new THREE.BoxGeometry(2.5, 0.2, 1.8);
-  const tail = new THREE.Mesh(tailGeo, tailMat);
-  tail.position.set(2.4, 5.8, 1.8);
-  tail.rotation.x = Math.PI / 4;
-  group.add(tail);
+  for (let f = -4; f <= 4; f++) {
+    for (let h = 0; h <= 5; h++) {
+      if (Math.abs(f) <= h * 0.9) {
+        buckets.red.push({ x: f * vs, y: (16 + h) * vs, z: (7 + h * 0.5) * vs });
+      }
+    }
+  }
+
+  renderVoxelBuckets(group, buckets, mats, vs, 0);
 }
 
-// 7. HONGO SHIITAKE DONKO
+// 7. HONGO SHIITAKE DONKO EN VOXELS
 function buildShiitake3D(group) {
-  // Pie / Tallo del hongo
-  const stemGeo = new THREE.CylinderGeometry(1.2, 1.4, 3.2, 20);
-  const stemMat = new THREE.MeshStandardMaterial({ color: 0xd7ccc8, roughness: 0.6 });
-  const stem = new THREE.Mesh(stemGeo, stemMat);
-  stem.position.y = 1.6;
-  stem.castShadow = true;
-  group.add(stem);
+  const vs = 0.35;
+  const mats = {
+    cap: new THREE.MeshStandardMaterial({ color: 0x4a2f26, roughness: 0.5 }),
+    cut: new THREE.MeshStandardMaterial({ color: 0xf5ebe0, roughness: 0.3 }),
+    stem: new THREE.MeshStandardMaterial({ color: 0xd7ccc8, roughness: 0.6 })
+  };
+  const buckets = { cap: [], cut: [], stem: [] };
 
-  // Sombrerillo abombado marrón oscuro
-  const capGeo = new THREE.SphereGeometry(5.2, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2);
-  const capMat = new THREE.MeshStandardMaterial({ color: 0x4e342e, roughness: 0.45 });
-  const cap = new THREE.Mesh(capGeo, capMat);
-  cap.position.y = 2.8;
-  cap.castShadow = true;
-  group.add(cap);
+  const Rx = 14;
+  const Ry = 9;
+  const Rz = 14;
 
-  // Incisión en cruz 'X' decorativa tradicional (Hanagiri)
-  const cutMat = new THREE.MeshStandardMaterial({ color: 0xefebe9, roughness: 0.3 });
-  
-  const cut1Geo = new THREE.BoxGeometry(6.4, 0.45, 0.8);
-  const cut1 = new THREE.Mesh(cut1Geo, cutMat);
-  cut1.position.y = 5.25;
-  cut1.rotation.y = Math.PI / 4;
-  group.add(cut1);
+  for (let x = -Rx; x <= Rx; x++) {
+    for (let y = 0; y <= Ry; y++) {
+      for (let z = -Rz; z <= Rz; z++) {
+        const dist = (x * x) / (Rx * Rx) + (y * y) / (Ry * Ry) + (z * z) / (Rz * Rz);
+        if (dist <= 1.0) {
+          let key = 'cap';
+          if (y >= 4 && (Math.abs(x - z) <= 1 || Math.abs(x + z) <= 1)) {
+            key = 'cut';
+          }
+          buckets[key].push({ x: x * vs, y: (y + 6) * vs, z: z * vs });
+        }
+      }
+    }
+  }
 
-  const cut2 = new THREE.Mesh(cut1Geo, cutMat);
-  cut2.position.y = 5.25;
-  cut2.rotation.y = -Math.PI / 4;
-  group.add(cut2);
+  for (let y = 0; y <= 6; y++) {
+    for (let x = -3; x <= 3; x++) {
+      for (let z = -3; z <= 3; z++) {
+        if (x * x + z * z <= 9) {
+          buckets.stem.push({ x: x * vs, y: y * vs, z: z * vs });
+        }
+      }
+    }
+  }
+
+  renderVoxelBuckets(group, buckets, mats, vs, 0);
 }
 
-// 8. TRIÁNGULOS DE TOFU DORADO (ABURAAGE)
+// 8. TRIÁNGULOS DE TOFU EN VOXELS (ABURAAGE)
 function buildTofu3D(group) {
-  const shape = new THREE.Shape();
-  shape.moveTo(-4.5, -3.5);
-  shape.lineTo(4.5, -3.5);
-  shape.lineTo(0, 4.5);
-  shape.closePath();
+  const vs = 0.35;
+  const mats = {
+    crust: new THREE.MeshStandardMaterial({ color: 0xd4a373, roughness: 0.6 }),
+    softTofu: new THREE.MeshStandardMaterial({ color: 0xfffdf2, roughness: 0.3 }),
+    grill: new THREE.MeshStandardMaterial({ color: 0x8d5b2c, roughness: 0.7 })
+  };
+  const buckets = { crust: [], softTofu: [], grill: [] };
 
-  const extrudeSettings = { depth: 2.4, bevelEnabled: true, bevelSegments: 3, steps: 1, bevelSize: 0.3, bevelThickness: 0.3 };
-  const tofuGeo = new THREE.ExtrudeGeometry(shape, extrudeSettings);
-  const tofuMat = new THREE.MeshStandardMaterial({ color: 0xd4a373, roughness: 0.6 });
-  
-  const tofu = new THREE.Mesh(tofuGeo, tofuMat);
-  tofu.rotation.x = Math.PI / 2;
-  tofu.position.set(0, 1.2, 0);
-  tofu.castShadow = true;
-  group.add(tofu);
+  const W = 14;
+  const H = 8;
+  for (let x = -W; x <= W; x++) {
+    for (let z = -9; z <= 9; z++) {
+      if (z >= -7 && z <= 9 - Math.abs(x) * 1.15) {
+        for (let y = 0; y <= H; y++) {
+          const isEdge = (z <= -6 || z >= 8 - Math.abs(x) * 1.15 || y === 0 || y === H);
+          let key = isEdge ? 'crust' : 'softTofu';
+          if (y === H && (x % 5 === 0)) {
+            key = 'grill';
+          }
+          buckets[key].push({ x: x * vs, y: y * vs, z: z * vs });
+        }
+      }
+    }
+  }
 
-  // Interior blanco visible por corte
-  const sliceGeo = new THREE.CylinderGeometry(2.0, 2.0, 2.45, 3);
-  const innerMat = new THREE.MeshStandardMaterial({ color: 0xfffaed, roughness: 0.3 });
-  const innerSlice = new THREE.Mesh(sliceGeo, innerMat);
-  innerSlice.position.set(0, 1.2, 0);
-  group.add(innerSlice);
+  renderVoxelBuckets(group, buckets, mats, vs, 0);
 }
 
-// 9. CUCHILLOS JAPONESES (SANTOKU, GYUTO, DEBA, NAKIRI, YANAGIBA)
+// 9. CUCHILLOS JAPONESES EN VOXELS (SANTOKU, GYUTO, DEBA, NAKIRI, YANAGIBA)
 function buildKnife3D(group, knifeId) {
-  // Soportes de exhibición japoneses de madera (Kake)
-  const standMat = new THREE.MeshStandardMaterial({ color: 0x271913, roughness: 0.6 });
-  
-  const kake1Geo = new THREE.BoxGeometry(1.2, 3.2, 2.4);
-  const kake1 = new THREE.Mesh(kake1Geo, standMat);
-  kake1.position.set(-4.5, 1.6, 0);
-  kake1.castShadow = true;
-  group.add(kake1);
+  const vs = 0.32;
+  const mats = {
+    blade: new THREE.MeshStandardMaterial({ color: 0xecf0f1, metalness: 0.95, roughness: 0.12 }),
+    edge: new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.95, roughness: 0.08 }),
+    spine: new THREE.MeshStandardMaterial({ color: 0xb0bec5, metalness: 0.85, roughness: 0.2 }),
+    horn: new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.3 }),
+    handle: new THREE.MeshStandardMaterial({ color: 0xe6ccb2, roughness: 0.5 }),
+    kake: new THREE.MeshStandardMaterial({ color: 0x271913, roughness: 0.6 })
+  };
+  const buckets = { blade: [], edge: [], spine: [], horn: [], handle: [], kake: [] };
 
-  const kake2 = new THREE.Mesh(kake1Geo, standMat);
-  kake2.position.set(4.5, 1.6, 0);
-  kake2.castShadow = true;
-  group.add(kake2);
+  // Soportes de madera Kake en voxels
+  for (const kx of [-9, 9]) {
+    for (let dx = -1; dx <= 1; dx++) {
+      for (let dz = -2; dz <= 2; dz++) {
+        for (let y = 0; y <= 6; y++) {
+          buckets.kake.push({ x: (kx + dx) * vs, y: y * vs, z: dz * vs });
+        }
+      }
+    }
+  }
 
-  // Configuración de hoja según tipo de cuchillo
-  let bladeLength = 16;
-  let bladeHeight = 3.6;
-  let bladeThick = 0.28;
+  let bladeLen = 32;
+  let bladeH = 8;
   let isTapered = true;
+  let spineThick = 1;
 
   if (knifeId === "cuchillo_santoku") {
-    bladeLength = 15;
-    bladeHeight = 3.8;
+    bladeLen = 32; bladeH = 8;
   } else if (knifeId === "cuchillo_gyuto") {
-    bladeLength = 19;
-    bladeHeight = 3.4;
+    bladeLen = 40; bladeH = 7;
   } else if (knifeId === "cuchillo_deba") {
-    bladeLength = 14;
-    bladeHeight = 4.8;
-    bladeThick = 0.55;
+    bladeLen = 28; bladeH = 11; spineThick = 2;
   } else if (knifeId === "cuchillo_nakiri") {
-    bladeLength = 16;
-    bladeHeight = 4.4;
-    isTapered = false; // Punta cuadrada
+    bladeLen = 32; bladeH = 9; isTapered = false;
   } else if (knifeId === "cuchillo_yanagiba") {
-    bladeLength = 23;
-    bladeHeight = 2.4;
-    bladeThick = 0.22;
+    bladeLen = 48; bladeH = 5;
   }
 
-  // Hoja de acero forjado de alto brillo
-  const bladeMat = new THREE.MeshStandardMaterial({
-    color: 0xecf0f1,
-    metalness: 0.95,
-    roughness: 0.12
-  });
+  const startX = -Math.floor(bladeLen / 2);
+  const posY = 7;
 
-  const bladeShape = new THREE.Shape();
-  bladeShape.moveTo(0, 0);
-  bladeShape.lineTo(bladeLength, isTapered ? bladeHeight * 0.4 : 0);
-  bladeShape.lineTo(bladeLength + 2.5, isTapered ? bladeHeight * 0.8 : bladeHeight);
-  bladeShape.lineTo(0, bladeHeight);
-  bladeShape.closePath();
+  // Hoja en voxels
+  for (let lx = 0; lx <= bladeLen; lx++) {
+    const x = startX + lx;
+    let curH = bladeH;
+    if (isTapered && lx > bladeLen - 12) {
+      const taper = (lx - (bladeLen - 12)) / 12;
+      curH = Math.max(1, Math.round(bladeH * (1 - taper * 0.85)));
+    }
 
-  const bladeExtrude = new THREE.ExtrudeGeometry(bladeShape, { depth: bladeThick, bevelEnabled: false });
-  const blade = new THREE.Mesh(bladeExtrude, bladeMat);
-  blade.position.set(-bladeLength * 0.5, 3.2, -bladeThick * 0.5);
-  blade.castShadow = true;
-  group.add(blade);
+    for (let ly = 0; ly < curH; ly++) {
+      const y = posY + ly;
+      for (let z = -spineThick; z <= spineThick; z++) {
+        let key = 'blade';
+        if (ly === 0) key = 'edge';
+        else if (ly === curH - 1) key = 'spine';
+        buckets[key].push({ x: x * vs, y: y * vs, z: z * vs });
+      }
+    }
+  }
 
-  // Virola / Cuello negro (cuerno de búfalo)
-  const ferruleGeo = new THREE.CylinderGeometry(0.7, 0.7, 1.4, 8);
-  const ferruleMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.2 });
-  const ferrule = new THREE.Mesh(ferruleGeo, ferruleMat);
-  ferrule.rotation.z = Math.PI / 2;
-  ferrule.position.set(-bladeLength * 0.5 - 0.7, 3.2 + (bladeHeight * 0.5), 0);
-  group.add(ferrule);
+  // Virola negra de cuerno de búfalo en voxels
+  for (let lx = -4; lx <= -1; lx++) {
+    const x = startX + lx;
+    for (let ly = 1; ly <= 5; ly++) {
+      for (let z = -2; z <= 2; z++) {
+        buckets.horn.push({ x: x * vs, y: (posY + ly) * vs, z: z * vs });
+      }
+    }
+  }
 
-  // Mango tradicional octogonal Wa de madera
-  const handleGeo = new THREE.CylinderGeometry(0.75, 0.85, 6.5, 8);
-  const handleMat = new THREE.MeshStandardMaterial({ color: 0xd7ccc8, roughness: 0.5 });
-  const handle = new THREE.Mesh(handleGeo, handleMat);
-  handle.rotation.z = Math.PI / 2;
-  handle.position.set(-bladeLength * 0.5 - 4.6, 3.2 + (bladeHeight * 0.5), 0);
-  handle.castShadow = true;
-  group.add(handle);
+  // Mango tradicional octogonal Wa de madera en voxels
+  for (let lx = -18; lx <= -5; lx++) {
+    const x = startX + lx;
+    for (let ly = 0; ly <= 6; ly++) {
+      for (let z = -2; z <= 2; z++) {
+        if (!(ly === 0 && Math.abs(z) === 2) && !(ly === 6 && Math.abs(z) === 2)) {
+          buckets.handle.push({ x: x * vs, y: (posY + ly) * vs, z: z * vs });
+        }
+      }
+    }
+  }
+
+  renderVoxelBuckets(group, buckets, mats, vs, 0);
 }
 
-// 10. TAZONES DE RAMEN COMPLETOS EN DONBURI CERÁMICO
+// 10. TAZONES DE RAMEN DONBURI EN VOXELS COMPLETOS
 function buildDonburiRamen3D(group, ramenId) {
-  // Paleta por tipo de ramen
-  let bowlColor = 0x1a237e; // Shio azul
-  let rimColor = 0xffd54f;
-  let brothColor = 0xf4e0a5; // Dorado claro
+  const vs = 0.35;
+
+  let bowlHex = 0x1a237e; // Shio azul cobalto
+  let rimHex = 0xffd54f;  // Borde dorado
+  let brothHex = 0xf4e0a5;// Caldo cristalino
 
   if (ramenId === "ramen_shoyu") {
-    bowlColor = 0x1a0f0a; // Negro
-    rimColor = 0xb71c1c; // Rojo
-    brothColor = 0x5d3115; // Ámbar soja
+    bowlHex = 0x181818; rimHex = 0xb71c1c; brothHex = 0x5d3115;
   } else if (ramenId === "ramen_miso") {
-    bowlColor = 0x3e2723; // Terracota
-    rimColor = 0xffb74d;
-    brothColor = 0xb87d3b; // Miso ocre
+    bowlHex = 0x3e2723; rimHex = 0xffb74d; brothHex = 0xb87d3b;
   } else if (ramenId === "ramen_tonkotsu") {
-    bowlColor = 0x111111; // Negro mate
-    rimColor = 0xffd54f; // Dorado
-    brothColor = 0xfffaea; // Blanco lechoso
+    bowlHex = 0x111111; rimHex = 0xffd54f; brothHex = 0xfffaea;
   } else if (ramenId === "ramen_chashu") {
-    bowlColor = 0x880e4f; // Granate
-    rimColor = 0xffd54f;
-    brothColor = 0xf0e4d0;
+    bowlHex = 0x880e4f; rimHex = 0xffd54f; brothHex = 0xf0e4d0;
   } else if (ramenId === "ramen_ebi") {
-    bowlColor = 0xf5f5f5; // Blanco níveo
-    rimColor = 0xd50000; // Rojo marisco
-    brothColor = 0xe65100; // Bisque naranja
+    bowlHex = 0xf5f5f5; rimHex = 0xd50000; brothHex = 0xe65100;
   } else if (ramenId === "ramen_tantan") {
-    bowlColor = 0xb71c1c; // Rojo fuego
-    rimColor = 0x212121;
-    brothColor = 0xc62828; // Rojo picante
+    bowlHex = 0xb71c1c; rimHex = 0x212121; brothHex = 0xc62828;
   } else if (ramenId === "ramen_vegetariano") {
-    bowlColor = 0x1b5e20; // Verde jade
-    rimColor = 0xffd54f;
-    brothColor = 0xc5ae7d; // Té dashi
+    bowlHex = 0x1b5e20; rimHex = 0xffd54f; brothHex = 0xc5ae7d;
   } else if (ramenId === "ramen_bajiru") {
-    bowlColor = 0xffffff;
-    rimColor = 0x2e7d32;
-    brothColor = 0x388e3c; // Albahaca esmeralda
+    bowlHex = 0xffffff; rimHex = 0x2e7d32; brothHex = 0x388e3c;
   }
 
-  // Tazón cerámico Donburi
-  const bowlGeo = new THREE.CylinderGeometry(7.2, 4.0, 4.6, 36, 1, true);
-  const bowlMat = new THREE.MeshStandardMaterial({ color: bowlColor, roughness: 0.25, metalness: 0.1 });
-  const bowl = new THREE.Mesh(bowlGeo, bowlMat);
-  bowl.position.y = 2.3;
-  bowl.castShadow = true;
-  group.add(bowl);
+  const mats = {
+    bowl: new THREE.MeshStandardMaterial({ color: bowlHex, roughness: 0.3, metalness: 0.1 }),
+    rim: new THREE.MeshStandardMaterial({ color: rimHex, roughness: 0.25, metalness: 0.4 }),
+    broth: new THREE.MeshStandardMaterial({ color: brothHex, roughness: 0.15, metalness: 0.05 }),
+    noodle: new THREE.MeshStandardMaterial({ color: 0xffc107, roughness: 0.3 }),
+    nori: new THREE.MeshStandardMaterial({ color: 0x0c1f13, roughness: 0.6 }),
+    meat: new THREE.MeshStandardMaterial({ color: 0xb85438, roughness: 0.4 }),
+    fat: new THREE.MeshStandardMaterial({ color: 0xfbf4e6, roughness: 0.3 }),
+    eggWhite: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 }),
+    eggYolk: new THREE.MeshStandardMaterial({ color: 0xff6f00, roughness: 0.2 }),
+    negi: new THREE.MeshStandardMaterial({ color: 0x2e7d32, roughness: 0.4 }),
+    special: new THREE.MeshStandardMaterial({ color: 0xff9800, roughness: 0.3 })
+  };
 
-  // Pie del tazón
-  const footGeo = new THREE.CylinderGeometry(4.0, 3.8, 0.6, 36);
-  const foot = new THREE.Mesh(footGeo, bowlMat);
-  foot.position.y = 0.3;
-  group.add(foot);
+  const buckets = {
+    bowl: [], rim: [], broth: [], noodle: [], nori: [], meat: [], fat: [], eggWhite: [], eggYolk: [], negi: [], special: []
+  };
 
-  // Borde superior
-  const rimGeo = new THREE.TorusGeometry(7.2, 0.28, 16, 40);
-  const rimMat = new THREE.MeshStandardMaterial({ color: rimColor, metalness: 0.6, roughness: 0.3 });
-  const rim = new THREE.Mesh(rimGeo, rimMat);
-  rim.rotation.x = Math.PI / 2;
-  rim.position.y = 4.6;
-  group.add(rim);
+  const H = 13;
+  // Construcción del tazón Donburi en voxels puros
+  for (let y = 0; y <= H; y++) {
+    const Rout = Math.round(9 + (y / H) * 8.5);
+    const Rin = Rout - 2;
 
-  // Superficie líquida del caldo
-  const brothGeo = new THREE.CylinderGeometry(6.8, 6.8, 0.4, 36);
-  const brothMat = new THREE.MeshStandardMaterial({ color: brothColor, roughness: 0.12, metalness: 0.05 });
-  const broth = new THREE.Mesh(brothGeo, brothMat);
-  broth.position.y = 4.2;
-  group.add(broth);
+    for (let x = -Rout; x <= Rout; x++) {
+      for (let z = -Rout; z <= Rout; z++) {
+        const r = Math.sqrt(x * x + z * z);
+        if (r <= Rout) {
+          if (y === 0 || y === 1) {
+            // Pie del tazón
+            if (r >= 5 && r <= 8) buckets.bowl.push({ x: x * vs, y: y * vs, z: z * vs });
+          } else if (y === 2) {
+            // Fondo
+            buckets.bowl.push({ x: x * vs, y: y * vs, z: z * vs });
+          } else if (r >= Rin) {
+            // Pared
+            const isRim = (y === H);
+            buckets[isRim ? 'rim' : 'bowl'].push({ x: x * vs, y: y * vs, z: z * vs });
+          } else if (y === 9) {
+            // Superficie de caldo en voxels
+            buckets.broth.push({ x: x * vs, y: y * vs, z: z * vs });
+          }
+        }
+      }
+    }
+  }
 
-  // Fideos asomando
-  const noodleMeshGeo = new THREE.TorusGeometry(3.6, 0.55, 12, 28);
-  const noodleMat = new THREE.MeshStandardMaterial({ color: 0xfbc02d, roughness: 0.4 });
-  const noodles = new THREE.Mesh(noodleMeshGeo, noodleMat);
-  noodles.rotation.x = Math.PI / 2;
-  noodles.position.set(-0.5, 4.25, 0.5);
-  group.add(noodles);
+  // Fideos flotando en voxels
+  for (let i = 0; i < 45; i++) {
+    const nx = Math.round(Math.sin(i * 0.7) * 7.5);
+    const nz = Math.round(Math.cos(i * 0.5) * 7.5);
+    if (nx * nx + nz * nz <= 64) {
+      buckets.noodle.push({ x: nx * vs, y: 10 * vs, z: nz * vs });
+    }
+  }
 
   // Alga nori vertical en el borde
-  const noriGeo = new THREE.BoxGeometry(0.2, 3.8, 2.6);
-  const noriMat = new THREE.MeshStandardMaterial({ color: 0x0f2416, roughness: 0.6 });
-  const nori = new THREE.Mesh(noriGeo, noriMat);
-  nori.position.set(-4.5, 5.2, -3.2);
-  nori.rotation.y = Math.PI / 4;
-  nori.rotation.x = -0.2;
-  group.add(nori);
-
-  // Medio huevo ajitsuke flotando
-  const eggGeo = new THREE.CylinderGeometry(1.6, 1.6, 0.6, 20);
-  const eggWhiteMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 });
-  const egg = new THREE.Mesh(eggGeo, eggWhiteMat);
-  egg.position.set(2.5, 4.35, 1.2);
-  group.add(egg);
-
-  const yolkGeo = new THREE.CylinderGeometry(0.9, 0.9, 0.65, 20);
-  const yolkMat = new THREE.MeshStandardMaterial({ color: 0xff6f00, roughness: 0.2 });
-  const yolk = new THREE.Mesh(yolkGeo, yolkMat);
-  yolk.position.set(2.5, 4.36, 1.2);
-  group.add(yolk);
-
-  // Loncha de chashu
-  const chashuGeo = new THREE.CylinderGeometry(2.2, 2.2, 0.45, 24);
-  const chashuMat = new THREE.MeshStandardMaterial({ color: 0xa04e35, roughness: 0.4 });
-  const chashu = new THREE.Mesh(chashuGeo, chashuMat);
-  chashu.position.set(-1.8, 4.32, -1.2);
-  chashu.rotation.y = 0.4;
-  group.add(chashu);
-
-  // Topping especial según tipo de ramen
-  if (ramenId === "ramen_ebi") {
-    const shrimpGeo = new THREE.TorusGeometry(1.2, 0.35, 12, 18, Math.PI);
-    const shrimpMat = new THREE.MeshStandardMaterial({ color: 0xff6f00, roughness: 0.3 });
-    const s1 = new THREE.Mesh(shrimpGeo, shrimpMat);
-    s1.position.set(0.5, 4.5, -1.8);
-    s1.rotation.x = Math.PI / 2;
-    group.add(s1);
-  } else if (ramenId === "ramen_tantan") {
-    const meatMoundGeo = new THREE.SphereGeometry(1.5, 16, 12);
-    const meatMoundMat = new THREE.MeshStandardMaterial({ color: 0x6d2a1b, roughness: 0.7 });
-    const mound = new THREE.Mesh(meatMoundGeo, meatMoundMat);
-    mound.scale.set(1.2, 0.4, 1.2);
-    mound.position.set(0, 4.38, 0);
-    group.add(mound);
+  for (let nx = -4; nx <= 4; nx++) {
+    for (let ny = 9; ny <= 18; ny++) {
+      buckets.nori.push({ x: (nx - 5) * vs, y: ny * vs, z: Math.round(-11 + (ny - 9) * 0.25) * vs });
+    }
   }
+
+  // Chashu flotando (ovalo de carne y grasa en voxels)
+  for (let cx = -3; cx <= 3; cx++) {
+    for (let cz = -3; cz <= 3; cz++) {
+      if (cx * cx + cz * cz <= 9) {
+        const key = (Math.abs(cx) === 2 || Math.abs(cz) === 2) ? 'fat' : 'meat';
+        buckets[key].push({ x: (cx - 4) * vs, y: 10 * vs, z: (cz + 2) * vs });
+      }
+    }
+  }
+
+  // Medio huevo ajitsuke en voxels
+  for (let ex = -3; ex <= 3; ex++) {
+    for (let ez = -3; ez <= 3; ez++) {
+      const er = Math.sqrt(ex * ex + ez * ez);
+      if (er <= 3) {
+        const key = (er <= 1.5) ? 'eggYolk' : 'eggWhite';
+        buckets[key].push({ x: (ex + 4) * vs, y: 10 * vs, z: (ez + 3) * vs });
+      }
+    }
+  }
+
+  // Cebollino verde
+  for (let k = 0; k < 18; k++) {
+    const gx = Math.round(Math.sin(k * 2.3) * 6);
+    const gz = Math.round(Math.cos(k * 1.9) * 6);
+    buckets.negi.push({ x: gx * vs, y: 11 * vs, z: gz * vs });
+  }
+
+  // Topping especial según receta en voxels
+  if (ramenId === "ramen_ebi") {
+    // Voxel camarón
+    for (let b = -4; b <= 4; b++) {
+      buckets.special.push({ x: b * vs, y: 11 * vs, z: Math.round(-4 + Math.sin(b * 0.8) * 2) * vs });
+    }
+  } else if (ramenId === "ramen_tantan") {
+    // Voxel soboro de carne molida especiada
+    for (let mx = -2; mx <= 2; mx++) {
+      for (let mz = -2; mz <= 2; mz++) {
+        buckets.meat.push({ x: mx * vs, y: 11 * vs, z: (mz - 3) * vs });
+      }
+    }
+  } else if (ramenId === "ramen_chashu") {
+    // Extra chashu en abanico
+    for (let cx = -3; cx <= 3; cx++) {
+      for (let cz = -3; cz <= 3; cz++) {
+        if (cx * cx + cz * cz <= 8) {
+          buckets.meat.push({ x: (cx + 3) * vs, y: 10.5 * vs, z: (cz - 4) * vs });
+        }
+      }
+    }
+  }
+
+  renderVoxelBuckets(group, buckets, mats, vs, 0);
 }
 
 function animateTamago() {
