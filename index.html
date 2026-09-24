@@ -14,6 +14,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <!-- SUPABASE JS SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- THREE.JS & ORBITCONTROLS PARA SECRETOS DEL CHEF 3D -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <style>
   :root {
     --bg-dark: #190e0c;
@@ -1333,6 +1336,316 @@
     50% { transform: scale(1.18); opacity: 0.8; }
   }
 
+  /* ESTILOS Y ANIMACIONES PARA SECRETO DESBLOQUEADO (TAMAGO 3D) */
+  @keyframes floatPedestal {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-4px); }
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 0 6px rgba(255, 179, 0, 0.4); }
+    50% { box-shadow: 0 0 16px rgba(255, 179, 0, 0.9); }
+  }
+
+  .secret-card-unlocked {
+    cursor: pointer !important;
+    border: 2px solid #ffd54f !important;
+    background: linear-gradient(145deg, #2b1338, #180824) !important;
+    box-shadow: 0 0 16px rgba(255, 213, 79, 0.35) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease !important;
+  }
+
+  .secret-card-unlocked:hover {
+    transform: translateY(-2px) scale(1.03) !important;
+    border-color: #ffe082 !important;
+    box-shadow: 0 0 22px rgba(255, 213, 79, 0.6) !important;
+  }
+
+  /* MODAL DE VISTA DETALLADA 3D Y RESEÑA (50% / 50%) */
+  #secreto-detail-modal {
+    z-index: 9600;
+  }
+
+  .secreto-detail-card {
+    width: 96%;
+    max-width: 1060px;
+    height: 92%;
+    max-height: 560px;
+    background: #150d1e;
+    border: 3px solid #ffb300;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 0 35px rgba(0, 0, 0, 0.95), 0 0 18px rgba(255, 179, 0, 0.45);
+  }
+
+  .secreto-split-layout {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: calc(100% - 40px);
+    overflow: hidden;
+  }
+
+  /* MITAD IZQUIERDA: VISOR 3D (50%) */
+  .secreto-3d-half {
+    flex: 0 0 50%;
+    width: 50%;
+    height: 100%;
+    position: relative;
+    background: radial-gradient(circle at 50% 45%, #251936 0%, #130b1e 70%, #0a0510 100%);
+    border-right: 2px solid rgba(255, 179, 0, 0.3);
+    overflow: hidden;
+  }
+
+  #tamago-3d-canvas-container {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  #tamago-3d-canvas-container canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+    touch-action: none;
+  }
+
+  .secreto-3d-hud {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    pointer-events: none;
+    z-index: 10;
+    width: 90%;
+  }
+
+  .secreto-3d-hint {
+    background: rgba(16, 9, 26, 0.9);
+    border: 1px solid rgba(255, 213, 79, 0.5);
+    color: #ffecb3;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 3px 12px;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.6);
+    text-align: center;
+    backdrop-filter: blur(4px);
+    letter-spacing: 0.3px;
+  }
+
+  .secreto-3d-btn-group {
+    display: flex;
+    gap: 8px;
+    pointer-events: auto;
+  }
+
+  .btn-3d-ctrl {
+    background: rgba(28, 16, 44, 0.92);
+    color: #ffd54f;
+    border: 1px solid #ffd54f;
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 800;
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    transition: all 0.15s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+  }
+
+  .btn-3d-ctrl:hover {
+    background: #ffd54f;
+    color: #1a0f2b;
+  }
+
+  /* MITAD DERECHA: RESEÑA CULINARIA (50%) */
+  .secreto-lore-half {
+    flex: 0 0 50%;
+    width: 50%;
+    height: 100%;
+    background: #fffdf9;
+    color: #212121;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 14px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .lore-badge-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #fff8e1;
+    color: #b78103;
+    border: 1px solid #ffe082;
+    font-size: 9px;
+    font-weight: 900;
+    padding: 2px 8px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    width: fit-content;
+  }
+
+  .lore-title-area h3 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 20px;
+    color: #4a148c;
+    line-height: 1.1;
+    margin: 2px 0;
+  }
+
+  .lore-subtitle {
+    font-size: 11px;
+    color: #6a1b9a;
+    font-weight: 700;
+  }
+
+  .lore-section-box {
+    background: #fbf5ed;
+    border-left: 3px solid #ab47bc;
+    border-radius: 4px 8px 8px 4px;
+    padding: 8px 10px;
+    font-size: 11px;
+    line-height: 1.45;
+    color: #3e2723;
+  }
+
+  .lore-section-box h4 {
+    font-size: 11px;
+    font-weight: 900;
+    color: #4a148c;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .lore-tare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .tare-item {
+    background: #fff;
+    border: 1px solid #eeddc8;
+    border-radius: 6px;
+    padding: 5px 7px;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .tare-icon {
+    font-size: 15px;
+  }
+
+  .tare-name {
+    font-weight: 800;
+    color: #5d4037;
+    font-size: 10px;
+  }
+
+  .tare-desc {
+    font-size: 8.5px;
+    color: #795548;
+  }
+
+  .lore-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+    background: #f3e5f5;
+    border: 1px solid #e1bee7;
+    border-radius: 8px;
+    padding: 8px;
+    font-size: 10px;
+  }
+
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2px 4px;
+  }
+
+  .stat-label {
+    font-weight: 700;
+    color: #4a148c;
+  }
+
+  .stat-val {
+    font-weight: 900;
+    color: #ff6f00;
+  }
+
+  .lore-buff-card {
+    background: linear-gradient(135deg, #fff8e1, #ffecb3);
+    border: 2px solid #ffb300;
+    border-radius: 10px;
+    padding: 8px 12px;
+    box-shadow: 0 2px 8px rgba(255, 179, 0, 0.2);
+  }
+
+  .lore-buff-card h4 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 12px;
+    color: #e65100;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .lore-buff-list {
+    list-style: none;
+    font-size: 10.5px;
+    color: #3e2723;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .lore-buff-list li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 800;
+  }
+
+  @media (max-width: 680px) {
+    .secreto-split-layout {
+      flex-direction: column;
+    }
+    .secreto-3d-half {
+      flex: 0 0 45%;
+      width: 100%;
+      height: 45%;
+      border-right: none;
+      border-bottom: 2px solid rgba(255, 179, 0, 0.3);
+    }
+    .secreto-lore-half {
+      flex: 0 0 55%;
+      width: 100%;
+      height: 55%;
+      padding: 10px;
+    }
+    .tare-desc { display: none; }
+  }
+
   @media (max-width: 800px) {
     .admin-kpi-grid { grid-template-columns: repeat(3, 1fr); }
   }
@@ -2067,14 +2380,18 @@
             <div class="secret-req-badge">🔒 Desbloquea en Nivel 4</div>
           </div>
 
-          <!-- Tarjeta 4 -->
-          <div class="secret-card">
-            <div style="font-size: 11px; font-weight: 800; color: #ce93d8;">Huevo Ajitsuke</div>
-            <div class="secret-pedestal-preview" title="Pendiente de desbloquear">
-              <span style="animation: pulse 1.5s infinite;">❓</span>
+          <!-- Tarjeta 4: Huevo Ajitsuke (DESBLOQUEADO CON VISTA PREVIA 3D) -->
+          <div class="secret-card secret-card-unlocked" onclick="openTamagoSecretDetail()" title="¡Toca para ver el Secreto en 3D!">
+            <div style="font-size: 11px; font-weight: 900; color: #ffe082; display: flex; align-items: center; gap: 4px;">
+              <span>🥚</span> Huevo Ajitsuke
             </div>
-            <div style="font-size: 9px; color: #b0bec5; margin: 2px 0;">Yema cremosa marinada en soja</div>
-            <div class="secret-req-badge">🔒 Desbloquea en Nivel 5</div>
+            <div class="secret-pedestal-preview" style="background: radial-gradient(circle, rgba(255, 179, 0, 0.45) 0%, rgba(37, 14, 52, 0.9) 70%); border: 2px solid #ffd54f; box-shadow: 0 0 14px rgba(255, 213, 79, 0.6); animation: floatPedestal 3s ease-in-out infinite;">
+              <span style="font-size: 26px; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.6));">🥚</span>
+            </div>
+            <div style="font-size: 9px; color: #ffecb3; font-weight: 700; margin: 2px 0;">Yema cremosa marinada en soja</div>
+            <div class="secret-req-badge" style="background: linear-gradient(90deg, #ff8f00, #ffb300); color: #211000; font-weight: 900; border: none; box-shadow: 0 2px 6px rgba(0,0,0,0.4); padding: 3px 8px; border-radius: 8px; animation: pulseGlow 2s infinite; cursor: pointer;">
+              ✨ ¡DESBLOQUEADO! (Ver 3D)
+            </div>
           </div>
 
           <!-- Tarjeta 5 -->
@@ -2102,6 +2419,135 @@
           <button class="btn" onclick="closeSecretosModal()" style="background: linear-gradient(135deg, #7b1fa2, #4a148c); color: #fff; font-size: 12px; padding: 6px 20px; margin: 0 auto;">
             Cerrar Galería
           </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE DETALLE Y RESEÑA 3D DEL SECRETO (50% 3D / 50% RESEÑA) -->
+  <div class="modal-overlay" id="secreto-detail-modal" onclick="closeTamagoSecretDetail()">
+    <div class="secreto-detail-card" onclick="event.stopPropagation()">
+      <!-- Header -->
+      <div class="modal-header" style="background: linear-gradient(90deg, #4a148c, #6a1b9a, #ab47bc); padding: 6px 14px; border-bottom: 2px solid #ffd54f;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size: 18px;">✨</span>
+          <h2 style="font-family: 'Fredoka One', cursive; font-size: 15px; color: #fff8e1;">SECRETO DEL CHEF • AJITSUKE TAMAGO 3D</h2>
+          <span style="background: linear-gradient(90deg, #ff8f00, #ffb300); color: #211000; font-size: 9px; font-weight: 900; padding: 2px 7px; border-radius: 8px;">DESBLOQUEADO</span>
+        </div>
+        <div style="display:flex; gap:6px;">
+          <button class="btn" style="background: #f3e5f5; color: #4a148c; padding: 3px 10px; font-size: 10px; font-weight: 900;" onclick="backToSecretosGallery()">◀ Volver a Galería</button>
+          <button class="btn btn-danger" style="padding: 2px 8px;" onclick="closeTamagoSecretDetail()">✕</button>
+        </div>
+      </div>
+
+      <!-- Split Layout: 50% Visor 3D / 50% Reseña Culinaria -->
+      <div class="secreto-split-layout">
+        <!-- 50% Izquierda: Visor 3D Interactivo con OrbitControls -->
+        <div class="secreto-3d-half">
+          <div id="tamago-3d-canvas-container"></div>
+          <div class="secreto-3d-hud">
+            <div class="secreto-3d-hint">
+              🖱️ Arrastra libremente para girar 360° | 🔍 Rueda o pellizco para Zoom
+            </div>
+            <div class="secreto-3d-btn-group">
+              <button class="btn-3d-ctrl" id="btn-toggle-autorotate" onclick="toggleTamagoAutoRotate()">
+                🔄 Auto-Giro: <span id="autorotate-status" style="color:#69f0ae;">ON</span>
+              </button>
+              <button class="btn-3d-ctrl" onclick="resetTamagoCamera()">
+                🎯 Centrar Ángulo
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 50% Derecha: Reseña Culinaria del Producto -->
+        <div class="secreto-lore-half">
+          <div class="lore-title-area">
+            <div class="lore-badge-tag">⭐ Topping Maestro • Nivel Legendario</div>
+            <h3>🥚 Ajitsuke Tamago (味付け玉子)</h3>
+            <div class="lore-subtitle">Huevo Marinado Semi-Líquido estilo Ramen Bar Tokyo</div>
+          </div>
+
+          <!-- Reseña del Chef -->
+          <div class="lore-section-box">
+            <h4>📖 Reseña del Chef & Técnica Secreta</h4>
+            <p>
+              El <strong>Ajitsuke Tamago</strong> es el alma y la prueba de fuego de todo maestro ramen. El secreto artesanal comienza con una rigurosa selección de huevos frescos a temperatura ambiente para evitar microfisuras al contacto con el agua en ebullición.
+            </p>
+            <p style="margin-top: 6px;">
+              La cocción se cronometra con precisión absoluta a <strong>6 minutos y 15 segundos</strong>, logrando el estado sagrado <em>'Hanjuku'</em>: clara firme pero tierna y sedosa, y una yema cremosa, dorada y de consistencia casi gelatinosa que se funde delicadamente al tocar el caldo hirviendo.
+            </p>
+            <p style="margin-top: 6px;">
+              Tras un choque térmico inmediato en baño de agua con hielo, se pelan con delicadeza milimétrica y reposan durante <strong>24 horas inmersos en frío</strong> en nuestro tare secreto, tiñéndose de un irresistible color caramelo con notas ahumadas y sésamo tostado.
+            </p>
+          </div>
+
+          <!-- Ingredientes del Tare -->
+          <div>
+            <div style="font-size: 11px; font-weight: 900; color: #4a148c; margin-bottom: 4px; display:flex; align-items:center; gap:4px;">
+              🧂 Tare Secreto de Marinado (Salmuera Fría)
+            </div>
+            <div class="lore-tare-grid">
+              <div class="tare-item">
+                <span class="tare-icon">🥢</span>
+                <div>
+                  <div class="tare-name">Shoyu Añejo</div>
+                  <div class="tare-desc">Soja fermentada oscura para teñido ámbar y profundidad umami.</div>
+                </div>
+              </div>
+              <div class="tare-item">
+                <span class="tare-icon">🍶</span>
+                <div>
+                  <div class="tare-name">Hon-Mirin</div>
+                  <div class="tare-desc">Aporte de dulzor aterciopelado y brillo laqueado en la superficie.</div>
+                </div>
+              </div>
+              <div class="tare-item">
+                <span class="tare-icon">🍶</span>
+                <div>
+                  <div class="tare-name">Sake Culinario</div>
+                  <div class="tare-desc">Suaviza las notas ácidas y realza el perfil aromático.</div>
+                </div>
+              </div>
+              <div class="tare-item">
+                <span class="tare-icon">🌊</span>
+                <div>
+                  <div class="tare-name">Kombu Dashi</div>
+                  <div class="tare-desc">Infusión de alga kombu para una explosión natural de glutamato.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ficha de Degustación -->
+          <div class="lore-stats-grid">
+            <div class="stat-row">
+              <span class="stat-label">Punto de Yema:</span>
+              <span class="stat-val">Hanjuku (Melosa)</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Nivel de Umami:</span>
+              <span class="stat-val">★★★★★ (5/5)</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Tiempo de Marinado:</span>
+              <span class="stat-val">24 Horas en Frío</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Topping Final:</span>
+              <span class="stat-val">Sésamo Tostado</span>
+            </div>
+          </div>
+
+          <!-- Buff de Juego -->
+          <div class="lore-buff-card">
+            <h4>⚡ Efecto Culinario Activo en Ramen Mania:</h4>
+            <ul class="lore-buff-list">
+              <li>💰 <span><strong>+25% de Propina</strong> en cualquier tazón servido con Huevo</span></li>
+              <li>⏳ <span><strong>+4 Segundos de Paciencia</strong> extra en comensales VIP</span></li>
+              <li>🔥 <span><strong>Multiplicador de Combo +10%</strong> en modos Carrera y Arcade</span></li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
@@ -4158,6 +4604,325 @@ function closeSecretosModal() {
   playSound('click');
   const modal = document.getElementById("secretos-modal");
   if (modal) modal.classList.remove("active");
+}
+
+/* ==========================================================================
+   VISOR 3D INTERACTIVO VOXEL & RESEÑA - AJITSUKE TAMAGO (SECRETO DEL CHEF)
+   ========================================================================== */
+function openTamagoSecretDetail() {
+  playSound('click');
+  const secretosModal = document.getElementById("secretos-modal");
+  if (secretosModal) secretosModal.classList.remove("active");
+
+  const modal = document.getElementById("secreto-detail-modal");
+  if (modal) {
+    modal.classList.add("active");
+  }
+
+  // Esperar a que el motor de render aplique el display: flex del modal para calcular dimensiones reales
+  requestAnimationFrame(() => {
+    initOrResumeTamago3D();
+    setTimeout(resizeTamagoViewport, 60);
+  });
+}
+
+function closeTamagoSecretDetail() {
+  playSound('click');
+  const modal = document.getElementById("secreto-detail-modal");
+  if (modal) {
+    modal.classList.remove("active");
+  }
+  // Detener el loop para economizar batería y rendimiento en segundo plano
+  stopTamago3D();
+}
+
+function backToSecretosGallery() {
+  playSound('click');
+  closeTamagoSecretDetail();
+  openSecretosModal();
+}
+
+let tamagoScene = null;
+let tamagoCamera = null;
+let tamagoRenderer = null;
+let tamagoControls = null;
+let tamagoEggGroup = null;
+let tamagoPedestalGroup = null;
+let tamagoAnimId = null;
+let tamagoAutoRotate = true;
+let tamagoInitialized = false;
+
+function initOrResumeTamago3D() {
+  const container = document.getElementById("tamago-3d-canvas-container");
+  if (!container) return;
+
+  if (!tamagoInitialized) {
+    setupTamagoScene(container);
+    tamagoInitialized = true;
+  } else {
+    resizeTamagoViewport();
+  }
+
+  if (!tamagoAnimId) {
+    animateTamago();
+  }
+}
+
+function stopTamago3D() {
+  if (tamagoAnimId) {
+    cancelAnimationFrame(tamagoAnimId);
+    tamagoAnimId = null;
+  }
+}
+
+function setupTamagoScene(container) {
+  container.innerHTML = "";
+
+  const width = container.clientWidth || 400;
+  const height = container.clientHeight || 400;
+
+  // 1. Escena
+  tamagoScene = new THREE.Scene();
+  tamagoScene.background = new THREE.Color(0x130a1c);
+
+  // 2. Cámara (foco nítido y claro en perspectiva isométrica elevada)
+  tamagoCamera = new THREE.PerspectiveCamera(40, width / height, 0.1, 1000);
+  tamagoCamera.position.set(22, 16, 26);
+
+  // 3. WebGL Renderer de alta nitidez y soporte retina/móvil
+  tamagoRenderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+  tamagoRenderer.setSize(width, height);
+  tamagoRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  tamagoRenderer.shadowMap.enabled = true;
+  tamagoRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  if (THREE.sRGBEncoding) tamagoRenderer.outputEncoding = THREE.sRGBEncoding;
+  container.appendChild(tamagoRenderer.domElement);
+
+  // 4. OrbitControls: rotación libre 360° en cualquier ángulo y zoom suave
+  tamagoControls = new THREE.OrbitControls(tamagoCamera, tamagoRenderer.domElement);
+  tamagoControls.enableDamping = true;
+  tamagoControls.dampingFactor = 0.05;
+  tamagoControls.target.set(0, 6.8, 0); // Foco central exacto en el huevo
+  tamagoControls.minDistance = 10;
+  tamagoControls.maxDistance = 65;
+  tamagoControls.minPolarAngle = 0.04; // Ángulo vertical superior
+  tamagoControls.maxPolarAngle = Math.PI - 0.04; // Ángulo vertical inferior
+
+  // Pausar auto-rotación en cuanto el usuario toca o arrastra el modelo
+  tamagoControls.addEventListener('start', () => {
+    tamagoAutoRotate = false;
+    updateTamagoAutoRotateBtn();
+  });
+
+  // 5. Iluminación multicapa para máxima claridad visual
+  const ambientLight = new THREE.AmbientLight(0xfff6ee, 0.88);
+  tamagoScene.add(ambientLight);
+
+  // Luz principal con sombra suave
+  const dirLight = new THREE.DirectionalLight(0xffffff, 1.05);
+  dirLight.position.set(22, 42, 22);
+  dirLight.castShadow = true;
+  dirLight.shadow.mapSize.width = 1024;
+  dirLight.shadow.mapSize.height = 1024;
+  dirLight.shadow.camera.near = 5;
+  dirLight.shadow.camera.far = 85;
+  dirLight.shadow.bias = -0.0004;
+  tamagoScene.add(dirLight);
+
+  // Luz de relleno lateral (evita sombras oscuras en los costados al girar)
+  const fillLight = new THREE.DirectionalLight(0xedd9ff, 0.55);
+  fillLight.position.set(-22, 26, -22);
+  tamagoScene.add(fillLight);
+
+  // Luz dorada cálida de realce en la base
+  const rimLight = new THREE.DirectionalLight(0xffca28, 0.4);
+  rimLight.position.set(0, -15, 20);
+  tamagoScene.add(rimLight);
+
+  // 6. Construcción del Pedestal de Exhibición Arcade
+  tamagoPedestalGroup = new THREE.Group();
+
+  // Base cilíndrica inferior
+  const baseGeo = new THREE.CylinderGeometry(8, 9, 1.2, 36);
+  const baseMat = new THREE.MeshStandardMaterial({ color: 0x1d1329, roughness: 0.35 });
+  const base = new THREE.Mesh(baseGeo, baseMat);
+  base.position.y = 0.6;
+  base.receiveShadow = true;
+  tamagoPedestalGroup.add(base);
+
+  // Anillo dorado en la base
+  const ringGeo = new THREE.TorusGeometry(8.5, 0.22, 16, 40);
+  const ringMat = new THREE.MeshStandardMaterial({ color: 0xffd54f, metalness: 0.85, roughness: 0.2 });
+  const goldRing = new THREE.Mesh(ringGeo, ringMat);
+  goldRing.rotation.x = Math.PI / 2;
+  goldRing.position.y = 1.15;
+  tamagoPedestalGroup.add(goldRing);
+
+  // Columna central
+  const pillarGeo = new THREE.CylinderGeometry(5.8, 6.3, 3.5, 36);
+  const pillarMat = new THREE.MeshStandardMaterial({ color: 0x301e44, roughness: 0.45 });
+  const pillar = new THREE.Mesh(pillarGeo, pillarMat);
+  pillar.position.y = 2.95;
+  pillar.receiveShadow = true;
+  tamagoPedestalGroup.add(pillar);
+
+  // Plato superior donde reposa el huevo
+  const topGeo = new THREE.CylinderGeometry(7.5, 7, 0.6, 36);
+  const topMat = new THREE.MeshStandardMaterial({ color: 0x140a1e, roughness: 0.25 });
+  const topPlate = new THREE.Mesh(topGeo, topMat);
+  topPlate.position.y = 4.95;
+  topPlate.receiveShadow = true;
+  tamagoPedestalGroup.add(topPlate);
+
+  tamagoScene.add(tamagoPedestalGroup);
+
+  // 7. Generación Voxel del Medio Huevo (Ajitsuke Tamago) optimizada con InstancedMesh
+  tamagoEggGroup = new THREE.Group();
+  const voxelSize = 0.35;
+  const boxGeo = new THREE.BoxGeometry(voxelSize, voxelSize, voxelSize);
+
+  const mats = {
+    crust: new THREE.MeshStandardMaterial({ color: 0x7a431d, roughness: 0.5 }), // Soja exterior
+    whiteOuter: new THREE.MeshStandardMaterial({ color: 0xedd6be, roughness: 0.4 }), // Clara marinada
+    whiteInner: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 }), // Clara blanca
+    yolkFirm: new THREE.MeshStandardMaterial({ color: 0xee9b00, roughness: 0.3 }), // Yema cocida
+    yolkGooey: new THREE.MeshStandardMaterial({ color: 0xc85a00, roughness: 0.15, metalness: 0.1 }), // Yema líquida/gelatinosa
+    sesame: new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.9 }) // Sésamo negro
+  };
+
+  const Rx = 15;
+  const Ry = 11;
+  const Rz = 15;
+
+  const buckets = {
+    crust: [],
+    whiteOuter: [],
+    whiteInner: [],
+    yolkFirm: [],
+    yolkGooey: [],
+    sesame: []
+  };
+
+  for (let x = -Rx; x <= Rx; x++) {
+    for (let y = -Ry; y <= 0; y++) {
+      for (let z = -Rz; z <= Rz; z++) {
+        const dist = (x * x) / (Rx * Rx) + (y * y) / (Ry * Ry) + (z * z) / (Rz * Rz);
+        if (dist <= 1.0) {
+          let key = null;
+          const rXZ = Math.sqrt(x * x + z * z);
+          if (y === 0) {
+            // Superficie de corte expuesta (cara superior)
+            if (rXZ < 5) {
+              if ((x * 7 + z * 13) % 11 === 0 || (x === 2 && z === -1)) {
+                key = 'sesame';
+              } else {
+                key = 'yolkGooey';
+              }
+            } else if (rXZ < 8) {
+              key = 'yolkFirm';
+            } else if (rXZ < 13.5) {
+              key = 'whiteInner';
+            } else {
+              key = 'crust';
+            }
+          } else {
+            // Volumen interior y capas de marinado
+            if (dist > 0.86) {
+              key = 'crust';
+            } else if (dist > 0.72) {
+              key = 'whiteOuter';
+            } else if (dist > 0.45) {
+              key = 'whiteInner';
+            } else {
+              key = 'yolkFirm';
+            }
+          }
+
+          if (key) {
+            // y va de -Ry (base redondeada abajo) a 0 (corte arriba expuesto al espectador)
+            const posY = (y + Ry) * voxelSize;
+            buckets[key].push({ x: x * voxelSize, y: posY, z: z * voxelSize });
+          }
+        }
+      }
+    }
+  }
+
+  // Creación de InstancedMesh para alto rendimiento (6 draw-calls en total)
+  const dummy = new THREE.Object3D();
+  for (const [key, positions] of Object.entries(buckets)) {
+    if (positions.length === 0) continue;
+    const instMesh = new THREE.InstancedMesh(boxGeo, mats[key], positions.length);
+    for (let i = 0; i < positions.length; i++) {
+      const p = positions[i];
+      dummy.position.set(p.x, p.y, p.z);
+      dummy.updateMatrix();
+      instMesh.setMatrixAt(i, dummy.matrix);
+    }
+    instMesh.instanceMatrix.needsUpdate = true;
+    instMesh.castShadow = true;
+    instMesh.receiveShadow = true;
+    tamagoEggGroup.add(instMesh);
+  }
+
+  // Reposa sobre la placa del pedestal (y = 5.25)
+  tamagoEggGroup.position.set(0, 5.25, 0);
+  tamagoScene.add(tamagoEggGroup);
+
+  window.addEventListener('resize', resizeTamagoViewport);
+  setTimeout(resizeTamagoViewport, 60);
+}
+
+function animateTamago() {
+  tamagoAnimId = requestAnimationFrame(animateTamago);
+
+  if (tamagoAutoRotate && tamagoEggGroup) {
+    tamagoEggGroup.rotation.y += 0.007;
+  }
+
+  if (tamagoControls) {
+    tamagoControls.update();
+  }
+
+  if (tamagoRenderer && tamagoScene && tamagoCamera) {
+    tamagoRenderer.render(tamagoScene, tamagoCamera);
+  }
+}
+
+function resizeTamagoViewport() {
+  const container = document.getElementById("tamago-3d-canvas-container");
+  if (!container || !tamagoRenderer || !tamagoCamera) return;
+
+  const w = container.clientWidth;
+  const h = container.clientHeight;
+  if (w <= 0 || h <= 0) return;
+
+  tamagoCamera.aspect = w / h;
+  tamagoCamera.updateProjectionMatrix();
+  tamagoRenderer.setSize(w, h);
+}
+
+function toggleTamagoAutoRotate() {
+  playSound('click');
+  tamagoAutoRotate = !tamagoAutoRotate;
+  updateTamagoAutoRotateBtn();
+}
+
+function updateTamagoAutoRotateBtn() {
+  const statusEl = document.getElementById("autorotate-status");
+  if (statusEl) {
+    statusEl.textContent = tamagoAutoRotate ? "ON" : "OFF";
+    statusEl.style.color = tamagoAutoRotate ? "#69f0ae" : "#ff5252";
+  }
+}
+
+function resetTamagoCamera() {
+  playSound('click');
+  if (tamagoCamera && tamagoControls) {
+    tamagoCamera.position.set(22, 16, 26);
+    tamagoControls.target.set(0, 6.8, 0);
+    tamagoControls.update();
+  }
 }
 
 let userDismissedRotateOverlay = false;
