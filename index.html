@@ -67,24 +67,19 @@
     align-items: center;
   }
 
-  /* OVERLAY PARA AVISAR GIRO EN MÓVILES SI ESTÁ EN VERTICAL */
+  /* OVERLAY DE SUGERENCIA DE GIRO */
   #rotate-device-overlay {
     display: none;
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: #190e0c;
+    background: rgba(25, 14, 12, 0.94);
     z-index: 9999;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     text-align: center;
     padding: 20px;
-  }
-
-  @media screen and (orientation: portrait) and (max-width: 900px) {
-    #rotate-device-overlay {
-      display: flex;
-    }
+    backdrop-filter: blur(4px);
   }
 
   .rotate-icon {
@@ -1260,6 +1255,17 @@
     .btn-play-hero { font-size: 16px; padding: 7px 28px; }
     .start-screen-overlay { padding: 4px 8px; }
   }
+
+  @media (max-width: 650px) {
+    .start-logo-title { font-size: 24px; }
+    .start-modes-grid { grid-template-columns: 1fr; gap: 6px; }
+    .start-mode-card { padding: 6px 10px; }
+    .btn-play-hero { font-size: 17px; padding: 8px 28px; }
+    .start-profile-box { flex-direction: column; text-align: center; gap: 6px; }
+    .start-unregistered-box { flex-direction: column; text-align: center; gap: 6px; }
+    .start-btn-row { gap: 5px; }
+    .btn-start-sec { font-size: 10px; padding: 4px 8px; }
+  }
 </style>
 </head>
 <body>
@@ -1270,9 +1276,12 @@
   <h2 style="font-family: 'Fredoka One', cursive; font-size: 22px; color: var(--ramen-gold); margin-bottom: 8px;">
     GIRA TU CELULAR A HORIZONTAL
   </h2>
-  <p style="font-size: 13px; color: #d7ccc8; max-width: 320px;">
-    Ramen Mania está diseñado para jugarse en formato apaisado (Landscape) como una máquina arcade.
+  <p style="font-size: 13px; color: #d7ccc8; max-width: 320px; margin-bottom: 14px;">
+    Ramen Mania está diseñado para jugarse en formato horizontal (Landscape) como una máquina arcade.
   </p>
+  <button class="btn" onclick="dismissRotateOverlay()" style="background:#ff9800; color:#212121; font-weight:900; font-size:13px; padding:8px 18px; border-radius:20px; box-shadow:0 3px 0 #b26a00;">
+    ▶️ Continuar / Entrar al Juego
+  </button>
 </div>
 
 <div id="game-container">
@@ -3909,6 +3918,12 @@ function checkOrientation() {
   }
 }
 
+function dismissRotateOverlay() {
+  userDismissedRotateOverlay = true;
+  const overlay = document.getElementById('rotate-device-overlay');
+  if (overlay) overlay.style.display = 'none';
+}
+
 window.addEventListener('resize', () => {
   setTimeout(checkOrientation, 150);
 });
@@ -4460,9 +4475,10 @@ function renderAdminSessionsView() {
 window.addEventListener("DOMContentLoaded", async () => {
   initSupabase();
   checkOrientation();
-  await DeviceManager.init();
+  updateStartPlayerCard();
   setStartSelectedMode('NORMAL');
   initRecipeTable();
+  await DeviceManager.init();
 });
 </script>
 </body>
