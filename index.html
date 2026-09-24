@@ -1279,6 +1279,55 @@
     border-radius: 4px;
   }
 
+  /* SECRETOS DEL CHEF MODAL */
+  .secretos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+    margin-top: 8px;
+  }
+
+  .secret-card {
+    background: linear-gradient(145deg, #1f112e, #12091d);
+    border: 2px solid #512da8;
+    border-radius: 12px;
+    padding: 10px 8px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 135px;
+  }
+
+  .secret-pedestal-preview {
+    width: 54px;
+    height: 54px;
+    background: radial-gradient(circle, rgba(123, 31, 162, 0.4) 0%, rgba(18, 9, 29, 0.8) 70%);
+    border: 2px dashed #7e57c2;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin: 4px 0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
+  }
+
+  .secret-req-badge {
+    background: #311b92;
+    border: 1px solid #7e57c2;
+    color: #e1bee7;
+    font-size: 9px;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 6px;
+    line-height: 1.2;
+    margin-top: 4px;
+  }
+
   @media (max-width: 800px) {
     .admin-kpi-grid { grid-template-columns: repeat(3, 1fr); }
   }
@@ -1387,6 +1436,9 @@
         </button>
         <button class="btn-start-sec" onclick="openProfileModal()">
           👤 Mi Perfil / Dispositivo
+        </button>
+        <button class="btn-start-sec" onclick="openSecretosModal()" style="background: linear-gradient(135deg, #4a148c, #7b1fa2); border-color: #ba68c8; color: #f3e5f5; font-weight: 800;">
+          ✨ Secretos del Chef
         </button>
         <button class="btn-start-sec" onclick="openRecipeModal()">
           📖 Recetario
@@ -1957,6 +2009,92 @@
           </div>
         </div>
 
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE SECRETOS DEL CHEF -->
+  <div class="modal-overlay" id="secretos-modal" onclick="closeSecretosModal()">
+    <div class="modal-card" onclick="event.stopPropagation()" style="max-width: 580px; border-color: #ab47bc;">
+      <div class="modal-header" style="background: linear-gradient(90deg, #4a148c, #7b1fa2, #ab47bc);">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size: 20px;">✨</span>
+          <h2 style="font-family: 'Fredoka One', cursive; font-size: 16px; color: #f3e5f5;">SECRETOS DEL CHEF • GALERÍA 3D</h2>
+        </div>
+        <button class="btn btn-danger" style="padding: 2px 8px;" onclick="closeSecretosModal()">✕</button>
+      </div>
+      <div class="modal-body" style="padding: 14px; max-height: 70vh; overflow-y: auto;">
+        <div style="background: linear-gradient(135deg, rgba(74, 20, 140, 0.2), rgba(123, 31, 162, 0.15)); border: 1px solid #ba68c8; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; font-size: 11px; color: #f3e5f5; line-height: 1.4;">
+          🌟 <strong>Secretos Culinarios Legendarios:</strong> Descubre las tarjetas informativas y modelos 3D en Pixel Art con rotación 360° sobre pedestal. Se desbloquean al completar hitos y niveles en el juego.
+        </div>
+
+        <div class="secretos-grid" id="secretos-cards-container">
+          <!-- Tarjeta 1 -->
+          <div class="secret-card">
+            <div style="font-size: 11px; font-weight: 800; color: #ce93d8;">Fideos Artesanales</div>
+            <div class="secret-pedestal-preview" title="Pendiente de desbloquear">
+              <span style="animation: pulse 1.5s infinite;">❓</span>
+            </div>
+            <div style="font-size: 9px; color: #b0bec5; margin: 2px 0;">Amasado a mano con agua Kansui</div>
+            <div class="secret-req-badge">🔒 Desbloquea en Nivel 2</div>
+          </div>
+
+          <!-- Tarjeta 2 -->
+          <div class="secret-card">
+            <div style="font-size: 11px; font-weight: 800; color: #ce93d8;">Caldo Tonkotsu Secreto</div>
+            <div class="secret-pedestal-preview" title="Pendiente de desbloquear">
+              <span style="animation: pulse 1.5s infinite;">❓</span>
+            </div>
+            <div style="font-size: 9px; color: #b0bec5; margin: 2px 0;">Hervido por más de 18 horas</div>
+            <div class="secret-req-badge">🔒 Desbloquea en Nivel 3</div>
+          </div>
+
+          <!-- Tarjeta 3 -->
+          <div class="secret-card">
+            <div style="font-size: 11px; font-weight: 800; color: #ce93d8;">Chashu Caramelizado</div>
+            <div class="secret-pedestal-preview" title="Pendiente de desbloquear">
+              <span style="animation: pulse 1.5s infinite;">❓</span>
+            </div>
+            <div style="font-size: 9px; color: #b0bec5; margin: 2px 0;">Panceta braseada a fuego lento</div>
+            <div class="secret-req-badge">🔒 Desbloquea en Nivel 4</div>
+          </div>
+
+          <!-- Tarjeta 4 -->
+          <div class="secret-card">
+            <div style="font-size: 11px; font-weight: 800; color: #ce93d8;">Huevo Ajitsuke</div>
+            <div class="secret-pedestal-preview" title="Pendiente de desbloquear">
+              <span style="animation: pulse 1.5s infinite;">❓</span>
+            </div>
+            <div style="font-size: 9px; color: #b0bec5; margin: 2px 0;">Yema cremosa marinada en soja</div>
+            <div class="secret-req-badge">🔒 Desbloquea en Nivel 5</div>
+          </div>
+
+          <!-- Tarjeta 5 -->
+          <div class="secret-card">
+            <div style="font-size: 11px; font-weight: 800; color: #ce93d8;">Salsa Ebi Suprema</div>
+            <div class="secret-pedestal-preview" title="Pendiente de desbloquear">
+              <span style="animation: pulse 1.5s infinite;">❓</span>
+            </div>
+            <div style="font-size: 9px; color: #b0bec5; margin: 2px 0;">Concentrado de langostino tostado</div>
+            <div class="secret-req-badge">🔒 Ronda 20 en Modo Rash</div>
+          </div>
+
+          <!-- Tarjeta 6 -->
+          <div class="secret-card">
+            <div style="font-size: 11px; font-weight: 800; color: #ce93d8;">Alga Nori Sagrada</div>
+            <div class="secret-pedestal-preview" title="Pendiente de desbloquear">
+              <span style="animation: pulse 1.5s infinite;">❓</span>
+            </div>
+            <div style="font-size: 9px; color: #b0bec5; margin: 2px 0;">Tostado crujiente de Ariake</div>
+            <div class="secret-req-badge">🔒 Ronda 50 en Modo Rash</div>
+          </div>
+        </div>
+
+        <div style="margin-top: 14px; text-align: center;">
+          <button class="btn" onclick="closeSecretosModal()" style="background: linear-gradient(135deg, #7b1fa2, #4a148c); color: #fff; font-size: 12px; padding: 6px 20px; margin: 0 auto;">
+            Cerrar Galería
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -3982,6 +4120,18 @@ function openRecipeModal() {
 
 function closeRecipeModal() {
   document.getElementById("recipe-modal").classList.remove("active");
+}
+
+function openSecretosModal() {
+  playSound('click');
+  const modal = document.getElementById("secretos-modal");
+  if (modal) modal.classList.add("active");
+}
+
+function closeSecretosModal() {
+  playSound('click');
+  const modal = document.getElementById("secretos-modal");
+  if (modal) modal.classList.remove("active");
 }
 
 let userDismissedRotateOverlay = false;
