@@ -810,12 +810,455 @@
     }
   }
 
-  @media (max-width: 600px), (max-height: 480px) {
-    #abollado-banner {
-      font-size: 22px;
-      padding: 8px 18px;
-      border-width: 3px;
-    }
+  /* ==========================================================================
+     PANTALLA DE INICIO (START / TITLE SCREEN)
+     ========================================================================== */
+  .start-screen-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 50% 35%, #3d1b15 0%, #20100d 55%, #110705 100%);
+    z-index: 7000;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+
+  .start-screen-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .start-screen-content {
+    width: 100%;
+    max-width: 900px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin: auto 0;
+  }
+
+  /* LOGO PRINCIPAL */
+  .start-logo-wrap {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+  }
+
+  .start-logo-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 32px;
+    color: var(--ramen-gold);
+    text-shadow: 3px 3px 0 #2a0502, 0 0 16px rgba(255, 179, 0, 0.6);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 1px;
+  }
+
+  .start-logo-subtitle {
+    font-size: 11px;
+    font-weight: 900;
+    color: #ffcc80;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: rgba(183, 28, 28, 0.6);
+    border: 1px solid rgba(255, 179, 0, 0.4);
+    padding: 2px 10px;
+    border-radius: 12px;
+  }
+
+  /* TARJETA DE PERFIL Y DISPOSITIVO */
+  .start-profile-box {
+    width: 100%;
+    max-width: 620px;
+    background: linear-gradient(135deg, rgba(74, 34, 26, 0.9), rgba(47, 23, 18, 0.9));
+    border: 2px solid #6d392b;
+    border-radius: 12px;
+    padding: 7px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  .start-profile-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .start-profile-avatar {
+    font-size: 26px;
+    width: 40px;
+    height: 40px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--ramen-gold);
+  }
+
+  .start-profile-texts {
+    text-align: left;
+  }
+
+  .start-profile-name {
+    font-family: 'Fredoka One', cursive;
+    font-size: 16px;
+    color: #ffeb3b;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .start-device-tag {
+    font-size: 10px;
+    color: #81c784;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .start-unregistered-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 8px;
+  }
+
+  /* SELECTOR DE MODOS */
+  .start-modes-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+    max-width: 620px;
+  }
+
+  .start-mode-card {
+    background: linear-gradient(145deg, #2b1410, #1b0a07);
+    border: 2px solid #4e261d;
+    border-radius: 12px;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
+  }
+
+  .start-mode-card:hover {
+    border-color: #ff9800;
+    transform: translateY(-2px);
+  }
+
+  .start-mode-card.active {
+    border-color: var(--ramen-gold);
+    background: linear-gradient(145deg, #441d16, #2a110d);
+    box-shadow: 0 0 14px rgba(255, 179, 0, 0.4), 0 3px 8px rgba(0, 0, 0, 0.6);
+  }
+
+  .start-mode-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3px;
+  }
+
+  .start-mode-name {
+    font-family: 'Fredoka One', cursive;
+    font-size: 15px;
+    color: var(--ramen-gold);
+  }
+
+  .start-mode-badge {
+    font-size: 9px;
+    font-weight: 900;
+    padding: 2px 6px;
+    border-radius: 6px;
+    background: #ff9800;
+    color: #212121;
+  }
+
+  .start-mode-card.rash .start-mode-badge {
+    background: #e65100;
+    color: #fff;
+  }
+
+  .start-mode-desc {
+    font-size: 11px;
+    color: #d7ccc8;
+    line-height: 1.25;
+    margin-bottom: 4px;
+    text-align: left;
+  }
+
+  .start-mode-status {
+    font-size: 10px;
+    font-weight: 800;
+    color: #ffca28;
+    text-align: left;
+  }
+
+  /* BOTÓN PLAY HERO */
+  .btn-play-hero {
+    background: linear-gradient(135deg, #ff9800 0%, #d32f2f 60%, #b71c1c 100%);
+    color: #ffffff;
+    font-family: 'Fredoka One', cursive;
+    font-size: 20px;
+    letter-spacing: 1px;
+    padding: 10px 42px;
+    border-radius: 30px;
+    border: 3px solid #ffe082;
+    box-shadow: 0 5px 0 #5f0000, 0 0 20px rgba(255, 152, 0, 0.6);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.12s ease;
+    animation: heroPulse 1.8s infinite ease-in-out;
+  }
+
+  .btn-play-hero:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 7px 0 #5f0000, 0 0 25px rgba(255, 152, 0, 0.8);
+  }
+
+  .btn-play-hero:active {
+    transform: translateY(3px) scale(0.98);
+    box-shadow: 0 2px 0 #5f0000;
+  }
+
+  @keyframes heroPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+  }
+
+  .start-btn-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .btn-start-sec {
+    background: #371d17;
+    border: 1px solid #6d392b;
+    color: #ffe0b2;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 5px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.1s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .btn-start-sec:hover {
+    background: #4e261d;
+    border-color: var(--ramen-gold);
+    color: #fff;
+    transform: translateY(-1px);
+  }
+
+  .start-footer-bar {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 10px;
+    color: #8d6e63;
+    padding: 2px 10px;
+    flex-shrink: 0;
+  }
+
+  /* AVATAR PICKER */
+  .avatar-picker-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 6px;
+    margin: 8px 0;
+  }
+
+  .avatar-opt-btn {
+    font-size: 22px;
+    background: #fff3e0;
+    border: 2px solid #d7ccc8;
+    border-radius: 8px;
+    padding: 4px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.1s ease;
+  }
+
+  .avatar-opt-btn.active {
+    border-color: #b71c1c;
+    background: #ffe082;
+    transform: scale(1.08);
+  }
+
+  .device-info-pill {
+    background: #eceff1;
+    border: 1px solid #cfd8dc;
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 11px;
+    color: #37474f;
+    margin-bottom: 10px;
+    line-height: 1.35;
+  }
+
+  /* ==========================================================================
+     PANEL DE ADMINISTRACIÓN Y MONITOREO MASTER
+     ========================================================================== */
+  .admin-dashboard-modal {
+    max-width: 950px;
+    width: 96%;
+    max-height: 94vh;
+    background: #1e110e;
+    color: #fff8f0;
+    border: 3px solid #ff9800;
+  }
+
+  .admin-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .admin-kpi-card {
+    background: linear-gradient(135deg, #2c1611, #1e0d0a);
+    border: 1px solid #5d2e22;
+    border-radius: 10px;
+    padding: 8px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  }
+
+  .admin-kpi-val {
+    font-family: 'Fredoka One', cursive;
+    font-size: 18px;
+    color: #ffb300;
+    margin: 2px 0;
+  }
+
+  .admin-kpi-lbl {
+    font-size: 10px;
+    color: #bcaaa4;
+    font-weight: 700;
+  }
+
+  .admin-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+    border-bottom: 2px solid #4e261d;
+    padding-bottom: 6px;
+    flex-wrap: wrap;
+  }
+
+  .admin-tab-btn {
+    background: #2b130e;
+    border: 1px solid #5d2e22;
+    color: #d7ccc8;
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.1s ease;
+  }
+
+  .admin-tab-btn.active {
+    background: linear-gradient(135deg, #ff9800, #b71c1c);
+    color: #ffffff;
+    border-color: #ffb300;
+    box-shadow: 0 0 8px rgba(255, 152, 0, 0.5);
+  }
+
+  .admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+  }
+
+  .admin-table th, .admin-table td {
+    border: 1px solid #4a271f;
+    padding: 6px 8px;
+    text-align: left;
+  }
+
+  .admin-table th {
+    background: #3e1b14;
+    color: #ffb300;
+    font-weight: 900;
+    position: sticky;
+    top: 0;
+  }
+
+  .admin-table tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .admin-table tr:hover {
+    background: rgba(255, 179, 0, 0.08);
+  }
+
+  .admin-bar-track {
+    background: #371d17;
+    border-radius: 6px;
+    height: 12px;
+    overflow: hidden;
+    width: 100%;
+    position: relative;
+  }
+
+  .admin-bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.3s ease;
+  }
+
+  .admin-badge-crit {
+    background: #b71c1c;
+    color: #fff;
+    font-size: 9px;
+    font-weight: 900;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  @media (max-width: 800px) {
+    .admin-kpi-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  @media (max-height: 480px) {
+    .start-logo-title { font-size: 24px; }
+    .start-logo-subtitle { font-size: 9px; }
+    .start-profile-box { padding: 4px 10px; }
+    .start-modes-grid { gap: 6px; }
+    .start-mode-card { padding: 5px 8px; }
+    .btn-play-hero { font-size: 16px; padding: 7px 28px; }
+    .start-screen-overlay { padding: 4px 8px; }
   }
 </style>
 </head>
@@ -833,6 +1276,95 @@
 </div>
 
 <div id="game-container">
+  <!-- PANTALLA DE INICIO (START / TITLE SCREEN) -->
+  <div id="start-screen" class="start-screen-overlay">
+    <div class="start-screen-content">
+      
+      <!-- CABECERA Y LOGO -->
+      <div class="start-logo-wrap">
+        <div class="start-logo-title">
+          <span>🥢</span>
+          <span>RAMEN MANIA</span>
+          <span>🍜</span>
+        </div>
+        <div class="start-logo-subtitle">★ EDICIÓN ARCADE MASTER ★</div>
+      </div>
+
+      <!-- TARJETA DE PERFIL / REGISTRO DE DISPOSITIVO -->
+      <div class="start-profile-box" id="start-profile-box">
+        <!-- Rellenado dinámicamente -->
+      </div>
+
+      <!-- SELECTOR DE MODOS DE JUEGO -->
+      <div class="start-modes-grid">
+        <!-- Modo Normal -->
+        <div class="start-mode-card active" id="start-mode-card-normal" onclick="setStartSelectedMode('NORMAL')">
+          <div class="start-mode-header">
+            <span class="start-mode-name">🏮 MODO NORMAL</span>
+            <span class="start-mode-badge">5 NIVELES</span>
+          </div>
+          <div class="start-mode-desc">
+            Campaña gastronómica por metas de venta en Soles. Desbloquea recetas e ingredientes.
+          </div>
+          <div class="start-mode-status" id="start-normal-stats-text">
+            🎯 Meta Nivel 1: S/ 160
+          </div>
+        </div>
+
+        <!-- Modo Rash -->
+        <div class="start-mode-card rash" id="start-mode-card-rash" onclick="setStartSelectedMode('RASH')">
+          <div class="start-mode-header">
+            <span class="start-mode-name" style="color:#ff9800;">⚡ MODO RASH</span>
+            <span class="start-mode-badge">100 RONDAS</span>
+          </div>
+          <div class="start-mode-desc">
+            Supervivencia frenética con vidas limitadas. Cada ronda aumenta la velocidad y clientes.
+          </div>
+          <div class="start-mode-status" id="start-rash-stats-text">
+            🏆 Tu Récord: Ronda 1 / 100
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTÓN PLAY PRINCIPAL -->
+      <div style="margin: 4px 0;">
+        <button class="btn-play-hero" id="btn-start-play" onclick="handleStartPlayClick()">
+          <span style="font-size: 24px;">▶️</span>
+          <span>JUGAR AHORA</span>
+        </button>
+      </div>
+
+      <!-- BOTONES SECUNDARIOS -->
+      <div class="start-btn-row">
+        <button class="btn-start-sec btn-ranking" onclick="openLeaderboardModal()">
+          🏆 Ver Ranking
+        </button>
+        <button class="btn-start-sec" onclick="openProfileModal()">
+          👤 Mi Perfil / Dispositivo
+        </button>
+        <button class="btn-start-sec" onclick="openRecipeModal()">
+          📖 Recetario
+        </button>
+        <button class="btn-start-sec" onclick="toggleFullScreen()">
+          ⛶ Pantalla Completa
+        </button>
+        <button class="btn-start-sec" onclick="openAdminLoginModal()" style="background:#240c08; border-color:#d32f2f; color:#ffcc80;" title="Panel de Monitoreo Master (Restringido)">
+          🛡️ Monitoreo Master
+        </button>
+      </div>
+
+    </div>
+
+    <!-- PIE DE PÁGINA CON ESTADO DEL DISPOSITIVO -->
+    <div class="start-footer-bar">
+      <div id="start-device-info-bar">🔒 Dispositivo: Detectando...</div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <span id="start-network-status-bar" style="color:#81c784;">🟢 Supabase Conectado</span>
+        <button onclick="openAdminLoginModal()" style="background:transparent; border:none; color:#a1887f; cursor:pointer; font-size:10px; text-decoration:underline;">[Acceso Master]</button>
+      </div>
+    </div>
+  </div>
+
   <!-- EFECTO DE PARPADEO ROJO Y MENSAJE DE CLIENTE PERDIDO -->
   <div id="screen-flash-overlay"></div>
   <div id="abollado-banner">💥 ESTAS ABOLLADO 💥</div>
@@ -840,6 +1372,7 @@
   <!-- HEADER HORIZONTAL -->
   <header>
     <div class="title-area">
+      <button class="btn" onclick="returnToStartMenu()" title="Volver a la Pantalla de Inicio" style="background:#4e261d; color:#ffe082; padding:2px 8px; font-size:11px;">🏠 Inicio</button>
       <h1>🍜 RAMEN MANIA</h1>
       <span class="level-badge" id="hud-level-badge">NIVEL 1</span>
       <button class="btn" id="btn-mode-toggle" onclick="openModeSelectModal()" style="background:#ff9800; color:#fff; font-size:11px; padding:2px 8px; box-shadow:0 2px 0 #b26a00;">🎮 Modo</button>
@@ -853,6 +1386,7 @@
     <div class="header-actions">
       <button class="btn btn-ranking" onclick="openLeaderboardModal()">🏆 Récords</button>
       <button class="btn" onclick="openRecipeModal()">📖 Recetas</button>
+      <button class="btn" onclick="openAdminLoginModal()" title="Monitoreo Master (usr-master)" style="background:#2a110d; color:#ffb300; font-size:11px; padding:2px 7px;">🛡️ Master</button>
       <button class="btn" onclick="toggleFullScreen()" id="btn-fullscreen" title="Pantalla Completa" style="font-size:13px; font-weight:900;">⛶ Pantalla</button>
       <button class="btn btn-danger" onclick="togglePause()" id="btn-pause">⏸️</button>
     </div>
@@ -1109,6 +1643,277 @@
       </div>
     </div>
   </div>
+
+  <!-- MODAL DE REGISTRO DE JUGADOR VINCULADO AL DISPOSITIVO -->
+  <div class="modal-overlay" id="register-player-modal" onclick="closeRegisterPlayerModal()">
+    <div class="modal-card" onclick="event.stopPropagation()" style="max-width: 470px; border-color: var(--ramen-gold);">
+      <div class="modal-header" style="background: linear-gradient(90deg, #d32f2f, #ff9800);">
+        <h2>🍜 Registro de Chef</h2>
+        <button class="btn btn-danger" style="padding: 2px 8px;" onclick="closeRegisterPlayerModal()">✕</button>
+      </div>
+      <div class="modal-body" style="padding: 14px; text-align: left;">
+        <div class="device-info-pill" id="reg-device-info-pill">
+          📱 <strong>Dispositivo Detectado:</strong> Analizando huella única...
+        </div>
+
+        <div style="background: #fff8e1; border-left: 3px solid #ff9800; padding: 6px 10px; font-size: 11px; color: #5d4037; margin-bottom: 10px; border-radius: 4px;">
+          🔒 <strong>Vinculación Única de Dispositivo:</strong> Tu alias quedará asociado de forma permanente a este equipo. No se permiten cuentas duplicadas para proteger el ranking oficial.
+        </div>
+
+        <label style="font-size: 11px; font-weight: 800; color: #5d4037; display: block; margin-bottom: 3px;">
+          Elige tu Avatar de Chef:
+        </label>
+        <div class="avatar-picker-grid" id="reg-avatar-grid">
+          <div class="avatar-opt-btn active" onclick="selectRegAvatar('🍜')">🍜</div>
+          <div class="avatar-opt-btn" onclick="selectRegAvatar('👨🏻‍🍳')">👨🏻‍🍳</div>
+          <div class="avatar-opt-btn" onclick="selectRegAvatar('👩🏻‍🍳')">👩🏻‍🍳</div>
+          <div class="avatar-opt-btn" onclick="selectRegAvatar('🥋')">🥋</div>
+          <div class="avatar-opt-btn" onclick="selectRegAvatar('🐱')">🐱</div>
+          <div class="avatar-opt-btn" onclick="selectRegAvatar('🍥')">🍥</div>
+        </div>
+
+        <label style="font-size: 11px; font-weight: 800; color: #5d4037; display: block; margin-bottom: 3px;">
+          Tu Alias o Apodo de Jugador: *
+        </label>
+        <input type="text" id="reg-player-name" class="input-record" placeholder="Ej: NarutoChef" maxlength="20">
+
+        <label style="font-size: 11px; font-weight: 800; color: #5d4037; display: block; margin-bottom: 3px;">
+          WhatsApp o Correo (Opcional - Para coordinar premios si quedas en el TOP):
+        </label>
+        <input type="text" id="reg-player-contact" class="input-record" placeholder="Ej: +51 999 888 777 o micorreo@gmail.com" maxlength="60">
+
+        <div id="reg-status-msg" style="font-size: 11px; font-weight: 800; margin-bottom: 8px; min-height: 18px;"></div>
+
+        <button class="btn" id="btn-confirm-register" onclick="handleConfirmRegistration()" style="width: 100%; justify-content: center; background: #2e7d32; color: #fff; font-size: 13px; padding: 9px;">
+          ✨ Registrar y Vincular este Dispositivo
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE PERFIL Y DISPOSITIVO -->
+  <div class="modal-overlay" id="player-profile-modal" onclick="closeProfileModal()">
+    <div class="modal-card" onclick="event.stopPropagation()" style="max-width: 480px; border-color: var(--ramen-gold);">
+      <div class="modal-header" style="background: linear-gradient(90deg, #3e2723, #d32f2f);">
+        <h2>👤 Perfil del Jugador & Dispositivo</h2>
+        <button class="btn btn-danger" style="padding: 2px 8px;" onclick="closeProfileModal()">✕</button>
+      </div>
+      <div class="modal-body" style="padding: 14px; text-align: left;">
+        <div style="display: flex; align-items: center; gap: 12px; background: #fff3e0; padding: 10px; border-radius: 10px; margin-bottom: 12px; border: 1px solid #ffe0b2;">
+          <div style="font-size: 34px; width: 50px; height: 50px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--ramen-gold);" id="prof-avatar-display">🍜</div>
+          <div style="flex: 1;">
+            <div style="font-family: 'Fredoka One', cursive; font-size: 18px; color: #b71c1c;" id="prof-name-display">Chef Anónimo</div>
+            <div style="font-size: 11px; color: #2e7d32; font-weight: 800;" id="prof-device-status-display">🔒 Dispositivo Vinculado</div>
+            <div style="font-size: 10px; color: #757575;" id="prof-created-display">Registrado: -</div>
+          </div>
+        </div>
+
+        <div class="level-stats" style="margin: 0 0 12px 0;">
+          <div>
+            <div class="val-num" id="prof-stat-games" style="font-size:16px;">0</div>
+            <div class="val-lbl">Partidas</div>
+          </div>
+          <div>
+            <div class="val-num" id="prof-stat-normal-best" style="font-size:16px; color:#2e7d32;">S/ 0</div>
+            <div class="val-lbl">Mejor Normal</div>
+          </div>
+          <div>
+            <div class="val-num" id="prof-stat-rash-best" style="font-size:16px; color:#e65100;">Ronda 1</div>
+            <div class="val-lbl">Mejor Rash</div>
+          </div>
+        </div>
+
+        <div class="device-info-pill" id="prof-device-details-box">
+          📱 <strong>Datos Técnicos del Dispositivo:</strong><br>
+          <span id="prof-device-raw">Cargando...</span>
+        </div>
+
+        <div style="background: #fafafa; border: 1px solid #e0e0e0; border-radius: 8px; padding: 10px; margin-bottom: 8px;">
+          <label style="font-size: 11px; font-weight: 800; color: #5d4037; display: block; margin-bottom: 3px;">
+            Cambiar Avatar:
+          </label>
+          <div class="avatar-picker-grid" id="prof-avatar-grid" style="margin-bottom: 8px;">
+            <div class="avatar-opt-btn" onclick="selectProfAvatar('🍜')">🍜</div>
+            <div class="avatar-opt-btn" onclick="selectProfAvatar('👨🏻‍🍳')">👨🏻‍🍳</div>
+            <div class="avatar-opt-btn" onclick="selectProfAvatar('👩🏻‍🍳')">👩🏻‍🍳</div>
+            <div class="avatar-opt-btn" onclick="selectProfAvatar('🥋')">🥋</div>
+            <div class="avatar-opt-btn" onclick="selectProfAvatar('🐱')">🐱</div>
+            <div class="avatar-opt-btn" onclick="selectProfAvatar('🍥')">🍥</div>
+          </div>
+
+          <label style="font-size: 11px; font-weight: 800; color: #5d4037; display: block; margin-bottom: 3px;">
+            Actualizar Contacto (WhatsApp / Correo):
+          </label>
+          <input type="text" id="prof-contact-input" class="input-record" placeholder="WhatsApp o Correo" maxlength="60">
+          <button class="btn" onclick="handleSaveProfileChanges()" style="background: #2e7d32; color: #fff; width: 100%; justify-content: center; font-size: 12px; padding: 6px;">
+            💾 Guardar Cambios
+          </button>
+          <div id="prof-save-status" style="font-size: 10px; font-weight: 800; text-align: center; margin-top: 4px;"></div>
+        </div>
+      </div>
+  <!-- MODAL DE LOGIN PARA ADMINISTRADOR / MONITOREO MASTER -->
+  <div class="modal-overlay" id="admin-login-modal" onclick="closeAdminLoginModal()">
+    <div class="modal-card" onclick="event.stopPropagation()" style="max-width: 400px; border-color: #ff9800;">
+      <div class="modal-header" style="background: linear-gradient(90deg, #b71c1c, #e65100);">
+        <h2>🛡️ Acceso Monitoreo Master</h2>
+        <button class="btn btn-danger" style="padding: 2px 8px;" onclick="closeAdminLoginModal()">✕</button>
+      </div>
+      <div class="modal-body" style="padding: 16px; text-align: left;">
+        <div style="background: #fff3e0; border-left: 3px solid #e65100; padding: 6px 10px; font-size: 11px; color: #4e342e; margin-bottom: 12px; border-radius: 4px;">
+          🔒 <strong>Área Restringida:</strong> Ingresa tus credenciales maestras para consultar métricas, tiempos de juego, niveles e índices de error.
+        </div>
+
+        <label style="font-size: 11px; font-weight: 800; color: #5d4037; display: block; margin-bottom: 3px;">
+          Usuario Administrador:
+        </label>
+        <input type="text" id="admin-user-input" class="input-record" placeholder="Usuario Master" autocomplete="off">
+
+        <label style="font-size: 11px; font-weight: 800; color: #5d4037; display: block; margin-bottom: 3px;">
+          Contraseña de Seguridad:
+        </label>
+        <input type="password" id="admin-pass-input" class="input-record" placeholder="Contraseña" autocomplete="off" onkeydown="if(event.key==='Enter')handleAdminLogin()">
+
+        <div id="admin-login-status" style="font-size: 11px; font-weight: 800; margin-bottom: 8px; min-height: 18px;"></div>
+
+        <button class="btn" onclick="handleAdminLogin()" style="width: 100%; justify-content: center; background: #e65100; color: #fff; font-size: 13px; padding: 9px; font-weight: 900;">
+          🔓 Ingresar al Panel de Monitoreo
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE DASHBOARD DE MONITOREO MASTER -->
+  <div class="modal-overlay" id="admin-dashboard-modal" onclick="closeAdminDashboardModal()">
+    <div class="modal-card admin-dashboard-modal" onclick="event.stopPropagation()">
+      <div class="modal-header" style="background: linear-gradient(90deg, #1b0a07, #b71c1c, #e65100);">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size: 20px;">📊</span>
+          <h2 style="font-family: 'Fredoka One', cursive; font-size: 16px; color: #ffca28;">PANEL MASTER DE ANALÍTICAS & MONITOREO</h2>
+        </div>
+        <div style="display:flex; gap:6px; align-items:center;">
+          <button class="btn" onclick="refreshAdminDashboard()" style="background:#ff9800; color:#212121; font-size:10px; padding:3px 8px;">🔄 Actualizar</button>
+          <button class="btn" onclick="handleAdminLogout()" style="background:#37474f; color:#fff; font-size:10px; padding:3px 8px;">🔒 Salir</button>
+          <button class="btn btn-danger" style="padding: 2px 8px;" onclick="closeAdminDashboardModal()">✕</button>
+        </div>
+      </div>
+      <div class="modal-body" style="padding: 12px;">
+        
+        <!-- RESUMEN GLOBAL (KPIS) -->
+        <div class="admin-kpi-grid">
+          <div class="admin-kpi-card">
+            <div class="admin-kpi-lbl">👥 Jugadores</div>
+            <div class="admin-kpi-val" id="kpi-total-players">0</div>
+          </div>
+          <div class="admin-kpi-card">
+            <div class="admin-kpi-lbl">🎮 Total Intentos</div>
+            <div class="admin-kpi-val" id="kpi-total-attempts">0</div>
+          </div>
+          <div class="admin-kpi-card">
+            <div class="admin-kpi-lbl">⏱️ Tiempo Total</div>
+            <div class="admin-kpi-val" id="kpi-total-time">0m</div>
+          </div>
+          <div class="admin-kpi-card">
+            <div class="admin-kpi-lbl">🍜 Ramen Más Fallado</div>
+            <div class="admin-kpi-val" id="kpi-worst-ramen" style="color:#ff5252; font-size:13px;">-</div>
+          </div>
+          <div class="admin-kpi-card">
+            <div class="admin-kpi-lbl">🏆 Récord Max.</div>
+            <div class="admin-kpi-val" id="kpi-max-score" style="color:#69f0ae; font-size:13px;">S/ 0</div>
+          </div>
+        </div>
+
+        <!-- PESTAÑAS DEL DASHBOARD -->
+        <div class="admin-tabs">
+          <button class="admin-tab-btn active" id="adm-tab-users" onclick="switchAdminTab('users')">👥 Intentos y Tiempo por Usuario</button>
+          <button class="admin-tab-btn" id="adm-tab-levels" onclick="switchAdminTab('levels')">📈 Intentos por Nivel</button>
+          <button class="admin-tab-btn" id="adm-tab-ramen" onclick="switchAdminTab('ramen')">🍜 Ramen Donde Más Fallan</button>
+          <button class="admin-tab-btn" id="adm-tab-sessions" onclick="switchAdminTab('sessions')">📋 Registro de Sesiones en Vivo</button>
+        </div>
+
+        <!-- CONTENIDO DE PESTAÑAS -->
+        <!-- PESTAÑA 1: USUARIOS -->
+        <div id="adm-view-users">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <input type="text" id="adm-user-filter" placeholder="🔍 Buscar por alias o ID..." class="input-record" style="max-width:240px; margin:0; padding:4px 8px; font-size:11px;" oninput="renderAdminUsersTable()">
+            <span style="font-size:10px; color:#bcaaa4;" id="adm-users-count-label">Cargando usuarios...</span>
+          </div>
+          <div style="max-height: 48vh; overflow-y: auto;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Jugador</th>
+                  <th>ID Dispositivo</th>
+                  <th>Intentos / Partidas</th>
+                  <th>Tiempo Total</th>
+                  <th>Max Normal</th>
+                  <th>Max Rash</th>
+                  <th>Atendidos / Perdidos</th>
+                  <th>Última Conexión</th>
+                </tr>
+              </thead>
+              <tbody id="adm-users-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- PESTAÑA 2: NIVELES -->
+        <div id="adm-view-levels" style="display:none;">
+          <div style="max-height: 52vh; overflow-y: auto; text-align:left;">
+            <h4 style="color:#ffb300; font-family:'Fredoka One', cursive; font-size:13px; margin-bottom:6px;">🏮 Campaña Modo Normal (Intentos y Dificultad)</h4>
+            <div id="adm-levels-normal-container" style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;"></div>
+
+            <h4 style="color:#ff9800; font-family:'Fredoka One', cursive; font-size:13px; margin-bottom:6px;">⚡ Modo Rash (Distribución de Rondas)</h4>
+            <div id="adm-levels-rash-container" style="display:flex; flex-direction:column; gap:8px;"></div>
+          </div>
+        </div>
+
+        <!-- PESTAÑA 3: RAMEN DONDE MÁS FALLAN -->
+        <div id="adm-view-ramen" style="display:none;">
+          <div style="max-height: 52vh; overflow-y: auto;">
+            <p style="font-size:11px; color:#d7ccc8; margin-bottom:8px; text-align:left;">
+              Ranking de los ramen con mayor cantidad de clientes perdidos y órdenes abandonadas por los comensales.
+            </p>
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th style="width:30px; text-align:center;">#</th>
+                  <th>Ramen</th>
+                  <th>Precio</th>
+                  <th>Ingredientes</th>
+                  <th>Clientes Perdidos</th>
+                  <th>Frecuencia Relativa</th>
+                  <th>Diagnóstico</th>
+                </tr>
+              </thead>
+              <tbody id="adm-ramen-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- PESTAÑA 4: SESIONES EN VIVO -->
+        <div id="adm-view-sessions" style="display:none;">
+          <div style="max-height: 52vh; overflow-y: auto;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Fecha/Hora</th>
+                  <th>Jugador</th>
+                  <th>Modo</th>
+                  <th>Nivel</th>
+                  <th>Duración</th>
+                  <th>Atendidos / Perdidos</th>
+                  <th>Ramen No Entregados</th>
+                  <th>Resultado</th>
+                </tr>
+              </thead>
+              <tbody id="adm-sessions-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -1154,6 +1959,401 @@ const safeStorage = {
     this._mem[key] = String(val);
   }
 };
+
+/* ==========================================================================
+   GESTOR DE IDENTIDAD DEL DISPOSITIVO Y JUGADOR (ANTI-DUPLICADOS)
+   ========================================================================== */
+const DeviceManager = {
+  deviceId: "DEV-LOCAL-0001",
+  deviceFingerprint: "HARDWARE-INIT",
+  deviceInfoText: "Navegador Web",
+  currentPlayer: null,
+  isInitialized: false,
+
+  // Genera huella técnica única a partir del hardware y entorno del navegador
+  async generateFingerprint() {
+    const parts = [];
+    parts.push(navigator.userAgent || "");
+    parts.push(navigator.platform || "");
+    parts.push(navigator.language || "");
+    parts.push(navigator.hardwareConcurrency || "4");
+    parts.push(navigator.deviceMemory || "4");
+    parts.push(screen.width + "x" + screen.height + "x" + (screen.colorDepth || 24));
+    parts.push(window.devicePixelRatio || 1);
+    
+    try {
+      parts.push(Intl.DateTimeFormat().resolvedOptions().timeZone || "");
+    } catch(e) {}
+
+    // Canvas 2D fingerprint
+    try {
+      const c = document.createElement("canvas");
+      c.width = 160; c.height = 40;
+      const ctx = c.getContext("2d");
+      if (ctx) {
+        ctx.fillStyle = "#ffb300";
+        ctx.fillRect(0, 0, 160, 40);
+        ctx.fillStyle = "#b71c1c";
+        ctx.font = "14px sans-serif";
+        ctx.fillText("RAMEN-MANIA-DEV", 5, 25);
+        parts.push(c.toDataURL());
+      }
+    } catch(e) {}
+
+    // WebGL GPU Renderer
+    try {
+      const glCanvas = document.createElement("canvas");
+      const gl = glCanvas.getContext("webgl") || glCanvas.getContext("experimental-webgl");
+      if (gl) {
+        const dbg = gl.getExtension("WEBGL_debug_renderer_info");
+        if (dbg) {
+          parts.push(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) || "");
+        }
+      }
+    } catch(e) {}
+
+    const raw = parts.join("|||");
+    let hash = 0;
+    for (let i = 0; i < raw.length; i++) {
+      hash = ((hash << 5) - hash) + raw.charCodeAt(i);
+      hash |= 0;
+    }
+    const hex = Math.abs(hash).toString(16).toUpperCase().padStart(8, '0');
+    return hex;
+  },
+
+  // Genera o recupera el token persistente de dispositivo
+  getPersistentToken() {
+    let token = safeStorage.getItem("ramen_device_token");
+    if (!token) {
+      try {
+        const match = document.cookie.match(/(?:^|; )ramen_device_token=([^;]*)/);
+        if (match && match[1]) token = match[1];
+      } catch(e) {}
+    }
+    if (!token) {
+      token = "TKN" + Math.random().toString(36).substring(2, 10).toUpperCase() + Date.now().toString(36).toUpperCase();
+      safeStorage.setItem("ramen_device_token", token);
+      try {
+        document.cookie = `ramen_device_token=${token}; max-age=315360000; path=/`;
+      } catch(e) {}
+    }
+    return token;
+  },
+
+  // Detecta el nombre amigable del dispositivo y navegador
+  detectDeviceInfo() {
+    const ua = navigator.userAgent || "";
+    let os = "Dispositivo";
+    if (/Windows NT/i.test(ua)) os = "Windows PC";
+    else if (/Android/i.test(ua)) os = "Android Móvil";
+    else if (/iPhone/i.test(ua)) os = "iPhone";
+    else if (/iPad/i.test(ua)) os = "iPad";
+    else if (/Macintosh/i.test(ua)) os = "Mac";
+    else if (/Linux/i.test(ua)) os = "Linux";
+
+    let browser = "Navegador";
+    if (/Chrome\//i.test(ua) && !/Edg/i.test(ua)) browser = "Chrome";
+    else if (/Safari\//i.test(ua) && !/Chrome/i.test(ua)) browser = "Safari";
+    else if (/Edg\//i.test(ua)) browser = "Edge";
+    else if (/Firefox\//i.test(ua)) browser = "Firefox";
+
+    return `${os} • ${browser}`;
+  },
+
+  // Inicializa el sistema de dispositivo y busca la cuenta vinculada
+  async init() {
+    try {
+      this.deviceFingerprint = await this.generateFingerprint();
+      const token = this.getPersistentToken();
+      this.deviceId = `DEV-${this.deviceFingerprint}-${token.substring(0, 6)}`;
+      this.deviceInfoText = this.detectDeviceInfo();
+
+      // Actualizar badges visuales de dispositivo
+      const badge = document.getElementById("start-device-info-bar");
+      if (badge) badge.innerHTML = `🔒 Dispositivo: <strong>${this.deviceId}</strong> (${this.deviceInfoText})`;
+      const regPill = document.getElementById("reg-device-info-pill");
+      if (regPill) regPill.innerHTML = `📱 <strong>Dispositivo:</strong> ${this.deviceInfoText}<br>🔑 <strong>ID de Hardware:</strong> ${this.deviceId}`;
+      const profRaw = document.getElementById("prof-device-raw");
+      if (profRaw) profRaw.innerHTML = `${this.deviceInfoText}<br><strong>ID Único:</strong> ${this.deviceId}<br><strong>Huella Hardware:</strong> #${this.deviceFingerprint}`;
+
+      // 1. Buscar perfil en almacenamiento local
+      let player = null;
+      try {
+        const raw = safeStorage.getItem("ramen_player_profile");
+        if (raw) player = JSON.parse(raw);
+      } catch(e) {}
+
+      // 2. Si hay conexión a Supabase, verificar / sincronizar perfil por device_id
+      if (supabaseClient) {
+        try {
+          const { data, error } = await supabaseClient
+            .from('players')
+            .select('*')
+            .eq('device_id', this.deviceId)
+            .maybeSingle();
+
+          if (!error && data) {
+            player = {
+              playerName: data.player_name,
+              contact: data.contact || "",
+              avatar: data.avatar || "🍜",
+              deviceId: data.device_id,
+              createdAt: data.created_at || new Date().toISOString()
+            };
+            safeStorage.setItem("ramen_player_profile", JSON.stringify(player));
+            safeStorage.setItem("ramen_player_name", player.playerName);
+            safeStorage.setItem("ramen_player_contact", player.contact);
+            safeStorage.setItem("ramen_player_avatar", player.avatar);
+          }
+        } catch(e) {
+          console.warn("Supabase players check:", e);
+        }
+      }
+
+      this.currentPlayer = player;
+      this.isInitialized = true;
+      updateStartPlayerCard();
+    } catch(err) {
+      console.error("Error en DeviceManager.init:", err);
+      this.isInitialized = true;
+    }
+  },
+
+  // Registrar un nuevo jugador vinculado a este dispositivo
+  async register(playerName, contact, avatar) {
+    const cleanName = (playerName || "").trim();
+    const cleanContact = (contact || "").trim();
+    const cleanAvatar = avatar || "🍜";
+
+    if (cleanName.length < 2) {
+      return { success: false, error: "El nombre debe tener al menos 2 caracteres." };
+    }
+    if (cleanName.length > 20) {
+      return { success: false, error: "El nombre no puede exceder 20 caracteres." };
+    }
+
+    // Regla Anti-duplicados: Verificar si ya existe otra cuenta para este dispositivo
+    if (this.currentPlayer && this.currentPlayer.playerName.toLowerCase() !== cleanName.toLowerCase()) {
+      return { 
+        success: false, 
+        error: `Este dispositivo ya está vinculado a la cuenta "${this.currentPlayer.playerName}". No se permite registrar múltiples cuentas desde el mismo dispositivo.` 
+      };
+    }
+
+    if (supabaseClient) {
+      try {
+        const { data: existingDev } = await supabaseClient
+          .from('players')
+          .select('player_name')
+          .eq('device_id', this.deviceId)
+          .maybeSingle();
+
+        if (existingDev && existingDev.player_name.toLowerCase() !== cleanName.toLowerCase()) {
+          return {
+            success: false,
+            error: `Este dispositivo ya está registrado como "${existingDev.player_name}". No se permite crear cuentas duplicadas.`
+          };
+        }
+
+        const payload = {
+          device_id: this.deviceId,
+          device_fingerprint: this.deviceFingerprint,
+          device_info: this.deviceInfoText,
+          player_name: cleanName,
+          contact: cleanContact || null,
+          avatar: cleanAvatar,
+          last_login: new Date().toISOString()
+        };
+
+        const { error: insertErr } = await supabaseClient
+          .from('players')
+          .upsert(payload, { onConflict: 'device_id' });
+
+        if (insertErr) {
+          console.warn("Error en Supabase players upsert:", insertErr);
+        }
+      } catch(e) {
+        console.warn("Fallo de red en registro:", e);
+      }
+    }
+
+    const newPlayer = {
+      playerName: cleanName,
+      contact: cleanContact,
+      avatar: cleanAvatar,
+      deviceId: this.deviceId,
+      createdAt: this.currentPlayer ? this.currentPlayer.createdAt : new Date().toISOString()
+    };
+
+    this.currentPlayer = newPlayer;
+    safeStorage.setItem("ramen_player_profile", JSON.stringify(newPlayer));
+    safeStorage.setItem("ramen_player_name", cleanName);
+    safeStorage.setItem("ramen_player_contact", cleanContact);
+    safeStorage.setItem("ramen_player_avatar", cleanAvatar);
+
+    updateStartPlayerCard();
+    return { success: true, player: newPlayer };
+  },
+
+  // Actualizar contacto o avatar del perfil registrado
+  async updateProfile(contact, avatar) {
+    if (!this.currentPlayer) return { success: false, error: "No hay jugador registrado." };
+
+    const cleanContact = (contact || "").trim();
+    const cleanAvatar = avatar || this.currentPlayer.avatar || "🍜";
+
+    this.currentPlayer.contact = cleanContact;
+    this.currentPlayer.avatar = cleanAvatar;
+
+    safeStorage.setItem("ramen_player_profile", JSON.stringify(this.currentPlayer));
+    safeStorage.setItem("ramen_player_contact", cleanContact);
+    safeStorage.setItem("ramen_player_avatar", cleanAvatar);
+
+    if (supabaseClient) {
+      try {
+        await supabaseClient
+          .from('players')
+          .update({ contact: cleanContact || null, avatar: cleanAvatar, last_login: new Date().toISOString() })
+          .eq('device_id', this.deviceId);
+      } catch(e) {}
+    }
+
+    updateStartPlayerCard();
+    return { success: true };
+  }
+};
+
+/* ==========================================================================
+   SISTEMA DE TELEMETRÍA Y ANALÍTICAS DE JUEGO
+   ========================================================================== */
+const AnalyticsTracker = {
+  sessionStartTime: null,
+  currentLevelNumber: 1,
+  currentMode: 'NORMAL',
+  sessionFailedRamen: [],
+  sessionCustomersServed: 0,
+  sessionCustomersLost: 0,
+
+  startSession(mode, level) {
+    this.sessionStartTime = Date.now();
+    this.currentMode = mode || 'NORMAL';
+    this.currentLevelNumber = level || 1;
+    this.sessionFailedRamen = [];
+    this.sessionCustomersServed = 0;
+    this.sessionCustomersLost = 0;
+    this.incrementLevelAttempt(this.currentMode, this.currentLevelNumber);
+  },
+
+  trackCustomerLost(customer) {
+    if (!customer || !customer.orders) return;
+    this.sessionCustomersLost++;
+    const unserved = customer.orders.filter(o => !o.served);
+    unserved.forEach(o => {
+      const rName = o.recipe ? o.recipe.name : "Ramen";
+      this.sessionFailedRamen.push(rName);
+      this.incrementRamenFail(rName);
+    });
+  },
+
+  trackCustomerServed() {
+    this.sessionCustomersServed++;
+  },
+
+  async endSession(outcome) {
+    if (!this.sessionStartTime) return;
+    const durationSeconds = Math.max(1, Math.round((Date.now() - this.sessionStartTime) / 1000));
+    this.sessionStartTime = null;
+
+    const playerName = DeviceManager.currentPlayer ? DeviceManager.currentPlayer.playerName : (safeStorage.getItem('ramen_player_name') || "Chef Anónimo");
+    const deviceId = DeviceManager.deviceId;
+
+    const sessionData = {
+      device_id: deviceId,
+      player_name: playerName,
+      game_mode: this.currentMode,
+      level_number: this.currentLevelNumber,
+      duration_seconds: durationSeconds,
+      customers_served: this.sessionCustomersServed,
+      customers_lost: this.sessionCustomersLost,
+      failed_recipes: this.sessionFailedRamen,
+      outcome: outcome || 'COMPLETED',
+      created_at: new Date().toISOString()
+    };
+
+    this.saveLocalSession(sessionData);
+    this.accumulateUserStats(playerName, deviceId, durationSeconds, this.currentMode, this.currentLevelNumber, outcome);
+
+    if (supabaseClient) {
+      try {
+        await supabaseClient.from('game_sessions').insert([sessionData]);
+      } catch(e) {
+        console.warn("Analytics insert error:", e);
+      }
+    }
+  },
+
+  incrementLevelAttempt(mode, level) {
+    try {
+      const raw = safeStorage.getItem('ramen_level_attempts') || "{}";
+      const stats = JSON.parse(raw);
+      const key = `${mode}_${level}`;
+      stats[key] = (stats[key] || 0) + 1;
+      safeStorage.setItem('ramen_level_attempts', JSON.stringify(stats));
+    } catch(e) {}
+  },
+
+  incrementRamenFail(ramenName) {
+    try {
+      const raw = safeStorage.getItem('ramen_fail_stats') || "{}";
+      const stats = JSON.parse(raw);
+      stats[ramenName] = (stats[ramenName] || 0) + 1;
+      safeStorage.setItem('ramen_fail_stats', JSON.stringify(stats));
+    } catch(e) {}
+  },
+
+  saveLocalSession(session) {
+    try {
+      const raw = safeStorage.getItem('ramen_analytics_sessions') || "[]";
+      const sessions = JSON.parse(raw);
+      sessions.unshift(session);
+      if (sessions.length > 250) sessions.length = 250;
+      safeStorage.setItem('ramen_analytics_sessions', JSON.stringify(sessions));
+    } catch(e) {}
+  },
+
+  accumulateUserStats(playerName, deviceId, durationSeconds, mode, level, outcome) {
+    try {
+      const raw = safeStorage.getItem('ramen_user_analytics') || "{}";
+      const users = JSON.parse(raw);
+      if (!users[playerName]) {
+        users[playerName] = {
+          playerName: playerName,
+          deviceId: deviceId,
+          totalAttempts: 0,
+          totalPlayTimeSeconds: 0,
+          maxNormalLevel: 1,
+          maxRashLevel: 1,
+          customersServed: 0,
+          customersLost: 0,
+          lastActive: new Date().toISOString()
+        };
+      }
+      const u = users[playerName];
+      u.totalAttempts += 1;
+      u.totalPlayTimeSeconds += durationSeconds;
+      u.customersServed += this.sessionCustomersServed;
+      u.customersLost += this.sessionCustomersLost;
+      u.lastActive = new Date().toISOString();
+      if (mode === 'NORMAL' && level > u.maxNormalLevel) u.maxNormalLevel = level;
+      if (mode === 'RASH' && level > u.maxRashLevel) u.maxRashLevel = level;
+
+      safeStorage.setItem('ramen_user_analytics', JSON.stringify(users));
+    } catch(e) {}
+  }
+};
+
+
 
 const INGREDIENTES = [{"id": 1, "name": "fideo ramen", "cat": "bases", "icon": "🥢", "display": "Fideo Ramen"}, {"id": 2, "name": "caldo shio", "cat": "bases", "icon": "🥣", "display": "Caldo Shio"}, {"id": 3, "name": "caldo tonkotsu", "cat": "bases", "icon": "🫕", "display": "Caldo Tonkotsu"}, {"id": 4, "name": "agua", "cat": "bases", "icon": "💧", "display": "Agua"}, {"id": 5, "name": "salsa shoyu", "cat": "salsas", "icon": "🍶", "display": "Salsa Shoyu"}, {"id": 6, "name": "salsa miso", "cat": "salsas", "icon": "🍲", "display": "Salsa Miso"}, {"id": 7, "name": "salsa ebi ramen", "cat": "salsas", "icon": "🦐", "display": "Salsa Ebi"}, {"id": 8, "name": "salsa tan tan", "cat": "salsas", "icon": "🌶️", "display": "Salsa Tan Tan"}, {"id": 9, "name": "salsa vegetariana", "cat": "salsas", "icon": "🥬", "display": "Salsa Vegetariana"}, {"id": 10, "name": "salsa bajiru", "cat": "salsas", "icon": "🌿", "display": "Salsa Bajiru"}, {"id": 11, "name": "laminas de chasu asado", "cat": "proteinas", "icon": "🥩", "display": "Chasu Asado"}, {"id": 12, "name": "brisket laminado", "cat": "proteinas", "icon": "🥓", "display": "Brisket Laminado"}, {"id": 13, "name": "chancho molido", "cat": "proteinas", "icon": "🍖", "display": "Chancho Molido"}, {"id": 14, "name": "langostinos", "cat": "proteinas", "icon": "🍤", "display": "Langostinos"}, {"id": 15, "name": "huevo", "cat": "proteinas", "icon": "🥚", "display": "Huevo", "img": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABZklEQVR4nO2VP2rDMBTGX0PBYPAQ6OQbBLrnBsFD15ChJ8jS3qBbD+CpJ/BQunoQuUFPkLmLFwc8GAwqKergPlVS9M8ioUP1A4MkP/n79J5kAUQikT/makpwXZVM7BebLW+T1xcp9u7+0evbXkEoLAq6QEMuI9aXIcJTjRgN1FXJdMKU5Nr4pGicRnQmtAZ04pTkkN4+/A58PJ/MG/rMakRn4sSAlzh5kictkmAT18ZInbgqjOwpN5JmPQwkd5YEmYkdU93PSbHZSsfZmYE068d64ypt7CnPwpenoZk75LI4DQx9NjaEjWbkJ4bPOYeBS6M9hsvVGubzGz5GST7uBUTdD57HsOsO8L57k46hMQNdd+DtpGjktC4S+fEU12H8Ey5XawAAKRMAYb9iFFdXb6WuSta2DWvbhh2Pn8EPfkO9yhGv29CUDRviqgECbkObEZMZsc4u4UkGVCOIaAgFEe9aRyL/nm/mDO/GJ9aeEQAAAABJRU5ErkJggg=="}, {"id": 16, "name": "triángulos de tofu", "cat": "proteinas", "icon": "🧈", "display": "Tofu Triángulos"}, {"id": 17, "name": "poro laminado", "cat": "vegetales", "icon": "🌱", "display": "Poro Laminado", "img": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACJklEQVR4nO1Wq5biQBC9vWcPgog1QRAbg8KCALEahd1v4l8wM1/ACBCMYExMbEfQBtERMbWCU72VpsNANgNmriKdTt2qWy+Ab3SEl/2KnuoAUUVPdYQdsFaTfH4YMVFFknyzXX+tA/p4qEXqO3CrnR9dOCMJiSp62712YTYMjhI4q0BU0WfRd54OJvMdCOWenzstyiYHQuT8vslWqxqIokTJVABAvx9fEM8mCxQmg1I91YbHIRSBrwJHz+T6eCDulE4QktJaTdIBvtNEbK0mazXJaXm3NEQVsaTWajqVBsN4dDamekofD5QMxu69/Pb9YwcAmE+XjrdVblgJJhzGIxQmAwD8ErXAhD6pRO2QpeMIbnECAAqTIc/z2vv5dHlRqIwoSq4r4OdQRtXvxyhLU3suTFa7EyJqws/QoW/sJAhPpUGe55hNFjVHbiX04T542a/o9+iPMySHymyycL282a4pTVNngAuwMJn7zbugKe9BB9g4/55Pl0oWmyQfxiOUpcH7xw48bICzclGUKNkpreD3/Ga7doOFe55Hr+x9ngtyRH/GdVEDcp2yImmaIhmMXWTWavLTBPwb0bIWiCoqTNbYWc4BNva2e3W5Y8nlx02rNRmMVWgCKtVTrMZdafFnOcvJ8vOZ/EfE95v6/+aVHIpE5p4dudeBEILr2M/XNflC56F1/V+Q69ZXQN4BwupdQ3AS+uRy+7WZdp3BlzWkwEPxdAe6wF9w7H2w8hMurwAAAABJRU5ErkJggg=="}, {"id": 18, "name": "cebolla laminada", "cat": "vegetales", "icon": "🧅", "display": "Cebolla Laminada", "img": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACN0lEQVR4nO1Wq27jQBQ9Xu0frIHl0EUGAUEFyUYG+wNlI3MDF0QFUaSVghZZBlVBC8ojf4SBpcjAaMGCoMWWgfsNt6C50+nUM07SarUr5aDxnfF9zJx7ZoAzzvhfERcJuaFH7/Xz+dQf622Nrmwd3a4m1TevY3CB7tTk2A09uvxxifloJm1pnqGpGmsi1h1gpwCk4zTP4E990h1z8CgQ0rbZ5ZQiQ1e2xhjGBNSKokA4D7iXc+wYAHES9bbGXMwM3swY5IBakWobryevjqWpGqTIsNnl0s5HcHIC9bbutauc4DEf1eLqWq67vbtBiv4jY3wyBWCHakVu6FFcJHR7dyPX+lNfjpknXdk6Xdk6USCclVjaajR3wXg9oaZqZAB2lOYZAEh2q1zR59jXZpeTqSOMR/D75y9nXw3c0KNF9bK1uhMm4EosZRKH4mAhUtsxCoSeDKXI5C7td426snVs1R+VABPS1mpp/pIEnnOkoR05KAGuUiWcPs9HtdcHiSEltEoxE4yrZ1JylawR3CkmEtpgXBQXCfVKqxKEeaHqxTHBAYMOMHQV5G8OPh/NMB/N0FQNVmKJlVjCn/pvLq+4SI6/tsfrCakiBDzvwHg9obhI3szpa/jbDT3681iTLt0Mqw4squtXP0qZ/TZcgBt6xIr49cuFcZ21C5jdOuppTUM336E8OOlFpN98USActROGbkAVg1nGRUIP3+97X0B9unBsF1jxEY/Ovw439Iwd8m581FP8jH8KT6PMZ3p+6TqcAAAAAElFTkSuQmCC"}, {"id": 19, "name": "ajonjolí blanco", "cat": "vegetales", "icon": "✨", "display": "Ajonjolí Blanco"}, {"id": 20, "name": "alga nori", "cat": "vegetales", "icon": "⬛", "display": "Alga Nori", "img": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAB7ElEQVR4nO2WQWviUBSFvwmzuqRSQ9CgJYIUcaDrLvvjZzlrYWQYhA6NxCE0EsNdxlmk72FFY2Lj0IVnl+TlnfPOPfcmcMUVNRGE3vYS+345V0D857X2u1X42mTxaNJDtEDFAWhFUCMBogWRKtPxgDTJGYqg4iBavBPUREwjAQDThwGbxdqSG4wmPSuKBu7UEhCE3rbjCTfjW1ZxhgCRKl1xzelJk5yu7xIlOY9P96zizN6rElTLqiD0to9P98xnS7q+azfuBx02izXAbins9S6ef/096ISzf+MYNov1QfJI1a65Gd+i4qDikCY5aZLTDzpHyRsJgDKEb5a+I1dx6AcdaztA13cZivDj+++PZ8CQAPSDDvPZEnyXIUKkat0QQERQSsvhdEecFGACCKUDqzizzyJV2xXGja7vVlq+j1olMDXfvU6TnOnDgFWcoeKY9mtEXluAqa8pg2hhyU3NAbJXbTwRa2VgFWd2CgL038hFC1LKGfB8BnltAWb+DymH0Xy2tJMweylFnfstqHwpCL3taNIDsDXfLNa2z8+xfB8nM2Cm227g4Lx6H0LtEpj2Ey34+ZK09j/QeBK2SQ41HDDJ/2jYjuHoZkHobb/d+QCtn3oXlQ5Eqq2F7RgqM3Bp8kpc6jf885Nf8b/xD1sTN/WGc7mRAAAAAElFTkSuQmCC"}, {"id": 21, "name": "alga wanji", "cat": "vegetales", "icon": "🌿", "display": "Alga Wanji"}, {"id": 22, "name": "bambú laminado", "cat": "vegetales", "icon": "🎍", "display": "Bambú Laminado"}, {"id": 23, "name": "holantao", "cat": "vegetales", "icon": "🫛", "display": "Holantao"}, {"id": 24, "name": "col cocida", "cat": "vegetales", "icon": "🥬", "display": "Col Cocida"}, {"id": 25, "name": "moyashi", "cat": "vegetales", "icon": "🌾", "display": "Moyashi", "img": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABpElEQVR4nO1VoXLDMAyVd7uQgiCD4oWWjKy/UTo00E/YZ/QTBvYH/YiShQ4NJKSgAR4xSIEHPKSepki2d9vdbnd5KIks6Vl+fgGYMWPGf8bpsIovzzfxz5rtd9ui5r9CVGrmXFdUtJRoEs51MYQxhjBG/k3LwfWlRL+Ajw0L8aZacbo+1edKC7TtHdzev1524f1wiXk/AJ2GNAXvB7C2MdY2JkVADXLmvJBzXazrJXg/QF0vJ/lIINU8SQAh7a6qFoaTAADgz1IOx3WuMR29RAonUFULg4S0PMTpsIrH/gzrh35KiipXExAVI67lefjOJxjCGOm1nDDAptY2RmLKd09Bx05j0nfUR1ID+902bh6fJuLDZyoy+p2fv0QGNZEkgGeqCYgCr6q1jUEyVA9IFmMfbxs49udcWd3t6BlrbicZF+Jb9kyLS2LLOV7KslUn5KCOiCOl956u4c2sbcx7u4Yf/RH51eJj59Pga7WRZ8VFd8ddjovTuS5ysSG0nGIrlpxNum6a/zvXRVQ+9ZUsAWpMWkwjxXcr+UrxEZQg9wedMUPCJ5NNFRoAXqlxAAAAAElFTkSuQmCC"}, {"id": 26, "name": "frijol chino", "cat": "vegetales", "icon": "🫘", "display": "Frijol Chino"}, {"id": 27, "name": "champiñones", "cat": "vegetales", "icon": "🍄", "display": "Champiñones"}, {"id": 28, "name": "shitake", "cat": "vegetales", "icon": "🟫", "display": "Shitake"}, {"id": 29, "name": "espárragos blanqueado", "cat": "vegetales", "icon": "🎋", "display": "Espárragos Blanqueados"}, {"id": 30, "name": "zanahoria", "cat": "vegetales", "icon": "🥕", "display": "Zanahoria"}];
 const RECETAS_RAMEN = [{"id": 1, "name": "Shio", "price": 38, "desc": "Caldo Shio ligero, chasu, moyashi, nori y ajonjolí", "ingredients": [1, 2, 11, 15, 17, 18, 19, 20, 25]}, {"id": 2, "name": "Shoyu", "price": 40, "desc": "Caldo Shio con salsa shoyu, chasu, bambú, holantao y nori", "ingredients": [1, 2, 5, 11, 15, 17, 18, 19, 20, 22, 23]}, {"id": 3, "name": "Miso", "price": 42, "desc": "Caldo Shio con salsa miso intensa, chasu, bambú, holantao y nori", "ingredients": [1, 2, 6, 11, 15, 17, 18, 19, 20, 22, 23]}, {"id": 4, "name": "Tonkotsu", "price": 46, "desc": "Caldo Tonkotsu espeso, col cocida, moyashi, chasu y nori", "ingredients": [1, 3, 11, 15, 17, 18, 19, 20, 24, 25]}, {"id": 5, "name": "Chashu", "price": 48, "desc": "Foco en chasu asado con caldo tonkotsu, nori y huevo", "ingredients": [1, 3, 11, 15, 17, 18, 19, 20]}, {"id": 6, "name": "Ebi", "price": 50, "desc": "Langostinos, salsa ebi ramen, champiñones, espárragos y nori", "ingredients": [1, 2, 7, 14, 15, 17, 18, 19, 20, 27, 29]}, {"id": 7, "name": "Tan tan", "price": 45, "desc": "Chancho molido picante, salsa tan tan, moyashi y nori", "ingredients": [1, 2, 8, 13, 15, 17, 18, 19, 20, 25]}, {"id": 8, "name": "Vegetariano", "price": 42, "desc": "Base de agua, shitake, champiñones, espárragos, tofu, nori y salsa vegetariana", "ingredients": [1, 4, 9, 16, 17, 18, 19, 20, 22, 27, 28, 29]}, {"id": 9, "name": "Bajiru", "price": 48, "desc": "Salsa bajiru (albahaca), brisket laminado, alga wanji, nori y zanahoria", "ingredients": [1, 2, 10, 12, 15, 17, 19, 20, 21, 30]}];
@@ -1690,6 +2890,7 @@ function serveRamenToCustomer(customerIndex, itemIndex, bowlIndex) {
   gameState.bowls[bowlIndex] = { ingredients: [], matchedRamen: null };
   gameState.money += orderItem.recipe.price;
   gameState.customersServed++;
+  AnalyticsTracker.trackCustomerServed();
   playSound('serve');
 
   c.patience = Math.min(c.maxPatience, c.patience + 15);
@@ -1833,6 +3034,7 @@ function gameTick() {
     if (c) {
       c.patience -= 1;
       if (c.patience <= 0) {
+        AnalyticsTracker.trackCustomerLost(c);
         playSound('lost');
         triggerAbolladoEffect();
         gameState.customersLost++;
@@ -1911,6 +3113,7 @@ function updateHUD() {
 function winLevel() {
   gameState.isGameOver = true;
   clearInterval(gameLoopInterval);
+  AnalyticsTracker.endSession('WON');
 
   const modal = document.getElementById("level-end-modal");
   const title = document.getElementById("end-title");
@@ -1955,6 +3158,7 @@ function winLevel() {
 function loseLevel() {
   gameState.isGameOver = true;
   clearInterval(gameLoopInterval);
+  AnalyticsTracker.endSession('LOST');
 
   const modal = document.getElementById("level-end-modal");
   const title = document.getElementById("end-title");
@@ -2026,6 +3230,11 @@ function startLevel(lvlIndex) {
     saveRashProgress(gameState.rashLevel);
   }
 
+  AnalyticsTracker.startSession(
+    gameState.gameMode,
+    gameState.gameMode === 'NORMAL' ? (currentLevelIndex + 1) : gameState.rashLevel
+  );
+
   const cfg = getCurrentLevelConfig();
 
   gameState.money = 0;
@@ -2058,6 +3267,250 @@ function startLevel(lvlIndex) {
 }
 
 /* ==========================================================================
+   SISTEMA DE PANTALLA DE INICIO Y MODALES DE USUARIO
+   ========================================================================== */
+let startSelectedMode = 'NORMAL';
+let regSelectedAvatar = '🍜';
+let profSelectedAvatar = '🍜';
+
+function setStartSelectedMode(mode) {
+  startSelectedMode = mode;
+  playSound('add');
+  const normalCard = document.getElementById("start-mode-card-normal");
+  const rashCard = document.getElementById("start-mode-card-rash");
+  if (normalCard && rashCard) {
+    if (mode === 'NORMAL') {
+      normalCard.classList.add("active");
+      rashCard.classList.remove("active");
+    } else {
+      normalCard.classList.remove("active");
+      rashCard.classList.add("active");
+    }
+  }
+}
+
+function updateStartPlayerCard() {
+  const box = document.getElementById("start-profile-box");
+  if (!box) return;
+
+  const bestRash = parseInt(safeStorage.getItem('ramen_mania_rash_best') || '1');
+  const curRash = parseInt(safeStorage.getItem('ramen_mania_rash_level') || '1');
+  const rashStatsEl = document.getElementById("start-rash-stats-text");
+  if (rashStatsEl) {
+    rashStatsEl.innerHTML = `🏆 Tu Récord: <strong>Ronda ${bestRash} / 100</strong> (Guardado: R${curRash})`;
+  }
+
+  if (DeviceManager.currentPlayer) {
+    const p = DeviceManager.currentPlayer;
+    box.innerHTML = `
+      <div class="start-profile-info">
+        <div class="start-profile-avatar">${p.avatar || '🍜'}</div>
+        <div class="start-profile-texts">
+          <div class="start-profile-name">
+            <span>Chef ${escapeHtml(p.playerName)}</span>
+            <span style="font-size:10px; background:#2e7d32; color:#fff; padding:1px 6px; border-radius:8px; font-weight:900;">✓ VERIFICADO</span>
+          </div>
+          <div class="start-device-tag">
+            <span>🔒 Dispositivo Vinculado</span>
+            <span style="color:#ffb300; font-size:9px;">• ID #${DeviceManager.deviceId.substring(0, 12)}</span>
+          </div>
+        </div>
+      </div>
+      <button class="btn" onclick="openProfileModal()" style="font-size:11px; padding:5px 12px; background:#4e261d; color:#ffe082;">
+        👤 Perfil
+      </button>
+    `;
+  } else {
+    box.innerHTML = `
+      <div class="start-unregistered-box">
+        <div style="text-align:left;">
+          <div style="font-family:'Fredoka One', cursive; font-size:14px; color:#ffca28;">
+            👤 Registra tu Alias de Chef
+          </div>
+          <div style="font-size:10px; color:#cfd8dc;">
+            1 sola cuenta vinculada a este equipo para el ranking oficial.
+          </div>
+        </div>
+        <button class="btn" onclick="openRegisterPlayerModal()" style="background:#2e7d32; color:#fff; font-size:11px; padding:6px 12px; font-weight:900;">
+          ✨ Registrar Alias
+        </button>
+      </div>
+    `;
+  }
+}
+
+function handleStartPlayClick() {
+  if (!DeviceManager.currentPlayer) {
+    openRegisterPlayerModal();
+    const statusEl = document.getElementById("reg-status-msg");
+    if (statusEl) {
+      statusEl.textContent = "💡 Registra tu alias para vincular tu dispositivo y comenzar a jugar.";
+      statusEl.style.color = "#ff9800";
+    }
+    return;
+  }
+
+  playSound('serve');
+  const startScreen = document.getElementById("start-screen");
+  if (startScreen) {
+    startScreen.classList.add("hidden");
+  }
+
+  gameState.gameMode = startSelectedMode;
+  if (startSelectedMode === 'NORMAL') {
+    startLevel(0);
+  } else {
+    const savedRash = parseInt(safeStorage.getItem('ramen_mania_rash_level') || '1');
+    startLevel(savedRash - 1);
+  }
+}
+
+function returnToStartMenu() {
+  if (!gameState.isGameOver) {
+    AnalyticsTracker.endSession('ABANDONED');
+  }
+  gameState.isGameOver = true;
+  clearInterval(gameLoopInterval);
+  const startScreen = document.getElementById("start-screen");
+  if (startScreen) {
+    startScreen.classList.remove("hidden");
+  }
+  updateStartPlayerCard();
+}
+
+function openRegisterPlayerModal() {
+  if (DeviceManager.currentPlayer) {
+    openProfileModal();
+    return;
+  }
+  regSelectedAvatar = '🍜';
+  selectRegAvatar('🍜');
+  const nameInput = document.getElementById("reg-player-name");
+  if (nameInput) nameInput.value = "";
+  const contactInput = document.getElementById("reg-player-contact");
+  if (contactInput) contactInput.value = "";
+  const statusEl = document.getElementById("reg-status-msg");
+  if (statusEl) statusEl.textContent = "";
+  document.getElementById("register-player-modal").classList.add("active");
+}
+
+function closeRegisterPlayerModal() {
+  document.getElementById("register-player-modal").classList.remove("active");
+}
+
+function selectRegAvatar(av) {
+  regSelectedAvatar = av;
+  document.querySelectorAll("#reg-avatar-grid .avatar-opt-btn").forEach(btn => {
+    if (btn.textContent.trim() === av) btn.classList.add("active");
+    else btn.classList.remove("active");
+  });
+}
+
+async function handleConfirmRegistration() {
+  const nameInput = document.getElementById("reg-player-name");
+  const contactInput = document.getElementById("reg-player-contact");
+  const statusEl = document.getElementById("reg-status-msg");
+  const btn = document.getElementById("btn-confirm-register");
+
+  const playerName = nameInput.value.trim();
+  const contact = contactInput.value.trim();
+
+  if (playerName.length < 2) {
+    statusEl.textContent = "⚠️ El alias debe tener al menos 2 caracteres.";
+    statusEl.style.color = "#c62828";
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = "⏳ Vinculando dispositivo...";
+  statusEl.textContent = "Registrando...";
+  statusEl.style.color = "#ff9800";
+
+  const res = await DeviceManager.register(playerName, contact, regSelectedAvatar);
+  btn.disabled = false;
+  btn.textContent = "✨ Registrar y Vincular este Dispositivo";
+
+  if (!res.success) {
+    statusEl.textContent = "⚠️ " + res.error;
+    statusEl.style.color = "#c62828";
+  } else {
+    statusEl.textContent = "🎉 ¡Dispositivo vinculado exitosamente!";
+    statusEl.style.color = "#2e7d32";
+    setTimeout(() => {
+      closeRegisterPlayerModal();
+      updateStartPlayerCard();
+    }, 800);
+  }
+}
+
+function openProfileModal() {
+  if (!DeviceManager.currentPlayer) {
+    openRegisterPlayerModal();
+    return;
+  }
+  const p = DeviceManager.currentPlayer;
+  document.getElementById("prof-avatar-display").textContent = p.avatar || "🍜";
+  document.getElementById("prof-name-display").textContent = `Chef ${p.playerName}`;
+  document.getElementById("prof-device-status-display").textContent = `🔒 Vinculado a este Dispositivo (#${DeviceManager.deviceId.substring(0, 12)})`;
+  
+  const createdDate = p.createdAt ? new Date(p.createdAt).toLocaleDateString() : "Hoy";
+  document.getElementById("prof-created-display").textContent = `Fecha de Registro: ${createdDate}`;
+
+  const rawScores = safeStorage.getItem('ramen_local_scores') || "[]";
+  let localScores = [];
+  try { localScores = JSON.parse(rawScores); } catch(e) {}
+  
+  const normalScores = localScores.filter(s => s.game_mode === 'NORMAL');
+  const normalBest = normalScores.length > 0 ? Math.max(...normalScores.map(s => s.score_money)) : 0;
+  const rashBest = parseInt(safeStorage.getItem('ramen_mania_rash_best') || '1');
+
+  document.getElementById("prof-stat-games").textContent = localScores.length;
+  document.getElementById("prof-stat-normal-best").textContent = `S/ ${normalBest}`;
+  document.getElementById("prof-stat-rash-best").textContent = `Ronda ${rashBest}`;
+
+  profSelectedAvatar = p.avatar || "🍜";
+  selectProfAvatar(profSelectedAvatar);
+  document.getElementById("prof-contact-input").value = p.contact || "";
+  document.getElementById("prof-save-status").textContent = "";
+
+  document.getElementById("player-profile-modal").classList.add("active");
+}
+
+function closeProfileModal() {
+  document.getElementById("player-profile-modal").classList.remove("active");
+}
+
+function selectProfAvatar(av) {
+  profSelectedAvatar = av;
+  document.querySelectorAll("#prof-avatar-grid .avatar-opt-btn").forEach(btn => {
+    if (btn.textContent.trim() === av) btn.classList.add("active");
+    else btn.classList.remove("active");
+  });
+}
+
+async function handleSaveProfileChanges() {
+  const contactInput = document.getElementById("prof-contact-input");
+  const statusEl = document.getElementById("prof-save-status");
+  const contact = contactInput.value.trim();
+
+  statusEl.textContent = "Guardando cambios...";
+  statusEl.style.color = "#ff9800";
+
+  const res = await DeviceManager.updateProfile(contact, profSelectedAvatar);
+  if (res.success) {
+    document.getElementById("prof-avatar-display").textContent = profSelectedAvatar;
+    statusEl.textContent = "✅ Perfil actualizado correctamente.";
+    statusEl.style.color = "#2e7d32";
+    setTimeout(() => {
+      statusEl.textContent = "";
+    }, 2000);
+  } else {
+    statusEl.textContent = "⚠️ Error al guardar cambios.";
+    statusEl.style.color = "#c62828";
+  }
+}
+
+/* ==========================================================================
    SISTEMA DE RÉCORDS Y LEADERBOARD (SUPABASE + LOCALSTORAGE)
    ========================================================================== */
 function openSaveScoreModal() {
@@ -2069,10 +3522,21 @@ function openSaveScoreModal() {
     : `Modo Rash (Ronda ${gameState.rashLevel})`;
   document.getElementById("record-summary-mode").textContent = modeText;
 
-  const savedName = safeStorage.getItem('ramen_player_name') || "";
-  const savedContact = safeStorage.getItem('ramen_player_contact') || "";
-  document.getElementById("record-player-name").value = savedName;
-  document.getElementById("record-player-contact").value = savedContact;
+  const nameInput = document.getElementById("record-player-name");
+  const contactInput = document.getElementById("record-player-contact");
+
+  if (DeviceManager.currentPlayer) {
+    nameInput.value = DeviceManager.currentPlayer.playerName;
+    nameInput.readOnly = true;
+    nameInput.style.backgroundColor = "#e8f5e9";
+    nameInput.title = "Alias verificado de este dispositivo";
+    contactInput.value = DeviceManager.currentPlayer.contact || "";
+  } else {
+    nameInput.value = safeStorage.getItem('ramen_player_name') || "";
+    nameInput.readOnly = false;
+    nameInput.style.backgroundColor = "#fff";
+    contactInput.value = safeStorage.getItem('ramen_player_contact') || "";
+  }
 
   const statusEl = document.getElementById("save-record-status");
   statusEl.textContent = "";
@@ -2091,8 +3555,13 @@ async function submitScoreToSupabase() {
   const statusEl = document.getElementById("save-record-status");
   const btn = document.getElementById("btn-submit-record");
 
-  const playerName = nameInput.value.trim();
-  const contact = contactInput.value.trim();
+  let playerName = nameInput.value.trim();
+  let contact = contactInput.value.trim();
+
+  if (DeviceManager.currentPlayer) {
+    playerName = DeviceManager.currentPlayer.playerName;
+    if (!contact) contact = DeviceManager.currentPlayer.contact || "";
+  }
 
   if (playerName.length < 2) {
     statusEl.textContent = "⚠️ Ingresa un nombre o apodo de al menos 2 caracteres.";
@@ -2112,6 +3581,7 @@ async function submitScoreToSupabase() {
   const newRecord = {
     player_name: playerName,
     contact: contact || null,
+    device_id: DeviceManager.deviceId,
     score_money: gameState.money,
     customers_served: gameState.customersServed,
     level_reached: levelReached,
@@ -2247,10 +3717,14 @@ async function loadLeaderboard() {
     const rankDisplay = idx < 3 ? medals[idx] : `#${idx + 1}`;
     const dateFormatted = rec.created_at ? new Date(rec.created_at).toLocaleDateString() : "-";
     const levelLabel = rec.game_mode === 'NORMAL' ? `Nivel ${rec.level_reached}` : `Ronda ${rec.level_reached}`;
+    const isCurrentPlayer = (DeviceManager.currentPlayer && DeviceManager.currentPlayer.playerName.toLowerCase() === rec.player_name.toLowerCase()) || (rec.device_id && rec.device_id === DeviceManager.deviceId);
 
+    tr.style.backgroundColor = isCurrentPlayer ? "#fffde7" : "";
     tr.innerHTML = `
       <td style="text-align:center; font-weight:900; font-size:13px;">${rankDisplay}</td>
-      <td style="font-weight:800; color:#3e2723;">${escapeHtml(rec.player_name)}</td>
+      <td style="font-weight:800; color:#3e2723;">
+        ${escapeHtml(rec.player_name)} ${isCurrentPlayer ? '<span style="font-size:9px; background:#ff9800; color:#fff; padding:1px 4px; border-radius:4px;">TÚ</span>' : ''}
+      </td>
       <td style="font-weight:900; color:#b71c1c;">S/ ${rec.score_money}</td>
       <td style="font-weight:700;">${rec.customers_served}</td>
       <td style="font-size:10px; font-weight:800; color:#e65100;">${levelLabel}</td>
@@ -2442,10 +3916,553 @@ window.addEventListener('orientationchange', () => {
   setTimeout(checkOrientation, 250);
 });
 
-window.addEventListener("DOMContentLoaded", () => {
+/* ==========================================================================
+   PANEL DE MONITOREO MASTER & ADMINISTRACIÓN (usr-master / 9999)
+   ========================================================================== */
+const ADMIN_AUTH = {
+  user: "usr-master",
+  pass: "9999"
+};
+let isAdminLoggedIn = false;
+let currentAdminTab = 'users';
+let cachedAdminData = {
+  sessions: [],
+  users: {},
+  levels: {},
+  ramenFails: {},
+  leaderboard: []
+};
+
+function openAdminLoginModal() {
+  if (isAdminLoggedIn) {
+    openAdminDashboardModal();
+    return;
+  }
+  const userInp = document.getElementById("admin-user-input");
+  const passInp = document.getElementById("admin-pass-input");
+  const statusEl = document.getElementById("admin-login-status");
+  if (userInp) userInp.value = "";
+  if (passInp) passInp.value = "";
+  if (statusEl) {
+    statusEl.textContent = "";
+    statusEl.style.color = "#5d4037";
+  }
+  document.getElementById("admin-login-modal").classList.add("active");
+  setTimeout(() => {
+    if (userInp) userInp.focus();
+  }, 100);
+}
+
+function closeAdminLoginModal() {
+  document.getElementById("admin-login-modal").classList.remove("active");
+}
+
+function handleAdminLogin() {
+  const userInp = document.getElementById("admin-user-input");
+  const passInp = document.getElementById("admin-pass-input");
+  const statusEl = document.getElementById("admin-login-status");
+
+  const user = (userInp ? userInp.value : "").trim();
+  const pass = (passInp ? passInp.value : "").trim();
+
+  if (user === ADMIN_AUTH.user && pass === ADMIN_AUTH.pass) {
+    isAdminLoggedIn = true;
+    statusEl.textContent = "✅ Acceso concedido como Master Admin...";
+    statusEl.style.color = "#2e7d32";
+    setTimeout(() => {
+      closeAdminLoginModal();
+      openAdminDashboardModal();
+    }, 400);
+  } else {
+    statusEl.textContent = "❌ Credenciales incorrectas. Acceso restringido.";
+    statusEl.style.color = "#c62828";
+    if (passInp) {
+      passInp.value = "";
+      passInp.focus();
+    }
+  }
+}
+
+function openAdminDashboardModal() {
+  if (!isAdminLoggedIn) {
+    openAdminLoginModal();
+    return;
+  }
+  if (!gameState.isGameOver && !gameState.isPaused) {
+    togglePause();
+  }
+  document.getElementById("admin-dashboard-modal").classList.add("active");
+  switchAdminTab(currentAdminTab || 'users');
+  refreshAdminDashboard();
+}
+
+function closeAdminDashboardModal() {
+  document.getElementById("admin-dashboard-modal").classList.remove("active");
+  if (gameState.isPaused && !gameState.isGameOver) {
+    togglePause();
+  }
+}
+
+function handleAdminLogout() {
+  isAdminLoggedIn = false;
+  closeAdminDashboardModal();
+}
+
+function switchAdminTab(tab) {
+  currentAdminTab = tab;
+  ['users', 'levels', 'ramen', 'sessions'].forEach(t => {
+    const btn = document.getElementById(`adm-tab-${t}`);
+    const view = document.getElementById(`adm-view-${t}`);
+    if (btn) btn.className = `admin-tab-btn ${t === tab ? 'active' : ''}`;
+    if (view) view.style.display = (t === tab) ? 'block' : 'none';
+  });
+
+  if (tab === 'users') renderAdminUsersTable();
+  else if (tab === 'levels') renderAdminLevelsView();
+  else if (tab === 'ramen') renderAdminRamenView();
+  else if (tab === 'sessions') renderAdminSessionsView();
+}
+
+function formatSeconds(sec) {
+  if (!sec || isNaN(sec)) return "0s";
+  const s = Math.round(sec);
+  if (s < 60) return `${s}s`;
+  const m = Math.floor(s / 60);
+  const remS = s % 60;
+  if (m < 60) return `${m}m ${remS}s`;
+  const h = Math.floor(m / 60);
+  const remM = m % 60;
+  return `${h}h ${remM}m`;
+}
+
+async function refreshAdminDashboard() {
+  let sessions = [];
+  let dbPlayers = [];
+  let dbLeaderboard = [];
+
+  // 1. Cargar datos locales como base
+  try {
+    const rawSessions = safeStorage.getItem('ramen_analytics_sessions') || "[]";
+    sessions = JSON.parse(rawSessions);
+  } catch(e) {}
+
+  let userAnalytics = {};
+  try {
+    const rawUsers = safeStorage.getItem('ramen_user_analytics') || "{}";
+    userAnalytics = JSON.parse(rawUsers);
+  } catch(e) {}
+
+  let failStats = {};
+  try {
+    const rawFails = safeStorage.getItem('ramen_fail_stats') || "{}";
+    failStats = JSON.parse(rawFails);
+  } catch(e) {}
+
+  // 2. Cargar desde Supabase si hay conexión activa
+  if (supabaseClient) {
+    try {
+      const [resSessions, resPlayers, resLb] = await Promise.all([
+        supabaseClient.from('game_sessions').select('*').order('created_at', { ascending: false }).limit(300),
+        supabaseClient.from('players').select('*').order('last_login', { ascending: false }),
+        supabaseClient.from('leaderboard').select('*').order('score_money', { ascending: false })
+      ]);
+
+      if (resSessions.data && resSessions.data.length > 0) {
+        sessions = resSessions.data;
+      }
+      if (resPlayers.data) {
+        dbPlayers = resPlayers.data;
+      }
+      if (resLb.data) {
+        dbLeaderboard = resLb.data;
+      }
+    } catch(err) {
+      console.warn("Error cargando analíticas de Supabase:", err);
+    }
+  }
+
+  // Sincronizar usuarios combinando Supabase players y sesiones
+  const usersMap = {};
+
+  // Primero poblar desde tabla players si existen
+  dbPlayers.forEach(p => {
+    usersMap[p.player_name] = {
+      playerName: p.player_name,
+      avatar: p.avatar || '🍜',
+      deviceId: p.device_id,
+      contact: p.contact || '',
+      totalAttempts: 0,
+      totalPlayTimeSeconds: 0,
+      maxNormalLevel: 1,
+      maxRashLevel: 1,
+      customersServed: 0,
+      customersLost: 0,
+      lastActive: p.last_login || p.created_at
+    };
+  });
+
+  // Integrar datos locales de usuarios
+  Object.values(userAnalytics).forEach(u => {
+    if (!usersMap[u.playerName]) {
+      usersMap[u.playerName] = { ...u, avatar: '🍜' };
+    } else {
+      usersMap[u.playerName].totalAttempts = Math.max(usersMap[u.playerName].totalAttempts, u.totalAttempts || 0);
+      usersMap[u.playerName].totalPlayTimeSeconds = Math.max(usersMap[u.playerName].totalPlayTimeSeconds, u.totalPlayTimeSeconds || 0);
+      usersMap[u.playerName].maxNormalLevel = Math.max(usersMap[u.playerName].maxNormalLevel, u.maxNormalLevel || 1);
+      usersMap[u.playerName].maxRashLevel = Math.max(usersMap[u.playerName].maxRashLevel, u.maxRashLevel || 1);
+      usersMap[u.playerName].customersServed = Math.max(usersMap[u.playerName].customersServed, u.customersServed || 0);
+      usersMap[u.playerName].customersLost = Math.max(usersMap[u.playerName].customersLost, u.customersLost || 0);
+    }
+  });
+
+  // Recomputar métricas a partir del log de sesiones
+  const levelStatsMap = {};
+  const aggregatedFails = { ...failStats };
+
+  sessions.forEach(s => {
+    const pName = s.player_name || "Chef Anónimo";
+    if (!usersMap[pName]) {
+      usersMap[pName] = {
+        playerName: pName,
+        avatar: '🍜',
+        deviceId: s.device_id || 'DEV-LOCAL',
+        totalAttempts: 0,
+        totalPlayTimeSeconds: 0,
+        maxNormalLevel: 1,
+        maxRashLevel: 1,
+        customersServed: 0,
+        customersLost: 0,
+        lastActive: s.created_at
+      };
+    }
+    const u = usersMap[pName];
+    u.totalAttempts += 1;
+    u.totalPlayTimeSeconds += (s.duration_seconds || 0);
+    u.customersServed += (s.customers_served || 0);
+    u.customersLost += (s.customers_lost || 0);
+    if (s.game_mode === 'NORMAL' && s.level_number > u.maxNormalLevel) u.maxNormalLevel = s.level_number;
+    if (s.game_mode === 'RASH' && s.level_number > u.maxRashLevel) u.maxRashLevel = s.level_number;
+    if (new Date(s.created_at) > new Date(u.lastActive || 0)) u.lastActive = s.created_at;
+
+    // Métricas por nivel
+    const lvlKey = `${s.game_mode}_${s.level_number}`;
+    if (!levelStatsMap[lvlKey]) {
+      levelStatsMap[lvlKey] = {
+        mode: s.game_mode,
+        level: s.level_number,
+        totalAttempts: 0,
+        wins: 0,
+        losses: 0,
+        abandoned: 0,
+        totalDuration: 0
+      };
+    }
+    const ls = levelStatsMap[lvlKey];
+    ls.totalAttempts += 1;
+    ls.totalDuration += (s.duration_seconds || 0);
+    if (s.outcome === 'WON') ls.wins += 1;
+    else if (s.outcome === 'LOST') ls.losses += 1;
+    else ls.abandoned += 1;
+
+    // Acumular ramen fallados
+    if (Array.isArray(s.failed_recipes)) {
+      s.failed_recipes.forEach(rName => {
+        aggregatedFails[rName] = (aggregatedFails[rName] || 0) + 1;
+      });
+    }
+  });
+
+  // Guardar en cache global para renderizado
+  cachedAdminData = {
+    sessions: sessions,
+    users: usersMap,
+    levels: levelStatsMap,
+    ramenFails: aggregatedFails,
+    leaderboard: dbLeaderboard
+  };
+
+  // Calcular KPIs globales
+  const totalPlayersCount = Object.keys(usersMap).length;
+  const totalAttemptsCount = sessions.length;
+  const totalPlaySeconds = Object.values(usersMap).reduce((acc, u) => acc + (u.totalPlayTimeSeconds || 0), 0) || sessions.reduce((acc, s) => acc + (s.duration_seconds || 0), 0);
+
+  // Determinar el ramen más fallado
+  let worstRamenName = "Ninguno";
+  let maxFailCount = 0;
+  Object.entries(aggregatedFails).forEach(([rName, count]) => {
+    if (count > maxFailCount) {
+      maxFailCount = count;
+      worstRamenName = `${rName} (${count} fallos)`;
+    }
+  });
+
+  // Puntuación récord máxima
+  let maxScore = 0;
+  dbLeaderboard.forEach(r => {
+    if (r.score_money > maxScore) maxScore = r.score_money;
+  });
+  if (maxScore === 0) {
+    try {
+      const rawLocal = safeStorage.getItem('ramen_local_scores') || "[]";
+      JSON.parse(rawLocal).forEach(r => {
+        if (r.score_money > maxScore) maxScore = r.score_money;
+      });
+    } catch(e) {}
+  }
+
+  // Actualizar tarjetas de KPI en pantalla
+  const kpiPlayersEl = document.getElementById("kpi-total-players");
+  const kpiAttemptsEl = document.getElementById("kpi-total-attempts");
+  const kpiTimeEl = document.getElementById("kpi-total-time");
+  const kpiWorstRamenEl = document.getElementById("kpi-worst-ramen");
+  const kpiMaxScoreEl = document.getElementById("kpi-max-score");
+
+  if (kpiPlayersEl) kpiPlayersEl.textContent = totalPlayersCount;
+  if (kpiAttemptsEl) kpiAttemptsEl.textContent = totalAttemptsCount;
+  if (kpiTimeEl) kpiTimeEl.textContent = formatSeconds(totalPlaySeconds);
+  if (kpiWorstRamenEl) kpiWorstRamenEl.textContent = worstRamenName;
+  if (kpiMaxScoreEl) kpiMaxScoreEl.textContent = `S/ ${maxScore}`;
+
+  // Renderizar la pestaña actual
+  switchAdminTab(currentAdminTab);
+}
+
+function renderAdminUsersTable() {
+  const tbody = document.getElementById("adm-users-tbody");
+  if (!tbody) return;
+  const filterVal = (document.getElementById("adm-user-filter")?.value || "").toLowerCase().trim();
+  const countLbl = document.getElementById("adm-users-count-label");
+
+  let users = Object.values(cachedAdminData.users || {});
+  if (filterVal) {
+    users = users.filter(u => 
+      u.playerName.toLowerCase().includes(filterVal) || 
+      (u.deviceId && u.deviceId.toLowerCase().includes(filterVal))
+    );
+  }
+
+  // Ordenar por intentos desc
+  users.sort((a, b) => (b.totalAttempts - a.totalAttempts) || (b.totalPlayTimeSeconds - a.totalPlayTimeSeconds));
+
+  if (countLbl) {
+    countLbl.textContent = `${users.length} usuario(s) registrados`;
+  }
+
+  if (users.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:16px; color:#bcaaa4;">No se encontraron usuarios con actividad registrada.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = users.map(u => {
+    const lastActiveDate = u.lastActive ? new Date(u.lastActive).toLocaleString() : "-";
+    const devShort = u.deviceId ? u.deviceId.substring(0, 15) + '...' : 'Local';
+    return `
+      <tr>
+        <td style="font-weight:800; color:#ffca28; display:flex; align-items:center; gap:6px;">
+          <span>${u.avatar || '🍜'}</span>
+          <span>${escapeHtml(u.playerName)}</span>
+        </td>
+        <td style="font-size:10px; color:#cfd8dc; font-family:monospace;" title="${escapeHtml(u.deviceId || '')}">
+          ${escapeHtml(devShort)}
+        </td>
+        <td style="font-weight:900; color:#ffb300; text-align:center;">
+          ${u.totalAttempts}
+        </td>
+        <td style="font-weight:700; color:#81c784;">
+          ${formatSeconds(u.totalPlayTimeSeconds)}
+        </td>
+        <td style="font-weight:800; color:#ffca28; text-align:center;">
+          Nivel ${u.maxNormalLevel || 1}/5
+        </td>
+        <td style="font-weight:800; color:#ff7043; text-align:center;">
+          Ronda ${u.maxRashLevel || 1}/100
+        </td>
+        <td style="font-size:10px;">
+          <span style="color:#81c784;">✓ ${u.customersServed || 0}</span> / <span style="color:#e57373;">✗ ${u.customersLost || 0}</span>
+        </td>
+        <td style="font-size:10px; color:#b0bec5;">
+          ${lastActiveDate}
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function renderAdminLevelsView() {
+  const normContainer = document.getElementById("adm-levels-normal-container");
+  const rashContainer = document.getElementById("adm-levels-rash-container");
+  const levels = cachedAdminData.levels || {};
+
+  // Modo Normal Niveles 1 al 5
+  if (normContainer) {
+    normContainer.innerHTML = NIVELES.map((cfg, idx) => {
+      const lvlNum = idx + 1;
+      const key = `NORMAL_${lvlNum}`;
+      const stat = levels[key] || { totalAttempts: 0, wins: 0, losses: 0, abandoned: 0, totalDuration: 0 };
+      const winRate = stat.totalAttempts > 0 ? Math.round((stat.wins / stat.totalAttempts) * 100) : 0;
+      const avgDuration = stat.totalAttempts > 0 ? Math.round(stat.totalDuration / stat.totalAttempts) : 0;
+
+      return `
+        <div style="background:#2c1611; border:1px solid #5d2e22; border-radius:8px; padding:10px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <div>
+              <span style="font-family:'Fredoka One', cursive; font-size:13px; color:#ffca28;">${cfg.name}</span>
+              <span style="font-size:10px; color:#bcaaa4; margin-left:6px;">(Meta: S/ ${cfg.goal} • Tiempo: ${cfg.time}s)</span>
+            </div>
+            <div style="display:flex; gap:8px; font-size:11px;">
+              <span style="color:#ffb300; font-weight:800;">🎮 Intentos: ${stat.totalAttempts}</span>
+              <span style="color:#81c784; font-weight:800;">🏆 Ganadas: ${stat.wins}</span>
+              <span style="color:#e57373; font-weight:800;">💔 Perdidas: ${stat.losses}</span>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <div style="font-size:10px; color:#cfd8dc; width:90px;">Éxito: <strong>${winRate}%</strong></div>
+            <div class="admin-bar-track" style="flex:1;">
+              <div class="admin-bar-fill" style="width:${winRate}%; background:linear-gradient(90deg, #e65100, #2e7d32);"></div>
+            </div>
+            <div style="font-size:10px; color:#bcaaa4; width:110px; text-align:right;">Prom: ${avgDuration}s/partida</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Modo Rash - Resumen de Rondas
+  if (rashContainer) {
+    const rashKeys = Object.keys(levels).filter(k => k.startsWith('RASH_'));
+    let totalRashAttempts = 0;
+    let maxRashReached = 1;
+    rashKeys.forEach(k => {
+      totalRashAttempts += levels[k].totalAttempts;
+      const num = parseInt(k.replace('RASH_', ''));
+      if (num > maxRashReached) maxRashReached = num;
+    });
+
+    rashContainer.innerHTML = `
+      <div style="background:#2c1611; border:1px solid #e65100; border-radius:8px; padding:10px; margin-bottom:8px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <div>
+            <span style="font-family:'Fredoka One', cursive; font-size:14px; color:#ff9800;">⚡ Modo Rash - Supervivencia Extrema</span>
+          </div>
+          <div style="font-size:11px; color:#ffca28; font-weight:800;">
+            Total Intentos Rash: ${totalRashAttempts} • Máxima Ronda Jugada: Ronda ${maxRashReached} / 100
+          </div>
+        </div>
+        <div style="font-size:11px; color:#d7ccc8;">
+          Distribución de dificultad: A medida que sube la ronda (hasta la 100), la paciencia base de los clientes cae de 45s a 15s y se exigen hasta 404 clientes.
+        </div>
+      </div>
+    `;
+  }
+}
+
+function renderAdminRamenView() {
+  const tbody = document.getElementById("adm-ramen-tbody");
+  if (!tbody) return;
+  const failStats = cachedAdminData.ramenFails || {};
+  const totalFails = Object.values(failStats).reduce((a, b) => a + b, 0) || 1;
+
+  // Crear lista combinada con todas las recetas
+  const ramenList = RECETAS_RAMEN.map(r => {
+    const failCount = failStats[r.name] || 0;
+    const failPct = Math.round((failCount / totalFails) * 100);
+    let diag = "✅ Fácil / Bajo Fracaso";
+    let diagColor = "#81c784";
+
+    if (r.ingredients.length >= 10 || failPct >= 20) {
+      diag = "🔥 Alta Complejidad (" + r.ingredients.length + " ingredientes)";
+      diagColor = "#e57373";
+    } else if (r.ingredients.length >= 8 || failPct >= 10) {
+      diag = "⚠️ Dificultad Moderada";
+      diagColor = "#ffb74d";
+    }
+
+    return {
+      ...r,
+      failCount: failCount,
+      failPct: failPct,
+      diag: diag,
+      diagColor: diagColor
+    };
+  });
+
+  // Ordenar por ramen con más fallos primero
+  ramenList.sort((a, b) => b.failCount - a.failCount);
+
+  tbody.innerHTML = ramenList.map((r, idx) => {
+    const ingsDisplay = r.ingredients.map(ingId => {
+      const ing = INGREDIENTES.find(i => i.id === ingId);
+      return ing ? `${ing.icon} ${ing.display}` : "";
+    }).join(", ");
+
+    return `
+      <tr>
+        <td style="text-align:center; font-weight:900; color:#ffca28;">#${idx + 1}</td>
+        <td style="font-weight:900; color:#ffffff; font-size:12px;">🍜 ${escapeHtml(r.name)}</td>
+        <td style="font-weight:800; color:#81c784;">S/ ${r.price}</td>
+        <td style="font-size:10px; color:#cfd8dc; max-width:240px; line-height:1.3;">${ingsDisplay}</td>
+        <td style="font-weight:900; color:#ff5252; text-align:center; font-size:13px;">${r.failCount}</td>
+        <td style="width:130px;">
+          <div style="font-size:9px; color:#ffca28; margin-bottom:2px;">${r.failPct}% del total de fallos</div>
+          <div class="admin-bar-track">
+            <div class="admin-bar-fill" style="width:${Math.max(5, r.failPct)}%; background:${r.failCount > 0 ? '#ff5252' : '#757575'};"></div>
+          </div>
+        </td>
+        <td style="font-size:10px; font-weight:800; color:${r.diagColor};">
+          ${r.diag}
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function renderAdminSessionsView() {
+  const tbody = document.getElementById("adm-sessions-tbody");
+  if (!tbody) return;
+  const sessions = cachedAdminData.sessions || [];
+
+  if (sessions.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:16px; color:#bcaaa4;">Aún no hay sesiones registradas en la telemetría.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = sessions.slice(0, 50).map(s => {
+    const timeFormatted = s.created_at ? new Date(s.created_at).toLocaleString() : "-";
+    const modeLabel = s.game_mode === 'NORMAL' ? `🏮 Normal (N${s.level_number})` : `⚡ Rash (R${s.level_number})`;
+    let outcomeBadge = '<span style="background:#757575; color:#fff; padding:2px 6px; border-radius:4px; font-size:9px;">ABANDONÓ</span>';
+    if (s.outcome === 'WON') {
+      outcomeBadge = '<span style="background:#2e7d32; color:#fff; padding:2px 6px; border-radius:4px; font-size:9px; font-weight:900;">✓ GANÓ</span>';
+    } else if (s.outcome === 'LOST') {
+      outcomeBadge = '<span style="background:#b71c1c; color:#fff; padding:2px 6px; border-radius:4px; font-size:9px; font-weight:900;">✗ PERDIÓ</span>';
+    }
+
+    const failedRamenText = (Array.isArray(s.failed_recipes) && s.failed_recipes.length > 0)
+      ? s.failed_recipes.join(", ")
+      : "<span style='color:#81c784;'>Ninguno</span>";
+
+    return `
+      <tr>
+        <td style="font-size:10px; color:#b0bec5;">${timeFormatted}</td>
+        <td style="font-weight:800; color:#ffca28;">${escapeHtml(s.player_name || "Chef Anónimo")}</td>
+        <td style="font-weight:700; color:#ff9800; font-size:10px;">${modeLabel}</td>
+        <td style="text-align:center; font-weight:800;">${s.level_number}</td>
+        <td style="color:#81c784; font-weight:700;">${formatSeconds(s.duration_seconds)}</td>
+        <td style="font-size:10px;">
+          <span style="color:#81c784;">✓ ${s.customers_served || 0}</span> / <span style="color:#e57373;">✗ ${s.customers_lost || 0}</span>
+        </td>
+        <td style="font-size:10px; color:#ffab91;">${failedRamenText}</td>
+        <td style="text-align:center;">${outcomeBadge}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+window.addEventListener("DOMContentLoaded", async () => {
   initSupabase();
   checkOrientation();
-  startLevel(0);
+  await DeviceManager.init();
+  setStartSelectedMode('NORMAL');
+  initRecipeTable();
 });
 </script>
 </body>
