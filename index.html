@@ -241,7 +241,38 @@
     position: relative;
     cursor: pointer;
     height: 64px;
-    transition: border-color 0.15s ease;
+    transition: all 0.25s ease-out;
+    animation: custSlideInRight 0.3s ease-out;
+  }
+
+  @keyframes custSlideInRight {
+    from { transform: translateX(30px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  .customer-card.urgent {
+    border-color: #d32f2f;
+    box-shadow: 0 0 10px rgba(211, 47, 47, 0.7);
+    animation: urgentPulse 0.7s infinite alternate ease-in-out;
+  }
+
+  @keyframes urgentPulse {
+    0% { transform: scale(1); border-color: #d32f2f; }
+    100% { transform: scale(1.02); border-color: #ff1744; }
+  }
+
+  .urgent-badge {
+    position: absolute;
+    top: -6px;
+    right: -4px;
+    background: #d32f2f;
+    color: #fff;
+    font-size: 8px;
+    font-weight: 900;
+    padding: 1px 4px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    z-index: 10;
   }
 
   .customer-card:hover, .customer-card.active-target {
@@ -260,6 +291,7 @@
     font-size: 11px;
     cursor: default;
     box-shadow: none;
+    transition: all 0.25s ease-out;
   }
 
   .customer-row-top {
@@ -2711,27 +2743,41 @@ function renderBowls() {
       badgeEl.textContent = `¡Listo: ${analysis.recipe.name}!`;
       artEl.textContent = "✨🍜✨";
 
-      let targetCustIdx = -1;
-      let targetItemIdx = -1;
-
+      // Buscar todos los clientes que esperan esta receta
+      const candidateCusts = [];
       for (let cIdx = 0; cIdx < gameState.customerSlots.length; cIdx++) {
         const c = gameState.customerSlots[cIdx];
         if (c) {
           const pIdx = c.orders.findIndex(o => !o.served && (o.recipe.id === analysis.recipe.id || o.recipe.name === analysis.recipe.name));
           if (pIdx !== -1) {
-            targetCustIdx = cIdx;
-            targetItemIdx = pIdx;
-            break;
+            candidateCusts.push({
+              cIdx: cIdx,
+              itemIdx: pIdx,
+              patienceRatio: c.patience / c.maxPatience,
+              patience: c.patience,
+              customer: c
+            });
           }
         }
       }
 
-      if (targetCustIdx !== -1) {
-        const c = gameState.customerSlots[targetCustIdx];
-        assistEl.innerHTML = `✅ <strong>${analysis.recipe.name}:</strong> ${c.name} lo espera en Asiento ${targetCustIdx + 1}.`;
+      // Priorizar al comensal con MENOR paciencia (más crítico a punto de irse)
+      candidateCusts.sort((a, b) => (a.patienceRatio - b.patienceRatio) || (a.patience - b.patience));
+
+      if (candidateCusts.length > 0) {
+        const best = candidateCusts[0];
+        targetCustIdx = best.cIdx;
+        targetItemIdx = best.itemIdx;
+        const c = best.customer;
+        const pctInt = Math.max(0, Math.round(best.patienceRatio * 100));
+        const isUrgent = best.patienceRatio < 0.4;
+        const badgeTag = isUrgent 
+          ? `<span style="color:#ff5252; font-weight:900;">⚡ PRIORIDAD URGENTE (${pctInt}%)</span>` 
+          : `(${pctInt}% paciencia)`;
+        assistEl.innerHTML = `✅ <strong>${analysis.recipe.name}:</strong> Entregar a ${c.name} en Asiento ${targetCustIdx + 1} ${badgeTag}.`;
         const deliverBtn = document.createElement("button");
         deliverBtn.className = "btn-direct-serve";
-        deliverBtn.textContent = `⚡ Servir a ${c.name}`;
+        deliverBtn.textContent = `⚡ Servir a ${c.name} (${pctInt}%)`;
         deliverBtn.onclick = (e) => {
           e.stopPropagation();
           serveRamenToCustomer(targetCustIdx, targetItemIdx, i);
@@ -2762,9 +2808,31 @@ function renderBowls() {
   renderPantryGrid();
 }
 
+function shiftCustomersLeft() {
+  const active = gameState.customerSlots.filter(s => s !== null);
+  const newSlots = [null, null, null, null];
+  for (let i = 0; i < active.length; i++) {
+    newSlots[i] = active[i];
+  }
+  gameState.customerSlots = newSlots;
+}
+
 function renderCustomers() {
   const container = document.getElementById("customers-container");
   container.innerHTML = "";
+
+  // Encontrar el cliente con menor paciencia relativa que aún tenga pedidos pendientes
+  let lowestPatience = 1.1;
+  let mostUrgentIndex = -1;
+  gameState.customerSlots.forEach((c, index) => {
+    if (c && c.orders.some(o => !o.served)) {
+      const ratio = c.patience / c.maxPatience;
+      if (ratio < lowestPatience) {
+        lowestPatience = ratio;
+        mostUrgentIndex = index;
+      }
+    }
+  });
 
   gameState.customerSlots.forEach((c, index) => {
     if (!c) {
@@ -2775,8 +2843,11 @@ function renderCustomers() {
       return;
     }
 
+    const pct = Math.max(0, (c.patience / c.maxPatience) * 100);
+    const isMostUrgent = (index === mostUrgentIndex && pct <= 50);
+
     const card = document.createElement("div");
-    card.className = "customer-card";
+    card.className = `customer-card ${isMostUrgent ? "urgent" : ""}`;
     
     card.onclick = () => {
       for (let bIdx = 0; bIdx < gameState.bowls.length; bIdx++) {
@@ -2792,7 +2863,6 @@ function renderCustomers() {
       openCustomerOrderModal(index);
     };
 
-    const pct = Math.max(0, (c.patience / c.maxPatience) * 100);
     let pColor = "var(--patience-green)";
     if (pct < 30) pColor = "var(--patience-red)";
     else if (pct < 60) pColor = "var(--patience-yellow)";
@@ -2801,12 +2871,13 @@ function renderCustomers() {
     const pendingOrders = c.orders.filter(o => !o.served).length;
 
     card.innerHTML = `
+      ${isMostUrgent ? '<div class="urgent-badge">⚡ PRIORIDAD</div>' : ''}
       <div class="customer-row-top">
         <div class="cust-profile">
           <div class="cust-avatar">${c.avatar}</div>
           <div class="cust-name">${c.name}</div>
         </div>
-        <div style="font-size:10px; font-weight:900; color:#2e7d32;">
+        <div style="font-size:10px; font-weight:900; color:${pct < 30 ? '#c62828' : '#2e7d32'};">
           ${pendingOrders === 0 ? "¡Listo!" : `${pendingOrders}/${totalOrders} ramen`}
         </div>
       </div>
@@ -2916,6 +2987,7 @@ function serveRamenToCustomer(customerIndex, itemIndex, bowlIndex) {
     else if (ratio > 0.25) gameState.money += 4;
     gameState.customerSlots[customerIndex] = null;
     closeCustomerOrderModal();
+    shiftCustomersLeft(); // Mover la fila hacia la izquierda
   } else {
     if (gameState.selectedCustomerModalIndex === customerIndex) {
       openCustomerOrderModal(customerIndex);
@@ -2985,6 +3057,8 @@ function clearBowl(index) {
 }
 
 function spawnCustomer() {
+  shiftCustomersLeft();
+
   const cfg = getCurrentLevelConfig();
   const activeCount = gameState.customerSlots.filter(s => s !== null).length;
   if (activeCount >= cfg.max_customers) return;
@@ -3021,10 +3095,12 @@ function spawnCustomer() {
     avatar: template.avatar,
     orders: orders,
     patience: totalPatience,
-    maxPatience: totalPatience
+    maxPatience: totalPatience,
+    spawnTime: Date.now()
   };
 
   renderCustomers();
+  renderBowls();
   if (gameState.gameMode === 'RASH') {
     updateHUD();
   }
@@ -3054,6 +3130,7 @@ function gameTick() {
         gameState.customersLost++;
         gameState.customerSlots[i] = null;
         if (gameState.selectedCustomerModalIndex === i) closeCustomerOrderModal();
+        shiftCustomersLeft(); // Mover la fila hacia la izquierda
 
         if (gameState.gameMode === 'RASH') {
           gameState.rashLives--;
@@ -3085,6 +3162,7 @@ function gameTick() {
 
   updateHUD();
   renderCustomers();
+  renderBowls();
 }
 
 function updateHUD() {
