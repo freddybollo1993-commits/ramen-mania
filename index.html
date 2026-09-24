@@ -1347,6 +1347,44 @@
     50% { box-shadow: 0 0 16px rgba(255, 179, 0, 0.9); }
   }
 
+  /* TABS Y FILTROS DE CATEGORÍA DE SECRETOS */
+  .secretos-tabs-bar {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .secret-tab-btn {
+    background: rgba(37, 18, 54, 0.85);
+    border: 1px solid #7e57c2;
+    color: #e1bee7;
+    font-family: 'Nunito', sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 4px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+  }
+
+  .secret-tab-btn:hover {
+    border-color: #ffd54f;
+    color: #fff8e1;
+    background: rgba(74, 20, 140, 0.9);
+  }
+
+  .secret-tab-btn.active {
+    background: linear-gradient(135deg, #ffd54f, #ffb300);
+    border-color: #ffe082;
+    color: #211000;
+    font-weight: 900;
+    box-shadow: 0 2px 8px rgba(255, 179, 0, 0.4);
+  }
+
   .secret-card-unlocked {
     cursor: pointer !important;
     border: 2px solid #ffd54f !important;
@@ -2349,70 +2387,16 @@
           🌟 <strong>Secretos Culinarios Legendarios:</strong> Descubre las tarjetas informativas y modelos 3D en Pixel Art con rotación 360° sobre pedestal. Se desbloquean al completar hitos y niveles en el juego.
         </div>
 
+        <!-- TABS DE CATEGORÍAS DE SECRETOS -->
+        <div class="secretos-tabs-bar" id="secretos-tabs-container">
+          <button class="secret-tab-btn active" onclick="filterSecretosCategory('todos', this)">⭐ Todos (22)</button>
+          <button class="secret-tab-btn" onclick="filterSecretosCategory('ramen', this)">🍜 Tazones Ramen (9)</button>
+          <button class="secret-tab-btn" onclick="filterSecretosCategory('ingredientes', this)">🥚 Ingredientes (8)</button>
+          <button class="secret-tab-btn" onclick="filterSecretosCategory('cuchillos', this)">🔪 Cuchillos (5)</button>
+        </div>
+
         <div class="secretos-grid" id="secretos-cards-container">
-          <!-- Tarjeta 1 -->
-          <div class="secret-card">
-            <div style="font-size: 11px; font-weight: 800; color: #ce93d8;">Fideos Artesanales</div>
-            <div class="secret-pedestal-preview" title="Pendiente de desbloquear">
-              <span style="animation: pulse 1.5s infinite;">❓</span>
-            </div>
-            <div style="font-size: 9px; color: #b0bec5; margin: 2px 0;">Amasado a mano con agua Kansui</div>
-            <div class="secret-req-badge">🔒 Desbloquea en Nivel 2</div>
-          </div>
-
-          <!-- Tarjeta 2 -->
-          <div class="secret-card">
-            <div style="font-size: 11px; font-weight: 800; color: #ce93d8;">Caldo Tonkotsu Secreto</div>
-            <div class="secret-pedestal-preview" title="Pendiente de desbloquear">
-              <span style="animation: pulse 1.5s infinite;">❓</span>
-            </div>
-            <div style="font-size: 9px; color: #b0bec5; margin: 2px 0;">Hervido por más de 18 horas</div>
-            <div class="secret-req-badge">🔒 Desbloquea en Nivel 3</div>
-          </div>
-
-          <!-- Tarjeta 3 -->
-          <div class="secret-card">
-            <div style="font-size: 11px; font-weight: 800; color: #ce93d8;">Chashu Caramelizado</div>
-            <div class="secret-pedestal-preview" title="Pendiente de desbloquear">
-              <span style="animation: pulse 1.5s infinite;">❓</span>
-            </div>
-            <div style="font-size: 9px; color: #b0bec5; margin: 2px 0;">Panceta braseada a fuego lento</div>
-            <div class="secret-req-badge">🔒 Desbloquea en Nivel 4</div>
-          </div>
-
-          <!-- Tarjeta 4: Huevo Ajitsuke (DESBLOQUEADO CON VISTA PREVIA 3D) -->
-          <div class="secret-card secret-card-unlocked" onclick="openTamagoSecretDetail()" title="¡Toca para ver el Secreto en 3D!">
-            <div style="font-size: 11px; font-weight: 900; color: #ffe082; display: flex; align-items: center; gap: 4px;">
-              <span>🥚</span> Huevo Ajitsuke
-            </div>
-            <div class="secret-pedestal-preview" style="background: radial-gradient(circle, rgba(255, 179, 0, 0.45) 0%, rgba(37, 14, 52, 0.9) 70%); border: 2px solid #ffd54f; box-shadow: 0 0 14px rgba(255, 213, 79, 0.6); animation: floatPedestal 3s ease-in-out infinite;">
-              <span style="font-size: 26px; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.6));">🥚</span>
-            </div>
-            <div style="font-size: 9px; color: #ffecb3; font-weight: 700; margin: 2px 0;">Yema cremosa marinada en soja</div>
-            <div class="secret-req-badge" style="background: linear-gradient(90deg, #ff8f00, #ffb300); color: #211000; font-weight: 900; border: none; box-shadow: 0 2px 6px rgba(0,0,0,0.4); padding: 3px 8px; border-radius: 8px; animation: pulseGlow 2s infinite; cursor: pointer;">
-              ✨ ¡DESBLOQUEADO! (Ver 3D)
-            </div>
-          </div>
-
-          <!-- Tarjeta 5 -->
-          <div class="secret-card">
-            <div style="font-size: 11px; font-weight: 800; color: #ce93d8;">Salsa Ebi Suprema</div>
-            <div class="secret-pedestal-preview" title="Pendiente de desbloquear">
-              <span style="animation: pulse 1.5s infinite;">❓</span>
-            </div>
-            <div style="font-size: 9px; color: #b0bec5; margin: 2px 0;">Concentrado de langostino tostado</div>
-            <div class="secret-req-badge">🔒 Ronda 20 en Modo Rash</div>
-          </div>
-
-          <!-- Tarjeta 6 -->
-          <div class="secret-card">
-            <div style="font-size: 11px; font-weight: 800; color: #ce93d8;">Alga Nori Sagrada</div>
-            <div class="secret-pedestal-preview" title="Pendiente de desbloquear">
-              <span style="animation: pulse 1.5s infinite;">❓</span>
-            </div>
-            <div style="font-size: 9px; color: #b0bec5; margin: 2px 0;">Tostado crujiente de Ariake</div>
-            <div class="secret-req-badge">🔒 Ronda 50 en Modo Rash</div>
-          </div>
+          <!-- Las tarjetas de todos los secretos desbloqueados se generan dinámicamente -->
         </div>
 
         <div style="margin-top: 14px; text-align: center;">
@@ -2430,12 +2414,14 @@
       <!-- Header -->
       <div class="modal-header" style="background: linear-gradient(90deg, #4a148c, #6a1b9a, #ab47bc); padding: 6px 14px; border-bottom: 2px solid #ffd54f;">
         <div style="display:flex; align-items:center; gap:8px;">
-          <span style="font-size: 18px;">✨</span>
-          <h2 style="font-family: 'Fredoka One', cursive; font-size: 15px; color: #fff8e1;">SECRETO DEL CHEF • AJITSUKE TAMAGO 3D</h2>
-          <span style="background: linear-gradient(90deg, #ff8f00, #ffb300); color: #211000; font-size: 9px; font-weight: 900; padding: 2px 7px; border-radius: 8px;">DESBLOQUEADO</span>
+          <span style="font-size: 18px;" id="secreto-modal-icon">✨</span>
+          <h2 id="secreto-modal-title" style="font-family: 'Fredoka One', cursive; font-size: 15px; color: #fff8e1;">SECRETO DEL CHEF • AJITSUKE TAMAGO 3D</h2>
+          <span id="secreto-modal-badge" style="background: linear-gradient(90deg, #ff8f00, #ffb300); color: #211000; font-size: 9px; font-weight: 900; padding: 2px 7px; border-radius: 8px;">DESBLOQUEADO</span>
         </div>
-        <div style="display:flex; gap:6px;">
-          <button class="btn" style="background: #f3e5f5; color: #4a148c; padding: 3px 10px; font-size: 10px; font-weight: 900;" onclick="backToSecretosGallery()">◀ Volver a Galería</button>
+        <div style="display:flex; gap:5px; align-items:center;">
+          <button class="btn" style="background: #311b92; color: #e1bee7; padding: 3px 8px; font-size: 10px; font-weight: 800;" onclick="navigateSecret(-1)" title="Anterior secreto">◀ Ant.</button>
+          <button class="btn" style="background: #311b92; color: #e1bee7; padding: 3px 8px; font-size: 10px; font-weight: 800;" onclick="navigateSecret(1)" title="Siguiente secreto">Sig. ▶</button>
+          <button class="btn" style="background: #f3e5f5; color: #4a148c; padding: 3px 10px; font-size: 10px; font-weight: 900;" onclick="backToSecretosGallery()">Galería</button>
           <button class="btn btn-danger" style="padding: 2px 8px;" onclick="closeTamagoSecretDetail()">✕</button>
         </div>
       </div>
@@ -2461,91 +2447,46 @@
         </div>
 
         <!-- 50% Derecha: Reseña Culinaria del Producto -->
-        <div class="secreto-lore-half">
+        <div class="secreto-lore-half" id="secreto-lore-container">
           <div class="lore-title-area">
-            <div class="lore-badge-tag">⭐ Topping Maestro • Nivel Legendario</div>
-            <h3>🥚 Ajitsuke Tamago (味付け玉子)</h3>
-            <div class="lore-subtitle">Huevo Marinado Semi-Líquido estilo Ramen Bar Tokyo</div>
+            <div class="lore-badge-tag" id="lore-badge-tag">⭐ Topping Maestro • Nivel Legendario</div>
+            <h3 id="lore-main-title">🥚 Ajitsuke Tamago (味付け玉子)</h3>
+            <div class="lore-subtitle" id="lore-subtitle">Huevo Marinado Semi-Líquido estilo Ramen Bar Tokyo</div>
           </div>
 
           <!-- Reseña del Chef -->
           <div class="lore-section-box">
-            <h4>📖 Reseña del Chef & Técnica Secreta</h4>
-            <p>
-              El <strong>Ajitsuke Tamago</strong> es el alma y la prueba de fuego de todo maestro ramen. El secreto artesanal comienza con una rigurosa selección de huevos frescos a temperatura ambiente para evitar microfisuras al contacto con el agua en ebullición.
-            </p>
-            <p style="margin-top: 6px;">
-              La cocción se cronometra con precisión absoluta a <strong>6 minutos y 15 segundos</strong>, logrando el estado sagrado <em>'Hanjuku'</em>: clara firme pero tierna y sedosa, y una yema cremosa, dorada y de consistencia casi gelatinosa que se funde delicadamente al tocar el caldo hirviendo.
-            </p>
-            <p style="margin-top: 6px;">
-              Tras un choque térmico inmediato en baño de agua con hielo, se pelan con delicadeza milimétrica y reposan durante <strong>24 horas inmersos en frío</strong> en nuestro tare secreto, tiñéndose de un irresistible color caramelo con notas ahumadas y sésamo tostado.
-            </p>
+            <h4 id="lore-story-header">📖 Reseña del Chef & Técnica Secreta</h4>
+            <div id="lore-story-content">
+              <p>
+                El <strong>Ajitsuke Tamago</strong> es el alma y la prueba de fuego de todo maestro ramen. El secreto artesanal comienza con una rigurosa selección de huevos frescos a temperatura ambiente para evitar microfisuras al contacto con el agua en ebullición.
+              </p>
+              <p style="margin-top: 6px;">
+                La cocción se cronometra con precisión absoluta a <strong>6 minutos y 15 segundos</strong>, logrando el estado sagrado <em>'Hanjuku'</em>: clara firme pero tierna y sedosa, y una yema cremosa, dorada y de consistencia casi gelatinosa que se funde delicadamente al tocar el caldo hirviendo.
+              </p>
+            </div>
           </div>
 
-          <!-- Ingredientes del Tare -->
+          <!-- Ingredientes del Tare / Forja -->
           <div>
-            <div style="font-size: 11px; font-weight: 900; color: #4a148c; margin-bottom: 4px; display:flex; align-items:center; gap:4px;">
+            <div id="lore-tare-title" style="font-size: 11px; font-weight: 900; color: #4a148c; margin-bottom: 4px; display:flex; align-items:center; gap:4px;">
               🧂 Tare Secreto de Marinado (Salmuera Fría)
             </div>
-            <div class="lore-tare-grid">
-              <div class="tare-item">
-                <span class="tare-icon">🥢</span>
-                <div>
-                  <div class="tare-name">Shoyu Añejo</div>
-                  <div class="tare-desc">Soja fermentada oscura para teñido ámbar y profundidad umami.</div>
-                </div>
-              </div>
-              <div class="tare-item">
-                <span class="tare-icon">🍶</span>
-                <div>
-                  <div class="tare-name">Hon-Mirin</div>
-                  <div class="tare-desc">Aporte de dulzor aterciopelado y brillo laqueado en la superficie.</div>
-                </div>
-              </div>
-              <div class="tare-item">
-                <span class="tare-icon">🍶</span>
-                <div>
-                  <div class="tare-name">Sake Culinario</div>
-                  <div class="tare-desc">Suaviza las notas ácidas y realza el perfil aromático.</div>
-                </div>
-              </div>
-              <div class="tare-item">
-                <span class="tare-icon">🌊</span>
-                <div>
-                  <div class="tare-name">Kombu Dashi</div>
-                  <div class="tare-desc">Infusión de alga kombu para una explosión natural de glutamato.</div>
-                </div>
-              </div>
+            <div class="lore-tare-grid" id="lore-tare-grid">
+              <!-- Cargado dinámicamente -->
             </div>
           </div>
 
-          <!-- Ficha de Degustación -->
-          <div class="lore-stats-grid">
-            <div class="stat-row">
-              <span class="stat-label">Punto de Yema:</span>
-              <span class="stat-val">Hanjuku (Melosa)</span>
-            </div>
-            <div class="stat-row">
-              <span class="stat-label">Nivel de Umami:</span>
-              <span class="stat-val">★★★★★ (5/5)</span>
-            </div>
-            <div class="stat-row">
-              <span class="stat-label">Tiempo de Marinado:</span>
-              <span class="stat-val">24 Horas en Frío</span>
-            </div>
-            <div class="stat-row">
-              <span class="stat-label">Topping Final:</span>
-              <span class="stat-val">Sésamo Tostado</span>
-            </div>
+          <!-- Ficha de Degustación / Especificaciones -->
+          <div class="lore-stats-grid" id="lore-stats-grid">
+            <!-- Cargado dinámicamente -->
           </div>
 
           <!-- Buff de Juego -->
           <div class="lore-buff-card">
             <h4>⚡ Efecto Culinario Activo en Ramen Mania:</h4>
-            <ul class="lore-buff-list">
-              <li>💰 <span><strong>+25% de Propina</strong> en cualquier tazón servido con Huevo</span></li>
-              <li>⏳ <span><strong>+4 Segundos de Paciencia</strong> extra en comensales VIP</span></li>
-              <li>🔥 <span><strong>Multiplicador de Combo +10%</strong> en modos Carrera y Arcade</span></li>
+            <ul class="lore-buff-list" id="lore-buff-list">
+              <!-- Cargado dinámicamente -->
             </ul>
           </div>
         </div>
@@ -4597,7 +4538,10 @@ function closeRecipeModal() {
 function openSecretosModal() {
   playSound('click');
   const modal = document.getElementById("secretos-modal");
-  if (modal) modal.classList.add("active");
+  if (modal) {
+    modal.classList.add("active");
+    renderSecretosCards(currentSecretFilter || 'todos');
+  }
 }
 
 function closeSecretosModal() {
@@ -4607,10 +4551,660 @@ function closeSecretosModal() {
 }
 
 /* ==========================================================================
-   VISOR 3D INTERACTIVO VOXEL & RESEÑA - AJITSUKE TAMAGO (SECRETO DEL CHEF)
+   COLECCIÓN COMPLETA DE SECRETOS DEL CHEF - 3D INTERACTIVO & RESEÑAS
    ========================================================================== */
-function openTamagoSecretDetail() {
+
+const CHEF_SECRETS = [
+  // --- TAZONES DE RAMEN (9) ---
+  {
+    id: "ramen_shio",
+    category: "ramen",
+    name: "Shio Ramen",
+    kanji: "塩ラーメン",
+    subtitle: "Ramen Cristalino Tradicional de Hakodate",
+    icon: "🍜",
+    lore: "El Shio Ramen es la manifestación más pura y exigente de la cocina de fideos japonesa. Su caldo cristalino se elabora a fuego muy lento con sal marina de Okinawa (Moshio), huesos de pollo de granja, alga kombu y verduras frescas. Al no llevar salsas oscuras, la calidad y frescura de cada ingrediente queda totalmente expuesta al paladar.",
+    tareTitle: "🧂 Componentes del Caldo & Tare",
+    tare: [
+      { icon: "🌊", name: "Sal Marina Moshio", desc: "Sal de algas secadas al sol con notas yodadas minerales." },
+      { icon: "🍗", name: "Chintan de Ave", desc: "Caldo de pollo cristalino cocinado a fuego bajo sin hervir." },
+      { icon: "🥓", name: "Chashu Tierno", desc: "Loncha magra braseada que aporta sutil grasa al caldo claro." },
+      { icon: "🌱", name: "Moyashi & Nori", desc: "Brotes crujientes y alga marina para balancear texturas." }
+    ],
+    stats: [
+      { label: "Cuerpo Caldo:", val: "Ligero / Cristalino" },
+      { label: "Intensidad Sal:", val: "★★★★☆" },
+      { label: "Punto Fideos:", val: "Finos Ondulados" },
+      { label: "Maridaje:", val: "Té Verde Hojicha" }
+    ],
+    buffs: [
+      "💰 +20% de Propina en pedidos de Shio Ramen",
+      "⏳ +3 Segundos de paciencia en clientes tradicionales",
+      "✨ Bono de +120 Puntos de Prestigio Culinario"
+    ]
+  },
+  {
+    id: "ramen_shoyu",
+    category: "ramen",
+    name: "Shoyu Ramen",
+    kanji: "醤油ラーメン",
+    subtitle: "El Clásico Legendario de Tokyo (Asakusa 1910)",
+    icon: "🍜",
+    lore: "Surgido en el histórico barrio de Asakusa en 1910, el Shoyu Ramen es el arquetipo del ramen japonés. Su base es un tare añejo de salsa de soja oscura fermentada en barricas de cedro japonés, infusionada con dashi de bonito seco ahumado (katsuobushi). Los fideos elásticos absorben el color ámbar del caldo.",
+    tareTitle: "🥢 Tare Oscuro & Acompañamientos",
+    tare: [
+      { icon: "🍶", name: "Shoyu Añejado", desc: "Soja artesanal de fermentación doble con umami complejo." },
+      { icon: "🐟", name: "Katsuobushi Dashi", desc: "Copos de bonito ahumado para un fondo aromático." },
+      { icon: "🎋", name: "Menma Fermentado", desc: "Brotes tiernos de bambú marinados en salsa agridulce." },
+      { icon: "🥬", name: "Holantao Crujiente", desc: "Vainas tiernas de guisante dulce para contraste fresco." }
+    ],
+    stats: [
+      { label: "Color Caldo:", val: "Ámbar Brillante" },
+      { label: "Complejidad:", val: "★★★★★" },
+      { label: "Grosor Fideos:", val: "Medio Elástico" },
+      { label: "Región:", val: "Tokyo / Kanto" }
+    ],
+    buffs: [
+      "💰 +22% de Propina en pedidos Shoyu",
+      "⏱️ Disminuye el tiempo de cocción de fideos un 15%",
+      "🔥 Multiplicador de Combo +10%"
+    ]
+  },
+  {
+    id: "ramen_miso",
+    category: "ramen",
+    name: "Miso Ramen",
+    kanji: "味噌ラーメン",
+    subtitle: "La Fuerza Cálida del Norte (Sapporo, Hokkaido)",
+    icon: "🍜",
+    lore: "Creado en los gélidos inviernos de Hokkaido en 1965. Los fideos gruesos y rizados se sumergen en una sopa robusta enriquecida con pasta de soja miso fermentada, salteada en wok al fuego vivo con manteca y ajo picado para sellar una película de calor que mantiene el tazón hirviendo hasta el último sorbo.",
+    tareTitle: "🍲 Pasta de Miso & Especias",
+    tare: [
+      { icon: "🥣", name: "Miso Rojo & Blanco", desc: "Mezcla equilibrada de soja fermentada dulce y salina." },
+      { icon: "🧄", name: "Ajo Tostado en Wok", desc: "Aroma tostado intenso que despierta el apetito al instante." },
+      { icon: "🧈", name: "Manteca Aromática", desc: "Sella el calor y aporta untuosidad densa y aterciopelada." },
+      { icon: "🎋", name: "Bambú & Holantao", desc: "Verduras salteadas que equilibran la potencia del miso." }
+    ],
+    stats: [
+      { label: "Densidad Caldo:", val: "Cremoso / Robusto" },
+      { label: "Potencia Sabor:", val: "★★★★★" },
+      { label: "Fideos:", val: "Gruesos Rizados" },
+      { label: "Origen:", val: "Sapporo (Hokkaido)" }
+    ],
+    buffs: [
+      "💰 +25% de Propina en pedidos Miso",
+      "❄️ Clientes impacientes tardan 4s más en enojarse",
+      "🏆 +180 Puntos por orden perfecta"
+    ]
+  },
+  {
+    id: "ramen_tonkotsu",
+    category: "ramen",
+    name: "Tonkotsu Ramen",
+    kanji: "豚骨ラーメン",
+    subtitle: "Emulsión de Médula & Colágeno de Hakata",
+    icon: "🍜",
+    lore: "El rey indiscutible de Kyushu. Los huesos de cerdo fémur (genkotsu) y espinazo se hierven a borbotones salvajes durante más de 18 horas ininterrumpidas. El colágeno y la médula ósea se disuelven en agua pura, creando un caldo blanco lechoso de textura aterciopelada y sabor profundo.",
+    tareTitle: "🦴 Emulsión de Hueso & Guarnición",
+    tare: [
+      { icon: "🦴", name: "Genkotsu 18 Horas", desc: "Huesos de cerdo ricos en calcio y gelatina natural." },
+      { icon: "🥬", name: "Col Hervida Suave", desc: "Hojas tiernas de col que absorben la grasa del caldo." },
+      { icon: "🌱", name: "Moyashi Fresco", desc: "Brotes de soja crujientes que refrescan el paladar." },
+      { icon: "🥓", name: "Chashu Glaseado", desc: "Panceta que se deshace al mezclarse con el caldo caliente." }
+    ],
+    stats: [
+      { label: "Color Caldo:", val: "Blanco Lechoso" },
+      { label: "Nivel Colágeno:", val: "★★★★★" },
+      { label: "Fideos:", val: "Ultrafinos Rectos" },
+      { label: "Estilo:", val: "Hakata (Fukuoka)" }
+    ],
+    buffs: [
+      "💰 +30% de Propina en pedidos Tonkotsu",
+      "⏳ +5 Segundos de paciencia en comensales VIP",
+      "✨ +200 Puntos de maestría culinaria"
+    ]
+  },
+  {
+    id: "ramen_chashu",
+    category: "ramen",
+    name: "Chashu Ramen",
+    kanji: "チャーシュー麺",
+    subtitle: "Banquete Carnívoro de Panceta Braseada",
+    icon: "🥩",
+    lore: "El tazón soñado por los amantes de la carne. La superficie entera del tazón queda cubierta por un abanico generoso de panceta de cerdo braseada durante 4 horas en mirin, soja dulce y sake, coronada con un huevo ajitsuke de yema líquida y alga nori sobre una base de caldo tonkotsu espeso.",
+    tareTitle: "🥩 Selección Carnívora Suprema",
+    tare: [
+      { icon: "🥓", name: "Corona de Chashu", desc: "4 a 5 lonchas gruesas veteadas con corteza acaramelada." },
+      { icon: "🥚", name: "Huevo Ajitsuke", desc: "Yema dorada melosa macerada durante 24 horas en frío." },
+      { icon: "🍲", name: "Fondo Tonkotsu", desc: "Base rica que potencia la jugosidad de la carne de cerdo." },
+      { icon: "🍙", name: "Nori Tostado", desc: "Hoja marina crujiente para envolver cada bocado carnoso." }
+    ],
+    stats: [
+      { label: "Proteína Total:", val: "Suprema / Extra" },
+      { label: "Suculencia:", val: "★★★★★" },
+      { label: "Satisfacción:", val: "100% Garantizada" },
+      { label: "Tiempo Prep:", val: "Cuidado Artesanal" }
+    ],
+    buffs: [
+      "💰 +35% de Propina en pedidos Chashu Ramen",
+      "⭐ Otorga 1 corazón de vida extra en modo Rash",
+      "🔥 Multiplicador de Combo x1.25"
+    ]
+  },
+  {
+    id: "ramen_ebi",
+    category: "ramen",
+    name: "Ebi Ramen",
+    kanji: "海老ラーメン",
+    subtitle: "Esencia Marina de Langostino Tostado",
+    icon: "🦐",
+    lore: "Una oda a la riqueza del océano Pacífico. Las cabezas y caparazones de langostinos dulces se tuestan en horno de piedra con aceite de sésamo antes de reducirse en un bisque ultraconcentrado. El aroma a marisco tostado invade la sala en cuanto se sirve el plato.",
+    tareTitle: "🦐 Bisque Marino & Toppings",
+    tare: [
+      { icon: "🦐", name: "Aceite de Ebi", desc: "Extracción aromática prensada de langostinos tostados." },
+      { icon: "🍄", name: "Champiñones", desc: "Láminas salteadas que absorben el jugo del marisco." },
+      { icon: "🎋", name: "Espárragos Verdes", desc: "Tallos blanqueados que aportan frescura vegetal." },
+      { icon: "🍙", name: "Nori de Ariake", desc: "Potencia el yodo y el aroma a brisa marina." }
+    ],
+    stats: [
+      { label: "Aroma Marino:", val: "Intenso / Embriagador" },
+      { label: "Umami Marino:", val: "★★★★★" },
+      { label: "Caldo:", val: "Bisque Anaranjado" },
+      { label: "Maridaje:", val: "Cerveza Asahi Dry" }
+    ],
+    buffs: [
+      "💰 +28% de Propina en Ebi Ramen",
+      "⏱️ +3s de tiempo adicional en rondas contrarreloj",
+      "✨ +160 Puntos gastronómicos"
+    ]
+  },
+  {
+    id: "ramen_tantan",
+    category: "ramen",
+    name: "Tan Tan Ramen",
+    kanji: "担々麺",
+    subtitle: "Fuego Aromático de Sésamo & Rayu",
+    icon: "🌶️",
+    lore: "Nacido del mítico Dan Dan de Sichuan y reinterpretado por los maestros de Tokyo. Combina un caldo aterciopelado de pasta de sésamo blanco tostado (Zhimajiang) con aceite de chile rojo rayu artesanal y un montículo jugoso de carne de cerdo molida sofrita con especias chinas y soja.",
+    tareTitle: "🌶️ Especias Picantes & Sésamo",
+    tare: [
+      { icon: "🌶️", name: "Aceite Rayu Rojo", desc: "Chile infundido con pimienta de Sichuan y anís estrellado." },
+      { icon: "🥣", name: "Pasta Zhimajiang", desc: "Sésamo tostado molido a la piedra con textura sedosa." },
+      { icon: "🥩", name: "Soboro de Chancho", desc: "Carne molida crujiente salteada con jengibre y ajo." },
+      { icon: "🌱", name: "Moyashi Refrescante", desc: "Brotes acuosos que calman el ardor agradable del picante." }
+    ],
+    stats: [
+      { label: "Nivel Picante:", val: "Medio-Alto (🌶️🌶️🌶️)" },
+      { label: "Untuosidad Sésamo:", val: "★★★★★" },
+      { label: "Perfil:", val: "Sichuan-Tokyo Fusion" },
+      { label: "Final en Boca:", val: "Hormigueo Cítrico" }
+    ],
+    buffs: [
+      "💰 +25% de Propina en Tan Tan",
+      "🔥 Activa Fervor de Ventas (+15% velocidad de servicio)",
+      "🏆 +190 Puntos de estilo"
+    ]
+  },
+  {
+    id: "ramen_vegetariano",
+    category: "ramen",
+    name: "Ramen Vegetariano",
+    kanji: "精進ラーメン",
+    subtitle: "Armonía Zen de la Cocina Monacal Budista",
+    icon: "🥬",
+    lore: "Heredero de la cocina tradicional de los templos budistas (Shojin Ryori). Este tazón demuestra que no se necesita carne para alcanzar la excelencia culinaria. El caldo se extrae mediante cocción lenta de setas shiitake secas, alga kombu marina, jengibre y verduras asadas.",
+    tareTitle: "🌱 Selección Botánica Pura",
+    tare: [
+      { icon: "🍄", name: "Shiitake Donko", desc: "Hongo seco que aporta ácido guanílico y aroma a bosque." },
+      { icon: "🧈", name: "Tofu Aburaage", desc: "Triángulos de tofu frito que absorben el caldo como esponjas." },
+      { icon: "🎋", name: "Espárragos & Hongos", desc: "Vegetales crujientes salteados en aceite de sésamo virgen." },
+      { icon: "🌊", name: "Kombu Hidratado", desc: "El glutamato natural más puro del lecho marino." }
+    ],
+    stats: [
+      { label: "Pureza Caldo:", val: "100% Origen Vegetal" },
+      { label: "Ligereza Digestiva:", val: "★★★★★" },
+      { label: "Texturas:", val: "Crujiente & Esponjosa" },
+      { label: "Filosofía:", val: "Shojin Ryori Zen" }
+    ],
+    buffs: [
+      "💰 +20% de Propina en Vegetariano",
+      "🌿 Clientes relajados: la barra se vacía un 20% más rápido",
+      "✨ +140 Puntos Zen"
+    ]
+  },
+  {
+    id: "ramen_bajiru",
+    category: "ramen",
+    name: "Bajiru Ramen",
+    kanji: "バジルラーメン",
+    subtitle: "Vanguardia Italo-Japonesa de Albahaca",
+    icon: "🌿",
+    lore: "Una creación audaz que causa furor en los barrios más cosmopolitas de Tokyo. Se fusiona un caldo shio emulsionado con un tare verde brillante de hojas frescas de albahaca (bajiru) machacadas en mortero suribachi con aceite de oliva, acompañado de brisket de res finamente laminado y alga wanji.",
+    tareTitle: "🌿 Emulsión Verde & Brisket",
+    tare: [
+      { icon: "🌿", name: "Pesto de Bajiru", desc: "Albahaca japonesa fresca con notas anisadas y cítricas." },
+      { icon: "🥩", name: "Brisket Laminado", desc: "Corte de pecho vacuno tierno que complementa la hierba." },
+      { icon: "🥕", name: "Zanahoria Juliana", desc: "Finas tiras anaranjadas para un toque crujiente y dulce." },
+      { icon: "🌊", name: "Alga Wanji Suave", desc: "Wakame tierno que flota en el caldo verde esmeralda." }
+    ],
+    stats: [
+      { label: "Color Caldo:", val: "Verde Esmeralda" },
+      { label: "Innovación:", val: "★★★★★" },
+      { label: "Frescura:", val: "Herbal Aromática" },
+      { label: "Estilo:", val: "Moderne Tokyo Fusion" }
+    ],
+    buffs: [
+      "💰 +26% de Propina en Bajiru",
+      "⭐ Incrementa la satisfacción general de clientes un 15%",
+      "🏆 +175 Puntos gastronómicos"
+    ]
+  },
+
+  // --- INGREDIENTES LEGENDARIOS (8) ---
+  {
+    id: "tamago",
+    category: "ingredientes",
+    name: "Huevo Ajitsuke",
+    kanji: "味付け玉子",
+    subtitle: "Huevo Marinado Semi-Líquido Hanjuku",
+    icon: "🥚",
+    lore: "El Ajitsuke Tamago es el alma y la prueba de fuego de todo maestro ramen. El secreto artesanal comienza con una rigurosa selección de huevos frescos a temperatura ambiente para evitar microfisuras al contacto con el agua en ebullición.\n\nLa cocción se cronometra con precisión absoluta a 6 minutos y 15 segundos, logrando el estado sagrado 'Hanjuku': clara firme pero tierna y sedosa, y una yema cremosa, dorada y de consistencia casi gelatinosa que se funde delicadamente al tocar el caldo hirviendo.\n\nTras un choque térmico inmediato en baño de agua con hielo, se pelan con delicadeza milimétrica y reposan durante 24 horas inmersos en frío en nuestro tare secreto, tiñéndose de un irresistible color caramelo con notas ahumadas y sésamo tostado.",
+    tareTitle: "🧂 Tare Secreto de Marinado (Salmuera Fría)",
+    tare: [
+      { icon: "🥢", name: "Shoyu Añejo", desc: "Soja fermentada oscura para teñido ámbar y profundidad umami." },
+      { icon: "🍶", name: "Hon-Mirin", desc: "Aporte de dulzor aterciopelado y brillo laqueado en la superficie." },
+      { icon: "🍶", name: "Sake Culinario", desc: "Suaviza las notas ácidas y realza el perfil aromático." },
+      { icon: "🌊", name: "Kombu Dashi", desc: "Infusión de alga kombu para una explosión natural de glutamato." }
+    ],
+    stats: [
+      { label: "Punto de Yema:", val: "Hanjuku (Melosa)" },
+      { label: "Nivel de Umami:", val: "★★★★★ (5/5)" },
+      { label: "Tiempo de Marinado:", val: "24 Horas en Frío" },
+      { label: "Topping Final:", val: "Sésamo Tostado" }
+    ],
+    buffs: [
+      "💰 +25% de Propina en cualquier tazón servido con Huevo",
+      "⏳ +4 Segundos de Paciencia extra en comensales VIP",
+      "🔥 Multiplicador de Combo +10% en modos Carrera y Arcade"
+    ]
+  },
+  {
+    id: "chashu",
+    category: "ingredientes",
+    name: "Chashu Caramelizado",
+    kanji: "チャーシュー",
+    subtitle: "Panceta Braseada de Corteza Laqueada",
+    icon: "🥓",
+    lore: "El chashu es la joya de la corona del topping de ramen. Se elabora con panceta de cerdo fresca enrollada a mano con hilo de cocina para conservar sus jugos. Se dora en sartén de hierro para sellar y luego se brasea a fuego muy lento durante 4 horas en una mezcla de shoyu, sake, mirin, azúcar de caña y jengibre fresco.",
+    tareTitle: "🔥 Maceración & Braseado Lento",
+    tare: [
+      { icon: "🥩", name: "Panceta de Grano", desc: "Capas alternadas perfectas de carne magra y grasa untuosa." },
+      { icon: "🍶", name: "Glaseado Shoyu-Mirin", desc: "Reducción dulce y salada que laquea la corteza exterior." },
+      { icon: "🧅", name: "Jengibre & Negi", desc: "Aromáticos que eliminan cualquier exceso de bravura cárnica." },
+      { icon: "🪵", name: "Cocción Lenta 4 Horas", desc: "Derrite el tejido conectivo hasta poder cortarse con cuchara." }
+    ],
+    stats: [
+      { label: "Textura:", val: "Fundente al Contacto" },
+      { label: "Punto Glaseado:", val: "Laqueado Brillante" },
+      { label: "Tiempo Cocción:", val: "4 Horas a Fuego Lento" },
+      { label: "Umami:", val: "★★★★★" }
+    ],
+    buffs: [
+      "💰 +25% de Propina en bowls con Chashu",
+      "⏳ +4s de paciencia en clientes exigentes",
+      "🔥 Combo x1.15"
+    ]
+  },
+  {
+    id: "fideos",
+    category: "ingredientes",
+    name: "Fideos Kansui Artesanales",
+    kanji: "自家製麺",
+    subtitle: "Masa Elástica de Trigo con Agua Alcalina",
+    icon: "🥢",
+    lore: "El alma del ramen son sus fideos. A diferencia de la pasta italiana o los fideos comunes, el ramen requiere harina con alto contenido proteico y agua alcalina (Kansui). Esta agua mineraliza el almidón, otorgando la característica textura amarilla, elástica, masticable (koshibou) y resistente a la absorción rápida del caldo hirviendo.",
+    tareTitle: "🌾 Masa Alcalina & Extrusión",
+    tare: [
+      { icon: "🌾", name: "Harina de Trigo Fuerte", desc: "Alto gluten para una red elástica que no se rompe al hervir." },
+      { icon: "💧", name: "Agua Kansui Pura", desc: "Carbonato de sodio y potasio que aporta elasticidad y color." },
+      { icon: "⏳", name: "Maduración 24 Horas", desc: "Reposo en frío que relaja el gluten para el estirado perfecto." },
+      { icon: "🥢", name: "Corte a Cuchilla", desc: "Grosor calibrado milimétricamente según el tipo de caldo." }
+    ],
+    stats: [
+      { label: "Textura (Katame):", val: "Firme / Masticable" },
+      { label: "Elasticidad:", val: "★★★★★" },
+      { label: "Porosidad:", val: "Óptima para Caldo" },
+      { label: "Humedad:", val: "32% Calibrada" }
+    ],
+    buffs: [
+      "⚡ Reduce el tiempo de hervido un 20%",
+      "💰 +15% de propina en todas las órdenes",
+      "🏆 +130 Puntos de maestría"
+    ]
+  },
+  {
+    id: "caldo_tonkotsu",
+    category: "ingredientes",
+    name: "Caldo Tonkotsu Sagrado",
+    kanji: "豚骨出汁",
+    subtitle: "Emulsión de Médula & Huesos de Fémur",
+    icon: "🍲",
+    lore: "Hervir huesos no es suficiente: la ciencia del Tonkotsu reside en la ebullición turbulenta continua. El movimiento salvaje del agua a borbotones durante 18 horas rompe mecánicamente las moléculas de grasa y las mezcla con la gelatina disuelta de los huesos fémur (genkotsu), logrando una emulsión blanca que no se separa jamás.",
+    tareTitle: "🦴 Caldero de Cocción Continua",
+    tare: [
+      { icon: "🦴", name: "Huesos Genkotsu", desc: "Fémures de cerdo con médula densa y colágeno concentrado." },
+      { icon: "🌊", name: "Agua Filtrada Pura", desc: "Sin cloro para mantener la blancura nívea de la emulsión." },
+      { icon: "🔥", name: "Fuego Vivo 18 Horas", desc: "Borbollón incesante que pulveriza y emulsiona la grasa." },
+      { icon: "🧅", name: "Aromáticos Finales", desc: "Cebolla y ajo añadidos en la última hora para aroma dulce." }
+    ],
+    stats: [
+      { label: "Viscosidad:", val: "Densa / Untuosa" },
+      { label: "Contenido Colágeno:", val: "★★★★★" },
+      { label: "Coloración:", val: "Blanco Marfil Níveo" },
+      { label: "Extracción:", val: "18 Horas Continuas" }
+    ],
+    buffs: [
+      "💰 +30% de Propina en pedidos Tonkotsu",
+      "⏳ Los clientes esperan 4s más con gusto",
+      "✨ +200 Puntos de perfección"
+    ]
+  },
+  {
+    id: "alga_nori",
+    category: "ingredientes",
+    name: "Alga Nori de Ariake",
+    kanji: "有明産 海苔",
+    subtitle: "Lámina Marina Crocante Tostada al Fuego",
+    icon: "🍙",
+    lore: "El alga Nori de mayor prestigio en Japón procede de las aguas poco profundas del mar de Ariake en Kyushu, donde las grandes mareas mezclan agua dulce de ríos con corrientes marinas ricas en nutrientes. Tostada al fuego de carbón vegetal, ofrece un crujido inconfundible y se derrite al contacto con la lengua.",
+    tareTitle: "🌊 Cosecha Marina & Tostado",
+    tare: [
+      { icon: "🌊", name: "Mar de Ariake", desc: "Mareas ricas en minerales volcánicos que nutren el alga." },
+      { icon: "🔥", name: "Tostado al Carbón", desc: "Desprende el aroma marino y fija el color verde negruzco." },
+      { icon: "💎", name: "Glutamato Puro", desc: "El condimento natural que complementa cualquier caldo." },
+      { icon: "🍙", name: "Corte Geométrico", desc: "Láminas rectangulares rígidas que se mantienen erguidas." }
+    ],
+    stats: [
+      { label: "Crujido (Kari-Kari):", val: "Instantáneo / Seco" },
+      { label: "Intensidad Marina:", val: "★★★★☆" },
+      { label: "Color:", val: "Negro Verdoso Profundo" },
+      { label: "Disolución en Boca:", val: "Suave & Sedosa" }
+    ],
+    buffs: [
+      "💰 +15% de Propina en órdenes con Nori",
+      "⚡ Acelera el emplatado de tazones un 15%",
+      "🏆 +110 Puntos de estilo"
+    ]
+  },
+  {
+    id: "langostinos",
+    category: "ingredientes",
+    name: "Langostino Ebi Real",
+    kanji: "車海老",
+    subtitle: "Langostino Escalfado de Cola Escarlata",
+    icon: "🦐",
+    lore: "Los langostinos Ebi se seleccionan uno a uno por su calibre y tersura. Se ensartan en palillos de bambú para mantenerlos completamente rectos durante el escalfado breve en agua con sal marina y sake, conservando su textura jugosa y elástica. Su cola en abanico rojo vivo corona el tazón con orgullo.",
+    tareTitle: "🦐 Preparación & Escalfado",
+    tare: [
+      { icon: "🦐", name: "Langostinos Frescos", desc: "Carne dulce y firme con rayas naturales naranjas y blancas." },
+      { icon: "🍶", name: "Baño de Sake Culinario", desc: "Elimina impurezas y realza el dulzor de la proteína." },
+      { icon: "🥢", name: "Ensartado Recto", desc: "Mantiene la elegancia anatómica durante la cocción rápida." },
+      { icon: "❄️", name: "Baño de Hielo Rápido", desc: "Sella la textura crujiente y fija el color rojo brillante." }
+    ],
+    stats: [
+      { label: "Textura (Puri-Puri):", val: "Firme / Carnosa" },
+      { label: "Dulzor Natural:", val: "★★★★★" },
+      { label: "Punto Cocción:", val: "Al Dente (2 Minutos)" },
+      { label: "Presentación:", val: "Cola Escarlata Íntegra" }
+    ],
+    buffs: [
+      "💰 +25% de Propina en órdenes con Langostinos",
+      "⏳ +3s de paciencia en clientes VIP",
+      "✨ +150 Puntos marinos"
+    ]
+  },
+  {
+    id: "shitake",
+    category: "ingredientes",
+    name: "Hongo Shiitake Donko",
+    kanji: "どんこ椎茸",
+    subtitle: "El Tesoro Forestal de Máximo Umami",
+    icon: "🍄",
+    lore: "Los hongos Shiitake Donko se cosechan en pleno invierno de los troncos de roble japonés cuando el sombrerillo aún está cerrado y abombado. Deshidratados al sol, multiplican su contenido de ácido guanílico por diez. Al rehidratarse lentamente en agua fría, sueltan un néctar dorado indispensable.",
+    tareTitle: "🍄 Cultivo en Roble & Secado",
+    tare: [
+      { icon: "🪵", name: "Troncos de Roble Kunugi", desc: "Madera noble que alimenta el hongo durante 2 años." },
+      { icon: "☀️", name: "Deshidratado Solar", desc: "Los rayos UV multiplican el ácido guanílico y vitamina D." },
+      { icon: "❄️", name: "Hidratación Fría 24h", desc: "Extracción paciente sin quemar las enzimas del sabor." },
+      { icon: "🔪", name: "Corte Estrella Hanagiri", desc: "Incisión decorativa que facilita la entrada del caldo." }
+    ],
+    stats: [
+      { label: "Umami Forestal:", val: "★★★★★ (Máximo)" },
+      { label: "Textura:", val: "Carnosa / Esponjosa" },
+      { label: "Guanilato Natural:", val: "10x vs Fresco" },
+      { label: "Aroma:", val: "Roble & Tierra Mojada" }
+    ],
+    buffs: [
+      "💰 +20% de Propina en órdenes con Shiitake",
+      "⭐ +15% de probabilidad de cliente complacido",
+      "🏆 +130 Puntos naturales"
+    ]
+  },
+  {
+    id: "tofu",
+    category: "ingredientes",
+    name: "Triángulos de Tofu Dorado",
+    kanji: "揚げ豆腐",
+    subtitle: "Aburaage Frito en Doble Temperatura",
+    icon: "🧈",
+    lore: "El Aburaage requiere maestría en el manejo del aceite. Bloques de tofu fresco de soja no transgénica se cortan en triángulos y se fríen primero a 120°C para expandir el vapor interior creando una estructura celular hueca, y luego a 180°C para dorar una corteza fina, crujiente y absorbente.",
+    tareTitle: "🧈 Fritura Doble Escalonada",
+    tare: [
+      { icon: "🌱", name: "Soja Seleccionada", desc: "Cuajada fresca de soja con alto contenido proteico vegetal." },
+      { icon: "🔥", name: "Fritura Baja (120°C)", desc: "Expande la masa interna creando bolsas microscópicas." },
+      { icon: "⚡", name: "Fritura Alta (180°C)", desc: "Dora la piel exterior con tono dorado ámbar crujiente." },
+      { icon: "💧", name: "Prensado en Caldo", desc: "Absorbe hasta 3 veces su peso en caldo hirviendo." }
+    ],
+    stats: [
+      { label: "Capacidad Absorción:", val: "3x Peso en Caldo" },
+      { label: "Corteza:", val: "Crujiente Dorada" },
+      { label: "Interior:", val: "Suave & Aterciopelado" },
+      { label: "Sabor:", val: "Soja Dulce Tostada" }
+    ],
+    buffs: [
+      "💰 +18% de Propina en órdenes con Tofu",
+      "⏳ +3s de paciencia en clientes vegetarianos",
+      "✨ +120 Puntos zen"
+    ]
+  },
+
+  // --- CUCHILLOS DEL MAESTRO (5) ---
+  {
+    id: "cuchillo_santoku",
+    category: "cuchillos",
+    name: "Cuchillo Santoku",
+    kanji: "三徳包丁",
+    subtitle: "El Cuchillo de las Tres Virtudes (Carne, Pescado, Verdura)",
+    icon: "🔪",
+    lore: "Creado a mediados del siglo XX en Japón como evolución moderna para el cocinero integral. Su nombre 'Santoku' (三徳) significa literalmente 'Tres Virtudes' o 'Tres Usos': cortar carne con precisión, filetear pescado sin dañarlo y picar vegetales finamente. Su punta redondeada sheepfoot y filo plano facilitan cortes verticales continuos.",
+    tareTitle: "🔨 Forja & Anatomía de la Hoja",
+    tare: [
+      { icon: "⚔️", name: "Acero VG-10 Clad", desc: "Núcleo de acero al carbono inoxidable con 60 HRC de dureza." },
+      { icon: "🌊", name: "Patrón Damasco 33 Capas", desc: "Capas alternadas que reducen la fricción con los alimentos." },
+      { icon: "🪵", name: "Mango Wa Octogonal", desc: "Madera de magnolia japonesa resistente al agua con virola." },
+      { icon: "📐", name: "Ángulo de Afilado 15°", desc: "Bisel simétrico agudo para cortes de precisión milimétrica." }
+    ],
+    stats: [
+      { label: "Dureza Rockwell:", val: "60 - 61 HRC" },
+      { label: "Versatilidad:", val: "★★★★★ (5/5)" },
+      { label: "Longitud Hoja:", val: "170 mm" },
+      { label: "Balance:", val: "Neutro en la Virola" }
+    ],
+    buffs: [
+      "⚡ Aumenta la velocidad de picado de toppings un 20%",
+      "💰 +15% de propina global en el turno",
+      "🏆 +150 Puntos de forja legendaria"
+    ]
+  },
+  {
+    id: "cuchillo_gyuto",
+    category: "cuchillos",
+    name: "Cuchillo Gyuto",
+    kanji: "牛刀",
+    subtitle: "La Espada del Chef Japonés",
+    icon: "🗡️",
+    lore: "El Gyuto es la cumbre de la adaptación nipona del cuchillo de chef tradicional. Con una hoja esbelta de 210 a 240 mm y punta aguda, está forjado para realizar cortes largos y continuos en chashu braseado, lonchas de brisket y bloques enteros de carne, utilizando toda la longitud de la hoja de un solo trazo.",
+    tareTitle: "🔨 Forja de Alta Precisión",
+    tare: [
+      { icon: "⚔️", name: "Acero Azul Aogami #2", desc: "Acero al carbono tradicional japonés con tungsteno y cromo." },
+      { icon: "✨", name: "Filo Bisturí Honbazuke", desc: "Afilar artesanal a mano sobre tres piedras de agua japonesas." },
+      { icon: "🪵", name: "Cabo de Madera de Nogal", desc: "Ergonomía de agarre firme incluso con manos húmedas." },
+      { icon: "📐", name: "Perfil Curvo Elíptico", desc: "Permite técnica de balanceo rápido en mesa de corte." }
+    ],
+    stats: [
+      { label: "Dureza Rockwell:", val: "62 - 63 HRC" },
+      { label: "Retención de Filo:", val: "★★★★★" },
+      { label: "Longitud Hoja:", val: "210 mm" },
+      { label: "Uso Maestro:", val: "Corte de Carnes & Brisket" }
+    ],
+    buffs: [
+      "🥩 El Chashu y Brisket se preparan 25% más rápido",
+      "💰 +20% de propina en bowls con carne",
+      "🔥 Multiplicador Combo x1.15"
+    ]
+  },
+  {
+    id: "cuchillo_deba",
+    category: "cuchillos",
+    name: "Cuchillo Deba",
+    kanji: "出刃包丁",
+    subtitle: "Poder Pesado para Pescados & Mariscos",
+    icon: "🔪",
+    lore: "Nacido en la legendaria ciudad de forjadores de Sakai en el periodo Edo. El Deba es un cuchillo robusto, pesado y de lomo grueso con filo unilateral (Kataba). Diseñado específicamente para descabezar y despiezar pescados enteros y partir caparazones duros de langostinos ebi sin mellar la hoja jamás.",
+    tareTitle: "🔨 Estructura Robusta & Unilateral",
+    tare: [
+      { icon: "⚔️", name: "Acero Blanco Shirogami", desc: "Pureza extrema de carbono para un filo agresivo y duradero." },
+      { icon: "📐", name: "Filo Asimétrico Kataba", desc: "Bisel solo en el lado derecho para separar carne y espina." },
+      { icon: "🛡️", name: "Lomo Grueso de 6 mm", desc: "Masa pesada que utiliza la gravedad para cortar caparazones." },
+      { icon: "🪵", name: "Mango D-Shape Rústico", desc: "Diseño en forma de castaña para un torque de corte óptimo." }
+    ],
+    stats: [
+      { label: "Dureza Rockwell:", val: "61 HRC" },
+      { label: "Fuerza de Impacto:", val: "★★★★★" },
+      { label: "Grosor de Lomo:", val: "6.0 mm (Blindado)" },
+      { label: "Especialidad:", val: "Mariscos, Ebi & Pescados" }
+    ],
+    buffs: [
+      "🦐 Los langostinos Ebi se procesan 30% más rápido",
+      "💰 +20% de propina en bowls marinos",
+      "🏆 +160 Puntos de fuerza"
+    ]
+  },
+  {
+    id: "cuchillo_nakiri",
+    category: "cuchillos",
+    name: "Cuchillo Nakiri",
+    kanji: "菜切り包丁",
+    subtitle: "Maestro Rectangular de Vegetales",
+    icon: "🔪",
+    lore: "El Nakiri ('corta verduras') es la herramienta sagrada para todo maestro de toppings vegetales. Su hoja rectangular plana y delgada corta los vegetales hasta la tabla de madera sin dejarlos unidos como un acordeón. Permite realizar cortes juliana ultrafinos de negi (puerro), moyashi y col con una rapidez prodigiosa.",
+    tareTitle: "🔨 Hoja Rectangular de Doble Bisel",
+    tare: [
+      { icon: "⚔️", name: "Acero Inoxidable AUS-10", desc: "Resistente a los ácidos de cebollas y verduras frescas." },
+      { icon: "📐", name: "Filo Completamente Recto", desc: "Contacto total plano con la tabla en cada movimiento vertical." },
+      { icon: "🌿", name: "Hoja Ultradelgada 1.8mm", desc: "Pasa a través de vegetales densos sin rajarlos ni aplastarlos." },
+      { icon: "🪵", name: "Mango Redondo de Abedul", desc: "Ligereza absoluta para jornadas intensas de mise en place." }
+    ],
+    stats: [
+      { label: "Dureza Rockwell:", val: "59 - 60 HRC" },
+      { label: "Precisión Verduras:", val: "★★★★★" },
+      { label: "Velocidad Picado:", val: "Ultrarrápida" },
+      { label: "Geometría:", val: "Rectangular Doble Bisel" }
+    ],
+    buffs: [
+      "🥬 Vegetales (Poro, Cebolla, Col) se reponen un 30% más rápido",
+      "💰 +15% de propina en pedidos con vegetales",
+      "✨ +140 Puntos de precisión"
+    ]
+  },
+  {
+    id: "cuchillo_yanagiba",
+    category: "cuchillos",
+    name: "Cuchillo Yanagiba",
+    kanji: "柳刃包丁",
+    subtitle: "Hoja de Sauce para Cortes Finos como Seda",
+    icon: "🗡️",
+    lore: "La hoja más poética y exigente de la cuchillería japonesa. Su diseño largo y delgado imita una hoja de sauce (Yanagi). Afilado con un único bisel espejado, su misión es deslizarse en un único tirón sin presionar los alimentos, cortando el chashu y el pescado en lonchas traslúcidas con una superficie lisa como el cristal.",
+    tareTitle: "🔨 Geometría Honyaki & Hoja de Sauce",
+    tare: [
+      { icon: "⚔️", name: "Forja Honyaki Tradicional", desc: "Una sola pieza de acero templado diferencialmente con arcilla." },
+      { icon: "💎", name: "Pulido Espejo (Migaki)", desc: "Refleja como un espejo reduciendo la adherencia celular." },
+      { icon: "📐", name: "Largo de Hoja 270 mm", desc: "Permite rebanar lonchas completas en un solo movimiento hacia ti." },
+      { icon: "🪵", name: "Mango de Ébano & Plata", desc: "Empuñadura de madera densa con anillo de plata ceremonial." }
+    ],
+    stats: [
+      { label: "Dureza Rockwell:", val: "63 - 64 HRC" },
+      { label: "Finura de Filo:", val: "★★★★★ (Máxima)" },
+      { label: "Longitud Hoja:", val: "270 mm" },
+      { label: "Acabado:", val: "Espejo Quirúrgico" }
+    ],
+    buffs: [
+      "✨ Desbloquea presentación de lujo: +40% de propina en clientes VIP",
+      "⏳ +5s de paciencia global",
+      "🏆 +250 Puntos supremos"
+    ]
+  }
+];
+
+let currentSecretIndex = 0;
+let currentSecretFilter = 'todos';
+
+function filterSecretosCategory(cat, btn) {
   playSound('click');
+  currentSecretFilter = cat;
+  
+  const buttons = document.querySelectorAll('.secret-tab-btn');
+  buttons.forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  
+  renderSecretosCards(cat);
+}
+
+function renderSecretosCards(filterCat) {
+  const container = document.getElementById("secretos-cards-container");
+  if (!container) return;
+  
+  const items = (filterCat === 'todos' || !filterCat) 
+    ? CHEF_SECRETS 
+    : CHEF_SECRETS.filter(s => s.category === filterCat);
+    
+  container.innerHTML = items.map(item => {
+    return `
+      <div class="secret-card secret-card-unlocked" onclick="openSecretDetail('${item.id}')" title="¡Toca para ver el modelo 3D!">
+        <div style="font-size: 11px; font-weight: 900; color: #ffe082; display: flex; align-items: center; gap: 4px; line-height: 1.2;">
+          <span>${item.icon}</span> ${item.name}
+        </div>
+        <div class="secret-pedestal-preview" style="background: radial-gradient(circle, rgba(255, 179, 0, 0.45) 0%, rgba(37, 14, 52, 0.9) 70%); border: 2px solid #ffd54f; box-shadow: 0 0 14px rgba(255, 213, 79, 0.6); animation: floatPedestal 3s ease-in-out infinite;">
+          <span style="font-size: 26px; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.6));">${item.icon}</span>
+        </div>
+        <div style="font-size: 8.5px; color: #ffecb3; font-weight: 700; margin: 2px 0; line-height: 1.2;">${item.subtitle}</div>
+        <div class="secret-req-badge" style="background: linear-gradient(90deg, #ff8f00, #ffb300); color: #211000; font-weight: 900; border: none; box-shadow: 0 2px 6px rgba(0,0,0,0.4); padding: 3px 8px; border-radius: 8px; animation: pulseGlow 2s infinite; cursor: pointer;">
+          ✨ DESBLOQUEADO (Ver 3D)
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function openSecretDetail(secretId) {
+  playSound('click');
+  const index = CHEF_SECRETS.findIndex(s => s.id === secretId);
+  if (index !== -1) {
+    currentSecretIndex = index;
+  }
+  
+  const item = CHEF_SECRETS[currentSecretIndex];
+  
   const secretosModal = document.getElementById("secretos-modal");
   if (secretosModal) secretosModal.classList.remove("active");
 
@@ -4619,11 +5213,84 @@ function openTamagoSecretDetail() {
     modal.classList.add("active");
   }
 
-  // Esperar a que el motor de render aplique el display: flex del modal para calcular dimensiones reales
+  renderSecretReview(item);
+
   requestAnimationFrame(() => {
-    initOrResumeTamago3D();
+    initOrResumeTamago3D(item);
     setTimeout(resizeTamagoViewport, 60);
   });
+}
+
+function openTamagoSecretDetail() {
+  openSecretDetail('tamago');
+}
+
+function navigateSecret(dir) {
+  playSound('click');
+  currentSecretIndex = (currentSecretIndex + dir + CHEF_SECRETS.length) % CHEF_SECRETS.length;
+  const item = CHEF_SECRETS[currentSecretIndex];
+  renderSecretReview(item);
+  loadSecret3DModel(item);
+  resetTamagoCamera();
+}
+
+function renderSecretReview(item) {
+  if (!item) return;
+
+  const iconEl = document.getElementById("secreto-modal-icon");
+  const titleEl = document.getElementById("secreto-modal-title");
+  const badgeEl = document.getElementById("secreto-modal-badge");
+  
+  if (iconEl) iconEl.textContent = item.icon;
+  if (titleEl) titleEl.textContent = `SECRETO DEL CHEF • ${item.name.toUpperCase()} (${item.kanji})`;
+  if (badgeEl) badgeEl.textContent = item.category.toUpperCase();
+
+  const loreBadge = document.getElementById("lore-badge-tag");
+  const loreTitle = document.getElementById("lore-main-title");
+  const loreSubtitle = document.getElementById("lore-subtitle");
+  const loreContent = document.getElementById("lore-story-content");
+  const tareTitle = document.getElementById("lore-tare-title");
+  const tareGrid = document.getElementById("lore-tare-grid");
+  const statsGrid = document.getElementById("lore-stats-grid");
+  const buffsList = document.getElementById("lore-buff-list");
+
+  if (loreBadge) loreBadge.textContent = `⭐ ${item.category.toUpperCase()} • MAESTRÍA ARTESANAL`;
+  if (loreTitle) loreTitle.textContent = `${item.icon} ${item.name} (${item.kanji})`;
+  if (loreSubtitle) loreSubtitle.textContent = item.subtitle;
+
+  if (loreContent) {
+    const paragraphs = item.lore.split('\n\n').map(p => `<p style="margin-bottom:6px;">${p}</p>`).join('');
+    loreContent.innerHTML = paragraphs;
+  }
+
+  if (tareTitle) tareTitle.textContent = item.tareTitle || "🧂 Componentes & Elaboración";
+
+  if (tareGrid && item.tare) {
+    tareGrid.innerHTML = item.tare.map(t => `
+      <div class="tare-item">
+        <span class="tare-icon">${t.icon}</span>
+        <div>
+          <div class="tare-name">${t.name}</div>
+          <div class="tare-desc">${t.desc}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  if (statsGrid && item.stats) {
+    statsGrid.innerHTML = item.stats.map(s => `
+      <div class="stat-row">
+        <span class="stat-label">${s.label}</span>
+        <span class="stat-val">${s.val}</span>
+      </div>
+    `).join('');
+  }
+
+  if (buffsList && item.buffs) {
+    buffsList.innerHTML = item.buffs.map(b => `
+      <li>${b}</li>
+    `).join('');
+  }
 }
 
 function closeTamagoSecretDetail() {
@@ -4632,7 +5299,6 @@ function closeTamagoSecretDetail() {
   if (modal) {
     modal.classList.remove("active");
   }
-  // Detener el loop para economizar batería y rendimiento en segundo plano
   stopTamago3D();
 }
 
@@ -4642,6 +5308,9 @@ function backToSecretosGallery() {
   openSecretosModal();
 }
 
+/* ==========================================================================
+   MOTOR THREE.JS 3D MULTI-MODELO (60 FPS CON INSTANCING & SHADOWS)
+   ========================================================================== */
 let tamagoScene = null;
 let tamagoCamera = null;
 let tamagoRenderer = null;
@@ -4652,14 +5321,15 @@ let tamagoAnimId = null;
 let tamagoAutoRotate = true;
 let tamagoInitialized = false;
 
-function initOrResumeTamago3D() {
+function initOrResumeTamago3D(item) {
   const container = document.getElementById("tamago-3d-canvas-container");
   if (!container) return;
 
   if (!tamagoInitialized) {
-    setupTamagoScene(container);
+    setupTamagoScene(container, item);
     tamagoInitialized = true;
   } else {
+    loadSecret3DModel(item);
     resizeTamagoViewport();
   }
 
@@ -4675,7 +5345,7 @@ function stopTamago3D() {
   }
 }
 
-function setupTamagoScene(container) {
+function setupTamagoScene(container, initialItem) {
   container.innerHTML = "";
 
   const width = container.clientWidth || 400;
@@ -4685,11 +5355,11 @@ function setupTamagoScene(container) {
   tamagoScene = new THREE.Scene();
   tamagoScene.background = new THREE.Color(0x130a1c);
 
-  // 2. Cámara (foco nítido y claro en perspectiva isométrica elevada)
+  // 2. Cámara
   tamagoCamera = new THREE.PerspectiveCamera(40, width / height, 0.1, 1000);
   tamagoCamera.position.set(22, 16, 26);
 
-  // 3. WebGL Renderer de alta nitidez y soporte retina/móvil
+  // 3. Renderer con WebGL nítido
   tamagoRenderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
   tamagoRenderer.setSize(width, height);
   tamagoRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -4698,27 +5368,25 @@ function setupTamagoScene(container) {
   if (THREE.sRGBEncoding) tamagoRenderer.outputEncoding = THREE.sRGBEncoding;
   container.appendChild(tamagoRenderer.domElement);
 
-  // 4. OrbitControls: rotación libre 360° en cualquier ángulo y zoom suave
+  // 4. OrbitControls con rotación libre 360°
   tamagoControls = new THREE.OrbitControls(tamagoCamera, tamagoRenderer.domElement);
   tamagoControls.enableDamping = true;
   tamagoControls.dampingFactor = 0.05;
-  tamagoControls.target.set(0, 6.8, 0); // Foco central exacto en el huevo
+  tamagoControls.target.set(0, 6.8, 0);
   tamagoControls.minDistance = 10;
-  tamagoControls.maxDistance = 65;
-  tamagoControls.minPolarAngle = 0.04; // Ángulo vertical superior
-  tamagoControls.maxPolarAngle = Math.PI - 0.04; // Ángulo vertical inferior
+  tamagoControls.maxDistance = 75;
+  tamagoControls.minPolarAngle = 0.04;
+  tamagoControls.maxPolarAngle = Math.PI - 0.04;
 
-  // Pausar auto-rotación en cuanto el usuario toca o arrastra el modelo
   tamagoControls.addEventListener('start', () => {
     tamagoAutoRotate = false;
     updateTamagoAutoRotateBtn();
   });
 
-  // 5. Iluminación multicapa para máxima claridad visual
-  const ambientLight = new THREE.AmbientLight(0xfff6ee, 0.88);
+  // 5. Iluminación multicapa
+  const ambientLight = new THREE.AmbientLight(0xfff6ee, 0.9);
   tamagoScene.add(ambientLight);
 
-  // Luz principal con sombra suave
   const dirLight = new THREE.DirectionalLight(0xffffff, 1.05);
   dirLight.position.set(22, 42, 22);
   dirLight.castShadow = true;
@@ -4729,20 +5397,17 @@ function setupTamagoScene(container) {
   dirLight.shadow.bias = -0.0004;
   tamagoScene.add(dirLight);
 
-  // Luz de relleno lateral (evita sombras oscuras en los costados al girar)
   const fillLight = new THREE.DirectionalLight(0xedd9ff, 0.55);
   fillLight.position.set(-22, 26, -22);
   tamagoScene.add(fillLight);
 
-  // Luz dorada cálida de realce en la base
   const rimLight = new THREE.DirectionalLight(0xffca28, 0.4);
   rimLight.position.set(0, -15, 20);
   tamagoScene.add(rimLight);
 
-  // 6. Construcción del Pedestal de Exhibición Arcade
+  // 6. Pedestal Arcade
   tamagoPedestalGroup = new THREE.Group();
 
-  // Base cilíndrica inferior
   const baseGeo = new THREE.CylinderGeometry(8, 9, 1.2, 36);
   const baseMat = new THREE.MeshStandardMaterial({ color: 0x1d1329, roughness: 0.35 });
   const base = new THREE.Mesh(baseGeo, baseMat);
@@ -4750,7 +5415,6 @@ function setupTamagoScene(container) {
   base.receiveShadow = true;
   tamagoPedestalGroup.add(base);
 
-  // Anillo dorado en la base
   const ringGeo = new THREE.TorusGeometry(8.5, 0.22, 16, 40);
   const ringMat = new THREE.MeshStandardMaterial({ color: 0xffd54f, metalness: 0.85, roughness: 0.2 });
   const goldRing = new THREE.Mesh(ringGeo, ringMat);
@@ -4758,7 +5422,6 @@ function setupTamagoScene(container) {
   goldRing.position.y = 1.15;
   tamagoPedestalGroup.add(goldRing);
 
-  // Columna central
   const pillarGeo = new THREE.CylinderGeometry(5.8, 6.3, 3.5, 36);
   const pillarMat = new THREE.MeshStandardMaterial({ color: 0x301e44, roughness: 0.45 });
   const pillar = new THREE.Mesh(pillarGeo, pillarMat);
@@ -4766,7 +5429,6 @@ function setupTamagoScene(container) {
   pillar.receiveShadow = true;
   tamagoPedestalGroup.add(pillar);
 
-  // Plato superior donde reposa el huevo
   const topGeo = new THREE.CylinderGeometry(7.5, 7, 0.6, 36);
   const topMat = new THREE.MeshStandardMaterial({ color: 0x140a1e, roughness: 0.25 });
   const topPlate = new THREE.Mesh(topGeo, topMat);
@@ -4776,32 +5438,79 @@ function setupTamagoScene(container) {
 
   tamagoScene.add(tamagoPedestalGroup);
 
-  // 7. Generación Voxel del Medio Huevo (Ajitsuke Tamago) optimizada con InstancedMesh
+  // 7. Grupo de Modelo de Secreto
   tamagoEggGroup = new THREE.Group();
+  tamagoEggGroup.position.set(0, 5.25, 0);
+  tamagoScene.add(tamagoEggGroup);
+
+  loadSecret3DModel(initialItem || CHEF_SECRETS[0]);
+
+  window.addEventListener('resize', resizeTamagoViewport);
+  setTimeout(resizeTamagoViewport, 60);
+}
+
+function clear3DGroup(group) {
+  while (group.children.length > 0) {
+    const obj = group.children[0];
+    if (obj.geometry) obj.geometry.dispose();
+    group.remove(obj);
+  }
+}
+
+function loadSecret3DModel(item) {
+  if (!tamagoEggGroup) return;
+  clear3DGroup(tamagoEggGroup);
+
+  if (!item) item = CHEF_SECRETS[currentSecretIndex];
+
+  if (item.id === "tamago") {
+    buildTamago3D(tamagoEggGroup);
+  } else if (item.id === "chashu") {
+    buildChashu3D(tamagoEggGroup);
+  } else if (item.id === "fideos") {
+    buildNoodles3D(tamagoEggGroup);
+  } else if (item.id === "caldo_tonkotsu") {
+    buildBrothCauldron3D(tamagoEggGroup);
+  } else if (item.id === "alga_nori") {
+    buildNori3D(tamagoEggGroup);
+  } else if (item.id === "langostinos") {
+    buildEbiShrimp3D(tamagoEggGroup);
+  } else if (item.id === "shitake") {
+    buildShiitake3D(tamagoEggGroup);
+  } else if (item.id === "tofu") {
+    buildTofu3D(tamagoEggGroup);
+  } else if (item.category === "cuchillos") {
+    buildKnife3D(tamagoEggGroup, item.id);
+  } else if (item.category === "ramen") {
+    buildDonburiRamen3D(tamagoEggGroup, item.id);
+  } else {
+    buildTamago3D(tamagoEggGroup);
+  }
+}
+
+/* ==========================================================================
+   CONSTRUCTORES ESPECÍFICOS DE MODELOS 3D
+   ========================================================================== */
+
+// 1. HUEVO AJITSUKE VOXEL
+function buildTamago3D(group) {
   const voxelSize = 0.35;
   const boxGeo = new THREE.BoxGeometry(voxelSize, voxelSize, voxelSize);
 
   const mats = {
-    crust: new THREE.MeshStandardMaterial({ color: 0x7a431d, roughness: 0.5 }), // Soja exterior
-    whiteOuter: new THREE.MeshStandardMaterial({ color: 0xedd6be, roughness: 0.4 }), // Clara marinada
-    whiteInner: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 }), // Clara blanca
-    yolkFirm: new THREE.MeshStandardMaterial({ color: 0xee9b00, roughness: 0.3 }), // Yema cocida
-    yolkGooey: new THREE.MeshStandardMaterial({ color: 0xc85a00, roughness: 0.15, metalness: 0.1 }), // Yema líquida/gelatinosa
-    sesame: new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.9 }) // Sésamo negro
+    crust: new THREE.MeshStandardMaterial({ color: 0x7a431d, roughness: 0.5 }),
+    whiteOuter: new THREE.MeshStandardMaterial({ color: 0xedd6be, roughness: 0.4 }),
+    whiteInner: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 }),
+    yolkFirm: new THREE.MeshStandardMaterial({ color: 0xee9b00, roughness: 0.3 }),
+    yolkGooey: new THREE.MeshStandardMaterial({ color: 0xc85a00, roughness: 0.15, metalness: 0.1 }),
+    sesame: new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.9 })
   };
 
   const Rx = 15;
   const Ry = 11;
   const Rz = 15;
 
-  const buckets = {
-    crust: [],
-    whiteOuter: [],
-    whiteInner: [],
-    yolkFirm: [],
-    yolkGooey: [],
-    sesame: []
-  };
+  const buckets = { crust: [], whiteOuter: [], whiteInner: [], yolkFirm: [], yolkGooey: [], sesame: [] };
 
   for (let x = -Rx; x <= Rx; x++) {
     for (let y = -Ry; y <= 0; y++) {
@@ -4811,7 +5520,6 @@ function setupTamagoScene(container) {
           let key = null;
           const rXZ = Math.sqrt(x * x + z * z);
           if (y === 0) {
-            // Superficie de corte expuesta (cara superior)
             if (rXZ < 5) {
               if ((x * 7 + z * 13) % 11 === 0 || (x === 2 && z === -1)) {
                 key = 'sesame';
@@ -4826,7 +5534,6 @@ function setupTamagoScene(container) {
               key = 'crust';
             }
           } else {
-            // Volumen interior y capas de marinado
             if (dist > 0.86) {
               key = 'crust';
             } else if (dist > 0.72) {
@@ -4839,7 +5546,6 @@ function setupTamagoScene(container) {
           }
 
           if (key) {
-            // y va de -Ry (base redondeada abajo) a 0 (corte arriba expuesto al espectador)
             const posY = (y + Ry) * voxelSize;
             buckets[key].push({ x: x * voxelSize, y: posY, z: z * voxelSize });
           }
@@ -4848,7 +5554,6 @@ function setupTamagoScene(container) {
     }
   }
 
-  // Creación de InstancedMesh para alto rendimiento (6 draw-calls en total)
   const dummy = new THREE.Object3D();
   for (const [key, positions] of Object.entries(buckets)) {
     if (positions.length === 0) continue;
@@ -4862,15 +5567,464 @@ function setupTamagoScene(container) {
     instMesh.instanceMatrix.needsUpdate = true;
     instMesh.castShadow = true;
     instMesh.receiveShadow = true;
-    tamagoEggGroup.add(instMesh);
+    group.add(instMesh);
+  }
+}
+
+// 2. CHASHU CARAMELIZADO (RODAJA GRUESA CON ESPIRAL DE GRASA Y CORTEZA)
+function buildChashu3D(group) {
+  // Base de carne exterior
+  const crustGeo = new THREE.CylinderGeometry(6.4, 6.4, 1.8, 36);
+  const crustMat = new THREE.MeshStandardMaterial({ color: 0x542615, roughness: 0.5 });
+  const crust = new THREE.Mesh(crustGeo, crustMat);
+  crust.position.y = 1.0;
+  crust.castShadow = true;
+  group.add(crust);
+
+  // Capa rosada de carne magra
+  const meatGeo = new THREE.CylinderGeometry(6.0, 6.0, 1.85, 36);
+  const meatMat = new THREE.MeshStandardMaterial({ color: 0xb55a3c, roughness: 0.4 });
+  const meat = new THREE.Mesh(meatGeo, meatMat);
+  meat.position.y = 1.0;
+  group.add(meat);
+
+  // Espiral de grasa marfil
+  const fatGeo = new THREE.TorusGeometry(3.6, 0.75, 16, 36);
+  const fatMat = new THREE.MeshStandardMaterial({ color: 0xf5edd6, roughness: 0.3 });
+  const fatSpiral = new THREE.Mesh(fatGeo, fatMat);
+  fatSpiral.rotation.x = Math.PI / 2;
+  fatSpiral.position.y = 1.95;
+  group.add(fatSpiral);
+
+  // Centro tierno
+  const centerGeo = new THREE.CylinderGeometry(2.0, 2.0, 1.9, 24);
+  const centerMat = new THREE.MeshStandardMaterial({ color: 0x7c2d18, roughness: 0.4 });
+  const center = new THREE.Mesh(centerGeo, centerMat);
+  center.position.y = 1.0;
+  group.add(center);
+
+  // Cebollino verde picado (negi) por encima
+  const scallionGeo = new THREE.BoxGeometry(0.35, 0.2, 0.35);
+  const scallionMat = new THREE.MeshStandardMaterial({ color: 0x388e3c, roughness: 0.4 });
+  for (let i = 0; i < 28; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const rad = Math.random() * 4.5;
+    const scallion = new THREE.Mesh(scallionGeo, scallionMat);
+    scallion.position.set(Math.cos(angle) * rad, 1.96, Math.sin(angle) * rad);
+    scallion.rotation.y = Math.random() * Math.PI;
+    group.add(scallion);
+  }
+}
+
+// 3. FIDEOS KANSUI ARTESANALES CON PALILLOS (HASHI)
+function buildNoodles3D(group) {
+  // Palillos de bambú
+  const stickGeo = new THREE.CylinderGeometry(0.2, 0.45, 17, 12);
+  const stickMat = new THREE.MeshStandardMaterial({ color: 0xd7ccc8, roughness: 0.3 });
+  
+  const stick1 = new THREE.Mesh(stickGeo, stickMat);
+  stick1.position.set(2, 6.2, 0);
+  stick1.rotation.z = -Math.PI / 4.5;
+  stick1.rotation.x = 0.15;
+  stick1.castShadow = true;
+  group.add(stick1);
+
+  const stick2 = new THREE.Mesh(stickGeo, stickMat);
+  stick2.position.set(2.4, 6.4, 0.8);
+  stick2.rotation.z = -Math.PI / 4.2;
+  stick2.rotation.x = -0.15;
+  stick2.castShadow = true;
+  group.add(stick2);
+
+  // Bucles de fideos colgando
+  const noodleMat = new THREE.MeshStandardMaterial({ color: 0xfbc02d, roughness: 0.25 });
+  
+  for (let i = 0; i < 9; i++) {
+    const loopGeo = new THREE.TorusGeometry(1.8 + (i * 0.25), 0.28, 12, 32, Math.PI * 1.3);
+    const noodleLoop = new THREE.Mesh(loopGeo, noodleMat);
+    noodleLoop.position.set(0.5 + (i * 0.1), 3.8 - (i * 0.15), (i * 0.25) - 1.0);
+    noodleLoop.rotation.z = Math.PI / 2.5;
+    noodleLoop.rotation.y = (i * 0.2);
+    noodleLoop.castShadow = true;
+    group.add(noodleLoop);
   }
 
-  // Reposa sobre la placa del pedestal (y = 5.25)
-  tamagoEggGroup.position.set(0, 5.25, 0);
-  tamagoScene.add(tamagoEggGroup);
+  // Montículo de fideos en el pedestal
+  const baseNoodleGeo = new THREE.SphereGeometry(3.8, 16, 12);
+  const baseNoodleMat = new THREE.MeshStandardMaterial({ color: 0xe6a800, roughness: 0.4 });
+  const baseNoodle = new THREE.Mesh(baseNoodleGeo, baseNoodleMat);
+  baseNoodle.scale.set(1.4, 0.55, 1.4);
+  baseNoodle.position.y = 1.0;
+  baseNoodle.castShadow = true;
+  group.add(baseNoodle);
+}
 
-  window.addEventListener('resize', resizeTamagoViewport);
-  setTimeout(resizeTamagoViewport, 60);
+// 4. CALDO TONKOTSU EN CALDERO TRADICIONAL (NABE)
+function buildBrothCauldron3D(group) {
+  // Caldero de hierro fundido
+  const potGeo = new THREE.CylinderGeometry(6.8, 5.0, 4.5, 32);
+  const potMat = new THREE.MeshStandardMaterial({ color: 0x1f2226, roughness: 0.7, metalness: 0.3 });
+  const pot = new THREE.Mesh(potGeo, potMat);
+  pot.position.y = 2.25;
+  pot.castShadow = true;
+  group.add(pot);
+
+  // Asas laterales del caldero
+  const handleGeo = new THREE.TorusGeometry(1.2, 0.35, 12, 24);
+  const handleMat = new THREE.MeshStandardMaterial({ color: 0x151719, roughness: 0.6 });
+  
+  const h1 = new THREE.Mesh(handleGeo, handleMat);
+  h1.position.set(6.8, 3.6, 0);
+  h1.rotation.y = Math.PI / 2;
+  group.add(h1);
+
+  const h2 = new THREE.Mesh(handleGeo, handleMat);
+  h2.position.set(-6.8, 3.6, 0);
+  h2.rotation.y = Math.PI / 2;
+  group.add(h2);
+
+  // Superficie del caldo blanco lechoso hirviendo
+  const soupGeo = new THREE.CylinderGeometry(6.4, 6.4, 0.4, 32);
+  const soupMat = new THREE.MeshStandardMaterial({ color: 0xfffaea, roughness: 0.15 });
+  const soup = new THREE.Mesh(soupGeo, soupMat);
+  soup.position.y = 4.3;
+  group.add(soup);
+
+  // Cucharón de madera (otama)
+  const ladleHandleGeo = new THREE.CylinderGeometry(0.3, 0.3, 10, 12);
+  const woodMat = new THREE.MeshStandardMaterial({ color: 0x8d6e63, roughness: 0.4 });
+  const ladleHandle = new THREE.Mesh(ladleHandleGeo, woodMat);
+  ladleHandle.position.set(2, 5.8, 2);
+  ladleHandle.rotation.z = -Math.PI / 3.8;
+  group.add(ladleHandle);
+
+  const ladleBowlGeo = new THREE.SphereGeometry(1.4, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2);
+  const ladleBowl = new THREE.Mesh(ladleBowlGeo, woodMat);
+  ladleBowl.position.set(-2.2, 4.3, 2);
+  ladleBowl.rotation.x = Math.PI;
+  group.add(ladleBowl);
+}
+
+// 5. ALGA NORI DE ARIAKE
+function buildNori3D(group) {
+  // Soporte de madera japonés en el pedestal
+  const standGeo = new THREE.BoxGeometry(7.0, 0.8, 3.0);
+  const standMat = new THREE.MeshStandardMaterial({ color: 0x3e2723, roughness: 0.5 });
+  const stand = new THREE.Mesh(standGeo, standMat);
+  stand.position.y = 0.4;
+  group.add(stand);
+
+  // Hoja de nori rectangular erguida con leve curvatura ondulada
+  const noriGeo = new THREE.BoxGeometry(6.2, 8.5, 0.3);
+  const noriMat = new THREE.MeshStandardMaterial({ color: 0x0f2416, roughness: 0.6, metalness: 0.1 });
+  const nori = new THREE.Mesh(noriGeo, noriMat);
+  nori.position.set(0, 4.6, 0);
+  nori.rotation.y = 0.15;
+  nori.castShadow = true;
+  group.add(nori);
+
+  // Relieve texturizado
+  const stripeGeo = new THREE.BoxGeometry(5.8, 0.15, 0.35);
+  const stripeMat = new THREE.MeshStandardMaterial({ color: 0x193b24, roughness: 0.8 });
+  for (let y = 1.5; y <= 8; y += 1.3) {
+    const stripe = new THREE.Mesh(stripeGeo, stripeMat);
+    stripe.position.set(0, y, 0);
+    group.add(stripe);
+  }
+}
+
+// 6. LANGOSTINO EBI REAL
+function buildEbiShrimp3D(group) {
+  const orangeMat = new THREE.MeshStandardMaterial({ color: 0xff6f00, roughness: 0.3 });
+  const whiteMat = new THREE.MeshStandardMaterial({ color: 0xfff8e1, roughness: 0.3 });
+  const tailMat = new THREE.MeshStandardMaterial({ color: 0xd50000, roughness: 0.25 });
+
+  // Cuerpo curvado segmentado
+  for (let i = 0; i < 7; i++) {
+    const radius = 1.6 - (i * 0.15);
+    const segGeo = new THREE.CylinderGeometry(radius, radius * 1.1, 1.2, 18);
+    const mat = (i % 2 === 0) ? orangeMat : whiteMat;
+    const seg = new THREE.Mesh(segGeo, mat);
+    
+    const angle = (i * 0.32);
+    seg.position.set(Math.sin(angle) * 3.2, 1.2 + (i * 0.75), Math.cos(angle) * 1.8);
+    seg.rotation.x = angle * 0.7;
+    seg.rotation.z = -angle * 0.4;
+    seg.castShadow = true;
+    group.add(seg);
+  }
+
+  // Cola en abanico rojo
+  const tailGeo = new THREE.BoxGeometry(2.5, 0.2, 1.8);
+  const tail = new THREE.Mesh(tailGeo, tailMat);
+  tail.position.set(2.4, 5.8, 1.8);
+  tail.rotation.x = Math.PI / 4;
+  group.add(tail);
+}
+
+// 7. HONGO SHIITAKE DONKO
+function buildShiitake3D(group) {
+  // Pie / Tallo del hongo
+  const stemGeo = new THREE.CylinderGeometry(1.2, 1.4, 3.2, 20);
+  const stemMat = new THREE.MeshStandardMaterial({ color: 0xd7ccc8, roughness: 0.6 });
+  const stem = new THREE.Mesh(stemGeo, stemMat);
+  stem.position.y = 1.6;
+  stem.castShadow = true;
+  group.add(stem);
+
+  // Sombrerillo abombado marrón oscuro
+  const capGeo = new THREE.SphereGeometry(5.2, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2);
+  const capMat = new THREE.MeshStandardMaterial({ color: 0x4e342e, roughness: 0.45 });
+  const cap = new THREE.Mesh(capGeo, capMat);
+  cap.position.y = 2.8;
+  cap.castShadow = true;
+  group.add(cap);
+
+  // Incisión en cruz 'X' decorativa tradicional (Hanagiri)
+  const cutMat = new THREE.MeshStandardMaterial({ color: 0xefebe9, roughness: 0.3 });
+  
+  const cut1Geo = new THREE.BoxGeometry(6.4, 0.45, 0.8);
+  const cut1 = new THREE.Mesh(cut1Geo, cutMat);
+  cut1.position.y = 5.25;
+  cut1.rotation.y = Math.PI / 4;
+  group.add(cut1);
+
+  const cut2 = new THREE.Mesh(cut1Geo, cutMat);
+  cut2.position.y = 5.25;
+  cut2.rotation.y = -Math.PI / 4;
+  group.add(cut2);
+}
+
+// 8. TRIÁNGULOS DE TOFU DORADO (ABURAAGE)
+function buildTofu3D(group) {
+  const shape = new THREE.Shape();
+  shape.moveTo(-4.5, -3.5);
+  shape.lineTo(4.5, -3.5);
+  shape.lineTo(0, 4.5);
+  shape.closePath();
+
+  const extrudeSettings = { depth: 2.4, bevelEnabled: true, bevelSegments: 3, steps: 1, bevelSize: 0.3, bevelThickness: 0.3 };
+  const tofuGeo = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+  const tofuMat = new THREE.MeshStandardMaterial({ color: 0xd4a373, roughness: 0.6 });
+  
+  const tofu = new THREE.Mesh(tofuGeo, tofuMat);
+  tofu.rotation.x = Math.PI / 2;
+  tofu.position.set(0, 1.2, 0);
+  tofu.castShadow = true;
+  group.add(tofu);
+
+  // Interior blanco visible por corte
+  const sliceGeo = new THREE.CylinderGeometry(2.0, 2.0, 2.45, 3);
+  const innerMat = new THREE.MeshStandardMaterial({ color: 0xfffaed, roughness: 0.3 });
+  const innerSlice = new THREE.Mesh(sliceGeo, innerMat);
+  innerSlice.position.set(0, 1.2, 0);
+  group.add(innerSlice);
+}
+
+// 9. CUCHILLOS JAPONESES (SANTOKU, GYUTO, DEBA, NAKIRI, YANAGIBA)
+function buildKnife3D(group, knifeId) {
+  // Soportes de exhibición japoneses de madera (Kake)
+  const standMat = new THREE.MeshStandardMaterial({ color: 0x271913, roughness: 0.6 });
+  
+  const kake1Geo = new THREE.BoxGeometry(1.2, 3.2, 2.4);
+  const kake1 = new THREE.Mesh(kake1Geo, standMat);
+  kake1.position.set(-4.5, 1.6, 0);
+  kake1.castShadow = true;
+  group.add(kake1);
+
+  const kake2 = new THREE.Mesh(kake1Geo, standMat);
+  kake2.position.set(4.5, 1.6, 0);
+  kake2.castShadow = true;
+  group.add(kake2);
+
+  // Configuración de hoja según tipo de cuchillo
+  let bladeLength = 16;
+  let bladeHeight = 3.6;
+  let bladeThick = 0.28;
+  let isTapered = true;
+
+  if (knifeId === "cuchillo_santoku") {
+    bladeLength = 15;
+    bladeHeight = 3.8;
+  } else if (knifeId === "cuchillo_gyuto") {
+    bladeLength = 19;
+    bladeHeight = 3.4;
+  } else if (knifeId === "cuchillo_deba") {
+    bladeLength = 14;
+    bladeHeight = 4.8;
+    bladeThick = 0.55;
+  } else if (knifeId === "cuchillo_nakiri") {
+    bladeLength = 16;
+    bladeHeight = 4.4;
+    isTapered = false; // Punta cuadrada
+  } else if (knifeId === "cuchillo_yanagiba") {
+    bladeLength = 23;
+    bladeHeight = 2.4;
+    bladeThick = 0.22;
+  }
+
+  // Hoja de acero forjado de alto brillo
+  const bladeMat = new THREE.MeshStandardMaterial({
+    color: 0xecf0f1,
+    metalness: 0.95,
+    roughness: 0.12
+  });
+
+  const bladeShape = new THREE.Shape();
+  bladeShape.moveTo(0, 0);
+  bladeShape.lineTo(bladeLength, isTapered ? bladeHeight * 0.4 : 0);
+  bladeShape.lineTo(bladeLength + 2.5, isTapered ? bladeHeight * 0.8 : bladeHeight);
+  bladeShape.lineTo(0, bladeHeight);
+  bladeShape.closePath();
+
+  const bladeExtrude = new THREE.ExtrudeGeometry(bladeShape, { depth: bladeThick, bevelEnabled: false });
+  const blade = new THREE.Mesh(bladeExtrude, bladeMat);
+  blade.position.set(-bladeLength * 0.5, 3.2, -bladeThick * 0.5);
+  blade.castShadow = true;
+  group.add(blade);
+
+  // Virola / Cuello negro (cuerno de búfalo)
+  const ferruleGeo = new THREE.CylinderGeometry(0.7, 0.7, 1.4, 8);
+  const ferruleMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.2 });
+  const ferrule = new THREE.Mesh(ferruleGeo, ferruleMat);
+  ferrule.rotation.z = Math.PI / 2;
+  ferrule.position.set(-bladeLength * 0.5 - 0.7, 3.2 + (bladeHeight * 0.5), 0);
+  group.add(ferrule);
+
+  // Mango tradicional octogonal Wa de madera
+  const handleGeo = new THREE.CylinderGeometry(0.75, 0.85, 6.5, 8);
+  const handleMat = new THREE.MeshStandardMaterial({ color: 0xd7ccc8, roughness: 0.5 });
+  const handle = new THREE.Mesh(handleGeo, handleMat);
+  handle.rotation.z = Math.PI / 2;
+  handle.position.set(-bladeLength * 0.5 - 4.6, 3.2 + (bladeHeight * 0.5), 0);
+  handle.castShadow = true;
+  group.add(handle);
+}
+
+// 10. TAZONES DE RAMEN COMPLETOS EN DONBURI CERÁMICO
+function buildDonburiRamen3D(group, ramenId) {
+  // Paleta por tipo de ramen
+  let bowlColor = 0x1a237e; // Shio azul
+  let rimColor = 0xffd54f;
+  let brothColor = 0xf4e0a5; // Dorado claro
+
+  if (ramenId === "ramen_shoyu") {
+    bowlColor = 0x1a0f0a; // Negro
+    rimColor = 0xb71c1c; // Rojo
+    brothColor = 0x5d3115; // Ámbar soja
+  } else if (ramenId === "ramen_miso") {
+    bowlColor = 0x3e2723; // Terracota
+    rimColor = 0xffb74d;
+    brothColor = 0xb87d3b; // Miso ocre
+  } else if (ramenId === "ramen_tonkotsu") {
+    bowlColor = 0x111111; // Negro mate
+    rimColor = 0xffd54f; // Dorado
+    brothColor = 0xfffaea; // Blanco lechoso
+  } else if (ramenId === "ramen_chashu") {
+    bowlColor = 0x880e4f; // Granate
+    rimColor = 0xffd54f;
+    brothColor = 0xf0e4d0;
+  } else if (ramenId === "ramen_ebi") {
+    bowlColor = 0xf5f5f5; // Blanco níveo
+    rimColor = 0xd50000; // Rojo marisco
+    brothColor = 0xe65100; // Bisque naranja
+  } else if (ramenId === "ramen_tantan") {
+    bowlColor = 0xb71c1c; // Rojo fuego
+    rimColor = 0x212121;
+    brothColor = 0xc62828; // Rojo picante
+  } else if (ramenId === "ramen_vegetariano") {
+    bowlColor = 0x1b5e20; // Verde jade
+    rimColor = 0xffd54f;
+    brothColor = 0xc5ae7d; // Té dashi
+  } else if (ramenId === "ramen_bajiru") {
+    bowlColor = 0xffffff;
+    rimColor = 0x2e7d32;
+    brothColor = 0x388e3c; // Albahaca esmeralda
+  }
+
+  // Tazón cerámico Donburi
+  const bowlGeo = new THREE.CylinderGeometry(7.2, 4.0, 4.6, 36, 1, true);
+  const bowlMat = new THREE.MeshStandardMaterial({ color: bowlColor, roughness: 0.25, metalness: 0.1 });
+  const bowl = new THREE.Mesh(bowlGeo, bowlMat);
+  bowl.position.y = 2.3;
+  bowl.castShadow = true;
+  group.add(bowl);
+
+  // Pie del tazón
+  const footGeo = new THREE.CylinderGeometry(4.0, 3.8, 0.6, 36);
+  const foot = new THREE.Mesh(footGeo, bowlMat);
+  foot.position.y = 0.3;
+  group.add(foot);
+
+  // Borde superior
+  const rimGeo = new THREE.TorusGeometry(7.2, 0.28, 16, 40);
+  const rimMat = new THREE.MeshStandardMaterial({ color: rimColor, metalness: 0.6, roughness: 0.3 });
+  const rim = new THREE.Mesh(rimGeo, rimMat);
+  rim.rotation.x = Math.PI / 2;
+  rim.position.y = 4.6;
+  group.add(rim);
+
+  // Superficie líquida del caldo
+  const brothGeo = new THREE.CylinderGeometry(6.8, 6.8, 0.4, 36);
+  const brothMat = new THREE.MeshStandardMaterial({ color: brothColor, roughness: 0.12, metalness: 0.05 });
+  const broth = new THREE.Mesh(brothGeo, brothMat);
+  broth.position.y = 4.2;
+  group.add(broth);
+
+  // Fideos asomando
+  const noodleMeshGeo = new THREE.TorusGeometry(3.6, 0.55, 12, 28);
+  const noodleMat = new THREE.MeshStandardMaterial({ color: 0xfbc02d, roughness: 0.4 });
+  const noodles = new THREE.Mesh(noodleMeshGeo, noodleMat);
+  noodles.rotation.x = Math.PI / 2;
+  noodles.position.set(-0.5, 4.25, 0.5);
+  group.add(noodles);
+
+  // Alga nori vertical en el borde
+  const noriGeo = new THREE.BoxGeometry(0.2, 3.8, 2.6);
+  const noriMat = new THREE.MeshStandardMaterial({ color: 0x0f2416, roughness: 0.6 });
+  const nori = new THREE.Mesh(noriGeo, noriMat);
+  nori.position.set(-4.5, 5.2, -3.2);
+  nori.rotation.y = Math.PI / 4;
+  nori.rotation.x = -0.2;
+  group.add(nori);
+
+  // Medio huevo ajitsuke flotando
+  const eggGeo = new THREE.CylinderGeometry(1.6, 1.6, 0.6, 20);
+  const eggWhiteMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 });
+  const egg = new THREE.Mesh(eggGeo, eggWhiteMat);
+  egg.position.set(2.5, 4.35, 1.2);
+  group.add(egg);
+
+  const yolkGeo = new THREE.CylinderGeometry(0.9, 0.9, 0.65, 20);
+  const yolkMat = new THREE.MeshStandardMaterial({ color: 0xff6f00, roughness: 0.2 });
+  const yolk = new THREE.Mesh(yolkGeo, yolkMat);
+  yolk.position.set(2.5, 4.36, 1.2);
+  group.add(yolk);
+
+  // Loncha de chashu
+  const chashuGeo = new THREE.CylinderGeometry(2.2, 2.2, 0.45, 24);
+  const chashuMat = new THREE.MeshStandardMaterial({ color: 0xa04e35, roughness: 0.4 });
+  const chashu = new THREE.Mesh(chashuGeo, chashuMat);
+  chashu.position.set(-1.8, 4.32, -1.2);
+  chashu.rotation.y = 0.4;
+  group.add(chashu);
+
+  // Topping especial según tipo de ramen
+  if (ramenId === "ramen_ebi") {
+    const shrimpGeo = new THREE.TorusGeometry(1.2, 0.35, 12, 18, Math.PI);
+    const shrimpMat = new THREE.MeshStandardMaterial({ color: 0xff6f00, roughness: 0.3 });
+    const s1 = new THREE.Mesh(shrimpGeo, shrimpMat);
+    s1.position.set(0.5, 4.5, -1.8);
+    s1.rotation.x = Math.PI / 2;
+    group.add(s1);
+  } else if (ramenId === "ramen_tantan") {
+    const meatMoundGeo = new THREE.SphereGeometry(1.5, 16, 12);
+    const meatMoundMat = new THREE.MeshStandardMaterial({ color: 0x6d2a1b, roughness: 0.7 });
+    const mound = new THREE.Mesh(meatMoundGeo, meatMoundMat);
+    mound.scale.set(1.2, 0.4, 1.2);
+    mound.position.set(0, 4.38, 0);
+    group.add(mound);
+  }
 }
 
 function animateTamago() {
@@ -5504,6 +6658,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   updateStartPlayerCard();
   setStartSelectedMode('NORMAL');
   initRecipeTable();
+  renderSecretosCards('todos');
   await DeviceManager.init();
 });
 </script>
