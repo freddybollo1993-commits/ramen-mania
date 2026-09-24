@@ -733,6 +733,90 @@
     .ingredients-grid-scroll { grid-template-columns: repeat(4, 1fr); }
     .pixel-sprite-large { width: 38px; height: 38px; }
   }
+
+  /* EFECTO "ESTAS ABOLLADO" Y PARPADEO ROJO */
+  #screen-flash-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 99990;
+    opacity: 0;
+  }
+
+  #screen-flash-overlay.flash-active {
+    animation: screenRedBlink 1.25s ease-out forwards;
+  }
+
+  @keyframes screenRedBlink {
+    0%   { background-color: rgba(229, 57, 53, 0); opacity: 0; }
+    12%  { background-color: rgba(229, 57, 53, 0.7); opacity: 1; }
+    26%  { background-color: rgba(229, 57, 53, 0.12); opacity: 0.3; }
+    42%  { background-color: rgba(229, 57, 53, 0.8); opacity: 1; }
+    58%  { background-color: rgba(229, 57, 53, 0.15); opacity: 0.3; }
+    72%  { background-color: rgba(229, 57, 53, 0.65); opacity: 0.9; }
+    86%  { background-color: rgba(229, 57, 53, 0.1); opacity: 0.2; }
+    100% { background-color: rgba(229, 57, 53, 0); opacity: 0; }
+  }
+
+  #abollado-banner {
+    position: fixed;
+    top: 36%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    z-index: 99995;
+    pointer-events: none;
+    background: linear-gradient(135deg, #8e0000 0%, #d32f2f 45%, #b71c1c 100%);
+    color: #fff8f0;
+    font-family: 'Fredoka One', cursive, sans-serif;
+    font-size: 34px;
+    letter-spacing: 2px;
+    padding: 12px 28px;
+    border-radius: 18px;
+    border: 4px solid #ffeb3b;
+    box-shadow: 0 0 35px rgba(229, 57, 53, 0.95), 0 10px 24px rgba(0,0,0,0.8);
+    text-shadow: 3px 3px 0 #2a0502, 0 0 12px rgba(255, 235, 59, 0.9);
+    text-align: center;
+    white-space: nowrap;
+    opacity: 0;
+  }
+
+  #abollado-banner.banner-active {
+    animation: abolladoPopAnim 1.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  }
+
+  @keyframes abolladoPopAnim {
+    0% {
+      transform: translate(-50%, -50%) scale(0.3) rotate(-6deg);
+      opacity: 0;
+    }
+    14% {
+      transform: translate(-50%, -50%) scale(1.15) rotate(2deg);
+      opacity: 1;
+    }
+    28% {
+      transform: translate(-50%, -50%) scale(1) rotate(0deg);
+      opacity: 1;
+    }
+    75% {
+      transform: translate(-50%, -50%) scale(1) rotate(0deg);
+      opacity: 1;
+    }
+    100% {
+      transform: translate(-50%, -50%) scale(0.85) translateY(-25px);
+      opacity: 0;
+    }
+  }
+
+  @media (max-width: 600px), (max-height: 480px) {
+    #abollado-banner {
+      font-size: 22px;
+      padding: 8px 18px;
+      border-width: 3px;
+    }
+  }
 </style>
 </head>
 <body>
@@ -749,6 +833,10 @@
 </div>
 
 <div id="game-container">
+  <!-- EFECTO DE PARPADEO ROJO Y MENSAJE DE CLIENTE PERDIDO -->
+  <div id="screen-flash-overlay"></div>
+  <div id="abollado-banner">💥 ESTAS ABOLLADO 💥</div>
+
   <!-- HEADER HORIZONTAL -->
   <header>
     <div class="title-area">
@@ -1068,7 +1156,7 @@ const safeStorage = {
 };
 
 const INGREDIENTES = [{"id": 1, "name": "fideo ramen", "cat": "bases", "icon": "🥢", "display": "Fideo Ramen"}, {"id": 2, "name": "caldo shio", "cat": "bases", "icon": "🥣", "display": "Caldo Shio"}, {"id": 3, "name": "caldo tonkotsu", "cat": "bases", "icon": "🫕", "display": "Caldo Tonkotsu"}, {"id": 4, "name": "agua", "cat": "bases", "icon": "💧", "display": "Agua"}, {"id": 5, "name": "salsa shoyu", "cat": "salsas", "icon": "🍶", "display": "Salsa Shoyu"}, {"id": 6, "name": "salsa miso", "cat": "salsas", "icon": "🍲", "display": "Salsa Miso"}, {"id": 7, "name": "salsa ebi ramen", "cat": "salsas", "icon": "🦐", "display": "Salsa Ebi"}, {"id": 8, "name": "salsa tan tan", "cat": "salsas", "icon": "🌶️", "display": "Salsa Tan Tan"}, {"id": 9, "name": "salsa vegetariana", "cat": "salsas", "icon": "🥬", "display": "Salsa Vegetariana"}, {"id": 10, "name": "salsa bajiru", "cat": "salsas", "icon": "🌿", "display": "Salsa Bajiru"}, {"id": 11, "name": "laminas de chasu asado", "cat": "proteinas", "icon": "🥩", "display": "Chasu Asado"}, {"id": 12, "name": "brisket laminado", "cat": "proteinas", "icon": "🥓", "display": "Brisket Laminado"}, {"id": 13, "name": "chancho molido", "cat": "proteinas", "icon": "🍖", "display": "Chancho Molido"}, {"id": 14, "name": "langostinos", "cat": "proteinas", "icon": "🍤", "display": "Langostinos"}, {"id": 15, "name": "huevo", "cat": "proteinas", "icon": "🥚", "display": "Huevo", "img": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABZklEQVR4nO2VP2rDMBTGX0PBYPAQ6OQbBLrnBsFD15ChJ8jS3qBbD+CpJ/BQunoQuUFPkLmLFwc8GAwqKergPlVS9M8ioUP1A4MkP/n79J5kAUQikT/makpwXZVM7BebLW+T1xcp9u7+0evbXkEoLAq6QEMuI9aXIcJTjRgN1FXJdMKU5Nr4pGicRnQmtAZ04pTkkN4+/A58PJ/MG/rMakRn4sSAlzh5kictkmAT18ZInbgqjOwpN5JmPQwkd5YEmYkdU93PSbHZSsfZmYE068d64ypt7CnPwpenoZk75LI4DQx9NjaEjWbkJ4bPOYeBS6M9hsvVGubzGz5GST7uBUTdD57HsOsO8L57k46hMQNdd+DtpGjktC4S+fEU12H8Ey5XawAAKRMAYb9iFFdXb6WuSta2DWvbhh2Pn8EPfkO9yhGv29CUDRviqgECbkObEZMZsc4u4UkGVCOIaAgFEe9aRyL/nm/mDO/GJ9aeEQAAAABJRU5ErkJggg=="}, {"id": 16, "name": "triángulos de tofu", "cat": "proteinas", "icon": "🧈", "display": "Tofu Triángulos"}, {"id": 17, "name": "poro laminado", "cat": "vegetales", "icon": "🌱", "display": "Poro Laminado", "img": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACJklEQVR4nO1Wq5biQBC9vWcPgog1QRAbg8KCALEahd1v4l8wM1/ACBCMYExMbEfQBtERMbWCU72VpsNANgNmriKdTt2qWy+Ab3SEl/2KnuoAUUVPdYQdsFaTfH4YMVFFknyzXX+tA/p4qEXqO3CrnR9dOCMJiSp62712YTYMjhI4q0BU0WfRd54OJvMdCOWenzstyiYHQuT8vslWqxqIokTJVABAvx9fEM8mCxQmg1I91YbHIRSBrwJHz+T6eCDulE4QktJaTdIBvtNEbK0mazXJaXm3NEQVsaTWajqVBsN4dDamekofD5QMxu69/Pb9YwcAmE+XjrdVblgJJhzGIxQmAwD8ErXAhD6pRO2QpeMIbnECAAqTIc/z2vv5dHlRqIwoSq4r4OdQRtXvxyhLU3suTFa7EyJqws/QoW/sJAhPpUGe55hNFjVHbiX04T542a/o9+iPMySHymyycL282a4pTVNngAuwMJn7zbugKe9BB9g4/55Pl0oWmyQfxiOUpcH7xw48bICzclGUKNkpreD3/Ga7doOFe55Hr+x9ngtyRH/GdVEDcp2yImmaIhmMXWTWavLTBPwb0bIWiCoqTNbYWc4BNva2e3W5Y8nlx02rNRmMVWgCKtVTrMZdafFnOcvJ8vOZ/EfE95v6/+aVHIpE5p4dudeBEILr2M/XNflC56F1/V+Q69ZXQN4BwupdQ3AS+uRy+7WZdp3BlzWkwEPxdAe6wF9w7H2w8hMurwAAAABJRU5ErkJggg=="}, {"id": 18, "name": "cebolla laminada", "cat": "vegetales", "icon": "🧅", "display": "Cebolla Laminada", "img": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACN0lEQVR4nO1Wq27jQBQ9Xu0frIHl0EUGAUEFyUYG+wNlI3MDF0QFUaSVghZZBlVBC8ojf4SBpcjAaMGCoMWWgfsNt6C50+nUM07SarUr5aDxnfF9zJx7ZoAzzvhfERcJuaFH7/Xz+dQf622Nrmwd3a4m1TevY3CB7tTk2A09uvxxifloJm1pnqGpGmsi1h1gpwCk4zTP4E990h1z8CgQ0rbZ5ZQiQ1e2xhjGBNSKokA4D7iXc+wYAHES9bbGXMwM3swY5IBakWobryevjqWpGqTIsNnl0s5HcHIC9bbutauc4DEf1eLqWq67vbtBiv4jY3wyBWCHakVu6FFcJHR7dyPX+lNfjpknXdk6Xdk6USCclVjaajR3wXg9oaZqZAB2lOYZAEh2q1zR59jXZpeTqSOMR/D75y9nXw3c0KNF9bK1uhMm4EosZRKH4mAhUtsxCoSeDKXI5C7td426snVs1R+VABPS1mpp/pIEnnOkoR05KAGuUiWcPs9HtdcHiSEltEoxE4yrZ1JylawR3CkmEtpgXBQXCfVKqxKEeaHqxTHBAYMOMHQV5G8OPh/NMB/N0FQNVmKJlVjCn/pvLq+4SI6/tsfrCakiBDzvwHg9obhI3szpa/jbDT3681iTLt0Mqw4squtXP0qZ/TZcgBt6xIr49cuFcZ21C5jdOuppTUM336E8OOlFpN98USActROGbkAVg1nGRUIP3+97X0B9unBsF1jxEY/Ovw439Iwd8m581FP8jH8KT6PMZ3p+6TqcAAAAAElFTkSuQmCC"}, {"id": 19, "name": "ajonjolí blanco", "cat": "vegetales", "icon": "✨", "display": "Ajonjolí Blanco"}, {"id": 20, "name": "alga nori", "cat": "vegetales", "icon": "⬛", "display": "Alga Nori", "img": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAB7ElEQVR4nO2WQWviUBSFvwmzuqRSQ9CgJYIUcaDrLvvjZzlrYWQYhA6NxCE0EsNdxlmk72FFY2Lj0IVnl+TlnfPOPfcmcMUVNRGE3vYS+345V0D857X2u1X42mTxaNJDtEDFAWhFUCMBogWRKtPxgDTJGYqg4iBavBPUREwjAQDThwGbxdqSG4wmPSuKBu7UEhCE3rbjCTfjW1ZxhgCRKl1xzelJk5yu7xIlOY9P96zizN6rElTLqiD0to9P98xnS7q+azfuBx02izXAbins9S6ef/096ISzf+MYNov1QfJI1a65Gd+i4qDikCY5aZLTDzpHyRsJgDKEb5a+I1dx6AcdaztA13cZivDj+++PZ8CQAPSDDvPZEnyXIUKkat0QQERQSsvhdEecFGACCKUDqzizzyJV2xXGja7vVlq+j1olMDXfvU6TnOnDgFWcoeKY9mtEXluAqa8pg2hhyU3NAbJXbTwRa2VgFWd2CgL038hFC1LKGfB8BnltAWb+DymH0Xy2tJMweylFnfstqHwpCL3taNIDsDXfLNa2z8+xfB8nM2Cm227g4Lx6H0LtEpj2Ey34+ZK09j/QeBK2SQ41HDDJ/2jYjuHoZkHobb/d+QCtn3oXlQ5Eqq2F7RgqM3Bp8kpc6jf885Nf8b/xD1sTN/WGc7mRAAAAAElFTkSuQmCC"}, {"id": 21, "name": "alga wanji", "cat": "vegetales", "icon": "🌿", "display": "Alga Wanji"}, {"id": 22, "name": "bambú laminado", "cat": "vegetales", "icon": "🎍", "display": "Bambú Laminado"}, {"id": 23, "name": "holantao", "cat": "vegetales", "icon": "🫛", "display": "Holantao"}, {"id": 24, "name": "col cocida", "cat": "vegetales", "icon": "🥬", "display": "Col Cocida"}, {"id": 25, "name": "moyashi", "cat": "vegetales", "icon": "🌾", "display": "Moyashi", "img": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABpElEQVR4nO1VoXLDMAyVd7uQgiCD4oWWjKy/UTo00E/YZ/QTBvYH/YiShQ4NJKSgAR4xSIEHPKSepki2d9vdbnd5KIks6Vl+fgGYMWPGf8bpsIovzzfxz5rtd9ui5r9CVGrmXFdUtJRoEs51MYQxhjBG/k3LwfWlRL+Ajw0L8aZacbo+1edKC7TtHdzev1524f1wiXk/AJ2GNAXvB7C2MdY2JkVADXLmvJBzXazrJXg/QF0vJ/lIINU8SQAh7a6qFoaTAADgz1IOx3WuMR29RAonUFULg4S0PMTpsIrH/gzrh35KiipXExAVI67lefjOJxjCGOm1nDDAptY2RmLKd09Bx05j0nfUR1ID+902bh6fJuLDZyoy+p2fv0QGNZEkgGeqCYgCr6q1jUEyVA9IFmMfbxs49udcWd3t6BlrbicZF+Jb9kyLS2LLOV7KslUn5KCOiCOl956u4c2sbcx7u4Yf/RH51eJj59Pga7WRZ8VFd8ddjovTuS5ysSG0nGIrlpxNum6a/zvXRVQ+9ZUsAWpMWkwjxXcr+UrxEZQg9wedMUPCJ5NNFRoAXqlxAAAAAElFTkSuQmCC"}, {"id": 26, "name": "frijol chino", "cat": "vegetales", "icon": "🫘", "display": "Frijol Chino"}, {"id": 27, "name": "champiñones", "cat": "vegetales", "icon": "🍄", "display": "Champiñones"}, {"id": 28, "name": "shitake", "cat": "vegetales", "icon": "🟫", "display": "Shitake"}, {"id": 29, "name": "espárragos blanqueado", "cat": "vegetales", "icon": "🎋", "display": "Espárragos Blanqueados"}, {"id": 30, "name": "zanahoria", "cat": "vegetales", "icon": "🥕", "display": "Zanahoria"}];
-const RECETAS_RAMEN = [{"id": 1, "name": "Shio", "price": 38, "desc": "Caldo Shio ligero, chasu, moyashi, nori y ajonjolí", "ingredients": [1, 2, 11, 15, 17, 18, 19, 20, 25]}, {"id": 2, "name": "Shoyu", "price": 40, "desc": "Caldo Shio con salsa shoyu, chasu, bambú, holantao y nori", "ingredients": [1, 2, 5, 11, 15, 17, 18, 19, 20, 22, 23]}, {"id": 3, "name": "Miso", "price": 42, "desc": "Caldo Shio con salsa miso intensa, chasu, bambú, holantao y nori", "ingredients": [1, 2, 6, 11, 15, 17, 18, 19, 20, 22, 23]}, {"id": 4, "name": "Tonkotsu", "price": 46, "desc": "Caldo Tonkotsu espeso, col cocida, moyashi, chasu y nori", "ingredients": [1, 3, 11, 15, 17, 18, 19, 20, 24, 25]}, {"id": 5, "name": "Chashu", "price": 48, "desc": "Foco en chasu asado con caldo tonkotsu, nori y huevo", "ingredients": [1, 3, 11, 15, 17, 18, 19, 20]}, {"id": 6, "name": "Ebi", "price": 50, "desc": "Langostinos, salsa ebi ramen, champiñones y espárragos", "ingredients": [1, 2, 7, 14, 15, 17, 18, 19, 20, 27, 29]}, {"id": 7, "name": "Tan tan", "price": 45, "desc": "Chancho molido picante, salsa tan tan, moyashi y nori", "ingredients": [1, 2, 8, 13, 15, 17, 18, 19, 20, 25]}, {"id": 8, "name": "Vegetariano", "price": 42, "desc": "Base de agua, shitake, champiñones, espárragos, tofu y salsa vegetariana", "ingredients": [1, 4, 9, 16, 17, 18, 19, 20, 22, 27, 28, 29]}, {"id": 9, "name": "Bajiru", "price": 48, "desc": "Salsa bajiru (albahaca), brisket laminado, alga wanji y zanahoria", "ingredients": [1, 2, 10, 12, 15, 17, 19, 20, 21, 30]}];
+const RECETAS_RAMEN = [{"id": 1, "name": "Shio", "price": 38, "desc": "Caldo Shio ligero, chasu, moyashi, nori y ajonjolí", "ingredients": [1, 2, 11, 15, 17, 18, 19, 20, 25]}, {"id": 2, "name": "Shoyu", "price": 40, "desc": "Caldo Shio con salsa shoyu, chasu, bambú, holantao y nori", "ingredients": [1, 2, 5, 11, 15, 17, 18, 19, 20, 22, 23]}, {"id": 3, "name": "Miso", "price": 42, "desc": "Caldo Shio con salsa miso intensa, chasu, bambú, holantao y nori", "ingredients": [1, 2, 6, 11, 15, 17, 18, 19, 20, 22, 23]}, {"id": 4, "name": "Tonkotsu", "price": 46, "desc": "Caldo Tonkotsu espeso, col cocida, moyashi, chasu y nori", "ingredients": [1, 3, 11, 15, 17, 18, 19, 20, 24, 25]}, {"id": 5, "name": "Chashu", "price": 48, "desc": "Foco en chasu asado con caldo tonkotsu, nori y huevo", "ingredients": [1, 3, 11, 15, 17, 18, 19, 20]}, {"id": 6, "name": "Ebi", "price": 50, "desc": "Langostinos, salsa ebi ramen, champiñones, espárragos y nori", "ingredients": [1, 2, 7, 14, 15, 17, 18, 19, 20, 27, 29]}, {"id": 7, "name": "Tan tan", "price": 45, "desc": "Chancho molido picante, salsa tan tan, moyashi y nori", "ingredients": [1, 2, 8, 13, 15, 17, 18, 19, 20, 25]}, {"id": 8, "name": "Vegetariano", "price": 42, "desc": "Base de agua, shitake, champiñones, espárragos, tofu, nori y salsa vegetariana", "ingredients": [1, 4, 9, 16, 17, 18, 19, 20, 22, 27, 28, 29]}, {"id": 9, "name": "Bajiru", "price": 48, "desc": "Salsa bajiru (albahaca), brisket laminado, alga wanji, nori y zanahoria", "ingredients": [1, 2, 10, 12, 15, 17, 19, 20, 21, 30]}];
 
 const NIVELES = [
   { level: 1, name: "Nivel 1: Aprendiz de Barra", ramen_names: ["Shio", "Shoyu"], max_orders: 1, max_customers: 2, goal: 160, time: 90 },
@@ -1186,6 +1274,23 @@ function playSound(type) {
       osc.stop(now + 0.12);
     }
   } catch(e) {}
+}
+
+function triggerAbolladoEffect() {
+  const overlay = document.getElementById("screen-flash-overlay");
+  const banner = document.getElementById("abollado-banner");
+
+  if (overlay) {
+    overlay.classList.remove("flash-active");
+    void overlay.offsetWidth;
+    overlay.classList.add("flash-active");
+  }
+
+  if (banner) {
+    banner.classList.remove("banner-active");
+    void banner.offsetWidth;
+    banner.classList.add("banner-active");
+  }
 }
 
 function getRashConfig(lvl) {
@@ -1729,6 +1834,7 @@ function gameTick() {
       c.patience -= 1;
       if (c.patience <= 0) {
         playSound('lost');
+        triggerAbolladoEffect();
         gameState.customersLost++;
         gameState.customerSlots[i] = null;
         if (gameState.selectedCustomerModalIndex === i) closeCustomerOrderModal();
