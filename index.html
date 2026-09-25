@@ -2380,8 +2380,8 @@
         </button>
         <!-- Mini Pill de Cuenta Vinculada -->
         <div class="hud-linked-mini-pill" id="hud-linked-user" onclick="openGameProfileModal()" style="display:none;" title="Cuenta Vinculada - Toca para ver perfil">
-          <span id="hud-user-avatar">🥋</span>
-          <span id="hud-user-name">Freddy Loyo</span>
+          <span id="hud-user-avatar">🍜</span>
+          <span id="hud-user-name"></span>
         </div>
       </div>
     </div>
@@ -2750,12 +2750,12 @@
         <label style="font-size: 11px; font-weight: 800; color: #5d4037; display: block; margin-bottom: 3px;">
           Tu Alias o Apodo de Jugador: *
         </label>
-        <input type="text" id="reg-player-name" class="input-record" placeholder="Ej: NarutoChef" maxlength="20">
+        <input type="text" id="reg-player-name" class="input-record" placeholder="Ej: NarutoChef" maxlength="20" autocomplete="off" value="">
 
         <label style="font-size: 11px; font-weight: 800; color: #5d4037; display: block; margin-bottom: 3px;">
           WhatsApp o Correo (Opcional - Para coordinar premios si quedas en el TOP):
         </label>
-        <input type="text" id="reg-player-contact" class="input-record" placeholder="Ej: +51 999 888 777 o micorreo@gmail.com" maxlength="60">
+        <input type="text" id="reg-player-contact" class="input-record" placeholder="Ej: +51 999 888 777 o micorreo@gmail.com" maxlength="60" autocomplete="off" value="">
 
         <div id="reg-status-msg" style="font-size: 11px; font-weight: 800; margin-bottom: 8px; min-height: 18px;"></div>
 
@@ -3300,50 +3300,32 @@ const DeviceManager = {
       const profRaw = document.getElementById("prof-device-raw");
       if (profRaw) profRaw.innerHTML = `${this.deviceInfoText}<br><strong>ID Único:</strong> ${this.deviceId}<br><strong>Huella Hardware:</strong> #${this.deviceFingerprint}`;
 
-      // 1. Buscar perfil en almacenamiento local
-      let player = null;
-      try {
-        const raw = safeStorage.getItem("ramen_player_profile");
-        if (raw) player = JSON.parse(raw);
-      } catch(e) {}
-
-      // Sincronización oficial para Freddy Loyo en este dispositivo
-      if (player && (player.playerName.toLowerCase() === 'elbollo' || player.playerName.toLowerCase() === 'freddy loyo' || player.playerName.toLowerCase() === 'chef anónimo')) {
-        player.playerName = 'Freddy Loyo';
-        player.contact = player.contact || '904395920';
-        player.avatar = player.avatar || '🥋';
-        player.deviceId = this.deviceId;
-        player.deviceInfo = this.deviceInfoText;
-        safeStorage.setItem("ramen_player_profile", JSON.stringify(player));
-        safeStorage.setItem("ramen_player_name", 'Freddy Loyo');
-        safeStorage.setItem("ramen_player_contact", player.contact);
-        safeStorage.setItem("ramen_player_avatar", player.avatar);
-      } else if (!player) {
-        player = {
-          playerName: 'Freddy Loyo',
-          contact: '904395920',
-          avatar: '🥋',
-          deviceId: this.deviceId,
-          deviceInfo: this.deviceInfoText,
-          createdAt: new Date().toISOString()
-        };
-        safeStorage.setItem("ramen_player_profile", JSON.stringify(player));
-        safeStorage.setItem("ramen_player_name", 'Freddy Loyo');
-        safeStorage.setItem("ramen_player_contact", player.contact);
-        safeStorage.setItem("ramen_player_avatar", player.avatar);
+      // 1. Limpieza de perfiles auto-asignados por versiones anteriores
+      const wasExplicitlyRegistered = safeStorage.getItem("ramen_profile_explicit_registered") === "true";
+      if (!wasExplicitlyRegistered) {
+        // Si el dispositivo no tiene un registro manual explícito, limpiar cualquier dato residual
+        safeStorage.removeItem("ramen_player_profile");
+        safeStorage.removeItem("ramen_player_name");
+        safeStorage.removeItem("ramen_player_contact");
+        safeStorage.removeItem("ramen_player_avatar");
       }
 
-      // Sincronizar en la lista de usuarios registrados del panel Maestro
-      try {
-        const regList = JSON.parse(safeStorage.getItem("ramen_registered_users") || "[]");
-        const idx = regList.findIndex(u => u.playerName.toLowerCase() === 'freddy loyo' || u.playerName.toLowerCase() === 'elbollo' || u.deviceId === this.deviceId);
-        if (idx >= 0) regList[idx] = player;
-        else regList.unshift(player);
-        safeStorage.setItem("ramen_registered_users", JSON.stringify(regList));
-      } catch(e) {}
+      // 2. Buscar perfil legítimo en almacenamiento local
+      let player = null;
+      if (wasExplicitlyRegistered) {
+        try {
+          const raw = safeStorage.getItem("ramen_player_profile");
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed && parsed.playerName && parsed.playerName.trim().length >= 2) {
+              player = parsed;
+            }
+          }
+        } catch(e) {}
+      }
 
-      // 2. Si hay conexión a Supabase, verificar / sincronizar perfil por device_id
-      if (supabaseClient) {
+      // 3. Si hay conexión a Supabase y se busca sincronizar perfil por device_id
+      if (supabaseClient && player) {
         try {
           const { data, error } = await supabaseClient
             .from('players')
@@ -3351,22 +3333,36 @@ const DeviceManager = {
             .eq('device_id', this.deviceId)
             .maybeSingle();
 
-          if (!error && data) {
+          if (!error && data && data.player_name) {
             player.playerName = data.player_name || player.playerName;
-            player.contact = data.contact || player.contact;
+            player.contact = (data.contact !== undefined && data.contact !== null) ? data.contact : player.contact;
             player.avatar = data.avatar || player.avatar;
           }
         } catch(e) {}
       }
 
-      this.currentPlayer = player;
+      // 4. Asignar estado del jugador en este dispositivo
+      if (player && player.playerName && wasExplicitlyRegistered) {
+        this.currentPlayer = player;
+        // Sincronizar en la lista de usuarios registrados del panel Maestro
+        try {
+          const regList = JSON.parse(safeStorage.getItem("ramen_registered_users") || "[]");
+          const idx = regList.findIndex(u => u.deviceId === this.deviceId || (u.playerName && u.playerName.toLowerCase() === player.playerName.toLowerCase()));
+          if (idx >= 0) regList[idx] = player;
+          else regList.unshift(player);
+          safeStorage.setItem("ramen_registered_users", JSON.stringify(regList));
+        } catch(e) {}
+      } else {
+        this.currentPlayer = null;
+      }
+
       this.isInitialized = true;
       updateStartPlayerCard();
       renderLinkedUserBadges();
 
-      if (player && player.playerName) {
+      if (this.currentPlayer && this.currentPlayer.playerName) {
         setTimeout(() => {
-          showWelcomeToast(player.playerName, player.avatar);
+          showWelcomeToast(this.currentPlayer.playerName, this.currentPlayer.avatar);
         }, 500);
       }
     } catch(err) {
@@ -3433,6 +3429,7 @@ const DeviceManager = {
     };
 
     this.currentPlayer = newPlayer;
+    safeStorage.setItem("ramen_profile_explicit_registered", "true");
     safeStorage.setItem("ramen_player_profile", JSON.stringify(newPlayer));
     safeStorage.setItem("ramen_player_name", cleanName);
     safeStorage.setItem("ramen_player_contact", cleanContact);
@@ -3440,7 +3437,7 @@ const DeviceManager = {
 
     try {
       const regList = JSON.parse(safeStorage.getItem("ramen_registered_users") || "[]");
-      const idx = regList.findIndex(u => u.playerName.toLowerCase() === cleanName.toLowerCase());
+      const idx = regList.findIndex(u => u.deviceId === this.deviceId || (u.playerName && u.playerName.toLowerCase() === cleanName.toLowerCase()));
       if (idx >= 0) regList[idx] = newPlayer;
       else regList.push(newPlayer);
       safeStorage.setItem("ramen_registered_users", JSON.stringify(regList));
@@ -5165,8 +5162,8 @@ function updateHUD() {
 // REGISTRO AUTOMÁTICO DE PUNTUACIÓN EN CADA PARTICIPACIÓN (SEA CUAL SEA EL RESULTADO)
 async function recordGameScoreAutomatically(outcome = 'COMPLETED') {
   const p = DeviceManager.currentPlayer;
-  const playerName = (p && p.playerName) ? p.playerName : (safeStorage.getItem('ramen_player_name') || 'Freddy Loyo');
-  const contact = (p && p.contact) ? p.contact : (safeStorage.getItem('ramen_player_contact') || '904395920');
+  const playerName = (p && p.playerName) ? p.playerName : (safeStorage.getItem('ramen_player_name') || 'Chef Anónimo');
+  const contact = (p && p.contact) ? p.contact : (safeStorage.getItem('ramen_player_contact') || null);
 
   const levelReached = gameState.gameMode === 'NORMAL' ? (currentLevelIndex + 1) : gameState.rashLevel;
   const newRecord = {
@@ -5307,6 +5304,17 @@ function handleNextLevelButton() {
 }
 
 function startLevel(lvlIndex) {
+  if (!DeviceManager.currentPlayer) {
+    returnToStartMenu();
+    openRegisterPlayerModal();
+    const statusEl = document.getElementById("reg-status-msg");
+    if (statusEl) {
+      statusEl.textContent = "⚠️ Debes registrar tu alias de Chef antes de poder jugar.";
+      statusEl.style.color = "#d32f2f";
+    }
+    return;
+  }
+
   if (gameState.gameMode === 'NORMAL') {
     currentLevelIndex = lvlIndex !== undefined ? lvlIndex : 0;
     const cfg = NIVELES[currentLevelIndex];
@@ -5492,8 +5500,8 @@ function handleStartPlayClick() {
     openRegisterPlayerModal();
     const statusEl = document.getElementById("reg-status-msg");
     if (statusEl) {
-      statusEl.textContent = "💡 Registra tu alias para vincular tu dispositivo y comenzar a jugar.";
-      statusEl.style.color = "#ff9800";
+      statusEl.textContent = "⚠️ Debes registrar tu alias de Chef antes de poder jugar.";
+      statusEl.style.color = "#d32f2f";
     }
     return;
   }
@@ -5535,12 +5543,21 @@ function openRegisterPlayerModal() {
   regSelectedAvatar = '🍜';
   selectRegAvatar('🍜');
   const nameInput = document.getElementById("reg-player-name");
-  if (nameInput) nameInput.value = "";
+  if (nameInput) {
+    nameInput.value = "";
+    nameInput.defaultValue = "";
+    nameInput.setAttribute("value", "");
+  }
   const contactInput = document.getElementById("reg-player-contact");
-  if (contactInput) contactInput.value = "";
+  if (contactInput) {
+    contactInput.value = "";
+    contactInput.defaultValue = "";
+    contactInput.setAttribute("value", "");
+  }
   const statusEl = document.getElementById("reg-status-msg");
   if (statusEl) statusEl.textContent = "";
   document.getElementById("register-player-modal").classList.add("active");
+  if (nameInput) setTimeout(() => nameInput.focus(), 150);
 }
 
 function closeRegisterPlayerModal() {
@@ -5943,6 +5960,16 @@ function closeModeSelectModal() {
 }
 
 function selectGameMode(mode, targetLevel) {
+  if (!DeviceManager.currentPlayer) {
+    document.getElementById("mode-select-modal").classList.remove("active");
+    openRegisterPlayerModal();
+    const statusEl = document.getElementById("reg-status-msg");
+    if (statusEl) {
+      statusEl.textContent = "⚠️ Debes registrar tu alias de Chef antes de poder jugar.";
+      statusEl.style.color = "#d32f2f";
+    }
+    return;
+  }
   document.getElementById("mode-select-modal").classList.remove("active");
   gameState.gameMode = mode;
   if (mode === 'NORMAL') {
