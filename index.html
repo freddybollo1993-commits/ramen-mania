@@ -5493,15 +5493,17 @@ function loadSecret3DModel(item) {
    ========================================================================== */
 
 /* ==========================================================================
-   HELPER VOXEL RENDERER: CONVIERTE COORDENADAS MATEMÁTICAS EN ARTE VOXEL 3D
+   HELPER VOXEL RENDERER: MICRO-VOXELS DE ALTA DEFINICIÓN (BLOQUE A BLOQUE)
    ========================================================================== */
 function renderVoxelBuckets(group, buckets, mats, voxelSize, offsetY = 0) {
-  const boxGeo = new THREE.BoxGeometry(voxelSize, voxelSize, voxelSize);
+  // Geometría cúbica al 95% del tamaño de rejilla: define sutilmente los bordes de cada bloque
+  // para mantener nítida la esencia de construcción bloque a bloque con máximo detalle
+  const boxGeo = new THREE.BoxGeometry(voxelSize * 0.95, voxelSize * 0.95, voxelSize * 0.95);
   const dummy = new THREE.Object3D();
   
   for (const [key, positions] of Object.entries(buckets)) {
     if (!positions || positions.length === 0) continue;
-    const mat = mats[key] || new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5 });
+    const mat = mats[key] || new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.45 });
     const instMesh = new THREE.InstancedMesh(boxGeo, mat, positions.length);
     
     for (let i = 0; i < positions.length; i++) {
@@ -5519,25 +5521,22 @@ function renderVoxelBuckets(group, buckets, mats, voxelSize, offsetY = 0) {
 }
 
 /* ==========================================================================
-   CONSTRUCTORES VOXEL 100% PUROS PARA TODOS LOS MODELOS (MISMA ESTRUCTURA DEL HUEVO)
+   CONSTRUCTORES MICRO-VOXEL 100% PUROS PARA TODOS LOS MODELOS (ALTA RESOLUCIÓN)
    ========================================================================== */
 
-// 1. HUEVO AJITSUKE VOXEL
+// 1. HUEVO AJITSUKE MICRO-VOXEL
 function buildTamago3D(group) {
-  const vs = 0.35;
+  const vs = 0.16;
   const mats = {
-    crust: new THREE.MeshStandardMaterial({ color: 0x7a431d, roughness: 0.5 }),
-    whiteOuter: new THREE.MeshStandardMaterial({ color: 0xedd6be, roughness: 0.4 }),
+    crust: new THREE.MeshStandardMaterial({ color: 0x703c19, roughness: 0.5 }),
+    whiteOuter: new THREE.MeshStandardMaterial({ color: 0xebd3ba, roughness: 0.4 }),
     whiteInner: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 }),
     yolkFirm: new THREE.MeshStandardMaterial({ color: 0xee9b00, roughness: 0.3 }),
     yolkGooey: new THREE.MeshStandardMaterial({ color: 0xc85a00, roughness: 0.15, metalness: 0.1 }),
-    sesame: new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.9 })
+    sesame: new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.9 })
   };
 
-  const Rx = 15;
-  const Ry = 11;
-  const Rz = 15;
-
+  const Rx = 33, Ry = 24, Rz = 33;
   const buckets = { crust: [], whiteOuter: [], whiteInner: [], yolkFirm: [], yolkGooey: [], sesame: [] };
 
   for (let x = -Rx; x <= Rx; x++) {
@@ -5545,31 +5544,36 @@ function buildTamago3D(group) {
       for (let z = -Rz; z <= Rz; z++) {
         const dist = (x * x) / (Rx * Rx) + (y * y) / (Ry * Ry) + (z * z) / (Rz * Rz);
         if (dist <= 1.0) {
-          let key = null;
           const rXZ = Math.sqrt(x * x + z * z);
+          let key = null;
+
           if (y === 0) {
-            if (rXZ < 5) {
-              if ((x * 7 + z * 13) % 11 === 0 || (x === 2 && z === -1)) {
-                key = 'sesame';
+            // Cara de corte visible con todos los detalles concéntricos y semillas
+            if (rXZ < 11) {
+              if (rXZ < 6) {
+                if ((Math.abs(x * 7 + z * 13) % 11 === 0 && rXZ > 1.5) || (x === 2 && z === -2) || (x === -3 && z === 1)) {
+                  key = 'sesame';
+                } else {
+                  key = 'yolkGooey';
+                }
               } else {
                 key = 'yolkGooey';
               }
-            } else if (rXZ < 8) {
+            } else if (rXZ < 18) {
               key = 'yolkFirm';
-            } else if (rXZ < 13.5) {
+            } else if (rXZ < 28) {
               key = 'whiteInner';
+            } else if (rXZ < 31) {
+              key = 'whiteOuter';
             } else {
               key = 'crust';
             }
           } else {
-            if (dist > 0.86) {
+            // Cúpula exterior visible
+            if (dist > 0.88) {
               key = 'crust';
-            } else if (dist > 0.72) {
+            } else if (dist > 0.76) {
               key = 'whiteOuter';
-            } else if (dist > 0.45) {
-              key = 'whiteInner';
-            } else {
-              key = 'yolkFirm';
             }
           }
 
@@ -5585,46 +5589,46 @@ function buildTamago3D(group) {
   renderVoxelBuckets(group, buckets, mats, vs, 0);
 }
 
-// 2. CHASHU CARAMELIZADO (RODAJA VOXEL CON ESPIRAL DE GRASA Y SOJA)
+// 2. CHASHU CARAMELIZADO (RODAJA MICRO-VOXEL CON ESPIRAL DE GRASA Y SOJA)
 function buildChashu3D(group) {
-  const vs = 0.35;
+  const vs = 0.16;
   const mats = {
-    crust: new THREE.MeshStandardMaterial({ color: 0x542615, roughness: 0.5 }), // Soja caramelizada
-    meat: new THREE.MeshStandardMaterial({ color: 0xb85438, roughness: 0.4 }),  // Carne rosada
-    fat: new THREE.MeshStandardMaterial({ color: 0xfbf4e6, roughness: 0.25 }), // Grasa marfil
-    core: new THREE.MeshStandardMaterial({ color: 0x7a2817, roughness: 0.5 }), // Centro tierno
-    negi: new THREE.MeshStandardMaterial({ color: 0x2e7d32, roughness: 0.4 }), // Cebollino verde
-    sesame: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.8 }) // Sésamo blanco
+    crust: new THREE.MeshStandardMaterial({ color: 0x4a2012, roughness: 0.55 }),
+    meat: new THREE.MeshStandardMaterial({ color: 0xb55135, roughness: 0.4 }),
+    fat: new THREE.MeshStandardMaterial({ color: 0xfaf3e3, roughness: 0.25 }),
+    core: new THREE.MeshStandardMaterial({ color: 0x732415, roughness: 0.5 }),
+    negi: new THREE.MeshStandardMaterial({ color: 0x2e7d32, roughness: 0.4 }),
+    sesame: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.8 })
   };
   const buckets = { crust: [], meat: [], fat: [], core: [], negi: [], sesame: [] };
 
-  const R = 15;
-  const H = 6;
+  const R = 30, H = 12;
   for (let x = -R; x <= R; x++) {
     for (let z = -R; z <= R; z++) {
       const r = Math.sqrt(x * x + z * z);
       if (r <= R) {
         for (let y = 0; y < H; y++) {
-          let key = 'meat';
-          if (r >= R - 2 || y === 0 || y === H - 1) {
-            if (r >= R - 2) key = 'crust';
-          }
-          if (key !== 'crust') {
-            const theta = Math.atan2(z, x) + Math.PI;
-            const spiralVal = (r + (theta / (Math.PI * 2)) * 4.5) % 5.5;
-            if (spiralVal < 1.8 && r > 3.5 && r < R - 2) {
-              key = 'fat';
-            } else if (r <= 3.5) {
-              key = 'core';
+          if (y === 0 || y === H - 1 || r >= R - 4) {
+            let key = 'meat';
+            if (r >= R - 3) {
+              key = 'crust';
+            } else {
+              const theta = Math.atan2(z, x) + Math.PI;
+              const spiralVal = (r + (theta / (Math.PI * 2)) * 9.0) % 11.0;
+              if (spiralVal < 3.2 && r > 6 && r < R - 3) {
+                key = 'fat';
+              } else if (r <= 6) {
+                key = 'core';
+              }
             }
-          }
-          buckets[key].push({ x: x * vs, y: y * vs, z: z * vs });
+            buckets[key].push({ x: x * vs, y: y * vs, z: z * vs });
 
-          if (y === H - 1) {
-            if ((x * 11 + z * 17) % 7 === 0 && r < R - 3) {
-              buckets.negi.push({ x: x * vs, y: (y + 1) * vs, z: z * vs });
-            } else if ((x * 13 + z * 5) % 11 === 0 && r < R - 3) {
-              buckets.sesame.push({ x: x * vs, y: (y + 1) * vs, z: z * vs });
+            if (y === H - 1) {
+              if ((Math.abs(x * 11 + z * 17) % 13 === 0) && r < R - 4 && r > 4) {
+                buckets.negi.push({ x: x * vs, y: (y + 1) * vs, z: z * vs });
+              } else if ((Math.abs(x * 13 + z * 5) % 19 === 0) && r < R - 4) {
+                buckets.sesame.push({ x: x * vs, y: (y + 1) * vs, z: z * vs });
+              }
             }
           }
         }
@@ -5635,9 +5639,9 @@ function buildChashu3D(group) {
   renderVoxelBuckets(group, buckets, mats, vs, 0);
 }
 
-// 3. FIDEOS KANSUI ARTESANALES CON PALILLOS (VOXEL HASHI & NOODLES)
+// 3. FIDEOS KANSUI ARTESANALES (PALILLOS Y CASCADA MICRO-VOXEL)
 function buildNoodles3D(group) {
-  const vs = 0.35;
+  const vs = 0.16;
   const mats = {
     wood: new THREE.MeshStandardMaterial({ color: 0xbcaaa4, roughness: 0.5 }),
     noodle: new THREE.MeshStandardMaterial({ color: 0xffc107, roughness: 0.3 }),
@@ -5646,33 +5650,33 @@ function buildNoodles3D(group) {
   };
   const buckets = { wood: [], noodle: [], noodleDark: [], steam: [] };
 
-  // Palillos de bambú en voxels
-  for (let t = 0; t <= 36; t++) {
-    const px1 = Math.round(8 - t * 0.45);
-    const py1 = Math.round(18 - t * 0.28);
-    const pz1 = Math.round(-1.2 + t * 0.05);
+  // Palillos estilizados en ángulo
+  for (let t = 0; t <= 75; t++) {
+    const px1 = Math.round(18 - t * 0.45);
+    const py1 = Math.round(38 - t * 0.28);
+    const pz1 = Math.round(-2.5 + t * 0.05);
 
-    const px2 = Math.round(8.5 - t * 0.45);
-    const py2 = Math.round(18.8 - t * 0.28);
-    const pz2 = Math.round(0.8 + t * 0.05);
+    const px2 = Math.round(19 - t * 0.45);
+    const py2 = Math.round(39.5 - t * 0.28);
+    const pz2 = Math.round(1.8 + t * 0.05);
 
-    for (let dx = 0; dx <= 1; dx++) {
-      for (let dy = 0; dy <= 1; dy++) {
+    const thick = (t < 25) ? 2 : 1;
+    for (let dx = 0; dx < thick; dx++) {
+      for (let dy = 0; dy < thick; dy++) {
         buckets.wood.push({ x: (px1 + dx) * vs, y: (py1 + dy) * vs, z: pz1 * vs });
         buckets.wood.push({ x: (px2 + dx) * vs, y: (py2 + dy) * vs, z: pz2 * vs });
       }
     }
   }
 
-  // Cascada de hebras de fideos en voxels
-  for (let strand = 0; strand < 12; strand++) {
-    const angle = (strand / 12) * Math.PI * 2;
-    const rad = 1.5 + Math.sin(strand) * 0.8;
+  // 18 hebras de fideos que caen en cascada
+  for (let strand = 0; strand < 18; strand++) {
+    const angle = (strand / 18) * Math.PI * 2;
+    const rad = 3.0 + Math.sin(strand * 1.5) * 1.5;
     const key = (strand % 2 === 0) ? 'noodle' : 'noodleDark';
-    
-    for (let y = 3; y <= 16; y++) {
-      const waveX = Math.round(Math.sin(y * 0.6 + strand) * 1.5);
-      const waveZ = Math.round(Math.cos(y * 0.5 + strand) * 1.2);
+    for (let y = 6; y <= 35; y++) {
+      const waveX = Math.round(Math.sin(y * 0.4 + strand) * 2.5);
+      const waveZ = Math.round(Math.cos(y * 0.35 + strand) * 2.2);
       const x = Math.round(Math.cos(angle) * rad + waveX);
       const z = Math.round(Math.sin(angle) * rad + waveZ);
       buckets[key].push({ x: x * vs, y: y * vs, z: z * vs });
@@ -5680,13 +5684,13 @@ function buildNoodles3D(group) {
   }
 
   // Montículo de fideos en el pedestal
-  const R = 12;
+  const R = 24;
   for (let x = -R; x <= R; x++) {
     for (let z = -R; z <= R; z++) {
       const r = Math.sqrt(x * x + z * z);
       if (r <= R) {
-        const maxH = Math.max(0, Math.floor((1 - (r / R)) * 6 + Math.sin(x * 1.2 + z * 1.5) * 1.5));
-        for (let y = 0; y <= maxH; y++) {
+        const maxH = Math.max(0, Math.floor((1 - (r / R)) * 12 + Math.sin(x * 0.6 + z * 0.8) * 3.0));
+        for (let y = Math.max(0, maxH - 2); y <= maxH; y++) {
           const key = ((x + y + z) % 3 === 0) ? 'noodleDark' : 'noodle';
           buckets[key].push({ x: x * vs, y: y * vs, z: z * vs });
         }
@@ -5694,71 +5698,70 @@ function buildNoodles3D(group) {
     }
   }
 
-  // Partículas de vapor en voxel
-  for (let s = 0; s < 10; s++) {
-    const sx = Math.round(Math.sin(s * 1.7) * 3);
-    const sy = Math.round(18 + s * 1.2);
-    const sz = Math.round(Math.cos(s * 1.3) * 2);
+  // Partículas de vapor flotantes
+  for (let s = 0; s < 25; s++) {
+    const sx = Math.round(Math.sin(s * 1.7) * 6);
+    const sy = Math.round(38 + s * 1.2);
+    const sz = Math.round(Math.cos(s * 1.3) * 5);
     buckets.steam.push({ x: sx * vs, y: sy * vs, z: sz * vs });
   }
 
   renderVoxelBuckets(group, buckets, mats, vs, 0);
 }
 
-// 4. CALDO TONKOTSU EN CALDERO VOXEL (NABE)
+// 4. CALDO TONKOTSU EN CALDERO NABE (MICRO-VOXEL)
 function buildBrothCauldron3D(group) {
-  const vs = 0.35;
+  const vs = 0.16;
   const mats = {
-    iron: new THREE.MeshStandardMaterial({ color: 0x1f2421, roughness: 0.7, metalness: 0.3 }),
+    iron: new THREE.MeshStandardMaterial({ color: 0x1b1f1c, roughness: 0.75, metalness: 0.35 }),
     broth: new THREE.MeshStandardMaterial({ color: 0xfffaea, roughness: 0.15 }),
     oil: new THREE.MeshStandardMaterial({ color: 0xffb300, roughness: 0.2 }),
     wood: new THREE.MeshStandardMaterial({ color: 0x8d6e63, roughness: 0.5 })
   };
   const buckets = { iron: [], broth: [], oil: [], wood: [] };
 
-  const H = 14;
+  const H = 28;
   for (let y = 0; y <= H; y++) {
-    const Rout = Math.round(11 + Math.sin(y / H * Math.PI) * 4);
-    const Rin = Rout - 2;
-
+    const Rout = Math.round(22 + Math.sin((y / H) * Math.PI) * 8);
+    const Rin = Rout - 3;
     for (let x = -Rout; x <= Rout; x++) {
       for (let z = -Rout; z <= Rout; z++) {
         const r = Math.sqrt(x * x + z * z);
         if (r <= Rout) {
-          if (y === 0 || y === 1) {
+          if (y <= 2) {
             buckets.iron.push({ x: x * vs, y: y * vs, z: z * vs });
           } else if (r >= Rin) {
             buckets.iron.push({ x: x * vs, y: y * vs, z: z * vs });
-          } else if (y === 10) {
-            const isOil = (x * 7 + z * 13) % 9 === 0;
+          } else if (y === 20) {
+            const isOil = (Math.abs(x * 7 + z * 13) % 11 === 0);
             buckets[isOil ? 'oil' : 'broth'].push({ x: x * vs, y: y * vs, z: z * vs });
           }
         }
       }
     }
-
-    if (y >= 8 && y <= 11) {
-      for (let w = Rout + 1; w <= Rout + 3; w++) {
+    // Asas laterales de hierro
+    if (y >= 16 && y <= 22) {
+      for (let w = Rout + 1; w <= Rout + 5; w++) {
         buckets.iron.push({ x: w * vs, y: y * vs, z: 0 });
         buckets.iron.push({ x: -w * vs, y: y * vs, z: 0 });
       }
     }
   }
 
-  // Cucharón de madera en voxels
-  for (let t = 0; t <= 24; t++) {
-    const lx = Math.round(4 - t * 0.45);
-    const ly = Math.round(13 + t * 0.15);
-    const lz = Math.round(3 + t * 0.3);
+  // Cucharón de madera
+  for (let t = 0; t <= 50; t++) {
+    const lx = Math.round(8 - t * 0.45);
+    const ly = Math.round(26 + t * 0.18);
+    const lz = Math.round(6 + t * 0.35);
     buckets.wood.push({ x: lx * vs, y: ly * vs, z: lz * vs });
   }
 
   renderVoxelBuckets(group, buckets, mats, vs, 0);
 }
 
-// 5. ALGA NORI DE ARIAKE EN VOXELS
+// 5. ALGA NORI DE ARIAKE (MICRO-VOXEL)
 function buildNori3D(group) {
-  const vs = 0.35;
+  const vs = 0.16;
   const mats = {
     noriDark: new THREE.MeshStandardMaterial({ color: 0x091a0f, roughness: 0.6 }),
     noriGreen: new THREE.MeshStandardMaterial({ color: 0x14351d, roughness: 0.5 }),
@@ -5768,28 +5771,29 @@ function buildNori3D(group) {
   };
   const buckets = { noriDark: [], noriGreen: [], noriGloss: [], wood: [], gold: [] };
 
-  // Base ceremonial de madera
-  for (let x = -10; x <= 10; x++) {
-    for (let z = -4; z <= 4; z++) {
-      for (let y = 0; y <= 2; y++) {
-        buckets.wood.push({ x: x * vs, y: y * vs, z: z * vs });
+  // Peana ceremonial de madera
+  for (let x = -20; x <= 20; x++) {
+    for (let z = -8; z <= 8; z++) {
+      for (let y = 0; y <= 4; y++) {
+        if (y === 0 || y === 4 || Math.abs(x) === 20 || Math.abs(z) === 8) {
+          buckets.wood.push({ x: x * vs, y: y * vs, z: z * vs });
+        }
       }
     }
   }
-  for (let x = -9; x <= 9; x++) {
-    buckets.gold.push({ x: x * vs, y: 3 * vs, z: -4 * vs });
-    buckets.gold.push({ x: x * vs, y: 3 * vs, z: 4 * vs });
+  for (let x = -18; x <= 18; x++) {
+    buckets.gold.push({ x: x * vs, y: 5 * vs, z: -8 * vs });
+    buckets.gold.push({ x: x * vs, y: 5 * vs, z: 8 * vs });
   }
 
-  // Hoja de nori erguida ondulada en voxels
-  const W = 10;
-  const H = 26;
+  // Hoja de nori ondulada en micro-voxels
+  const W = 20, H = 54;
   for (let x = -W; x <= W; x++) {
-    for (let y = 3; y <= H; y++) {
-      const waveZ = Math.round(Math.sin(x * 0.35) * 1.5);
+    for (let y = 6; y <= H; y++) {
+      const waveZ = Math.round(Math.sin(x * 0.2) * 3.0);
       for (let dz = 0; dz <= 1; dz++) {
         const z = waveZ + dz;
-        const rand = Math.abs((x * 13 + y * 7) % 11);
+        const rand = Math.abs((x * 17 + y * 11) % 13);
         let key = 'noriDark';
         if (rand === 0 || rand === 1) key = 'noriGreen';
         else if (rand === 2) key = 'noriGloss';
@@ -5801,9 +5805,9 @@ function buildNori3D(group) {
   renderVoxelBuckets(group, buckets, mats, vs, 0);
 }
 
-// 6. LANGOSTINO EBI REAL EN VOXELS
+// 6. LANGOSTINO EBI REAL (MICRO-VOXEL)
 function buildEbiShrimp3D(group) {
-  const vs = 0.35;
+  const vs = 0.16;
   const mats = {
     orange: new THREE.MeshStandardMaterial({ color: 0xff6f00, roughness: 0.3 }),
     white: new THREE.MeshStandardMaterial({ color: 0xfff8e1, roughness: 0.3 }),
@@ -5811,31 +5815,32 @@ function buildEbiShrimp3D(group) {
   };
   const buckets = { orange: [], white: [], red: [] };
 
-  // Cuerpo segmentado curvado en voxels
-  const segments = 10;
+  const segments = 20;
   for (let s = 0; s < segments; s++) {
     const t = s / segments;
-    const angle = t * Math.PI * 0.75;
-    const cy = Math.round(Math.sin(angle) * 14 + 2);
-    const cz = Math.round(Math.cos(angle) * 12 - 4);
-    const radius = Math.max(2, Math.round(5 - t * 3.2));
-    const isWhite = (s % 2 === 1);
+    const angle = t * Math.PI * 0.8;
+    const cy = Math.round(Math.sin(angle) * 28 + 4);
+    const cz = Math.round(Math.cos(angle) * 24 - 8);
+    const radius = Math.max(3, Math.round(10 - t * 6.5));
+    const isWhite = (s % 3 === 2);
 
     for (let dx = -radius; dx <= radius; dx++) {
       for (let dy = -radius; dy <= radius; dy++) {
         if (dx * dx + dy * dy <= radius * radius) {
-          const key = isWhite ? 'white' : 'orange';
-          buckets[key].push({ x: dx * vs, y: (cy + dy) * vs, z: cz * vs });
+          if (dx * dx + dy * dy >= (radius - 2) * (radius - 2) || s === 0 || s === segments - 1) {
+            const key = isWhite ? 'white' : 'orange';
+            buckets[key].push({ x: dx * vs, y: (cy + dy) * vs, z: cz * vs });
+          }
         }
       }
     }
   }
 
   // Cola en abanico rojo
-  for (let f = -4; f <= 4; f++) {
-    for (let h = 0; h <= 5; h++) {
-      if (Math.abs(f) <= h * 0.9) {
-        buckets.red.push({ x: f * vs, y: (16 + h) * vs, z: (7 + h * 0.5) * vs });
+  for (let f = -8; f <= 8; f++) {
+    for (let h = 0; h <= 10; h++) {
+      if (Math.abs(f) <= h * 0.85) {
+        buckets.red.push({ x: f * vs, y: (32 + h) * vs, z: (14 + h * 0.5) * vs });
       }
     }
   }
@@ -5843,9 +5848,9 @@ function buildEbiShrimp3D(group) {
   renderVoxelBuckets(group, buckets, mats, vs, 0);
 }
 
-// 7. HONGO SHIITAKE DONKO EN VOXELS
+// 7. HONGO SHIITAKE DONKO (MICRO-VOXEL)
 function buildShiitake3D(group) {
-  const vs = 0.35;
+  const vs = 0.16;
   const mats = {
     cap: new THREE.MeshStandardMaterial({ color: 0x4a2f26, roughness: 0.5 }),
     cut: new THREE.MeshStandardMaterial({ color: 0xf5ebe0, roughness: 0.3 }),
@@ -5853,29 +5858,28 @@ function buildShiitake3D(group) {
   };
   const buckets = { cap: [], cut: [], stem: [] };
 
-  const Rx = 14;
-  const Ry = 9;
-  const Rz = 14;
-
+  const Rx = 28, Ry = 18, Rz = 28;
   for (let x = -Rx; x <= Rx; x++) {
     for (let y = 0; y <= Ry; y++) {
       for (let z = -Rz; z <= Rz; z++) {
         const dist = (x * x) / (Rx * Rx) + (y * y) / (Ry * Ry) + (z * z) / (Rz * Rz);
         if (dist <= 1.0) {
-          let key = 'cap';
-          if (y >= 4 && (Math.abs(x - z) <= 1 || Math.abs(x + z) <= 1)) {
-            key = 'cut';
+          if (dist > 0.82 || y === 0) {
+            let key = 'cap';
+            if (y >= 8 && (Math.abs(x - z) <= 2 || Math.abs(x + z) <= 2)) {
+              key = 'cut';
+            }
+            buckets[key].push({ x: x * vs, y: (y + 12) * vs, z: z * vs });
           }
-          buckets[key].push({ x: x * vs, y: (y + 6) * vs, z: z * vs });
         }
       }
     }
   }
 
-  for (let y = 0; y <= 6; y++) {
-    for (let x = -3; x <= 3; x++) {
-      for (let z = -3; z <= 3; z++) {
-        if (x * x + z * z <= 9) {
+  for (let y = 0; y <= 12; y++) {
+    for (let x = -6; x <= 6; x++) {
+      for (let z = -6; z <= 6; z++) {
+        if (x * x + z * z <= 36 && (x * x + z * z >= 20 || y === 0 || y === 12)) {
           buckets.stem.push({ x: x * vs, y: y * vs, z: z * vs });
         }
       }
@@ -5885,9 +5889,9 @@ function buildShiitake3D(group) {
   renderVoxelBuckets(group, buckets, mats, vs, 0);
 }
 
-// 8. TRIÁNGULOS DE TOFU EN VOXELS (ABURAAGE)
+// 8. TRIÁNGULOS DE TOFU DORADO (MICRO-VOXEL)
 function buildTofu3D(group) {
-  const vs = 0.35;
+  const vs = 0.16;
   const mats = {
     crust: new THREE.MeshStandardMaterial({ color: 0xd4a373, roughness: 0.6 }),
     softTofu: new THREE.MeshStandardMaterial({ color: 0xfffdf2, roughness: 0.3 }),
@@ -5895,18 +5899,19 @@ function buildTofu3D(group) {
   };
   const buckets = { crust: [], softTofu: [], grill: [] };
 
-  const W = 14;
-  const H = 8;
+  const W = 28, H = 16;
   for (let x = -W; x <= W; x++) {
-    for (let z = -9; z <= 9; z++) {
-      if (z >= -7 && z <= 9 - Math.abs(x) * 1.15) {
+    for (let z = -18; z <= 18; z++) {
+      if (z >= -14 && z <= 18 - Math.abs(x) * 1.15) {
         for (let y = 0; y <= H; y++) {
-          const isEdge = (z <= -6 || z >= 8 - Math.abs(x) * 1.15 || y === 0 || y === H);
+          const isEdge = (z <= -12 || z >= 16 - Math.abs(x) * 1.15 || y === 0 || y === H);
           let key = isEdge ? 'crust' : 'softTofu';
-          if (y === H && (x % 5 === 0)) {
+          if (y === H && (Math.abs(x) % 8 <= 1)) {
             key = 'grill';
           }
-          buckets[key].push({ x: x * vs, y: y * vs, z: z * vs });
+          if (isEdge || y === H || y === 0) {
+            buckets[key].push({ x: x * vs, y: y * vs, z: z * vs });
+          }
         }
       }
     }
@@ -5915,9 +5920,9 @@ function buildTofu3D(group) {
   renderVoxelBuckets(group, buckets, mats, vs, 0);
 }
 
-// 9. CUCHILLOS JAPONESES EN VOXELS (SANTOKU, GYUTO, DEBA, NAKIRI, YANAGIBA)
+// 9. CUCHILLOS JAPONESES EN MICRO-VOXELS
 function buildKnife3D(group, knifeId) {
-  const vs = 0.32;
+  const vs = 0.15;
   const mats = {
     blade: new THREE.MeshStandardMaterial({ color: 0xecf0f1, metalness: 0.95, roughness: 0.12 }),
     edge: new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.95, roughness: 0.08 }),
@@ -5928,44 +5933,46 @@ function buildKnife3D(group, knifeId) {
   };
   const buckets = { blade: [], edge: [], spine: [], horn: [], handle: [], kake: [] };
 
-  // Soportes de madera Kake en voxels
-  for (const kx of [-9, 9]) {
-    for (let dx = -1; dx <= 1; dx++) {
-      for (let dz = -2; dz <= 2; dz++) {
-        for (let y = 0; y <= 6; y++) {
-          buckets.kake.push({ x: (kx + dx) * vs, y: y * vs, z: dz * vs });
+  // Soportes de madera Kake
+  for (const kx of [-18, 18]) {
+    for (let dx = -2; dx <= 2; dx++) {
+      for (let dz = -4; dz <= 4; dz++) {
+        for (let y = 0; y <= 12; y++) {
+          if (y === 0 || y === 12 || Math.abs(dx) === 2 || Math.abs(dz) === 4) {
+            buckets.kake.push({ x: (kx + dx) * vs, y: y * vs, z: dz * vs });
+          }
         }
       }
     }
   }
 
-  let bladeLen = 32;
-  let bladeH = 8;
+  let bladeLen = 64;
+  let bladeH = 16;
   let isTapered = true;
   let spineThick = 1;
 
   if (knifeId === "cuchillo_santoku") {
-    bladeLen = 32; bladeH = 8;
+    bladeLen = 64; bladeH = 16;
   } else if (knifeId === "cuchillo_gyuto") {
-    bladeLen = 40; bladeH = 7;
+    bladeLen = 80; bladeH = 14;
   } else if (knifeId === "cuchillo_deba") {
-    bladeLen = 28; bladeH = 11; spineThick = 2;
+    bladeLen = 56; bladeH = 22; spineThick = 2;
   } else if (knifeId === "cuchillo_nakiri") {
-    bladeLen = 32; bladeH = 9; isTapered = false;
+    bladeLen = 64; bladeH = 18; isTapered = false;
   } else if (knifeId === "cuchillo_yanagiba") {
-    bladeLen = 48; bladeH = 5;
+    bladeLen = 96; bladeH = 10;
   }
 
   const startX = -Math.floor(bladeLen / 2);
-  const posY = 7;
+  const posY = 14;
 
-  // Hoja en voxels
+  // Hoja en micro-voxels
   for (let lx = 0; lx <= bladeLen; lx++) {
     const x = startX + lx;
     let curH = bladeH;
-    if (isTapered && lx > bladeLen - 12) {
-      const taper = (lx - (bladeLen - 12)) / 12;
-      curH = Math.max(1, Math.round(bladeH * (1 - taper * 0.85)));
+    if (isTapered && lx > bladeLen - 24) {
+      const taper = (lx - (bladeLen - 24)) / 24;
+      curH = Math.max(2, Math.round(bladeH * (1 - taper * 0.85)));
     }
 
     for (let ly = 0; ly < curH; ly++) {
@@ -5979,22 +5986,22 @@ function buildKnife3D(group, knifeId) {
     }
   }
 
-  // Virola negra de cuerno de búfalo en voxels
-  for (let lx = -4; lx <= -1; lx++) {
+  // Virola de cuerno de búfalo negro
+  for (let lx = -8; lx <= -1; lx++) {
     const x = startX + lx;
-    for (let ly = 1; ly <= 5; ly++) {
-      for (let z = -2; z <= 2; z++) {
+    for (let ly = 2; ly <= 10; ly++) {
+      for (let z = -3; z <= 3; z++) {
         buckets.horn.push({ x: x * vs, y: (posY + ly) * vs, z: z * vs });
       }
     }
   }
 
-  // Mango tradicional octogonal Wa de madera en voxels
-  for (let lx = -18; lx <= -5; lx++) {
+  // Mango tradicional octogonal Wa de madera clara
+  for (let lx = -36; lx <= -9; lx++) {
     const x = startX + lx;
-    for (let ly = 0; ly <= 6; ly++) {
-      for (let z = -2; z <= 2; z++) {
-        if (!(ly === 0 && Math.abs(z) === 2) && !(ly === 6 && Math.abs(z) === 2)) {
+    for (let ly = 1; ly <= 11; ly++) {
+      for (let z = -4; z <= 4; z++) {
+        if (!((ly === 1 || ly === 11) && Math.abs(z) === 4)) {
           buckets.handle.push({ x: x * vs, y: (posY + ly) * vs, z: z * vs });
         }
       }
@@ -6004,9 +6011,9 @@ function buildKnife3D(group, knifeId) {
   renderVoxelBuckets(group, buckets, mats, vs, 0);
 }
 
-// 10. TAZONES DE RAMEN DONBURI EN VOXELS COMPLETOS
+// 10. TAZONES DE RAMEN DONBURI EN MICRO-VOXELS
 function buildDonburiRamen3D(group, ramenId) {
-  const vs = 0.35;
+  const vs = 0.16;
 
   let bowlHex = 0x1a237e; // Shio azul cobalto
   let rimHex = 0xffd54f;  // Borde dorado
@@ -6048,28 +6055,28 @@ function buildDonburiRamen3D(group, ramenId) {
     bowl: [], rim: [], broth: [], noodle: [], nori: [], meat: [], fat: [], eggWhite: [], eggYolk: [], negi: [], special: []
   };
 
-  const H = 13;
-  // Construcción del tazón Donburi en voxels puros
+  const H = 26;
+  // Construcción del tazón Donburi en micro-voxels
   for (let y = 0; y <= H; y++) {
-    const Rout = Math.round(9 + (y / H) * 8.5);
-    const Rin = Rout - 2;
+    const Rout = Math.round(18 + (y / H) * 17);
+    const Rin = Rout - 3;
 
     for (let x = -Rout; x <= Rout; x++) {
       for (let z = -Rout; z <= Rout; z++) {
         const r = Math.sqrt(x * x + z * z);
         if (r <= Rout) {
-          if (y === 0 || y === 1) {
+          if (y <= 3) {
             // Pie del tazón
-            if (r >= 5 && r <= 8) buckets.bowl.push({ x: x * vs, y: y * vs, z: z * vs });
-          } else if (y === 2) {
+            if (r >= 10 && r <= 16) buckets.bowl.push({ x: x * vs, y: y * vs, z: z * vs });
+          } else if (y === 4) {
             // Fondo
             buckets.bowl.push({ x: x * vs, y: y * vs, z: z * vs });
           } else if (r >= Rin) {
-            // Pared
+            // Pared exterior
             const isRim = (y === H);
             buckets[isRim ? 'rim' : 'bowl'].push({ x: x * vs, y: y * vs, z: z * vs });
-          } else if (y === 9) {
-            // Superficie de caldo en voxels
+          } else if (y === 18) {
+            // Superficie del caldo
             buckets.broth.push({ x: x * vs, y: y * vs, z: z * vs });
           }
         }
@@ -6077,78 +6084,73 @@ function buildDonburiRamen3D(group, ramenId) {
     }
   }
 
-  // Fideos flotando en voxels
-  for (let i = 0; i < 45; i++) {
-    const nx = Math.round(Math.sin(i * 0.7) * 7.5);
-    const nz = Math.round(Math.cos(i * 0.5) * 7.5);
-    if (nx * nx + nz * nz <= 64) {
-      buckets.noodle.push({ x: nx * vs, y: 10 * vs, z: nz * vs });
+  // Fideos ondulados bajo el caldo
+  for (let i = 0; i < 90; i++) {
+    const nx = Math.round(Math.sin(i * 0.7) * 15);
+    const nz = Math.round(Math.cos(i * 0.5) * 15);
+    if (nx * nx + nz * nz <= 256) {
+      buckets.noodle.push({ x: nx * vs, y: 19 * vs, z: nz * vs });
     }
   }
 
   // Alga nori vertical en el borde
-  for (let nx = -4; nx <= 4; nx++) {
-    for (let ny = 9; ny <= 18; ny++) {
-      buckets.nori.push({ x: (nx - 5) * vs, y: ny * vs, z: Math.round(-11 + (ny - 9) * 0.25) * vs });
+  for (let nx = -8; nx <= 8; nx++) {
+    for (let ny = 18; ny <= 36; ny++) {
+      buckets.nori.push({ x: (nx - 10) * vs, y: ny * vs, z: Math.round(-22 + (ny - 18) * 0.25) * vs });
     }
   }
 
-  // Chashu flotando (ovalo de carne y grasa en voxels)
-  for (let cx = -3; cx <= 3; cx++) {
-    for (let cz = -3; cz <= 3; cz++) {
-      if (cx * cx + cz * cz <= 9) {
-        const key = (Math.abs(cx) === 2 || Math.abs(cz) === 2) ? 'fat' : 'meat';
-        buckets[key].push({ x: (cx - 4) * vs, y: 10 * vs, z: (cz + 2) * vs });
+  // Chashu veteado flotando
+  for (let cx = -6; cx <= 6; cx++) {
+    for (let cz = -6; cz <= 6; cz++) {
+      if (cx * cx + cz * cz <= 36) {
+        const key = (Math.abs(cx) === 4 || Math.abs(cz) === 4) ? 'fat' : 'meat';
+        buckets[key].push({ x: (cx - 8) * vs, y: 19 * vs, z: (cz + 4) * vs });
       }
     }
   }
 
-  // Medio huevo ajitsuke en voxels
-  for (let ex = -3; ex <= 3; ex++) {
-    for (let ez = -3; ez <= 3; ez++) {
+  // Medio huevo ajitsuke con yema
+  for (let ex = -6; ex <= 6; ex++) {
+    for (let ez = -6; ez <= 6; ez++) {
       const er = Math.sqrt(ex * ex + ez * ez);
-      if (er <= 3) {
-        const key = (er <= 1.5) ? 'eggYolk' : 'eggWhite';
-        buckets[key].push({ x: (ex + 4) * vs, y: 10 * vs, z: (ez + 3) * vs });
+      if (er <= 6) {
+        const key = (er <= 3) ? 'eggYolk' : 'eggWhite';
+        buckets[key].push({ x: (ex + 8) * vs, y: 19 * vs, z: (ez + 6) * vs });
       }
     }
   }
 
-  // Cebollino verde
-  for (let k = 0; k < 18; k++) {
-    const gx = Math.round(Math.sin(k * 2.3) * 6);
-    const gz = Math.round(Math.cos(k * 1.9) * 6);
-    buckets.negi.push({ x: gx * vs, y: 11 * vs, z: gz * vs });
+  // Cebollino verde espolvoreado
+  for (let k = 0; k < 36; k++) {
+    const gx = Math.round(Math.sin(k * 2.3) * 12);
+    const gz = Math.round(Math.cos(k * 1.9) * 12);
+    buckets.negi.push({ x: gx * vs, y: 20 * vs, z: gz * vs });
   }
 
-  // Topping especial según receta en voxels
+  // Toppings especiales según receta
   if (ramenId === "ramen_ebi") {
-    // Voxel camarón
-    for (let b = -4; b <= 4; b++) {
-      buckets.special.push({ x: b * vs, y: 11 * vs, z: Math.round(-4 + Math.sin(b * 0.8) * 2) * vs });
+    for (let b = -8; b <= 8; b++) {
+      buckets.special.push({ x: b * vs, y: 20 * vs, z: Math.round(-8 + Math.sin(b * 0.4) * 4) * vs });
     }
   } else if (ramenId === "ramen_tantan") {
-    // Voxel soboro de carne molida especiada
-    for (let mx = -2; mx <= 2; mx++) {
-      for (let mz = -2; mz <= 2; mz++) {
-        buckets.meat.push({ x: mx * vs, y: 11 * vs, z: (mz - 3) * vs });
+    for (let mx = -4; mx <= 4; mx++) {
+      for (let mz = -4; mz <= 4; mz++) {
+        buckets.meat.push({ x: mx * vs, y: 20 * vs, z: (mz - 6) * vs });
       }
     }
   } else if (ramenId === "ramen_chashu") {
-    // Extra chashu en abanico
-    for (let cx = -3; cx <= 3; cx++) {
-      for (let cz = -3; cz <= 3; cz++) {
-        if (cx * cx + cz * cz <= 8) {
-          buckets.meat.push({ x: (cx + 3) * vs, y: 10.5 * vs, z: (cz - 4) * vs });
+    for (let cx = -6; cx <= 6; cx++) {
+      for (let cz = -6; cz <= 6; cz++) {
+        if (cx * cx + cz * cz <= 32) {
+          buckets.meat.push({ x: (cx + 6) * vs, y: 19.5 * vs, z: (cz - 7) * vs });
         }
       }
     }
   }
 
   renderVoxelBuckets(group, buckets, mats, vs, 0);
-}
-
-function animateTamago() {
+}\n\nfunction animateTamago() {
   tamagoAnimId = requestAnimationFrame(animateTamago);
 
   if (tamagoAutoRotate && tamagoEggGroup) {
