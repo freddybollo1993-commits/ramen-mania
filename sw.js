@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ramen-mania-v1';
+const CACHE_NAME = 'ramen-mania-v2';
 
 const STATIC_ASSETS = [
   './',

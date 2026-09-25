@@ -1103,30 +1103,36 @@
 
   /* MODALES Y OVERLAYS */
   .modal-overlay {
-    position: absolute;
+    position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.88);
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    background: rgba(0, 0, 0, 0.90);
     display: none;
     justify-content: center;
     align-items: center;
-    z-index: 9000;
+    z-index: 10005;
     padding: 8px;
+    box-sizing: border-box;
+    backdrop-filter: blur(5px);
   }
   .modal-overlay.active { display: flex !important; }
 
   .order-detail-modal {
-    position: absolute;
+    position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.85);
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    background: rgba(0,0,0,0.88);
     display: none;
     justify-content: center;
     align-items: center;
-    z-index: 8000;
+    z-index: 10005;
     padding: 8px;
+    box-sizing: border-box;
+    backdrop-filter: blur(5px);
   }
   .order-detail-modal.active { display: flex !important; }
 
@@ -1135,12 +1141,15 @@
     color: #212121;
     width: 100%;
     max-width: 820px;
-    max-height: 92vh;
+    max-height: 94vh;
+    max-height: 94dvh;
     border-radius: 14px;
     border: 3px solid #b71c1c;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    box-sizing: border-box;
   }
 
   .modal-header {
@@ -1150,10 +1159,11 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-shrink: 0;
   }
   .modal-header h2 { font-family: 'Fredoka One', cursive; font-size: 17px; }
 
-  .modal-body { padding: 10px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .modal-body { padding: 10px; overflow-y: auto; -webkit-overflow-scrolling: touch; max-height: calc(94dvh - 50px); }
   .recipes-table, .leaderboard-table { width: 100%; border-collapse: collapse; font-size: 11px; }
   .recipes-table th, .recipes-table td, .leaderboard-table th, .leaderboard-table td { border: 1px solid #e0d0c0; padding: 5px 8px; text-align: left; }
   .recipes-table th, .leaderboard-table th { background: #ffe0b2; color: #5d4037; font-weight: 900; position: sticky; top: 0; }
@@ -2334,7 +2344,7 @@
   <p style="font-size: 13px; color: #d7ccc8; max-width: 320px; margin-bottom: 14px;">
     Ramen Mania está diseñado para jugarse en formato horizontal (Landscape) como una máquina arcade.
   </p>
-  <button class="btn" onclick="dismissRotateOverlay()" style="background:#ff9800; color:#212121; font-weight:900; font-size:13px; padding:8px 18px; border-radius:20px; box-shadow:0 3px 0 #b26a00;">
+  <button class="btn" onclick="dismissRotateOverlayAndPlay()" style="background:#ff9800; color:#212121; font-weight:900; font-size:13px; padding:8px 18px; border-radius:20px; box-shadow:0 3px 0 #b26a00; cursor:pointer;">
     ▶️ Continuar / Entrar al Juego
   </button>
 </div>
@@ -2821,7 +2831,7 @@
   <div class="modal-overlay" id="register-player-modal" onclick="closeRegisterPlayerModal()">
     <div class="modal-card" onclick="event.stopPropagation()" style="max-width: 470px; border-color: var(--ramen-gold);">
       <div class="modal-header" style="background: linear-gradient(90deg, #d32f2f, #ff9800);">
-        <h2>🍜 Registro de Chef</h2>
+        <h2 id="reg-modal-title">🍜 Registro de Chef</h2>
         <button class="btn btn-danger" style="padding: 2px 8px;" onclick="closeRegisterPlayerModal()">✕</button>
       </div>
       <div class="modal-body" style="padding: 14px; text-align: left;">
@@ -2857,9 +2867,14 @@
 
         <div id="reg-status-msg" style="font-size: 11px; font-weight: 800; margin-bottom: 8px; min-height: 18px;"></div>
 
-        <button class="btn" id="btn-confirm-register" onclick="handleConfirmRegistration()" style="width: 100%; justify-content: center; background: #2e7d32; color: #fff; font-size: 13px; padding: 9px;">
-          ✨ Registrar y Vincular este Dispositivo
-        </button>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <button class="btn" id="btn-confirm-register" onclick="handleConfirmRegistration()" style="width: 100%; justify-content: center; background: #2e7d32; color: #fff; font-size: 13px; padding: 10px; font-weight: 900; box-shadow: 0 3px 0 #1b5e20;">
+            ✨ Registrar y Vincular este Dispositivo
+          </button>
+          <button class="btn" id="btn-guest-register" onclick="handlePlayAsGuest()" style="width: 100%; justify-content: center; background: #4e342e; color: #ffe082; font-size: 12px; padding: 8px; border: 1px solid #8d6e63;">
+            ⚡ Jugar como Invitado (Entrar Directo al Juego)
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -3423,18 +3438,31 @@ const DeviceManager = {
       }
 
       // 3. Si hay conexión a Supabase y se busca sincronizar perfil por device_id
-      if (supabaseClient && player) {
+      if (supabaseClient) {
         try {
-          const { data, error } = await supabaseClient
+          const fetchPromise = supabaseClient
             .from('players')
             .select('*')
             .eq('device_id', this.deviceId)
             .maybeSingle();
 
+          const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 2500));
+          const { data, error } = await Promise.race([fetchPromise, timeoutPromise]);
+
           if (!error && data && data.player_name) {
-            player.playerName = data.player_name || player.playerName;
-            player.contact = (data.contact !== undefined && data.contact !== null) ? data.contact : player.contact;
-            player.avatar = data.avatar || player.avatar;
+            player = {
+              playerName: data.player_name,
+              contact: (data.contact !== undefined && data.contact !== null) ? data.contact : "",
+              avatar: data.avatar || "🍜",
+              deviceId: this.deviceId,
+              deviceInfo: this.deviceInfoText,
+              createdAt: data.created_at || new Date().toISOString()
+            };
+            safeStorage.setItem("ramen_profile_explicit_registered", "true");
+            safeStorage.setItem("ramen_player_profile", JSON.stringify(player));
+            safeStorage.setItem("ramen_player_name", player.playerName);
+            safeStorage.setItem("ramen_player_contact", player.contact);
+            safeStorage.setItem("ramen_player_avatar", player.avatar);
           }
         } catch(e) {}
       }
@@ -3499,13 +3527,15 @@ const DeviceManager = {
           last_login: new Date().toISOString()
         };
 
-        await supabaseClient
+        supabaseClient
           .from('players')
-          .upsert(payload, { onConflict: 'device_id' });
+          .upsert(payload, { onConflict: 'device_id' })
+          .then(() => {})
+          .catch(() => {});
       } catch(e) {}
 
       try {
-        await supabaseClient.from('leaderboard').insert([{
+        supabaseClient.from('leaderboard').insert([{
           player_name: cleanName,
           contact: cleanContact || null,
           score_money: 0,
@@ -3513,7 +3543,7 @@ const DeviceManager = {
           level_reached: 1,
           game_mode: 'REGISTRO',
           created_at: new Date().toISOString()
-        }]);
+        }]).then(() => {}).catch(() => {});
       } catch(e) {}
     }
 
@@ -5443,14 +5473,20 @@ function handleNextLevelButton() {
 
 function startLevel(lvlIndex) {
   if (!DeviceManager.currentPlayer) {
-    returnToStartMenu();
-    openRegisterPlayerModal();
-    const statusEl = document.getElementById("reg-status-msg");
-    if (statusEl) {
-      statusEl.textContent = "⚠️ Debes registrar tu alias de Chef antes de poder jugar.";
-      statusEl.style.color = "#d32f2f";
-    }
-    return;
+    const guestNum = Math.floor(1000 + Math.random() * 9000);
+    DeviceManager.currentPlayer = {
+      playerName: `Chef_${guestNum}`,
+      contact: "",
+      avatar: "🍜",
+      deviceId: DeviceManager.deviceId || "DEV-GUEST",
+      deviceInfo: DeviceManager.deviceInfoText || "Dispositivo",
+      createdAt: new Date().toISOString()
+    };
+    safeStorage.setItem("ramen_profile_explicit_registered", "true");
+    safeStorage.setItem("ramen_player_profile", JSON.stringify(DeviceManager.currentPlayer));
+    safeStorage.setItem("ramen_player_name", DeviceManager.currentPlayer.playerName);
+    updateStartPlayerCard();
+    renderLinkedUserBadges();
   }
 
   if (gameState.gameMode === 'NORMAL') {
@@ -5633,22 +5669,29 @@ function dismissWelcomeToast() {
   if (welcomeToastTimer) clearTimeout(welcomeToastTimer);
 }
 
+let regModalPendingStartPlay = false;
+
 function handleStartPlayClick() {
   if (!DeviceManager.currentPlayer) {
-    openRegisterPlayerModal();
-    const statusEl = document.getElementById("reg-status-msg");
-    if (statusEl) {
-      statusEl.textContent = "⚠️ Debes registrar tu alias de Chef antes de poder jugar.";
-      statusEl.style.color = "#d32f2f";
-    }
+    regModalPendingStartPlay = true;
+    openRegisterPlayerModal(true);
     return;
   }
+  executeStartGame();
+}
 
-  playSound('serve');
+function executeStartGame() {
+  try { playSound('serve'); } catch(e) {}
   const startScreen = document.getElementById("start-screen");
   if (startScreen) {
     startScreen.classList.add("hidden");
+    startScreen.style.display = "none";
+    startScreen.style.visibility = "hidden";
+    startScreen.style.pointerEvents = "none";
   }
+
+  const rotateOverlay = document.getElementById("rotate-device-overlay");
+  if (rotateOverlay) rotateOverlay.style.display = "none";
 
   gameState.gameMode = startSelectedMode;
   if (startSelectedMode === 'NORMAL') {
@@ -5669,15 +5712,23 @@ function returnToStartMenu() {
   const startScreen = document.getElementById("start-screen");
   if (startScreen) {
     startScreen.classList.remove("hidden");
+    startScreen.style.display = "flex";
+    startScreen.style.visibility = "visible";
+    startScreen.style.pointerEvents = "auto";
   }
   updateStartPlayerCard();
 }
 
-function openRegisterPlayerModal() {
+function openRegisterPlayerModal(fromPlay = false) {
   if (DeviceManager.currentPlayer) {
+    if (fromPlay) {
+      executeStartGame();
+      return;
+    }
     openProfileModal();
     return;
   }
+  regModalPendingStartPlay = !!fromPlay;
   regSelectedAvatar = '🍜';
   selectRegAvatar('🍜');
   const nameInput = document.getElementById("reg-player-name");
@@ -5693,13 +5744,36 @@ function openRegisterPlayerModal() {
     contactInput.setAttribute("value", "");
   }
   const statusEl = document.getElementById("reg-status-msg");
-  if (statusEl) statusEl.textContent = "";
-  document.getElementById("register-player-modal").classList.add("active");
+  if (statusEl) {
+    if (fromPlay) {
+      statusEl.textContent = "🍜 Ingresa tu Alias para tus récords o pulsa 'Jugar como Invitado':";
+      statusEl.style.color = "#ff9800";
+    } else {
+      statusEl.textContent = "";
+    }
+  }
+
+  const titleEl = document.getElementById("reg-modal-title");
+  if (titleEl) {
+    titleEl.textContent = fromPlay ? "🍜 ¡Bienvenido Chef a Ramen Mania!" : "🍜 Registro de Chef";
+  }
+
+  const btnConfirm = document.getElementById("btn-confirm-register");
+  if (btnConfirm) {
+    btnConfirm.textContent = fromPlay ? "▶️ Guardar Alias y Entrar a Jugar" : "✨ Registrar y Vincular este Dispositivo";
+  }
+
+  const modal = document.getElementById("register-player-modal");
+  if (modal) {
+    modal.classList.add("active");
+  }
   if (nameInput) setTimeout(() => nameInput.focus(), 150);
 }
 
 function closeRegisterPlayerModal() {
-  document.getElementById("register-player-modal").classList.remove("active");
+  regModalPendingStartPlay = false;
+  const modal = document.getElementById("register-player-modal");
+  if (modal) modal.classList.remove("active");
 }
 
 function selectRegAvatar(av) {
@@ -5710,40 +5784,75 @@ function selectRegAvatar(av) {
   });
 }
 
+async function handlePlayAsGuest() {
+  const guestNum = Math.floor(1000 + Math.random() * 9000);
+  const guestName = `Chef_${guestNum}`;
+  const statusEl = document.getElementById("reg-status-msg");
+  if (statusEl) {
+    statusEl.textContent = `⚡ Entrando como ${guestName}...`;
+    statusEl.style.color = "#ffb300";
+  }
+  await DeviceManager.register(guestName, "", regSelectedAvatar || "🍜");
+  closeRegisterPlayerModal();
+  updateStartPlayerCard();
+  executeStartGame();
+}
+
 async function handleConfirmRegistration() {
   const nameInput = document.getElementById("reg-player-name");
   const contactInput = document.getElementById("reg-player-contact");
   const statusEl = document.getElementById("reg-status-msg");
   const btn = document.getElementById("btn-confirm-register");
 
-  const playerName = nameInput.value.trim();
-  const contact = contactInput.value.trim();
+  const playerName = (nameInput ? nameInput.value : "").trim();
+  const contact = (contactInput ? contactInput.value : "").trim();
 
   if (playerName.length < 2) {
-    statusEl.textContent = "⚠️ El alias debe tener al menos 2 caracteres.";
-    statusEl.style.color = "#c62828";
+    if (regModalPendingStartPlay) {
+      await handlePlayAsGuest();
+      return;
+    }
+    if (statusEl) {
+      statusEl.textContent = "⚠️ El alias debe tener al menos 2 caracteres.";
+      statusEl.style.color = "#c62828";
+    }
     return;
   }
 
-  btn.disabled = true;
-  btn.textContent = "⏳ Vinculando dispositivo...";
-  statusEl.textContent = "Registrando...";
-  statusEl.style.color = "#ff9800";
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "⏳ Vinculando...";
+  }
+  if (statusEl) {
+    statusEl.textContent = "Registrando Chef...";
+    statusEl.style.color = "#ff9800";
+  }
 
   const res = await DeviceManager.register(playerName, contact, regSelectedAvatar);
-  btn.disabled = false;
-  btn.textContent = "✨ Registrar y Vincular este Dispositivo";
+  if (btn) {
+    btn.disabled = false;
+    btn.textContent = regModalPendingStartPlay ? "▶️ Guardar Alias y Entrar a Jugar" : "✨ Registrar y Vincular este Dispositivo";
+  }
 
   if (!res.success) {
-    statusEl.textContent = "⚠️ " + res.error;
-    statusEl.style.color = "#c62828";
+    if (statusEl) {
+      statusEl.textContent = "⚠️ " + res.error;
+      statusEl.style.color = "#c62828";
+    }
   } else {
-    statusEl.textContent = "🎉 ¡Dispositivo vinculado exitosamente!";
-    statusEl.style.color = "#2e7d32";
+    if (statusEl) {
+      statusEl.textContent = "🎉 ¡Chef vinculado exitosamente!";
+      statusEl.style.color = "#2e7d32";
+    }
+    const shouldStart = regModalPendingStartPlay;
+    regModalPendingStartPlay = false;
     setTimeout(() => {
       closeRegisterPlayerModal();
       updateStartPlayerCard();
-    }, 800);
+      if (shouldStart) {
+        executeStartGame();
+      }
+    }, 350);
   }
 }
 
@@ -8108,6 +8217,11 @@ function dismissRotateOverlay() {
   if (overlay) overlay.style.display = 'none';
 }
 
+function dismissRotateOverlayAndPlay() {
+  dismissRotateOverlay();
+  handleStartPlayClick();
+}
+
 window.addEventListener('resize', () => {
   setTimeout(checkOrientation, 150);
 });
@@ -8807,14 +8921,12 @@ function renderAdminSessionsView() {
 }
 
 window.addEventListener("DOMContentLoaded", async () => {
-  if ('serviceWorker' in navigator) {
-    try {
-      const regs = await navigator.serviceWorker.getRegistrations();
-      for (const reg of regs) { await reg.unregister(); }
-    } catch(e) {}
-  }
   const startScr = document.getElementById("start-screen");
-  if (startScr) startScr.classList.remove("hidden");
+  if (startScr) {
+    startScr.classList.remove("hidden");
+    startScr.style.display = "flex";
+    startScr.style.visibility = "visible";
+  }
 
   initSupabase();
   checkOrientation();
