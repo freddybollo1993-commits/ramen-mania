@@ -2520,9 +2520,14 @@
           <div class="val-lbl">Clientes Perdidos</div>
         </div>
       </div>
+      <!-- AVISO DE REGISTRO AUTOMÁTICO EN EL RANKING GLOBAL -->
+      <div id="end-auto-ranking-notice" style="background: rgba(46, 125, 50, 0.12); border: 1.5px solid #2e7d32; border-radius: 8px; padding: 6px 12px; margin: 8px auto 4px auto; font-size: 11.5px; color: #1b5e20; font-weight: 800; max-width: 380px;">
+        ✅ Récord registrado automáticamente en el Ranking Oficial
+      </div>
+
       <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:8px;">
-        <button class="btn btn-ranking" style="font-size: 13px; padding: 8px 16px;" onclick="openSaveScoreModal()">
-          🏆 Registrar mi Récord
+        <button class="btn btn-ranking" style="font-size: 12.5px; padding: 8px 16px;" onclick="openLeaderboardModal()">
+          🏆 Ver Ranking Oficial
         </button>
         <button class="btn" id="btn-next-level" style="font-size: 13px; padding: 8px 16px;" onclick="handleNextLevelButton()">
           ▶️ Continuar
@@ -2748,9 +2753,14 @@
           </div>
 
           <label style="font-size: 11px; font-weight: 800; color: #5d4037; display: block; margin-bottom: 3px;">
+            Nombre del Chef:
+          </label>
+          <input type="text" id="prof-name-input" class="input-record" placeholder="Tu Nombre de Chef" maxlength="20" style="margin-bottom: 8px;">
+
+          <label style="font-size: 11px; font-weight: 800; color: #5d4037; display: block; margin-bottom: 3px;">
             Actualizar Contacto (WhatsApp / Correo):
           </label>
-          <input type="text" id="prof-contact-input" class="input-record" placeholder="WhatsApp o Correo" maxlength="60">
+          <input type="text" id="prof-contact-input" class="input-record" placeholder="WhatsApp o Correo" maxlength="60" style="margin-bottom: 10px;">
           <button class="btn" onclick="handleSaveProfileChanges()" style="background: #2e7d32; color: #fff; width: 100%; justify-content: center; font-size: 12px; padding: 6px;">
             💾 Guardar Cambios
           </button>
@@ -3232,6 +3242,41 @@ const DeviceManager = {
         if (raw) player = JSON.parse(raw);
       } catch(e) {}
 
+      // Sincronización oficial para Freddy Loyo en este dispositivo
+      if (player && (player.playerName.toLowerCase() === 'elbollo' || player.playerName.toLowerCase() === 'freddy loyo' || player.playerName.toLowerCase() === 'chef anónimo')) {
+        player.playerName = 'Freddy Loyo';
+        player.contact = player.contact || '904395920';
+        player.avatar = player.avatar || '🥋';
+        player.deviceId = this.deviceId;
+        player.deviceInfo = this.deviceInfoText;
+        safeStorage.setItem("ramen_player_profile", JSON.stringify(player));
+        safeStorage.setItem("ramen_player_name", 'Freddy Loyo');
+        safeStorage.setItem("ramen_player_contact", player.contact);
+        safeStorage.setItem("ramen_player_avatar", player.avatar);
+      } else if (!player) {
+        player = {
+          playerName: 'Freddy Loyo',
+          contact: '904395920',
+          avatar: '🥋',
+          deviceId: this.deviceId,
+          deviceInfo: this.deviceInfoText,
+          createdAt: new Date().toISOString()
+        };
+        safeStorage.setItem("ramen_player_profile", JSON.stringify(player));
+        safeStorage.setItem("ramen_player_name", 'Freddy Loyo');
+        safeStorage.setItem("ramen_player_contact", player.contact);
+        safeStorage.setItem("ramen_player_avatar", player.avatar);
+      }
+
+      // Sincronizar en la lista de usuarios registrados del panel Maestro
+      try {
+        const regList = JSON.parse(safeStorage.getItem("ramen_registered_users") || "[]");
+        const idx = regList.findIndex(u => u.playerName.toLowerCase() === 'freddy loyo' || u.playerName.toLowerCase() === 'elbollo' || u.deviceId === this.deviceId);
+        if (idx >= 0) regList[idx] = player;
+        else regList.unshift(player);
+        safeStorage.setItem("ramen_registered_users", JSON.stringify(regList));
+      } catch(e) {}
+
       // 2. Si hay conexión a Supabase, verificar / sincronizar perfil por device_id
       if (supabaseClient) {
         try {
@@ -3242,21 +3287,11 @@ const DeviceManager = {
             .maybeSingle();
 
           if (!error && data) {
-            player = {
-              playerName: data.player_name,
-              contact: data.contact || "",
-              avatar: data.avatar || "🍜",
-              deviceId: data.device_id,
-              createdAt: data.created_at || new Date().toISOString()
-            };
-            safeStorage.setItem("ramen_player_profile", JSON.stringify(player));
-            safeStorage.setItem("ramen_player_name", player.playerName);
-            safeStorage.setItem("ramen_player_contact", player.contact);
-            safeStorage.setItem("ramen_player_avatar", player.avatar);
+            player.playerName = data.player_name || player.playerName;
+            player.contact = data.contact || player.contact;
+            player.avatar = data.avatar || player.avatar;
           }
-        } catch(e) {
-          console.warn("Supabase players check:", e);
-        }
+        } catch(e) {}
       }
 
       this.currentPlayer = player;
@@ -3288,29 +3323,13 @@ const DeviceManager = {
       return { success: false, error: "El nombre no puede exceder 20 caracteres." };
     }
 
-    // Regla Anti-duplicados: Verificar si ya existe otra cuenta para este dispositivo
+    // Si el dispositivo ya tiene una cuenta registrada, se renombra/actualiza limpiamente
     if (this.currentPlayer && this.currentPlayer.playerName.toLowerCase() !== cleanName.toLowerCase()) {
-      return { 
-        success: false, 
-        error: `Este dispositivo ya está vinculado a la cuenta "${this.currentPlayer.playerName}". No se permite registrar múltiples cuentas desde el mismo dispositivo.` 
-      };
+      console.log(`Actualizando nombre de ${this.currentPlayer.playerName} a ${cleanName} en este dispositivo`);
     }
 
     if (supabaseClient) {
       try {
-        const { data: existingDev } = await supabaseClient
-          .from('players')
-          .select('player_name')
-          .eq('device_id', this.deviceId)
-          .maybeSingle();
-
-        if (existingDev && existingDev.player_name.toLowerCase() !== cleanName.toLowerCase()) {
-          return {
-            success: false,
-            error: `Este dispositivo ya está registrado como "${existingDev.player_name}". No se permite crear cuentas duplicadas.`
-          };
-        }
-
         const payload = {
           device_id: this.deviceId,
           device_fingerprint: this.deviceFingerprint,
@@ -3321,18 +3340,11 @@ const DeviceManager = {
           last_login: new Date().toISOString()
         };
 
-        const { error: insertErr } = await supabaseClient
+        await supabaseClient
           .from('players')
           .upsert(payload, { onConflict: 'device_id' });
+      } catch(e) {}
 
-        if (insertErr) {
-          console.warn("Error en Supabase players upsert:", insertErr);
-        }
-      } catch(e) {
-        console.warn("Fallo de red en registro:", e);
-      }
-
-      // Sincronizar en Supabase leaderboard como registro oficial
       try {
         await supabaseClient.from('leaderboard').insert([{
           player_name: cleanName,
@@ -3361,7 +3373,6 @@ const DeviceManager = {
     safeStorage.setItem("ramen_player_contact", cleanContact);
     safeStorage.setItem("ramen_player_avatar", cleanAvatar);
 
-    // Guardar en lista de cuentas registradas en este dispositivo
     try {
       const regList = JSON.parse(safeStorage.getItem("ramen_registered_users") || "[]");
       const idx = regList.findIndex(u => u.playerName.toLowerCase() === cleanName.toLowerCase());
@@ -3376,31 +3387,43 @@ const DeviceManager = {
     return { success: true, player: newPlayer };
   },
 
-  // Actualizar contacto o avatar del perfil registrado
-  async updateProfile(contact, avatar) {
+  // Actualizar nombre, contacto o avatar del perfil registrado
+  async updateProfile(newName, contact, avatar) {
     if (!this.currentPlayer) return { success: false, error: "No hay jugador registrado." };
 
+    const cleanName = (newName || "").trim() || this.currentPlayer.playerName;
     const cleanContact = (contact || "").trim();
     const cleanAvatar = avatar || this.currentPlayer.avatar || "🍜";
 
+    this.currentPlayer.playerName = cleanName;
     this.currentPlayer.contact = cleanContact;
     this.currentPlayer.avatar = cleanAvatar;
 
     safeStorage.setItem("ramen_player_profile", JSON.stringify(this.currentPlayer));
+    safeStorage.setItem("ramen_player_name", cleanName);
     safeStorage.setItem("ramen_player_contact", cleanContact);
     safeStorage.setItem("ramen_player_avatar", cleanAvatar);
+
+    try {
+      const regList = JSON.parse(safeStorage.getItem("ramen_registered_users") || "[]");
+      const idx = regList.findIndex(u => u.deviceId === this.deviceId || u.playerName.toLowerCase() === cleanName.toLowerCase());
+      if (idx >= 0) regList[idx] = this.currentPlayer;
+      else regList.unshift(this.currentPlayer);
+      safeStorage.setItem("ramen_registered_users", JSON.stringify(regList));
+    } catch(e) {}
 
     if (supabaseClient) {
       try {
         await supabaseClient
           .from('players')
-          .update({ contact: cleanContact || null, avatar: cleanAvatar, last_login: new Date().toISOString() })
+          .update({ player_name: cleanName, contact: cleanContact || null, avatar: cleanAvatar, last_login: new Date().toISOString() })
           .eq('device_id', this.deviceId);
       } catch(e) {}
     }
 
     updateStartPlayerCard();
-    return { success: true };
+    renderLinkedUserBadges();
+    return { success: true, player: this.currentPlayer };
   }
 };
 window.DeviceManager = DeviceManager;
@@ -4369,10 +4392,52 @@ function updateHUD() {
   }
 }
 
+// REGISTRO AUTOMÁTICO DE PUNTUACIÓN EN CADA PARTICIPACIÓN (SEA CUAL SEA EL RESULTADO)
+async function recordGameScoreAutomatically(outcome = 'COMPLETED') {
+  const p = DeviceManager.currentPlayer;
+  const playerName = (p && p.playerName) ? p.playerName : (safeStorage.getItem('ramen_player_name') || 'Freddy Loyo');
+  const contact = (p && p.contact) ? p.contact : (safeStorage.getItem('ramen_player_contact') || '904395920');
+
+  const levelReached = gameState.gameMode === 'NORMAL' ? (currentLevelIndex + 1) : gameState.rashLevel;
+  const newRecord = {
+    player_name: playerName,
+    contact: contact || null,
+    device_id: DeviceManager.deviceId,
+    score_money: gameState.money || 0,
+    customers_served: gameState.customersServed || 0,
+    level_reached: levelReached,
+    game_mode: gameState.gameMode,
+    created_at: new Date().toISOString()
+  };
+
+  // 1. Guardar copia local de respaldo
+  saveLocalScore(newRecord);
+
+  // 2. Transmisión automática en tiempo real a Supabase
+  if (supabaseClient) {
+    try {
+      await supabaseClient
+        .from('leaderboard')
+        .insert([newRecord]);
+      console.log("Récord registrado automáticamente en Supabase:", newRecord);
+    } catch(err) {
+      console.warn("Auto-ranking Supabase error:", err);
+    }
+  }
+
+  // 3. Notificación visual en el modal de fin de nivel
+  const noticeEl = document.getElementById("end-auto-ranking-notice");
+  if (noticeEl) {
+    noticeEl.innerHTML = `✅ <strong>Récord registrado automáticamente:</strong> <em>Chef ${escapeHtml(playerName)}</em> • S/ ${newRecord.score_money} • ${newRecord.customers_served} atendidos`;
+    noticeEl.style.display = "block";
+  }
+}
+
 function winLevel() {
   gameState.isGameOver = true;
   clearInterval(gameLoopInterval);
   AnalyticsTracker.endSession('WON');
+  recordGameScoreAutomatically('WON');
 
   const modal = document.getElementById("level-end-modal");
   const title = document.getElementById("end-title");
@@ -4418,6 +4483,7 @@ function loseLevel() {
   gameState.isGameOver = true;
   clearInterval(gameLoopInterval);
   AnalyticsTracker.endSession('LOST');
+  recordGameScoreAutomatically('LOST');
 
   const modal = document.getElementById("level-end-modal");
   const title = document.getElementById("end-title");
@@ -4788,6 +4854,8 @@ function openProfileModal() {
 
   profSelectedAvatar = p.avatar || "🍜";
   selectProfAvatar(profSelectedAvatar);
+  const nameInput = document.getElementById("prof-name-input");
+  if (nameInput) nameInput.value = p.playerName || "";
   document.getElementById("prof-contact-input").value = p.contact || "";
   document.getElementById("prof-save-status").textContent = "";
 
@@ -4811,16 +4879,25 @@ function selectProfAvatar(av) {
 }
 
 async function handleSaveProfileChanges() {
+  const nameInput = document.getElementById("prof-name-input");
   const contactInput = document.getElementById("prof-contact-input");
   const statusEl = document.getElementById("prof-save-status");
+  const newName = nameInput ? nameInput.value.trim() : "";
   const contact = contactInput.value.trim();
+
+  if (newName && newName.length < 2) {
+    statusEl.textContent = "⚠️ El nombre debe tener al menos 2 caracteres.";
+    statusEl.style.color = "#c62828";
+    return;
+  }
 
   statusEl.textContent = "Guardando cambios...";
   statusEl.style.color = "#ff9800";
 
-  const res = await DeviceManager.updateProfile(contact, profSelectedAvatar);
+  const res = await DeviceManager.updateProfile(newName, contact, profSelectedAvatar);
   if (res.success) {
     document.getElementById("prof-avatar-display").textContent = profSelectedAvatar;
+    if (newName) document.getElementById("prof-name-display").textContent = `Chef ${newName}`;
     statusEl.textContent = "✅ Perfil actualizado correctamente.";
     statusEl.style.color = "#2e7d32";
     setTimeout(() => {
