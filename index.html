@@ -6066,42 +6066,168 @@ function buildNori3D(group) {
   renderVoxelBuckets(group, buckets, mats, vs, 0);
 }
 
-// 6. LANGOSTINO EBI REAL (MICRO-VOXEL)
+// 6. LANGOSTINO EBI REAL (ESCULTURA MICRO-VOXEL CONTINUA DE ALTA DEFINICIÓN)
 function buildEbiShrimp3D(group) {
   const vs = 0.16;
   const mats = {
-    orange: new THREE.MeshStandardMaterial({ color: 0xff6f00, roughness: 0.3 }),
-    white: new THREE.MeshStandardMaterial({ color: 0xfff8e1, roughness: 0.3 }),
-    red: new THREE.MeshStandardMaterial({ color: 0xd50000, roughness: 0.25 })
+    redOrange: new THREE.MeshStandardMaterial({ color: 0xff5722, roughness: 0.28 }),
+    deepCoral: new THREE.MeshStandardMaterial({ color: 0xd32f2f, roughness: 0.25 }),
+    whiteMeat: new THREE.MeshStandardMaterial({ color: 0xfffcf7, roughness: 0.32 }),
+    creamShell: new THREE.MeshStandardMaterial({ color: 0xffecb3, roughness: 0.35 }),
+    tailRed: new THREE.MeshStandardMaterial({ color: 0xd50000, roughness: 0.22 }),
+    tailGold: new THREE.MeshStandardMaterial({ color: 0xffb300, roughness: 0.2, metalness: 0.25 }),
+    eyeBlack: new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.1, metalness: 0.45 }),
+    rostrum: new THREE.MeshStandardMaterial({ color: 0xff6f00, roughness: 0.25 }),
+    antenna: new THREE.MeshStandardMaterial({ color: 0xff7043, roughness: 0.3 }),
+    pleopod: new THREE.MeshStandardMaterial({ color: 0xffab91, roughness: 0.4 }),
+    bamboo: new THREE.MeshStandardMaterial({ color: 0x1b5e20, roughness: 0.45 }),
+    bambooVein: new THREE.MeshStandardMaterial({ color: 0x388e3c, roughness: 0.35 })
   };
-  const buckets = { orange: [], white: [], red: [] };
+  const buckets = {
+    redOrange: [], deepCoral: [], whiteMeat: [], creamShell: [],
+    tailRed: [], tailGold: [], eyeBlack: [], rostrum: [],
+    antenna: [], pleopod: [], bamboo: [], bambooVein: []
+  };
 
-  const segments = 20;
-  for (let s = 0; s < segments; s++) {
-    const t = s / segments;
-    const angle = t * Math.PI * 0.8;
-    const cy = Math.round(Math.sin(angle) * 28 + 4);
-    const cz = Math.round(Math.cos(angle) * 24 - 8);
-    const radius = Math.max(3, Math.round(10 - t * 6.5));
-    const isWhite = (s % 3 === 2);
+  const occupied = new Set();
+  function addVoxel(key, x, y, z) {
+    const code = `${x},${y},${z}`;
+    if (!occupied.has(code)) {
+      occupied.add(code);
+      buckets[key].push({ x: x * vs, y: y * vs, z: z * vs });
+    }
+  }
 
-    for (let dx = -radius; dx <= radius; dx++) {
-      for (let dy = -radius; dy <= radius; dy++) {
-        if (dx * dx + dy * dy <= radius * radius) {
-          if (dx * dx + dy * dy >= (radius - 2) * (radius - 2) || s === 0 || s === segments - 1) {
-            const key = isWhite ? 'white' : 'orange';
-            buckets[key].push({ x: dx * vs, y: (cy + dy) * vs, z: cz * vs });
-          }
-        }
+  // 1. Hoja ceremonial de bambú Sasa sobre la base del pedestal
+  for (let bx = -16; bx <= 16; bx++) {
+    for (let bz = -22; bz <= 22; bz++) {
+      const leafW = Math.max(0, 11 * (1 - Math.pow(bz / 24, 2)));
+      if (Math.abs(bx) <= leafW) {
+        const k = (Math.abs(bx) <= 1) ? 'bambooVein' : 'bamboo';
+        addVoxel(k, bx, 0, bz);
       }
     }
   }
 
-  // Cola en abanico rojo
-  for (let f = -8; f <= 8; f++) {
-    for (let h = 0; h <= 10; h++) {
-      if (Math.abs(f) <= h * 0.85) {
-        buckets.red.push({ x: f * vs, y: (32 + h) * vs, z: (14 + h * 0.5) * vs });
+  // 2. Columna vertebral continua y arco elíptico (cero huecos entre segmentos)
+  const steps = 68;
+  const spine = [];
+  for (let i = 0; i <= steps; i++) {
+    const u = i / steps; // 0 = cabeza, 1 = cola
+    const angle = u * Math.PI * 0.78;
+    const cy = 4 + Math.round(Math.sin(angle) * 22 + (1 - u) * 4);
+    const cz = Math.round(-18 + Math.sin(u * Math.PI * 0.85) * 8 + u * 34);
+    const cx = Math.round(Math.sin(u * Math.PI) * 1.5);
+    
+    // Radios anatómicos elípticos
+    let rx, ry;
+    if (u < 0.28) {
+      // Cefalotórax / Cabeza robusta
+      const t = u / 0.28;
+      rx = 5.5 + Math.sin(t * Math.PI * 0.7) * 2.0;
+      ry = 6.0 + Math.sin(t * Math.PI * 0.7) * 2.5;
+    } else {
+      // Abdomen que se estiliza gradualmente hacia la cola
+      const t = (u - 0.28) / 0.72;
+      rx = 7.0 * (1 - t * 0.62);
+      ry = 8.0 * (1 - t * 0.65);
+      // Crestas de solapamiento de placas de caparazón (tergitos)
+      const segmentPhase = ((u - 0.28) * 10) % 1.0;
+      if (segmentPhase < 0.25) {
+        rx += 0.8;
+        ry += 0.8;
+      }
+    }
+    spine.push({ u, cx, cy, cz, rx: Math.max(2.2, rx), ry: Math.max(2.5, ry) });
+  }
+
+  // Relleno tridimensional continuo y sólido (carne blanca, caparazón coral y crema)
+  for (let i = 0; i < spine.length; i++) {
+    const pt = spine[i];
+    const u = pt.u;
+    const rxCeil = Math.ceil(pt.rx);
+    const ryCeil = Math.ceil(pt.ry);
+    const segIdx = Math.floor((u - 0.22) * 8);
+    const isRedBand = (segIdx % 2 === 0);
+
+    for (let dx = -rxCeil; dx <= rxCeil; dx++) {
+      for (let dy = -ryCeil; dy <= ryCeil; dy++) {
+        const normDist = (dx * dx) / (pt.rx * pt.rx) + (dy * dy) / (pt.ry * pt.ry);
+        if (normDist <= 1.0) {
+          let key = 'whiteMeat';
+          const isShell = normDist > 0.68;
+          const isDorsal = dy > 0.5;
+          const isVentral = dy < -0.4;
+          if (isShell) {
+            if (isDorsal) {
+              key = (dy > pt.ry * 0.75) ? 'deepCoral' : (isRedBand ? 'redOrange' : 'creamShell');
+            } else if (isVentral) {
+              key = 'whiteMeat';
+            } else {
+              key = isRedBand ? 'redOrange' : 'whiteMeat';
+            }
+          }
+          addVoxel(key, pt.cx + dx, pt.cy + dy, pt.cz);
+        }
+      }
+    }
+
+    // Pleópodos (swimmerets / patitas ventrales pareadas)
+    if (u > 0.28 && u < 0.85 && (i % 6 === 0)) {
+      for (const side of [-1, 1]) {
+        const legX = pt.cx + Math.round(side * (pt.rx * 0.45));
+        const legY = pt.cy - Math.round(pt.ry) - 1;
+        addVoxel('pleopod', legX, legY, pt.cz);
+        addVoxel('pleopod', legX + side, legY - 1, pt.cz - 1);
+      }
+    }
+  }
+
+  // 3. Cabeza frontal: Rostrum (espina dorsal puntiaguda), ojos salientes y antenas curvadas
+  const headPt = spine[0];
+  for (let rz = 1; rz <= 10; rz++) {
+    const rHeight = Math.max(1, Math.round(3 - rz * 0.25));
+    for (let h = 0; h < rHeight; h++) {
+      addVoxel('rostrum', headPt.cx, headPt.cy + 3 + h, headPt.cz - rz);
+    }
+  }
+
+  // Ojos negros esféricos
+  for (const side of [-1, 1]) {
+    const eyeX = headPt.cx + Math.round(side * (headPt.rx * 0.95));
+    const eyeY = headPt.cy + 2;
+    const eyeZ = headPt.cz - 3;
+    for (let ox = 0; ox <= 1; ox++) {
+      for (let oy = 0; oy <= 1; oy++) {
+        addVoxel('eyeBlack', eyeX + side * ox, eyeY + oy, eyeZ);
+      }
+    }
+  }
+
+  // Antenas arqueadas hacia atrás
+  for (const side of [-1, 1]) {
+    for (let a = 0; a <= 45; a++) {
+      const at = a / 45;
+      const ax = headPt.cx + Math.round(side * (headPt.rx + 1 + at * 8));
+      const ay = headPt.cy + Math.round(3 + Math.sin(at * Math.PI) * 4 - at * 8);
+      const az = headPt.cz + Math.round(-4 + at * 36);
+      addVoxel('antenna', ax, ay, az);
+    }
+  }
+
+  // 4. Cola en abanico articulado de 5 aletas (Telson central + 4 Urópodos con puntas doradas)
+  const tailPt = spine[spine.length - 1];
+  for (let blade = -2; blade <= 2; blade++) {
+    const bladeAngle = blade * 0.28;
+    for (let len = 0; len <= 12; len++) {
+      const lt = len / 12;
+      const bx = tailPt.cx + Math.round(Math.sin(bladeAngle) * len * 1.4);
+      const bz = tailPt.cz + Math.round(Math.cos(bladeAngle) * len * 1.1 + len * 0.3);
+      const by = tailPt.cy + Math.round(len * 0.55 - (Math.abs(blade) === 0 ? 0 : 1));
+      const bladeWidth = (blade === 0) ? Math.max(1, Math.round(2 - lt * 1.5)) : Math.round(1 + Math.sin(lt * Math.PI) * 1.8);
+      for (let w = -Math.floor(bladeWidth / 2); w <= Math.floor(bladeWidth / 2); w++) {
+        const key = (len >= 9) ? 'tailGold' : 'tailRed';
+        addVoxel(key, bx + w, by, bz);
       }
     }
   }
