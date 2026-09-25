@@ -5677,9 +5677,21 @@ let regModalPendingStartPlay = false;
 
 function handleStartPlayClick() {
   if (!DeviceManager.currentPlayer) {
-    regModalPendingStartPlay = true;
-    openRegisterPlayerModal(true);
-    return;
+    const guestNum = Math.floor(1000 + Math.random() * 9000);
+    const guestPlayer = {
+      playerName: `Chef_${guestNum}`,
+      contact: "",
+      avatar: "🍜",
+      deviceId: DeviceManager.deviceId || "DEV-LOCAL",
+      deviceInfo: DeviceManager.deviceInfoText || "Dispositivo",
+      createdAt: new Date().toISOString()
+    };
+    DeviceManager.currentPlayer = guestPlayer;
+    safeStorage.setItem("ramen_profile_explicit_registered", "true");
+    safeStorage.setItem("ramen_player_profile", JSON.stringify(guestPlayer));
+    safeStorage.setItem("ramen_player_name", guestPlayer.playerName);
+    updateStartPlayerCard();
+    renderLinkedUserBadges();
   }
   executeStartGame();
 }
@@ -6368,17 +6380,15 @@ function handlePwaInstallClick() {
   }
 }
 
-// Registro del Service Worker
+// Registro inmediato del Service Worker (arranque instantáneo)
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
-      .then(reg => {
-        console.log('[PWA] Service Worker registrado correctamente:', reg.scope);
-      })
-      .catch(err => {
-        console.warn('[PWA] No se pudo registrar el Service Worker:', err);
-      });
-  });
+  navigator.serviceWorker.register('./sw.js')
+    .then(reg => {
+      console.log('[PWA] Service Worker registrado correctamente:', reg.scope);
+    })
+    .catch(err => {
+      console.warn('[PWA] No se pudo registrar el Service Worker:', err);
+    });
 }
 
 function togglePause() {
@@ -8937,8 +8947,6 @@ window.addEventListener("DOMContentLoaded", () => {
   checkOrientation();
   updateStartPlayerCard();
   setStartSelectedMode('NORMAL');
-  initRecipeTable();
-  renderSecretosCards('todos');
   setupKitchenStations();
   resetCookingStations();
 });
