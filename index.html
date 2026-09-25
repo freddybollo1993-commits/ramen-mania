@@ -100,437 +100,206 @@
     90%, 100% { transform: rotate(0deg); }
   }
 
-  /* CONTENEDOR PRINCIPAL HORIZONTAL */
+  /* CONTENEDOR PRINCIPAL HORIZONTAL (FONDO DE RESTAURANTE RAMEN ARCADE) */
   #game-container {
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     height: -webkit-fill-available;
     height: 100dvh;
     max-width: 1200px;
-    background: #201210;
+    background: url('assets/ramen_bg.jpg') center center / cover no-repeat, #190e0c;
     display: flex;
     flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
     border: 1px solid #4a281e;
     overflow: hidden;
     position: relative;
     padding-left: var(--sal);
     padding-right: var(--sar);
+    padding-bottom: 6px;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.8), inset 0 0 80px rgba(0, 0, 0, 0.55);
   }
 
-  /* ==========================================================================
-     BARRA SUPERIOR (HEADER HUD) REDISEÑADA: ESTÉTICA ARCADE, ESCALA Y ERGONOMÍA
-     ========================================================================== */
-  header, .hud-header {
-    background: linear-gradient(180deg, #7a0b0b 0%, #4e0606 60%, #350303 100%);
-    padding: 3px 8px;
+  /* CAPA SUPERIOR: HUD EN CÁPSULAS FLOTANTES (REFERENCIA DE DISEÑO) */
+  .game-hud-overlay {
+    position: absolute;
+    top: 6px;
+    left: 10px;
+    right: 56px; /* Espacio para barra lateral derecha */
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    border-bottom: 2px solid #200202;
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.12);
-    min-height: 38px;
-    max-height: 42px;
-    flex-shrink: 0;
-    gap: 6px;
-    position: relative;
+    align-items: flex-start;
+    pointer-events: none;
     z-index: 100;
   }
-
-  /* 1. SECCIÓN IZQUIERDA: Marca, Navegación y Nivel/Modo */
-  .title-area {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex-shrink: 0;
+  .game-hud-overlay > * {
+    pointer-events: auto;
   }
 
-  /* Columna vertical: Nombre del juego arriba pegado al borde superior y nivel debajo */
-  .hud-brand-column {
+  /* 1. CÁPSULA SUPERIOR IZQUIERDA: Inicio, Título, Nivel y Ajustes/Perfil */
+  .hud-capsule-left {
+    background: rgba(36, 18, 14, 0.94);
+    border: 1.5px solid #5d2e22;
+    border-radius: 14px;
+    padding: 3px 8px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
+    backdrop-filter: blur(6px);
+  }
+
+  .hud-capsule-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: rgba(60, 30, 24, 0.8);
+    border: 1px solid #7d3f30;
+    color: #ffd699;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+    transition: all 0.12s ease;
+  }
+  .hud-capsule-btn:hover {
+    background: #5a2e22;
+    border-color: var(--ramen-gold);
+    transform: scale(1.05);
+  }
+  .hud-capsule-btn:active {
+    transform: scale(0.95);
+  }
+
+  .hud-capsule-brand-block {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: flex-start;
-    gap: 1.5px;
+    gap: 1px;
     user-select: none;
-    margin-right: 2px;
   }
 
-  .hud-brand {
-    display: flex;
-    align-items: center;
-    gap: 3px;
-    margin-top: -3px; /* Sube el nombre del juego pegado al borde superior */
-    line-height: 1;
-  }
-
-  .hud-brand .brand-icon {
-    font-size: 13px;
-    line-height: 1;
-    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.6));
-    animation: gentleBob 2.5s infinite ease-in-out;
-  }
-
-  @keyframes gentleBob {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-2px); }
-  }
-
-  .hud-brand h1, .hud-brand .brand-title {
+  .hud-capsule-title {
     font-family: 'Fredoka One', cursive, sans-serif;
-    font-size: 13.5px;
+    font-size: 13px;
     letter-spacing: 0.5px;
-    margin: 0;
-    line-height: 1;
+    line-height: 1.1;
     background: linear-gradient(180deg, #fff3b0 0%, #ffb300 70%, #ff8f00 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    filter: drop-shadow(1px 1px 0px #220301);
+    filter: drop-shadow(1px 1px 0px #1e0503);
     white-space: nowrap;
   }
 
-  /* Barra que indica el nivel y modo colocada DEBAJO del nombre del juego */
-  .hud-mode-group {
-    display: flex;
-    align-items: center;
-    gap: 3px;
-    line-height: 1;
-  }
-
-  .level-badge {
-    background: linear-gradient(180deg, #ffd54f 0%, #ffb300 100%);
-    color: #212121;
-    font-weight: 900;
+  .hud-capsule-level {
+    background: linear-gradient(180deg, #ffca28 0%, #ff8f00 100%);
+    color: #211202;
+    font-family: 'Fredoka One', cursive, sans-serif;
     font-size: 9.5px;
-    padding: 1.5px 5px;
-    border-radius: 4px;
+    font-weight: 900;
+    padding: 1px 6px;
+    border-radius: 6px;
     border: 1px solid #ffe082;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.35);
-    letter-spacing: 0.3px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    letter-spacing: 0.4px;
+    line-height: 1;
     white-space: nowrap;
-    line-height: 1.1;
   }
 
-  .btn-hud-mode-pill {
-    background: linear-gradient(180deg, #ff9800, #e65100);
-    color: #fff;
-    border: 1px solid #ffb74d;
-    border-radius: 4px;
-    font-family: 'Nunito', sans-serif;
-    font-size: 9px;
-    font-weight: 800;
-    padding: 1.5px 5px;
-    cursor: pointer;
-    line-height: 1.1;
-    display: inline-flex;
-    align-items: center;
-    gap: 2px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.3);
-    transition: transform 0.08s ease, filter 0.08s ease;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-  }
-  .btn-hud-mode-pill:hover {
-    filter: brightness(1.15);
-    transform: translateY(-1px);
-  }
-  .btn-hud-mode-pill:active {
-    transform: translateY(1px);
-  }
-
-  /* 2. SECCIÓN CENTRAL: Métricas HUD (Cápsula de Cristal Arcade) */
-  .stats-bar {
+  .hud-linked-mini-pill {
     display: flex;
     align-items: center;
-    justify-content: center;
     gap: 4px;
-    background: rgba(14, 5, 3, 0.72);
-    border: 1px solid rgba(255, 179, 0, 0.28);
-    border-radius: 8px;
-    padding: 2px 5px;
-    box-shadow: inset 0 1px 2px rgba(0,0,0,0.6), 0 2px 5px rgba(0,0,0,0.3);
-    flex-shrink: 1;
-  }
-
-  .stat-badge {
-    background: rgba(0, 0, 0, 0.32);
+    background: rgba(78, 52, 46, 0.6);
+    border: 1px solid #8d6e63;
     padding: 2px 6px;
-    border-radius: 5px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    display: inline-flex;
-    align-items: center;
-    gap: 3px;
-    font-weight: 700;
+    border-radius: 8px;
     font-size: 10px;
-    color: #d7ccc8;
-    white-space: nowrap;
-    height: 24px;
-    box-sizing: border-box;
+    font-weight: 800;
+    color: #ffecb3;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .hud-linked-mini-pill:hover {
+    border-color: #ffd54f;
+    background: rgba(78, 52, 46, 0.9);
   }
 
-  .stat-badge .stat-ico {
-    font-size: 11px;
-    line-height: 1;
+  /* 2. CÁPSULA SUPERIOR DERECHA: Meta de Ventas, Monedas y Reloj */
+  .hud-capsule-right {
+    background: rgba(36, 18, 14, 0.94);
+    border: 1.5px solid #5d2e22;
+    border-radius: 14px;
+    padding: 5px 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
+    backdrop-filter: blur(6px);
   }
 
-  .stat-badge .stat-lbl {
-    font-size: 9.5px;
-    color: #bcaaa4;
-    font-weight: 700;
-  }
-
-  .stat-badge .val {
-    font-family: 'Fredoka One', cursive, sans-serif;
-    color: #ffca28;
-    font-size: 12px;
-    font-weight: 900;
-    letter-spacing: 0.3px;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.7);
-  }
-
-  .stat-money .val { color: #ffe082; }
-  .stat-goal .val { color: #a5d6a7; }
-  .stat-timer .val { color: #ff8a65; }
-  .stat-served .val { color: #90caf9; }
-
-  /* 3. SECCIÓN DERECHA: Acciones y Botones HUD */
-  .header-actions {
+  .hud-capsule-stat {
     display: flex;
     align-items: center;
     gap: 4px;
-    flex-shrink: 0;
+    font-family: 'Fredoka One', cursive, sans-serif;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+  .hud-capsule-stat .stat-ico {
+    font-size: 14px;
+    line-height: 1;
+  }
+  .stat-val-gold {
+    color: #ffd54f;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+  }
+  .stat-val-money {
+    color: #81c784;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+  }
+  .stat-val-timer {
+    color: #ff8a80;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
   }
 
-  /* BOTONES HUD COMPACTOS Y ERGONÓMICOS (ESCALA ÓPTIMA, CLICK Y TOQUE PERFECTOS) */
-  .btn-hud {
-    display: inline-flex;
+  /* 3. BARRA VERTICAL DERECHA: Herramientas Arcade */
+  .hud-right-sidebar {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    z-index: 120;
+  }
+
+  .hud-side-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: rgba(36, 18, 14, 0.92);
+    border: 1.5px solid #5d2e22;
+    color: #ffd699;
+    font-size: 15px;
+    display: flex;
     align-items: center;
     justify-content: center;
-    gap: 3.5px;
-    height: 28px;
-    min-height: 28px;
-    padding: 0 7px;
-    border-radius: 6px;
-    font-family: 'Nunito', sans-serif;
-    font-size: 10.5px;
-    font-weight: 800;
-    line-height: 1;
     cursor: pointer;
-    border: 1px solid transparent;
-    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
-    transition: transform 0.08s ease, filter 0.08s ease, box-shadow 0.08s ease;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-    white-space: nowrap;
-    box-sizing: border-box;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+    transition: all 0.12s ease;
   }
-
-  .btn-hud:hover {
-    transform: translateY(-1px);
-    filter: brightness(1.1);
-    box-shadow: 0 3px 0 rgba(0, 0, 0, 0.4);
+  .hud-side-btn:hover {
+    background: #4e261c;
+    border-color: var(--ramen-gold);
+    transform: scale(1.08);
   }
-
-  .btn-hud:active {
-    transform: translateY(1px);
-    box-shadow: 0 0 0 rgba(0, 0, 0, 0.2);
-    filter: brightness(0.95);
-  }
-
-  .btn-hud .hud-icon {
-    font-size: 12px;
-    line-height: 1;
-  }
-
-  .btn-hud .btn-text {
-    letter-spacing: 0.2px;
-  }
-
-  /* Paleta cromática arcade de los botones HUD */
-  .btn-hud-home {
-    background: linear-gradient(180deg, #4e261d, #32150f);
-    color: #ffe082;
-    border-color: #6d392e;
-  }
-
-  .btn-hud-mode {
-    background: linear-gradient(180deg, #ff9800, #e65100);
-    color: #fff;
-    border-color: #ffb74d;
-    box-shadow: 0 2px 0 #b24100;
-  }
-
-  .btn-hud-secrets {
-    background: linear-gradient(180deg, #8e24aa, #5e1375);
-    color: #f3e5f5;
-    border-color: #ce93d8;
-    box-shadow: 0 2px 0 #3c094c, 0 0 6px rgba(186, 104, 200, 0.4);
-  }
-
-  .btn-hud-ranking {
-    background: linear-gradient(180deg, #ffb300, #f57c00);
-    color: #212121;
-    border-color: #ffe082;
-    box-shadow: 0 2px 0 #b26a00;
-  }
-
-  .btn-hud-recipes {
-    background: linear-gradient(180deg, #f57c00, #d84315);
-    color: #fff;
-    border-color: #ffb74d;
-    box-shadow: 0 2px 0 #bf360c;
-  }
-
-  .btn-hud-master {
-    background: linear-gradient(180deg, #2a110d, #170705);
-    color: #ffb300;
-    border-color: #7a4128;
-    box-shadow: 0 2px 0 #0d0403;
-  }
-
-  .btn-hud-fullscreen {
-    background: linear-gradient(180deg, #455a64, #263238);
-    color: #eceff1;
-    border-color: #78909c;
-    box-shadow: 0 2px 0 #1b2327;
-  }
-
-  .btn-hud-pause {
-    background: linear-gradient(180deg, #e53935, #b71c1c);
-    color: #fff;
-    border-color: #ef5350;
-    box-shadow: 0 2px 0 #8e0000;
-    width: 28px;
-    min-width: 28px;
-    padding: 0;
-    font-size: 13px;
-  }
-
-  /* BOTÓN INTERACTIVO DE USUARIO VINCULADO EN EL HUD (CON VENTANA EMERGENTE AL TOCAR) */
-  .btn-hud-user {
-    background: linear-gradient(180deg, #3d1b13 0%, #250d08 100%);
-    border: 1.5px solid #ffb300;
-    border-radius: 6px;
-    padding: 0 7px;
-    height: 28px;
-    min-height: 28px;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    cursor: pointer;
-    box-shadow: 0 2px 0 #120402, 0 0 6px rgba(255, 179, 0, 0.3);
-    transition: transform 0.08s ease, filter 0.08s ease, box-shadow 0.08s ease;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-    font-family: 'Nunito', sans-serif;
-  }
-  .btn-hud-user:hover {
-    filter: brightness(1.18);
-    border-color: #ffd54f;
-    box-shadow: 0 2px 0 #120402, 0 0 10px rgba(255, 179, 0, 0.55);
-    transform: translateY(-1px);
-  }
-  .btn-hud-user:active {
-    transform: translateY(1px);
-    box-shadow: 0 0 0 #120402;
-  }
-  .hud-user-avatar {
-    font-size: 13px;
-    line-height: 1;
-  }
-  .hud-user-name {
-    font-size: 10.5px;
-    font-weight: 900;
-    color: #ffe082;
-    font-family: 'Fredoka One', cursive, sans-serif;
-    max-width: 90px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .hud-user-tag {
-    font-size: 8px;
-    font-weight: 900;
-    background: #2e7d32;
-    color: #fff;
-    padding: 1px 4px;
-    border-radius: 3px;
-    line-height: 1;
-    letter-spacing: 0.3px;
-  }
-
-  /* ADAPTACIÓN RESPONSIVA INTELIGENTE DE LA BARRA SUPERIOR */
-  @media (max-width: 1080px) {
-    .btn-hud-fullscreen .btn-text,
-    .btn-hud-master .btn-text {
-      display: none;
-    }
-    .btn-hud-user .hud-user-tag {
-      display: none;
-    }
-  }
-
-  @media (max-width: 960px) {
-    .btn-hud .btn-text {
-      display: none;
-    }
-    .btn-hud {
-      padding: 0;
-      width: 28px;
-      min-width: 28px;
-    }
-    .btn-hud .hud-icon {
-      font-size: 13px;
-    }
-    .stat-badge .stat-lbl {
-      display: none;
-    }
-    .btn-hud-user .hud-user-tag {
-      display: none;
-    }
-  }
-
-  @media (max-width: 780px) {
-    .hud-brand .brand-title {
-      display: none;
-    }
-    .btn-hud-mode-pill .btn-text {
-      display: none;
-    }
-    .btn-hud-user .hud-user-name {
-      display: none;
-    }
-    .btn-hud-user {
-      padding: 0;
-      width: 28px;
-      min-width: 28px;
-      justify-content: center;
-    }
-    .hud-brand {
-      margin-right: 1px;
-    }
-    header, .hud-header {
-      padding: 2px 5px;
-      gap: 3px;
-    }
-    .title-area, .stats-bar, .header-actions {
-      gap: 3px;
-    }
-    .stat-badge {
-      padding: 2px 4px;
-    }
-    .stat-badge .val {
-      font-size: 11px;
-    }
-  }
-
-  @media (max-width: 600px) {
-    .level-badge {
-      font-size: 9px;
-      padding: 1px 4px;
-    }
+  .hud-side-btn:active {
+    transform: scale(0.92);
   }
 
   .btn {
@@ -563,387 +332,210 @@
     box-shadow: 0 2px 0 #b26a00;
   }
 
-  /* BARRA DE CLIENTES */
-  .customers-section {
-    background: linear-gradient(to bottom, #301712, #24110e);
-    padding: 6px 10px;
-    border-bottom: 3px solid #3d1f18;
-    min-height: 68px;
-    max-height: 78px;
+  /* 4. SECCIÓN SUPERIOR CENTRAL: COMENSALES CON RETRATO CIRCULAR Y ANILLO SVG DE PACIENCIA */
+  .game-customers-hub {
+    position: absolute;
+    top: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    z-index: 95;
+    pointer-events: auto;
+  }
+
+  .customer-circle-card {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    background: rgba(28, 14, 10, 0.7);
+    border: 1px solid rgba(255, 179, 0, 0.2);
+    border-radius: 35px;
+    padding: 3px 10px 3px 4px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .customer-circle-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.7);
+  }
+  .customer-circle-card.urgent {
+    border-color: #ef4444;
+    animation: custUrgentPulse 0.8s infinite alternate ease-in-out;
+  }
+  @keyframes custUrgentPulse {
+    0% { box-shadow: 0 0 6px rgba(239, 68, 68, 0.5); }
+    100% { box-shadow: 0 0 18px rgba(239, 68, 68, 0.9); }
+  }
+
+  .cust-portrait-box {
+    position: relative;
+    width: 58px;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
   }
 
-  .counter-slots {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-    height: 100%;
-  }
-
-  .customer-card {
-    background: var(--card-bg);
-    border-radius: 10px;
-    padding: 5px 8px;
-    color: #212121;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    border: 2px solid #6b3929;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.3);
-    position: relative;
-    cursor: pointer;
-    height: 64px;
-    transition: all 0.25s ease-out;
-    animation: custSlideInRight 0.3s ease-out;
-  }
-
-  @keyframes custSlideInRight {
-    from { transform: translateX(30px); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-  }
-
-  .customer-card.urgent {
-    border-color: #d32f2f;
-    box-shadow: 0 0 10px rgba(211, 47, 47, 0.7);
-    animation: urgentPulse 0.7s infinite alternate ease-in-out;
-  }
-
-  @keyframes urgentPulse {
-    0% { transform: scale(1); border-color: #d32f2f; }
-    100% { transform: scale(1.02); border-color: #ff1744; }
-  }
-
-  .urgent-badge {
+  .cust-patience-ring-svg {
     position: absolute;
-    top: -6px;
-    right: -4px;
-    background: #d32f2f;
-    color: #fff;
-    font-size: 8px;
-    font-weight: 900;
-    padding: 1px 4px;
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
-    z-index: 10;
-  }
-
-  .customer-card:hover, .customer-card.active-target {
-    border-color: #ff9800;
-    box-shadow: 0 0 8px rgba(255, 152, 0, 0.5);
-  }
-
-  .customer-card.empty {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px dashed rgba(255, 255, 255, 0.15);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: rgba(255, 255, 255, 0.25);
-    font-weight: 700;
-    font-size: 11px;
-    cursor: default;
-    box-shadow: none;
-    transition: all 0.25s ease-out;
-  }
-
-  .customer-row-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    top: 0; left: 0;
     width: 100%;
-  }
-
-  .cust-profile {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-
-  .cust-avatar {
-    font-size: 18px;
-    line-height: 1;
-    background: #ffe0b2;
-    padding: 2px;
-    border-radius: 50%;
-    border: 1px solid #ff9800;
-  }
-
-  .cust-name {
-    font-size: 11px;
-    font-weight: 800;
-    color: #4e342e;
-    max-width: 60px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .patience-mini {
-    width: 100%;
-    height: 5px;
-    background: #e0e0e0;
-    border-radius: 3px;
-    overflow: hidden;
-    margin: 3px 0;
-  }
-
-  .patience-bar-mini {
     height: 100%;
-    background: var(--patience-green);
-    transition: width 0.2s linear, background-color 0.3s ease;
+    pointer-events: none;
   }
 
-  .customer-row-bottom {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 4px;
-    width: 100%;
-  }
-
-  .order-pill-summary {
-    background: #fff3e0;
-    border: 1px solid #ff9800;
-    color: #b71c1c;
-    border-radius: 5px;
-    padding: 2px 5px;
-    font-size: 10px;
-    font-weight: 900;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 90px;
-  }
-
-  .btn-cust-view {
-    background: #ff9800;
-    color: #fff;
-    border: none;
-    padding: 3px 6px;
-    border-radius: 5px;
-    font-size: 10px;
-    font-weight: 900;
-    cursor: pointer;
-    box-shadow: 0 1px 0 #e65100;
-    display: flex;
-    align-items: center;
-    gap: 2px;
-  }
-  .btn-cust-view:hover { background: #ffa726; }
-
-  /* CUERPO PRINCIPAL */
-  .main-horizontal-split {
-    flex: 1;
-    display: grid;
-    grid-template-columns: 340px 1fr;
-    gap: 8px;
-    padding: 8px;
-    background: #190e0c;
-    overflow: hidden;
-  }
-
-  /* ESTACIÓN DE TAZONES */
-  .bowls-section {
-    background: #261310;
-    border: 1px solid #4a281e;
-    border-radius: 12px;
-    padding: 8px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    overflow-y: auto;
-  }
-
-  .bowls-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6px;
-    flex: 1;
-  }
-
-  .bowl-card {
-    background: #331a15;
+  .cust-face-circle {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #fff3e0 30%, #ffcc80 100%);
     border: 2px solid #5d2e22;
-    border-radius: 10px;
-    padding: 6px;
     display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    cursor: pointer;
-    transition: all 0.15s ease;
-  }
-
-  .bowl-card.active {
-    border-color: var(--ramen-gold);
-    box-shadow: 0 0 10px rgba(255, 179, 0, 0.4);
-    background: #42221b;
-  }
-
-  .bowl-header {
-    display: flex;
-    justify-content: space-between;
     align-items: center;
-    font-size: 11px;
-    font-weight: 800;
-    color: var(--ramen-gold);
-  }
-
-  .bowl-center {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 2px 0;
-  }
-
-  .bowl-art {
-    font-size: 26px;
-    line-height: 1;
-    margin-bottom: 2px;
-  }
-
-  .bowl-badge {
-    font-family: 'Fredoka One', cursive;
-    font-size: 11px;
-    padding: 2px 6px;
-    border-radius: 5px;
-    background: #424242;
-    color: #e0e0e0;
-    text-align: center;
-    width: 100%;
-    white-space: nowrap;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2), 0 2px 6px rgba(0,0,0,0.4);
     overflow: hidden;
-    text-overflow: ellipsis;
   }
 
-  .bowl-badge.matched {
-    background: #2e7d32;
-    color: #fff;
-    box-shadow: 0 0 6px #4caf50;
-  }
-
-  .bowl-assist-text {
-    background: rgba(0,0,0,0.35);
-    border-radius: 5px;
-    padding: 4px;
-    font-size: 9px;
-    line-height: 1.2;
-    margin: 3px 0;
-    border-left: 2px solid var(--ramen-gold);
-    min-height: 34px;
-  }
-
-  .bowl-ings-wrap {
+  .cust-info-column {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: flex-start;
     gap: 2px;
-    max-height: 50px;
-    overflow-y: auto;
-    background: rgba(0,0,0,0.25);
-    padding: 2px;
-    border-radius: 4px;
   }
 
-  .bowl-ing-tag {
-    background: #ffe082;
-    color: #3e2723;
-    font-size: 8px;
+  .cust-name-label {
+    font-family: 'Fredoka One', cursive, sans-serif;
+    font-size: 12px;
+    color: #ffd699;
+    letter-spacing: 0.3px;
+    line-height: 1.1;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+  }
+
+  .cust-orders-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .cust-order-pill {
+    background: rgba(45, 23, 17, 0.85);
+    border: 1px solid #7d3f30;
+    color: #ffecb3;
+    font-size: 9.5px;
     font-weight: 800;
-    padding: 1px 4px;
-    border-radius: 3px;
+    padding: 1.5px 6px;
+    border-radius: 6px;
+    white-space: nowrap;
     display: inline-flex;
     align-items: center;
-    gap: 2px;
-    cursor: pointer;
-  }
-  .bowl-ing-tag:hover { background: #ffcdd2; color: #b71c1c; }
-
-  .bowl-bottom-btn {
-    display: flex;
-    flex-direction: column;
     gap: 3px;
-    margin-top: 4px;
+    line-height: 1.1;
   }
-
-  .btn-direct-serve {
+  .cust-order-pill.ready-deliver {
     background: #2e7d32;
-    color: white;
-    font-size: 10px;
-    padding: 4px;
-    border-radius: 5px;
-    border: none;
+    border-color: #a5d6a7;
+    color: #ffffff;
     font-weight: 900;
-    cursor: pointer;
-    box-shadow: 0 1px 0 #1b5e20;
-    animation: pulse 1s infinite alternate;
+    box-shadow: 0 0 8px rgba(74, 222, 128, 0.7);
+    animation: deliverPulse 0.8s infinite alternate;
+  }
+  @keyframes deliverPulse {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.06); filter: brightness(1.15); }
   }
 
-  .btn-empty-bowl {
-    background: #c62828;
-    color: white;
-    font-size: 9px;
-    padding: 3px;
-    border-radius: 4px;
-    border: none;
-    cursor: pointer;
-    font-weight: 800;
-  }
-
-  /* ALACENA */
-  .pantry-section {
-    background: #24110e;
-    border: 1px solid #4a281e;
-    border-radius: 12px;
-    padding: 8px;
+  /* 5. ESCENARIO CENTRAL DEL JUEGO */
+  .game-central-stage {
+    width: 100%;
+    max-width: 940px;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    align-items: center;
+    gap: 6px;
+    z-index: 80;
+    margin-bottom: 2px;
+    padding: 0 8px;
   }
 
-  .pantry-top-bar {
+  /* TABLERO DE INGREDIENTES ("TAZONES DE PREPARACIÓN") */
+  .prep-station-board {
+    width: 100%;
+    background: rgba(28, 14, 10, 0.94);
+    border: 1.5px solid #4a241a;
+    border-radius: 14px;
+    padding: 6px 10px 8px 10px;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.08);
+    backdrop-filter: blur(5px);
+    position: relative;
+  }
+
+  .prep-station-tab-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 6px;
-    flex-shrink: 0;
   }
 
-  .pantry-tabs {
+  .prep-station-tab {
+    background: linear-gradient(180deg, #4e261c 0%, #2f1712 100%);
+    border: 1px solid #6d392b;
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    color: #ffd699;
+    font-family: 'Fredoka One', cursive, sans-serif;
+    font-size: 11px;
+    padding: 3px 12px;
+    letter-spacing: 0.4px;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.3);
+  }
+
+  .pantry-mini-filter {
     display: flex;
-    gap: 4px;
-    flex-wrap: wrap;
+    gap: 3px;
   }
-
-  .pantry-tab {
-    background: #3a1a14;
-    border: 1px solid #5d2e22;
+  .mini-cat-btn {
+    background: rgba(45, 23, 17, 0.8);
+    border: 1px solid #5a2e22;
     color: #d7ccc8;
-    padding: 3px 8px;
-    border-radius: 8px;
-    font-size: 10px;
+    font-size: 9.5px;
     font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 6px;
     cursor: pointer;
+    transition: all 0.1s ease;
   }
-  .pantry-tab.active {
+  .mini-cat-btn.active {
     background: var(--ramen-gold);
-    color: #212121;
-    border-color: var(--ramen-gold);
+    color: #211202;
+    border-color: #ffd54f;
+    font-weight: 900;
   }
 
-  .ingredients-grid-scroll {
-    flex: 1;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+  /* GRILLA DE 2 FILAS × 6 COLUMNAS (12 INGREDIENTES EN PANTALLA) */
+  .prep-ingredients-grid {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     gap: 6px;
-    padding-right: 4px;
-    align-content: flex-start;
+    width: 100%;
+    max-height: 135px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-right: 2px;
   }
 
-  .ing-card-btn {
-    background: linear-gradient(145deg, #3d1e17, #26110c);
-    border: 2px solid #5d2e22;
-    border-radius: 8px;
+  .ing-station-tile {
+    background: rgba(38, 19, 14, 0.85);
+    border: 1.5px solid #52271d;
+    border-radius: 9px;
     padding: 4px 2px;
     display: flex;
     flex-direction: column;
@@ -951,26 +543,166 @@
     justify-content: center;
     cursor: pointer;
     transition: all 0.1s ease;
-    box-shadow: 0 2px 0 #150907;
-    height: 62px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.35);
+    min-height: 52px;
+    position: relative;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
   }
-
-  .ing-card-btn:hover {
-    background: linear-gradient(145deg, #4f271f, #331711);
-    border-color: var(--ramen-gold);
+  .ing-station-tile:hover {
+    background: rgba(60, 30, 22, 0.95);
+    border-color: #ffd54f;
     transform: translateY(-1px);
   }
-
-  .ing-card-btn:active {
+  .ing-station-tile:active {
     transform: translateY(1px);
     box-shadow: none;
   }
-
-  .ing-card-btn.in-active-bowl {
-    border-color: #4caf50;
-    background: #18331a;
+  .ing-station-tile.in-active-bowl {
+    border-color: #ffb703;
+    background: rgba(80, 40, 18, 0.95);
+    box-shadow: 0 0 10px rgba(255, 183, 3, 0.45);
+  }
+  .ing-station-tile.in-active-bowl::after {
+    content: '●';
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    color: #ffb703;
+    font-size: 8px;
   }
 
+  .ing-tile-icon {
+    font-size: 26px;
+    line-height: 1;
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5));
+    transition: transform 0.1s ease;
+    margin-bottom: 2px;
+  }
+  .ing-tile-name {
+    font-size: 9.5px;
+    font-weight: 800;
+    color: #ffd699;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 95%;
+    line-height: 1.1;
+  }
+
+  /* 6. ZONA INFERIOR: 3 CUENCOS DE PREPARACIÓN CON CUENCO DE CERÁMICA */
+  .bottom-bowls-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .bowl-dock-card {
+    background: rgba(28, 14, 10, 0.94);
+    border: 1.5px solid #4a241a;
+    border-radius: 12px;
+    padding: 3px 8px 4px 8px;
+    width: 126px;
+    height: 88px;
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    transition: all 0.15s ease;
+    backdrop-filter: blur(4px);
+    user-select: none;
+  }
+  .bowl-dock-card:hover {
+    border-color: #ffd54f;
+  }
+  .bowl-dock-card.active {
+    border: 2px solid #ffb703;
+    box-shadow: 0 0 16px rgba(255, 183, 3, 0.55), inset 0 0 10px rgba(255, 183, 3, 0.12);
+    background: rgba(38, 19, 14, 0.98);
+  }
+
+  .bowl-dock-tag {
+    position: absolute;
+    top: 3px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #ffb703;
+    font-size: 8.5px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+
+  .bowl-dock-visual {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 4px;
+    width: 100%;
+  }
+
+  .bowl-dock-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-top: 1px;
+  }
+
+  .bowl-dock-name {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: #ffd699;
+  }
+
+  .btn-bowl-trash {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #c62828;
+    border: 1px solid #ef5350;
+    color: #fff;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    transition: all 0.12s ease;
+  }
+  .btn-bowl-trash:hover {
+    background: #d32f2f;
+    transform: scale(1.15);
+  }
+  .btn-bowl-trash:active {
+    transform: scale(0.9);
+  }
+
+  .bowl-status-hint {
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.75);
+    color: #ffecb3;
+    font-size: 8.5px;
+    font-weight: 800;
+    padding: 1px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+    pointer-events: none;
+    display: none;
+  }
+  .bowl-dock-card.active .bowl-status-hint {
+    display: block;
+  }
   .pixel-sprite-large {
     width: 36px;
     height: 36px;
@@ -2330,140 +2062,111 @@
   <div id="abollado-banner">💥 ESTAS ABOLLADO 💥</div>
 
   <!-- HEADER HORIZONTAL REDISEÑADO (DISTRIBUCIÓN ARMÓNICA Y ESCALA COMPACTA) -->
-  <header class="hud-header">
-    <!-- SECCIÓN IZQUIERDA: Marca, Navegación y Modo/Nivel -->
-    <div class="title-area">
-      <button class="btn-hud btn-hud-home" onclick="returnToStartMenu()" title="Volver al Menú Principal (Inicio)">
-        <span class="hud-icon">🏠</span><span class="btn-text">Inicio</span>
+  <!-- HEADER SUPERIOR ESTILO CÁPSULA (ARCADE HUD) -->
+  <header class="game-hud-overlay">
+    <!-- CÁPSULA SUPERIOR IZQUIERDA: Inicio, Título, Nivel y Ajustes/Perfil -->
+    <div class="hud-capsule-left">
+      <button class="hud-capsule-btn" onclick="returnToStartMenu()" title="Volver al Menú Principal (Inicio)">
+        <span>🏠</span>
       </button>
-
-      <!-- COLUMNA: NOMBRE DEL JUEGO ARRIBA AL BORDE SUPERIOR Y NIVEL DEBAJO -->
-      <div class="hud-brand-column" title="Ramen Mania Arcade">
-        <div class="hud-brand">
-          <span class="brand-icon">🍜</span>
-          <h1 class="brand-title">RAMEN MANIA</h1>
-        </div>
-        <div class="hud-mode-group">
-          <span class="level-badge" id="hud-level-badge">NIVEL 1/5</span>
-          <button class="btn-hud-mode-pill" id="btn-mode-toggle" onclick="openModeSelectModal()" title="Cambiar Modo de Juego">
-            <span class="hud-icon">🎮</span><span class="btn-text" id="btn-mode-text">Modo</span>
-          </button>
-        </div>
+      <div class="hud-capsule-brand-block">
+        <div class="hud-capsule-title">🍜 RAMEN MANIA</div>
+        <div class="hud-capsule-level" id="hud-level-badge">LVL 1</div>
       </div>
-
-      <!-- BOTÓN DE CUENTA VINCULADA (VENTANA EMERGENTE DE PERFIL AL TOCAR) -->
-      <button class="btn-hud-user" id="hud-linked-user" onclick="openGameProfileModal()" style="display:none;" title="Toca para ver la información completa de tu cuenta vinculada">
-        <span class="hud-user-avatar" id="hud-user-avatar">🍜</span>
-        <span class="hud-user-name" id="hud-user-name">Chef ...</span>
-        <span class="hud-user-tag">🔒 VINCULADO</span>
+      <button class="hud-capsule-btn" onclick="openGameProfileModal()" title="Mi Perfil / Ajustes">
+        <span>⚙️</span>
       </button>
-    </div>
-
-    <!-- SECCIÓN CENTRAL: MÉTRICAS HUD EN CÁPSULA ARCADE -->
-    <div class="stats-bar">
-      <div class="stat-badge stat-money" title="Dinero Acumulado">
-        <span class="stat-ico">💰</span><span class="val" id="hud-money">S/ 0</span>
-      </div>
-      <div class="stat-badge stat-goal" id="stat-goal-badge" title="Meta de Ventas">
-        <span class="stat-ico">🎯</span><span id="hud-goal-label" class="stat-lbl">Meta:</span> <span class="val" id="hud-goal">S/ 160</span>
-      </div>
-      <div class="stat-badge stat-timer" id="stat-timer-badge" title="Tiempo Restante / Vidas">
-        <span class="stat-ico" id="hud-timer-icon">⏱️</span> <span class="val" id="hud-timer">90s</span>
-      </div>
-      <div class="stat-badge stat-served" title="Clientes Atendidos">
-        <span class="stat-ico">🍜</span><span class="stat-lbl">Atend:</span> <span class="val" id="hud-served">0</span>
+      <!-- Mini Pill de Cuenta Vinculada -->
+      <div class="hud-linked-mini-pill" id="hud-linked-user" onclick="openGameProfileModal()" style="display:none;" title="Cuenta Vinculada - Toca para ver perfil">
+        <span id="hud-user-avatar">🥋</span>
+        <span id="hud-user-name">Freddy Loyo</span>
       </div>
     </div>
 
-    <!-- SECCIÓN DERECHA: BOTONES Y HERRAMIENTAS DE ACCIÓN -->
-    <div class="header-actions">
-      <button class="btn-hud btn-hud-secrets" onclick="openSecretosModal()" title="✨ Secretos del Chef (Galería y Modelos 3D)">
-        <span class="hud-icon">✨</span><span class="btn-text">Secretos</span>
-      </button>
-      <button class="btn-hud btn-hud-ranking" onclick="openLeaderboardModal()" title="Tabla de Récords y Clasificación">
-        <span class="hud-icon">🏆</span><span class="btn-text">Récords</span>
-      </button>
-      <button class="btn-hud btn-hud-recipes" onclick="openRecipeModal()" title="Libro de Recetas de Ramen">
-        <span class="hud-icon">📖</span><span class="btn-text">Recetas</span>
-      </button>
-      <button class="btn-hud btn-hud-master" onclick="openAdminLoginModal()" title="Monitoreo Master (usr-master)">
-        <span class="hud-icon">🛡️</span><span class="btn-text">Master</span>
-      </button>
-      <button class="btn-hud btn-hud-fullscreen" onclick="toggleFullScreen()" id="btn-fullscreen" title="Pantalla Completa">
-        <span class="hud-icon">⛶</span><span class="btn-text">Pantalla</span>
-      </button>
-      <button class="btn-hud btn-hud-pause" onclick="togglePause()" id="btn-pause" title="Pausar / Reanudar Juego">
-        <span class="hud-icon">⏸️</span>
-      </button>
+    <!-- SECCIÓN SUPERIOR CENTRAL: COMENSALES CON RETRATO CIRCULAR Y ANILLO DE PACIENCIA -->
+    <div class="game-customers-hub" id="customers-container"></div>
+
+    <!-- CÁPSULA SUPERIOR DERECHA: META, MONEDAS Y TIEMPO -->
+    <div class="hud-capsule-right">
+      <div class="hud-capsule-stat stat-goal" title="Meta de Ventas">
+        <span class="stat-ico">💰</span>
+        <span class="stat-val-gold" id="hud-goal">S/160</span>
+      </div>
+      <div class="hud-capsule-stat stat-money" title="Monedas / Recaudado">
+        <span class="stat-ico">🪙</span>
+        <span class="stat-val-money" id="hud-money">0</span>
+      </div>
+      <div class="hud-capsule-stat stat-timer" id="stat-timer-badge" title="Tiempo Restante / Vidas">
+        <span class="stat-ico" id="hud-timer-icon">⏱️</span>
+        <span class="stat-val-timer" id="hud-timer">90s</span>
+      </div>
+      <span id="hud-served" style="display:none;">0</span>
     </div>
   </header>
 
-  <!-- BARRA DE CLIENTES COMPACTA -->
-  <section class="customers-section">
-    <div class="counter-slots" id="customers-container"></div>
-  </section>
+  <!-- BARRA VERTICAL DERECHA: BOTONES DE ACCIÓN RÁPIDA -->
+  <aside class="hud-right-sidebar">
+    <button class="hud-side-btn" onclick="togglePause()" id="btn-pause" title="Pausar / Reanudar">⏸️</button>
+    <button class="hud-side-btn" onclick="openLeaderboardModal()" title="🏆 Ranking Oficial">🏆</button>
+    <button class="hud-side-btn" onclick="openRecipeModal()" title="📖 Recetario de Ramen">❓</button>
+    <button class="hud-side-btn" onclick="openSecretosModal()" title="✨ Secretos del Chef 3D">✨</button>
+    <button class="hud-side-btn" onclick="openAdminLoginModal()" title="🛡️ Monitoreo Master">🛡️</button>
+    <button class="hud-side-btn" onclick="toggleFullScreen()" id="btn-fullscreen" title="⛶ Pantalla Completa">⛶</button>
+  </aside>
 
-  <!-- SPLIT HORIZONTAL: TAZONES A LA IZQUIERDA Y ALACENA A LA DERECHA -->
-  <div class="main-horizontal-split">
-    <!-- SECCIÓN DE TAZONES -->
-    <div class="bowls-section">
-      <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; font-weight:800; color:#cca48e;">
-        <span>Tazones de Preparación</span>
-        <span style="color:var(--ramen-gold); font-size:10px;" id="hud-target-hint">Toca un tazón</span>
-      </div>
-
-      <div class="bowls-grid">
-        <!-- Tazón 1 -->
-        <div class="bowl-card active" id="bowl-card-0" onclick="selectBowl(0)">
-          <div class="bowl-header">
-            <span>Tazón 1</span>
-            <span id="bowl-dot-0" style="color:var(--ramen-gold); font-size:9px;">● ACTIVO</span>
-          </div>
-          <div class="bowl-center">
-            <div class="bowl-art" id="bowl-art-0">🍜</div>
-            <div class="bowl-badge" id="bowl-badge-0">Vacío (0)</div>
-          </div>
-          <div class="bowl-assist-text" id="bowl-assist-0">Añade ingredientes.</div>
-          <div class="bowl-ings-wrap" id="bowl-list-0"></div>
-          <div class="bowl-bottom-btn" id="bowl-actions-0">
-            <button class="btn-empty-bowl" onclick="event.stopPropagation(); clearBowl(0)">🗑️ Vaciar</button>
-          </div>
-        </div>
-
-        <!-- Tazón 2 -->
-        <div class="bowl-card" id="bowl-card-1" onclick="selectBowl(1)">
-          <div class="bowl-header">
-            <span>Tazón 2</span>
-            <span id="bowl-dot-1" style="display:none; color:var(--ramen-gold); font-size:9px;">● ACTIVO</span>
-          </div>
-          <div class="bowl-center">
-            <div class="bowl-art" id="bowl-art-1">🍜</div>
-            <div class="bowl-badge" id="bowl-badge-1">Vacío (0)</div>
-          </div>
-          <div class="bowl-assist-text" id="bowl-assist-1">Añade ingredientes.</div>
-          <div class="bowl-ings-wrap" id="bowl-list-1"></div>
-          <div class="bowl-bottom-btn" id="bowl-actions-1">
-            <button class="btn-empty-bowl" onclick="event.stopPropagation(); clearBowl(1)">🗑️ Vaciar</button>
-          </div>
+  <!-- ZONA CENTRAL PRINCIPAL: TABLERO DE INGREDIENTES Y 3 CUENCOS DE PREPARACIÓN -->
+  <main class="game-central-stage">
+    <!-- TABLERO FLOTANTE ESTILO ALACENA ("TAZONES DE PREPARACIÓN") -->
+    <div class="prep-station-board">
+      <div class="prep-station-tab-row">
+        <div class="prep-station-tab">Tazones de Preparación</div>
+        <div class="pantry-mini-filter" id="pantry-tabs-bar">
+          <button class="mini-cat-btn active" onclick="filterCategory('todos')">Todos</button>
+          <button class="mini-cat-btn" onclick="filterCategory('bases')">Bases</button>
+          <button class="mini-cat-btn" onclick="filterCategory('salsas')">Salsas</button>
+          <button class="mini-cat-btn" onclick="filterCategory('proteinas')">Proteínas</button>
+          <button class="mini-cat-btn" onclick="filterCategory('vegetales')">Vegetales</button>
         </div>
       </div>
+      <div class="prep-ingredients-grid" id="ingredients-grid"></div>
     </div>
 
-    <!-- ALACENA DE INGREDIENTES -->
-    <div class="pantry-section">
-      <div class="pantry-top-bar">
-        <div class="pantry-tabs" id="pantry-tabs-bar">
-          <button class="pantry-tab active" onclick="filterCategory('todos')">Todos</button>
-          <button class="pantry-tab" onclick="filterCategory('bases')">Bases</button>
-          <button class="pantry-tab" onclick="filterCategory('salsas')">Salsas</button>
-          <button class="pantry-tab" onclick="filterCategory('proteinas')">Proteínas</button>
-          <button class="pantry-tab" onclick="filterCategory('vegetales')">Vegetales</button>
+    <!-- ZONA INFERIOR: 3 CUENCOS DE PREPARACIÓN -->
+    <div class="bottom-bowls-row">
+      <!-- Cuenco 1 -->
+      <div class="bowl-dock-card active" id="bowl-card-0" onclick="selectBowl(0)">
+        <div class="bowl-dock-tag" id="bowl-tag-0">● ACTIVO</div>
+        <div class="bowl-dock-visual" id="bowl-art-0"></div>
+        <div class="bowl-dock-footer">
+          <span class="bowl-dock-name">Cuenco 1</span>
+          <button class="btn-bowl-trash" onclick="event.stopPropagation(); clearBowl(0)" title="Vaciar Cuenco 1">🗑️</button>
         </div>
-        <span style="font-size:10px; color:#cca48e;" id="hud-unlocked-count">Ingredientes activos</span>
+        <div class="bowl-status-hint" id="bowl-badge-0">Vacío</div>
       </div>
-      <div class="ingredients-grid-scroll" id="ingredients-grid"></div>
+
+      <!-- Cuenco 2 -->
+      <div class="bowl-dock-card" id="bowl-card-1" onclick="selectBowl(1)">
+        <div class="bowl-dock-tag" id="bowl-tag-1" style="display:none;">● ACTIVO</div>
+        <div class="bowl-dock-visual" id="bowl-art-1"></div>
+        <div class="bowl-dock-footer">
+          <span class="bowl-dock-name">Cuenco 2</span>
+          <button class="btn-bowl-trash" onclick="event.stopPropagation(); clearBowl(1)" title="Vaciar Cuenco 2">🗑️</button>
+        </div>
+        <div class="bowl-status-hint" id="bowl-badge-1">Vacío</div>
+      </div>
+
+      <!-- Cuenco 3 -->
+      <div class="bowl-dock-card" id="bowl-card-2" onclick="selectBowl(2)">
+        <div class="bowl-dock-tag" id="bowl-tag-2" style="display:none;">● ACTIVO</div>
+        <div class="bowl-dock-visual" id="bowl-art-2"></div>
+        <div class="bowl-dock-footer">
+          <span class="bowl-dock-name">Cuenco 3</span>
+          <button class="btn-bowl-trash" onclick="event.stopPropagation(); clearBowl(2)" title="Vaciar Cuenco 3">🗑️</button>
+        </div>
+        <div class="bowl-status-hint" id="bowl-badge-2">Vacío</div>
+      </div>
     </div>
-  </div>
+  </main>
 
   <!-- MODAL DE DETALLE DE PEDIDO DE CLIENTE -->
   <div class="order-detail-modal" id="customer-order-modal" onclick="closeCustomerOrderModal()">
@@ -3559,7 +3262,7 @@ const AnalyticsTracker = {
 
 
 
-const INGREDIENTES = [{"id": 1, "name": "fideo ramen", "cat": "bases", "icon": "🥢", "display": "Fideo Ramen"}, {"id": 2, "name": "caldo shio", "cat": "bases", "icon": "🥣", "display": "Caldo Shio"}, {"id": 3, "name": "caldo tonkotsu", "cat": "bases", "icon": "🫕", "display": "Caldo Tonkotsu"}, {"id": 4, "name": "agua", "cat": "bases", "icon": "💧", "display": "Agua"}, {"id": 5, "name": "salsa shoyu", "cat": "salsas", "icon": "🍶", "display": "Salsa Shoyu"}, {"id": 6, "name": "salsa miso", "cat": "salsas", "icon": "🍲", "display": "Salsa Miso"}, {"id": 7, "name": "salsa ebi ramen", "cat": "salsas", "icon": "🦐", "display": "Salsa Ebi"}, {"id": 8, "name": "salsa tan tan", "cat": "salsas", "icon": "🌶️", "display": "Salsa Tan Tan"}, {"id": 9, "name": "salsa vegetariana", "cat": "salsas", "icon": "🥬", "display": "Salsa Vegetariana"}, {"id": 10, "name": "salsa bajiru", "cat": "salsas", "icon": "🌿", "display": "Salsa Bajiru"}, {"id": 11, "name": "laminas de chasu asado", "cat": "proteinas", "icon": "🥩", "display": "Chasu Asado"}, {"id": 12, "name": "brisket laminado", "cat": "proteinas", "icon": "🥓", "display": "Brisket Laminado"}, {"id": 13, "name": "chancho molido", "cat": "proteinas", "icon": "🍖", "display": "Chancho Molido"}, {"id": 14, "name": "langostinos", "cat": "proteinas", "icon": "🍤", "display": "Langostinos"}, {"id": 15, "name": "huevo", "cat": "proteinas", "icon": "🥚", "display": "Huevo", "img": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABZklEQVR4nO2VP2rDMBTGX0PBYPAQ6OQbBLrnBsFD15ChJ8jS3qBbD+CpJ/BQunoQuUFPkLmLFwc8GAwqKergPlVS9M8ioUP1A4MkP/n79J5kAUQikT/makpwXZVM7BebLW+T1xcp9u7+0evbXkEoLAq6QEMuI9aXIcJTjRgN1FXJdMKU5Nr4pGicRnQmtAZ04pTkkN4+/A58PJ/MG/rMakRn4sSAlzh5kictkmAT18ZInbgqjOwpN5JmPQwkd5YEmYkdU93PSbHZSsfZmYE068d64ypt7CnPwpenoZk75LI4DQx9NjaEjWbkJ4bPOYeBS6M9hsvVGubzGz5GST7uBUTdD57HsOsO8L57k46hMQNdd+DtpGjktC4S+fEU12H8Ey5XawAAKRMAYb9iFFdXb6WuSta2DWvbhh2Pn8EPfkO9yhGv29CUDRviqgECbkObEZMZsc4u4UkGVCOIaAgFEe9aRyL/nm/mDO/GJ9aeEQAAAABJRU5ErkJggg=="}, {"id": 16, "name": "triángulos de tofu", "cat": "proteinas", "icon": "🧈", "display": "Tofu Triángulos"}, {"id": 17, "name": "poro laminado", "cat": "vegetales", "icon": "🌱", "display": "Poro Laminado", "img": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACJklEQVR4nO1Wq5biQBC9vWcPgog1QRAbg8KCALEahd1v4l8wM1/ACBCMYExMbEfQBtERMbWCU72VpsNANgNmriKdTt2qWy+Ab3SEl/2KnuoAUUVPdYQdsFaTfH4YMVFFknyzXX+tA/p4qEXqO3CrnR9dOCMJiSp62712YTYMjhI4q0BU0WfRd54OJvMdCOWenzstyiYHQuT8vslWqxqIokTJVABAvx9fEM8mCxQmg1I91YbHIRSBrwJHz+T6eCDulE4QktJaTdIBvtNEbK0mazXJaXm3NEQVsaTWajqVBsN4dDamekofD5QMxu69/Pb9YwcAmE+XjrdVblgJJhzGIxQmAwD8ErXAhD6pRO2QpeMIbnECAAqTIc/z2vv5dHlRqIwoSq4r4OdQRtXvxyhLU3suTFa7EyJqws/QoW/sJAhPpUGe55hNFjVHbiX04T542a/o9+iPMySHymyycL282a4pTVNngAuwMJn7zbugKe9BB9g4/55Pl0oWmyQfxiOUpcH7xw48bICzclGUKNkpreD3/Ga7doOFe55Hr+x9ngtyRH/GdVEDcp2yImmaIhmMXWTWavLTBPwb0bIWiCoqTNbYWc4BNva2e3W5Y8nlx02rNRmMVWgCKtVTrMZdafFnOcvJ8vOZ/EfE95v6/+aVHIpE5p4dudeBEILr2M/XNflC56F1/V+Q69ZXQN4BwupdQ3AS+uRy+7WZdp3BlzWkwEPxdAe6wF9w7H2w8hMurwAAAABJRU5ErkJggg=="}, {"id": 18, "name": "cebolla laminada", "cat": "vegetales", "icon": "🧅", "display": "Cebolla Laminada", "img": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACN0lEQVR4nO1Wq27jQBQ9Xu0frIHl0EUGAUEFyUYG+wNlI3MDF0QFUaSVghZZBlVBC8ojf4SBpcjAaMGCoMWWgfsNt6C50+nUM07SarUr5aDxnfF9zJx7ZoAzzvhfERcJuaFH7/Xz+dQf622Nrmwd3a4m1TevY3CB7tTk2A09uvxxifloJm1pnqGpGmsi1h1gpwCk4zTP4E990h1z8CgQ0rbZ5ZQiQ1e2xhjGBNSKokA4D7iXc+wYAHES9bbGXMwM3swY5IBakWobryevjqWpGqTIsNnl0s5HcHIC9bbutauc4DEf1eLqWq67vbtBiv4jY3wyBWCHakVu6FFcJHR7dyPX+lNfjpknXdk6Xdk6USCclVjaajR3wXg9oaZqZAB2lOYZAEh2q1zR59jXZpeTqSOMR/D75y9nXw3c0KNF9bK1uhMm4EosZRKH4mAhUtsxCoSeDKXI5C7td426snVs1R+VABPS1mpp/pIEnnOkoR05KAGuUiWcPs9HtdcHiSEltEoxE4yrZ1JylawR3CkmEtpgXBQXCfVKqxKEeaHqxTHBAYMOMHQV5G8OPh/NMB/N0FQNVmKJlVjCn/pvLq+4SI6/tsfrCakiBDzvwHg9obhI3szpa/jbDT3681iTLt0Mqw4squtXP0qZ/TZcgBt6xIr49cuFcZ21C5jdOuppTUM336E8OOlFpN98USActROGbkAVg1nGRUIP3+97X0B9unBsF1jxEY/Ovw439Iwd8m581FP8jH8KT6PMZ3p+6TqcAAAAAElFTkSuQmCC"}, {"id": 19, "name": "ajonjolí blanco", "cat": "vegetales", "icon": "✨", "display": "Ajonjolí Blanco"}, {"id": 20, "name": "alga nori", "cat": "vegetales", "icon": "⬛", "display": "Alga Nori", "img": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAB7ElEQVR4nO2WQWviUBSFvwmzuqRSQ9CgJYIUcaDrLvvjZzlrYWQYhA6NxCE0EsNdxlmk72FFY2Lj0IVnl+TlnfPOPfcmcMUVNRGE3vYS+345V0D857X2u1X42mTxaNJDtEDFAWhFUCMBogWRKtPxgDTJGYqg4iBavBPUREwjAQDThwGbxdqSG4wmPSuKBu7UEhCE3rbjCTfjW1ZxhgCRKl1xzelJk5yu7xIlOY9P96zizN6rElTLqiD0to9P98xnS7q+azfuBx02izXAbins9S6ef/096ISzf+MYNov1QfJI1a65Gd+i4qDikCY5aZLTDzpHyRsJgDKEb5a+I1dx6AcdaztA13cZivDj+++PZ8CQAPSDDvPZEnyXIUKkat0QQERQSsvhdEecFGACCKUDqzizzyJV2xXGja7vVlq+j1olMDXfvU6TnOnDgFWcoeKY9mtEXluAqa8pg2hhyU3NAbJXbTwRa2VgFWd2CgL038hFC1LKGfB8BnltAWb+DymH0Xy2tJMweylFnfstqHwpCL3taNIDsDXfLNa2z8+xfB8nM2Cm227g4Lx6H0LtEpj2Ey34+ZK09j/QeBK2SQ41HDDJ/2jYjuHoZkHobb/d+QCtn3oXlQ5Eqq2F7RgqM3Bp8kpc6jf885Nf8b/xD1sTN/WGc7mRAAAAAElFTkSuQmCC"}, {"id": 21, "name": "alga wanji", "cat": "vegetales", "icon": "🌿", "display": "Alga Wanji"}, {"id": 22, "name": "bambú laminado", "cat": "vegetales", "icon": "🎍", "display": "Bambú Laminado"}, {"id": 23, "name": "holantao", "cat": "vegetales", "icon": "🫛", "display": "Holantao"}, {"id": 24, "name": "col cocida", "cat": "vegetales", "icon": "🥬", "display": "Col Cocida"}, {"id": 25, "name": "moyashi", "cat": "vegetales", "icon": "🌾", "display": "Moyashi", "img": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABpElEQVR4nO1VoXLDMAyVd7uQgiCD4oWWjKy/UTo00E/YZ/QTBvYH/YiShQ4NJKSgAR4xSIEHPKSepki2d9vdbnd5KIks6Vl+fgGYMWPGf8bpsIovzzfxz5rtd9ui5r9CVGrmXFdUtJRoEs51MYQxhjBG/k3LwfWlRL+Ajw0L8aZacbo+1edKC7TtHdzev1524f1wiXk/AJ2GNAXvB7C2MdY2JkVADXLmvJBzXazrJXg/QF0vJ/lIINU8SQAh7a6qFoaTAADgz1IOx3WuMR29RAonUFULg4S0PMTpsIrH/gzrh35KiipXExAVI67lefjOJxjCGOm1nDDAptY2RmLKd09Bx05j0nfUR1ID+902bh6fJuLDZyoy+p2fv0QGNZEkgGeqCYgCr6q1jUEyVA9IFmMfbxs49udcWd3t6BlrbicZF+Jb9kyLS2LLOV7KslUn5KCOiCOl956u4c2sbcx7u4Yf/RH51eJj59Pga7WRZ8VFd8ddjovTuS5ysSG0nGIrlpxNum6a/zvXRVQ+9ZUsAWpMWkwjxXcr+UrxEZQg9wedMUPCJ5NNFRoAXqlxAAAAAElFTkSuQmCC"}, {"id": 26, "name": "frijol chino", "cat": "vegetales", "icon": "🫘", "display": "Frijol Chino"}, {"id": 27, "name": "champiñones", "cat": "vegetales", "icon": "🍄", "display": "Champiñones"}, {"id": 28, "name": "shitake", "cat": "vegetales", "icon": "🟫", "display": "Shitake"}, {"id": 29, "name": "espárragos blanqueado", "cat": "vegetales", "icon": "🎋", "display": "Espárragos Blanqueados"}, {"id": 30, "name": "zanahoria", "cat": "vegetales", "icon": "🥕", "display": "Zanahoria"}];
+const INGREDIENTES = [{"id": 1, "name": "fideo ramen", "cat": "bases", "icon": "🥢", "display": "Fideo Ramen"}, {"id": 2, "name": "caldo shio", "cat": "bases", "icon": "🥣", "display": "Shio Tare"}, {"id": 3, "name": "caldo tonkotsu", "cat": "bases", "icon": "🫕", "display": "Caldo Tonkotsu"}, {"id": 4, "name": "agua", "cat": "bases", "icon": "💧", "display": "Agua"}, {"id": 5, "name": "salsa shoyu", "cat": "salsas", "icon": "🍶", "display": "Shoyu Tare"}, {"id": 6, "name": "salsa miso", "cat": "salsas", "icon": "🍲", "display": "Salsa Miso"}, {"id": 7, "name": "salsa ebi ramen", "cat": "salsas", "icon": "🦐", "display": "Salsa Ebi"}, {"id": 8, "name": "salsa tan tan", "cat": "salsas", "icon": "🌶️", "display": "Salsa Tan Tan"}, {"id": 9, "name": "salsa vegetariana", "cat": "salsas", "icon": "🥬", "display": "Salsa Vegetariana"}, {"id": 10, "name": "salsa bajiru", "cat": "salsas", "icon": "🌿", "display": "Salsa Bajiru"}, {"id": 11, "name": "laminas de chasu asado", "cat": "proteinas", "icon": "🥩", "display": "Chasu Pork"}, {"id": 12, "name": "brisket laminado", "cat": "proteinas", "icon": "🥓", "display": "Brisket Laminado"}, {"id": 13, "name": "chancho molido", "cat": "proteinas", "icon": "🍖", "display": "Chancho Molido"}, {"id": 14, "name": "langostinos", "cat": "proteinas", "icon": "🍤", "display": "Langostinos"}, {"id": 15, "name": "huevo", "cat": "proteinas", "icon": "🥚", "display": "Egg", "img": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABZklEQVR4nO2VP2rDMBTGX0PBYPAQ6OQbBLrnBsFD15ChJ8jS3qBbD+CpJ/BQunoQuUFPkLmLFwc8GAwqKergPlVS9M8ioUP1A4MkP/n79J5kAUQikT/makpwXZVM7BebLW+T1xcp9u7+0evbXkEoLAq6QEMuI9aXIcJTjRgN1FXJdMKU5Nr4pGicRnQmtAZ04pTkkN4+/A58PJ/MG/rMakRn4sSAlzh5kictkmAT18ZInbgqjOwpN5JmPQwkd5YEmYkdU93PSbHZSsfZmYE068d64ypt7CnPwpenoZk75LI4DQx9NjaEjWbkJ4bPOYeBS6M9hsvVGubzGz5GST7uBUTdD57HsOsO8L57k46hMQNdd+DtpGjktC4S+fEU12H8Ey5XawAAKRMAYb9iFFdXb6WuSta2DWvbhh2Pn8EPfkO9yhGv29CUDRviqgECbkObEZMZsc4u4UkGVCOIaAgFEe9aRyL/nm/mDO/GJ9aeEQAAAABJRU5ErkJggg=="}, {"id": 16, "name": "triángulos de tofu", "cat": "proteinas", "icon": "🧈", "display": "Tofu Triángulos"}, {"id": 17, "name": "poro laminado", "cat": "vegetales", "icon": "🌱", "display": "Poro", "img": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACJklEQVR4nO1Wq5biQBC9vWcPgog1QRAbg8KCALEahd1v4l8wM1/ACBCMYExMbEfQBtERMbWCU72VpsNANgNmriKdTt2qWy+Ab3SEl/2KnuoAUUVPdYQdsFaTfH4YMVFFknyzXX+tA/p4qEXqO3CrnR9dOCMJiSp62712YTYMjhI4q0BU0WfRd54OJvMdCOWenzstyiYHQuT8vslWqxqIokTJVABAvx9fEM8mCxQmg1I91YbHIRSBrwJHz+T6eCDulE4QktJaTdIBvtNEbK0mazXJaXm3NEQVsaTWajqVBsN4dDamekofD5QMxu69/Pb9YwcAmE+XjrdVblgJJhzGIxQmAwD8ErXAhD6pRO2QpeMIbnECAAqTIc/z2vv5dHlRqIwoSq4r4OdQRtXvxyhLU3suTFa7EyJqws/QoW/sJAhPpUGe55hNFjVHbiX04T542a/o9+iPMySHymyycL282a4pTVNngAuwMJn7zbugKe9BB9g4/55Pl0oWmyQfxiOUpcH7xw48bICzclGUKNkpreD3/Ga7doOFe55Hr+x9ngtyRH/GdVEDcp2yImmaIhmMXWTWavLTBPwb0bIWiCoqTNbYWc4BNva2e3W5Y8nlx02rNRmMVWgCKtVTrMZdafFnOcvJ8vOZ/EfE95v6/+aVHIpE5p4dudeBEILr2M/XNflC56F1/V+Q69ZXQN4BwupdQ3AS+uRy+7WZdp3BlzWkwEPxdAe6wF9w7H2w8hMurwAAAABJRU5ErkJggg=="}, {"id": 18, "name": "cebolla laminada", "cat": "vegetales", "icon": "🧅", "display": "Laminada Onion", "img": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACN0lEQVR4nO1Wq27jQBQ9Xu0frIHl0EUGAUEFyUYG+wNlI3MDF0QFUaSVghZZBlVBC8ojf4SBpcjAaMGCoMWWgfsNt6C50+nUM07SarUr5aDxnfF9zJx7ZoAzzvhfERcJuaFH7/Xz+dQf622Nrmwd3a4m1TevY3CB7tTk2A09uvxxifloJm1pnqGpGmsi1h1gpwCk4zTP4E990h1z8CgQ0rbZ5ZQiQ1e2xhjGBNSKokA4D7iXc+wYAHES9bbGXMwM3swY5IBakWobryevjqWpGqTIsNnl0s5HcHIC9bbutauc4DEf1eLqWq67vbtBiv4jY3wyBWCHakVu6FFcJHR7dyPX+lNfjpknXdk6Xdk6USCclVjaajR3wXg9oaZqZAB2lOYZAEh2q1zR59jXZpeTqSOMR/D75y9nXw3c0KNF9bK1uhMm4EosZRKH4mAhUtsxCoSeDKXI5C7td426snVs1R+VABPS1mpp/pIEnnOkoR05KAGuUiWcPs9HtdcHiSEltEoxE4yrZ1JylawR3CkmEtpgXBQXCfVKqxKEeaHqxTHBAYMOMHQV5G8OPh/NMB/N0FQNVmKJlVjCn/pvLq+4SI6/tsfrCakiBDzvwHg9obhI3szpa/jbDT3681iTLt0Mqw4squtXP0qZ/TZcgBt6xIr49cuFcZ21C5jdOuppTUM336E8OOlFpN98USActROGbkAVg1nGRUIP3+97X0B9unBsF1jxEY/Ovw439Iwd8m581FP8jH8KT6PMZ3p+6TqcAAAAAElFTkSuQmCC"}, {"id": 19, "name": "ajonjolí blanco", "cat": "vegetales", "icon": "✨", "display": "Ají Blanco"}, {"id": 20, "name": "alga nori", "cat": "vegetales", "icon": "⬛", "display": "Nori", "img": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAB7ElEQVR4nO2WQWviUBSFvwmzuqRSQ9CgJYIUcaDrLvvjZzlrYWQYhA6NxCE0EsNdxlmk72FFY2Lj0IVnl+TlnfPOPfcmcMUVNRGE3vYS+345V0D857X2u1X42mTxaNJDtEDFAWhFUCMBogWRKtPxgDTJGYqg4iBavBPUREwjAQDThwGbxdqSG4wmPSuKBu7UEhCE3rbjCTfjW1ZxhgCRKl1xzelJk5yu7xIlOY9P96zizN6rElTLqiD0to9P98xnS7q+azfuBx02izXAbins9S6ef/096ISzf+MYNov1QfJI1a65Gd+i4qDikCY5aZLTDzpHyRsJgDKEb5a+I1dx6AcdaztA13cZivDj+++PZ8CQAPSDDvPZEnyXIUKkat0QQERQSsvhdEecFGACCKUDqzizzyJV2xXGja7vVlq+j1olMDXfvU6TnOnDgFWcoeKY9mtEXluAqa8pg2hhyU3NAbJXbTwRa2VgFWd2CgL038hFC1LKGfB8BnltAWb+DymH0Xy2tJMweylFnfstqHwpCL3taNIDsDXfLNa2z8+xfB8nM2Cm227g4Lx6H0LtEpj2Ey34+ZK09j/QeBK2SQ41HDDJ/2jYjuHoZkHobb/d+QCtn3oXlQ5Eqq2F7RgqM3Bp8kpc6jf885Nf8b/xD1sTN/WGc7mRAAAAAElFTkSuQmCC"}, {"id": 21, "name": "alga wanji", "cat": "vegetales", "icon": "🌿", "display": "Alga Wanji"}, {"id": 22, "name": "bambú laminado", "cat": "vegetales", "icon": "🎍", "display": "Bamboo"}, {"id": 23, "name": "holantao", "cat": "vegetales", "icon": "🫛", "display": "Holantao"}, {"id": 24, "name": "col cocida", "cat": "vegetales", "icon": "🥬", "display": "Col Cocida"}, {"id": 25, "name": "moyashi", "cat": "vegetales", "icon": "🌾", "display": "Moyashi", "img": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABpElEQVR4nO1VoXLDMAyVd7uQgiCD4oWWjKy/UTo00E/YZ/QTBvYH/YiShQ4NJKSgAR4xSIEHPKSepki2d9vdbnd5KIks6Vl+fgGYMWPGf8bpsIovzzfxz5rtd9ui5r9CVGrmXFdUtJRoEs51MYQxhjBG/k3LwfWlRL+Ajw0L8aZacbo+1edKC7TtHdzev1524f1wiXk/AJ2GNAXvB7C2MdY2JkVADXLmvJBzXazrJXg/QF0vJ/lIINU8SQAh7a6qFoaTAADgz1IOx3WuMR29RAonUFULg4S0PMTpsIrH/gzrh35KiipXExAVI67lefjOJxjCGOm1nDDAptY2RmLKd09Bx05j0nfUR1ID+902bh6fJuLDZyoy+p2fv0QGNZEkgGeqCYgCr6q1jUEyVA9IFmMfbxs49udcWd3t6BlrbicZF+Jb9kyLS2LLOV7KslUn5KCOiCOl956u4c2sbcx7u4Yf/RH51eJj59Pga7WRZ8VFd8ddjovTuS5ysSG0nGIrlpxNum6a/zvXRVQ+9ZUsAWpMWkwjxXcr+UrxEZQg9wedMUPCJ5NNFRoAXqlxAAAAAElFTkSuQmCC"}, {"id": 26, "name": "frijol chino", "cat": "vegetales", "icon": "🫘", "display": "Frijol Chino"}, {"id": 27, "name": "champiñones", "cat": "vegetales", "icon": "🍄", "display": "Champiñones"}, {"id": 28, "name": "shitake", "cat": "vegetales", "icon": "🟫", "display": "Shitake"}, {"id": 29, "name": "espárragos blanqueado", "cat": "vegetales", "icon": "🎋", "display": "Espárragos Blanqueados"}, {"id": 30, "name": "zanahoria", "cat": "vegetales", "icon": "🥕", "display": "Zanahoria"}, {"id": 31, "name": "narutomaki", "cat": "proteinas", "icon": "🍥", "display": "Narutomaki"}];
 const RECETAS_RAMEN = [{"id": 1, "name": "Shio", "price": 38, "desc": "Caldo Shio ligero, chasu, moyashi, nori y ajonjolí", "ingredients": [1, 2, 11, 15, 17, 18, 19, 20, 25]}, {"id": 2, "name": "Shoyu", "price": 40, "desc": "Caldo Shio con salsa shoyu, chasu, bambú, holantao y nori", "ingredients": [1, 2, 5, 11, 15, 17, 18, 19, 20, 22, 23]}, {"id": 3, "name": "Miso", "price": 42, "desc": "Caldo Shio con salsa miso intensa, chasu, bambú, holantao y nori", "ingredients": [1, 2, 6, 11, 15, 17, 18, 19, 20, 22, 23]}, {"id": 4, "name": "Tonkotsu", "price": 46, "desc": "Caldo Tonkotsu espeso, col cocida, moyashi, chasu y nori", "ingredients": [1, 3, 11, 15, 17, 18, 19, 20, 24, 25]}, {"id": 5, "name": "Chashu", "price": 48, "desc": "Foco en chasu asado con caldo tonkotsu, nori y huevo", "ingredients": [1, 3, 11, 15, 17, 18, 19, 20]}, {"id": 6, "name": "Ebi", "price": 50, "desc": "Langostinos, salsa ebi ramen, champiñones, espárragos y nori", "ingredients": [1, 2, 7, 14, 15, 17, 18, 19, 20, 27, 29]}, {"id": 7, "name": "Tan tan", "price": 45, "desc": "Chancho molido picante, salsa tan tan, moyashi y nori", "ingredients": [1, 2, 8, 13, 15, 17, 18, 19, 20, 25]}, {"id": 8, "name": "Vegetariano", "price": 42, "desc": "Base de agua, shitake, champiñones, espárragos, tofu, nori y salsa vegetariana", "ingredients": [1, 4, 9, 16, 17, 18, 19, 20, 22, 27, 28, 29]}, {"id": 9, "name": "Bajiru", "price": 48, "desc": "Salsa bajiru (albahaca), brisket laminado, alga wanji, nori y zanahoria", "ingredients": [1, 2, 10, 12, 15, 17, 19, 20, 21, 30]}];
 
 const NIVELES = [
@@ -3601,6 +3304,7 @@ let gameState = {
   selectedCustomerModalIndex: null,
   targetCustomerIndex: null,
   bowls: [
+    { ingredients: [], matchedRamen: null },
     { ingredients: [], matchedRamen: null },
     { ingredients: [], matchedRamen: null }
   ],
@@ -3812,11 +3516,13 @@ function filterCategory(cat) {
 
 function renderPantryGrid() {
   const container = document.getElementById("ingredients-grid");
+  if (!container) return;
   container.innerHTML = "";
-  const currentBowl = gameState.bowls[gameState.activeBowlIndex];
+  const currentBowl = gameState.bowls[gameState.activeBowlIndex] || { ingredients: [] };
   const unlocked = getUnlockedIngredients();
 
-  document.getElementById("hud-unlocked-count").textContent = `${unlocked.length} ingredientes disponibles`;
+  const countBadge = document.getElementById("hud-unlocked-count");
+  if (countBadge) countBadge.textContent = `${unlocked.length} ingredientes disponibles`;
 
   const filtered = unlocked.filter(ing => {
     if (gameState.currentCategory === 'todos') return true;
@@ -3824,21 +3530,22 @@ function renderPantryGrid() {
   });
 
   filtered.forEach(ing => {
-    const btn = document.createElement("div");
+    const tile = document.createElement("div");
     const isInBowl = currentBowl.ingredients.includes(ing.id);
 
-    btn.className = `ing-card-btn ${isInBowl ? "in-active-bowl" : ""}`;
-    btn.onclick = () => toggleIngredientInBowl(ing.id);
+    tile.className = `ing-station-tile ${isInBowl ? "in-active-bowl" : ""}`;
+    tile.title = `${ing.display} (${isInBowl ? "En cuenco activo - Toca para retirar" : "Toca para añadir"})`;
+    tile.onclick = () => toggleIngredientInBowl(ing.id);
 
     const artHtml = ing.img 
       ? `<img src="${ing.img}" class="pixel-sprite-large" alt="${ing.display}">`
-      : `<div class="emoji-fallback-large">${ing.icon}</div>`;
+      : `<div class="ing-tile-icon">${ing.icon}</div>`;
 
-    btn.innerHTML = `
+    tile.innerHTML = `
       ${artHtml}
-      <div class="ing-card-name">${ing.display}</div>
+      <div class="ing-tile-name">${ing.display}</div>
     `;
-    container.appendChild(btn);
+    container.appendChild(tile);
   });
 }
 
@@ -3885,113 +3592,175 @@ function analyzeBowl(bowlIndex) {
   };
 }
 
+
+function generateBowlSVG(bowl, analysis) {
+  if (!bowl) return '';
+  const ings = bowl.ingredients || [];
+  const hasShio = ings.includes(2);
+  const hasTonkotsu = ings.includes(3);
+  const hasAgua = ings.includes(4);
+  const hasShoyu = ings.includes(5);
+  const hasMiso = ings.includes(6);
+  const hasEbi = ings.includes(7);
+  const hasTanTan = ings.includes(8);
+  const hasBajiru = ings.includes(10);
+  const hasFideo = ings.includes(1);
+  const hasChasu = ings.includes(11) || ings.includes(12);
+  const hasEgg = ings.includes(15);
+  const hasNori = ings.includes(20);
+  const hasPoro = ings.includes(17);
+  const hasOnion = ings.includes(18);
+  const hasNaruto = ings.some(id => id === 31 || id === 13);
+  const hasHolantao = ings.includes(23);
+  const hasBamboo = ings.includes(22);
+  const isReady = analysis && analysis.status === 'READY';
+
+  let brothFill = 'none';
+  if (hasTonkotsu) brothFill = '#f5eedb';
+  else if (hasShoyu) brothFill = '#793e18';
+  else if (hasMiso) brothFill = '#994d1a';
+  else if (hasTanTan) brothFill = '#bd2c08';
+  else if (hasEbi) brothFill = '#d65a29';
+  else if (hasBajiru) brothFill = '#4a6730';
+  else if (hasShio || hasAgua) brothFill = '#dfb552';
+  else if (ings.length > 0) brothFill = '#9c5b2a';
+
+  return `
+    <svg class="donburi-svg ${isReady ? 'ready-pulse' : ''}" viewBox="0 0 100 64" width="88" height="54">
+      <defs>
+        <radialGradient id="brothGrad-${ings.length}" cx="50%" cy="40%" r="60%">
+          <stop offset="0%" stop-color="${brothFill}" stop-opacity="0.9" />
+          <stop offset="100%" stop-color="${brothFill}" stop-opacity="1" />
+        </radialGradient>
+      </defs>
+
+      <!-- Sombra base del cuenco -->
+      <ellipse cx="50" cy="58" rx="32" ry="5" fill="rgba(0,0,0,0.4)" />
+
+      <!-- Pie del cuenco (Base) -->
+      <path d="M 36,52 L 36,57 Q 50,60 64,57 L 64,52 Z" fill="#d9d0c7" stroke="#b71c1c" stroke-width="1.2" />
+
+      <!-- Cuerpo cerámico exterior (Blanco cremoso con curvatura suave) -->
+      <path d="M 12,20 C 16,45 33,54 50,54 C 67,54 84,45 88,20 Z" fill="#fcfaf7" stroke="#3e2723" stroke-width="1.4" />
+      <path d="M 15,26 Q 50,38 85,26" fill="none" stroke="#d32f2f" stroke-width="1.6" stroke-dasharray="3 2" />
+
+      <!-- Borde superior del cuenco (Aro elíptico) -->
+      <ellipse cx="50" cy="20" rx="39" ry="12" fill="#eee5dc" stroke="#b71c1c" stroke-width="2" />
+      <ellipse cx="50" cy="20" rx="35" ry="10" fill="#2d1610" />
+
+      <!-- Caldo / Sopa si tiene líquido -->
+      ${brothFill !== 'none' ? `
+        <ellipse cx="50" cy="21" rx="34" ry="9" fill="url(#brothGrad-${ings.length})" />
+        <ellipse cx="50" cy="18" rx="26" ry="5" fill="rgba(255,255,255,0.18)" />
+      ` : ''}
+
+      <!-- Fideos Ramen Ondulados -->
+      ${hasFideo ? `
+        <g stroke="#f5c242" stroke-width="2" stroke-linecap="round" fill="none">
+          <path d="M 26,22 Q 36,17 46,23 Q 56,28 66,21 Q 74,18 78,21" />
+          <path d="M 30,25 Q 42,28 54,23 Q 64,19 72,24" />
+        </g>
+      ` : ''}
+
+      <!-- Alga Nori -->
+      ${hasNori ? `
+        <polygon points="62,6 78,9 72,23 58,19" fill="#1b281b" stroke="#121a12" stroke-width="1" />
+      ` : ''}
+
+      <!-- Lámina de Chasu Pork -->
+      ${hasChasu ? `
+        <ellipse cx="38" cy="22" rx="9" ry="6" fill="#a04238" stroke="#5d1e18" stroke-width="1" transform="rotate(-15 38 22)" />
+        <ellipse cx="38" cy="22" rx="6" ry="4" fill="#d17267" opacity="0.8" transform="rotate(-15 38 22)" />
+      ` : ''}
+
+      <!-- Huevo Ajitsuke -->
+      ${hasEgg ? `
+        <ellipse cx="60" cy="22" rx="7" ry="5" fill="#ffffff" stroke="#c7a76d" stroke-width="1" />
+        <circle cx="60" cy="22" r="3.5" fill="#f59e0b" />
+      ` : ''}
+
+      <!-- Narutomaki -->
+      ${hasNaruto ? `
+        <circle cx="30" cy="20" r="5" fill="#ffffff" stroke="#e0e0e0" stroke-width="0.8" />
+        <circle cx="30" cy="20" r="2.5" fill="none" stroke="#ec4899" stroke-width="1.4" />
+      ` : ''}
+
+      <!-- Holantao / Vegetales verdes -->
+      ${hasHolantao || hasBamboo ? `
+        <path d="M 44,14 Q 52,16 48,23" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round" fill="none" />
+      ` : ''}
+
+      <!-- Poro y Cebolla Laminada -->
+      ${(hasPoro || hasOnion) ? `
+        <circle cx="46" cy="25" r="1.5" fill="#22c55e" />
+        <circle cx="50" cy="26" r="1.4" fill="#86efac" />
+        <circle cx="54" cy="24" r="1.5" fill="#22c55e" />
+      ` : ''}
+
+      <!-- Brillo / Vapor si está listo -->
+      ${isReady ? `
+        <g stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" opacity="0.85">
+          <path d="M 42,12 Q 40,7 43,2" fill="none" />
+          <path d="M 50,10 Q 52,5 50,1" fill="none" />
+          <path d="M 58,12 Q 56,7 58,2" fill="none" />
+        </g>
+        <polygon points="50,-1 52,3 56,4 53,7 54,11 50,9 46,11 47,7 44,4 48,3" fill="#ffd700" />
+      ` : ''}
+    </svg>
+  `;
+}
 function renderBowls() {
-  for (let i = 0; i < 2; i++) {
+  for (let i = 0; i < 3; i++) {
     const bowl = gameState.bowls[i];
     const cardEl = document.getElementById(`bowl-card-${i}`);
     const badgeEl = document.getElementById(`bowl-badge-${i}`);
     const artEl = document.getElementById(`bowl-art-${i}`);
-    const dotEl = document.getElementById(`bowl-dot-${i}`);
-    const listEl = document.getElementById(`bowl-list-${i}`);
-    const assistEl = document.getElementById(`bowl-assist-${i}`);
-    const actionsEl = document.getElementById(`bowl-actions-${i}`);
+    const tagEl = document.getElementById(`bowl-tag-${i}`);
+    if (!cardEl || !bowl) continue;
 
     if (gameState.activeBowlIndex === i) {
       cardEl.classList.add("active");
-      dotEl.style.display = "inline";
+      if (tagEl) tagEl.style.display = "block";
     } else {
       cardEl.classList.remove("active");
-      dotEl.style.display = "none";
+      if (tagEl) tagEl.style.display = "none";
     }
 
-    listEl.innerHTML = "";
-    bowl.ingredients.forEach(ingId => {
-      const ing = INGREDIENTES.find(x => x.id === ingId);
-      const tag = document.createElement("span");
-      tag.className = "bowl-ing-tag";
-      tag.title = "Toca para retirar";
-      tag.innerHTML = `${ing.display} ✕`;
-      tag.onclick = (e) => {
-        e.stopPropagation();
-        removeIngredientFromBowl(i, ingId);
-      };
-      listEl.appendChild(tag);
-    });
-
     const analysis = analyzeBowl(i);
-    actionsEl.innerHTML = `<button class="btn-empty-bowl" onclick="event.stopPropagation(); clearBowl(${i})">🗑️ Vaciar</button>`;
+
+    if (artEl) {
+      artEl.innerHTML = generateBowlSVG(bowl, analysis);
+    }
 
     if (analysis.status === "EMPTY") {
       bowl.matchedRamen = null;
-      badgeEl.className = "bowl-badge";
-      badgeEl.textContent = "Vacío (0)";
-      artEl.textContent = "🍜";
-      assistEl.textContent = "Añade ingredientes de la alacena.";
+      if (badgeEl) badgeEl.textContent = "Vacío";
+      cardEl.onclick = () => selectBowl(i);
     } else if (analysis.status === "READY") {
       bowl.matchedRamen = analysis.recipe;
-      badgeEl.className = "bowl-badge matched";
-      badgeEl.textContent = `¡Listo: ${analysis.recipe.name}!`;
-      artEl.textContent = "✨🍜✨";
+      if (badgeEl) badgeEl.textContent = `¡Listo: ${analysis.recipe.name}!`;
 
-      // Buscar todos los clientes que esperan esta receta
-      const candidateCusts = [];
-      for (let cIdx = 0; cIdx < gameState.customerSlots.length; cIdx++) {
-        const c = gameState.customerSlots[cIdx];
-        if (c) {
-          const pIdx = c.orders.findIndex(o => !o.served && (o.recipe.id === analysis.recipe.id || o.recipe.name === analysis.recipe.name));
-          if (pIdx !== -1) {
-            candidateCusts.push({
-              cIdx: cIdx,
-              itemIdx: pIdx,
-              patienceRatio: c.patience / c.maxPatience,
-              patience: c.patience,
-              customer: c
-            });
+      cardEl.onclick = () => {
+        if (gameState.activeBowlIndex !== i) {
+          selectBowl(i);
+        } else {
+          // Si ya está activo y listo, buscar cliente para entrega rápida
+          for (let cIdx = 0; cIdx < gameState.customerSlots.length; cIdx++) {
+            const c = gameState.customerSlots[cIdx];
+            if (c) {
+              const itemIdx = c.orders.findIndex(o => !o.served && (o.recipe.id === analysis.recipe.id || o.recipe.name === analysis.recipe.name));
+              if (itemIdx !== -1) {
+                serveRamenToCustomer(cIdx, itemIdx, i);
+                return;
+              }
+            }
           }
         }
-      }
-
-      // Priorizar al comensal con MENOR paciencia (más crítico a punto de irse)
-      candidateCusts.sort((a, b) => (a.patienceRatio - b.patienceRatio) || (a.patience - b.patience));
-
-      if (candidateCusts.length > 0) {
-        const best = candidateCusts[0];
-        targetCustIdx = best.cIdx;
-        targetItemIdx = best.itemIdx;
-        const c = best.customer;
-        const pctInt = Math.max(0, Math.round(best.patienceRatio * 100));
-        const isUrgent = best.patienceRatio < 0.4;
-        const badgeTag = isUrgent 
-          ? `<span style="color:#ff5252; font-weight:900;">⚡ PRIORIDAD URGENTE (${pctInt}%)</span>` 
-          : `(${pctInt}% paciencia)`;
-        assistEl.innerHTML = `✅ <strong>${analysis.recipe.name}:</strong> Entregar a ${c.name} en Asiento ${targetCustIdx + 1} ${badgeTag}.`;
-        const deliverBtn = document.createElement("button");
-        deliverBtn.className = "btn-direct-serve";
-        deliverBtn.textContent = `⚡ Servir a ${c.name} (${pctInt}%)`;
-        deliverBtn.onclick = (e) => {
-          e.stopPropagation();
-          serveRamenToCustomer(targetCustIdx, targetItemIdx, i);
-        };
-        actionsEl.prepend(deliverBtn);
-      } else {
-        assistEl.innerHTML = `⚠️ <strong>${analysis.recipe.name} listo:</strong> Ningún comensal lo espera ahora.`;
-      }
+      };
     } else {
       bowl.matchedRamen = null;
-      badgeEl.className = "bowl-badge";
-      badgeEl.textContent = `Armando (${bowl.ingredients.length})`;
-      artEl.textContent = "🥢";
-
-      let msg = `Hacia <strong>${analysis.recipe.name}</strong> (${analysis.overlap}/${analysis.recipe.ingredients.length}):<br>`;
-      if (analysis.missing.length > 0) {
-        msg += `<span style="color:#ffca28;">Falta: ${analysis.missing.slice(0, 2).join(', ')}</span>`;
-        if (analysis.missing.length > 2) msg += ` +${analysis.missing.length - 2}`;
-        msg += "<br>";
-      }
-      if (analysis.extra.length > 0) {
-        msg += `<span style="color:#ff8a80;">Sobra: ${analysis.extra.slice(0, 2).join(', ')}</span>`;
-      }
-      assistEl.innerHTML = msg;
+      if (badgeEl) badgeEl.textContent = `Armando (${bowl.ingredients.length})`;
+      cardEl.onclick = () => selectBowl(i);
     }
   }
 
@@ -4009,9 +3778,9 @@ function shiftCustomersLeft() {
 
 function renderCustomers() {
   const container = document.getElementById("customers-container");
+  if (!container) return;
   container.innerHTML = "";
 
-  // Encontrar el cliente con menor paciencia relativa que aún tenga pedidos pendientes
   let lowestPatience = 1.1;
   let mostUrgentIndex = -1;
   gameState.customerSlots.forEach((c, index) => {
@@ -4025,24 +3794,19 @@ function renderCustomers() {
   });
 
   gameState.customerSlots.forEach((c, index) => {
-    if (!c) {
-      const emptyCard = document.createElement("div");
-      emptyCard.className = "customer-card empty";
-      emptyCard.textContent = `Asiento ${index + 1} Libre`;
-      container.appendChild(emptyCard);
-      return;
-    }
+    if (!c) return;
 
-    const pct = Math.max(0, (c.patience / c.maxPatience) * 100);
-    const isMostUrgent = (index === mostUrgentIndex && pct <= 50);
+    const pct = Math.max(0, Math.min(100, (c.patience / c.maxPatience) * 100));
+    const isUrgent = (index === mostUrgentIndex && pct <= 40);
 
     const card = document.createElement("div");
-    card.className = `customer-card ${isMostUrgent ? "urgent" : ""}`;
-    
+    card.className = `customer-circle-card ${isUrgent ? "urgent" : ""}`;
+    card.title = `Toca para entregar ramen o ver detalle de ${c.name}`;
+
     card.onclick = () => {
       for (let bIdx = 0; bIdx < gameState.bowls.length; bIdx++) {
         const bowl = gameState.bowls[bIdx];
-        if (bowl.matchedRamen) {
+        if (bowl && bowl.matchedRamen) {
           const matchIdx = c.orders.findIndex(o => !o.served && (o.recipe.id === bowl.matchedRamen.id || o.recipe.name === bowl.matchedRamen.name));
           if (matchIdx !== -1) {
             serveRamenToCustomer(index, matchIdx, bIdx);
@@ -4053,41 +3817,40 @@ function renderCustomers() {
       openCustomerOrderModal(index);
     };
 
-    let pColor = "var(--patience-green)";
-    if (pct < 30) pColor = "var(--patience-red)";
-    else if (pct < 60) pColor = "var(--patience-yellow)";
+    const r = 24;
+    const circ = 2 * Math.PI * r;
+    const offset = circ * (1 - pct / 100);
+    let strokeColor = "#4ade80";
+    let glowColor = "rgba(74, 222, 128, 0.4)";
+    if (pct < 30) {
+      strokeColor = "#ef4444";
+      glowColor = "rgba(239, 68, 68, 0.7)";
+    } else if (pct < 60) {
+      strokeColor = "#facc15";
+      glowColor = "rgba(250, 204, 21, 0.5)";
+    }
 
-    const totalOrders = c.orders.length;
-    const pendingOrders = c.orders.filter(o => !o.served).length;
+    const ordersHtml = c.orders.map(o => {
+      const isThisReady = gameState.bowls.some(b => b && b.matchedRamen && (b.matchedRamen.id === o.recipe.id || b.matchedRamen.name === o.recipe.name));
+      if (o.served) return `<span class="cust-order-pill" style="background:#2e7d32; color:#fff;">✓ ${o.recipe.name}</span>`;
+      if (isThisReady) return `<span class="cust-order-pill ready-deliver">⚡ ${o.recipe.name}</span>`;
+      return `<span class="cust-order-pill">${o.recipe.name}</span>`;
+    }).join("");
 
     card.innerHTML = `
-      ${isMostUrgent ? '<div class="urgent-badge">⚡ PRIORIDAD</div>' : ''}
-      <div class="customer-row-top">
-        <div class="cust-profile">
-          <div class="cust-avatar">${c.avatar}</div>
-          <div class="cust-name">${c.name}</div>
-        </div>
-        <div style="font-size:10px; font-weight:900; color:${pct < 30 ? '#c62828' : '#2e7d32'};">
-          ${pendingOrders === 0 ? "¡Listo!" : `${pendingOrders}/${totalOrders} ramen`}
-        </div>
+      <div class="cust-portrait-box">
+        <svg class="cust-patience-ring-svg ${isUrgent ? 'urgent-ring' : ''}" viewBox="0 0 58 58">
+          <circle cx="29" cy="29" r="${r}" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="4.5" />
+          <circle cx="29" cy="29" r="${r}" fill="none" stroke="${strokeColor}" stroke-width="4.5"
+            stroke-dasharray="${circ}" stroke-dashoffset="${offset}" stroke-linecap="round"
+            style="filter: drop-shadow(0 0 4px ${glowColor}); transition: stroke-dashoffset 0.3s ease, stroke 0.3s ease;"
+            transform="rotate(-90 29 29)" />
+        </svg>
+        <div class="cust-face-circle">${c.avatar}</div>
       </div>
-
-      <div class="patience-mini">
-        <div class="patience-bar-mini" style="width:${pct}%; background-color:${pColor};"></div>
-      </div>
-
-      <div class="customer-row-bottom">
-        <div style="display:flex; gap:3px; overflow:hidden; max-width:85%;">
-          ${c.orders.map(o => {
-            const hasReady = gameState.bowls.some(b => b.matchedRamen && (b.matchedRamen.id === o.recipe.id || b.matchedRamen.name === o.recipe.name));
-            if (o.served) return `<span class="order-pill-summary" style="background:#2e7d32; color:#fff; font-size:9px; padding:2px 4px;">✓ ${o.recipe.name}</span>`;
-            if (hasReady) return `<span class="order-pill-summary" style="background:#ff9800; color:#fff; font-weight:900; font-size:9px; padding:2px 5px; animation:pulse 0.8s infinite alternate;">⚡ ${o.recipe.name}</span>`;
-            return `<span class="order-pill-summary" style="font-size:9px; padding:2px 4px;">${o.recipe.name}</span>`;
-          }).join('')}
-        </div>
-        <button class="btn-cust-view" onclick="event.stopPropagation(); openCustomerOrderModal(${index})" title="Ver detalle de pedidos">
-          👁️ ${pendingOrders}/${totalOrders}
-        </button>
+      <div class="cust-info-column">
+        <div class="cust-name-label">${c.name}</div>
+        <div class="cust-orders-wrap">${ordersHtml}</div>
       </div>
     `;
 
@@ -4156,7 +3919,7 @@ function closeCustomerOrderModal() {
 
 function serveRamenToCustomer(customerIndex, itemIndex, bowlIndex) {
   const c = gameState.customerSlots[customerIndex];
-  if (!c || bowlIndex < 0 || bowlIndex > 1) return;
+  if (!c || bowlIndex < 0 || bowlIndex >= gameState.bowls.length) return;
 
   const orderItem = c.orders[itemIndex];
   if (!orderItem || orderItem.served) return;
@@ -4362,33 +4125,36 @@ function updateHUD() {
   const goalLabel = document.getElementById("hud-goal-label");
   const timerIcon = document.getElementById("hud-timer-icon");
 
-  document.getElementById("hud-money").textContent = `S/ ${gameState.money}`;
-  document.getElementById("hud-served").textContent = gameState.customersServed;
+  const moneyEl = document.getElementById("hud-money");
+  if (moneyEl) moneyEl.textContent = gameState.money;
+
+  const servedEl = document.getElementById("hud-served");
+  if (servedEl) servedEl.textContent = gameState.customersServed;
 
   if (gameState.gameMode === 'NORMAL') {
-    badgeEl.textContent = `NIVEL ${cfg.level}/5`;
-    badgeEl.style.background = "var(--ramen-gold)";
-    badgeEl.style.color = "#212121";
+    if (badgeEl) badgeEl.textContent = `LVL ${cfg.level}`;
     if (modeBtn) {
       modeBtn.innerHTML = '<span class="hud-icon">🏮</span><span class="btn-text">Normal</span>';
       modeBtn.style.background = "linear-gradient(180deg, #ff9800, #e65100)";
     }
     if (goalLabel) goalLabel.textContent = "Meta:";
-    document.getElementById("hud-goal").textContent = `S/ ${cfg.goal}`;
+    const goalEl = document.getElementById("hud-goal");
+    if (goalEl) goalEl.textContent = `S/${cfg.goal}`;
     if (timerIcon) timerIcon.textContent = "⏱️";
-    document.getElementById("hud-timer").textContent = `${gameState.timeLeft}s`;
+    const timerEl = document.getElementById("hud-timer");
+    if (timerEl) timerEl.textContent = `${gameState.timeLeft}s`;
   } else {
-    badgeEl.textContent = `⚡ RASH: R${cfg.level}/100`;
-    badgeEl.style.background = "#e65100";
-    badgeEl.style.color = "#fff";
+    if (badgeEl) badgeEl.textContent = `RASH R${cfg.level}`;
     if (modeBtn) {
       modeBtn.innerHTML = '<span class="hud-icon">⚡</span><span class="btn-text">Rash</span>';
       modeBtn.style.background = "linear-gradient(180deg, #e65100, #bf360c)";
     }
     if (goalLabel) goalLabel.textContent = "Ronda:";
-    document.getElementById("hud-goal").textContent = `${gameState.rashCustomersServed} / ${cfg.customers}`;
+    const goalEl = document.getElementById("hud-goal");
+    if (goalEl) goalEl.textContent = `${gameState.rashCustomersServed}/${cfg.customers}`;
     if (timerIcon) timerIcon.textContent = "❤️";
-    document.getElementById("hud-timer").textContent = `${gameState.rashLives} / ${gameState.rashMaxLives || 5}`;
+    const timerEl = document.getElementById("hud-timer");
+    if (timerEl) timerEl.textContent = `${gameState.rashLives}/${gameState.rashMaxLives || 5}`;
   }
 }
 
@@ -4572,6 +4338,7 @@ function startLevel(lvlIndex) {
   gameState.targetCustomerIndex = null;
   gameState.customerSpawnTimer = 0;
   gameState.bowls = [
+    { ingredients: [], matchedRamen: null },
     { ingredients: [], matchedRamen: null },
     { ingredients: [], matchedRamen: null }
   ];
