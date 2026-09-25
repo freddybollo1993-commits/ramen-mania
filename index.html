@@ -1282,6 +1282,151 @@
     border-radius: 4px;
   }
 
+  /* BADGES Y AVISO DE USUARIO VINCULADO */
+  .start-linked-user-bar {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    z-index: 100;
+    cursor: pointer;
+    animation: fadeInDown 0.4s ease;
+  }
+  .linked-user-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(27, 10, 7, 0.92);
+    border: 1.5px solid #ffb300;
+    border-radius: 24px;
+    padding: 4px 12px 4px 6px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.6), 0 0 10px rgba(255, 179, 0, 0.35);
+    backdrop-filter: blur(8px);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .linked-user-pill:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 6px 18px rgba(255, 179, 0, 0.5);
+    border-color: #ffd54f;
+  }
+  .pill-avatar {
+    font-size: 16px;
+    background: #3e1b14;
+    border-radius: 50%;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ffd54f;
+  }
+  .pill-texts {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    line-height: 1.1;
+  }
+  .pill-title {
+    font-size: 8px;
+    font-weight: 900;
+    color: #ffb300;
+    letter-spacing: 0.5px;
+  }
+  .pill-name {
+    font-size: 12px;
+    font-weight: 900;
+    color: #ffffff;
+    font-family: 'Fredoka One', cursive, sans-serif;
+  }
+  .pill-status-dot {
+    color: #00e676;
+    font-size: 11px;
+    animation: pulseDot 1.5s infinite;
+  }
+  @keyframes pulseDot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.35; transform: scale(0.8); }
+  }
+
+  /* EN EL HEADER DEL JUEGO */
+  .hud-linked-user {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(36, 12, 8, 0.88);
+    border: 1.5px solid #ffb300;
+    border-radius: 16px;
+    padding: 2px 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  }
+  .hud-linked-user:hover {
+    background: #3e1b14;
+    border-color: #ffd54f;
+    box-shadow: 0 0 8px rgba(255, 179, 0, 0.4);
+  }
+  .hud-user-avatar {
+    font-size: 14px;
+  }
+  .hud-user-name {
+    font-size: 11px;
+    font-weight: 900;
+    color: #ffe082;
+    font-family: 'Fredoka One', cursive, sans-serif;
+    max-width: 110px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .hud-user-tag {
+    font-size: 8px;
+    font-weight: 900;
+    background: #2e7d32;
+    color: #fff;
+    padding: 1px 4px;
+    border-radius: 4px;
+  }
+
+  /* NOTIFICACIÓN TOAST DE BIENVENIDA */
+  .welcome-user-toast {
+    position: fixed;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-120px);
+    background: linear-gradient(135deg, #1b0a07, #3e1b14);
+    border: 2px solid #ffb300;
+    border-radius: 12px;
+    padding: 8px 16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.7), 0 0 16px rgba(255, 179, 0, 0.4);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 10001;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    pointer-events: auto;
+  }
+  .welcome-user-toast.show {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .admin-wa-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    background: #25d366;
+    color: #fff !important;
+    text-decoration: none;
+    font-size: 9.5px;
+    font-weight: 900;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 4px;
+    transition: opacity 0.15s ease;
+  }
+  .admin-wa-btn:hover {
+    opacity: 0.85;
+  }
+
   /* SECRETOS DEL CHEF MODAL */
   .secretos-grid {
     display: grid;
@@ -1729,6 +1874,18 @@
 <div id="game-container">
   <!-- PANTALLA DE INICIO (START / TITLE SCREEN) -->
   <div id="start-screen" class="start-screen-overlay">
+    <!-- BADGE SUPERIOR DE USUARIO VINCULADO -->
+    <div class="start-linked-user-bar" id="start-linked-user-bar" onclick="openProfileModal()" style="display: none;" title="Toca para ver tu perfil de Chef vinculado">
+      <div class="linked-user-pill">
+        <span class="pill-avatar" id="start-pill-avatar">🍜</span>
+        <div class="pill-texts">
+          <span class="pill-title">CUENTA VINCULADA</span>
+          <span class="pill-name" id="start-pill-name">Chef ...</span>
+        </div>
+        <span class="pill-status-dot" title="Dispositivo Conectado">●</span>
+      </div>
+    </div>
+
     <div class="start-screen-content">
       
       <!-- CABECERA Y LOGO -->
@@ -1830,6 +1987,11 @@
       <h1>🍜 RAMEN MANIA</h1>
       <span class="level-badge" id="hud-level-badge">NIVEL 1</span>
       <button class="btn" id="btn-mode-toggle" onclick="openModeSelectModal()" style="background:#ff9800; color:#fff; font-size:11px; padding:2px 8px; box-shadow:0 2px 0 #b26a00;">🎮 Modo</button>
+      <div class="hud-linked-user" id="hud-linked-user" onclick="openProfileModal()" style="display:none;" title="Cuenta Vinculada (Toca para ver perfil)">
+        <span class="hud-user-avatar" id="hud-user-avatar">🍜</span>
+        <span class="hud-user-name" id="hud-user-name">Chef ...</span>
+        <span class="hud-user-tag">🔒 VINCULADO</span>
+      </div>
     </div>
     <div class="stats-bar">
       <div class="stat-badge">💰 <span class="val" id="hud-money">S/ 0</span></div>
@@ -2281,31 +2443,38 @@
 
         <!-- PESTAÑAS DEL DASHBOARD -->
         <div class="admin-tabs">
-          <button class="admin-tab-btn active" id="adm-tab-users" onclick="switchAdminTab('users')">👥 Intentos y Tiempo por Usuario</button>
+          <button class="admin-tab-btn active" id="adm-tab-users" onclick="switchAdminTab('users')">👥 Lista Total de Usuarios Registrados</button>
           <button class="admin-tab-btn" id="adm-tab-levels" onclick="switchAdminTab('levels')">📈 Intentos por Nivel</button>
           <button class="admin-tab-btn" id="adm-tab-ramen" onclick="switchAdminTab('ramen')">🍜 Ramen Donde Más Fallan</button>
           <button class="admin-tab-btn" id="adm-tab-sessions" onclick="switchAdminTab('sessions')">📋 Registro de Sesiones en Vivo</button>
         </div>
 
         <!-- CONTENIDO DE PESTAÑAS -->
-        <!-- PESTAÑA 1: USUARIOS -->
+        <!-- PESTAÑA 1: LISTA TOTAL DE USUARIOS REGISTRADOS -->
         <div id="adm-view-users">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-            <input type="text" id="adm-user-filter" placeholder="🔍 Buscar por alias o ID..." class="input-record" style="max-width:240px; margin:0; padding:4px 8px; font-size:11px;" oninput="renderAdminUsersTable()">
-            <span style="font-size:10px; color:#bcaaa4;" id="adm-users-count-label">Cargando usuarios...</span>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <input type="text" id="adm-user-filter" placeholder="🔍 Buscar por nombre, teléfono o ID..." class="input-record" style="max-width:260px; margin:0; padding:6px 10px; font-size:11px;" oninput="renderAdminUsersTable()">
+              <button class="btn" onclick="exportAdminUsersCSV()" style="background:#2e7d32; color:#fff; font-size:10px; padding:5px 8px; font-weight:800;" title="Descargar lista completa en CSV">📥 Exportar CSV</button>
+            </div>
+            <div style="background:#2c1611; border:1px solid #ffb300; border-radius:12px; padding:4px 12px; font-size:11px; font-weight:900; color:#ffe082;" id="adm-users-count-label">
+              👥 Total Registrados: Cargando...
+            </div>
           </div>
-          <div style="max-height: 48vh; overflow-y: auto;">
+          <div style="max-height: 48vh; overflow-y: auto; border:1px solid #4a271f; border-radius:8px;">
             <table class="admin-table">
               <thead>
                 <tr>
-                  <th>Jugador</th>
-                  <th>ID Dispositivo</th>
-                  <th>Intentos / Partidas</th>
-                  <th>Tiempo Total</th>
-                  <th>Max Normal</th>
-                  <th>Max Rash</th>
-                  <th>Atendidos / Perdidos</th>
-                  <th>Última Conexión</th>
+                  <th style="width:32px; text-align:center;">#</th>
+                  <th>Chef / Usuario Registrado</th>
+                  <th>📞 Contacto / WhatsApp</th>
+                  <th>📱 Dispositivo Vinculado</th>
+                  <th>🏆 Récord Max</th>
+                  <th>⭐ Nivel Alcanzado</th>
+                  <th>🎮 Partidas</th>
+                  <th>📅 Fecha Registro</th>
+                  <th>⏰ Última Actividad</th>
+                  <th style="text-align:center;">Estado</th>
                 </tr>
               </thead>
               <tbody id="adm-users-tbody"></tbody>
@@ -2493,6 +2662,16 @@
       </div>
     </div>
   </div>
+</div>
+
+<!-- NOTIFICACIÓN DE BIENVENIDA A CUENTA VINCULADA -->
+<div id="welcome-user-toast" class="welcome-user-toast">
+  <span id="welcome-toast-avatar" style="font-size: 22px;">🍜</span>
+  <div style="text-align: left;">
+    <div style="font-size: 8.5px; color: #ffb300; font-weight: 900; letter-spacing: 0.5px;">DISPOSITIVO VINCULADO 🔒</div>
+    <div style="font-size: 13px; font-weight: 900; color: #ffffff; font-family:'Fredoka One', cursive;" id="welcome-toast-text">¡Bienvenido de nuevo, Chef!</div>
+  </div>
+  <button onclick="dismissWelcomeToast()" style="background:rgba(255,255,255,0.12); border:none; color:#cfd8dc; font-size:12px; width:22px; height:22px; border-radius:50%; cursor:pointer; margin-left:8px; display:flex; align-items:center; justify-content:center;">✕</button>
 </div>
 
 <script>
@@ -2693,6 +2872,13 @@ const DeviceManager = {
       this.currentPlayer = player;
       this.isInitialized = true;
       updateStartPlayerCard();
+      renderLinkedUserBadges();
+
+      if (player && player.playerName) {
+        setTimeout(() => {
+          showWelcomeToast(player.playerName, player.avatar);
+        }, 500);
+      }
     } catch(err) {
       console.error("Error en DeviceManager.init:", err);
       this.isInitialized = true;
@@ -2755,6 +2941,19 @@ const DeviceManager = {
       } catch(e) {
         console.warn("Fallo de red en registro:", e);
       }
+
+      // Sincronizar en Supabase leaderboard como registro oficial
+      try {
+        await supabaseClient.from('leaderboard').insert([{
+          player_name: cleanName,
+          contact: cleanContact || null,
+          score_money: 0,
+          customers_served: 0,
+          level_reached: 1,
+          game_mode: 'REGISTRO',
+          created_at: new Date().toISOString()
+        }]);
+      } catch(e) {}
     }
 
     const newPlayer = {
@@ -2762,6 +2961,7 @@ const DeviceManager = {
       contact: cleanContact,
       avatar: cleanAvatar,
       deviceId: this.deviceId,
+      deviceInfo: this.deviceInfoText,
       createdAt: this.currentPlayer ? this.currentPlayer.createdAt : new Date().toISOString()
     };
 
@@ -2771,7 +2971,18 @@ const DeviceManager = {
     safeStorage.setItem("ramen_player_contact", cleanContact);
     safeStorage.setItem("ramen_player_avatar", cleanAvatar);
 
+    // Guardar en lista de cuentas registradas en este dispositivo
+    try {
+      const regList = JSON.parse(safeStorage.getItem("ramen_registered_users") || "[]");
+      const idx = regList.findIndex(u => u.playerName.toLowerCase() === cleanName.toLowerCase());
+      if (idx >= 0) regList[idx] = newPlayer;
+      else regList.push(newPlayer);
+      safeStorage.setItem("ramen_registered_users", JSON.stringify(regList));
+    } catch(e) {}
+
     updateStartPlayerCard();
+    renderLinkedUserBadges();
+    showWelcomeToast(cleanName, cleanAvatar);
     return { success: true, player: newPlayer };
   },
 
@@ -2802,6 +3013,7 @@ const DeviceManager = {
     return { success: true };
   }
 };
+window.DeviceManager = DeviceManager;
 
 /* ==========================================================================
    SISTEMA DE TELEMETRÍA Y ANALÍTICAS DE JUEGO
@@ -3994,6 +4206,55 @@ function updateStartPlayerCard() {
       </div>
     `;
   }
+
+  renderLinkedUserBadges();
+}
+
+function renderLinkedUserBadges() {
+  const p = DeviceManager.currentPlayer;
+  const startBadge = document.getElementById("start-linked-user-bar");
+  const startPillName = document.getElementById("start-pill-name");
+  const startPillAvatar = document.getElementById("start-pill-avatar");
+  
+  const hudBadge = document.getElementById("hud-linked-user");
+  const hudName = document.getElementById("hud-user-name");
+  const hudAvatar = document.getElementById("hud-user-avatar");
+
+  if (p && p.playerName) {
+    if (startBadge) startBadge.style.display = "block";
+    if (startPillName) startPillName.textContent = `Chef ${p.playerName}`;
+    if (startPillAvatar) startPillAvatar.textContent = p.avatar || "🍜";
+
+    if (hudBadge) hudBadge.style.display = "flex";
+    if (hudName) hudName.textContent = `Chef ${p.playerName}`;
+    if (hudAvatar) hudAvatar.textContent = p.avatar || "🍜";
+  } else {
+    if (startBadge) startBadge.style.display = "none";
+    if (hudBadge) hudBadge.style.display = "none";
+  }
+}
+
+let welcomeToastTimer = null;
+function showWelcomeToast(playerName, avatar) {
+  const toast = document.getElementById("welcome-user-toast");
+  const toastText = document.getElementById("welcome-toast-text");
+  const toastAvatar = document.getElementById("welcome-toast-avatar");
+  if (!toast || !playerName) return;
+
+  if (toastText) toastText.textContent = `¡Hola de nuevo, Chef ${playerName}!`;
+  if (toastAvatar) toastAvatar.textContent = avatar || "🍜";
+
+  toast.classList.add("show");
+  if (welcomeToastTimer) clearTimeout(welcomeToastTimer);
+  welcomeToastTimer = setTimeout(() => {
+    toast.classList.remove("show");
+  }, 4500);
+}
+
+function dismissWelcomeToast() {
+  const toast = document.getElementById("welcome-user-toast");
+  if (toast) toast.classList.remove("show");
+  if (welcomeToastTimer) clearTimeout(welcomeToastTimer);
 }
 
 function handleStartPlayClick() {
@@ -6378,32 +6639,138 @@ function processAndRenderAdminData(dbSessions = [], dbPlayers = [], dbLeaderboar
   } catch(e) {}
 
   const usersMap = {};
-  dbPlayers.forEach(p => {
-    usersMap[p.player_name] = {
-      playerName: p.player_name,
-      avatar: p.avatar || '🍜',
-      deviceId: p.device_id,
-      contact: p.contact || '',
-      totalAttempts: 0,
-      totalPlayTimeSeconds: 0,
-      maxNormalLevel: 1,
-      maxRashLevel: 1,
-      customersServed: 0,
-      customersLost: 0,
-      lastActive: p.last_login || p.created_at
-    };
-  });
+
+  // 1. Extraer de tabla players en Supabase (si existe)
+  if (Array.isArray(dbPlayers)) {
+    dbPlayers.forEach(p => {
+      const name = (p.player_name || '').trim();
+      if (!name) return;
+      const key = name.toLowerCase();
+      usersMap[key] = {
+        playerName: name,
+        avatar: p.avatar || '🍜',
+        deviceId: p.device_id || 'DEV-REGISTRADO',
+        deviceInfo: p.device_info || 'Dispositivo Web',
+        contact: p.contact || '',
+        totalAttempts: 0,
+        totalPlayTimeSeconds: 0,
+        maxNormalLevel: 1,
+        maxRashLevel: 1,
+        customersServed: 0,
+        customersLost: 0,
+        maxScore: 0,
+        createdAt: p.created_at || new Date().toISOString(),
+        lastActive: p.last_login || p.created_at || new Date().toISOString(),
+        isLinkedCurrentDevice: (DeviceManager.deviceId && p.device_id === DeviceManager.deviceId)
+      };
+    });
+  }
+
+  // 2. Extraer de Supabase leaderboard (para consolidar a TODOS los usuarios registrados y con récords)
+  if (Array.isArray(dbLeaderboard)) {
+    dbLeaderboard.forEach(r => {
+      const name = (r.player_name || '').trim();
+      if (!name || name === 'Chef Anónimo') return;
+      const key = name.toLowerCase();
+      if (!usersMap[key]) {
+        usersMap[key] = {
+          playerName: name,
+          avatar: '🍜',
+          deviceId: 'DEV-REGISTRADO',
+          deviceInfo: 'Dispositivo Vinculado',
+          contact: r.contact || '',
+          totalAttempts: (r.game_mode !== 'REGISTRO') ? 1 : 0,
+          totalPlayTimeSeconds: 0,
+          maxNormalLevel: r.level_reached || 1,
+          maxRashLevel: 1,
+          customersServed: r.customers_served || 0,
+          customersLost: 0,
+          maxScore: r.score_money || 0,
+          createdAt: r.created_at || new Date().toISOString(),
+          lastActive: r.created_at || new Date().toISOString(),
+          isLinkedCurrentDevice: (DeviceManager.currentPlayer && DeviceManager.currentPlayer.playerName.toLowerCase() === key)
+        };
+      } else {
+        if (r.contact && !usersMap[key].contact) usersMap[key].contact = r.contact;
+        usersMap[key].maxScore = Math.max(usersMap[key].maxScore || 0, r.score_money || 0);
+        usersMap[key].maxNormalLevel = Math.max(usersMap[key].maxNormalLevel || 1, r.level_reached || 1);
+        usersMap[key].customersServed = Math.max(usersMap[key].customersServed || 0, r.customers_served || 0);
+        if (r.game_mode !== 'REGISTRO') usersMap[key].totalAttempts += 1;
+        if (new Date(r.created_at) > new Date(usersMap[key].lastActive || 0)) usersMap[key].lastActive = r.created_at;
+        if (new Date(r.created_at) < new Date(usersMap[key].createdAt || Date.now())) usersMap[key].createdAt = r.created_at;
+      }
+    });
+  }
+
+  // 3. Extraer usuario actual del dispositivo
+  if (DeviceManager.currentPlayer) {
+    const cp = DeviceManager.currentPlayer;
+    const key = cp.playerName.toLowerCase();
+    if (!usersMap[key]) {
+      usersMap[key] = {
+        playerName: cp.playerName,
+        avatar: cp.avatar || '🍜',
+        deviceId: cp.deviceId || DeviceManager.deviceId,
+        deviceInfo: DeviceManager.deviceInfoText,
+        contact: cp.contact || '',
+        totalAttempts: 0,
+        totalPlayTimeSeconds: 0,
+        maxNormalLevel: 1,
+        maxRashLevel: 1,
+        customersServed: 0,
+        customersLost: 0,
+        maxScore: 0,
+        createdAt: cp.createdAt || new Date().toISOString(),
+        lastActive: new Date().toISOString(),
+        isLinkedCurrentDevice: true
+      };
+    } else {
+      usersMap[key].isLinkedCurrentDevice = true;
+      if (!usersMap[key].contact && cp.contact) usersMap[key].contact = cp.contact;
+      if (cp.deviceId) usersMap[key].deviceId = cp.deviceId;
+      if (cp.deviceInfo) usersMap[key].deviceInfo = cp.deviceInfo;
+    }
+  }
+
+  // 4. Extraer usuarios guardados localmente
+  try {
+    const localRegs = JSON.parse(safeStorage.getItem("ramen_registered_users") || "[]");
+    localRegs.forEach(reg => {
+      const key = (reg.playerName || '').toLowerCase().trim();
+      if (!key) return;
+      if (!usersMap[key]) {
+        usersMap[key] = {
+          playerName: reg.playerName,
+          avatar: reg.avatar || '🍜',
+          deviceId: reg.deviceId || DeviceManager.deviceId,
+          deviceInfo: reg.deviceInfo || DeviceManager.deviceInfoText,
+          contact: reg.contact || '',
+          totalAttempts: 0,
+          totalPlayTimeSeconds: 0,
+          maxNormalLevel: 1,
+          maxRashLevel: 1,
+          customersServed: 0,
+          customersLost: 0,
+          maxScore: 0,
+          createdAt: reg.createdAt || new Date().toISOString(),
+          lastActive: reg.createdAt || new Date().toISOString(),
+          isLinkedCurrentDevice: true
+        };
+      }
+    });
+  } catch(e) {}
 
   Object.values(userAnalytics).forEach(u => {
-    if (!usersMap[u.playerName]) {
-      usersMap[u.playerName] = { ...u, avatar: '🍜' };
+    const key = u.playerName.toLowerCase();
+    if (!usersMap[key]) {
+      usersMap[key] = { ...u, avatar: '🍜', isLinkedCurrentDevice: false };
     } else {
-      usersMap[u.playerName].totalAttempts = Math.max(usersMap[u.playerName].totalAttempts, u.totalAttempts || 0);
-      usersMap[u.playerName].totalPlayTimeSeconds = Math.max(usersMap[u.playerName].totalPlayTimeSeconds, u.totalPlayTimeSeconds || 0);
-      usersMap[u.playerName].maxNormalLevel = Math.max(usersMap[u.playerName].maxNormalLevel, u.maxNormalLevel || 1);
-      usersMap[u.playerName].maxRashLevel = Math.max(usersMap[u.playerName].maxRashLevel, u.maxRashLevel || 1);
-      usersMap[u.playerName].customersServed = Math.max(usersMap[u.playerName].customersServed, u.customersServed || 0);
-      usersMap[u.playerName].customersLost = Math.max(usersMap[u.playerName].customersLost, u.customersLost || 0);
+      usersMap[key].totalAttempts = Math.max(usersMap[key].totalAttempts, u.totalAttempts || 0);
+      usersMap[key].totalPlayTimeSeconds = Math.max(usersMap[key].totalPlayTimeSeconds, u.totalPlayTimeSeconds || 0);
+      usersMap[key].maxNormalLevel = Math.max(usersMap[key].maxNormalLevel, u.maxNormalLevel || 1);
+      usersMap[key].maxRashLevel = Math.max(usersMap[key].maxRashLevel, u.maxRashLevel || 1);
+      usersMap[key].customersServed = Math.max(usersMap[key].customersServed, u.customersServed || 0);
+      usersMap[key].customersLost = Math.max(usersMap[key].customersLost, u.customersLost || 0);
     }
   });
 
@@ -6412,21 +6779,27 @@ function processAndRenderAdminData(dbSessions = [], dbPlayers = [], dbLeaderboar
 
   sessions.forEach(s => {
     const pName = s.player_name || "Chef Anónimo";
-    if (!usersMap[pName]) {
-      usersMap[pName] = {
+    const key = pName.toLowerCase();
+    if (!usersMap[key]) {
+      usersMap[key] = {
         playerName: pName,
         avatar: '🍜',
         deviceId: s.device_id || 'DEV-LOCAL',
+        deviceInfo: 'Navegador Web',
+        contact: '',
         totalAttempts: 0,
         totalPlayTimeSeconds: 0,
         maxNormalLevel: 1,
         maxRashLevel: 1,
         customersServed: 0,
         customersLost: 0,
-        lastActive: s.created_at
+        maxScore: 0,
+        createdAt: s.created_at,
+        lastActive: s.created_at,
+        isLinkedCurrentDevice: false
       };
     }
-    const u = usersMap[pName];
+    const u = usersMap[key];
     u.totalAttempts += 1;
     u.totalPlayTimeSeconds += (s.duration_seconds || 0);
     u.customersServed += (s.customers_served || 0);
@@ -6470,7 +6843,7 @@ function processAndRenderAdminData(dbSessions = [], dbPlayers = [], dbLeaderboar
   };
 
   const totalPlayersCount = Object.keys(usersMap).length;
-  const totalAttemptsCount = sessions.length;
+  const totalAttemptsCount = sessions.length || Object.values(usersMap).reduce((a, b) => a + (b.totalAttempts || 0), 0);
   const totalPlaySeconds = Object.values(usersMap).reduce((acc, u) => acc + (u.totalPlayTimeSeconds || 0), 0) || sessions.reduce((acc, s) => acc + (s.duration_seconds || 0), 0);
 
   let worstRamenName = "Ninguno";
@@ -6515,27 +6888,26 @@ function processAndRenderAdminData(dbSessions = [], dbPlayers = [], dbLeaderboar
 }
 
 async function refreshAdminDashboard() {
-  if (!supabaseClient) {
-    processAndRenderAdminData([], [], []);
-    return;
+  let dbSessions = [];
+  let dbPlayers = [];
+  let dbLeaderboard = [];
+
+  if (supabaseClient) {
+    try {
+      const [resSessions, resPlayers, resLb] = await Promise.all([
+        supabaseClient.from('game_sessions').select('*').order('created_at', { ascending: false }).limit(300),
+        supabaseClient.from('players').select('*').order('last_login', { ascending: false }),
+        supabaseClient.from('leaderboard').select('*').order('created_at', { ascending: false })
+      ]);
+      dbSessions = resSessions.data || [];
+      dbPlayers = resPlayers.data || [];
+      dbLeaderboard = resLb.data || [];
+    } catch(err) {
+      console.warn("Error cargando analíticas de Supabase:", err);
+    }
   }
 
-  try {
-    const [resSessions, resPlayers, resLb] = await Promise.all([
-      supabaseClient.from('game_sessions').select('*').order('created_at', { ascending: false }).limit(300),
-      supabaseClient.from('players').select('*').order('last_login', { ascending: false }),
-      supabaseClient.from('leaderboard').select('*').order('score_money', { ascending: false })
-    ]);
-
-    processAndRenderAdminData(
-      resSessions.data || [],
-      resPlayers.data || [],
-      resLb.data || []
-    );
-  } catch(err) {
-    console.warn("Error cargando analíticas de Supabase:", err);
-    processAndRenderAdminData([], [], []);
-  }
+  processAndRenderAdminData(dbSessions, dbPlayers, dbLeaderboard);
 }
 
 function renderAdminUsersTable() {
@@ -6547,56 +6919,102 @@ function renderAdminUsersTable() {
   let users = Object.values(cachedAdminData.users || {});
   if (filterVal) {
     users = users.filter(u => 
-      u.playerName.toLowerCase().includes(filterVal) || 
+      (u.playerName && u.playerName.toLowerCase().includes(filterVal)) || 
+      (u.contact && u.contact.toLowerCase().includes(filterVal)) ||
       (u.deviceId && u.deviceId.toLowerCase().includes(filterVal))
     );
   }
 
-  // Ordenar por intentos desc
-  users.sort((a, b) => (b.totalAttempts - a.totalAttempts) || (b.totalPlayTimeSeconds - a.totalPlayTimeSeconds));
+  // Ordenar por actividad reciente o récord
+  users.sort((a, b) => new Date(b.lastActive || 0) - new Date(a.lastActive || 0));
 
   if (countLbl) {
-    countLbl.textContent = `${users.length} usuario(s) registrados`;
+    countLbl.textContent = `👥 Total Registrados: ${users.length} usuario(s)`;
   }
 
   if (users.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:16px; color:#bcaaa4;">No se encontraron usuarios con actividad registrada.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="10" style="text-align:center; padding:20px; color:#bcaaa4; font-size:12px;">No se encontraron usuarios registrados en la base de datos.</td></tr>`;
     return;
   }
 
-  tbody.innerHTML = users.map(u => {
-    const lastActiveDate = u.lastActive ? new Date(u.lastActive).toLocaleString() : "-";
-    const devShort = u.deviceId ? u.deviceId.substring(0, 15) + '...' : 'Local';
+  tbody.innerHTML = users.map((u, idx) => {
+    const regDate = u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "-";
+    const lastActiveDate = u.lastActive ? new Date(u.lastActive).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : "-";
+    const devShort = u.deviceId ? (u.deviceId.length > 16 ? u.deviceId.substring(0, 16) + '...' : u.deviceId) : 'DEV-ACTIVO';
+    const isThisDevice = u.isLinkedCurrentDevice;
+    
+    // Botón de WhatsApp si hay dígitos
+    let contactHtml = `<span style="color:#b0bec5; font-style:italic;">No registrado</span>`;
+    if (u.contact) {
+      const cleanDigits = u.contact.replace(/\\D/g, '');
+      contactHtml = `
+        <div style="display:flex; align-items:center; gap:4px;">
+          <span style="font-weight:700; color:#fff;">📞 ${escapeHtml(u.contact)}</span>
+          ${cleanDigits.length >= 8 ? `<a href="https://wa.me/51${cleanDigits}" target="_blank" class="admin-wa-btn" title="Abrir chat de WhatsApp">💬 WA</a>` : ''}
+        </div>
+      `;
+    }
+
     return `
-      <tr>
-        <td style="font-weight:800; color:#ffca28; display:flex; align-items:center; gap:6px;">
-          <span>${u.avatar || '🍜'}</span>
+      <tr style="${isThisDevice ? 'background:rgba(46, 125, 50, 0.18);' : ''}">
+        <td style="text-align:center; font-weight:900; color:#bcaaa4; font-size:10px;">
+          ${idx + 1}
+        </td>
+        <td style="font-weight:900; color:#ffca28; display:flex; align-items:center; gap:6px;">
+          <span style="font-size:15px;">${u.avatar || '🍜'}</span>
           <span>${escapeHtml(u.playerName)}</span>
+          ${isThisDevice ? `<span style="font-size:8px; background:#2e7d32; color:#fff; padding:1px 4px; border-radius:4px; font-weight:900;">ESTE DISPOSITIVO</span>` : ''}
+        </td>
+        <td style="font-size:11px;">
+          ${contactHtml}
         </td>
         <td style="font-size:10px; color:#cfd8dc; font-family:monospace;" title="${escapeHtml(u.deviceId || '')}">
-          ${escapeHtml(devShort)}
+          <div><strong>${escapeHtml(devShort)}</strong></div>
+          <div style="font-size:8.5px; color:#90a4ae;">${escapeHtml(u.deviceInfo || 'Dispositivo Web')}</div>
+        </td>
+        <td style="font-weight:900; color:#69f0ae; text-align:center;">
+          S/ ${u.maxScore || 0}
+        </td>
+        <td style="font-size:10px; color:#ffe082;">
+          <div>🏮 Normal: <strong>Nivel ${u.maxNormalLevel || 1}/5</strong></div>
+          <div>⚡ Rash: <strong>Ronda ${u.maxRashLevel || 1}/100</strong></div>
         </td>
         <td style="font-weight:900; color:#ffb300; text-align:center;">
           ${u.totalAttempts}
         </td>
-        <td style="font-weight:700; color:#81c784;">
-          ${formatSeconds(u.totalPlayTimeSeconds)}
+        <td style="font-size:10px; color:#b0bec5; white-space:nowrap;">
+          ${regDate}
         </td>
-        <td style="font-weight:800; color:#ffca28; text-align:center;">
-          Nivel ${u.maxNormalLevel || 1}/5
-        </td>
-        <td style="font-weight:800; color:#ff7043; text-align:center;">
-          Ronda ${u.maxRashLevel || 1}/100
-        </td>
-        <td style="font-size:10px;">
-          <span style="color:#81c784;">✓ ${u.customersServed || 0}</span> / <span style="color:#e57373;">✗ ${u.customersLost || 0}</span>
-        </td>
-        <td style="font-size:10px; color:#b0bec5;">
+        <td style="font-size:10px; color:#b0bec5; white-space:nowrap;">
           ${lastActiveDate}
+        </td>
+        <td style="text-align:center;">
+          <span style="background:rgba(46,125,50,0.25); color:#81c784; border:1px solid #2e7d32; padding:2px 6px; border-radius:10px; font-size:9.5px; font-weight:800;">🟢 Vinculado</span>
         </td>
       </tr>
     `;
   }).join('');
+}
+
+function exportAdminUsersCSV() {
+  const users = Object.values(cachedAdminData.users || {});
+  if (users.length === 0) {
+    alert("No hay usuarios para exportar.");
+    return;
+  }
+  let csv = "Numero,Nombre_Chef,Contacto,Dispositivo_ID,Dispositivo_Info,Record_Dinero,Nivel_Normal,Ronda_Rash,Partidas_Jugadas,Fecha_Registro,Ultima_Actividad\\n";
+  users.forEach((u, idx) => {
+    csv += `"${idx + 1}","${(u.playerName || '').replace(/"/g, '""')}","${(u.contact || '').replace(/"/g, '""')}","${(u.deviceId || '').replace(/"/g, '""')}","${(u.deviceInfo || '').replace(/"/g, '""')}","${u.maxScore || 0}","${u.maxNormalLevel || 1}","${u.maxRashLevel || 1}","${u.totalAttempts || 0}","${u.createdAt || ''}","${u.lastActive || ''}"\\n`;
+  });
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `usuarios_registrados_ramen_mania_${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 function renderAdminLevelsView() {
