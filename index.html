@@ -143,9 +143,13 @@
 
   .hud-right-group {
     display: flex;
-    align-items: center;
-    gap: 7px;
-    flex-shrink: 0;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    position: absolute;
+    top: 5px;
+    right: 6px;
+    z-index: 110;
   }
 
   /* CÁPSULA SUPERIOR IZQUIERDA: Inicio, Título, Nivel y Ajustes */
@@ -239,31 +243,44 @@
     background: rgba(78, 52, 46, 0.9);
   }
 
-  /* CÁPSULA SUPERIOR DERECHA: Meta de Ventas, Monedas y Reloj */
-  .hud-capsule-right {
-    background: rgba(36, 18, 14, 0.94);
-    border: 1.5px solid #5d2e22;
-    border-radius: 14px;
-    padding: 4px 10px;
+  /* CÁPSULA VERTICAL DERECHA: Tiempo, Dinero y Meta justo debajo de Salir */
+  .hud-capsule-vertical {
+    background: rgba(32, 16, 12, 0.95);
+    border: 1.5px solid #6d392b;
+    border-radius: 10px;
+    padding: 3px 4px;
     display: flex;
-    align-items: center;
-    gap: 9px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
+    flex-direction: column;
+    align-items: stretch;
+    gap: 3px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.08);
     backdrop-filter: blur(6px);
+    width: 72px;
+    box-sizing: border-box;
+    user-select: none;
   }
 
-  .hud-capsule-stat {
+  .hud-capsule-vertical .hud-capsule-stat {
     display: flex;
     align-items: center;
-    gap: 3px;
+    justify-content: flex-start;
+    gap: 4px;
+    padding: 2px 4px;
+    background: rgba(45, 23, 17, 0.75);
+    border: 1px solid rgba(109, 57, 43, 0.5);
+    border-radius: 6px;
     font-family: 'Fredoka One', cursive, sans-serif;
-    font-size: 12px;
+    font-size: 11px;
     white-space: nowrap;
+    box-sizing: border-box;
   }
-  .hud-capsule-stat .stat-ico {
-    font-size: 13px;
+
+  .hud-capsule-vertical .hud-capsule-stat .stat-ico {
+    font-size: 12px;
     line-height: 1;
+    flex-shrink: 0;
   }
+
   .stat-val-gold {
     color: #ffd54f;
     text-shadow: 0 1px 2px rgba(0,0,0,0.8);
@@ -277,7 +294,7 @@
     text-shadow: 0 1px 2px rgba(0,0,0,0.8);
   }
 
-  /* BOTONES DE ACCIÓN: SOLO PAUSA, RECETAS Y SALIR AL TOPE SUPERIOR DERECHO */
+  /* BOTONES DE ACCIÓN: PAUSA, PANTALLA COMPLETA, RECETAS Y SALIR AL TOPE SUPERIOR DERECHO */
   .hud-top-actions {
     display: flex;
     align-items: center;
@@ -311,6 +328,11 @@
   .hud-top-btn:active {
     transform: translateY(1px);
     box-shadow: none;
+  }
+  .hud-top-btn.fullscreen-active {
+    border-color: #ffd54f;
+    background: rgba(80, 40, 20, 0.95);
+    box-shadow: 0 0 8px rgba(255, 213, 79, 0.5);
   }
   .hud-top-btn.btn-exit {
     background: rgba(183, 28, 28, 0.88);
@@ -357,13 +379,17 @@
 
   /* 2. LÍNEA DE CLIENTES JUSTO DEBAJO DE LA BARRA SUPERIOR (DE IZQUIERDA A DERECHA) */
   .game-customers-hub {
-    width: calc(100% - 12px);
+    width: calc(100% - 84px);
+    max-width: calc(100% - 84px);
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    gap: 10px;
-    margin-top: 3px;
+    gap: 8px;
+    margin-top: 2px;
     margin-bottom: 2px;
+    margin-left: 4px;
+    margin-right: auto;
+    align-self: flex-start;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     padding: 2px 2px;
@@ -485,17 +511,20 @@
     animation: deliverPulse 0.8s infinite alternate;
   }
 
-  /* 3. TABLERO DE INGREDIENTES: SUBIDO AL RAS CON LOS CLIENTES Y ESTIRADO AL BORDE */
+  /* 3. TABLERO DE INGREDIENTES: PEGADO LO MÁS POSIBLE AL LADO IZQUIERDO */
   .game-central-stage {
-    width: 100%;
-    max-width: 100%;
+    width: calc(100% - 84px);
+    max-width: calc(100% - 84px);
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
+    align-self: flex-start;
     z-index: 80;
     margin-top: 1px;
     margin-bottom: auto;
-    padding: 0 4px;
+    margin-left: 4px;
+    margin-right: auto;
+    padding: 0;
     box-sizing: border-box;
     flex-shrink: 0;
   }
@@ -505,7 +534,7 @@
     background: rgba(28, 14, 10, 0.94);
     border: 1.5px solid #4a241a;
     border-radius: 14px;
-    padding: 5px 8px 6px 8px;
+    padding: 4px 6px 5px 6px;
     box-shadow: 0 8px 24px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.08);
     backdrop-filter: blur(5px);
     position: relative;
@@ -2387,26 +2416,28 @@
     </div>
 
     <div class="hud-right-group">
-      <div class="hud-capsule-right">
-        <div class="hud-capsule-stat stat-goal" title="Meta de Ventas">
-          <span class="stat-ico">💰</span>
-          <span class="stat-val-gold" id="hud-goal">S/160</span>
-        </div>
-        <div class="hud-capsule-stat stat-money" title="Monedas / Recaudado">
-          <span class="stat-ico">🪙</span>
-          <span class="stat-val-money" id="hud-money">0</span>
-        </div>
+      <div class="hud-top-actions">
+        <button class="hud-top-btn" onclick="togglePause()" id="btn-pause" title="Pausar / Reanudar">⏸️</button>
+        <button class="hud-top-btn" onclick="toggleFullScreen()" id="btn-fullscreen" title="Pantalla Completa">⛶</button>
+        <button class="hud-top-btn" onclick="openRecipeModal()" title="📖 Recetario de Ramen">📖</button>
+        <button class="hud-top-btn btn-exit" onclick="returnToStartMenu()" title="Salir al Menú Principal">🚪 Salir</button>
+      </div>
+
+      <!-- Barra vertical de tiempo y dinero justo debajo del botón Salir -->
+      <div class="hud-capsule-vertical" id="hud-vertical-stats">
         <div class="hud-capsule-stat stat-timer" id="stat-timer-badge" title="Tiempo Restante / Vidas">
           <span class="stat-ico" id="hud-timer-icon">⏱️</span>
           <span class="stat-val-timer" id="hud-timer">90s</span>
         </div>
+        <div class="hud-capsule-stat stat-money" title="Monedas / Dinero Recaudado">
+          <span class="stat-ico">🪙</span>
+          <span class="stat-val-money" id="hud-money">0</span>
+        </div>
+        <div class="hud-capsule-stat stat-goal" title="Meta de Ventas">
+          <span class="stat-ico">💰</span>
+          <span class="stat-val-gold" id="hud-goal">S/160</span>
+        </div>
         <span id="hud-served" style="display:none;">0</span>
-      </div>
-
-      <div class="hud-top-actions">
-        <button class="hud-top-btn" onclick="togglePause()" id="btn-pause" title="Pausar / Reanudar">⏸️</button>
-        <button class="hud-top-btn" onclick="openRecipeModal()" title="📖 Recetario de Ramen">📖</button>
-        <button class="hud-top-btn btn-exit" onclick="returnToStartMenu()" title="Salir al Menú Principal">🚪 Salir</button>
       </div>
     </div>
   </header>
@@ -6077,12 +6108,20 @@ function toggleFullScreen() {
 
 document.addEventListener('fullscreenchange', updateFullscreenBtn);
 document.addEventListener('webkitfullscreenchange', updateFullscreenBtn);
+document.addEventListener('mozfullscreenchange', updateFullscreenBtn);
+document.addEventListener('MSFullscreenChange', updateFullscreenBtn);
 
 function updateFullscreenBtn() {
   const btn = document.getElementById('btn-fullscreen');
   if (!btn) return;
-  const isFull = !!(document.fullscreenElement || document.webkitFullscreenElement);
-  btn.innerHTML = isFull ? '<span class="hud-icon">🗗</span><span class="btn-text">Salir</span>' : '<span class="hud-icon">⛶</span><span class="btn-text">Pantalla</span>';
+  const isFull = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+  btn.innerHTML = isFull ? '🗗' : '⛶';
+  btn.title = isFull ? 'Salir de Pantalla Completa (Esc)' : 'Entrar a Pantalla Completa';
+  if (isFull) {
+    btn.classList.add('fullscreen-active');
+  } else {
+    btn.classList.remove('fullscreen-active');
+  }
 }
 
 const isIOS = (typeof navigator !== 'undefined') && (/iPad|iPhone|iPod/.test(navigator.userAgent || '') || ((navigator.platform === 'MacIntel' || (navigator.userAgent && navigator.userAgent.includes('Macintosh'))) && navigator.maxTouchPoints > 1));
