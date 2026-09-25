@@ -1,0 +1,1571 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#140a08">
+<title>Dashboard Ejecutivo | Ramen Mania Arcade Analytics</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<!-- SUPABASE JS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- CHART.JS PARA GRÁFICOS INTERACTIVOS -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<style>
+  :root {
+    --bg-main: #140a08;
+    --bg-card: rgba(28, 14, 10, 0.94);
+    --border-color: #4a241a;
+    --ramen-gold: #ffb300;
+    --ramen-orange: #ff9800;
+    --ramen-red: #c62828;
+    --text-light: #fff8f0;
+    --text-muted: #bcaaa4;
+    --accent-green: #2e7d32;
+    --accent-green-bright: #4caf50;
+    --accent-blue: #0288d1;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: #100705;
+    background-image: 
+      radial-gradient(circle at 10% 20%, rgba(198, 40, 40, 0.12) 0%, transparent 40%),
+      radial-gradient(circle at 90% 80%, rgba(255, 179, 0, 0.08) 0%, transparent 40%),
+      linear-gradient(180deg, #180c09 0%, #0d0605 100%);
+    color: var(--text-light);
+    min-height: 100vh;
+    padding-bottom: 40px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* HEADER SUPERIOR */
+  header.dash-header {
+    background: rgba(24, 12, 9, 0.96);
+    border-bottom: 2px solid #3e1e16;
+    padding: 12px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  }
+
+  .header-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .brand-logo {
+    font-size: 32px;
+    filter: drop-shadow(0 2px 6px rgba(255,179,0,0.4));
+  }
+  .brand-titles h1 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 20px;
+    color: var(--ramen-gold);
+    letter-spacing: 0.5px;
+    line-height: 1.1;
+  }
+  .brand-titles p {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 700;
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 5px 12px;
+    border-radius: 20px;
+    background: rgba(46, 125, 50, 0.25);
+    border: 1px solid rgba(76, 175, 80, 0.4);
+    color: #a5d6a7;
+  }
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #4caf50;
+    box-shadow: 0 0 8px #4caf50;
+    animation: statusPulse 1.5s infinite;
+  }
+  @keyframes statusPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.85); }
+  }
+
+  .btn-action {
+    background: rgba(50, 25, 18, 0.9);
+    border: 1.5px solid #6b3527;
+    color: var(--text-light);
+    font-family: 'Nunito', sans-serif;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 7px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s ease;
+    text-decoration: none;
+  }
+  .btn-action:hover {
+    background: #5d2e22;
+    border-color: var(--ramen-gold);
+    color: #fff;
+    transform: translateY(-1px);
+  }
+  .btn-action.btn-primary {
+    background: linear-gradient(180deg, #ffb300, #ff8f00);
+    color: #211202;
+    border-color: #ffe082;
+    box-shadow: 0 2px 8px rgba(255, 179, 0, 0.4);
+  }
+  .btn-action.btn-primary:hover {
+    filter: brightness(1.1);
+  }
+
+  /* CONTENEDOR PRINCIPAL */
+  .dash-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px 20px;
+  }
+
+  /* BARRA DE NAVEGACIÓN POR PESTAÑAS */
+  .nav-tabs-bar {
+    display: flex;
+    gap: 8px;
+    background: rgba(28, 14, 10, 0.85);
+    border: 1px solid #4a241a;
+    padding: 6px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .nav-tabs-bar::-webkit-scrollbar { display: none; }
+
+  .tab-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-family: 'Fredoka One', cursive;
+    font-size: 13px;
+    padding: 9px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+  .tab-btn:hover {
+    color: #fff;
+    background: rgba(255,255,255,0.05);
+  }
+  .tab-btn.active {
+    background: linear-gradient(180deg, #ffb300 0%, #ff8f00 100%);
+    color: #190e0c;
+    box-shadow: 0 2px 8px rgba(255, 179, 0, 0.5);
+  }
+
+  /* KPI CARDS GRID */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .kpi-card {
+    background: var(--bg-card);
+    border: 1.5px solid var(--border-color);
+    border-radius: 14px;
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    transition: transform 0.15s ease, border-color 0.15s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--ramen-gold);
+  }
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--ramen-gold), var(--ramen-orange));
+    opacity: 0.8;
+  }
+
+  .kpi-icon {
+    font-size: 32px;
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    background: rgba(255, 179, 0, 0.1);
+    border: 1px solid rgba(255, 179, 0, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .kpi-content {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .kpi-label {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+  .kpi-value {
+    font-family: 'Fredoka One', cursive;
+    font-size: 24px;
+    color: #fff;
+    line-height: 1.2;
+    margin: 2px 0;
+  }
+  .kpi-sub {
+    font-size: 11px;
+    color: #81c784;
+    font-weight: 700;
+  }
+
+  /* CONTENIDO DE PESTAÑAS */
+  .tab-pane {
+    display: none;
+    animation: fadeIn 0.25s ease-in-out;
+  }
+  .tab-pane.active {
+    display: block;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* SECCIÓN DE GRÁFICOS */
+  .charts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  @media (max-width: 900px) {
+    .charts-grid { grid-template-columns: 1fr; }
+  }
+
+  .chart-card {
+    background: var(--bg-card);
+    border: 1.5px solid var(--border-color);
+    border-radius: 14px;
+    padding: 18px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+  }
+  .chart-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 15px;
+    color: var(--ramen-gold);
+    margin-bottom: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .chart-container {
+    position: relative;
+    height: 260px;
+    width: 100%;
+  }
+
+  /* TABLAS DE DATOS */
+  .table-card {
+    background: var(--bg-card);
+    border: 1.5px solid var(--border-color);
+    border-radius: 14px;
+    padding: 18px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    margin-bottom: 24px;
+  }
+
+  .table-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .table-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 16px;
+    color: var(--ramen-gold);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .table-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .search-input {
+    background: rgba(18, 9, 6, 0.95);
+    border: 1.5px solid #5a2c20;
+    color: #fff;
+    font-family: 'Nunito', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 7px 12px;
+    border-radius: 8px;
+    min-width: 220px;
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+  .search-input:focus {
+    border-color: var(--ramen-gold);
+    box-shadow: 0 0 8px rgba(255, 179, 0, 0.3);
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid #3d1c14;
+  }
+  table.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    text-align: left;
+  }
+  table.data-table th {
+    background: #25120c;
+    color: #ffd699;
+    font-family: 'Fredoka One', cursive;
+    font-size: 12px;
+    letter-spacing: 0.3px;
+    padding: 10px 12px;
+    border-bottom: 2px solid #5d2e22;
+    white-space: nowrap;
+  }
+  table.data-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #2e150f;
+    color: #f5f5f5;
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+  table.data-table tr:hover td {
+    background: rgba(255, 179, 0, 0.05);
+  }
+
+  .badge-tag {
+    font-size: 10px;
+    font-weight: 900;
+    padding: 3px 8px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+  }
+  .badge-won { background: rgba(46, 125, 50, 0.3); color: #81c784; border: 1px solid #2e7d32; }
+  .badge-lost { background: rgba(198, 40, 40, 0.3); color: #ef9a9a; border: 1px solid #c62828; }
+  .badge-abandoned { background: rgba(117, 117, 117, 0.3); color: #e0e0e0; border: 1px solid #757575; }
+  .badge-normal { background: rgba(255, 152, 0, 0.25); color: #ffb74d; border: 1px solid #f57c00; }
+  .badge-rash { background: rgba(229, 57, 53, 0.25); color: #ff8a80; border: 1px solid #d32f2f; }
+  .badge-register { background: rgba(2, 136, 209, 0.25); color: #81d4fa; border: 1px solid #0288d1; }
+
+  /* BOTÓN DE WHATSAPP DIRECTO */
+  .btn-whatsapp {
+    background: #25d366;
+    color: #fff;
+    font-weight: 800;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    transition: transform 0.1s ease;
+  }
+  .btn-whatsapp:hover {
+    transform: scale(1.05);
+    background: #20ba59;
+  }
+
+  /* MODAL DE SQL Y CONFIG */
+  .sql-box {
+    background: #090403;
+    border: 1px solid #3d1c14;
+    border-radius: 8px;
+    padding: 12px;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    color: #81c784;
+    max-height: 250px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+    margin: 10px 0;
+  }
+
+  /* LOADING SPINNER */
+  .loading-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(16, 7, 5, 0.85);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .spinner {
+    width: 44px;
+    height: 44px;
+    border: 4px solid rgba(255, 179, 0, 0.2);
+    border-top-color: var(--ramen-gold);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    header.dash-header { padding: 10px 14px; flex-direction: column; gap: 10px; align-items: flex-start; }
+    .header-actions { width: 100%; justify-content: space-between; flex-wrap: wrap; }
+    .dash-container { padding: 14px 10px; }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .table-header-row { flex-direction: column; align-items: flex-start; }
+    .search-input { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOADING OVERLAY -->
+<div class="loading-overlay" id="loading-overlay">
+  <div class="spinner"></div>
+  <div style="font-family:'Fredoka One', cursive; font-size:16px; color:var(--ramen-gold);">Sincronizando Métricas en Tiempo Real...</div>
+</div>
+
+<!-- HEADER -->
+<header class="dash-header">
+  <div class="header-brand">
+    <div class="brand-logo">🍜</div>
+    <div class="brand-titles">
+      <h1>RAMEN MANIA - ANALYTICS</h1>
+      <p>Centro de Control, Telemetría y Gestión de Jugadores</p>
+    </div>
+  </div>
+
+  <div class="header-actions">
+    <div class="status-badge" id="conn-status-badge">
+      <span class="status-dot"></span>
+      <span id="conn-status-text">Conectando...</span>
+    </div>
+    <button class="btn-action" onclick="fetchLiveMetrics(true)" title="Forzar actualización de datos en tiempo real">
+      🔄 <span>Actualizar</span>
+    </button>
+    <button class="btn-action btn-primary" onclick="exportDataToCSV()" title="Exportar métricas y contactos a Excel / CSV">
+      📥 <span>Exportar CSV</span>
+    </button>
+    <a href="/" class="btn-action" title="Abrir y jugar Ramen Mania Arcade">
+      🎮 <span>Ir al Juego</span>
+    </a>
+  </div>
+</header>
+
+<div class="dash-container">
+
+  <!-- KPI CARDS (RESUMEN EJECUTIVO) -->
+  <div class="kpi-grid">
+    <!-- 1. Jugadores Registrados -->
+    <div class="kpi-card">
+      <div class="kpi-icon">👥</div>
+      <div class="kpi-content">
+        <span class="kpi-label">Chefs Registrados</span>
+        <span class="kpi-value" id="kpi-total-players">0</span>
+        <span class="kpi-sub" id="kpi-sub-players">Dispositivos Únicos</span>
+      </div>
+    </div>
+
+    <!-- 2. Partidas Jugadas -->
+    <div class="kpi-card">
+      <div class="kpi-icon">🎮</div>
+      <div class="kpi-content">
+        <span class="kpi-label">Partidas Jugadas</span>
+        <span class="kpi-value" id="kpi-total-games">0</span>
+        <span class="kpi-sub" id="kpi-sub-games">Normal & Rash</span>
+      </div>
+    </div>
+
+    <!-- 3. Recaudación Total -->
+    <div class="kpi-card">
+      <div class="kpi-icon">💰</div>
+      <div class="kpi-content">
+        <span class="kpi-label">Recaudación Total</span>
+        <span class="kpi-value" id="kpi-total-money" style="color:var(--ramen-gold);">S/ 0</span>
+        <span class="kpi-sub" id="kpi-sub-money">Ventas en Monedas</span>
+      </div>
+    </div>
+
+    <!-- 4. Clientes Atendidos -->
+    <div class="kpi-card">
+      <div class="kpi-icon">🥢</div>
+      <div class="kpi-content">
+        <span class="kpi-label">Clientes Atendidos</span>
+        <span class="kpi-value" id="kpi-total-customers">0</span>
+        <span class="kpi-sub" id="kpi-sub-satisfaction">0% Satisfacción</span>
+      </div>
+    </div>
+
+    <!-- 5. Récord Máximo Histórico -->
+    <div class="kpi-card">
+      <div class="kpi-icon">🏆</div>
+      <div class="kpi-content">
+        <span class="kpi-label">Puntaje Máximo</span>
+        <span class="kpi-value" id="kpi-best-score">S/ 0</span>
+        <span class="kpi-sub" id="kpi-sub-best-player">Líder del Ranking</span>
+      </div>
+    </div>
+
+    <!-- 6. Tiempo Total Jugado -->
+    <div class="kpi-card">
+      <div class="kpi-icon">⏱️</div>
+      <div class="kpi-content">
+        <span class="kpi-label">Tiempo Total Jugado</span>
+        <span class="kpi-value" id="kpi-total-time">0m</span>
+        <span class="kpi-sub">Horas en Cocina</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- NAVEGACIÓN POR PESTAÑAS -->
+  <div class="nav-tabs-bar">
+    <button class="tab-btn active" onclick="switchTab('tab-overview')">📊 Resumen & Gráficos</button>
+    <button class="tab-btn" onclick="switchTab('tab-players')">👥 Jugadores & Contactos (<span id="tab-count-players">0</span>)</button>
+    <button class="tab-btn" onclick="switchTab('tab-leaderboard')">🏆 Ranking & Leaderboard (<span id="tab-count-lb">0</span>)</button>
+    <button class="tab-btn" onclick="switchTab('tab-sessions')">📜 Historial de Partidas (<span id="tab-count-sessions">0</span>)</button>
+    <button class="tab-btn" onclick="switchTab('tab-recipes')">🍲 Análisis de Ramen & Dificultad</button>
+    <button class="tab-btn" onclick="switchTab('tab-settings')">⚙️ Base de Datos & SQL</button>
+  </div>
+
+  <!-- PESTAÑA 1: RESUMEN Y GRÁFICOS -->
+  <div class="tab-pane active" id="tab-overview">
+    <div class="charts-grid">
+      <!-- Gráfico 1: Puntuación de Mejores Jugadores -->
+      <div class="chart-card">
+        <div class="chart-title">
+          <span>🏆 Top Chefs por Recaudación (S/)</span>
+          <span style="font-size:11px; color:var(--text-muted); font-family:'Nunito';">Mayor ingreso acumulado</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="chart-top-players"></canvas>
+        </div>
+      </div>
+
+      <!-- Gráfico 2: Distribución de Modos de Juego -->
+      <div class="chart-card">
+        <div class="chart-title">
+          <span>🎮 Modos de Juego & Participación</span>
+          <span style="font-size:11px; color:var(--text-muted); font-family:'Nunito';">Normal vs Rash</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="chart-modes-dist"></canvas>
+        </div>
+      </div>
+
+      <!-- Gráfico 3: Clientes Atendidos vs Perdidos -->
+      <div class="chart-card">
+        <div class="chart-title">
+          <span>🥢 Satisfacción de Clientes</span>
+          <span style="font-size:11px; color:var(--text-muted); font-family:'Nunito';">Atendidos vs Perdidos</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="chart-customers-dist"></canvas>
+        </div>
+      </div>
+
+      <!-- Gráfico 4: Resultados de Partidas -->
+      <div class="chart-card">
+        <div class="chart-title">
+          <span>📈 Tasa de Victoria y Desafío</span>
+          <span style="font-size:11px; color:var(--text-muted); font-family:'Nunito';">Victorias / Derrotas</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="chart-outcomes-dist"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PESTAÑA 2: JUGADORES Y CONTACTOS -->
+  <div class="tab-pane" id="tab-players">
+    <div class="table-card">
+      <div class="table-header-row">
+        <div class="table-title">
+          <span>👥 Directorio de Chefs & Dispositivos Registrados</span>
+          <span class="badge-tag badge-normal" id="players-counter-badge">0 Registros</span>
+        </div>
+        <div class="table-controls">
+          <input type="text" class="search-input" id="search-players" placeholder="🔍 Buscar por nombre, teléfono o dispositivo..." oninput="filterPlayersTable()">
+          <button class="btn-action" onclick="exportPlayersCSV()">📥 CSV Jugadores</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table" id="table-players">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Chef / Nombre</th>
+              <th>Contacto (Teléfono / Email)</th>
+              <th>ID de Dispositivo</th>
+              <th>Partidas</th>
+              <th>Récord (S/)</th>
+              <th>Clientes</th>
+              <th>Última Conexión</th>
+              <th>Registro</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-players">
+            <tr><td colspan="9" style="text-align:center; padding:20px; color:var(--text-muted);">Cargando jugadores registrados...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PESTAÑA 3: RANKING & LEADERBOARD -->
+  <div class="tab-pane" id="tab-leaderboard">
+    <div class="table-card">
+      <div class="table-header-row">
+        <div class="table-title">
+          <span>🏆 Tabla Oficial de Clasificación y Premiación</span>
+        </div>
+        <div class="table-controls">
+          <button class="btn-action btn-primary" id="btn-lb-all" onclick="filterLeaderboard('ALL')">Todos</button>
+          <button class="btn-action" id="btn-lb-normal" onclick="filterLeaderboard('NORMAL')">🏮 Modo Normal</button>
+          <button class="btn-action" id="btn-lb-rash" onclick="filterLeaderboard('RASH')">⚡ Modo Rash</button>
+          <input type="text" class="search-input" id="search-lb" placeholder="🔍 Buscar en ranking..." oninput="filterLeaderboardTable()">
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table" id="table-leaderboard">
+          <thead>
+            <tr>
+              <th style="width:50px;">Pos</th>
+              <th>Chef</th>
+              <th>Modo</th>
+              <th>Puntaje (S/)</th>
+              <th>Clientes Atendidos</th>
+              <th>Nivel / Ronda</th>
+              <th>Contacto</th>
+              <th>Fecha de Récord</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-leaderboard">
+            <tr><td colspan="8" style="text-align:center; padding:20px; color:var(--text-muted);">Cargando ranking en vivo...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PESTAÑA 4: HISTORIAL DE SESIONES -->
+  <div class="tab-pane" id="tab-sessions">
+    <div class="table-card">
+      <div class="table-header-row">
+        <div class="table-title">
+          <span>📜 Registro Detallado de Partidas & Telemetría</span>
+          <span class="badge-tag badge-register" id="sessions-counter-badge">0 Partidas</span>
+        </div>
+        <div class="table-controls">
+          <input type="text" class="search-input" id="search-sessions" placeholder="🔍 Filtrar por jugador o nivel..." oninput="filterSessionsTable()">
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table" id="table-sessions">
+          <thead>
+            <tr>
+              <th>Fecha & Hora</th>
+              <th>Jugador</th>
+              <th>Modo</th>
+              <th>Nivel</th>
+              <th>Duración</th>
+              <th>Clientes</th>
+              <th>Ramen Fallados</th>
+              <th>Resultado</th>
+              <th>Recaudado</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-sessions">
+            <tr><td colspan="9" style="text-align:center; padding:20px; color:var(--text-muted);">Cargando historial de partidas...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PESTAÑA 5: ANÁLISIS DE DIFICULTAD -->
+  <div class="tab-pane" id="tab-recipes">
+    <div class="table-card">
+      <div class="table-title" style="margin-bottom:14px;">
+        <span>🍲 Análisis de Pedidos de Ramen y Retención</span>
+      </div>
+      <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">
+        Esta métrica identifica cuáles recetas generan mayores cuellos de botella para los clientes y dónde se producen mayores cancelaciones o clientes enojados.
+      </p>
+
+      <div class="table-wrap">
+        <table class="data-table" id="table-recipes-analysis">
+          <thead>
+            <tr>
+              <th>Tipo de Ramen</th>
+              <th>Ingredientes Requeridos</th>
+              <th>Precio Venta</th>
+              <th>Complejidad</th>
+              <th>Estado de Balance</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong style="color:#ffb300;">Shio Ramen</strong></td>
+              <td>Fideos, Caldo Shio, Chasu, Huevo, Poro, Cebolla, Ají Blanco, Nori, Moyashi</td>
+              <td><span style="color:#81c784; font-weight:800;">S/ 38</span></td>
+              <td><span class="badge-tag badge-normal">Básico (9 ing.)</span></td>
+              <td><span style="color:#81c784;">✓ Óptimo para aprendizaje</span></td>
+            </tr>
+            <tr>
+              <td><strong style="color:#ffb300;">Shoyu Ramen</strong></td>
+              <td>Fideos, Caldo Shio, Salsa Shoyu, Chasu, Huevo, Poro, Cebolla, Ají, Nori, Bambú, Holantao</td>
+              <td><span style="color:#81c784; font-weight:800;">S/ 40</span></td>
+              <td><span class="badge-tag badge-normal">Medio (11 ing.)</span></td>
+              <td><span style="color:#81c784;">✓ Excelente ritmo</span></td>
+            </tr>
+            <tr>
+              <td><strong style="color:#ffb300;">Miso Ramen</strong></td>
+              <td>Fideos, Caldo Shio, Salsa Miso, Chasu, Huevo, Poro, Cebolla, Ají, Nori, Bambú, Holantao</td>
+              <td><span style="color:#81c784; font-weight:800;">S/ 42</span></td>
+              <td><span class="badge-tag badge-normal">Medio (11 ing.)</span></td>
+              <td><span style="color:#81c784;">✓ Popular</span></td>
+            </tr>
+            <tr>
+              <td><strong style="color:#ffb300;">Tonkotsu Ramen</strong></td>
+              <td>Fideos, Caldo Tonkotsu, Chasu, Huevo, Poro, Cebolla, Ají, Nori, Col Cocida, Moyashi</td>
+              <td><span style="color:#81c784; font-weight:800;">S/ 46</span></td>
+              <td><span class="badge-tag badge-rash">Avanzado (10 ing.)</span></td>
+              <td><span style="color:#ffb74d;">⚡ Requiere calentar Tonkotsu</span></td>
+            </tr>
+            <tr>
+              <td><strong style="color:#ffb300;">Chashu Ramen</strong></td>
+              <td>Fideos, Caldo Tonkotsu, Chasu Pork, Huevo, Poro, Cebolla, Ají, Nori</td>
+              <td><span style="color:#81c784; font-weight:800;">S/ 48</span></td>
+              <td><span class="badge-tag badge-rash">Avanzado (8 ing.)</span></td>
+              <td><span style="color:#ffb74d;">⚡ Alto consumo de Chasu</span></td>
+            </tr>
+            <tr>
+              <td><strong style="color:#ffb300;">Ebi Ramen</strong></td>
+              <td>Fideos, Caldo Shio, Salsa Ebi, Langostinos, Huevo, Poro, Cebolla, Ají, Nori, Champiñones, Espárragos</td>
+              <td><span style="color:#81c784; font-weight:800;">S/ 50</span></td>
+              <td><span class="badge-tag badge-rash">Supremo (11 ing.)</span></td>
+              <td><span style="color:#81d4fa;">★ Mayor rentabilidad</span></td>
+            </tr>
+            <tr>
+              <td><strong style="color:#ffb300;">Tan Tan Ramen</strong></td>
+              <td>Fideos, Caldo Shio, Salsa Tan Tan, Chancho Molido, Huevo, Poro, Cebolla, Ají, Nori, Moyashi</td>
+              <td><span style="color:#81c784; font-weight:800;">S/ 45</span></td>
+              <td><span class="badge-tag badge-rash">Picante (10 ing.)</span></td>
+              <td><span style="color:#81c784;">✓ Buen flujo</span></td>
+            </tr>
+            <tr>
+              <td><strong style="color:#ffb300;">Vegetariano</strong></td>
+              <td>Agua, Salsa Vegetariana, Tofu, Poro, Cebolla, Ají, Nori, Bambú, Champiñones, Shitake, Espárragos</td>
+              <td><span style="color:#81c784; font-weight:800;">S/ 42</span></td>
+              <td><span class="badge-tag badge-normal">Vegetal (11 ing.)</span></td>
+              <td><span style="color:#81c784;">✓ Sin caldo animal</span></td>
+            </tr>
+            <tr>
+              <td><strong style="color:#ffb300;">Bajiru Ramen</strong></td>
+              <td>Fideos, Caldo Shio, Salsa Bajiru, Brisket, Huevo, Poro, Ají, Nori, Alga Wanji, Zanahoria</td>
+              <td><span style="color:#81c784; font-weight:800;">S/ 48</span></td>
+              <td><span class="badge-tag badge-rash">Gourmet (10 ing.)</span></td>
+              <td><span style="color:#81d4fa;">★ Receta de Maestro</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PESTAÑA 6: CONFIGURACIÓN & BASE DE DATOS -->
+  <div class="tab-pane" id="tab-settings">
+    <div class="table-card">
+      <div class="table-title" style="margin-bottom:10px;">
+        <span>⚙️ Estado de Conexión y Configuración de Supabase</span>
+      </div>
+      <p style="font-size:12px; color:var(--text-muted); margin-bottom:14px;">
+        Este panel se conecta directamente a la nube de Supabase. A continuación puedes ver el estado del endpoint y copiar el script de base de datos para crear las tablas adicionales si aún no las tienes creadas.
+      </p>
+
+      <div style="background:#1f0e0a; border:1px solid #4a241a; border-radius:10px; padding:14px; margin-bottom:16px;">
+        <div style="font-size:12px; font-weight:800; color:#ffd699; margin-bottom:6px;">URL de Proyecto Supabase:</div>
+        <div style="font-family:'Courier New', monospace; font-size:13px; color:#81d4fa; word-break:break-all;">https://byfvmwupbimvocmxrgab.supabase.co</div>
+        <div style="font-size:11px; color:#81c784; margin-top:4px;">● Conexión activa y autenticada mediante clave pública anónima.</div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
+        <div style="font-weight:800; font-size:13px; color:var(--ramen-gold);">Script SQL para Supabase Editor (Creación de Tablas 'players' y 'game_sessions'):</div>
+        <button class="btn-action btn-primary" onclick="copySqlSchema()">📋 Copiar SQL</button>
+      </div>
+
+      <div class="sql-box" id="sql-schema-box">-- 1. Tabla de Jugadores Únicos
+create table if not exists public.players (
+  id uuid default gen_random_uuid() primary key,
+  device_id text unique not null,
+  device_fingerprint text,
+  device_info text,
+  player_name text not null,
+  contact text,
+  avatar text default '🍜',
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  last_login timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- 2. Tabla de Sesiones y Telemetría
+create table if not exists public.game_sessions (
+  id uuid default gen_random_uuid() primary key,
+  device_id text not null,
+  player_name text not null,
+  game_mode text not null default 'NORMAL',
+  level_number integer not null default 1,
+  duration_seconds integer not null default 0,
+  customers_served integer not null default 0,
+  customers_lost integer not null default 0,
+  failed_recipes jsonb default '[]'::jsonb,
+  outcome text default 'COMPLETED',
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- Políticas RLS
+alter table public.players enable row level security;
+alter table public.game_sessions enable row level security;
+create policy "Permitir lectura publica de jugadores" on public.players for select to anon, authenticated using (true);
+create policy "Permitir registro de jugador por dispositivo" on public.players for insert to anon, authenticated with check (length(player_name) >= 2);
+create policy "Permitir actualizar datos de jugador" on public.players for update to anon, authenticated using (true);
+create policy "Permitir lectura publica de sesiones" on public.game_sessions for select to anon, authenticated using (true);
+create policy "Permitir insertar sesiones" on public.game_sessions for insert to anon, authenticated with check (true);
+</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- JAVASCRIPT DEL DASHBOARD -->
+<script>
+const SUPABASE_CONFIG = {
+  url: "https://byfvmwupbimvocmxrgab.supabase.co",
+  anonKey: "sb_publishable_cY2QwNiaJzKEIbIwsYsFIw_9kSH7h2L"
+};
+
+let supabaseClient = null;
+let allPlayers = [];
+let allLeaderboard = [];
+let allSessions = [];
+let currentLbFilter = 'ALL';
+let chartInstances = {};
+
+function initSupabase() {
+  try {
+    if (window.supabase) {
+      supabaseClient = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+    }
+  } catch (err) {
+    console.warn("Error inicializando cliente de Supabase:", err);
+  }
+}
+
+// CAMBIO DE PESTAÑAS
+function switchTab(tabId) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+  const activePane = document.getElementById(tabId);
+  if (activePane) activePane.classList.add('active');
+
+  const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => {
+    const attr = b.getAttribute('onclick') || '';
+    return attr.includes(tabId);
+  });
+  if (activeBtn) activeBtn.classList.add('active');
+
+  if (tabId === 'tab-overview') {
+    renderCharts();
+  }
+}
+
+// FORMATEADORES DE DATOS
+function formatMoney(num) {
+  return `S/ ${Number(num || 0).toLocaleString('es-PE')}`;
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '-';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    return d.toLocaleDateString('es-PE', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+  } catch(e) { return dateStr; }
+}
+
+function formatRelativeTime(dateStr) {
+  if (!dateStr) return '-';
+  try {
+    const d = new Date(dateStr);
+    const now = new Date();
+    const diffSec = Math.floor((now - d) / 1000);
+    if (diffSec < 60) return 'Hace unos seg';
+    if (diffSec < 3600) return `Hace ${Math.floor(diffSec/60)} min`;
+    if (diffSec < 86400) return `Hace ${Math.floor(diffSec/3600)} h`;
+    const days = Math.floor(diffSec/86400);
+    return `Hace ${days} d`;
+  } catch(e) { return formatDate(dateStr); }
+}
+
+function formatSeconds(sec) {
+  const s = parseInt(sec) || 0;
+  const m = Math.floor(s / 60);
+  const rem = s % 60;
+  return `${m}m ${rem}s`;
+}
+
+function escapeHtml(text) {
+  if (!text) return '';
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+// OBTENCIÓN DE DATOS EN VIVO DESDE SUPABASE
+async function fetchLiveMetrics(showLoader = false) {
+  const loader = document.getElementById("loading-overlay");
+  if (showLoader && loader) loader.style.display = "flex";
+
+  const badgeText = document.getElementById("conn-status-text");
+  const badgeDot = document.querySelector(".status-dot");
+
+  try {
+    if (!supabaseClient) initSupabase();
+
+    // 1. Cargar Leaderboard (Récords oficiales y participaciones)
+    let lbData = [];
+    try {
+      const resLb = await supabaseClient.from('leaderboard').select('*').order('created_at', { ascending: false });
+      if (resLb.data) lbData = resLb.data;
+    } catch(e) {}
+
+    // 2. Cargar Jugadores Registrados
+    let playersData = [];
+    try {
+      const resPlayers = await supabaseClient.from('players').select('*').order('last_login', { ascending: false });
+      if (resPlayers.data) playersData = resPlayers.data;
+    } catch(e) {}
+
+    // 3. Cargar Sesiones de Juego
+    let sessionsData = [];
+    try {
+      const resSessions = await supabaseClient.from('game_sessions').select('*').order('created_at', { ascending: false });
+      if (resSessions.data) sessionsData = resSessions.data;
+    } catch(e) {}
+
+    // Síntesis inteligente: Si la tabla 'players' no ha sido creada en Supabase aún,
+    // extraemos automáticamente todos los jugadores únicos registrados en 'leaderboard'
+    if (!playersData || playersData.length === 0) {
+      const uniqueChefs = {};
+      lbData.forEach(row => {
+        const key = (row.player_name || '').trim().toLowerCase();
+        if (!key) return;
+        if (!uniqueChefs[key]) {
+          uniqueChefs[key] = {
+            id: row.id,
+            player_name: row.player_name,
+            contact: row.contact,
+            device_id: row.device_id || 'Dispositivo Vinculado',
+            avatar: '🥋',
+            created_at: row.created_at,
+            last_login: row.created_at
+          };
+        } else {
+          if (row.contact && !uniqueChefs[key].contact) uniqueChefs[key].contact = row.contact;
+          if (new Date(row.created_at) > new Date(uniqueChefs[key].last_login)) {
+            uniqueChefs[key].last_login = row.created_at;
+          }
+          if (new Date(row.created_at) < new Date(uniqueChefs[key].created_at)) {
+            uniqueChefs[key].created_at = row.created_at;
+          }
+        }
+      });
+      playersData = Object.values(uniqueChefs);
+    }
+
+    allLeaderboard = lbData;
+    allPlayers = playersData;
+    allSessions = sessionsData;
+
+    // Actualizar indicador de conexión
+    if (badgeText) badgeText.textContent = "Supabase Conectado";
+    if (badgeDot) badgeDot.style.background = "#4caf50";
+
+    // Procesar y renderizar todas las métricas
+    computeAndRenderKPIs();
+    renderPlayersTable(allPlayers);
+    renderLeaderboardTable(allLeaderboard);
+    renderSessionsTable(allSessions);
+    renderCharts();
+
+  } catch (err) {
+    console.error("Error cargando métricas:", err);
+    if (badgeText) badgeText.textContent = "Error de Conexión";
+    if (badgeDot) badgeDot.style.background = "#e53935";
+  } finally {
+    if (loader) loader.style.display = "none";
+  }
+}
+
+// CÁLCULO DE KPIS
+function computeAndRenderKPIs() {
+  // 1. Total Jugadores
+  const totalPlayers = allPlayers.length;
+  document.getElementById("kpi-total-players").textContent = totalPlayers;
+  document.getElementById("tab-count-players").textContent = totalPlayers;
+
+  // 2. Total Partidas (Suma de leaderboard que no sean solo registro + sessions)
+  const actualGames = allLeaderboard.filter(r => r.game_mode !== 'REGISTRO' && r.game_mode !== 'REGISTER');
+  const totalGames = Math.max(actualGames.length, allSessions.length);
+  document.getElementById("kpi-total-games").textContent = totalGames;
+  document.getElementById("tab-count-lb").textContent = allLeaderboard.length;
+  document.getElementById("tab-count-sessions").textContent = allSessions.length;
+
+  // 3. Recaudación Total Acumulada
+  let totalMoney = 0;
+  allLeaderboard.forEach(r => { totalMoney += (parseInt(r.score_money) || 0); });
+  document.getElementById("kpi-total-money").textContent = formatMoney(totalMoney);
+
+  // 4. Clientes Atendidos
+  let totalCustomers = 0;
+  allLeaderboard.forEach(r => { totalCustomers += (parseInt(r.customers_served) || 0); });
+  document.getElementById("kpi-total-customers").textContent = totalCustomers.toLocaleString('es-PE');
+
+  // Clientes perdidos si existen en sesiones
+  let totalLost = 0;
+  allSessions.forEach(s => { totalLost += (parseInt(s.customers_lost) || 0); });
+  if (totalCustomers + totalLost > 0) {
+    const rate = Math.round((totalCustomers / (totalCustomers + totalLost)) * 100);
+    document.getElementById("kpi-sub-satisfaction").textContent = `${rate}% Satisfacción`;
+  } else {
+    document.getElementById("kpi-sub-satisfaction").textContent = `100% Satisfacción`;
+  }
+
+  // 5. Puntuación Récord
+  let bestScore = 0;
+  let bestPlayerName = 'Nadie aún';
+  allLeaderboard.forEach(r => {
+    const s = parseInt(r.score_money) || 0;
+    if (s > bestScore) {
+      bestScore = s;
+      bestPlayerName = r.player_name || 'Chef';
+    }
+  });
+  document.getElementById("kpi-best-score").textContent = formatMoney(bestScore);
+  document.getElementById("kpi-sub-best-player").textContent = `Por ${bestPlayerName}`;
+
+  // 6. Tiempo Total Jugado
+  let totalSecs = 0;
+  allSessions.forEach(s => { totalSecs += (parseInt(s.duration_seconds) || 0); });
+  if (totalSecs === 0) {
+    // Estimación basada en partidas jugadas (promedio 90s por partida)
+    totalSecs = totalGames * 90;
+  }
+  const hours = (totalSecs / 3600).toFixed(1);
+  document.getElementById("kpi-total-time").textContent = `${hours}h`;
+}
+
+// RENDERIZADO DE TABLA DE JUGADORES
+function renderPlayersTable(players) {
+  const tbody = document.getElementById("tbody-players");
+  const counterBadge = document.getElementById("players-counter-badge");
+  if (counterBadge) counterBadge.textContent = `${players.length} Chefs`;
+
+  if (!players || players.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:24px; color:var(--text-muted);">No hay chefs registrados aún.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = players.map((p, idx) => {
+    // Calcular estadísticas del jugador desde el leaderboard
+    const chefName = (p.player_name || '').trim().toLowerCase();
+    const chefRecords = allLeaderboard.filter(r => (r.player_name || '').trim().toLowerCase() === chefName);
+    
+    let bestScore = 0;
+    let totalServed = 0;
+    chefRecords.forEach(r => {
+      const sc = parseInt(r.score_money) || 0;
+      if (sc > bestScore) bestScore = sc;
+      totalServed += (parseInt(r.customers_served) || 0);
+    });
+
+    const gamesCount = chefRecords.filter(r => r.game_mode !== 'REGISTRO' && r.game_mode !== 'REGISTER').length;
+
+    // Formatear contacto con enlace directo de WhatsApp si es número telefónico
+    let contactHtml = '<span style="color:#757575;">Sin registrar</span>';
+    if (p.contact) {
+      const cleanPhone = String(p.contact).replace(/\D/g, '');
+      if (cleanPhone.length >= 7) {
+        // Enlace de WhatsApp
+        const waNumber = cleanPhone.length === 9 ? `51${cleanPhone}` : cleanPhone;
+        contactHtml = `
+          <div style="display:inline-flex; align-items:center; gap:6px;">
+            <span>${escapeHtml(p.contact)}</span>
+            <a href="https://wa.me/${waNumber}?text=Hola%20Chef%20${encodeURIComponent(p.player_name || '')},%20te%20escribimos%20de%20Ramen%20Mania!" target="_blank" class="btn-whatsapp" title="Abrir chat de WhatsApp">
+              💬 WA
+            </a>
+          </div>
+        `;
+      } else {
+        contactHtml = `<span>${escapeHtml(p.contact)}</span>`;
+      }
+    }
+
+    const devSnippet = p.device_id ? (p.device_id.length > 14 ? p.device_id.substring(0, 14) + '...' : p.device_id) : 'Web Client';
+
+    return `
+      <tr>
+        <td style="color:#757575; font-weight:800;">#${idx + 1}</td>
+        <td>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:18px;">${p.avatar || '🥋'}</span>
+            <strong style="color:#ffd699; font-size:13px;">${escapeHtml(p.player_name || 'Chef Anónimo')}</strong>
+          </div>
+        </td>
+        <td>${contactHtml}</td>
+        <td><code style="font-size:10px; color:#81d4fa; background:rgba(2,136,209,0.15); padding:2px 6px; border-radius:4px;">${devSnippet}</code></td>
+        <td style="text-align:center; font-weight:800; color:#fff;">${gamesCount}</td>
+        <td style="font-weight:900; color:var(--ramen-gold);">${formatMoney(bestScore)}</td>
+        <td style="font-weight:800; color:#81c784;">${totalServed}</td>
+        <td style="font-size:11px; color:#bcaaa4;" title="${formatDate(p.last_login)}">${formatRelativeTime(p.last_login)}</td>
+        <td style="font-size:11px; color:#757575;">${formatDate(p.created_at)}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function filterPlayersTable() {
+  const query = (document.getElementById("search-players").value || '').trim().toLowerCase();
+  if (!query) {
+    renderPlayersTable(allPlayers);
+    return;
+  }
+  const filtered = allPlayers.filter(p => {
+    const name = (p.player_name || '').toLowerCase();
+    const contact = (p.contact || '').toLowerCase();
+    const dev = (p.device_id || '').toLowerCase();
+    return name.includes(query) || contact.includes(query) || dev.includes(query);
+  });
+  renderPlayersTable(filtered);
+}
+
+function exportPlayersCSV() {
+  if (!allPlayers || allPlayers.length === 0) {
+    alert("No hay jugadores para exportar.");
+    return;
+  }
+  let csv = "\uFEFFNombre,Contacto,ID Dispositivo,Ultima Conexion,Fecha Registro\n";
+  allPlayers.forEach(p => {
+    csv += `"${(p.player_name || '').replace(/"/g, '""')}","${(p.contact || '').replace(/"/g, '""')}","${(p.device_id || '')}","${p.last_login || ''}","${p.created_at || ''}"\n`;
+  });
+  downloadCSV(csv, `ramen_mania_jugadores_${new Date().toISOString().slice(0,10)}.csv`);
+}
+
+// RENDERIZADO DE TABLA DE LEADERBOARD
+function renderLeaderboardTable(records) {
+  const tbody = document.getElementById("tbody-leaderboard");
+
+  // Filtrar según el modo activo
+  let filtered = [...records];
+  if (currentLbFilter === 'NORMAL') {
+    filtered = filtered.filter(r => r.game_mode === 'NORMAL');
+  } else if (currentLbFilter === 'RASH') {
+    filtered = filtered.filter(r => r.game_mode === 'RASH');
+  }
+
+  // Ordenar por puntuación descendente
+  filtered.sort((a, b) => (parseInt(b.score_money) || 0) - (parseInt(a.score_money) || 0));
+
+  if (!filtered || filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:24px; color:var(--text-muted);">No hay puntuaciones registradas en este modo.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map((r, idx) => {
+    let medal = `#${idx + 1}`;
+    if (idx === 0) medal = '🥇 #1';
+    else if (idx === 1) medal = '🥈 #2';
+    else if (idx === 2) medal = '🥉 #3';
+
+    let modeBadge = `<span class="badge-tag badge-normal">Campaña</span>`;
+    if (r.game_mode === 'RASH') modeBadge = `<span class="badge-tag badge-rash">Modo Rash</span>`;
+    else if (r.game_mode === 'REGISTRO' || r.game_mode === 'REGISTER') modeBadge = `<span class="badge-tag badge-register">Registro</span>`;
+
+    // Teléfono
+    let contactHtml = '<span style="color:#757575;">-</span>';
+    if (r.contact) {
+      const cleanPhone = String(r.contact).replace(/\D/g, '');
+      if (cleanPhone.length >= 7) {
+        const waNumber = cleanPhone.length === 9 ? `51${cleanPhone}` : cleanPhone;
+        contactHtml = `
+          <a href="https://wa.me/${waNumber}?text=Hola%20Chef%20${encodeURIComponent(r.player_name || '')},%20te%20felicitamos%20por%20tu%20puntuaci%C3%B3n%20en%20Ramen%20Mania!" target="_blank" class="btn-whatsapp">
+            ${escapeHtml(r.contact)}
+          </a>
+        `;
+      } else {
+        contactHtml = `<span>${escapeHtml(r.contact)}</span>`;
+      }
+    }
+
+    return `
+      <tr style="${idx < 3 ? 'background:rgba(255,179,0,0.06);' : ''}">
+        <td style="font-family:'Fredoka One', cursive; font-size:13px; color:${idx < 3 ? 'var(--ramen-gold)' : '#bcaaa4'};">${medal}</td>
+        <td><strong style="color:#fff; font-size:13px;">${escapeHtml(r.player_name || 'Anónimo')}</strong></td>
+        <td>${modeBadge}</td>
+        <td style="font-family:'Fredoka One', cursive; font-size:15px; color:var(--ramen-gold);">${formatMoney(r.score_money)}</td>
+        <td style="font-weight:800; color:#81c784;">${r.customers_served || 0}</td>
+        <td style="font-weight:700; color:#ffb74d;">Lvl ${r.level_reached || 1}</td>
+        <td>${contactHtml}</td>
+        <td style="font-size:11px; color:#bcaaa4;">${formatDate(r.created_at)}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function filterLeaderboard(mode) {
+  currentLbFilter = mode;
+  document.getElementById("btn-lb-all").className = mode === 'ALL' ? 'btn-action btn-primary' : 'btn-action';
+  document.getElementById("btn-lb-normal").className = mode === 'NORMAL' ? 'btn-action btn-primary' : 'btn-action';
+  document.getElementById("btn-lb-rash").className = mode === 'RASH' ? 'btn-action btn-primary' : 'btn-action';
+  renderLeaderboardTable(allLeaderboard);
+}
+
+function filterLeaderboardTable() {
+  const query = (document.getElementById("search-lb").value || '').trim().toLowerCase();
+  if (!query) {
+    renderLeaderboardTable(allLeaderboard);
+    return;
+  }
+  const filtered = allLeaderboard.filter(r => {
+    return (r.player_name || '').toLowerCase().includes(query) || (r.contact || '').toLowerCase().includes(query);
+  });
+  renderLeaderboardTable(filtered);
+}
+
+// RENDERIZADO DE TABLA DE SESIONES
+function renderSessionsTable(sessions) {
+  const tbody = document.getElementById("tbody-sessions");
+  const counterBadge = document.getElementById("sessions-counter-badge");
+  if (counterBadge) counterBadge.textContent = `${sessions.length} Partidas`;
+
+  if (!sessions || sessions.length === 0) {
+    // Si no hay sesiones en la tabla 'game_sessions', mostramos las de 'leaderboard'
+    if (allLeaderboard && allLeaderboard.length > 0) {
+      const mockSessions = allLeaderboard.filter(r => r.game_mode !== 'REGISTRO' && r.game_mode !== 'REGISTER');
+      if (mockSessions.length > 0) {
+        tbody.innerHTML = mockSessions.map(m => `
+          <tr>
+            <td style="font-size:11px; color:#bcaaa4;">${formatDate(m.created_at)}</td>
+            <td><strong style="color:#ffd699;">${escapeHtml(m.player_name || 'Chef')}</strong></td>
+            <td><span class="badge-tag ${m.game_mode === 'RASH' ? 'badge-rash' : 'badge-normal'}">${m.game_mode}</span></td>
+            <td style="text-align:center; font-weight:800;">${m.level_reached || 1}</td>
+            <td style="color:#81c784; font-weight:700;">~90s</td>
+            <td style="font-size:11px;"><span style="color:#81c784;">✓ ${m.customers_served || 0}</span></td>
+            <td style="font-size:10px; color:#bcaaa4;">-</td>
+            <td><span class="badge-tag badge-won">Completada</span></td>
+            <td style="font-weight:800; color:var(--ramen-gold);">${formatMoney(m.score_money)}</td>
+          </tr>
+        `).join('');
+        return;
+      }
+    }
+
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:24px; color:var(--text-muted);">No hay sesiones de telemetría registradas aún.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = sessions.map(s => {
+    let outcomeBadge = '<span class="badge-tag badge-won">Victoria</span>';
+    if (s.outcome === 'LOST') outcomeBadge = '<span class="badge-tag badge-lost">Derrota</span>';
+    else if (s.outcome === 'ABANDONED') outcomeBadge = '<span class="badge-tag badge-abandoned">Abandonada</span>';
+
+    let failedText = '-';
+    if (Array.isArray(s.failed_recipes) && s.failed_recipes.length > 0) {
+      failedText = s.failed_recipes.join(', ');
+    }
+
+    return `
+      <tr>
+        <td style="font-size:11px; color:#bcaaa4;">${formatDate(s.created_at)}</td>
+        <td><strong style="color:#ffd699;">${escapeHtml(s.player_name || 'Chef')}</strong></td>
+        <td><span class="badge-tag ${s.game_mode === 'RASH' ? 'badge-rash' : 'badge-normal'}">${s.game_mode}</span></td>
+        <td style="text-align:center; font-weight:800;">${s.level_number || 1}</td>
+        <td style="color:#81c784; font-weight:700;">${formatSeconds(s.duration_seconds)}</td>
+        <td style="font-size:11px;">
+          <span style="color:#81c784;">✓ ${s.customers_served || 0}</span> / <span style="color:#ef9a9a;">✗ ${s.customers_lost || 0}</span>
+        </td>
+        <td style="font-size:10px; color:#ffab91;">${escapeHtml(failedText)}</td>
+        <td>${outcomeBadge}</td>
+        <td style="font-weight:800; color:var(--ramen-gold);">-</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function filterSessionsTable() {
+  const query = (document.getElementById("search-sessions").value || '').trim().toLowerCase();
+  if (!query) {
+    renderSessionsTable(allSessions);
+    return;
+  }
+  const filtered = allSessions.filter(s => (s.player_name || '').toLowerCase().includes(query));
+  renderSessionsTable(filtered);
+}
+
+// RENDERIZADO DE GRÁFICOS CON CHART.JS
+function renderCharts() {
+  if (!window.Chart) return;
+
+  // 1. Gráfico Top Players
+  const topPlayersCanvas = document.getElementById("chart-top-players");
+  if (topPlayersCanvas) {
+    if (chartInstances.topPlayers) chartInstances.topPlayers.destroy();
+
+    // Obtener los 5 jugadores con mayor puntuación acumulada
+    const playerTotals = {};
+    allLeaderboard.forEach(r => {
+      const name = r.player_name || 'Chef';
+      playerTotals[name] = (playerTotals[name] || 0) + (parseInt(r.score_money) || 0);
+    });
+    const sorted = Object.entries(playerTotals).sort((a,b) => b[1] - a[1]).slice(0, 5);
+
+    const labels = sorted.length > 0 ? sorted.map(s => s[0]) : ['Sin registros'];
+    const values = sorted.length > 0 ? sorted.map(s => s[1]) : [0];
+
+    chartInstances.topPlayers = new Chart(topPlayersCanvas, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Recaudado (S/)',
+          data: values,
+          backgroundColor: 'rgba(255, 179, 0, 0.8)',
+          borderColor: '#ffd54f',
+          borderWidth: 1.5,
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          x: { ticks: { color: '#ffd699', font: { family: 'Nunito', weight: 'bold' } }, grid: { display: false } },
+          y: { ticks: { color: '#bcaaa4' }, grid: { color: 'rgba(255,255,255,0.06)' } }
+        }
+      }
+    });
+  }
+
+  // 2. Gráfico Distribución por Modo
+  const modesCanvas = document.getElementById("chart-modes-dist");
+  if (modesCanvas) {
+    if (chartInstances.modes) chartInstances.modes.destroy();
+
+    let normalCount = allLeaderboard.filter(r => r.game_mode === 'NORMAL').length;
+    let rashCount = allLeaderboard.filter(r => r.game_mode === 'RASH').length;
+    let regCount = allLeaderboard.filter(r => r.game_mode === 'REGISTRO' || r.game_mode === 'REGISTER').length;
+
+    chartInstances.modes = new Chart(modesCanvas, {
+      type: 'doughnut',
+      data: {
+        labels: ['Modo Normal (Campaña)', 'Modo Rash (Rondas)', 'Nuevos Registros'],
+        datasets: [{
+          data: [normalCount || 1, rashCount || 0, regCount || 0],
+          backgroundColor: ['#ff9800', '#e53935', '#0288d1'],
+          borderWidth: 2,
+          borderColor: '#1c0e0a'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { color: '#ffd699', font: { family: 'Nunito', weight: 'bold' } } }
+        }
+      }
+    });
+  }
+
+  // 3. Gráfico Clientes Atendidos vs Perdidos
+  const custCanvas = document.getElementById("chart-customers-dist");
+  if (custCanvas) {
+    if (chartInstances.customers) chartInstances.customers.destroy();
+
+    let served = 0;
+    allLeaderboard.forEach(r => served += (parseInt(r.customers_served) || 0));
+    let lost = 0;
+    allSessions.forEach(s => lost += (parseInt(s.customers_lost) || 0));
+
+    chartInstances.customers = new Chart(custCanvas, {
+      type: 'doughnut',
+      data: {
+        labels: ['Clientes Atendidos (Éxito)', 'Clientes Perdidos (Paciencia Agotada)'],
+        datasets: [{
+          data: [served || 1, lost || 0],
+          backgroundColor: ['#2e7d32', '#c62828'],
+          borderWidth: 2,
+          borderColor: '#1c0e0a'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { color: '#ffd699', font: { family: 'Nunito', weight: 'bold' } } }
+        }
+      }
+    });
+  }
+
+  // 4. Gráfico Resultados de Partidas
+  const outcomesCanvas = document.getElementById("chart-outcomes-dist");
+  if (outcomesCanvas) {
+    if (chartInstances.outcomes) chartInstances.outcomes.destroy();
+
+    let won = allSessions.filter(s => s.outcome === 'WON').length;
+    let lost = allSessions.filter(s => s.outcome === 'LOST').length;
+    let abandoned = allSessions.filter(s => s.outcome === 'ABANDONED').length;
+
+    // Si no hay sesiones explícitas, usar leaderboard
+    if (won === 0 && lost === 0 && allLeaderboard.length > 0) {
+      won = allLeaderboard.length;
+    }
+
+    chartInstances.outcomes = new Chart(outcomesCanvas, {
+      type: 'pie',
+      data: {
+        labels: ['Superadas (Victoria)', 'Fallidas (Derrota)', 'Abandonadas'],
+        datasets: [{
+          data: [won || 1, lost || 0, abandoned || 0],
+          backgroundColor: ['#43a047', '#e53935', '#757575'],
+          borderWidth: 2,
+          borderColor: '#1c0e0a'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { color: '#ffd699', font: { family: 'Nunito', weight: 'bold' } } }
+        }
+      }
+    });
+  }
+}
+
+// EXPORTACIÓN A CSV
+function exportDataToCSV() {
+  if (!allLeaderboard || allLeaderboard.length === 0) {
+    alert("No hay datos para exportar.");
+    return;
+  }
+  let csv = "\uFEFFPuesto,Chef,Modo,Puntaje_Soles,Clientes_Atendidos,Nivel,Contacto,Fecha\n";
+  allLeaderboard.forEach((r, idx) => {
+    csv += `${idx + 1},"${(r.player_name || '').replace(/"/g, '""')}","${r.game_mode || ''}",${r.score_money || 0},${r.customers_served || 0},${r.level_reached || 1},"${(r.contact || '').replace(/"/g, '""')}","${r.created_at || ''}"\n`;
+  });
+  downloadCSV(csv, `ramen_mania_metricas_${new Date().toISOString().slice(0,10)}.csv`);
+}
+
+function downloadCSV(csvContent, filename) {
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.setAttribute("href", url);
+  a.setAttribute("download", filename);
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+function copySqlSchema() {
+  const text = document.getElementById("sql-schema-box").textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    alert("¡Script SQL copiado al portapapeles! Puedes pegarlo en el SQL Editor de tu proyecto en Supabase.");
+  }).catch(() => {
+    alert("Selecciona y copia el texto del cuadro manualmente.");
+  });
+}
+
+// INICIALIZACIÓN
+window.addEventListener("DOMContentLoaded", () => {
+  initSupabase();
+  fetchLiveMetrics(true);
+
+  // Auto-recarga en segundo plano cada 30 segundos
+  setInterval(() => {
+    fetchLiveMetrics(false);
+  }, 30000);
+});
+</script>
+</body>
+</html>
