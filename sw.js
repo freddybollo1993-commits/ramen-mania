@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ramen-mania-v2';
+const CACHE_NAME = 'ramen-mania-v3';
 
 const STATIC_ASSETS = [
   './',
@@ -38,36 +38,48 @@ self.addEventListener('fetch', event => {
   const req = event.request;
   if (req.method !== 'GET') return;
 
-  // Don't intercept Supabase or external APIs
+  // Don't intercept Supabase database API calls
   if (req.url.includes('supabase.co')) {
     return;
   }
 
-  // Network first for HTML, Cache first for assets
-  if (req.headers.get('accept') && req.headers.get('accept').includes('text/html')) {
+  // STALE-WHILE-REVALIDATE for navigation and HTML requests:
+  // Returns cached page instantly (0ms latency), and revalidates in the background
+  if (req.mode === 'navigate' || (req.headers.get('accept') && req.headers.get('accept').includes('text/html'))) {
     event.respondWith(
-      fetch(req)
-        .then(res => {
-          const resClone = res.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(req, resClone));
+      caches.match('./index.html').then(cached => {
+        const networkFetch = fetch(req).then(res => {
+          if (res && res.status === 200) {
+            const resClone = res.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put('./index.html', resClone));
+          }
           return res;
-        })
-        .catch(() => caches.match(req).then(cached => cached || caches.match('./index.html')))
+        }).catch(() => cached);
+
+        // Instant startup if cached!
+        return cached || networkFetch;
+      })
     );
     return;
   }
 
+  // CACHE-FIRST for assets, images, fonts, scripts
   event.respondWith(
     caches.match(req).then(cached => {
       if (cached) return cached;
       return fetch(req).then(res => {
-        if (res.status === 200 && (req.url.startsWith(self.location.origin) || req.url.includes('gstatic') || req.url.includes('googleapis'))) {
+        if (res && res.status === 200 && (
+          req.url.startsWith(self.location.origin) ||
+          req.url.includes('gstatic') ||
+          req.url.includes('googleapis') ||
+          req.url.includes('cdnjs') ||
+          req.url.includes('jsdelivr')
+        )) {
           const resClone = res.clone();
           caches.open(CACHE_NAME).then(cache => cache.put(req, resClone));
         }
         return res;
       }).catch(err => {
-        // Return cached or fallback if offline
         return cached;
       });
     })

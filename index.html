@@ -14,16 +14,16 @@
 <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16x16.png">
 <link rel="shortcut icon" href="favicon.ico">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
+<link rel="preload" as="image" href="assets/ramen_bg.jpg">
 <title>Ramen Mania - Edición Horizontal Arcade</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-<!-- SUPABASE JS SDK -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<!-- THREE.JS & ORBITCONTROLS PARA SECRETOS DEL CHEF 3D -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<!-- SUPABASE JS SDK (DEFER) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+<!-- THREE.JS & ORBITCONTROLS PARA SECRETOS DEL CHEF 3D (DEFER) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js" defer></script>
 <style>
   :root {
     --bg-dark: #190e0c;
@@ -60,7 +60,7 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  button, .btn, .ing-card-btn, .customer-card, .bowl-card, .pantry-tab, .order-pill-summary {
+  button, .btn, .ing-card-btn, .customer-card, .bowl-card, .pantry-tab, .order-pill-summary, .btn-play-hero, .start-mode-card, .avatar-opt-btn, .btn-start-sec {
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
     cursor: pointer;
@@ -3397,10 +3397,15 @@ const DeviceManager = {
     return `${os} • ${browser}`;
   },
 
-  // Inicializa el sistema de dispositivo y busca la cuenta vinculada
+  // Inicializa el sistema de dispositivo y busca la cuenta vinculada (0ms de bloqueo)
   async init() {
     try {
-      this.deviceFingerprint = await this.generateFingerprint();
+      let cachedFp = safeStorage.getItem("ramen_device_fingerprint");
+      if (!cachedFp) {
+        cachedFp = await this.generateFingerprint();
+        safeStorage.setItem("ramen_device_fingerprint", cachedFp);
+      }
+      this.deviceFingerprint = cachedFp;
       const token = this.getPersistentToken();
       this.deviceId = `DEV-${this.deviceFingerprint}-${token.substring(0, 6)}`;
       this.deviceInfoText = this.detectDeviceInfo();
@@ -3423,7 +3428,7 @@ const DeviceManager = {
         safeStorage.removeItem("ramen_player_avatar");
       }
 
-      // 2. Buscar perfil legítimo en almacenamiento local
+      // 2. Buscar perfil legítimo en almacenamiento local (0ms delay)
       let player = null;
       if (wasExplicitlyRegistered) {
         try {
@@ -3437,40 +3442,9 @@ const DeviceManager = {
         } catch(e) {}
       }
 
-      // 3. Si hay conexión a Supabase y se busca sincronizar perfil por device_id
-      if (supabaseClient) {
-        try {
-          const fetchPromise = supabaseClient
-            .from('players')
-            .select('*')
-            .eq('device_id', this.deviceId)
-            .maybeSingle();
-
-          const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 2500));
-          const { data, error } = await Promise.race([fetchPromise, timeoutPromise]);
-
-          if (!error && data && data.player_name) {
-            player = {
-              playerName: data.player_name,
-              contact: (data.contact !== undefined && data.contact !== null) ? data.contact : "",
-              avatar: data.avatar || "🍜",
-              deviceId: this.deviceId,
-              deviceInfo: this.deviceInfoText,
-              createdAt: data.created_at || new Date().toISOString()
-            };
-            safeStorage.setItem("ramen_profile_explicit_registered", "true");
-            safeStorage.setItem("ramen_player_profile", JSON.stringify(player));
-            safeStorage.setItem("ramen_player_name", player.playerName);
-            safeStorage.setItem("ramen_player_contact", player.contact);
-            safeStorage.setItem("ramen_player_avatar", player.avatar);
-          }
-        } catch(e) {}
-      }
-
-      // 4. Asignar estado del jugador en este dispositivo
+      // 3. Asignar estado del jugador INMEDIATAMENTE para respuesta instantánea
       if (player && player.playerName && wasExplicitlyRegistered) {
         this.currentPlayer = player;
-        // Sincronizar en la lista de usuarios registrados del panel Maestro
         try {
           const regList = JSON.parse(safeStorage.getItem("ramen_registered_users") || "[]");
           const idx = regList.findIndex(u => u.deviceId === this.deviceId || (u.playerName && u.playerName.toLowerCase() === player.playerName.toLowerCase()));
@@ -3489,7 +3463,37 @@ const DeviceManager = {
       if (this.currentPlayer && this.currentPlayer.playerName) {
         setTimeout(() => {
           showWelcomeToast(this.currentPlayer.playerName, this.currentPlayer.avatar);
-        }, 500);
+        }, 300);
+      }
+
+      // 4. Sincronizar en segundo plano con Supabase de forma totalmente asíncrona (NO bloquea el inicio)
+      if (supabaseClient) {
+        supabaseClient
+          .from('players')
+          .select('*')
+          .eq('device_id', this.deviceId)
+          .maybeSingle()
+          .then(({ data, error }) => {
+            if (!error && data && data.player_name) {
+              const remotePlayer = {
+                playerName: data.player_name,
+                contact: (data.contact !== undefined && data.contact !== null) ? data.contact : "",
+                avatar: data.avatar || "🍜",
+                deviceId: this.deviceId,
+                deviceInfo: this.deviceInfoText,
+                createdAt: data.created_at || new Date().toISOString()
+              };
+              this.currentPlayer = remotePlayer;
+              safeStorage.setItem("ramen_profile_explicit_registered", "true");
+              safeStorage.setItem("ramen_player_profile", JSON.stringify(remotePlayer));
+              safeStorage.setItem("ramen_player_name", remotePlayer.playerName);
+              safeStorage.setItem("ramen_player_contact", remotePlayer.contact);
+              safeStorage.setItem("ramen_player_avatar", remotePlayer.avatar);
+              updateStartPlayerCard();
+              renderLinkedUserBadges();
+            }
+          })
+          .catch(() => {});
       }
     } catch(err) {
       console.error("Error en DeviceManager.init:", err);
@@ -8920,7 +8924,7 @@ function renderAdminSessionsView() {
   }).join('');
 }
 
-window.addEventListener("DOMContentLoaded", async () => {
+window.addEventListener("DOMContentLoaded", () => {
   const startScr = document.getElementById("start-screen");
   if (startScr) {
     startScr.classList.remove("hidden");
@@ -8929,6 +8933,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   }
 
   initSupabase();
+  DeviceManager.init();
   checkOrientation();
   updateStartPlayerCard();
   setStartSelectedMode('NORMAL');
@@ -8936,7 +8941,6 @@ window.addEventListener("DOMContentLoaded", async () => {
   renderSecretosCards('todos');
   setupKitchenStations();
   resetCookingStations();
-  await DeviceManager.init();
 });
 </script>
 </body>
