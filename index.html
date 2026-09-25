@@ -724,37 +724,19 @@
     flex: 1;
   }
   .station-title {
-    font-size: 9.5px;
+    font-size: 10px;
     font-weight: 800;
     color: #fff8f0;
     white-space: nowrap;
     text-shadow: 0 1px 2px rgba(0,0,0,0.7);
   }
   .station-status {
-    font-size: 8px;
+    font-size: 8.5px;
     font-weight: 700;
     color: #ffca28;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-
-  .station-stock-pill {
-    font-size: 7.5px;
-    font-weight: 900;
-    color: #a5d6a7;
-    background: rgba(46, 125, 50, 0.4);
-    border: 1px solid rgba(129, 199, 132, 0.5);
-    border-radius: 4px;
-    padding: 1px 3px;
-    margin-left: 2px;
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-  .station-stock-pill.empty {
-    color: #ef9a9a;
-    background: rgba(198, 40, 40, 0.4);
-    border-color: rgba(239, 154, 154, 0.5);
   }
 
   /* Animaciones y estados de cocción */
@@ -2461,7 +2443,6 @@
           <div class="station-title">Cocinar Fideos</div>
           <div class="station-status" id="noodles-status">Toca para cocer</div>
         </div>
-        <div class="station-stock-pill" id="noodles-station-stock" title="Fideos Ramen en Stock">Stock: 2</div>
         <div class="station-progress-bar">
           <div class="station-fill" id="noodles-fill"></div>
         </div>
@@ -2476,7 +2457,6 @@
           <div class="station-title">Calentar Shio</div>
           <div class="station-status" id="shio-status">Mantén 3s</div>
         </div>
-        <div class="station-stock-pill" id="shio-station-stock" title="Caldo Shio en Stock">Stock: 2</div>
         <div class="station-progress-bar">
           <div class="station-fill" id="shio-fill"></div>
         </div>
@@ -2491,7 +2471,6 @@
           <div class="station-title">Calentar Tonkotsu</div>
           <div class="station-status" id="tonkotsu-status">Mantén 3s</div>
         </div>
-        <div class="station-stock-pill" id="tonkotsu-station-stock" title="Caldo Tonkotsu en Stock">Stock: 2</div>
         <div class="station-progress-bar">
           <div class="station-fill" id="tonkotsu-fill"></div>
         </div>
@@ -2506,7 +2485,6 @@
           <div class="station-title">Flamear Chasu</div>
           <div class="station-status" id="chasu-status">Mantén (2s c/u)</div>
         </div>
-        <div class="station-stock-pill" id="chasu-station-stock" title="Chasu Flameado en Stock">Stock: 2</div>
         <div class="station-progress-bar">
           <div class="station-fill" id="chasu-fill"></div>
         </div>
@@ -4236,10 +4214,10 @@ function generateBowlSVG(bowl, analysis) {
 
 const kitchenState = {
   stocks: {
-    noodles: 2,   // Stock inicial disponible para empezar
-    shio: 2,
-    tonkotsu: 2,
-    chasu: 2
+    noodles: 0,   // Inicia con stock en cero
+    shio: 0,
+    tonkotsu: 0,
+    chasu: 0
   },
   noodles: {
     state: 'IDLE', // 'IDLE' | 'COOKING' | 'READY' | 'BURNING'
@@ -4287,29 +4265,7 @@ function updateKitchenStockBadges() {
 }
 
 function updateKitchenStationsUI() {
-  // Mini badges dentro de los botones de cocción
-  const noodlesPill = document.getElementById('noodles-station-stock');
-  if (noodlesPill) {
-    noodlesPill.textContent = `Stock: ${kitchenState.stocks.noodles}`;
-    noodlesPill.className = `station-stock-pill ${kitchenState.stocks.noodles <= 0 ? 'empty' : ''}`;
-  }
-  const shioPill = document.getElementById('shio-station-stock');
-  if (shioPill) {
-    shioPill.textContent = `Stock: ${kitchenState.stocks.shio}`;
-    shioPill.className = `station-stock-pill ${kitchenState.stocks.shio <= 0 ? 'empty' : ''}`;
-  }
-  const tonkotsuPill = document.getElementById('tonkotsu-station-stock');
-  if (tonkotsuPill) {
-    tonkotsuPill.textContent = `Stock: ${kitchenState.stocks.tonkotsu}`;
-    tonkotsuPill.className = `station-stock-pill ${kitchenState.stocks.tonkotsu <= 0 ? 'empty' : ''}`;
-  }
-  const chasuPill = document.getElementById('chasu-station-stock');
-  if (chasuPill) {
-    chasuPill.textContent = `Stock: ${kitchenState.stocks.chasu}`;
-    chasuPill.className = `station-stock-pill ${kitchenState.stocks.chasu <= 0 ? 'empty' : ''}`;
-  }
-
-  // Actualizar también los números en la despensa
+  // Actualizar los números de stock en la despensa
   updateKitchenStockBadges();
 }
 
@@ -4667,10 +4623,10 @@ function setupKitchenStations() {
 }
 
 function resetCookingStations() {
-  kitchenState.stocks.noodles = 2;
-  kitchenState.stocks.shio = 2;
-  kitchenState.stocks.tonkotsu = 2;
-  kitchenState.stocks.chasu = 2;
+  kitchenState.stocks.noodles = 0;
+  kitchenState.stocks.shio = 0;
+  kitchenState.stocks.tonkotsu = 0;
+  kitchenState.stocks.chasu = 0;
 
   kitchenState.noodles.state = 'IDLE';
   kitchenState.noodles.portionsCooking = 0;
