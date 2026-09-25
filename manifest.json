@@ -2,7 +2,7 @@
   "name": "Shimaya Ramen - Ramen Mania",
   "short_name": "Ramen Mania",
   "description": "Juego arcade de simulación de restaurante de ramen japonés. ¡Prepara fideos, calienta caldos y atiende clientes a toda velocidad!",
-  "start_url": "./index.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "landscape",

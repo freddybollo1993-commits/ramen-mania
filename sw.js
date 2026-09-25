@@ -1,9 +1,8 @@
-const CACHE_NAME = 'ramen-mania-v4';
+const CACHE_NAME = 'ramen-mania-v5';
 
-// Recursos esenciales que se guardan en menos de 200ms para arranque instantáneo
+// Recursos esenciales que se guardan en menos de 100ms para arranque instantáneo (< 300KB)
 const CORE_SHELL = [
   './',
-  './index.html',
   './manifest.json',
   './assets/icons/icon-192.png',
   './assets/icons/favicon-32x32.png',
@@ -21,11 +20,28 @@ const SECONDARY_ASSETS = [
 self.addEventListener('install', event => {
   self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      // 1. Guarda el shell mínimo primero (pesa menos de 350KB, instala al instante)
-      return cache.addAll(CORE_SHELL).then(() => {
-        // 2. Descarga imágenes pesadas en background sin bloquear la activación
-        cache.addAll(SECONDARY_ASSETS).catch(() => {});
+    caches.open(CACHE_NAME).then(async cache => {
+      // 1. Guarda el shell mínimo de inmediato sin fallar por redirecciones
+      await Promise.all(
+        CORE_SHELL.map(url =>
+          fetch(url, { cache: 'no-cache' })
+            .then(res => {
+              if (res.ok) {
+                if (url === './') {
+                  cache.put('./index.html', res.clone()).catch(() => {});
+                }
+                return cache.put(url, res);
+              }
+            })
+            .catch(err => console.warn('[PWA] Cache error for:', url, err))
+        )
+      );
+
+      // 2. Descarga imágenes secundarias en segundo plano sin bloquear
+      SECONDARY_ASSETS.forEach(url => {
+        fetch(url).then(res => {
+          if (res.ok) cache.put(url, res);
+        }).catch(() => {});
       });
     })
   );
@@ -45,7 +61,7 @@ self.addEventListener('fetch', event => {
   const req = event.request;
   if (req.method !== 'GET') return;
 
-  // No interceptar llamadas a la API de base de datos de Supabase
+  // No interceptar llamadas a la base de datos de Supabase
   if (req.url.includes('supabase.co')) {
     return;
   }
@@ -55,13 +71,16 @@ self.addEventListener('fetch', event => {
   if (req.mode === 'navigate' || (req.headers.get('accept') && req.headers.get('accept').includes('text/html'))) {
     event.respondWith(
       caches.match(req).then(cached => {
-        if (!cached) return caches.match('./index.html');
-        return cached;
+        if (cached) return cached;
+        return caches.match('./').then(cRoot => cRoot || caches.match('./index.html'));
       }).then(cached => {
         const networkFetch = fetch(req).then(res => {
           if (res && res.status === 200) {
             const resClone = res.clone();
-            caches.open(CACHE_NAME).then(cache => cache.put('./index.html', resClone));
+            caches.open(CACHE_NAME).then(cache => {
+              cache.put('./', resClone.clone());
+              cache.put('./index.html', resClone);
+            });
           }
           return res;
         }).catch(() => cached);
