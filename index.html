@@ -121,20 +121,37 @@
     box-shadow: 0 0 50px rgba(0, 0, 0, 0.8), inset 0 0 80px rgba(0, 0, 0, 0.55);
   }
 
-  /* CAPA SUPERIOR: HUD EN CÁPSULAS FLOTANTES (REFERENCIA DE DISEÑO) */
+  /* CAPA SUPERIOR: HUD EN CÁPSULAS FLOTANTES (UNIFICADO SUPERIOR) */
   .game-hud-overlay {
     position: absolute;
-    top: 6px;
-    left: 10px;
-    right: 56px; /* Espacio para barra lateral derecha */
+    top: 5px;
+    left: 8px;
+    right: 8px;
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
     pointer-events: none;
     z-index: 100;
+    gap: 8px;
   }
   .game-hud-overlay > * {
     pointer-events: auto;
+  }
+
+  .hud-left-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    pointer-events: auto;
+    flex-shrink: 0;
+  }
+
+  .hud-right-group {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    pointer-events: auto;
+    flex-shrink: 0;
   }
 
   /* 1. CÁPSULA SUPERIOR IZQUIERDA: Inicio, Título, Nivel y Ajustes/Perfil */
@@ -151,13 +168,13 @@
   }
 
   .hud-capsule-btn {
-    width: 30px;
-    height: 30px;
+    width: 28px;
+    height: 28px;
     border-radius: 8px;
     background: rgba(60, 30, 24, 0.8);
     border: 1px solid #7d3f30;
     color: #ffd699;
-    font-size: 15px;
+    font-size: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -184,7 +201,7 @@
 
   .hud-capsule-title {
     font-family: 'Fredoka One', cursive, sans-serif;
-    font-size: 13px;
+    font-size: 12.5px;
     letter-spacing: 0.5px;
     line-height: 1.1;
     background: linear-gradient(180deg, #fff3b0 0%, #ffb300 70%, #ff8f00 100%);
@@ -198,10 +215,10 @@
     background: linear-gradient(180deg, #ffca28 0%, #ff8f00 100%);
     color: #211202;
     font-family: 'Fredoka One', cursive, sans-serif;
-    font-size: 9.5px;
+    font-size: 9px;
     font-weight: 900;
-    padding: 1px 6px;
-    border-radius: 6px;
+    padding: 1px 5px;
+    border-radius: 5px;
     border: 1px solid #ffe082;
     box-shadow: 0 1px 3px rgba(0,0,0,0.4);
     letter-spacing: 0.4px;
@@ -217,7 +234,7 @@
     border: 1px solid #8d6e63;
     padding: 2px 6px;
     border-radius: 8px;
-    font-size: 10px;
+    font-size: 9.5px;
     font-weight: 800;
     color: #ffecb3;
     cursor: pointer;
@@ -233,10 +250,10 @@
     background: rgba(36, 18, 14, 0.94);
     border: 1.5px solid #5d2e22;
     border-radius: 14px;
-    padding: 5px 12px;
+    padding: 4px 10px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 9px;
     box-shadow: 0 4px 14px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
     backdrop-filter: blur(6px);
   }
@@ -244,13 +261,13 @@
   .hud-capsule-stat {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 3px;
     font-family: 'Fredoka One', cursive, sans-serif;
-    font-size: 13px;
+    font-size: 12px;
     white-space: nowrap;
   }
   .hud-capsule-stat .stat-ico {
-    font-size: 14px;
+    font-size: 13px;
     line-height: 1;
   }
   .stat-val-gold {
@@ -266,40 +283,52 @@
     text-shadow: 0 1px 2px rgba(0,0,0,0.8);
   }
 
-  /* 3. BARRA VERTICAL DERECHA: Herramientas Arcade */
-  .hud-right-sidebar {
-    position: absolute;
-    right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    z-index: 120;
-  }
-
-  .hud-side-btn {
-    width: 34px;
-    height: 34px;
-    border-radius: 10px;
-    background: rgba(36, 18, 14, 0.92);
-    border: 1.5px solid #5d2e22;
-    color: #ffd699;
-    font-size: 15px;
+  /* 3. BOTONES DE ACCIÓN: SOLO PAUSA, RECETAS Y SALIR EN LA PARTE SUPERIOR DERECHA */
+  .hud-top-actions {
     display: flex;
     align-items: center;
+    gap: 4px;
+  }
+
+  .hud-top-btn {
+    height: 30px;
+    min-width: 30px;
+    padding: 0 7px;
+    border-radius: 8px;
+    background: rgba(45, 23, 17, 0.92);
+    border: 1.5px solid #6d392b;
+    color: #ffd699;
+    font-size: 13px;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
+    gap: 3px;
     cursor: pointer;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.45);
     transition: all 0.12s ease;
+    user-select: none;
   }
-  .hud-side-btn:hover {
-    background: #4e261c;
-    border-color: var(--ramen-gold);
-    transform: scale(1.08);
+  .hud-top-btn:hover {
+    background: #5d2e22;
+    border-color: #ffb300;
+    transform: translateY(-1px);
   }
-  .hud-side-btn:active {
-    transform: scale(0.92);
+  .hud-top-btn:active {
+    transform: translateY(1px);
+    box-shadow: none;
+  }
+  .hud-top-btn.btn-exit {
+    background: rgba(183, 28, 28, 0.88);
+    border-color: #ef5350;
+    color: #fff;
+    font-size: 10.5px;
+    font-weight: 900;
+    padding: 0 8px;
+  }
+  .hud-top-btn.btn-exit:hover {
+    background: #d32f2f;
+    border-color: #ff8a80;
   }
 
   .btn {
@@ -332,50 +361,47 @@
     box-shadow: 0 2px 0 #b26a00;
   }
 
-  /* 4. SECCIÓN SUPERIOR CENTRAL: COMENSALES CON RETRATO CIRCULAR Y ANILLO SVG DE PACIENCIA */
+  /* 4. COMENSALES AL RAS DE LA BARRA SUPERIOR, PEGADOS A LA IZQUIERDA */
   .game-customers-hub {
-    position: absolute;
-    top: 4px;
-    left: 50%;
-    transform: translateX(-50%);
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 14px;
-    z-index: 95;
+    gap: 7px;
     pointer-events: auto;
   }
 
   .customer-circle-card {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 5px;
     cursor: pointer;
-    background: rgba(28, 14, 10, 0.7);
-    border: 1px solid rgba(255, 179, 0, 0.2);
-    border-radius: 35px;
-    padding: 3px 10px 3px 4px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    background: rgba(28, 14, 10, 0.88);
+    border: 1.5px solid rgba(255, 179, 0, 0.35);
+    border-radius: 20px;
+    padding: 2px 7px 2px 3px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.55);
     backdrop-filter: blur(4px);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    height: 35px;
+    user-select: none;
   }
   .customer-circle-card:hover {
-    transform: scale(1.03);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.7);
+    transform: scale(1.04);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.7);
+    border-color: #ffb300;
   }
   .customer-circle-card.urgent {
     border-color: #ef4444;
     animation: custUrgentPulse 0.8s infinite alternate ease-in-out;
   }
   @keyframes custUrgentPulse {
-    0% { box-shadow: 0 0 6px rgba(239, 68, 68, 0.5); }
-    100% { box-shadow: 0 0 18px rgba(239, 68, 68, 0.9); }
+    0% { box-shadow: 0 0 5px rgba(239, 68, 68, 0.5); }
+    100% { box-shadow: 0 0 16px rgba(239, 68, 68, 0.9); }
   }
 
   .cust-portrait-box {
     position: relative;
-    width: 58px;
-    height: 58px;
+    width: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -391,16 +417,16 @@
   }
 
   .cust-face-circle {
-    width: 46px;
-    height: 46px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
     background: radial-gradient(circle, #fff3e0 30%, #ffcc80 100%);
-    border: 2px solid #5d2e22;
+    border: 1.5px solid #5d2e22;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2), 0 2px 6px rgba(0,0,0,0.4);
+    font-size: 14px;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
     overflow: hidden;
   }
 
@@ -408,36 +434,38 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 2px;
+    gap: 1px;
+    line-height: 1;
   }
 
   .cust-name-label {
     font-family: 'Fredoka One', cursive, sans-serif;
-    font-size: 12px;
+    font-size: 10px;
     color: #ffd699;
     letter-spacing: 0.3px;
-    line-height: 1.1;
+    line-height: 1;
     text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    white-space: nowrap;
   }
 
   .cust-orders-wrap {
     display: flex;
-    flex-direction: column;
-    gap: 2px;
+    align-items: center;
+    gap: 3px;
   }
 
   .cust-order-pill {
     background: rgba(45, 23, 17, 0.85);
     border: 1px solid #7d3f30;
     color: #ffecb3;
-    font-size: 9.5px;
+    font-size: 8px;
     font-weight: 800;
-    padding: 1.5px 6px;
-    border-radius: 6px;
+    padding: 1px 4px;
+    border-radius: 4px;
     white-space: nowrap;
     display: inline-flex;
     align-items: center;
-    gap: 3px;
+    gap: 2px;
     line-height: 1.1;
   }
   .cust-order-pill.ready-deliver {
@@ -448,41 +476,39 @@
     box-shadow: 0 0 8px rgba(74, 222, 128, 0.7);
     animation: deliverPulse 0.8s infinite alternate;
   }
-  @keyframes deliverPulse {
-    0% { transform: scale(1); }
-    100% { transform: scale(1.06); filter: brightness(1.15); }
-  }
 
-  /* 5. ESCENARIO CENTRAL DEL JUEGO */
+  /* 5. ESCENARIO CENTRAL DEL JUEGO: ESTIRADO AL MÁXIMO BORDE DE LA PANTALLA */
   .game-central-stage {
     width: 100%;
-    max-width: 940px;
+    max-width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
     z-index: 80;
     margin-bottom: 2px;
-    padding: 0 8px;
+    padding: 0 5px;
+    box-sizing: border-box;
   }
 
-  /* TABLERO DE INGREDIENTES ("TAZONES DE PREPARACIÓN") */
+  /* TABLERO DE INGREDIENTES ("TAZONES DE PREPARACIÓN") ESTIRADO AL MÁXIMO */
   .prep-station-board {
     width: 100%;
     background: rgba(28, 14, 10, 0.94);
     border: 1.5px solid #4a241a;
     border-radius: 14px;
-    padding: 6px 10px 8px 10px;
-    box-shadow: 0 10px 28px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.08);
+    padding: 5px 8px 6px 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.08);
     backdrop-filter: blur(5px);
     position: relative;
+    box-sizing: border-box;
   }
 
   .prep-station-tab-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 6px;
+    margin-bottom: 5px;
   }
 
   .prep-station-tab {
@@ -498,45 +524,57 @@
     box-shadow: 0 -2px 5px rgba(0,0,0,0.3);
   }
 
+  /* BOTONES DE CATEGORÍA CON RESALTADO MARCADO AL SELECCIONAR */
   .pantry-mini-filter {
     display: flex;
-    gap: 3px;
-  }
-  .mini-cat-btn {
-    background: rgba(45, 23, 17, 0.8);
-    border: 1px solid #5a2e22;
-    color: #d7ccc8;
-    font-size: 9.5px;
-    font-weight: 800;
-    padding: 2px 7px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.1s ease;
-  }
-  .mini-cat-btn.active {
-    background: var(--ramen-gold);
-    color: #211202;
-    border-color: #ffd54f;
-    font-weight: 900;
+    gap: 4px;
+    align-items: center;
   }
 
-  /* GRILLA DE 2 FILAS × 6 COLUMNAS (12 INGREDIENTES EN PANTALLA) */
+  .mini-cat-btn {
+    background: rgba(45, 23, 17, 0.85);
+    border: 1.5px solid #5a2e22;
+    color: #d7ccc8;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 3px 10px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+  }
+  .mini-cat-btn:hover {
+    background: #5d2e22;
+    color: #fff;
+    border-color: #ffb300;
+  }
+  .mini-cat-btn.active {
+    background: linear-gradient(180deg, #ffb300 0%, #ff8f00 100%) !important;
+    color: #211202 !important;
+    border: 1.5px solid #ffe082 !important;
+    font-weight: 900 !important;
+    box-shadow: 0 0 12px rgba(255, 179, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+    transform: scale(1.05);
+  }
+
+  /* GRILLA DINÁMICA CON TAMAÑO RESPONSIVO AUTOMÁTICO SEGÚN INGREDIENTES DESBLOQUEADOS */
   .prep-ingredients-grid {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 6px;
+    grid-template-columns: repeat(var(--ing-cols, 6), 1fr);
+    gap: 5px;
     width: 100%;
-    max-height: 135px;
+    max-height: 140px;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     padding-right: 2px;
+    box-sizing: border-box;
   }
 
   .ing-station-tile {
-    background: rgba(38, 19, 14, 0.85);
+    background: rgba(38, 19, 14, 0.88);
     border: 1.5px solid #52271d;
-    border-radius: 9px;
-    padding: 4px 2px;
+    border-radius: 8px;
+    padding: var(--tile-pad, 4px 2px);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -544,7 +582,7 @@
     cursor: pointer;
     transition: all 0.1s ease;
     box-shadow: 0 2px 5px rgba(0,0,0,0.35);
-    min-height: 52px;
+    min-height: var(--tile-min-h, 50px);
     position: relative;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
@@ -573,14 +611,14 @@
   }
 
   .ing-tile-icon {
-    font-size: 26px;
+    font-size: var(--icon-sz, 24px);
     line-height: 1;
     filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5));
     transition: transform 0.1s ease;
     margin-bottom: 2px;
   }
   .ing-tile-name {
-    font-size: 9.5px;
+    font-size: var(--name-sz, 9.5px);
     font-weight: 800;
     color: #ffd699;
     text-align: center;
@@ -591,7 +629,7 @@
     line-height: 1.1;
   }
 
-  /* 6. ZONA INFERIOR: 3 CUENCOS DE PREPARACIÓN CON CUENCO DE CERÁMICA */
+  /* 6. ZONA INFERIOR: 3 CUENCOS DE PREPARACIÓN */
   .bottom-bowls-row {
     display: flex;
     justify-content: center;
@@ -2062,59 +2100,60 @@
   <div id="abollado-banner">💥 ESTAS ABOLLADO 💥</div>
 
   <!-- HEADER HORIZONTAL REDISEÑADO (DISTRIBUCIÓN ARMÓNICA Y ESCALA COMPACTA) -->
-  <!-- HEADER SUPERIOR ESTILO CÁPSULA (ARCADE HUD) -->
+  <!-- HEADER SUPERIOR ESTILO CÁPSULA (ARCADE HUD UNIFICADO) -->
   <header class="game-hud-overlay">
-    <!-- CÁPSULA SUPERIOR IZQUIERDA: Inicio, Título, Nivel y Ajustes/Perfil -->
-    <div class="hud-capsule-left">
-      <button class="hud-capsule-btn" onclick="returnToStartMenu()" title="Volver al Menú Principal (Inicio)">
-        <span>🏠</span>
-      </button>
-      <div class="hud-capsule-brand-block">
-        <div class="hud-capsule-title">🍜 RAMEN MANIA</div>
-        <div class="hud-capsule-level" id="hud-level-badge">LVL 1</div>
+    <!-- GRUPO IZQUIERDO: INICIO, TÍTULO, NIVEL Y COMENSALES AL RAS PEGADOS A LA IZQUIERDA -->
+    <div class="hud-left-group">
+      <div class="hud-capsule-left">
+        <button class="hud-capsule-btn" onclick="returnToStartMenu()" title="Menú Principal (Inicio)">
+          <span>🏠</span>
+        </button>
+        <div class="hud-capsule-brand-block">
+          <div class="hud-capsule-title">🍜 RAMEN MANIA</div>
+          <div class="hud-capsule-level" id="hud-level-badge">LVL 1</div>
+        </div>
+        <button class="hud-capsule-btn" onclick="openGameProfileModal()" title="Mi Perfil / Ajustes">
+          <span>⚙️</span>
+        </button>
+        <!-- Mini Pill de Cuenta Vinculada -->
+        <div class="hud-linked-mini-pill" id="hud-linked-user" onclick="openGameProfileModal()" style="display:none;" title="Cuenta Vinculada - Toca para ver perfil">
+          <span id="hud-user-avatar">🥋</span>
+          <span id="hud-user-name">Freddy Loyo</span>
+        </div>
       </div>
-      <button class="hud-capsule-btn" onclick="openGameProfileModal()" title="Mi Perfil / Ajustes">
-        <span>⚙️</span>
-      </button>
-      <!-- Mini Pill de Cuenta Vinculada -->
-      <div class="hud-linked-mini-pill" id="hud-linked-user" onclick="openGameProfileModal()" style="display:none;" title="Cuenta Vinculada - Toca para ver perfil">
-        <span id="hud-user-avatar">🥋</span>
-        <span id="hud-user-name">Freddy Loyo</span>
-      </div>
+
+      <!-- SECCIÓN DE COMENSALES: AL RAS DE LA BARRA SUPERIOR, PEGADOS A LA IZQUIERDA -->
+      <div class="game-customers-hub" id="customers-container"></div>
     </div>
 
-    <!-- SECCIÓN SUPERIOR CENTRAL: COMENSALES CON RETRATO CIRCULAR Y ANILLO DE PACIENCIA -->
-    <div class="game-customers-hub" id="customers-container"></div>
+    <!-- GRUPO DERECHO: METAS, MONEDAS, TIEMPO Y BOTONES: SOLO PAUSA, RECETAS Y SALIR -->
+    <div class="hud-right-group">
+      <div class="hud-capsule-right">
+        <div class="hud-capsule-stat stat-goal" title="Meta de Ventas">
+          <span class="stat-ico">💰</span>
+          <span class="stat-val-gold" id="hud-goal">S/160</span>
+        </div>
+        <div class="hud-capsule-stat stat-money" title="Monedas / Recaudado">
+          <span class="stat-ico">🪙</span>
+          <span class="stat-val-money" id="hud-money">0</span>
+        </div>
+        <div class="hud-capsule-stat stat-timer" id="stat-timer-badge" title="Tiempo Restante / Vidas">
+          <span class="stat-ico" id="hud-timer-icon">⏱️</span>
+          <span class="stat-val-timer" id="hud-timer">90s</span>
+        </div>
+        <span id="hud-served" style="display:none;">0</span>
+      </div>
 
-    <!-- CÁPSULA SUPERIOR DERECHA: META, MONEDAS Y TIEMPO -->
-    <div class="hud-capsule-right">
-      <div class="hud-capsule-stat stat-goal" title="Meta de Ventas">
-        <span class="stat-ico">💰</span>
-        <span class="stat-val-gold" id="hud-goal">S/160</span>
+      <!-- BOTONES DE ACCIÓN: SOLO PAUSA, RECETAS Y SALIR (SUBIDOS A LA PARTE SUPERIOR DERECHA) -->
+      <div class="hud-top-actions">
+        <button class="hud-top-btn" onclick="togglePause()" id="btn-pause" title="Pausar / Reanudar">⏸️</button>
+        <button class="hud-top-btn" onclick="openRecipeModal()" title="📖 Recetario de Ramen">📖</button>
+        <button class="hud-top-btn btn-exit" onclick="returnToStartMenu()" title="Salir al Menú Principal">🚪 Salir</button>
       </div>
-      <div class="hud-capsule-stat stat-money" title="Monedas / Recaudado">
-        <span class="stat-ico">🪙</span>
-        <span class="stat-val-money" id="hud-money">0</span>
-      </div>
-      <div class="hud-capsule-stat stat-timer" id="stat-timer-badge" title="Tiempo Restante / Vidas">
-        <span class="stat-ico" id="hud-timer-icon">⏱️</span>
-        <span class="stat-val-timer" id="hud-timer">90s</span>
-      </div>
-      <span id="hud-served" style="display:none;">0</span>
     </div>
   </header>
 
-  <!-- BARRA VERTICAL DERECHA: BOTONES DE ACCIÓN RÁPIDA -->
-  <aside class="hud-right-sidebar">
-    <button class="hud-side-btn" onclick="togglePause()" id="btn-pause" title="Pausar / Reanudar">⏸️</button>
-    <button class="hud-side-btn" onclick="openLeaderboardModal()" title="🏆 Ranking Oficial">🏆</button>
-    <button class="hud-side-btn" onclick="openRecipeModal()" title="📖 Recetario de Ramen">❓</button>
-    <button class="hud-side-btn" onclick="openSecretosModal()" title="✨ Secretos del Chef 3D">✨</button>
-    <button class="hud-side-btn" onclick="openAdminLoginModal()" title="🛡️ Monitoreo Master">🛡️</button>
-    <button class="hud-side-btn" onclick="toggleFullScreen()" id="btn-fullscreen" title="⛶ Pantalla Completa">⛶</button>
-  </aside>
-
-  <!-- ZONA CENTRAL PRINCIPAL: TABLERO DE INGREDIENTES Y 3 CUENCOS DE PREPARACIÓN -->
+  <!-- ZONA CENTRAL PRINCIPAL: TABLERO DE INGREDIENTES ESTIRADO AL BORDE Y 3 CUENCOS DE PREPARACIÓN -->
   <main class="game-central-stage">
     <!-- TABLERO FLOTANTE ESTILO ALACENA ("TAZONES DE PREPARACIÓN") -->
     <div class="prep-station-board">
@@ -3507,9 +3546,13 @@ function initRecipeTable() {
 
 function filterCategory(cat) {
   gameState.currentCategory = cat;
-  document.querySelectorAll(".pantry-tab").forEach(tab => {
-    if (tab.getAttribute("onclick") && tab.getAttribute("onclick").includes(cat)) tab.classList.add("active");
-    else tab.classList.remove("active");
+  document.querySelectorAll(".mini-cat-btn, .pantry-tab").forEach(tab => {
+    const onclickAttr = tab.getAttribute("onclick") || "";
+    if (onclickAttr.includes(`'${cat}'`)) {
+      tab.classList.add("active");
+    } else {
+      tab.classList.remove("active");
+    }
   });
   renderPantryGrid();
 }
@@ -3529,6 +3572,46 @@ function renderPantryGrid() {
     return ing.cat === gameState.currentCategory;
   });
 
+  // Ajuste dinámico de columnas y tamaños según la cantidad de ingredientes liberados / mostrados
+  let cols = 6;
+  let tileMinH = "52px";
+  let tilePad = "4px 2px";
+  let iconSz = "25px";
+  let nameSz = "9.5px";
+
+  const total = filtered.length;
+  if (total <= 12) {
+    cols = 6;
+    tileMinH = "52px";
+    tilePad = "4px 2px";
+    iconSz = "25px";
+    nameSz = "9.5px";
+  } else if (total <= 16) {
+    cols = 8;
+    tileMinH = "46px";
+    tilePad = "3px 2px";
+    iconSz = "22px";
+    nameSz = "9px";
+  } else if (total <= 20) {
+    cols = 10;
+    tileMinH = "42px";
+    tilePad = "2px 1px";
+    iconSz = "20px";
+    nameSz = "8.5px";
+  } else {
+    cols = 12;
+    tileMinH = "38px";
+    tilePad = "2px 1px";
+    iconSz = "18px";
+    nameSz = "8px";
+  }
+
+  container.style.setProperty('--ing-cols', cols);
+  container.style.setProperty('--tile-min-h', tileMinH);
+  container.style.setProperty('--tile-pad', tilePad);
+  container.style.setProperty('--icon-sz', iconSz);
+  container.style.setProperty('--name-sz', nameSz);
+
   filtered.forEach(ing => {
     const tile = document.createElement("div");
     const isInBowl = currentBowl.ingredients.includes(ing.id);
@@ -3538,7 +3621,7 @@ function renderPantryGrid() {
     tile.onclick = () => toggleIngredientInBowl(ing.id);
 
     const artHtml = ing.img 
-      ? `<img src="${ing.img}" class="pixel-sprite-large" alt="${ing.display}">`
+      ? `<img src="${ing.img}" class="pixel-sprite-large" alt="${ing.display}" style="width:${iconSz}; height:${iconSz};">`
       : `<div class="ing-tile-icon">${ing.icon}</div>`;
 
     tile.innerHTML = `
@@ -3817,8 +3900,8 @@ function renderCustomers() {
       openCustomerOrderModal(index);
     };
 
-    const r = 24;
-    const circ = 2 * Math.PI * r;
+    const r = 14;
+    const circ = 2 * Math.PI * r; // ≈ 87.96
     const offset = circ * (1 - pct / 100);
     let strokeColor = "#4ade80";
     let glowColor = "rgba(74, 222, 128, 0.4)";
@@ -3839,12 +3922,12 @@ function renderCustomers() {
 
     card.innerHTML = `
       <div class="cust-portrait-box">
-        <svg class="cust-patience-ring-svg ${isUrgent ? 'urgent-ring' : ''}" viewBox="0 0 58 58">
-          <circle cx="29" cy="29" r="${r}" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="4.5" />
-          <circle cx="29" cy="29" r="${r}" fill="none" stroke="${strokeColor}" stroke-width="4.5"
+        <svg class="cust-patience-ring-svg ${isUrgent ? 'urgent-ring' : ''}" viewBox="0 0 32 32">
+          <circle cx="16" cy="16" r="${r}" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="3" />
+          <circle cx="16" cy="16" r="${r}" fill="none" stroke="${strokeColor}" stroke-width="3"
             stroke-dasharray="${circ}" stroke-dashoffset="${offset}" stroke-linecap="round"
-            style="filter: drop-shadow(0 0 4px ${glowColor}); transition: stroke-dashoffset 0.3s ease, stroke 0.3s ease;"
-            transform="rotate(-90 29 29)" />
+            style="filter: drop-shadow(0 0 3px ${glowColor}); transition: stroke-dashoffset 0.3s ease, stroke 0.3s ease;"
+            transform="rotate(-90 16 16)" />
         </svg>
         <div class="cust-face-circle">${c.avatar}</div>
       </div>
