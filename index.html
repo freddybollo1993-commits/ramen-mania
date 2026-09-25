@@ -6,7 +6,14 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ramen Mania">
+<meta name="application-name" content="Ramen Mania">
 <meta name="theme-color" content="#190e0c">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16x16.png">
+<link rel="shortcut icon" href="favicon.ico">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
@@ -2250,6 +2257,26 @@
     font-weight: 800;
   }
 
+  .btn-install-pwa {
+    background: linear-gradient(135deg, #e65100, #ff8f00) !important;
+    border-color: #ffe082 !important;
+    color: #fff !important;
+    font-weight: 900 !important;
+    box-shadow: 0 2px 8px rgba(230, 81, 0, 0.5) !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    animation: pwaGlow 2.5s infinite alternate ease-in-out;
+  }
+  .btn-install-pwa:hover {
+    background: linear-gradient(135deg, #f57c00, #ffa000) !important;
+    transform: translateY(-1px) scale(1.03);
+  }
+  @keyframes pwaGlow {
+    0% { box-shadow: 0 0 4px rgba(255, 143, 0, 0.4); }
+    100% { box-shadow: 0 0 14px rgba(255, 143, 0, 0.85); }
+  }
+
   @media (max-width: 680px) {
     .secreto-split-layout {
       flex-direction: column;
@@ -2329,14 +2356,17 @@
 
     <div class="start-screen-content">
       
-      <!-- CABECERA Y LOGO -->
+      <!-- CABECERA Y LOGO CON MASCOTA SHIMAYA -->
       <div class="start-logo-wrap">
+        <div style="display:flex; justify-content:center; align-items:center; margin-bottom:5px;">
+          <img src="assets/icons/icon-192.png" alt="Chef Shimaya Mascot" style="width:58px; height:58px; border-radius:50%; border:2px solid #ffb300; box-shadow:0 4px 14px rgba(0,0,0,0.65); object-fit:cover;">
+        </div>
         <div class="start-logo-title">
           <span>🥢</span>
           <span>RAMEN MANIA</span>
           <span>🍜</span>
         </div>
-        <div class="start-logo-subtitle">★ EDICIÓN ARCADE MASTER ★</div>
+        <div class="start-logo-subtitle">★ EDICIÓN ARCADE MASTER · SHIMAYA RAMEN ★</div>
       </div>
 
       <!-- TARJETA DE PERFIL / REGISTRO DE DISPOSITIVO -->
@@ -2399,6 +2429,10 @@
         </button>
         <button class="btn-start-sec" onclick="toggleFullScreen()">
           ⛶ Pantalla Completa
+        </button>
+        <button class="btn-start-sec btn-install-pwa" id="btn-install-app" onclick="handlePwaInstallClick()" title="Instalar Ramen Mania en tu dispositivo (App Nativa)">
+          <img src="assets/icons/favicon-32x32.png" style="width:16px; height:16px; border-radius:50%; vertical-align:middle; margin-right:4px;">
+          <span>📲 Instalar App</span>
         </button>
         <button class="btn-start-sec" onclick="openAdminLoginModal()" style="background:#240c08; border-color:#d32f2f; color:#ffcc80;" title="Panel de Monitoreo Master (Restringido)">
           🛡️ Monitoreo Master
@@ -6168,6 +6202,71 @@ function unlockAudioOnce() {
 window.addEventListener('touchstart', unlockAudioOnce, { passive: true });
 window.addEventListener('touchend', unlockAudioOnce, { passive: true });
 window.addEventListener('click', unlockAudioOnce, { passive: true });
+
+// ==========================================
+// PWA INSTALLATION & SERVICE WORKER LOGIC
+// ==========================================
+let deferredInstallPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  console.log('[PWA] Evento beforeinstallprompt capturado con éxito');
+  const installBtn = document.getElementById('btn-install-app');
+  if (installBtn) {
+    installBtn.style.display = 'inline-flex';
+  }
+});
+
+window.addEventListener('appinstalled', (evt) => {
+  console.log('[PWA] Ramen Mania instalado con éxito');
+  deferredInstallPrompt = null;
+  const installBtn = document.getElementById('btn-install-app');
+  if (installBtn) {
+    installBtn.innerHTML = '✓ ¡Instalado!';
+    setTimeout(() => { installBtn.style.display = 'none'; }, 3500);
+  }
+});
+
+function handlePwaInstallClick() {
+  playSound('click');
+  if (deferredInstallPrompt) {
+    deferredInstallPrompt.prompt();
+    deferredInstallPrompt.userChoice.then((choiceResult) => {
+      if (choiceResult.outcome === 'accepted') {
+        console.log('[PWA] Usuario aceptó la instalación');
+      } else {
+        console.log('[PWA] Usuario pospuso la instalación');
+      }
+      deferredInstallPrompt = null;
+    });
+  } else {
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    if (isStandalone) {
+      alert('🍜 ¡Ramen Mania ya está instalado y ejecutándose como App nativa en este dispositivo!');
+      return;
+    }
+
+    if (isIOS) {
+      alert('📲 Para instalar Ramen Mania en tu iPhone o iPad:\n\n1. Toca el botón Compartir de Safari (icono cuadrado con flecha hacia arriba ⎋ en la barra de Safari).\n2. Desplaza hacia abajo y toca "Agregar a pantalla de inicio" (o "Add to Home Screen").\n3. ¡Listo! Se creará el acceso directo con el icono del Chef Shimaya para jugar a pantalla completa sin barras.');
+    } else {
+      alert('📲 Para instalar Ramen Mania desde tu navegador:\n\n1. En Google Chrome / Edge / Brave: Toca el menú de 3 puntos (⋮) o el botón de instalar ⊕ en la barra de direcciones.\n2. Toca "Instalar Ramen Mania" o "Agregar a pantalla principal".\n3. ¡Listo! Se descargará el icono oficial del Chef Shimaya y podrás jugar directamente desde tu pantalla de inicio.');
+    }
+  }
+}
+
+// Registro del Service Worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => {
+        console.log('[PWA] Service Worker registrado correctamente:', reg.scope);
+      })
+      .catch(err => {
+        console.warn('[PWA] No se pudo registrar el Service Worker:', err);
+      });
+  });
+}
 
 function togglePause() {
   if (gameState.isGameOver) return;
