@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="porkMince" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#bcaaa4"/>
+      <stop offset="35%" stop-color="#8d6e63"/>
+      <stop offset="75%" stop-color="#5d4037"/>
+      <stop offset="100%" stop-color="#3e2723"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="32" cy="56" rx="22" ry="5" fill="#21120e" opacity="0.35"/>
+
+  <!-- Montículo de carne picada salteada (Nikumiso) -->
+  <path d="M10,48 Q10,38 18,32 Q14,22 26,18 Q32,12 40,16 Q48,14 52,26 Q56,38 54,48 Z" 
+        fill="url(#porkMince)" stroke="#2b1810" stroke-width="2.6"/>
+
+  <circle cx="24" cy="40" r="5" fill="#8d4925" stroke="#2b1810" stroke-width="1.5"/>
+  <circle cx="34" cy="38" r="5.5" fill="#6d3014" stroke="#2b1810" stroke-width="1.5"/>
+  <circle cx="44" cy="42" r="4.5" fill="#8d4925" stroke="#2b1810" stroke-width="1.5"/>
+  <circle cx="19" cy="46" r="4" fill="#a0522d" stroke="#2b1810" stroke-width="1.2"/>
+  <circle cx="28" cy="48" r="4.8" fill="#6d3014" stroke="#2b1810" stroke-width="1.2"/>
+  <circle cx="38" cy="48" r="5" fill="#a0522d" stroke="#2b1810" stroke-width="1.2"/>
+  <circle cx="48" cy="48" r="4" fill="#6d3014" stroke="#2b1810" stroke-width="1.2"/>
+  <circle cx="30" cy="24" r="4" fill="#8d4925" stroke="#2b1810" stroke-width="1.5"/>
+  <circle cx="40" cy="26" r="4.5" fill="#a0522d" stroke="#2b1810" stroke-width="1.5"/>
+  <circle cx="34" cy="18" r="3.5" fill="#6d3014" stroke="#2b1810" stroke-width="1.5"/>
+
+  <circle cx="27" cy="38" r="1.5" fill="#ff5252"/>
+  <circle cx="37" cy="44" r="1.5" fill="#ff5252"/>
+  <circle cx="33" cy="30" r="1.2" fill="#4caf50"/>
+  <circle cx="31" cy="22" r="1.2" fill="#ffffff" opacity="0.8"/>
+</svg>

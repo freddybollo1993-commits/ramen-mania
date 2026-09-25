@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="veggieSauce" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#aed581"/>
+      <stop offset="50%" stop-color="#689f38"/>
+      <stop offset="100%" stop-color="#33691e"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="32" cy="58" rx="20" ry="4" fill="#21120e" opacity="0.35"/>
+  <path d="M8,30 Q7,55 32,55 Q57,55 56,30 Z" fill="#f1f8e9" stroke="#2b1810" stroke-width="2.6"/>
+  <ellipse cx="32" cy="30" rx="24" ry="9" fill="url(#veggieSauce)" stroke="#2b1810" stroke-width="2.2"/>
+  <ellipse cx="32" cy="30" rx="18" ry="6" fill="#c5e1a5" opacity="0.55"/>
+
+  <!-- Cinta de alga Kombu flotante -->
+  <path d="M20,29 Q28,24 38,30 T48,27" fill="none" stroke="#1b5e20" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- Dos hojitas verdes frescas -->
+  <path d="M32,24 C26,16 23,6 32,3 C35,10 35,18 32,24 Z" fill="#7cb342" stroke="#2b1810" stroke-width="2"/>
+  <path d="M32,24 C38,16 45,8 48,14 C43,20 37,22 32,24 Z" fill="#8bc34a" stroke="#2b1810" stroke-width="1.8"/>
+  <line x1="32" y1="24" x2="31" y2="8" stroke="#33691e" stroke-width="1.2"/>
+
+  <circle cx="22" cy="31" r="1.5" fill="#ffffff" opacity="0.75"/>
+  <circle cx="44" cy="32" r="1.8" fill="#dcedc8"/>
+</svg>

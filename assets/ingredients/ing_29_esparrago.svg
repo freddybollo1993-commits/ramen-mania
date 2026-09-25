@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="asparagusGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4caf50"/>
+      <stop offset="40%" stop-color="#66bb6a"/>
+      <stop offset="80%" stop-color="#81c784"/>
+      <stop offset="100%" stop-color="#c8e6c9"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="32" cy="58" rx="22" ry="4.5" fill="#21120e" opacity="0.35"/>
+
+  <!-- Dos espárragos frescos con escamas -->
+  <g transform="translate(14, -2) rotate(15 28 32)">
+    <path d="M22,54 L22,20 L30,20 L30,54 Z" fill="#43a047" stroke="#2b1810" stroke-width="2.4"/>
+    <path d="M22,20 C22,12 26,4 26,4 C26,4 30,12 30,20 Z" fill="#2e7d32" stroke="#2b1810" stroke-width="2.2"/>
+  </g>
+
+  <g transform="translate(-4, 0) rotate(-6 28 32)">
+    <path d="M24,56 L24,22 L36,22 L36,56 Z" fill="url(#asparagusGrad)" stroke="#2b1810" stroke-width="2.8"/>
+    <path d="M24,22 C24,14 30,4 30,4 C30,4 36,14 36,22 Z" fill="#2e7d32" stroke="#2b1810" stroke-width="2.6" stroke-linejoin="round"/>
+
+    <polygon points="30,6 27,12 33,12" fill="#66bb6a" stroke="#2b1810" stroke-width="1.2"/>
+    <polygon points="26,14 24,19 28,19" fill="#81c784" stroke="#2b1810" stroke-width="1.2"/>
+    <polygon points="34,14 32,19 36,19" fill="#81c784" stroke="#2b1810" stroke-width="1.2"/>
+    <polygon points="30,18 27,24 33,24" fill="#a5d6a7" stroke="#2b1810" stroke-width="1.2"/>
+
+    <polygon points="24,30 28,33 24,36" fill="#43a047" stroke="#2b1810" stroke-width="1.2"/>
+    <polygon points="36,40 32,43 36,46" fill="#43a047" stroke="#2b1810" stroke-width="1.2"/>
+
+    <line x1="28" y1="24" x2="28" y2="52" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.85"/>
+  </g>
+</svg>

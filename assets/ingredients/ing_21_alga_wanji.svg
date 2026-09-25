@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="wanjiGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#37474f"/>
+      <stop offset="50%" stop-color="#212121"/>
+      <stop offset="100%" stop-color="#0a0a0a"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="32" cy="57" rx="22" ry="4.5" fill="#21120e" opacity="0.35"/>
+
+  <!-- Alga Wanji / Oreja de madera marina ondulada (Kikurage) -->
+  <path d="M12,46 C6,38 8,24 18,20 C24,18 26,10 36,8 C46,6 54,16 52,26 C58,34 56,48 46,52 C38,56 30,48 24,54 C18,54 14,50 12,46 Z" 
+        fill="url(#wanjiGrad)" stroke="#1a0c08" stroke-width="2.8" stroke-linejoin="round"/>
+
+  <path d="M18,36 C24,28 32,32 40,26 C46,22 48,32 44,42" fill="none" stroke="#546e7a" stroke-width="2.6" stroke-linecap="round"/>
+  <path d="M22,46 C28,40 34,44 42,38" fill="none" stroke="#455a64" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M26,24 C30,16 38,18 44,14" fill="none" stroke="#546e7a" stroke-width="2" stroke-linecap="round"/>
+
+  <ellipse cx="24" cy="22" rx="3.5" ry="1.8" transform="rotate(-20 24 22)" fill="#ffffff" opacity="0.6"/>
+  <ellipse cx="38" cy="28" rx="3" ry="1.5" transform="rotate(15 38 28)" fill="#ffffff" opacity="0.6"/>
+</svg>

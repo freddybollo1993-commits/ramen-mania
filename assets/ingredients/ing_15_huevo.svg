@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <radialGradient id="yolkGrad" cx="40%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#fff176"/>
+      <stop offset="40%" stop-color="#ffb300"/>
+      <stop offset="85%" stop-color="#ff6f00"/>
+      <stop offset="100%" stop-color="#e65100"/>
+    </radialGradient>
+    <linearGradient id="eggWhite" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="80%" stop-color="#fffde7"/>
+      <stop offset="100%" stop-color="#ffe0b2"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="32" cy="57" rx="23" ry="5" fill="#21120e" opacity="0.35"/>
+
+  <!-- Mitad de Huevo Ajitsuke Hanjuku -->
+  <path d="M32,4 C48,4 57,20 57,38 C57,51 46,60 32,60 C18,60 7,51 7,38 C7,20 16,4 32,4 Z" 
+        fill="#8d6e63" stroke="#2b1810" stroke-width="2.8"/>
+
+  <path d="M32,6 C45,6 54,21 54,38 C54,49 44,57 32,57 C20,57 10,49 10,38 C10,21 19,6 32,6 Z" 
+        fill="url(#eggWhite)"/>
+
+  <!-- Yema cremosa melosa dorada (Hanjuku) -->
+  <ellipse cx="32" cy="38" rx="16" ry="15" fill="url(#yolkGrad)" stroke="#e65100" stroke-width="1.8"/>
+  <ellipse cx="32" cy="38" rx="9" ry="8" fill="#ff8f00" opacity="0.8"/>
+  <ellipse cx="31" cy="37" rx="5" ry="4" fill="#ff6f00" opacity="0.9"/>
+
+  <ellipse cx="26" cy="33" rx="3.5" ry="2.2" transform="rotate(-25 26 33)" fill="#ffffff" opacity="0.95"/>
+  <circle cx="37" cy="42" r="1.5" fill="#ffffff" opacity="0.8"/>
+</svg>

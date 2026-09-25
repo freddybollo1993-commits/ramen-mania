@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="spoonWood" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#bcaaa4"/>
+      <stop offset="50%" stop-color="#8d6e63"/>
+      <stop offset="100%" stop-color="#4e342e"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="32" cy="57" rx="22" ry="4.5" fill="#21120e" opacity="0.35"/>
+
+  <!-- Cuchara de madera con semillas de sésamo -->
+  <path d="M6,40 Q10,18 36,18 Q54,18 56,38 Q56,52 34,52 Q10,52 6,40 Z" fill="url(#spoonWood)" stroke="#2b1810" stroke-width="2.6"/>
+  <path d="M46,26 L62,12 L59,8 L42,22 Z" fill="#6d4c41" stroke="#2b1810" stroke-width="2.2"/>
+
+  <!-- Montoncito de semillas de Ajonjolí Blanco tostado -->
+  <ellipse cx="32" cy="36" rx="20" ry="12" fill="#fff9c4" stroke="#e0a800" stroke-width="1.5"/>
+  
+  <g fill="#ffffff" stroke="#d4a017" stroke-width="1.2">
+    <ellipse cx="22" cy="30" rx="3" ry="1.8" transform="rotate(-20 22 30)"/>
+    <ellipse cx="30" cy="28" rx="3.2" ry="1.8" transform="rotate(15 30 28)"/>
+    <ellipse cx="38" cy="32" rx="3.2" ry="1.8" transform="rotate(-35 38 32)"/>
+    <ellipse cx="26" cy="38" rx="3.2" ry="1.8" transform="rotate(40 26 38)"/>
+    <ellipse cx="34" cy="40" rx="3.2" ry="1.8" transform="rotate(-15 34 40)"/>
+    <ellipse cx="42" cy="40" rx="3" ry="1.7" transform="rotate(25 42 40)"/>
+    <ellipse cx="18" cy="38" rx="2.8" ry="1.6" transform="rotate(-10 18 38)"/>
+  </g>
+  <!-- Destellos aromáticos ✨ -->
+  <polygon points="16,14 18,18 22,19 19,22 20,26 16,24 13,26 14,22 11,19 15,18" fill="#ffd54f"/>
+  <polygon points="46,14 47.5,17 51,18 48,20 49,24 46,22 43,24 44,20 41,18 44.5,17" fill="#ffffff"/>
+</svg>

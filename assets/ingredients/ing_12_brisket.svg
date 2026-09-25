@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="beefRed" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#b71c1c"/>
+      <stop offset="50%" stop-color="#c2185b"/>
+      <stop offset="100%" stop-color="#880e4f"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="32" cy="57" rx="24" ry="4.5" fill="#21120e" opacity="0.35"/>
+  <!-- Tira ondulada y veteada de Brisket laminado de res -->
+  <path d="M6,38 C14,24 24,46 36,26 C44,14 56,36 58,28 C60,40 48,56 36,46 C24,58 12,48 6,38 Z" 
+        fill="url(#beefRed)" stroke="#2b1810" stroke-width="2.8" stroke-linejoin="round"/>
+
+  <!-- Veteado fino de grasa intramuscular blanca -->
+  <path d="M10,38 C18,28 26,44 36,30 C44,20 52,38 56,30" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M14,44 C22,34 30,50 40,36 C46,26 52,42 54,36" fill="none" stroke="#fff8e1" stroke-width="2" stroke-linecap="round"/>
+  <path d="M8,34 C16,42 22,32 30,40" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round"/>
+
+  <!-- Costra ahumada exterior -->
+  <path d="M6,38 C14,24 24,46 36,26 C44,14 56,36 58,28" fill="none" stroke="#3e1a14" stroke-width="3.5" stroke-linecap="round"/>
+  <circle cx="28" cy="35" r="1.5" fill="#ffffff" opacity="0.8"/>
+  <circle cx="44" cy="27" r="1.5" fill="#ffffff" opacity="0.8"/>
+</svg>

@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="champCap" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#d7ccc8"/>
+      <stop offset="45%" stop-color="#bcaaa4"/>
+      <stop offset="100%" stop-color="#8d6e63"/>
+    </linearGradient>
+    <linearGradient id="champStem" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#eeeeee"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="32" cy="57" rx="22" ry="4.5" fill="#21120e" opacity="0.35"/>
+
+  <!-- Champiñón entero -->
+  <g transform="translate(6, 4)">
+    <path d="M16,36 L15,50 L25,50 L24,36 Z" fill="url(#champStem)" stroke="#2b1810" stroke-width="2.4"/>
+    <path d="M6,36 C6,18 34,18 34,36 Z" fill="url(#champCap)" stroke="#2b1810" stroke-width="2.6"/>
+    <ellipse cx="14" cy="26" rx="4" ry="2" fill="#ffffff" opacity="0.6"/>
+  </g>
+
+  <!-- Champiñón laminado -->
+  <g transform="translate(26, 6)">
+    <path d="M4,34 C4,20 28,20 28,34 C28,38 23,40 22,48 L10,48 C9,40 4,38 4,34 Z" 
+          fill="#ffffff" stroke="#2b1810" stroke-width="2.8" stroke-linejoin="round"/>
+    <path d="M4,34 C4,20 28,20 28,34" fill="none" stroke="#8d6e63" stroke-width="3"/>
+    <line x1="12" y1="34" x2="12" y2="40" stroke="#bcaaa4" stroke-width="2" stroke-linecap="round"/>
+    <line x1="16" y1="32" x2="16" y2="42" stroke="#bcaaa4" stroke-width="2" stroke-linecap="round"/>
+    <line x1="20" y1="34" x2="20" y2="40" stroke="#bcaaa4" stroke-width="2" stroke-linecap="round"/>
+  </g>
+</svg>

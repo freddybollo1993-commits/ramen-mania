@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="bajiruGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#b2ff59"/>
+      <stop offset="45%" stop-color="#64dd17"/>
+      <stop offset="100%" stop-color="#1b5e20"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="32" cy="58" rx="20" ry="4" fill="#21120e" opacity="0.35"/>
+  <path d="M8,31 Q7,55 32,55 Q57,55 56,31 Z" fill="#ffffff" stroke="#2b1810" stroke-width="2.6"/>
+  <ellipse cx="32" cy="31" rx="24" ry="9" fill="url(#bajiruGrad)" stroke="#2b1810" stroke-width="2.2"/>
+  
+  <ellipse cx="32" cy="31" rx="19" ry="6" fill="#ccff90" opacity="0.45"/>
+  <circle cx="21" cy="32" r="2.8" fill="#ffd54f" stroke="#c0ca33" stroke-width="1"/>
+  <circle cx="42" cy="30" r="2.2" fill="#ffd54f" stroke="#c0ca33" stroke-width="1"/>
+
+  <!-- Hojas de albahaca fresca -->
+  <g transform="translate(4, -3)">
+    <path d="M28,25 C18,17 17,4 27,2 C34,8 33,18 28,25 Z" fill="#43a047" stroke="#2b1810" stroke-width="2"/>
+    <path d="M28,25 C38,18 47,8 48,17 C41,23 35,24 28,25 Z" fill="#66bb6a" stroke="#2b1810" stroke-width="2"/>
+    <path d="M24,7 Q26,15 28,23" fill="none" stroke="#1b5e20" stroke-width="1.2"/>
+    <path d="M22,9 Q24,14 26,17" fill="none" stroke="#ffffff" stroke-width="1.2" opacity="0.7"/>
+  </g>
+</svg>

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <radialGradient id="carrotFlower" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ffcc80"/>
+      <stop offset="45%" stop-color="#ff7043"/>
+      <stop offset="85%" stop-color="#f4511e"/>
+      <stop offset="100%" stop-color="#d84315"/>
+    </radialGradient>
+  </defs>
+  <ellipse cx="32" cy="57" rx="22" ry="4.5" fill="#21120e" opacity="0.35"/>
+
+  <!-- Rodaja en flor tradicional japonesa (Sakura Ninjin) -->
+  <g transform="translate(32, 32)">
+    <g stroke="#2b1810" stroke-width="2.8" stroke-linejoin="round">
+      <path d="
+        M0,-24 
+        C6,-24 14,-18 14,-12 C14,-8 22,-8 25,-3 C28,2 26,12 21,16 C17,20 18,25 13,27 C7,29 2,24 -2,24 
+        C-7,24 -12,28 -17,25 C-22,22 -20,16 -24,12 C-28,8 -28,-1 -24,-6 C-21,-10 -15,-9 -13,-14 
+        C-11,-19 -6,-24 0,-24 Z" 
+        fill="url(#carrotFlower)"/>
+    </g>
+
+    <circle cx="0" cy="0" r="8.5" fill="#ffb74d" stroke="#f4511e" stroke-width="1.8"/>
+    <circle cx="0" cy="0" r="4.5" fill="#ffe082"/>
+
+    <line x1="0" y1="-8" x2="0" y2="-20" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+    <line x1="7" y1="-3" x2="18" y2="-8" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+    <line x1="6" y1="5" x2="16" y2="14" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+    <line x1="-5" y1="6" x2="-14" y2="15" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+    <line x1="-7" y1="-3" x2="-17" y2="-8" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+  </g>
+</svg>

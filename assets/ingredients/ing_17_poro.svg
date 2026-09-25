@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="poroStalk" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="35%" stop-color="#f1f8e9"/>
+      <stop offset="70%" stop-color="#c5e1a5"/>
+      <stop offset="100%" stop-color="#7cb342"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="32" cy="57" rx="22" ry="4.5" fill="#21120e" opacity="0.35"/>
+
+  <!-- Tallo grueso de Poro (Tokyo Negi) en corte diagonal -->
+  <g transform="rotate(-30 32 32)">
+    <path d="M18,12 L46,12 L46,52 L18,52 Z" fill="url(#poroStalk)" stroke="#2b1810" stroke-width="2.8" stroke-linejoin="round"/>
+    
+    <ellipse cx="32" cy="12" rx="14" ry="7" fill="#f1f8e9" stroke="#2b1810" stroke-width="2.4"/>
+    <ellipse cx="32" cy="12" rx="10" ry="5" fill="#dcedc8"/>
+    <ellipse cx="32" cy="12" rx="6" ry="3" fill="#aed581"/>
+    <ellipse cx="32" cy="12" rx="2.5" ry="1.2" fill="#558b2f"/>
+
+    <line x1="24" y1="18" x2="24" y2="52" stroke="#8bc34a" stroke-width="1.8"/>
+    <line x1="32" y1="19" x2="32" y2="52" stroke="#aed581" stroke-width="1.8"/>
+    <line x1="40" y1="18" x2="40" y2="52" stroke="#558b2f" stroke-width="1.8"/>
+  </g>
+
+  <!-- Fideos de poro finamente hilados (Shiraga Negi) -->
+  <path d="M38,42 Q48,34 56,44 Q60,50 52,54" fill="none" stroke="#f1f8e9" stroke-width="3" stroke-linecap="round"/>
+  <path d="M38,42 Q48,34 56,44 Q60,50 52,54" fill="none" stroke="#2b1810" stroke-width="1"/>
+  <path d="M42,46 Q50,42 54,48" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/>
+</svg>

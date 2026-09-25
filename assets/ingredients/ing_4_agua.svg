@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="waterDrop" x1="0.2" y1="0" x2="0.8" y2="1">
+      <stop offset="0%" stop-color="#e0f7fa"/>
+      <stop offset="35%" stop-color="#80deea"/>
+      <stop offset="75%" stop-color="#26c6da"/>
+      <stop offset="100%" stop-color="#0097a7"/>
+    </linearGradient>
+  </defs>
+  <!-- Sombra líquida -->
+  <ellipse cx="32" cy="59" rx="18" ry="4" fill="#006064" opacity="0.3"/>
+  <!-- Gran gota cristalina estilo cartoon -->
+  <path d="M32,3 C32,3 9,33 9,45 C9,55.5 19.3,62 32,62 C44.7,62 55,55.5 55,45 C55,33 32,3 32,3 Z" 
+        fill="url(#waterDrop)" stroke="#004d40" stroke-width="2.8" stroke-linejoin="round"/>
+  
+  <!-- Reflejo curvo brillante principal -->
+  <path d="M17,45 C17,37 26,20 30,12 C28,24 20,38 21,48 C21,52 23,54 26,56 C22,55 17,51 17,45 Z" fill="#ffffff" opacity="0.85"/>
+  <!-- Destello de brillo secundario -->
+  <ellipse cx="44" cy="46" rx="4" ry="7" transform="rotate(25 44 46)" fill="#ffffff" opacity="0.6"/>
+  <!-- Mini destello en estrella -->
+  <polygon points="32,9 33.5,13 37,13.5 34,16 35,19 32,17 29,19 30,16 27,13.5 30.5,13" fill="#ffffff" opacity="0.9"/>
+  <!-- Gotitas salpicando -->
+  <ellipse cx="10" cy="22" rx="2.5" ry="3.5" fill="#80deea" stroke="#004d40" stroke-width="1.2"/>
+  <ellipse cx="53" cy="25" rx="2.2" ry="3" fill="#80deea" stroke="#004d40" stroke-width="1.2"/>
+</svg>

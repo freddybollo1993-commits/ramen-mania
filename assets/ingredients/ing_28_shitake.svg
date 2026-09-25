@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="shitakeCap" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8d6e63"/>
+      <stop offset="45%" stop-color="#5d4037"/>
+      <stop offset="100%" stop-color="#3e2723"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="32" cy="57" rx="24" ry="5" fill="#21120e" opacity="0.35"/>
+
+  <!-- Hongo Shiitake gourmet con flor tallada -->
+  <path d="M26,38 L25,54 Q32,57 39,54 L38,38 Z" fill="#efebe9" stroke="#2b1810" stroke-width="2.6"/>
+  <path d="M6,38 C6,10 58,10 58,38 C58,45 6,45 6,38 Z" fill="url(#shitakeCap)" stroke="#2b1810" stroke-width="2.8"/>
+
+  <!-- Tallado en estrella / cruz blanca -->
+  <g fill="#fffde7" stroke="#2b1810" stroke-width="1.8" stroke-linejoin="round">
+    <polygon points="32,15 36,24 32,33 28,24"/>
+    <polygon points="18,24 27,21 37,24 27,27"/>
+    <polygon points="21,17 28,22 25,29 20,22"/>
+    <polygon points="43,17 44,22 36,22 39,17"/>
+    <polygon points="43,31 39,26 44,24 45,29"/>
+  </g>
+
+  <path d="M12,32 C12,18 24,14 30,13" fill="none" stroke="#a1887f" stroke-width="2.5" stroke-linecap="round"/>
+</svg>

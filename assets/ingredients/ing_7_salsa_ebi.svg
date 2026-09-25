@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="ebiSauce" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ff8a65"/>
+      <stop offset="50%" stop-color="#f4511e"/>
+      <stop offset="100%" stop-color="#bf360c"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="32" cy="58" rx="20" ry="4" fill="#21120e" opacity="0.35"/>
+  <path d="M8,30 Q6,55 32,55 Q58,55 56,30 Z" fill="#fafafa" stroke="#2b1810" stroke-width="2.6"/>
+  <ellipse cx="32" cy="30" rx="24" ry="9" fill="url(#ebiSauce)" stroke="#2b1810" stroke-width="2.2"/>
+  <ellipse cx="32" cy="30" rx="18" ry="6" fill="#ffab91" opacity="0.5"/>
+
+  <!-- Colita de langostino / camarón saliendo decorativa -->
+  <g transform="translate(18, 4) rotate(-15)">
+    <path d="M12,22 Q14,8 24,6 Q28,14 20,24 Z" fill="#ff7043" stroke="#2b1810" stroke-width="2"/>
+    <path d="M22,7 Q30,1 36,4 Q30,11 25,9 Z" fill="#ff8a80" stroke="#2b1810" stroke-width="1.8"/>
+    <path d="M25,8 Q34,8 36,13 Q29,15 24,10 Z" fill="#ff5252" stroke="#2b1810" stroke-width="1.8"/>
+    <path d="M15,16 Q20,13 23,19" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+  </g>
+
+  <circle cx="24" cy="31" r="2.5" fill="#ffd54f" stroke="#ff8f00" stroke-width="1"/>
+  <circle cx="40" cy="33" r="2" fill="#ffd54f" stroke="#ff8f00" stroke-width="0.8"/>
+  <circle cx="34" cy="27" r="1.5" fill="#ffffff" opacity="0.8"/>
+</svg>

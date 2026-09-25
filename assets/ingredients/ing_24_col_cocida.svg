@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="cabbageGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e8f5e9"/>
+      <stop offset="35%" stop-color="#c8e6c9"/>
+      <stop offset="70%" stop-color="#81c784"/>
+      <stop offset="100%" stop-color="#388e3c"/>
+    </linearGradient>
+  </defs>
+  <!-- Vapor de cocción -->
+  <path d="M22,12 Q20,6 23,2" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+  <path d="M36,10 Q39,5 35,1" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
+
+  <ellipse cx="32" cy="57" rx="22" ry="4.5" fill="#21120e" opacity="0.35"/>
+
+  <!-- Hojas de col blanqueada (Kyabetsu) -->
+  <path d="M10,46 C6,34 14,20 26,16 C38,12 52,18 54,32 C56,44 48,54 36,54 C24,54 14,52 10,46 Z" 
+        fill="url(#cabbageGrad)" stroke="#2b1810" stroke-width="2.8" stroke-linejoin="round"/>
+
+  <path d="M30,54 Q32,36 28,18" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M30,54 Q32,36 28,18" fill="none" stroke="#c8e6c9" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M30,40 Q22,34 16,38" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+  <path d="M31,34 Q38,28 46,30" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+  <path d="M29,26 Q24,22 18,24" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" opacity="0.8"/>
+  <path d="M10,44 Q16,36 22,44 Q30,36 38,44 Q46,36 52,44" fill="none" stroke="#2e7d32" stroke-width="1.8" opacity="0.6"/>
+</svg>

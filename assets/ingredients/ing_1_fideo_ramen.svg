@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="noodleGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fff176"/>
+      <stop offset="60%" stop-color="#fbc02d"/>
+      <stop offset="100%" stop-color="#f57f17"/>
+    </linearGradient>
+    <linearGradient id="chopGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#bcaaa4"/>
+      <stop offset="40%" stop-color="#8d6e63"/>
+      <stop offset="100%" stop-color="#5d4037"/>
+    </linearGradient>
+  </defs>
+  <!-- Vapor caliente animado -->
+  <path d="M22,12 Q20,6 23,2" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+  <path d="M32,10 Q35,4 32,1" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
+  <path d="M42,12 Q40,6 43,2" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+
+  <!-- Nido de Fideos enrollados en la base -->
+  <ellipse cx="32" cy="46" rx="25" ry="13" fill="#f57f17" stroke="#2b1810" stroke-width="2.6"/>
+  
+  <!-- Hebras onduladas en el cuenco -->
+  <path d="M12,44 Q22,34 32,45 T52,43" fill="none" stroke="url(#noodleGrad)" stroke-width="5" stroke-linecap="round"/>
+  <path d="M14,48 Q26,38 38,49 T50,47" fill="none" stroke="url(#noodleGrad)" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M16,42 Q28,52 40,41 T48,46" fill="none" stroke="#fff9c4" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- Manojo de fideos levantados con palillos -->
+  <path d="M25,44 Q23,28 29,18 Q33,26 35,44" fill="url(#noodleGrad)" stroke="#2b1810" stroke-width="2"/>
+  <path d="M29,44 Q27,24 33,18 Q37,26 39,44" fill="url(#noodleGrad)" stroke="#2b1810" stroke-width="2"/>
+  <path d="M27,22 Q25,32 29,42" fill="none" stroke="#fffde7" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M33,20 Q31,30 35,42" fill="none" stroke="#fffde7" stroke-width="2.5" stroke-linecap="round"/>
+
+  <!-- Palillos de madera con punta lacada roja -->
+  <polygon points="5,20 59,13 61,16 5,23" fill="url(#chopGrad)" stroke="#2b1810" stroke-width="2"/>
+  <polygon points="7,27 59,16 61,19 7,30" fill="url(#chopGrad)" stroke="#2b1810" stroke-width="2"/>
+  <polygon points="52,14 60,13 61,16 53,17" fill="#d32f2f"/>
+  <polygon points="52,18 60,16 61,19 53,20" fill="#d32f2f"/>
+
+  <!-- Gotita de caldo cayendo -->
+  <ellipse cx="32" cy="55" rx="3" ry="4.5" fill="#fbc02d" stroke="#2b1810" stroke-width="1.5"/>
+  <circle cx="31" cy="54" r="1.2" fill="#ffffff"/>
+</svg>
