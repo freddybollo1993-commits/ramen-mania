@@ -140,19 +140,32 @@
   .title-area {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
     flex-shrink: 0;
+  }
+
+  /* Columna vertical: Nombre del juego arriba pegado al borde superior y nivel debajo */
+  .hud-brand-column {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 1.5px;
+    user-select: none;
+    margin-right: 2px;
   }
 
   .hud-brand {
     display: flex;
     align-items: center;
-    gap: 4px;
-    user-select: none;
+    gap: 3px;
+    margin-top: -3px; /* Sube el nombre del juego pegado al borde superior */
+    line-height: 1;
   }
 
   .hud-brand .brand-icon {
-    font-size: 15px;
+    font-size: 13px;
+    line-height: 1;
     filter: drop-shadow(0 1px 2px rgba(0,0,0,0.6));
     animation: gentleBob 2.5s infinite ease-in-out;
   }
@@ -164,9 +177,10 @@
 
   .hud-brand h1, .hud-brand .brand-title {
     font-family: 'Fredoka One', cursive, sans-serif;
-    font-size: 14px;
+    font-size: 13.5px;
     letter-spacing: 0.5px;
     margin: 0;
+    line-height: 1;
     background: linear-gradient(180deg, #fff3b0 0%, #ffb300 70%, #ff8f00 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -174,24 +188,54 @@
     white-space: nowrap;
   }
 
+  /* Barra que indica el nivel y modo colocada DEBAJO del nombre del juego */
   .hud-mode-group {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 3px;
+    line-height: 1;
   }
 
   .level-badge {
     background: linear-gradient(180deg, #ffd54f 0%, #ffb300 100%);
     color: #212121;
     font-weight: 900;
-    font-size: 10px;
-    padding: 2px 6px;
-    border-radius: 6px;
+    font-size: 9.5px;
+    padding: 1.5px 5px;
+    border-radius: 4px;
     border: 1px solid #ffe082;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.35);
     letter-spacing: 0.3px;
     white-space: nowrap;
-    line-height: 1.2;
+    line-height: 1.1;
+  }
+
+  .btn-hud-mode-pill {
+    background: linear-gradient(180deg, #ff9800, #e65100);
+    color: #fff;
+    border: 1px solid #ffb74d;
+    border-radius: 4px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 9px;
+    font-weight: 800;
+    padding: 1.5px 5px;
+    cursor: pointer;
+    line-height: 1.1;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    transition: transform 0.08s ease, filter 0.08s ease;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  .btn-hud-mode-pill:hover {
+    filter: brightness(1.15);
+    transform: translateY(-1px);
+  }
+  .btn-hud-mode-pill:active {
+    transform: translateY(1px);
   }
 
   /* 2. SECCIÓN CENTRAL: Métricas HUD (Cápsula de Cristal Arcade) */
@@ -363,10 +407,67 @@
     font-size: 13px;
   }
 
+  /* BOTÓN INTERACTIVO DE USUARIO VINCULADO EN EL HUD (CON VENTANA EMERGENTE AL TOCAR) */
+  .btn-hud-user {
+    background: linear-gradient(180deg, #3d1b13 0%, #250d08 100%);
+    border: 1.5px solid #ffb300;
+    border-radius: 6px;
+    padding: 0 7px;
+    height: 28px;
+    min-height: 28px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    box-shadow: 0 2px 0 #120402, 0 0 6px rgba(255, 179, 0, 0.3);
+    transition: transform 0.08s ease, filter 0.08s ease, box-shadow 0.08s ease;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    font-family: 'Nunito', sans-serif;
+  }
+  .btn-hud-user:hover {
+    filter: brightness(1.18);
+    border-color: #ffd54f;
+    box-shadow: 0 2px 0 #120402, 0 0 10px rgba(255, 179, 0, 0.55);
+    transform: translateY(-1px);
+  }
+  .btn-hud-user:active {
+    transform: translateY(1px);
+    box-shadow: 0 0 0 #120402;
+  }
+  .hud-user-avatar {
+    font-size: 13px;
+    line-height: 1;
+  }
+  .hud-user-name {
+    font-size: 10.5px;
+    font-weight: 900;
+    color: #ffe082;
+    font-family: 'Fredoka One', cursive, sans-serif;
+    max-width: 90px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .hud-user-tag {
+    font-size: 8px;
+    font-weight: 900;
+    background: #2e7d32;
+    color: #fff;
+    padding: 1px 4px;
+    border-radius: 3px;
+    line-height: 1;
+    letter-spacing: 0.3px;
+  }
+
   /* ADAPTACIÓN RESPONSIVA INTELIGENTE DE LA BARRA SUPERIOR */
   @media (max-width: 1080px) {
     .btn-hud-fullscreen .btn-text,
     .btn-hud-master .btn-text {
+      display: none;
+    }
+    .btn-hud-user .hud-user-tag {
       display: none;
     }
   }
@@ -386,11 +487,26 @@
     .stat-badge .stat-lbl {
       display: none;
     }
+    .btn-hud-user .hud-user-tag {
+      display: none;
+    }
   }
 
   @media (max-width: 780px) {
     .hud-brand .brand-title {
       display: none;
+    }
+    .btn-hud-mode-pill .btn-text {
+      display: none;
+    }
+    .btn-hud-user .hud-user-name {
+      display: none;
+    }
+    .btn-hud-user {
+      padding: 0;
+      width: 28px;
+      min-width: 28px;
+      justify-content: center;
     }
     .hud-brand {
       margin-right: 1px;
@@ -411,12 +527,9 @@
   }
 
   @media (max-width: 600px) {
-    .hud-linked-user .hud-user-name {
-      display: none;
-    }
     .level-badge {
       font-size: 9px;
-      padding: 2px 4px;
+      padding: 1px 4px;
     }
   }
 
@@ -2224,23 +2337,26 @@
         <span class="hud-icon">🏠</span><span class="btn-text">Inicio</span>
       </button>
 
-      <div class="hud-brand" title="Ramen Mania Arcade">
-        <span class="brand-icon">🍜</span>
-        <h1 class="brand-title">RAMEN MANIA</h1>
+      <!-- COLUMNA: NOMBRE DEL JUEGO ARRIBA AL BORDE SUPERIOR Y NIVEL DEBAJO -->
+      <div class="hud-brand-column" title="Ramen Mania Arcade">
+        <div class="hud-brand">
+          <span class="brand-icon">🍜</span>
+          <h1 class="brand-title">RAMEN MANIA</h1>
+        </div>
+        <div class="hud-mode-group">
+          <span class="level-badge" id="hud-level-badge">NIVEL 1/5</span>
+          <button class="btn-hud-mode-pill" id="btn-mode-toggle" onclick="openModeSelectModal()" title="Cambiar Modo de Juego">
+            <span class="hud-icon">🎮</span><span class="btn-text" id="btn-mode-text">Modo</span>
+          </button>
+        </div>
       </div>
 
-      <div class="hud-mode-group">
-        <span class="level-badge" id="hud-level-badge">NIVEL 1</span>
-        <button class="btn-hud btn-hud-mode" id="btn-mode-toggle" onclick="openModeSelectModal()" title="Cambiar Modo de Juego">
-          <span class="hud-icon">🎮</span><span class="btn-text" id="btn-mode-text">Modo</span>
-        </button>
-      </div>
-
-      <div class="hud-linked-user" id="hud-linked-user" onclick="openProfileModal()" style="display:none;" title="Cuenta Vinculada (Toca para ver perfil)">
+      <!-- BOTÓN DE CUENTA VINCULADA (VENTANA EMERGENTE DE PERFIL AL TOCAR) -->
+      <button class="btn-hud-user" id="hud-linked-user" onclick="openGameProfileModal()" style="display:none;" title="Toca para ver la información completa de tu cuenta vinculada">
         <span class="hud-user-avatar" id="hud-user-avatar">🍜</span>
         <span class="hud-user-name" id="hud-user-name">Chef ...</span>
         <span class="hud-user-tag">🔒 VINCULADO</span>
-      </div>
+      </button>
     </div>
 
     <!-- SECCIÓN CENTRAL: MÉTRICAS HUD EN CÁPSULA ARCADE -->
@@ -4499,7 +4615,7 @@ function renderLinkedUserBadges() {
     if (startPillName) startPillName.textContent = `Chef ${p.playerName}`;
     if (startPillAvatar) startPillAvatar.textContent = p.avatar || "🍜";
 
-    if (hudBadge) hudBadge.style.display = "flex";
+    if (hudBadge) hudBadge.style.display = "inline-flex";
     if (hudName) hudName.textContent = `Chef ${p.playerName}`;
     if (hudAvatar) hudAvatar.textContent = p.avatar || "🍜";
   } else {
@@ -4635,6 +4751,16 @@ async function handleConfirmRegistration() {
   }
 }
 
+let pausedByProfileModal = false;
+
+function openGameProfileModal() {
+  if (!gameState.isGameOver && !gameState.isPaused) {
+    togglePause();
+    pausedByProfileModal = true;
+  }
+  openProfileModal();
+}
+
 function openProfileModal() {
   if (!DeviceManager.currentPlayer) {
     openRegisterPlayerModal();
@@ -4670,6 +4796,10 @@ function openProfileModal() {
 
 function closeProfileModal() {
   document.getElementById("player-profile-modal").classList.remove("active");
+  if (pausedByProfileModal && gameState.isPaused && !gameState.isGameOver) {
+    togglePause();
+    pausedByProfileModal = false;
+  }
 }
 
 function selectProfAvatar(av) {
