@@ -635,16 +635,288 @@
     line-height: 1.1;
   }
 
-  /* 4. TAZONES CENTRALES (CUENCOS DONBURI) EN EL ESPACIO INFERIOR DE LA PANTALLA */
+  /* 4. BARRA INFERIOR: ESTACIONES DE COCCIÓN Y CUENCOS DONBURI */
+  .kitchen-bottom-dock {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-top: auto;
+    margin-bottom: 3px;
+    padding: 0 4px;
+    gap: 8px;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    z-index: 90;
+  }
+
+  /* PANEL DE 4 BOTONES DE COCCIÓN EN EL EXTREMO INFERIOR IZQUIERDO */
+  .cook-stations-panel {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 4px;
+    flex-shrink: 0;
+    width: 270px;
+    height: 84px;
+    box-sizing: border-box;
+  }
+
+  .cook-station-btn {
+    background: rgba(32, 16, 12, 0.94);
+    border: 1.5px solid #5d2e22;
+    border-radius: 9px;
+    padding: 3px 6px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.15s ease;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    text-align: left;
+    outline: none;
+  }
+  .cook-station-btn:hover {
+    border-color: #ffb300;
+    background: rgba(45, 22, 16, 0.98);
+  }
+  .cook-station-btn:active {
+    transform: scale(0.97);
+  }
+
+  .station-progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3.5px;
+    background: rgba(0,0,0,0.5);
+  }
+  .station-fill {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #ff9800, #ffeb3b);
+    transition: width 0.08s linear;
+  }
+
+  .station-icon-wrap {
+    font-size: 18px;
+    margin-right: 5px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+  }
+  .station-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    line-height: 1.1;
+    overflow: hidden;
+    flex: 1;
+  }
+  .station-title {
+    font-size: 9.5px;
+    font-weight: 800;
+    color: #fff8f0;
+    white-space: nowrap;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.7);
+  }
+  .station-status {
+    font-size: 8px;
+    font-weight: 700;
+    color: #ffca28;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .station-stock-pill {
+    font-size: 7.5px;
+    font-weight: 900;
+    color: #a5d6a7;
+    background: rgba(46, 125, 50, 0.4);
+    border: 1px solid rgba(129, 199, 132, 0.5);
+    border-radius: 4px;
+    padding: 1px 3px;
+    margin-left: 2px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .station-stock-pill.empty {
+    color: #ef9a9a;
+    background: rgba(198, 40, 40, 0.4);
+    border-color: rgba(239, 154, 154, 0.5);
+  }
+
+  /* Animaciones y estados de cocción */
+  .cook-station-btn.cooking-active {
+    border-color: #ff9800;
+    box-shadow: 0 0 10px rgba(255, 152, 0, 0.5), inset 0 0 8px rgba(255, 152, 0, 0.2);
+  }
+  .cook-station-btn.cooking-active .station-icon {
+    animation: noodleBoilJiggle 0.3s infinite alternate;
+  }
+  @keyframes noodleBoilJiggle {
+    0% { transform: translateY(0) rotate(0deg); }
+    100% { transform: translateY(-2px) rotate(4deg); }
+  }
+
+  .cook-station-btn.noodle-ready-collect {
+    border-color: #ffd600 !important;
+    background: linear-gradient(135deg, rgba(80, 50, 10, 0.98), rgba(40, 25, 5, 0.98)) !important;
+    box-shadow: 0 0 16px #ffea00, inset 0 0 10px rgba(255, 234, 0, 0.4) !important;
+    animation: noodleReadyFlash 0.45s infinite alternate !important;
+  }
+  @keyframes noodleReadyFlash {
+    0% { transform: scale(1); filter: brightness(1); }
+    100% { transform: scale(1.04); filter: brightness(1.3); }
+  }
+
+  .cook-station-btn.noodle-burnt {
+    border-color: #d50000 !important;
+    background: rgba(60, 10, 10, 0.98) !important;
+    box-shadow: 0 0 14px #ff1744 !important;
+    animation: shakeBurnt 0.4s ease;
+  }
+  @keyframes shakeBurnt {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-4px); }
+    40%, 80% { transform: translateX(4px); }
+  }
+
+  .cook-station-btn.heating-active, .cook-station-btn.flaming-active {
+    border-color: #ff3d00;
+    box-shadow: 0 0 14px rgba(255, 61, 0, 0.7), inset 0 0 8px rgba(255, 87, 34, 0.35);
+    background: rgba(45, 18, 12, 0.98);
+  }
+  .cook-station-btn.heating-active .station-icon, .cook-station-btn.flaming-active .station-icon {
+    animation: flamePulse 0.25s infinite alternate;
+  }
+  @keyframes flamePulse {
+    0% { transform: scale(1) translateY(0); filter: drop-shadow(0 0 2px #ff9800); }
+    100% { transform: scale(1.18) translateY(-2px); filter: drop-shadow(0 0 8px #ff3d00); }
+  }
+
+  .guide-highlight {
+    border-color: #ffff00 !important;
+    box-shadow: 0 0 25px #ffea00, 0 0 40px #ff3d00, inset 0 0 14px #ff9100 !important;
+    animation: guideGlowPulse 0.38s infinite alternate !important;
+    z-index: 100 !important;
+  }
+  @keyframes guideGlowPulse {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.08); }
+  }
+
+  .station-guide-toast {
+    position: fixed;
+    bottom: 95px;
+    left: 20px;
+    background: rgba(20, 8, 5, 0.96);
+    border: 2px solid #ffb300;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 6px 14px;
+    border-radius: 10px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.7), 0 0 15px rgba(255, 179, 0, 0.5);
+    z-index: 9999;
+    pointer-events: none;
+    animation: toastPopFade 2.6s forwards ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  @keyframes toastPopFade {
+    0% { opacity: 0; transform: translateY(10px) scale(0.9); }
+    12% { opacity: 1; transform: translateY(0) scale(1); }
+    80% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-10px) scale(0.95); }
+  }
+
+  .ing-stock-badge {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    background: #2e7d32;
+    color: #ffffff;
+    font-size: 8px;
+    font-weight: 900;
+    min-width: 14px;
+    height: 14px;
+    line-height: 13px;
+    text-align: center;
+    border-radius: 7px;
+    border: 1px solid #81c784;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.6);
+    pointer-events: none;
+    padding: 0 2px;
+    box-sizing: border-box;
+    z-index: 5;
+  }
+  .ing-stock-badge.stock-zero {
+    background: #c62828 !important;
+    border-color: #ef9a9a !important;
+    color: #ffebee !important;
+    animation: pulseStockZero 0.8s infinite alternate;
+  }
+  @keyframes pulseStockZero {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.15); box-shadow: 0 0 6px #ff1744; }
+  }
+
   .bottom-bowls-row {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 14px;
-    width: 100%;
-    margin-top: auto;
-    margin-bottom: 3px;
+    gap: 12px;
+    flex: 1;
+    margin: 0;
     flex-shrink: 0;
+  }
+
+  @media (max-width: 750px) {
+    .kitchen-bottom-dock {
+      gap: 6px;
+      padding: 0 2px;
+    }
+    .cook-stations-panel {
+      width: 220px;
+      gap: 3px;
+    }
+    .cook-station-btn {
+      height: 38px;
+      padding: 2px 4px;
+    }
+    .station-title {
+      font-size: 8.5px;
+    }
+    .station-status {
+      font-size: 7.5px;
+    }
+    .station-icon-wrap {
+      font-size: 16px;
+      width: 20px;
+      height: 20px;
+      margin-right: 3px;
+    }
+    .bottom-bowls-row {
+      gap: 6px;
+    }
+    .bowl-dock-card {
+      width: 105px;
+      height: 80px;
+      padding: 2px 4px;
+    }
   }
 
   .bowl-dock-card {
@@ -2176,39 +2448,105 @@
     </div>
   </main>
 
-  <!-- 4. TAZONES CENTRALES (CUENCOS DONBURI) EN EL ESPACIO INFERIOR DE LA PANTALLA -->
-  <div class="bottom-bowls-row">
-    <!-- Cuenco 1 -->
-    <div class="bowl-dock-card active" id="bowl-card-0" onclick="selectBowl(0)">
-      <div class="bowl-dock-tag" id="bowl-tag-0">● ACTIVO</div>
-      <div class="bowl-dock-visual" id="bowl-art-0"></div>
-      <div class="bowl-dock-footer">
-        <span class="bowl-dock-name">Cuenco 1</span>
-        <button class="btn-bowl-trash" onclick="event.stopPropagation(); clearBowl(0)" title="Vaciar Cuenco 1">🗑️</button>
-      </div>
-      <div class="bowl-status-hint" id="bowl-badge-0">Vacío</div>
+  <!-- 4. BARRA INFERIOR: ESTACIONES DE COCCIÓN (IZQUIERDA) Y TAZONES DE PREPARACIÓN (DERECHA) -->
+  <div class="kitchen-bottom-dock">
+    <!-- Panel de 4 estaciones interactivas de cocción a la izquierda -->
+    <div class="cook-stations-panel">
+      <!-- 1. Cocinar Fideos -->
+      <button class="cook-station-btn" id="btn-cook-noodles" onclick="handleNoodlesBtnClick()" title="Cocinar Fideos: Toca para iniciar (4s), toca para añadir más fideos (+1s hasta 4), toca para recoger cuando esté listo.">
+        <div class="station-icon-wrap">
+          <span class="station-icon" id="noodles-icon">🥢</span>
+        </div>
+        <div class="station-info">
+          <div class="station-title">Cocinar Fideos</div>
+          <div class="station-status" id="noodles-status">Toca para cocer</div>
+        </div>
+        <div class="station-stock-pill" id="noodles-station-stock" title="Fideos Ramen en Stock">Stock: 2</div>
+        <div class="station-progress-bar">
+          <div class="station-fill" id="noodles-fill"></div>
+        </div>
+      </button>
+
+      <!-- 2. Calentar Shio -->
+      <button class="cook-station-btn" id="btn-heat-shio" title="Calentar Shio: Mantén presionado durante 3 segundos para calentar caldo Shio al punto.">
+        <div class="station-icon-wrap">
+          <span class="station-icon" id="shio-icon">🥣</span>
+        </div>
+        <div class="station-info">
+          <div class="station-title">Calentar Shio</div>
+          <div class="station-status" id="shio-status">Mantén 3s</div>
+        </div>
+        <div class="station-stock-pill" id="shio-station-stock" title="Caldo Shio en Stock">Stock: 2</div>
+        <div class="station-progress-bar">
+          <div class="station-fill" id="shio-fill"></div>
+        </div>
+      </button>
+
+      <!-- 3. Calentar Tonkotsu -->
+      <button class="cook-station-btn" id="btn-heat-tonkotsu" title="Calentar Tonkotsu: Mantén presionado durante 3 segundos para calentar caldo Tonkotsu al punto.">
+        <div class="station-icon-wrap">
+          <span class="station-icon" id="tonkotsu-icon">🫕</span>
+        </div>
+        <div class="station-info">
+          <div class="station-title">Calentar Tonkotsu</div>
+          <div class="station-status" id="tonkotsu-status">Mantén 3s</div>
+        </div>
+        <div class="station-stock-pill" id="tonkotsu-station-stock" title="Caldo Tonkotsu en Stock">Stock: 2</div>
+        <div class="station-progress-bar">
+          <div class="station-fill" id="tonkotsu-fill"></div>
+        </div>
+      </button>
+
+      <!-- 4. Flamear Chasu -->
+      <button class="cook-station-btn" id="btn-flame-chasu" title="Flamear Chasu: Mantén presionado para encender el soplete y flamear Chasu (1 porción cada 2s hasta 4).">
+        <div class="station-icon-wrap">
+          <span class="station-icon" id="chasu-icon">🥩</span>
+        </div>
+        <div class="station-info">
+          <div class="station-title">Flamear Chasu</div>
+          <div class="station-status" id="chasu-status">Mantén (2s c/u)</div>
+        </div>
+        <div class="station-stock-pill" id="chasu-station-stock" title="Chasu Flameado en Stock">Stock: 2</div>
+        <div class="station-progress-bar">
+          <div class="station-fill" id="chasu-fill"></div>
+        </div>
+      </button>
     </div>
 
-    <!-- Cuenco 2 -->
-    <div class="bowl-dock-card" id="bowl-card-1" onclick="selectBowl(1)">
-      <div class="bowl-dock-tag" id="bowl-tag-1" style="display:none;">● ACTIVO</div>
-      <div class="bowl-dock-visual" id="bowl-art-1"></div>
-      <div class="bowl-dock-footer">
-        <span class="bowl-dock-name">Cuenco 2</span>
-        <button class="btn-bowl-trash" onclick="event.stopPropagation(); clearBowl(1)" title="Vaciar Cuenco 2">🗑️</button>
+    <!-- Tazones Centrales (Cuencos Donburi) -->
+    <div class="bottom-bowls-row">
+      <!-- Cuenco 1 -->
+      <div class="bowl-dock-card active" id="bowl-card-0" onclick="selectBowl(0)">
+        <div class="bowl-dock-tag" id="bowl-tag-0">● ACTIVO</div>
+        <div class="bowl-dock-visual" id="bowl-art-0"></div>
+        <div class="bowl-dock-footer">
+          <span class="bowl-dock-name">Cuenco 1</span>
+          <button class="btn-bowl-trash" onclick="event.stopPropagation(); clearBowl(0)" title="Vaciar Cuenco 1">🗑️</button>
+        </div>
+        <div class="bowl-status-hint" id="bowl-badge-0">Vacío</div>
       </div>
-      <div class="bowl-status-hint" id="bowl-badge-1">Vacío</div>
-    </div>
 
-    <!-- Cuenco 3 -->
-    <div class="bowl-dock-card" id="bowl-card-2" onclick="selectBowl(2)">
-      <div class="bowl-dock-tag" id="bowl-tag-2" style="display:none;">● ACTIVO</div>
-      <div class="bowl-dock-visual" id="bowl-art-2"></div>
-      <div class="bowl-dock-footer">
-        <span class="bowl-dock-name">Cuenco 3</span>
-        <button class="btn-bowl-trash" onclick="event.stopPropagation(); clearBowl(2)" title="Vaciar Cuenco 3">🗑️</button>
+      <!-- Cuenco 2 -->
+      <div class="bowl-dock-card" id="bowl-card-1" onclick="selectBowl(1)">
+        <div class="bowl-dock-tag" id="bowl-tag-1" style="display:none;">● ACTIVO</div>
+        <div class="bowl-dock-visual" id="bowl-art-1"></div>
+        <div class="bowl-dock-footer">
+          <span class="bowl-dock-name">Cuenco 2</span>
+          <button class="btn-bowl-trash" onclick="event.stopPropagation(); clearBowl(1)" title="Vaciar Cuenco 2">🗑️</button>
+        </div>
+        <div class="bowl-status-hint" id="bowl-badge-1">Vacío</div>
       </div>
-      <div class="bowl-status-hint" id="bowl-badge-2">Vacío</div>
+
+      <!-- Cuenco 3 -->
+      <div class="bowl-dock-card" id="bowl-card-2" onclick="selectBowl(2)">
+        <div class="bowl-dock-tag" id="bowl-tag-2" style="display:none;">● ACTIVO</div>
+        <div class="bowl-dock-visual" id="bowl-art-2"></div>
+        <div class="bowl-dock-footer">
+          <span class="bowl-dock-name">Cuenco 3</span>
+          <button class="btn-bowl-trash" onclick="event.stopPropagation(); clearBowl(2)" title="Vaciar Cuenco 3">🗑️</button>
+        </div>
+        <div class="bowl-status-hint" id="bowl-badge-2">Vacío</div>
+      </div>
     </div>
   </div>
 
@@ -3456,6 +3794,89 @@ function playSound(type) {
       gain.gain.linearRampToValueAtTime(0, now + 0.04);
       osc.start(now);
       osc.stop(now + 0.04);
+    } else if (type === 'bubble') {
+      // Procedural boiling water bubble pop
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.type = 'sine';
+      const startFreq = 420 + Math.random() * 220;
+      osc.frequency.setValueAtTime(startFreq, now);
+      osc.frequency.exponentialRampToValueAtTime(startFreq * 2.1, now + 0.07);
+      gain.gain.setValueAtTime(0.12, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+      osc.start(now);
+      osc.stop(now + 0.07);
+    } else if (type === 'flame') {
+      // Procedural burner / blowtorch flame whoosh
+      const bufferSize = Math.floor(audioCtx.sampleRate * 0.22);
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const output = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        output[i] = (Math.random() * 2 - 1) * 0.14;
+      }
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buffer;
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(500, now);
+      filter.frequency.exponentialRampToValueAtTime(280, now + 0.22);
+      filter.Q.setValueAtTime(1.4, now);
+      const gain = audioCtx.createGain();
+      gain.gain.setValueAtTime(0.16, now);
+      gain.gain.linearRampToValueAtTime(0, now + 0.22);
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(audioCtx.destination);
+      noise.start(now);
+      noise.stop(now + 0.22);
+    } else if (type === 'ding') {
+      // Microwave / kitchen bell ding chime (harmonic)
+      const osc1 = audioCtx.createOscillator();
+      const osc2 = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc1.type = 'sine';
+      osc2.type = 'sine';
+      osc1.frequency.setValueAtTime(1318.51, now); // E6
+      osc2.frequency.setValueAtTime(2637.02, now); // E7
+      osc1.connect(gain);
+      osc2.connect(gain);
+      gain.connect(audioCtx.destination);
+      gain.gain.setValueAtTime(0.18, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
+      osc1.start(now);
+      osc2.start(now);
+      osc1.stop(now + 0.65);
+      osc2.stop(now + 0.65);
+    } else if (type === 'burn') {
+      // Burnt food penalty buzz
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(170, now);
+      osc.frequency.linearRampToValueAtTime(45, now + 0.35);
+      gain.gain.setValueAtTime(0.22, now);
+      gain.gain.linearRampToValueAtTime(0, now + 0.35);
+      osc.start(now);
+      osc.stop(now + 0.35);
+    } else if (type === 'stock_add') {
+      // Ascending chime when stock is added
+      const notes = [523.25, 659.25, 783.99]; // C5, E5, G5
+      notes.forEach((f, idx) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(f, now + idx * 0.05);
+        gain.gain.setValueAtTime(0.12, now + idx * 0.05);
+        gain.gain.linearRampToValueAtTime(0, now + idx * 0.05 + 0.12);
+        osc.start(now + idx * 0.05);
+        osc.stop(now + idx * 0.05 + 0.12);
+      });
     }
   } catch(e) {}
 }
@@ -3629,9 +4050,16 @@ function renderPantryGrid() {
       ? `<img src="${ing.img}" class="pixel-sprite-large" alt="${ing.display}" style="width:${iconSz}; height:${iconSz};">`
       : `<div class="ing-tile-icon">${ing.icon}</div>`;
 
+    let stockBadgeHtml = '';
+    const stockVal = getIngredientStock(ing.id);
+    if (stockVal !== null) {
+      stockBadgeHtml = `<div class="ing-stock-badge ${stockVal <= 0 ? 'stock-zero' : ''}" id="stock-badge-ing-${ing.id}">${stockVal}</div>`;
+    }
+
     tile.innerHTML = `
       ${artHtml}
       <div class="ing-tile-name">${ing.display}</div>
+      ${stockBadgeHtml}
     `;
     container.appendChild(tile);
   });
@@ -3797,6 +4225,491 @@ function generateBowlSVG(bowl, analysis) {
     </svg>
   `;
 }
+
+/* ==========================================================================
+   SISTEMA DE ESTACIONES DE COCCIÓN INTERACTIVAS (FONDO IZQUIERDO)
+   - Cocinar Fideos (Tap, 4s + 1s por fideo hasta 4, ventana de 5s para recoger o se queman)
+   - Calentar Shio (Hold 3s para calentar y recargar stock a 4)
+   - Calentar Tonkotsu (Hold 3s para calentar y recargar stock a 4)
+   - Flamear Chasu (Hold, genera 1 porción cada 2s hasta 4)
+   ========================================================================== */
+
+const kitchenState = {
+  stocks: {
+    noodles: 2,   // Stock inicial disponible para empezar
+    shio: 2,
+    tonkotsu: 2,
+    chasu: 2
+  },
+  noodles: {
+    state: 'IDLE', // 'IDLE' | 'COOKING' | 'READY' | 'BURNING'
+    portionsCooking: 0,
+    cookTimeRemaining: 0,
+    totalCookTime: 0,
+    burnTimeRemaining: 0,
+    intervalId: null
+  },
+  shio: {
+    isHeating: false,
+    heatSeconds: 0
+  },
+  tonkotsu: {
+    isHeating: false,
+    heatSeconds: 0
+  },
+  chasu: {
+    isFlaming: false,
+    flameSeconds: 0
+  }
+};
+
+function getIngredientStock(ingId) {
+  if (ingId === 1) return kitchenState.stocks.noodles;
+  if (ingId === 2) return kitchenState.stocks.shio;
+  if (ingId === 3) return kitchenState.stocks.tonkotsu;
+  if (ingId === 11) return kitchenState.stocks.chasu;
+  return null;
+}
+
+function updateKitchenStockBadges() {
+  [1, 2, 3, 11].forEach(id => {
+    const badge = document.getElementById(`stock-badge-ing-${id}`);
+    const stockVal = getIngredientStock(id);
+    if (badge && stockVal !== null) {
+      badge.textContent = stockVal;
+      if (stockVal <= 0) {
+        badge.classList.add('stock-zero');
+      } else {
+        badge.classList.remove('stock-zero');
+      }
+    }
+  });
+}
+
+function updateKitchenStationsUI() {
+  // Mini badges dentro de los botones de cocción
+  const noodlesPill = document.getElementById('noodles-station-stock');
+  if (noodlesPill) {
+    noodlesPill.textContent = `Stock: ${kitchenState.stocks.noodles}`;
+    noodlesPill.className = `station-stock-pill ${kitchenState.stocks.noodles <= 0 ? 'empty' : ''}`;
+  }
+  const shioPill = document.getElementById('shio-station-stock');
+  if (shioPill) {
+    shioPill.textContent = `Stock: ${kitchenState.stocks.shio}`;
+    shioPill.className = `station-stock-pill ${kitchenState.stocks.shio <= 0 ? 'empty' : ''}`;
+  }
+  const tonkotsuPill = document.getElementById('tonkotsu-station-stock');
+  if (tonkotsuPill) {
+    tonkotsuPill.textContent = `Stock: ${kitchenState.stocks.tonkotsu}`;
+    tonkotsuPill.className = `station-stock-pill ${kitchenState.stocks.tonkotsu <= 0 ? 'empty' : ''}`;
+  }
+  const chasuPill = document.getElementById('chasu-station-stock');
+  if (chasuPill) {
+    chasuPill.textContent = `Stock: ${kitchenState.stocks.chasu}`;
+    chasuPill.className = `station-stock-pill ${kitchenState.stocks.chasu <= 0 ? 'empty' : ''}`;
+  }
+
+  // Actualizar también los números en la despensa
+  updateKitchenStockBadges();
+}
+
+function showStationToast(msg) {
+  const oldToast = document.querySelector('.station-guide-toast');
+  if (oldToast) oldToast.remove();
+
+  const toast = document.createElement('div');
+  toast.className = 'station-guide-toast';
+  toast.innerHTML = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => {
+    if (toast.parentNode) toast.remove();
+  }, 2600);
+}
+
+function triggerGuideHighlight(btnId) {
+  const btn = document.getElementById(btnId);
+  if (!btn) return;
+  btn.classList.add('guide-highlight');
+  clearTimeout(btn._guideTimer);
+  btn._guideTimer = setTimeout(() => {
+    btn.classList.remove('guide-highlight');
+  }, 2500);
+}
+
+function handleNoodlesBtnClick() {
+  if (gameState.isPaused || gameState.isGameOver) return;
+
+  const btn = document.getElementById('btn-cook-noodles');
+  const fillEl = document.getElementById('noodles-fill');
+  const statusEl = document.getElementById('noodles-status');
+
+  if (kitchenState.noodles.state === 'IDLE') {
+    // Iniciar cocción del primer fideo: 4 segundos
+    kitchenState.noodles.state = 'COOKING';
+    kitchenState.noodles.portionsCooking = 1;
+    kitchenState.noodles.totalCookTime = 4.0;
+    kitchenState.noodles.cookTimeRemaining = 4.0;
+    if (btn) {
+      btn.classList.remove('noodle-ready-collect', 'noodle-burnt');
+      btn.classList.add('cooking-active');
+    }
+    if (fillEl) fillEl.style.width = '0%';
+    playSound('bubble');
+    if (statusEl) statusEl.textContent = 'Cociendo (1x) 4s ⏳';
+  } else if (kitchenState.noodles.state === 'COOKING') {
+    // Añadir más fideos hasta un máximo de 4 (+1s cada uno)
+    if (kitchenState.noodles.portionsCooking < 4) {
+      kitchenState.noodles.portionsCooking += 1;
+      kitchenState.noodles.totalCookTime += 1.0;
+      kitchenState.noodles.cookTimeRemaining += 1.0;
+      playSound('bubble');
+      showStationToast(`🍜 +1 Fideo en olla (${kitchenState.noodles.portionsCooking}/4)`);
+    } else {
+      showStationToast('⚠️ Olla llena (máximo 4 fideos)');
+    }
+  } else if (kitchenState.noodles.state === 'READY') {
+    // Recoger los fideos antes de que se quemen
+    const portions = kitchenState.noodles.portionsCooking;
+    kitchenState.stocks.noodles += portions;
+    playSound('stock_add');
+    showStationToast(`🍜 ¡+${portions} Fideos Ramen recogidos! (Total: ${kitchenState.stocks.noodles})`);
+
+    kitchenState.noodles.state = 'IDLE';
+    kitchenState.noodles.portionsCooking = 0;
+    kitchenState.noodles.cookTimeRemaining = 0;
+    kitchenState.noodles.burnTimeRemaining = 0;
+    if (btn) {
+      btn.classList.remove('noodle-ready-collect', 'cooking-active');
+    }
+    if (fillEl) fillEl.style.width = '0%';
+    if (statusEl) statusEl.textContent = 'Toca para cocer';
+    updateKitchenStationsUI();
+  }
+}
+
+function initNoodlesLoop() {
+  if (kitchenState.noodles.intervalId) clearInterval(kitchenState.noodles.intervalId);
+  kitchenState.noodles.intervalId = setInterval(() => {
+    if (gameState.isPaused || gameState.isGameOver) return;
+
+    const btn = document.getElementById('btn-cook-noodles');
+    const fillEl = document.getElementById('noodles-fill');
+    const statusEl = document.getElementById('noodles-status');
+
+    if (kitchenState.noodles.state === 'COOKING') {
+      kitchenState.noodles.cookTimeRemaining -= 0.1;
+      const fillPct = Math.min(100, Math.max(0, (1 - kitchenState.noodles.cookTimeRemaining / kitchenState.noodles.totalCookTime) * 100));
+      if (fillEl) fillEl.style.width = `${fillPct}%`;
+
+      const secLeft = Math.ceil(Math.max(0, kitchenState.noodles.cookTimeRemaining));
+      if (statusEl) {
+        statusEl.textContent = `Cociendo (${kitchenState.noodles.portionsCooking}x) ${secLeft}s ⏳`;
+      }
+
+      if (kitchenState.noodles.cookTimeRemaining <= 0) {
+        // Fideos listos: ventana de 5s para recoger
+        kitchenState.noodles.state = 'READY';
+        kitchenState.noodles.burnTimeRemaining = 5.0;
+        playSound('ding');
+        if (btn) {
+          btn.classList.remove('cooking-active');
+          btn.classList.add('noodle-ready-collect');
+        }
+      }
+    } else if (kitchenState.noodles.state === 'READY') {
+      kitchenState.noodles.burnTimeRemaining -= 0.1;
+      const fillPct = Math.max(0, (kitchenState.noodles.burnTimeRemaining / 5.0) * 100);
+      if (fillEl) fillEl.style.width = `${fillPct}%`;
+
+      if (statusEl) {
+        statusEl.innerHTML = `⚠️ ¡RECOGER! ${kitchenState.noodles.burnTimeRemaining.toFixed(1)}s`;
+      }
+
+      if (kitchenState.noodles.burnTimeRemaining <= 0) {
+        // Se pasaron los 5s: Fideos quemados y pérdida económica
+        kitchenState.noodles.state = 'BURNING';
+        const penalty = 10;
+        gameState.money = Math.max(0, (gameState.money || 0) - penalty);
+        updateHUD();
+        playSound('burn');
+        showStationToast(`💥 ¡Fideos quemados! Se dañaron (-S/ ${penalty})`);
+
+        if (btn) {
+          btn.classList.remove('noodle-ready-collect');
+          btn.classList.add('noodle-burnt');
+        }
+        if (statusEl) statusEl.textContent = `💥 ¡Quemado! (-S/${penalty})`;
+
+        setTimeout(() => {
+          if (btn) btn.classList.remove('noodle-burnt');
+          kitchenState.noodles.state = 'IDLE';
+          kitchenState.noodles.portionsCooking = 0;
+          kitchenState.noodles.cookTimeRemaining = 0;
+          kitchenState.noodles.burnTimeRemaining = 0;
+          if (fillEl) fillEl.style.width = '0%';
+          if (statusEl) statusEl.textContent = 'Toca para cocer';
+        }, 1300);
+      }
+    }
+  }, 100);
+}
+
+function setupShioButton() {
+  const btn = document.getElementById('btn-heat-shio');
+  if (!btn || btn._hasListeners) return;
+  btn._hasListeners = true;
+
+  let heatInterval = null;
+
+  const startHeating = (e) => {
+    if (e && e.cancelable) e.preventDefault();
+    if (gameState.isPaused || gameState.isGameOver) return;
+    if (kitchenState.shio.isHeating) return;
+
+    kitchenState.shio.isHeating = true;
+    kitchenState.shio.heatSeconds = 0;
+    btn.classList.add('heating-active');
+    playSound('flame');
+
+    const fillEl = document.getElementById('shio-fill');
+    const statusEl = document.getElementById('shio-status');
+
+    heatInterval = setInterval(() => {
+      if (gameState.isPaused || gameState.isGameOver) return;
+      kitchenState.shio.heatSeconds += 0.05;
+      const pct = Math.min(100, (kitchenState.shio.heatSeconds / 3.0) * 100);
+      if (fillEl) fillEl.style.width = `${pct}%`;
+      const rem = Math.max(0, 3.0 - kitchenState.shio.heatSeconds).toFixed(1);
+      if (statusEl) statusEl.textContent = `Calentando... ${rem}s 🔥`;
+
+      if (kitchenState.shio.heatSeconds >= 3.0) {
+        clearInterval(heatInterval);
+        heatInterval = null;
+        kitchenState.shio.isHeating = false;
+        kitchenState.stocks.shio = 4;
+        btn.classList.remove('heating-active');
+        if (fillEl) fillEl.style.width = '100%';
+        if (statusEl) statusEl.textContent = '🔥 ¡Caliente! (4)';
+        playSound('ding');
+        showStationToast('🥣 ¡Caldo Shio caliente al punto! (4 porciones)');
+        updateKitchenStationsUI();
+      }
+    }, 50);
+  };
+
+  const stopHeating = () => {
+    if (heatInterval) {
+      clearInterval(heatInterval);
+      heatInterval = null;
+    }
+    if (kitchenState.shio.isHeating) {
+      kitchenState.shio.isHeating = false;
+      btn.classList.remove('heating-active');
+      const fillEl = document.getElementById('shio-fill');
+      const statusEl = document.getElementById('shio-status');
+      if (fillEl) fillEl.style.width = '0%';
+      if (statusEl) statusEl.textContent = kitchenState.stocks.shio > 0 ? `Listo (${kitchenState.stocks.shio})` : 'Mantén 3s';
+    }
+  };
+
+  btn.addEventListener('pointerdown', startHeating);
+  btn.addEventListener('pointerup', stopHeating);
+  btn.addEventListener('pointerleave', stopHeating);
+  btn.addEventListener('pointercancel', stopHeating);
+}
+
+function setupTonkotsuButton() {
+  const btn = document.getElementById('btn-heat-tonkotsu');
+  if (!btn || btn._hasListeners) return;
+  btn._hasListeners = true;
+
+  let heatInterval = null;
+
+  const startHeating = (e) => {
+    if (e && e.cancelable) e.preventDefault();
+    if (gameState.isPaused || gameState.isGameOver) return;
+    if (kitchenState.tonkotsu.isHeating) return;
+
+    kitchenState.tonkotsu.isHeating = true;
+    kitchenState.tonkotsu.heatSeconds = 0;
+    btn.classList.add('heating-active');
+    playSound('flame');
+
+    const fillEl = document.getElementById('tonkotsu-fill');
+    const statusEl = document.getElementById('tonkotsu-status');
+
+    heatInterval = setInterval(() => {
+      if (gameState.isPaused || gameState.isGameOver) return;
+      kitchenState.tonkotsu.heatSeconds += 0.05;
+      const pct = Math.min(100, (kitchenState.tonkotsu.heatSeconds / 3.0) * 100);
+      if (fillEl) fillEl.style.width = `${pct}%`;
+      const rem = Math.max(0, 3.0 - kitchenState.tonkotsu.heatSeconds).toFixed(1);
+      if (statusEl) statusEl.textContent = `Calentando... ${rem}s 🔥`;
+
+      if (kitchenState.tonkotsu.heatSeconds >= 3.0) {
+        clearInterval(heatInterval);
+        heatInterval = null;
+        kitchenState.tonkotsu.isHeating = false;
+        kitchenState.stocks.tonkotsu = 4;
+        btn.classList.remove('heating-active');
+        if (fillEl) fillEl.style.width = '100%';
+        if (statusEl) statusEl.textContent = '🔥 ¡Caliente! (4)';
+        playSound('ding');
+        showStationToast('🫕 ¡Caldo Tonkotsu hirviendo y listo! (4 porciones)');
+        updateKitchenStationsUI();
+      }
+    }, 50);
+  };
+
+  const stopHeating = () => {
+    if (heatInterval) {
+      clearInterval(heatInterval);
+      heatInterval = null;
+    }
+    if (kitchenState.tonkotsu.isHeating) {
+      kitchenState.tonkotsu.isHeating = false;
+      btn.classList.remove('heating-active');
+      const fillEl = document.getElementById('tonkotsu-fill');
+      const statusEl = document.getElementById('tonkotsu-status');
+      if (fillEl) fillEl.style.width = '0%';
+      if (statusEl) statusEl.textContent = kitchenState.stocks.tonkotsu > 0 ? `Listo (${kitchenState.stocks.tonkotsu})` : 'Mantén 3s';
+    }
+  };
+
+  btn.addEventListener('pointerdown', startHeating);
+  btn.addEventListener('pointerup', stopHeating);
+  btn.addEventListener('pointerleave', stopHeating);
+  btn.addEventListener('pointercancel', stopHeating);
+}
+
+function setupChasuButton() {
+  const btn = document.getElementById('btn-flame-chasu');
+  if (!btn || btn._hasListeners) return;
+  btn._hasListeners = true;
+
+  let flameInterval = null;
+
+  const startFlaming = (e) => {
+    if (e && e.cancelable) e.preventDefault();
+    if (gameState.isPaused || gameState.isGameOver) return;
+    if (kitchenState.chasu.isFlaming) return;
+
+    if (kitchenState.stocks.chasu >= 4) {
+      showStationToast('🥩 ¡Máximo stock de Chasu flameado (4/4)!');
+      return;
+    }
+
+    kitchenState.chasu.isFlaming = true;
+    kitchenState.chasu.flameSeconds = 0;
+    btn.classList.add('flaming-active');
+    playSound('flame');
+
+    const fillEl = document.getElementById('chasu-fill');
+    const statusEl = document.getElementById('chasu-status');
+
+    flameInterval = setInterval(() => {
+      if (gameState.isPaused || gameState.isGameOver) return;
+      kitchenState.chasu.flameSeconds += 0.05;
+
+      const subCycle = kitchenState.chasu.flameSeconds % 2.0;
+      const pct = Math.min(100, (subCycle / 2.0) * 100);
+      if (fillEl) fillEl.style.width = `${pct}%`;
+
+      const rem = Math.max(0, 2.0 - subCycle).toFixed(1);
+      if (statusEl) statusEl.textContent = `Flameando... ${rem}s 🔥`;
+
+      if (kitchenState.chasu.flameSeconds >= 2.0) {
+        kitchenState.chasu.flameSeconds = 0;
+        kitchenState.stocks.chasu = Math.min(4, kitchenState.stocks.chasu + 1);
+        playSound('ding');
+        showStationToast(`🥩 +1 Chasu flameado! (${kitchenState.stocks.chasu}/4)`);
+        updateKitchenStationsUI();
+
+        if (kitchenState.stocks.chasu >= 4) {
+          clearInterval(flameInterval);
+          flameInterval = null;
+          kitchenState.chasu.isFlaming = false;
+          btn.classList.remove('flaming-active');
+          if (fillEl) fillEl.style.width = '100%';
+          if (statusEl) statusEl.textContent = '¡Máximo (4/4)!';
+        }
+      }
+    }, 50);
+  };
+
+  const stopFlaming = () => {
+    if (flameInterval) {
+      clearInterval(flameInterval);
+      flameInterval = null;
+    }
+    if (kitchenState.chasu.isFlaming) {
+      kitchenState.chasu.isFlaming = false;
+      btn.classList.remove('flaming-active');
+      const fillEl = document.getElementById('chasu-fill');
+      const statusEl = document.getElementById('chasu-status');
+      if (fillEl) fillEl.style.width = '0%';
+      if (statusEl) statusEl.textContent = kitchenState.stocks.chasu >= 4 ? 'Listo (4/4)' : 'Mantén (2s c/u)';
+    }
+  };
+
+  btn.addEventListener('pointerdown', startFlaming);
+  btn.addEventListener('pointerup', stopFlaming);
+  btn.addEventListener('pointerleave', stopFlaming);
+  btn.addEventListener('pointercancel', stopFlaming);
+}
+
+function setupKitchenStations() {
+  setupShioButton();
+  setupTonkotsuButton();
+  setupChasuButton();
+  initNoodlesLoop();
+  updateKitchenStationsUI();
+}
+
+function resetCookingStations() {
+  kitchenState.stocks.noodles = 2;
+  kitchenState.stocks.shio = 2;
+  kitchenState.stocks.tonkotsu = 2;
+  kitchenState.stocks.chasu = 2;
+
+  kitchenState.noodles.state = 'IDLE';
+  kitchenState.noodles.portionsCooking = 0;
+  kitchenState.noodles.cookTimeRemaining = 0;
+  kitchenState.noodles.burnTimeRemaining = 0;
+
+  const noodlesBtn = document.getElementById('btn-cook-noodles');
+  if (noodlesBtn) {
+    noodlesBtn.classList.remove('cooking-active', 'noodle-ready-collect', 'noodle-burnt', 'guide-highlight');
+  }
+  const noodlesFill = document.getElementById('noodles-fill');
+  if (noodlesFill) noodlesFill.style.width = '0%';
+  const noodlesStatus = document.getElementById('noodles-status');
+  if (noodlesStatus) noodlesStatus.textContent = 'Toca para cocer';
+
+  const shioBtn = document.getElementById('btn-heat-shio');
+  if (shioBtn) shioBtn.classList.remove('heating-active', 'guide-highlight');
+  const shioFill = document.getElementById('shio-fill');
+  if (shioFill) shioFill.style.width = '0%';
+  const shioStatus = document.getElementById('shio-status');
+  if (shioStatus) shioStatus.textContent = 'Mantén 3s';
+
+  const tonkotsuBtn = document.getElementById('btn-heat-tonkotsu');
+  if (tonkotsuBtn) tonkotsuBtn.classList.remove('heating-active', 'guide-highlight');
+  const tonkotsuFill = document.getElementById('tonkotsu-fill');
+  if (tonkotsuFill) tonkotsuFill.style.width = '0%';
+  const tonkotsuStatus = document.getElementById('tonkotsu-status');
+  if (tonkotsuStatus) tonkotsuStatus.textContent = 'Mantén 3s';
+
+  const chasuBtn = document.getElementById('btn-flame-chasu');
+  if (chasuBtn) chasuBtn.classList.remove('flaming-active', 'guide-highlight');
+  const chasuFill = document.getElementById('chasu-fill');
+  if (chasuFill) chasuFill.style.width = '0%';
+  const chasuStatus = document.getElementById('chasu-status');
+  if (chasuStatus) chasuStatus.textContent = 'Mantén (2s c/u)';
+
+  updateKitchenStationsUI();
+}
+
 function renderBowls() {
   for (let i = 0; i < 3; i++) {
     const bowl = gameState.bowls[i];
@@ -4070,6 +4983,40 @@ function toggleIngredientInBowl(ingId) {
     return;
   }
 
+  // Comprobación interactiva de stock para ingredientes de cocción
+  // 1: Fideos Ramen, 2: Caldo Shio, 3: Caldo Tonkotsu, 11: Chasu Pork
+  if (ingId === 1 && kitchenState.stocks.noodles <= 0) {
+    triggerGuideHighlight('btn-cook-noodles');
+    playSound('burn');
+    showStationToast('🍜 ¡Sin fideos! Toca "Cocinar Fideos" para preparar una tanda.');
+    return;
+  }
+  if (ingId === 2 && kitchenState.stocks.shio <= 0) {
+    triggerGuideHighlight('btn-heat-shio');
+    playSound('burn');
+    showStationToast('🥣 ¡Está Frío! Mantén presionado "Calentar Shio" 3 segundos.');
+    return;
+  }
+  if (ingId === 3 && kitchenState.stocks.tonkotsu <= 0) {
+    triggerGuideHighlight('btn-heat-tonkotsu');
+    playSound('burn');
+    showStationToast('🫕 ¡Está Frío! Mantén presionado "Calentar Tonkotsu" 3 segundos.');
+    return;
+  }
+  if (ingId === 11 && kitchenState.stocks.chasu <= 0) {
+    triggerGuideHighlight('btn-flame-chasu');
+    playSound('burn');
+    showStationToast('🥩 ¡Sin Chasu! Mantén presionado "Flamear Chasu" para dorarlo.');
+    return;
+  }
+
+  // Descontar del stock preparado si corresponde
+  if (ingId === 1) kitchenState.stocks.noodles--;
+  if (ingId === 2) kitchenState.stocks.shio--;
+  if (ingId === 3) kitchenState.stocks.tonkotsu--;
+  if (ingId === 11) kitchenState.stocks.chasu--;
+  updateKitchenStationsUI();
+
   bowl.ingredients.push(ingId);
   playSound('add');
 
@@ -4080,14 +5027,24 @@ function toggleIngredientInBowl(ingId) {
 
   renderBowls();
   renderCustomers();
+  renderPantryGrid();
 }
 
 function removeIngredientFromBowl(bowlIndex, ingId) {
   const bowl = gameState.bowls[bowlIndex];
   bowl.ingredients = bowl.ingredients.filter(id => id !== ingId);
+
+  // Restaurar stock si se retira un ingrediente preparado
+  if (ingId === 1) kitchenState.stocks.noodles++;
+  if (ingId === 2) kitchenState.stocks.shio++;
+  if (ingId === 3) kitchenState.stocks.tonkotsu++;
+  if (ingId === 11) kitchenState.stocks.chasu++;
+  updateKitchenStationsUI();
+
   playSound('trash');
   renderBowls();
   renderCustomers();
+  renderPantryGrid();
 }
 
 function clearBowl(index) {
@@ -4095,6 +5052,7 @@ function clearBowl(index) {
   gameState.bowls[index] = { ingredients: [], matchedRamen: null };
   renderBowls();
   renderCustomers();
+  renderPantryGrid();
 }
 
 function spawnCustomer() {
@@ -4290,6 +5248,7 @@ async function recordGameScoreAutomatically(outcome = 'COMPLETED') {
 function winLevel() {
   gameState.isGameOver = true;
   clearInterval(gameLoopInterval);
+  resetCookingStations();
   AnalyticsTracker.endSession('WON');
   recordGameScoreAutomatically('WON');
 
@@ -4336,6 +5295,7 @@ function winLevel() {
 function loseLevel() {
   gameState.isGameOver = true;
   clearInterval(gameLoopInterval);
+  resetCookingStations();
   AnalyticsTracker.endSession('LOST');
   recordGameScoreAutomatically('LOST');
 
@@ -4434,6 +5394,7 @@ function startLevel(lvlIndex) {
 
   document.getElementById("btn-pause").textContent = "⏸️";
 
+  resetCookingStations();
   initRecipeTable();
   updateHUD();
   renderBowls();
@@ -4600,6 +5561,7 @@ function returnToStartMenu() {
   }
   gameState.isGameOver = true;
   clearInterval(gameLoopInterval);
+  resetCookingStations();
   const startScreen = document.getElementById("start-screen");
   if (startScreen) {
     startScreen.classList.remove("hidden");
@@ -7664,6 +8626,8 @@ window.addEventListener("DOMContentLoaded", async () => {
   setStartSelectedMode('NORMAL');
   initRecipeTable();
   renderSecretosCards('todos');
+  setupKitchenStations();
+  resetCookingStations();
   await DeviceManager.init();
 });
 </script>
