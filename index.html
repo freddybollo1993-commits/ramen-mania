@@ -3252,7 +3252,7 @@
         <span class="footer-shortcut-hint">🕹️ Arcade: <strong>[Espacio]</strong> Jugar · <strong>[1,2,3]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Fullscreen</span>
       </div>
       <div class="start-footer-right">
-        <button onclick="forceAppCacheUpdate()" class="btn-cache-update" title="Limpiar caché y forzar descarga de la última versión">🔄 Limpiar Caché (v11.2)</button>
+        <button onclick="forceAppCacheUpdate()" class="btn-cache-update" title="Limpiar caché y forzar descarga de la última versión">🔄 Limpiar Caché (v13.0)</button>
       </div>
     </div>
   </div>
@@ -10724,14 +10724,14 @@ function bootGameUI() {
   setupKitchenStations();
   resetCookingStations();
 
-  // Detección y limpieza automática de cachés antiguas (v9, v10, v11)
-  const CURRENT_APP_BUILD = 'v11.2';
+  // Detección y limpieza automática de cachés antiguas (v9, v10, v11, v12)
+  const CURRENT_APP_BUILD = 'v13.0';
   const savedBuild = safeStorage.getItem('ramen_mania_build_version');
   if (savedBuild !== CURRENT_APP_BUILD) {
     safeStorage.setItem('ramen_mania_build_version', CURRENT_APP_BUILD);
     if ('caches' in window) {
       caches.keys().then(keys => {
-        const oldKeys = keys.filter(k => k !== 'ramen-mania-v12');
+        const oldKeys = keys.filter(k => k !== 'ramen-mania-v13');
         if (oldKeys.length > 0) {
           Promise.all(oldKeys.map(k => caches.delete(k))).then(() => {
             if ('serviceWorker' in navigator) {
