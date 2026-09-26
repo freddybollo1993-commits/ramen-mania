@@ -1623,7 +1623,7 @@
     width: 100vw;
     height: 100vh;
     z-index: 99990;
-    pointer-events: auto;
+    pointer-events: none;
     display: none;
     opacity: 0;
     transition: opacity 0.2s ease;
@@ -1639,8 +1639,7 @@
     border-radius: 10px;
     border: 2.5px solid #00e5ff;
     box-shadow: 0 0 16px rgba(0, 229, 255, 0.85), 0 0 0 9999px rgba(0, 0, 0, 0.42);
-    pointer-events: auto;
-    cursor: pointer;
+    pointer-events: none;
     transition: all 0.22s cubic-bezier(0.25, 1, 0.5, 1);
     z-index: 99991;
     animation: spotlightPulse 1.8s infinite alternate ease-in-out;
@@ -1855,6 +1854,21 @@
     justify-content: center;
     cursor: pointer;
     padding: 0;
+  }
+
+  @media (max-width: 580px) {
+    #tutorial-card {
+      padding: 6px 8px;
+      max-height: 85px;
+    }
+    .tutorial-card-content {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 3px;
+    }
+    .tutorial-card-actions {
+      justify-content: flex-end;
+    }
   }
 
   /* Toast de aviso de modo bloqueado */
@@ -2770,6 +2784,7 @@
     <div class="start-footer-bar">
       <div id="start-device-info-bar">🔒 Dispositivo: Detectando...</div>
       <div style="display:flex; gap:8px; align-items:center;">
+        <button onclick="forceAppCacheUpdate()" style="background:rgba(0,229,255,0.15); border:1px solid #00e5ff; color:#80deea; font-size:10.5px; font-weight:800; padding:2px 8px; border-radius:5px; cursor:pointer;" title="Limpiar caché y forzar descarga de la última versión">🔄 Limpiar Caché (v11.1)</button>
         <span id="start-network-status-bar" style="color:#81c784;">🟢 Supabase Conectado</span>
         <a href="/dashboard" target="_blank" style="color:var(--ramen-gold); font-size:10.5px; text-decoration:none; font-weight:800; background:rgba(255,179,0,0.12); padding:2px 8px; border-radius:5px; border:1px solid rgba(255,179,0,0.3);">📊 Dashboard Métricas ↗</a>
         <button onclick="openAdminLoginModal()" style="background:transparent; border:none; color:#a1887f; cursor:pointer; font-size:10px; text-decoration:underline;">[Acceso Master]</button>
@@ -6139,6 +6154,25 @@ function handleTutorialCardClick() {
   TutorialManager.start();
 }
 
+async function forceAppCacheUpdate() {
+  try {
+    try { playSound('click'); } catch(e) {}
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));
+    }
+    if ('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      for (const reg of regs) {
+        await reg.unregister();
+      }
+    }
+  } catch(e) {
+    console.warn('Error limpiando caché:', e);
+  }
+  window.location.href = window.location.origin + window.location.pathname + '?reload=' + Date.now();
+}
+
 /* ==========================================================================
    DATOS Y GESTOR DEL MODO TUTORIAL (3 FASES INTERACTIVAS)
    ========================================================================== */
@@ -6148,24 +6182,24 @@ const TUTORIAL_DATA = [
     phase: 1,
     phaseClass: "phase-1",
     targetId: "start-logo-box",
-    title: "🍜 Bienvenido",
-    text: "¡Aprende la cocina del Chef Shimaya paso a paso en modo horizontal!",
+    title: "🍜 Fase 1: Menú de Inicio",
+    text: "Toca 'Sig. ▶' para recorrer el menú, o '🍳 Cocina' para cocinar ramen ya.",
     screen: "START"
   },
   {
     phase: 1,
     phaseClass: "phase-1",
     targetId: "start-profile-box",
-    title: "👤 Perfil & Récords",
-    text: "Tu dispositivo guarda automáticamente récords, monedas y posición en el Ranking.",
+    title: "👤 Perfil de Chef",
+    text: "Guarda tu alias y récords vinculados a tu dispositivo en el Ranking.",
     screen: "START"
   },
   {
     phase: 1,
     phaseClass: "phase-1",
     targetId: "start-modes-grid",
-    title: "🎮 Modos de Juego",
-    text: "Completa este Tutorial para desbloquear el Modo Normal (5 niveles) y Modo Rash.",
+    title: "🎮 Selector de Modos",
+    text: "Completa este tutorial para desbloquear la Campaña Normal (5 niveles) y Rash.",
     screen: "START"
   },
   {
@@ -6173,15 +6207,15 @@ const TUTORIAL_DATA = [
     phaseClass: "phase-1",
     targetId: "btn-start-play",
     title: "▶️ Botón JUGAR",
-    text: "Toca aquí para iniciar de inmediato el modo seleccionado sin esperas.",
+    text: "Toca 'INICIAR TUTORIAL' o 'Sig. ▶' para entrar directamente a la cocina.",
     screen: "START"
   },
   {
     phase: 1,
     phaseClass: "phase-1",
     targetId: "start-btn-row-box",
-    title: "⚙️ Opciones & Ranking",
-    text: "Accede al Ranking global, Secretos del Chef, Recetario e Instalación de App.",
+    title: "⚙️ Opciones del Menú",
+    text: "Accede al Ranking, Secretos del Chef, Recetario e Instalación de App.",
     screen: "START"
   },
 
@@ -6190,8 +6224,8 @@ const TUTORIAL_DATA = [
     phase: 2,
     phaseClass: "phase-2",
     targetId: "game-hud-bar",
-    title: "⏱️ Barra HUD",
-    text: "Controla tu tiempo restante, monedas ganadas en Soles (S/) y la meta del nivel.",
+    title: "⏱️ Fase 2: Barra HUD",
+    text: "Monitorea tiempo restante, ganancias en Soles (S/) y meta del restaurante.",
     screen: "KITCHEN"
   },
   {
@@ -6240,40 +6274,40 @@ const TUTORIAL_DATA = [
     phase: 3,
     phaseClass: "phase-3",
     targetId: "btn-cook-noodles",
-    title: "🥢 Fideos (Toque)",
-    text: "Toca una vez para hervir (4s); vuelve a tocar al brillar verde para servir.",
+    title: "🥢 Fase 3: Fideos (Toque)",
+    text: "¡Toca la olla para hervir fideos (4s)! Al brillar en verde, vuelve a tocar para recoger.",
     screen: "KITCHEN"
   },
   {
     phase: 3,
     phaseClass: "phase-3",
     targetId: "btn-heat-shio",
-    title: "🥣 Caldos (Mantener)",
-    text: "Mantén presionado el botón 3 segundos continuos hasta llenar la barra al 100%.",
+    title: "🥣 Caldos (Mantener pulsado)",
+    text: "Mantén presionado el botón 3 segundos seguidos con tu dedo hasta que hierva.",
     screen: "KITCHEN"
   },
   {
     phase: 3,
     phaseClass: "phase-3",
     targetId: "btn-flame-chasu",
-    title: "🥩 Chasu (Soplete)",
-    text: "Mantén pulsado el soplete 2 segundos para dorar y obtener 1 lámina flameada.",
+    title: "🥩 Chasu (Mantener soplete)",
+    text: "Mantén pulsado el soplete 2 segundos continuos para dorar una lámina de carne.",
     screen: "KITCHEN"
   },
   {
     phase: 3,
     phaseClass: "phase-3",
     targetId: "bowl-card-0",
-    title: "🍜 Armado Sagrado",
-    text: "Sigue el orden en tu cuenco: 1° Fideos → 2° Caldo → 3° Salsa → 4° Toppings.",
+    title: "🍜 Armado en Cuenco",
+    text: "Toca tu cuenco activo y agrega: 1° Fideos → 2° Caldo → 3° Salsa → 4° Toppings.",
     screen: "KITCHEN"
   },
   {
     phase: 3,
     phaseClass: "phase-3",
     targetId: "customers-container",
-    title: "💰 Servir & Cobrar",
-    text: "Al completar los ingredientes exactos se sirve automáticamente y cobras en Soles.",
+    title: "💰 Servir a Kenji",
+    text: "Al completar la receta exacta de Kenji se despacha solo y cobras tus Soles.",
     screen: "KITCHEN"
   }
 ];
@@ -10056,6 +10090,27 @@ function bootGameUI() {
   updateStartModesDisplay();
   setupKitchenStations();
   resetCookingStations();
+
+  // Detección y limpieza automática de cachés antiguas (v9, v10)
+  const CURRENT_APP_BUILD = 'v11.1';
+  const savedBuild = safeStorage.getItem('ramen_mania_build_version');
+  if (savedBuild !== CURRENT_APP_BUILD) {
+    safeStorage.setItem('ramen_mania_build_version', CURRENT_APP_BUILD);
+    if ('caches' in window) {
+      caches.keys().then(keys => {
+        const oldKeys = keys.filter(k => k !== 'ramen-mania-v11');
+        if (oldKeys.length > 0) {
+          Promise.all(oldKeys.map(k => caches.delete(k))).then(() => {
+            if ('serviceWorker' in navigator) {
+              navigator.serviceWorker.getRegistrations().then(regs => {
+                regs.forEach(r => r.update());
+              });
+            }
+          });
+        }
+      });
+    }
+  }
 }
 
 // Ejecución instantánea y única sin duplicados
