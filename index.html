@@ -863,7 +863,7 @@
 
   .station-guide-toast {
     position: fixed;
-    bottom: 95px;
+    bottom: 255px;
     left: 20px;
     background: rgba(20, 8, 5, 0.96);
     border: 2px solid #ffb300;
@@ -886,6 +886,294 @@
     80% { opacity: 1; transform: translateY(0) scale(1); }
     100% { opacity: 0; transform: translateY(-10px) scale(0.95); }
   }
+
+  /* ==========================================================================
+     OVERLAY TRANSLÚCIDO DE ANIMACIÓN EN TIEMPO REAL - ESTACIONES DE COCCIÓN
+     (Soplete con fuego sutil para chasu, ollas grandes hirviendo para caldos y fideos)
+     ========================================================================== */
+  .kitchen-action-vfx-overlay {
+    position: absolute;
+    left: calc(var(--sal, 0px) + 6px);
+    bottom: calc(var(--sab, 0px) + 90px);
+    width: 270px;
+    height: 155px;
+    pointer-events: none !important;
+    z-index: 88;
+    border-radius: 14px;
+    background: radial-gradient(ellipse at 50% 65%, rgba(26, 12, 8, 0.82) 0%, rgba(18, 8, 5, 0.58) 70%, rgba(10, 4, 3, 0.22) 100%);
+    border: 1.5px solid rgba(255, 179, 0, 0.4);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.65), inset 0 0 16px rgba(255, 140, 0, 0.16);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+    transform-origin: bottom center;
+    transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.18, 0.89, 0.32, 1.25);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  .kitchen-action-vfx-overlay.active {
+    opacity: 0.94;
+    transform: translateY(0) scale(1);
+  }
+
+  .kitchen-vfx-panel {
+    display: none;
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 6px 4px 6px;
+    box-sizing: border-box;
+    position: relative;
+  }
+
+  .kitchen-vfx-panel.active {
+    display: flex;
+  }
+
+  .kitchen-vfx-title-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(36, 16, 11, 0.94);
+    border: 1px solid rgba(255, 179, 0, 0.65);
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 10px;
+    font-weight: 800;
+    color: #fff8e7;
+    letter-spacing: 0.3px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.6), 0 0 8px rgba(255, 160, 0, 0.3);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+    z-index: 2;
+    flex-shrink: 0;
+  }
+
+  .kitchen-vfx-title-pill .vfx-pill-icon {
+    font-size: 12px;
+  }
+
+  .kitchen-vfx-svg {
+    width: 100%;
+    height: calc(100% - 22px);
+    overflow: visible;
+    flex: 1;
+  }
+
+  /* Animaciones del Soplete Gastronómico y Fuego */
+  @keyframes vfxTorchQuiver {
+    0%, 100% { transform: rotate(0deg) translate(0, 0); }
+    50% { transform: rotate(-0.8deg) translate(-1px, -0.5px); }
+  }
+  .vfx-torch-body {
+    animation: vfxTorchQuiver 0.1s infinite alternate;
+    transform-origin: 30px 45px;
+  }
+
+  @keyframes vfxFlameWave {
+    0% { transform: scale(1) skewY(0deg); opacity: 0.92; }
+    25% { transform: scale(1.08, 0.94) skewY(1.2deg); opacity: 1; }
+    50% { transform: scale(0.95, 1.05) skewY(-1deg); opacity: 0.88; }
+    75% { transform: scale(1.05, 0.97) skewY(1.5deg); opacity: 0.96; }
+    100% { transform: scale(1) skewY(0deg); opacity: 0.92; }
+  }
+  .vfx-flame-body {
+    animation: vfxFlameWave 0.12s infinite ease-in-out alternate;
+    transform-origin: 0 0;
+  }
+
+  @keyframes vfxJetPulse {
+    0%, 100% { transform: scaleX(0.96) scaleY(0.94); opacity: 0.95; }
+    50% { transform: scaleX(1.06) scaleY(1.04); opacity: 1; }
+  }
+  .vfx-flame-jet {
+    animation: vfxJetPulse 0.08s infinite alternate;
+    transform-origin: 0 0;
+  }
+
+  @keyframes vfxFlameLick {
+    0%, 100% { transform: scale(1); opacity: 0.85; }
+    50% { transform: scale(1.15, 0.9) translate(3px, -1px); opacity: 1; }
+  }
+  .vfx-flame-lick {
+    animation: vfxFlameLick 0.14s infinite alternate;
+    transform-origin: 30px 0;
+  }
+
+  @keyframes vfxSparkFly1 {
+    0% { transform: translate(0, 0) scale(1); opacity: 1; }
+    100% { transform: translate(18px, -24px) scale(0.2); opacity: 0; }
+  }
+  @keyframes vfxSparkFly2 {
+    0% { transform: translate(0, 0) scale(1); opacity: 1; }
+    100% { transform: translate(26px, -18px) scale(0.2); opacity: 0; }
+  }
+  @keyframes vfxSparkFly3 {
+    0% { transform: translate(0, 0) scale(1); opacity: 1; }
+    100% { transform: translate(12px, -30px) scale(0.2); opacity: 0; }
+  }
+  .vfx-spark-1 { animation: vfxSparkFly1 0.45s infinite ease-out; }
+  .vfx-spark-2 { animation: vfxSparkFly2 0.55s infinite ease-out 0.15s; }
+  .vfx-spark-3 { animation: vfxSparkFly3 0.6s infinite ease-out 0.3s; }
+
+  @keyframes vfxSearGlowPulse {
+    0%, 100% { transform: scale(1); opacity: 0.85; filter: drop-shadow(0 0 3px #ff3d00); }
+    50% { transform: scale(1.15); opacity: 1; filter: drop-shadow(0 0 8px #ff6d00); }
+  }
+  .vfx-sear-hotspot {
+    animation: vfxSearGlowPulse 0.18s infinite alternate;
+    transform-origin: 24px 24px;
+  }
+
+  @keyframes vfxSmokeCurl1 {
+    0% { transform: translateY(0) scale(0.8); opacity: 0.5; }
+    100% { transform: translateY(-30px) scale(1.3) translateX(-6px); opacity: 0; }
+  }
+  @keyframes vfxSmokeCurl2 {
+    0% { transform: translateY(0) scale(0.8); opacity: 0.45; }
+    100% { transform: translateY(-32px) scale(1.35) translateX(6px); opacity: 0; }
+  }
+  .vfx-smoke-1 { animation: vfxSmokeCurl1 1.4s infinite linear; }
+  .vfx-smoke-2 { animation: vfxSmokeCurl2 1.6s infinite linear 0.5s; }
+
+  /* Animaciones de Hornilla a Gas y Ollas Hirviendo */
+  @keyframes vfxBurnerFlameJiggle {
+    0%, 100% { transform: scaleY(1); opacity: 0.85; }
+    50% { transform: scaleY(1.25) skewX(2deg); opacity: 1; }
+  }
+  .vfx-gas-flame {
+    animation: vfxBurnerFlameJiggle 0.14s infinite alternate;
+    transform-origin: center bottom;
+  }
+  .vfx-flame-1 { animation-delay: 0s; }
+  .vfx-flame-2 { animation-delay: 0.05s; }
+  .vfx-flame-3 { animation-delay: 0.09s; }
+  .vfx-flame-4 { animation-delay: 0.03s; }
+  .vfx-flame-5 { animation-delay: 0.07s; }
+  .vfx-flame-6 { animation-delay: 0.02s; }
+
+  @keyframes vfxRollingBoilWave {
+    0%, 100% { transform: scaleY(1) translateY(0); }
+    50% { transform: scaleY(1.08) translateY(-1.2px); }
+  }
+  .vfx-broth-surface {
+    animation: vfxRollingBoilWave 0.38s infinite ease-in-out alternate;
+    transform-origin: 135px 58px;
+  }
+
+  @keyframes vfxBubbleBurst {
+    0% { transform: scale(0.2); opacity: 0.2; }
+    55% { transform: scale(1.1); opacity: 0.95; }
+    80% { transform: scale(1.3); opacity: 1; }
+    100% { transform: scale(1.5); opacity: 0; }
+  }
+  .vfx-boil-bubble {
+    animation: vfxBubbleBurst 0.9s infinite ease-out;
+    transform-origin: center center;
+  }
+  .vfx-bb-1 { animation-delay: 0s; transform-box: fill-box; }
+  .vfx-bb-2 { animation-delay: 0.25s; transform-box: fill-box; }
+  .vfx-bb-3 { animation-delay: 0.5s; transform-box: fill-box; }
+  .vfx-bb-4 { animation-delay: 0.75s; transform-box: fill-box; }
+  .vfx-bb-5 { animation-delay: 0.15s; transform-box: fill-box; }
+  .vfx-bb-6 { animation-delay: 0.4s; transform-box: fill-box; }
+  .vfx-bb-7 { animation-delay: 0.65s; transform-box: fill-box; }
+
+  @keyframes vfxSteamBillow1 {
+    0% { transform: translate(0, 0) scale(0.8); opacity: 0.15; }
+    35% { opacity: 0.75; }
+    100% { transform: translate(-12px, -36px) scale(1.3); opacity: 0; }
+  }
+  @keyframes vfxSteamBillow2 {
+    0% { transform: translate(0, 0) scale(0.85); opacity: 0.2; }
+    40% { opacity: 0.85; }
+    100% { transform: translate(2px, -42px) scale(1.4); opacity: 0; }
+  }
+  @keyframes vfxSteamBillow3 {
+    0% { transform: translate(0, 0) scale(0.8); opacity: 0.15; }
+    35% { opacity: 0.75; }
+    100% { transform: translate(12px, -36px) scale(1.3); opacity: 0; }
+  }
+  .vfx-psteam-1 { animation: vfxSteamBillow1 1.7s infinite linear; }
+  .vfx-psteam-2 { animation: vfxSteamBillow2 1.5s infinite linear 0.35s; }
+  .vfx-psteam-3 { animation: vfxSteamBillow3 1.9s infinite linear 0.7s; }
+
+  @keyframes vfxNegiBob1 {
+    0%, 100% { transform: translate(108px, 55px) rotate(0deg); }
+    50% { transform: translate(110px, 53.5px) rotate(8deg); }
+  }
+  @keyframes vfxNegiBob2 {
+    0%, 100% { transform: translate(155px, 59px) rotate(0deg); }
+    50% { transform: translate(153px, 60.5px) rotate(-8deg); }
+  }
+  @keyframes vfxNegiBob3 {
+    0%, 100% { transform: translate(132px, 60px) rotate(0deg); }
+    50% { transform: translate(133px, 58.5px) rotate(6deg); }
+  }
+  .vfx-negi-1 { animation: vfxNegiBob1 1.2s infinite ease-in-out; }
+  .vfx-negi-2 { animation: vfxNegiBob2 1.4s infinite ease-in-out 0.2s; }
+  .vfx-negi-3 { animation: vfxNegiBob3 1.1s infinite ease-in-out 0.4s; }
+
+  /* Animaciones del Colador Tebo de Fideos */
+  .vfx-tebo-assembly {
+    transition: transform 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    transform-origin: 22px 46px;
+  }
+  .vfx-tebo-assembly.tebo-lifted {
+    transform: translate(112px, 12px) !important;
+    filter: drop-shadow(0 0 10px #ffd54f);
+  }
+
+  .vfx-tebo-drips {
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+  .vfx-tebo-assembly.tebo-lifted .vfx-tebo-drips {
+    opacity: 1;
+  }
+  @keyframes vfxDripFall1 {
+    0% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(22px); opacity: 0; }
+  }
+  @keyframes vfxDripFall2 {
+    0% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(25px); opacity: 0; }
+  }
+  .vfx-drip-1 { animation: vfxDripFall1 0.7s infinite linear; }
+  .vfx-drip-2 { animation: vfxDripFall2 0.6s infinite linear 0.2s; }
+  .vfx-drip-3 { animation: vfxDripFall1 0.65s infinite linear 0.4s; }
+
+  @keyframes vfxNoodlesJiggle {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-1.5px) rotate(1.5deg); }
+  }
+  .vfx-noodles-inside {
+    animation: vfxNoodlesJiggle 0.35s infinite alternate;
+    transform-origin: center center;
+  }
+
+  @media (max-height: 480px) {
+    .kitchen-action-vfx-overlay {
+      width: 250px;
+      height: 135px;
+      bottom: calc(var(--sab, 0px) + 86px);
+    }
+  }
+  @media (max-height: 380px) {
+    .kitchen-action-vfx-overlay {
+      width: 230px;
+      height: 120px;
+      bottom: calc(var(--sab, 0px) + 82px);
+    }
+  }
+
 
   .ing-stock-badge {
     position: absolute;
@@ -3334,6 +3622,410 @@
     </div>
   </main>
 
+  <!-- OVERLAY TRANSLÚCIDO DE ANIMACIÓN EN TIEMPO REAL (LADO IZQUIERDO DE LA PANTALLA) -->
+  <div id="kitchen-action-vfx-overlay" class="kitchen-action-vfx-overlay" aria-hidden="true">
+    <!-- PANEL 1: FLAMEAR CHASU (SOPLETE GASTRONÓMICO CON FUEGO SUTIL Y CARNE CHASU SIZZLING) -->
+    <div class="kitchen-vfx-panel" id="vfx-panel-flame">
+      <div class="kitchen-vfx-title-pill">
+        <span class="vfx-pill-icon">🔥</span>
+        <span class="vfx-pill-text">Soplete Gastronómico • Flameando Chasu</span>
+      </div>
+      <svg class="kitchen-vfx-svg" viewBox="0 0 270 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="torchCanister" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#1565c0" />
+            <stop offset="40%" stop-color="#0d47a1" />
+            <stop offset="80%" stop-color="#1a237e" />
+            <stop offset="100%" stop-color="#0a102a" />
+          </linearGradient>
+          <linearGradient id="torchSteel" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#ffffff" />
+            <stop offset="25%" stop-color="#cfd8dc" />
+            <stop offset="60%" stop-color="#78909c" />
+            <stop offset="100%" stop-color="#37474f" />
+          </linearGradient>
+          <linearGradient id="torchBrass" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#ffe082" />
+            <stop offset="40%" stop-color="#ffb300" />
+            <stop offset="100%" stop-color="#ff8f00" />
+          </linearGradient>
+          <linearGradient id="flameJetCore" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="1" />
+            <stop offset="40%" stop-color="#80d8ff" stop-opacity="0.95" />
+            <stop offset="85%" stop-color="#00b0ff" stop-opacity="0.8" />
+            <stop offset="100%" stop-color="#0091ea" stop-opacity="0" />
+          </linearGradient>
+          <linearGradient id="flameOuter" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#00e5ff" stop-opacity="0.9" />
+            <stop offset="20%" stop-color="#ffea00" stop-opacity="0.95" />
+            <stop offset="55%" stop-color="#ff9100" stop-opacity="0.9" />
+            <stop offset="85%" stop-color="#ff3d00" stop-opacity="0.85" />
+            <stop offset="100%" stop-color="#dd2c00" stop-opacity="0" />
+          </linearGradient>
+          <linearGradient id="flameGlowGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#ff9800" stop-opacity="0.6" />
+            <stop offset="50%" stop-color="#ff5722" stop-opacity="0.35" />
+            <stop offset="100%" stop-color="#e65100" stop-opacity="0" />
+          </linearGradient>
+          <linearGradient id="vfxMeatGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#ef9a9a"/>
+            <stop offset="45%" stop-color="#e57373"/>
+            <stop offset="100%" stop-color="#b71c1c"/>
+          </linearGradient>
+          <linearGradient id="vfxCrustGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#a0522d"/>
+            <stop offset="60%" stop-color="#5c2018"/>
+            <stop offset="100%" stop-color="#2d0a06"/>
+          </linearGradient>
+          <radialGradient id="searGlowCenter" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ffff00" stop-opacity="0.95"/>
+            <stop offset="40%" stop-color="#ff6d00" stop-opacity="0.85"/>
+            <stop offset="80%" stop-color="#dd2c00" stop-opacity="0.5"/>
+            <stop offset="100%" stop-color="#b71c1c" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+
+        <!-- Parrilla / Base refractaria -->
+        <ellipse cx="185" cy="118" rx="65" ry="16" fill="#1b120c" stroke="#3e2723" stroke-width="2" opacity="0.8" />
+        <ellipse cx="185" cy="116" rx="58" ry="12" fill="#2d170f" opacity="0.6" />
+
+        <!-- Rodaja de Chashu Flameándose -->
+        <g transform="translate(142, 74)">
+          <ellipse cx="36" cy="30" rx="28" ry="18" fill="url(#vfxCrustGrad)" stroke="#1a0c08" stroke-width="2"/>
+          <ellipse cx="36" cy="30" rx="24" ry="15" fill="url(#vfxMeatGrad)"/>
+          <ellipse cx="36" cy="30" rx="14" ry="9" fill="#fff8e1" opacity="0.85"/>
+
+          <g transform="translate(-10, 8)">
+            <ellipse cx="38" cy="30" rx="30" ry="19" fill="url(#vfxCrustGrad)" stroke="#1a0c08" stroke-width="2.2"/>
+            <ellipse cx="38" cy="30" rx="26" ry="16" fill="url(#vfxMeatGrad)"/>
+            <path d="M18,30 C18,18 52,14 56,26 C60,36 30,42 24,34 C22,28 44,24 46,29 C48,33 36,36 32,33" fill="none" stroke="#fff8e1" stroke-width="3.5" stroke-linecap="round"/>
+            <circle cx="38" cy="31" r="5" fill="#8d2b0f" stroke="#4e1607" stroke-width="1.2"/>
+
+            <!-- Zona de quemado/sellado donde pega el fuego -->
+            <ellipse class="vfx-sear-hotspot" cx="24" cy="24" rx="14" ry="9" fill="url(#searGlowCenter)"/>
+            <line x1="16" y1="20" x2="28" y2="18" stroke="#210502" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="20" y1="26" x2="34" y2="24" stroke="#210502" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="18" y1="32" x2="30" y2="30" stroke="#210502" stroke-width="2.2" stroke-linecap="round"/>
+
+            <!-- Chispas del chisporroteo -->
+            <circle class="vfx-spark vfx-spark-1" cx="22" cy="18" r="1.6" fill="#fff" />
+            <circle class="vfx-spark vfx-spark-2" cx="30" cy="14" r="1.3" fill="#ffeb3b" />
+            <circle class="vfx-spark vfx-spark-3" cx="26" cy="10" r="1.5" fill="#ff9800" />
+          </g>
+        </g>
+
+        <!-- Humo aromático sutil -->
+        <path class="vfx-smoke vfx-smoke-1" d="M172,82 Q166,62 174,45 T170,20" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity="0.45"/>
+        <path class="vfx-smoke vfx-smoke-2" d="M188,78 Q194,58 186,40 T192,16" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" opacity="0.4"/>
+
+        <!-- EL CHORRO DE FUEGO SUTIL Y ENVOLVENTE -->
+        <g class="vfx-flame-group" transform="translate(86, 68) rotate(22)">
+          <polygon points="0,-4 85,-18 95,0 85,18 0,4" fill="url(#flameGlowGrad)" />
+          <path class="vfx-flame-body" d="M0,-3 Q40,-14 78,-6 Q92,0 78,6 Q40,14 0,3 Z" fill="url(#flameOuter)" />
+          <path class="vfx-flame-jet" d="M0,-2 Q25,-6 48,-1 Q56,0 48,1 Q25,6 0,2 Z" fill="url(#flameJetCore)" />
+          <path class="vfx-flame-lick" d="M30,-4 Q55,-12 72,-3 Q60,2 45,0 Z" fill="#ffeb3b" opacity="0.9" />
+        </g>
+
+        <!-- EL SOPLETE GASTRONÓMICO -->
+        <g class="vfx-torch-body" transform="translate(18, 30)">
+          <g transform="rotate(32, 38, 55)">
+            <rect x="18" y="28" width="34" height="60" rx="8" fill="url(#torchCanister)" stroke="#0d1b2a" stroke-width="1.8"/>
+            <line x1="22" y1="46" x2="48" y2="46" stroke="#42a5f5" stroke-width="1.2" opacity="0.6"/>
+            <line x1="22" y1="56" x2="48" y2="56" stroke="#42a5f5" stroke-width="1.2" opacity="0.6"/>
+            <line x1="22" y1="66" x2="48" y2="66" stroke="#42a5f5" stroke-width="1.2" opacity="0.6"/>
+            <rect x="23" y="32" width="4" height="52" rx="2" fill="#ffffff" opacity="0.35"/>
+            <rect x="26" y="21" width="18" height="8" rx="2" fill="url(#torchBrass)" stroke="#3e2723" stroke-width="1"/>
+          </g>
+          <g transform="translate(30, 20)">
+            <path d="M12,24 L28,14 L38,18 L32,32 L18,34 Z" fill="#263238" stroke="#102027" stroke-width="1.5"/>
+            <ellipse cx="14" cy="18" rx="6" ry="8" fill="url(#torchBrass)" stroke="#4e342e" stroke-width="1.2"/>
+            <line x1="14" y1="12" x2="14" y2="24" stroke="#4e342e" stroke-width="1.5"/>
+            <g transform="translate(26, 12) rotate(22)">
+              <rect x="0" y="0" width="38" height="10" rx="2" fill="url(#torchSteel)" stroke="#263238" stroke-width="1.4"/>
+              <rect x="6" y="2" width="2" height="6" fill="#1b262c"/>
+              <rect x="11" y="2" width="2" height="6" fill="#1b262c"/>
+              <line x1="2" y1="2" x2="36" y2="2" stroke="#ffffff" stroke-width="1.2" opacity="0.75"/>
+              <rect x="36" y="-1" width="5" height="12" rx="1.5" fill="url(#torchBrass)" stroke="#4e342e" stroke-width="1"/>
+            </g>
+          </g>
+        </g>
+      </svg>
+    </div>
+
+    <!-- PANEL 2: OLLA GRANDE HIRVIENDO CALDO TONKOTSU -->
+    <div class="kitchen-vfx-panel" id="vfx-panel-tonkotsu">
+      <div class="kitchen-vfx-title-pill">
+        <span class="vfx-pill-icon">🫕</span>
+        <span class="vfx-pill-text">Olla Grande • Caldo Tonkotsu Hirviendo</span>
+      </div>
+      <svg class="kitchen-vfx-svg" viewBox="0 0 270 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="tonkPotSteelGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#455a64" />
+            <stop offset="15%" stop-color="#78909c" />
+            <stop offset="35%" stop-color="#cfd8dc" />
+            <stop offset="50%" stop-color="#eceff1" />
+            <stop offset="70%" stop-color="#90a4ae" />
+            <stop offset="90%" stop-color="#546e7a" />
+            <stop offset="100%" stop-color="#37474f" />
+          </linearGradient>
+          <linearGradient id="tonkPotRimGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#eceff1" />
+            <stop offset="50%" stop-color="#90a4ae" />
+            <stop offset="100%" stop-color="#455a64" />
+          </linearGradient>
+          <radialGradient id="tonkotsuBoilGrad" cx="50%" cy="40%" r="55%">
+            <stop offset="0%" stop-color="#ffffff" />
+            <stop offset="50%" stop-color="#fff8e1" />
+            <stop offset="85%" stop-color="#ffe0b2" />
+            <stop offset="100%" stop-color="#d7ccc8" />
+          </radialGradient>
+          <linearGradient id="tonkBurnerFlameGrad" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0%" stop-color="#00e5ff" />
+            <stop offset="30%" stop-color="#2979ff" />
+            <stop offset="75%" stop-color="#ff9100" />
+            <stop offset="100%" stop-color="#ff3d00" stop-opacity="0" />
+          </linearGradient>
+          <linearGradient id="tonkotsuSteamGrad" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.8" />
+            <stop offset="50%" stop-color="#ffffff" stop-opacity="0.5" />
+            <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+          </linearGradient>
+        </defs>
+
+        <!-- Hornilla a gas con fuego potente -->
+        <g class="vfx-burner-group" transform="translate(68, 122)">
+          <ellipse cx="67" cy="10" rx="66" ry="6" fill="#1b120c" stroke="#37474f" stroke-width="1.5" />
+          <path class="vfx-gas-flame vfx-flame-1" d="M12,8 Q15,-6 18,8 Z" fill="url(#tonkBurnerFlameGrad)" />
+          <path class="vfx-gas-flame vfx-flame-2" d="M30,7 Q35,-8 40,7 Z" fill="url(#tonkBurnerFlameGrad)" />
+          <path class="vfx-gas-flame vfx-flame-3" d="M52,6 Q57,-10 62,6 Z" fill="url(#tonkBurnerFlameGrad)" />
+          <path class="vfx-gas-flame vfx-flame-4" d="M72,6 Q77,-11 82,6 Z" fill="url(#tonkBurnerFlameGrad)" />
+          <path class="vfx-gas-flame vfx-flame-5" d="M94,7 Q99,-8 104,7 Z" fill="url(#tonkBurnerFlameGrad)" />
+          <path class="vfx-gas-flame vfx-flame-6" d="M116,8 Q119,-6 122,8 Z" fill="url(#tonkBurnerFlameGrad)" />
+        </g>
+
+        <!-- Columnas de vapor abundante -->
+        <path class="vfx-pot-steam vfx-psteam-1" d="M100,56 Q85,34 94,18 T88,2" fill="none" stroke="url(#tonkotsuSteamGrad)" stroke-width="8" stroke-linecap="round" />
+        <path class="vfx-pot-steam vfx-psteam-2" d="M135,52 Q144,30 132,15 T138,0" fill="none" stroke="url(#tonkotsuSteamGrad)" stroke-width="10" stroke-linecap="round" />
+        <path class="vfx-pot-steam vfx-psteam-3" d="M170,56 Q185,34 176,18 T182,2" fill="none" stroke="url(#tonkotsuSteamGrad)" stroke-width="8" stroke-linecap="round" />
+
+        <!-- Olla Grande de Acero Inoxidable (Zundō) -->
+        <!-- Asas de alta resistencia -->
+        <path d="M55,68 C40,68 38,90 55,90" fill="none" stroke="url(#tonkPotSteelGrad)" stroke-width="5" stroke-linecap="round"/>
+        <ellipse cx="56" cy="68" rx="3.5" ry="5" fill="#37474f" />
+        <ellipse cx="56" cy="90" rx="3.5" ry="5" fill="#37474f" />
+        <path d="M215,68 C230,68 232,90 215,90" fill="none" stroke="url(#tonkPotSteelGrad)" stroke-width="5" stroke-linecap="round"/>
+        <ellipse cx="214" cy="68" rx="3.5" ry="5" fill="#37474f" />
+        <ellipse cx="214" cy="90" rx="3.5" ry="5" fill="#37474f" />
+
+        <!-- Cuerpo de la olla -->
+        <path d="M55,58 L55,116 C55,124 90,128 135,128 C180,128 215,124 215,116 L215,58 Z" fill="url(#tonkPotSteelGrad)" stroke="#263238" stroke-width="2"/>
+        <ellipse cx="135" cy="116" rx="80" ry="8" fill="none" stroke="#263238" stroke-width="1.8" opacity="0.6"/>
+
+        <!-- Boca de la olla y Caldo Tonkotsu Hirviendo -->
+        <ellipse cx="135" cy="58" rx="82" ry="12" fill="url(#tonkPotRimGrad)" stroke="#263238" stroke-width="2"/>
+        <ellipse cx="135" cy="58" rx="77" ry="10" fill="#263238"/>
+        <ellipse class="vfx-broth-surface" cx="135" cy="58" rx="75" ry="9" fill="url(#tonkotsuBoilGrad)"/>
+
+        <!-- Burbujas de hervor intenso popping -->
+        <g class="vfx-bubbles-group">
+          <circle class="vfx-boil-bubble vfx-bb-1" cx="105" cy="57" r="4.5" fill="#ffe082" stroke="#ffb74d" stroke-width="1"/>
+          <circle class="vfx-boil-bubble vfx-bb-2" cx="132" cy="56" r="6" fill="#ffffff" stroke="#ffe082" stroke-width="1.2"/>
+          <circle class="vfx-boil-bubble vfx-bb-3" cx="160" cy="58" r="4" fill="#ffd54f" stroke="#ffb74d" stroke-width="1"/>
+          <circle class="vfx-boil-bubble vfx-bb-4" cx="118" cy="60" r="3.5" fill="#ffffff" stroke="#ffd54f" stroke-width="0.8"/>
+          <circle class="vfx-boil-bubble vfx-bb-5" cx="148" cy="59" r="5" fill="#ffe082" stroke="#ffa726" stroke-width="1"/>
+          <circle class="vfx-boil-bubble vfx-bb-6" cx="92" cy="58" r="3" fill="#ffffff" stroke="#ffe082" stroke-width="0.8"/>
+          <circle class="vfx-boil-bubble vfx-bb-7" cx="178" cy="58" r="3.5" fill="#ffe082" stroke="#ffa726" stroke-width="0.8"/>
+        </g>
+        <path d="M85,58 Q110,62 135,57 T185,58" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" opacity="0.75"/>
+        <ellipse cx="135" cy="58" rx="55" ry="6" fill="none" stroke="#ffb300" stroke-width="1" opacity="0.4" stroke-dasharray="8,6"/>
+      </svg>
+    </div>
+
+    <!-- PANEL 3: OLLA GRANDE HIRVIENDO CALDO SHIO -->
+    <div class="kitchen-vfx-panel" id="vfx-panel-shio">
+      <div class="kitchen-vfx-title-pill">
+        <span class="vfx-pill-icon">🥣</span>
+        <span class="vfx-pill-text">Olla Grande • Caldo Shio Hirviendo</span>
+      </div>
+      <svg class="kitchen-vfx-svg" viewBox="0 0 270 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="shioPotSteelGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#455a64" />
+            <stop offset="15%" stop-color="#78909c" />
+            <stop offset="35%" stop-color="#cfd8dc" />
+            <stop offset="50%" stop-color="#eceff1" />
+            <stop offset="70%" stop-color="#90a4ae" />
+            <stop offset="90%" stop-color="#546e7a" />
+            <stop offset="100%" stop-color="#37474f" />
+          </linearGradient>
+          <linearGradient id="shioPotRimGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#eceff1" />
+            <stop offset="50%" stop-color="#90a4ae" />
+            <stop offset="100%" stop-color="#455a64" />
+          </linearGradient>
+          <radialGradient id="shioBoilGrad" cx="50%" cy="40%" r="55%">
+            <stop offset="0%" stop-color="#fffde7" />
+            <stop offset="45%" stop-color="#fff59d" />
+            <stop offset="80%" stop-color="#ffd54f" />
+            <stop offset="100%" stop-color="#ffb300" />
+          </radialGradient>
+          <linearGradient id="shioSteamGrad" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.75" />
+            <stop offset="50%" stop-color="#fff9c4" stop-opacity="0.4" />
+            <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+          </linearGradient>
+          <linearGradient id="shioBurnerFlameGrad" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0%" stop-color="#00e5ff" />
+            <stop offset="40%" stop-color="#29b6f6" />
+            <stop offset="80%" stop-color="#ffb300" />
+            <stop offset="100%" stop-color="#ff8f00" stop-opacity="0" />
+          </linearGradient>
+        </defs>
+
+        <!-- Hornilla a gas dorada/azul suave -->
+        <g class="vfx-burner-group" transform="translate(68, 122)">
+          <ellipse cx="67" cy="10" rx="66" ry="6" fill="#1b120c" stroke="#37474f" stroke-width="1.5" />
+          <path class="vfx-gas-flame vfx-flame-1" d="M16,8 Q19,-4 22,8 Z" fill="url(#shioBurnerFlameGrad)" />
+          <path class="vfx-gas-flame vfx-flame-2" d="M38,7 Q42,-6 46,7 Z" fill="url(#shioBurnerFlameGrad)" />
+          <path class="vfx-gas-flame vfx-flame-3" d="M60,6 Q64,-8 68,6 Z" fill="url(#shioBurnerFlameGrad)" />
+          <path class="vfx-gas-flame vfx-flame-4" d="M80,6 Q84,-8 88,6 Z" fill="url(#shioBurnerFlameGrad)" />
+          <path class="vfx-gas-flame vfx-flame-5" d="M102,7 Q106,-6 110,7 Z" fill="url(#shioBurnerFlameGrad)" />
+        </g>
+
+        <!-- Espirales de vapor cristalino -->
+        <path class="vfx-pot-steam vfx-psteam-1" d="M105,55 Q96,36 104,20 T98,3" fill="none" stroke="url(#shioSteamGrad)" stroke-width="7" stroke-linecap="round" />
+        <path class="vfx-pot-steam vfx-psteam-2" d="M135,52 Q125,32 136,18 T130,1" fill="none" stroke="url(#shioSteamGrad)" stroke-width="8" stroke-linecap="round" />
+        <path class="vfx-pot-steam vfx-psteam-3" d="M165,55 Q174,36 166,20 T172,3" fill="none" stroke="url(#shioSteamGrad)" stroke-width="7" stroke-linecap="round" />
+
+        <!-- Olla Grande Tradicional -->
+        <path d="M55,68 C40,68 38,90 55,90" fill="none" stroke="url(#shioPotSteelGrad)" stroke-width="5" stroke-linecap="round"/>
+        <ellipse cx="56" cy="68" rx="3.5" ry="5" fill="#37474f" />
+        <ellipse cx="56" cy="90" rx="3.5" ry="5" fill="#37474f" />
+        <path d="M215,68 C230,68 232,90 215,90" fill="none" stroke="url(#shioPotSteelGrad)" stroke-width="5" stroke-linecap="round"/>
+        <ellipse cx="214" cy="68" rx="3.5" ry="5" fill="#37474f" />
+        <ellipse cx="214" cy="90" rx="3.5" ry="5" fill="#37474f" />
+
+        <path d="M55,58 L55,116 C55,124 90,128 135,128 C180,128 215,124 215,116 L215,58 Z" fill="url(#shioPotSteelGrad)" stroke="#263238" stroke-width="2"/>
+        <ellipse cx="135" cy="116" rx="80" ry="8" fill="none" stroke="#263238" stroke-width="1.8" opacity="0.6"/>
+
+        <ellipse cx="135" cy="58" rx="82" ry="12" fill="url(#shioPotRimGrad)" stroke="#263238" stroke-width="2"/>
+        <ellipse cx="135" cy="58" rx="77" ry="10" fill="#263238"/>
+        <ellipse class="vfx-broth-surface" cx="135" cy="58" rx="75" ry="9" fill="url(#shioBoilGrad)"/>
+
+        <!-- Aros de Cebolla China (Negi) flotando y meciéndose en el caldo -->
+        <g class="vfx-negi-bob vfx-negi-1" transform="translate(108, 55)">
+          <ellipse cx="0" cy="0" rx="5" ry="2.2" fill="#81c784" stroke="#2e7d32" stroke-width="1" />
+          <ellipse cx="0" cy="0" rx="2.5" ry="1" fill="#c8e6c9" />
+        </g>
+        <g class="vfx-negi-bob vfx-negi-2" transform="translate(155, 59)">
+          <ellipse cx="0" cy="0" rx="4.5" ry="2" fill="#81c784" stroke="#2e7d32" stroke-width="1" />
+          <ellipse cx="0" cy="0" rx="2.2" ry="0.8" fill="#c8e6c9" />
+        </g>
+        <g class="vfx-negi-bob vfx-negi-3" transform="translate(132, 60)">
+          <ellipse cx="0" cy="0" rx="4" ry="1.8" fill="#aed581" stroke="#33691e" stroke-width="0.8" />
+        </g>
+
+        <!-- Burbujas doradas transparentes -->
+        <circle class="vfx-boil-bubble vfx-bb-1" cx="120" cy="57" r="3.8" fill="#fff9c4" stroke="#fbc02d" stroke-width="0.8"/>
+        <circle class="vfx-boil-bubble vfx-bb-2" cx="144" cy="56" r="4.5" fill="#ffffff" stroke="#fbc02d" stroke-width="1"/>
+        <circle class="vfx-boil-bubble vfx-bb-3" cx="168" cy="58" r="3.2" fill="#fff9c4" stroke="#fbc02d" stroke-width="0.8"/>
+        <circle class="vfx-boil-bubble vfx-bb-4" cx="95" cy="58" r="3" fill="#ffffff" stroke="#fbc02d" stroke-width="0.8"/>
+        <ellipse cx="135" cy="58" rx="60" ry="6" fill="none" stroke="#ffffff" stroke-width="1.2" opacity="0.65"/>
+      </svg>
+    </div>
+
+    <!-- PANEL 4: OLLA Y COLADOR TEBO DE FIDEOS RAMEN -->
+    <div class="kitchen-vfx-panel" id="vfx-panel-noodles">
+      <div class="kitchen-vfx-title-pill" id="vfx-noodles-title-pill">
+        <span class="vfx-pill-icon" id="vfx-noodles-pill-icon">🍜</span>
+        <span class="vfx-pill-text" id="vfx-noodles-pill-text">Cociendo Fideos Ramen en Olla...</span>
+      </div>
+      <svg class="kitchen-vfx-svg" viewBox="0 0 270 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="vfxNoodleGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#fff59d"/>
+            <stop offset="50%" stop-color="#fbc02d"/>
+            <stop offset="100%" stop-color="#f57f17"/>
+          </linearGradient>
+          <linearGradient id="vfxWoodGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#a1887f"/>
+            <stop offset="50%" stop-color="#6d4c41"/>
+            <stop offset="100%" stop-color="#3e2723"/>
+          </linearGradient>
+          <radialGradient id="vfxWaterGrad" cx="50%" cy="40%" r="50%">
+            <stop offset="0%" stop-color="#e0f7fa" />
+            <stop offset="60%" stop-color="#b2ebf2" />
+            <stop offset="100%" stop-color="#4dd0e1" />
+          </radialGradient>
+          <linearGradient id="noodPotSteelGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#455a64" />
+            <stop offset="15%" stop-color="#78909c" />
+            <stop offset="35%" stop-color="#cfd8dc" />
+            <stop offset="50%" stop-color="#eceff1" />
+            <stop offset="70%" stop-color="#90a4ae" />
+            <stop offset="90%" stop-color="#546e7a" />
+            <stop offset="100%" stop-color="#37474f" />
+          </linearGradient>
+          <linearGradient id="noodPotRimGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#eceff1" />
+            <stop offset="50%" stop-color="#90a4ae" />
+            <stop offset="100%" stop-color="#455a64" />
+          </linearGradient>
+          <pattern id="teboMeshPattern" width="4" height="4" patternUnits="userSpaceOnUse">
+            <path d="M0,2 L4,2 M2,0 L2,4" stroke="#90a4ae" stroke-width="0.8" opacity="0.8"/>
+          </pattern>
+        </defs>
+
+        <!-- Vapor ardiente -->
+        <path class="vfx-pot-steam vfx-psteam-1" d="M100,56 Q88,34 98,18 T92,2" fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="round" opacity="0.65"/>
+        <path class="vfx-pot-steam vfx-psteam-2" d="M135,50 Q145,30 134,16 T140,1" fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round" opacity="0.7"/>
+        <path class="vfx-pot-steam vfx-psteam-3" d="M170,56 Q182,34 172,18 T178,2" fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="round" opacity="0.65"/>
+
+        <!-- Olla de hervidor de agua para fideos -->
+        <g transform="translate(45, 52)">
+          <path d="M15,22 L15,64 C15,72 52,76 90,76 C128,76 165,72 165,64 L165,22 Z" fill="url(#noodPotSteelGrad)" stroke="#263238" stroke-width="2"/>
+          <ellipse cx="90" cy="22" rx="76" ry="11" fill="url(#noodPotRimGrad)" stroke="#263238" stroke-width="2"/>
+          <ellipse cx="90" cy="22" rx="71" ry="9" fill="#1b262c"/>
+          <ellipse class="vfx-broth-surface" cx="90" cy="22" rx="69" ry="8" fill="url(#vfxWaterGrad)" opacity="0.9"/>
+          <circle class="vfx-boil-bubble vfx-bb-1" cx="60" cy="21" r="3.5" fill="#ffffff" opacity="0.9"/>
+          <circle class="vfx-boil-bubble vfx-bb-2" cx="120" cy="22" r="4.2" fill="#ffffff" opacity="0.9"/>
+          <circle class="vfx-boil-bubble vfx-bb-3" cx="72" cy="23" r="2.8" fill="#ffffff" opacity="0.9"/>
+          <circle class="vfx-boil-bubble vfx-bb-4" cx="108" cy="20" r="3.2" fill="#ffffff" opacity="0.9"/>
+        </g>
+
+        <!-- COLADOR TEBO DE MALLA CON FIDEOS (Sube en estado READY) -->
+        <g class="vfx-tebo-assembly" id="vfx-tebo-assembly" transform="translate(112, 28)">
+          <path d="M22,38 L22,8 C22,2 28,-2 34,2 C40,6 42,14 38,20 L30,38" fill="url(#vfxWoodGrad)" stroke="#271306" stroke-width="1.5"/>
+          <circle cx="34" cy="5" r="2" fill="#1a0c08" />
+
+          <rect x="18" y="36" width="8" height="10" rx="1.5" fill="url(#torchSteel)" stroke="#263238" stroke-width="1"/>
+          <line x1="22" y1="36" x2="22" y2="46" stroke="#ffffff" stroke-width="1" opacity="0.6"/>
+
+          <ellipse cx="22" cy="46" rx="24" ry="7" fill="url(#noodPotSteelGrad)" stroke="#263238" stroke-width="1.8"/>
+
+          <path d="M-2,46 L1,86 C2,94 12,98 22,98 C32,98 42,94 43,86 L46,46 Z" fill="#37474f" stroke="#263238" stroke-width="1.6"/>
+          <path d="M-2,46 L1,86 C2,94 12,98 22,98 C32,98 42,94 43,86 L46,46 Z" fill="url(#teboMeshPattern)" />
+
+          <!-- Hebras de fideos ramen cocinándose dentro del canasto -->
+          <g class="vfx-noodles-inside" transform="translate(2, 46)">
+            <path d="M2,14 Q10,4 20,16 T38,12" fill="none" stroke="url(#vfxNoodleGrad)" stroke-width="3.5" stroke-linecap="round"/>
+            <path d="M4,22 Q14,10 24,24 T36,20" fill="none" stroke="url(#vfxNoodleGrad)" stroke-width="3.2" stroke-linecap="round"/>
+            <path d="M3,30 Q12,18 22,32 T37,28" fill="none" stroke="url(#vfxNoodleGrad)" stroke-width="3" stroke-linecap="round"/>
+            <path d="M5,8 Q15,18 25,6 T35,14" fill="none" stroke="#fff9c4" stroke-width="2.4" stroke-linecap="round"/>
+          </g>
+
+          <!-- Gotas escurriendo al levantar el colador -->
+          <g class="vfx-tebo-drips" id="vfx-tebo-drips">
+            <circle class="vfx-drip vfx-drip-1" cx="12" cy="104" r="2" fill="#ffd54f" />
+            <circle class="vfx-drip vfx-drip-2" cx="22" cy="108" r="2.4" fill="#ffd54f" />
+            <circle class="vfx-drip vfx-drip-3" cx="32" cy="105" r="1.8" fill="#ffd54f" />
+          </g>
+        </g>
+      </svg>
+    </div>
+  </div>
+
   <!-- 4. BARRA INFERIOR: ESTACIONES DE COCCIÓN (IZQUIERDA) Y TAZONES DE PREPARACIÓN (DERECHA) -->
   <div class="kitchen-bottom-dock">
     <!-- Panel de 4 estaciones interactivas de cocción a la izquierda -->
@@ -5432,6 +6124,59 @@ function triggerGuideHighlight(btnId) {
   }, 2500);
 }
 
+function updateCookingVisualOverlay() {
+  const overlay = document.getElementById('kitchen-action-vfx-overlay');
+  if (!overlay) return;
+
+  const panelFlame = document.getElementById('vfx-panel-flame');
+  const panelTonkotsu = document.getElementById('vfx-panel-tonkotsu');
+  const panelShio = document.getElementById('vfx-panel-shio');
+  const panelNoodles = document.getElementById('vfx-panel-noodles');
+
+  // Prioridad 1: Acción manual activa por mantener pulsado (Chasu, Tonkotsu, Shio)
+  let activeType = null;
+  if (kitchenState.chasu && kitchenState.chasu.isFlaming) {
+    activeType = 'flame';
+  } else if (kitchenState.tonkotsu && kitchenState.tonkotsu.isHeating) {
+    activeType = 'tonkotsu';
+  } else if (kitchenState.shio && kitchenState.shio.isHeating) {
+    activeType = 'shio';
+  } else if (kitchenState.noodles && (kitchenState.noodles.state === 'COOKING' || kitchenState.noodles.state === 'READY')) {
+    activeType = 'noodles';
+  }
+
+  if (panelFlame) panelFlame.classList.toggle('active', activeType === 'flame');
+  if (panelTonkotsu) panelTonkotsu.classList.toggle('active', activeType === 'tonkotsu');
+  if (panelShio) panelShio.classList.toggle('active', activeType === 'shio');
+  if (panelNoodles) {
+    panelNoodles.classList.toggle('active', activeType === 'noodles');
+    if (activeType === 'noodles') {
+      const teboAssembly = document.getElementById('vfx-tebo-assembly');
+      const noodlesPillText = document.getElementById('vfx-noodles-pill-text');
+      const noodlesPillIcon = document.getElementById('vfx-noodles-pill-icon');
+      const isReady = kitchenState.noodles.state === 'READY';
+      if (teboAssembly) teboAssembly.classList.toggle('tebo-lifted', isReady);
+      if (noodlesPillText) {
+        if (isReady) {
+          noodlesPillText.textContent = `✨ ¡Fideos al Dente Listos (${kitchenState.noodles.portionsCooking}x)! Toca para recoger`;
+        } else {
+          const sec = Math.ceil(Math.max(0, kitchenState.noodles.cookTimeRemaining));
+          noodlesPillText.textContent = `🍜 Cociendo Fideos Ramen (${kitchenState.noodles.portionsCooking}x) ${sec}s...`;
+        }
+      }
+      if (noodlesPillIcon) {
+        noodlesPillIcon.textContent = isReady ? '✨' : '🍜';
+      }
+    }
+  }
+
+  if (activeType) {
+    overlay.classList.add('active');
+  } else {
+    overlay.classList.remove('active');
+  }
+}
+
 function startNoodlesInterval() {
   if (kitchenState.noodles.intervalId) return;
   kitchenState.noodles.intervalId = setInterval(noodleTick, 100);
@@ -5465,6 +6210,7 @@ function handleNoodlesBtnClick() {
     playSound('bubble');
     if (statusEl) statusEl.textContent = 'Cociendo (1x) 4s ⏳';
     startNoodlesInterval();
+    updateCookingVisualOverlay();
   } else if (kitchenState.noodles.state === 'COOKING') {
     // Añadir más fideos hasta un máximo de 4 (+1s cada uno)
     if (kitchenState.noodles.portionsCooking < 4) {
@@ -5473,6 +6219,7 @@ function handleNoodlesBtnClick() {
       kitchenState.noodles.cookTimeRemaining += 1.0;
       playSound('bubble');
       showStationToast(`🍜 +1 Fideo en olla (${kitchenState.noodles.portionsCooking}/4)`);
+      updateCookingVisualOverlay();
     } else {
       showStationToast('⚠️ Olla llena (máximo 4 fideos)');
     }
@@ -5494,6 +6241,7 @@ function handleNoodlesBtnClick() {
     if (fillEl) fillEl.style.width = '0%';
     if (statusEl) statusEl.textContent = 'Toca para cocer';
     updateKitchenStationsUI();
+    updateCookingVisualOverlay();
   }
 }
 
@@ -5514,6 +6262,12 @@ function noodleTick() {
       statusEl.textContent = `Cociendo (${kitchenState.noodles.portionsCooking}x) ${secLeft}s ⏳`;
     }
 
+    // Actualizar indicador del overlay de cocción
+    const noodlesPillText = document.getElementById('vfx-noodles-pill-text');
+    if (noodlesPillText) {
+      noodlesPillText.textContent = `🍜 Cociendo Fideos Ramen (${kitchenState.noodles.portionsCooking}x) ${secLeft}s...`;
+    }
+
     if (kitchenState.noodles.cookTimeRemaining <= 0) {
       // Fideos listos: ventana de 5s para recoger
       kitchenState.noodles.state = 'READY';
@@ -5523,6 +6277,7 @@ function noodleTick() {
         btn.classList.remove('cooking-active');
         btn.classList.add('noodle-ready-collect');
       }
+      updateCookingVisualOverlay();
     }
   } else if (kitchenState.noodles.state === 'READY') {
     kitchenState.noodles.burnTimeRemaining -= 0.1;
@@ -5531,6 +6286,11 @@ function noodleTick() {
 
     if (statusEl) {
       statusEl.innerHTML = `⚠️ ¡RECOGER! ${kitchenState.noodles.burnTimeRemaining.toFixed(1)}s`;
+    }
+
+    const noodlesPillText = document.getElementById('vfx-noodles-pill-text');
+    if (noodlesPillText) {
+      noodlesPillText.textContent = `✨ ¡Fideos Listos (${kitchenState.noodles.portionsCooking}x)! ¡RECOGER! ${kitchenState.noodles.burnTimeRemaining.toFixed(1)}s`;
     }
 
     if (kitchenState.noodles.burnTimeRemaining <= 0) {
@@ -5548,6 +6308,7 @@ function noodleTick() {
         btn.classList.add('noodle-burnt');
       }
       if (statusEl) statusEl.textContent = `💥 ¡Quemado! (-S/${penalty})`;
+      updateCookingVisualOverlay();
 
       setTimeout(() => {
         if (btn) btn.classList.remove('noodle-burnt');
@@ -5557,10 +6318,12 @@ function noodleTick() {
         kitchenState.noodles.burnTimeRemaining = 0;
         if (fillEl) fillEl.style.width = '0%';
         if (statusEl) statusEl.textContent = 'Toca para cocer';
+        updateCookingVisualOverlay();
       }, 1300);
     }
   } else {
     stopNoodlesInterval();
+    updateCookingVisualOverlay();
   }
 }
 
@@ -5580,10 +6343,13 @@ function setupShioButton() {
     if (gameState.isPaused || gameState.isGameOver) return;
     if (kitchenState.shio.isHeating) return;
 
+    try { if (e && e.pointerId && btn.setPointerCapture) btn.setPointerCapture(e.pointerId); } catch(err) {}
+
     kitchenState.shio.isHeating = true;
     kitchenState.shio.heatSeconds = 0;
     btn.classList.add('heating-active');
     playSound('flame');
+    updateCookingVisualOverlay();
 
     const fillEl = document.getElementById('shio-fill');
     const statusEl = document.getElementById('shio-status');
@@ -5607,11 +6373,13 @@ function setupShioButton() {
         playSound('ding');
         showStationToast('🥣 ¡Caldo Shio caliente al punto! (4 porciones)');
         updateKitchenStationsUI();
+        updateCookingVisualOverlay();
       }
     }, 50);
   };
 
-  const stopHeating = () => {
+  const stopHeating = (e) => {
+    try { if (e && e.pointerId && btn.hasPointerCapture && btn.hasPointerCapture(e.pointerId)) btn.releasePointerCapture(e.pointerId); } catch(err) {}
     if (heatInterval) {
       clearInterval(heatInterval);
       heatInterval = null;
@@ -5623,6 +6391,7 @@ function setupShioButton() {
       const statusEl = document.getElementById('shio-status');
       if (fillEl) fillEl.style.width = '0%';
       if (statusEl) statusEl.textContent = kitchenState.stocks.shio > 0 ? `Listo (${kitchenState.stocks.shio})` : 'Mantén 3s';
+      updateCookingVisualOverlay();
     }
   };
 
@@ -5644,10 +6413,13 @@ function setupTonkotsuButton() {
     if (gameState.isPaused || gameState.isGameOver) return;
     if (kitchenState.tonkotsu.isHeating) return;
 
+    try { if (e && e.pointerId && btn.setPointerCapture) btn.setPointerCapture(e.pointerId); } catch(err) {}
+
     kitchenState.tonkotsu.isHeating = true;
     kitchenState.tonkotsu.heatSeconds = 0;
     btn.classList.add('heating-active');
     playSound('flame');
+    updateCookingVisualOverlay();
 
     const fillEl = document.getElementById('tonkotsu-fill');
     const statusEl = document.getElementById('tonkotsu-status');
@@ -5671,11 +6443,13 @@ function setupTonkotsuButton() {
         playSound('ding');
         showStationToast('🫕 ¡Caldo Tonkotsu hirviendo y listo! (4 porciones)');
         updateKitchenStationsUI();
+        updateCookingVisualOverlay();
       }
     }, 50);
   };
 
-  const stopHeating = () => {
+  const stopHeating = (e) => {
+    try { if (e && e.pointerId && btn.hasPointerCapture && btn.hasPointerCapture(e.pointerId)) btn.releasePointerCapture(e.pointerId); } catch(err) {}
     if (heatInterval) {
       clearInterval(heatInterval);
       heatInterval = null;
@@ -5687,6 +6461,7 @@ function setupTonkotsuButton() {
       const statusEl = document.getElementById('tonkotsu-status');
       if (fillEl) fillEl.style.width = '0%';
       if (statusEl) statusEl.textContent = kitchenState.stocks.tonkotsu > 0 ? `Listo (${kitchenState.stocks.tonkotsu})` : 'Mantén 3s';
+      updateCookingVisualOverlay();
     }
   };
 
@@ -5713,10 +6488,13 @@ function setupChasuButton() {
       return;
     }
 
+    try { if (e && e.pointerId && btn.setPointerCapture) btn.setPointerCapture(e.pointerId); } catch(err) {}
+
     kitchenState.chasu.isFlaming = true;
     kitchenState.chasu.flameSeconds = 0;
     btn.classList.add('flaming-active');
     playSound('flame');
+    updateCookingVisualOverlay();
 
     const fillEl = document.getElementById('chasu-fill');
     const statusEl = document.getElementById('chasu-status');
@@ -5746,12 +6524,14 @@ function setupChasuButton() {
           btn.classList.remove('flaming-active');
           if (fillEl) fillEl.style.width = '100%';
           if (statusEl) statusEl.textContent = '¡Máximo (4/4)!';
+          updateCookingVisualOverlay();
         }
       }
     }, 50);
   };
 
-  const stopFlaming = () => {
+  const stopFlaming = (e) => {
+    try { if (e && e.pointerId && btn.hasPointerCapture && btn.hasPointerCapture(e.pointerId)) btn.releasePointerCapture(e.pointerId); } catch(err) {}
     if (flameInterval) {
       clearInterval(flameInterval);
       flameInterval = null;
@@ -5763,6 +6543,7 @@ function setupChasuButton() {
       const statusEl = document.getElementById('chasu-status');
       if (fillEl) fillEl.style.width = '0%';
       if (statusEl) statusEl.textContent = kitchenState.stocks.chasu >= 4 ? 'Listo (4/4)' : 'Mantén (2s c/u)';
+      updateCookingVisualOverlay();
     }
   };
 
@@ -5791,6 +6572,13 @@ function resetCookingStations() {
   kitchenState.noodles.portionsCooking = 0;
   kitchenState.noodles.cookTimeRemaining = 0;
   kitchenState.noodles.burnTimeRemaining = 0;
+
+  kitchenState.shio.isHeating = false;
+  kitchenState.shio.heatSeconds = 0;
+  kitchenState.tonkotsu.isHeating = false;
+  kitchenState.tonkotsu.heatSeconds = 0;
+  kitchenState.chasu.isFlaming = false;
+  kitchenState.chasu.flameSeconds = 0;
 
   const noodlesBtn = document.getElementById('btn-cook-noodles');
   if (noodlesBtn) {
@@ -5823,6 +6611,7 @@ function resetCookingStations() {
   if (chasuStatus) chasuStatus.textContent = 'Mantén (2s c/u)';
 
   updateKitchenStationsUI();
+  updateCookingVisualOverlay();
 }
 
 function renderBowls() {
