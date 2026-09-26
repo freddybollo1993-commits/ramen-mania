@@ -1429,20 +1429,20 @@
     gap: 8px;
   }
 
-  /* SELECTOR DE MODOS */
+  /* SELECTOR DE MODOS (3 COLUMNAS: TUTORIAL, NORMAL, RASH) */
   .start-modes-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
     width: 100%;
-    max-width: 620px;
+    max-width: 760px;
   }
 
   .start-mode-card {
     background: linear-gradient(145deg, #2b1410, #1b0a07);
     border: 2px solid #4e261d;
     border-radius: 12px;
-    padding: 8px 12px;
+    padding: 7px 10px;
     cursor: pointer;
     transition: all 0.15s ease;
     display: flex;
@@ -1461,6 +1461,40 @@
     border-color: var(--ramen-gold);
     background: linear-gradient(145deg, #441d16, #2a110d);
     box-shadow: 0 0 14px rgba(255, 179, 0, 0.4), 0 3px 8px rgba(0, 0, 0, 0.6);
+  }
+
+  .start-mode-card.tutorial.active {
+    border-color: #00e5ff;
+    background: linear-gradient(145deg, #0e2a38, #071720);
+    box-shadow: 0 0 14px rgba(0, 229, 255, 0.45), 0 3px 8px rgba(0, 0, 0, 0.6);
+  }
+
+  .start-mode-card.locked {
+    opacity: 0.55;
+    filter: grayscale(0.7);
+    border-color: #3e2723 !important;
+  }
+  .start-mode-card.locked:hover {
+    transform: none;
+    border-color: #5d4037 !important;
+  }
+  .start-mode-card.locked::after {
+    content: "🔒 BLOQUEADO";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(18, 9, 8, 0.94);
+    color: #ffca28;
+    font-size: 10px;
+    font-weight: 900;
+    padding: 3px 8px;
+    border-radius: 14px;
+    border: 1px solid #ffca28;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7);
+    white-space: nowrap;
+    letter-spacing: 0.5px;
+    pointer-events: none;
   }
 
   .start-mode-header {
@@ -1577,6 +1611,216 @@
     color: #8d6e63;
     padding: 2px 10px;
     flex-shrink: 0;
+  }
+
+  /* ==========================================
+     SISTEMA DE MODO TUTORIAL INTERACTIVO (3 FASES)
+     ========================================== */
+  #tutorial-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 99990;
+    pointer-events: none;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  #tutorial-overlay.active {
+    display: block;
+    opacity: 1;
+  }
+
+  /* Marco animado de foco / spotlight */
+  #tutorial-spotlight-box {
+    position: absolute;
+    border-radius: 12px;
+    border: 3px solid #00e5ff;
+    box-shadow: 0 0 0 9999px rgba(8, 4, 3, 0.82), 0 0 24px rgba(0, 229, 255, 0.7);
+    pointer-events: none;
+    transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+    z-index: 99991;
+    animation: spotlightPulse 1.8s infinite alternate ease-in-out;
+  }
+  @keyframes spotlightPulse {
+    0% { border-color: #00e5ff; box-shadow: 0 0 0 9999px rgba(8, 4, 3, 0.82), 0 0 16px rgba(0, 229, 255, 0.6); }
+    100% { border-color: #ffca28; box-shadow: 0 0 0 9999px rgba(8, 4, 3, 0.84), 0 0 28px rgba(255, 202, 40, 0.8); }
+  }
+
+  /* Tarjeta flotante interactiva de explicación */
+  #tutorial-card {
+    position: absolute;
+    z-index: 99995;
+    pointer-events: auto;
+    width: 90%;
+    max-width: 440px;
+    background: linear-gradient(145deg, #1f110e, #120705);
+    border: 2px solid #ffb300;
+    border-radius: 16px;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.85), 0 0 18px rgba(255, 179, 0, 0.3);
+    padding: 12px 16px;
+    color: #fff;
+    transition: top 0.22s ease, left 0.22s ease;
+    animation: cardAppear 0.2s ease-out;
+  }
+  @keyframes cardAppear {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  .tutorial-phase-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #00e5ff;
+    color: #002b36;
+    font-size: 9.5px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    text-transform: uppercase;
+  }
+  .tutorial-phase-badge.phase-1 { background: #00e5ff; color: #002b36; }
+  .tutorial-phase-badge.phase-2 { background: #ff9800; color: #212121; }
+  .tutorial-phase-badge.phase-3 { background: #00e676; color: #003314; }
+
+  .tutorial-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+  .tutorial-step-counter {
+    font-size: 11px;
+    font-weight: 800;
+    color: #ffd54f;
+  }
+
+  .tutorial-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 16px;
+    color: var(--ramen-gold);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .tutorial-body {
+    font-size: 12px;
+    line-height: 1.4;
+    color: #efebe9;
+    margin-bottom: 10px;
+  }
+  .tutorial-body p {
+    margin: 3px 0;
+  }
+  .tutorial-body b {
+    color: #ffca28;
+  }
+
+  .tutorial-tip-box {
+    background: rgba(255, 179, 0, 0.12);
+    border-left: 3px solid #ffb300;
+    padding: 4px 8px;
+    border-radius: 4px;
+    color: #ffe082;
+    font-size: 11px;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+
+  .tutorial-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 8px;
+  }
+  .tutorial-btn-nav {
+    background: #3e2723;
+    border: 1px solid #795548;
+    color: #fff;
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 11.5px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.12s ease;
+  }
+  .tutorial-btn-nav:hover {
+    background: #4e342e;
+    border-color: #ffb300;
+  }
+  .tutorial-btn-primary {
+    background: linear-gradient(135deg, #00b0ff, #0091ea);
+    border: 1px solid #80d8ff;
+    color: #fff;
+    box-shadow: 0 3px 8px rgba(0, 145, 234, 0.4);
+  }
+  .tutorial-btn-primary:hover {
+    background: linear-gradient(135deg, #40c4ff, #00b0ff);
+    box-shadow: 0 4px 12px rgba(0, 145, 234, 0.6);
+  }
+  .tutorial-btn-skip {
+    background: transparent;
+    border: none;
+    color: #a1887f;
+    font-size: 11px;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 4px 6px;
+  }
+  .tutorial-btn-skip:hover {
+    color: #ffcc80;
+  }
+
+  .tutorial-dots {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+  .tutorial-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.25);
+    transition: all 0.2s ease;
+  }
+  .tutorial-dot.active {
+    width: 14px;
+    border-radius: 4px;
+    background: #00e5ff;
+  }
+
+  /* Toast de aviso de modo bloqueado */
+  #mode-locked-toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(30px);
+    background: linear-gradient(135deg, #b71c1c, #d32f2f);
+    border: 2px solid #ffcdd2;
+    color: #fff;
+    padding: 9px 18px;
+    border-radius: 25px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7);
+    font-size: 12px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 99999;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  #mode-locked-toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
   }
 
   /* AVATAR PICKER */
@@ -2363,7 +2607,7 @@
     <div class="start-screen-content">
       
       <!-- CABECERA Y LOGO CON MASCOTA SHIMAYA -->
-      <div class="start-logo-wrap">
+      <div class="start-logo-wrap" id="start-logo-box">
         <div style="display:flex; justify-content:center; align-items:center; margin-bottom:5px;">
           <img src="assets/icons/icon-192.png" alt="Chef Shimaya Mascot" style="width:58px; height:58px; border-radius:50%; border:2px solid #ffb300; box-shadow:0 4px 14px rgba(0,0,0,0.65); object-fit:cover;">
         </div>
@@ -2380,10 +2624,24 @@
         <!-- Rellenado dinámicamente -->
       </div>
 
-      <!-- SELECTOR DE MODOS DE JUEGO -->
-      <div class="start-modes-grid">
+      <!-- SELECTOR DE MODOS DE JUEGO (TUTORIAL, NORMAL, RASH) -->
+      <div class="start-modes-grid" id="start-modes-grid">
+        <!-- Modo Tutorial -->
+        <div class="start-mode-card tutorial active" id="start-mode-card-tutorial" onclick="setStartSelectedMode('TUTORIAL')">
+          <div class="start-mode-header">
+            <span class="start-mode-name" style="color:#00e5ff;">🎓 TUTORIAL</span>
+            <span class="start-mode-badge" style="background:#00e5ff; color:#002b36;">INICIO</span>
+          </div>
+          <div class="start-mode-desc">
+            Aprende paso a paso cómo funciona cada botón, los caldos y el armado de ramen.
+          </div>
+          <div class="start-mode-status" id="start-tutorial-stats-text" style="color:#80deea;">
+            ⭐ Paso inicial para nuevos Chefs
+          </div>
+        </div>
+
         <!-- Modo Normal -->
-        <div class="start-mode-card active" id="start-mode-card-normal" onclick="setStartSelectedMode('NORMAL')">
+        <div class="start-mode-card" id="start-mode-card-normal" onclick="setStartSelectedMode('NORMAL')">
           <div class="start-mode-header">
             <span class="start-mode-name">🏮 MODO NORMAL</span>
             <span class="start-mode-badge">5 NIVELES</span>
@@ -2420,7 +2678,7 @@
       </div>
 
       <!-- BOTONES SECUNDARIOS -->
-      <div class="start-btn-row">
+      <div class="start-btn-row" id="start-btn-row-box">
         <button class="btn-start-sec btn-ranking" onclick="openLeaderboardModal()">
           🏆 Ver Ranking
         </button>
@@ -2464,7 +2722,7 @@
 
   <!-- HEADER HORIZONTAL REDISEÑADO (DISTRIBUCIÓN ARMÓNICA Y ESCALA COMPACTA) -->
   <!-- 1. HEADER SUPERIOR (BARRA SUPERIOR IZQUIERDA Y DERECHA) -->
-  <header class="game-hud-overlay">
+  <header class="game-hud-overlay" id="game-hud-bar">
     <div class="hud-left-group">
       <div class="hud-capsule-left">
         <button class="hud-capsule-btn" onclick="returnToStartMenu()" title="Menú Principal (Inicio)">
@@ -2520,7 +2778,7 @@
 
   <!-- 3. TABLERO DE INGREDIENTES ELEVADO AL RAS DE LOS CLIENTES Y ESTIRADO AL BORDE -->
   <main class="game-central-stage">
-    <div class="prep-station-board">
+    <div class="prep-station-board" id="prep-board-box">
       <div class="prep-station-tab-row">
         <div class="prep-station-tab">Tazones de Preparación</div>
         <div class="pantry-mini-filter" id="pantry-tabs-bar">
@@ -2538,7 +2796,7 @@
   <!-- 4. BARRA INFERIOR: ESTACIONES DE COCCIÓN (IZQUIERDA) Y TAZONES DE PREPARACIÓN (DERECHA) -->
   <div class="kitchen-bottom-dock">
     <!-- Panel de 4 estaciones interactivas de cocción a la izquierda -->
-    <div class="cook-stations-panel">
+    <div class="cook-stations-panel" id="cook-stations-panel">
       <!-- 1. Cocinar Fideos -->
       <button class="cook-station-btn" id="btn-cook-noodles" onclick="handleNoodlesBtnClick()" title="Cocinar Fideos: Toca para iniciar (4s), toca para añadir más fideos (+1s hasta 4), toca para recoger cuando esté listo.">
         <div class="station-icon-wrap">
@@ -2597,7 +2855,7 @@
     </div>
 
     <!-- Tazones Centrales (Cuencos Donburi) -->
-    <div class="bottom-bowls-row">
+    <div class="bottom-bowls-row" id="bowls-dock-box">
       <!-- Cuenco 1 -->
       <div class="bowl-dock-card active" id="bowl-card-0" onclick="selectBowl(0)">
         <div class="bowl-dock-tag" id="bowl-tag-0">● ACTIVO</div>
@@ -3246,6 +3504,60 @@
     <div style="font-size: 13px; font-weight: 900; color: #ffffff; font-family:'Fredoka One', cursive;" id="welcome-toast-text">¡Bienvenido de nuevo, Chef!</div>
   </div>
   <button onclick="dismissWelcomeToast()" style="background:rgba(255,255,255,0.12); border:none; color:#cfd8dc; font-size:12px; width:22px; height:22px; border-radius:50%; cursor:pointer; margin-left:8px; display:flex; align-items:center; justify-content:center;">✕</button>
+</div>
+
+<!-- OVERLAY DE TUTORIAL INTERACTIVO CON FOCO Y TARJETA GUÍA -->
+<div id="tutorial-overlay">
+  <div id="tutorial-spotlight-box"></div>
+  <div id="tutorial-card">
+    <div class="tutorial-header-row">
+      <span class="tutorial-phase-badge" id="tutorial-phase-badge">FASE 1 · INICIO</span>
+      <span class="tutorial-step-counter" id="tutorial-step-counter">Paso 1 / 16</span>
+    </div>
+    <div class="tutorial-title" id="tutorial-title">🍜 Bienvenido a Ramen Mania</div>
+    <div class="tutorial-body" id="tutorial-body"></div>
+    <div class="tutorial-tip-box" id="tutorial-tip"></div>
+    <div class="tutorial-footer">
+      <button class="tutorial-btn-nav" id="tutorial-btn-prev" onclick="TutorialManager.prev()">◀ Ant.</button>
+      <div class="tutorial-dots" id="tutorial-dots"></div>
+      <button class="tutorial-btn-nav tutorial-btn-primary" id="tutorial-btn-next" onclick="TutorialManager.next()">Sig. ▶</button>
+      <button class="tutorial-btn-skip" onclick="TutorialManager.stop()" title="Salir del tutorial">✕ Salir</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE FELICITACIONES POR TUTORIAL COMPLETADO -->
+<div class="modal-overlay" id="tutorial-completed-modal" style="display:none; z-index:99998;">
+  <div class="modal-card" style="max-width: 440px; text-align: center; border: 2.5px solid #00e5ff; background: linear-gradient(145deg, #1b2838, #0e1724); color:#fff; padding:20px;">
+    <div style="font-size: 50px; margin-bottom: 6px; animation: heroPulse 1.2s infinite ease-in-out;">🎓🍜✨</div>
+    <h2 style="font-family:'Fredoka One', cursive; color:#00e5ff; font-size:23px; margin-bottom:8px;">
+      ¡TUTORIAL COMPLETADO!
+    </h2>
+    <p style="color:#e0f7fa; font-size:13px; line-height:1.45; margin-bottom:14px;">
+      ¡Felicidades, Chef! Ya dominas la cocina de <b>Ramen Mania</b>, las 4 estaciones de preparación y el orden sagrado de armado Donburi.
+    </p>
+    <div style="background:rgba(0, 229, 255, 0.12); border:1px solid #00e5ff; border-radius:12px; padding:10px 14px; margin-bottom:18px; text-align:left;">
+      <div style="font-size:11px; font-weight:900; color:#80deea; margin-bottom:4px; letter-spacing:0.5px;">🔓 MODOS DESBLOQUEADOS PERMANENTEMENTE:</div>
+      <div style="font-size:12px; color:#fff; display:flex; flex-direction:column; gap:5px;">
+        <span>🏮 <b>Modo Normal</b>: Campaña gastronómica de 5 niveles con metas de venta en Soles.</span>
+        <span>⚡ <b>Modo Rash</b>: Supervivencia extrema contra el reloj en 100 rondas.</span>
+      </div>
+    </div>
+    <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="TutorialManager.finishAndGoNormal()" style="background: linear-gradient(135deg, #ff9800, #e65100); border-color:#ffe082; padding:9px 22px; font-size:13.5px; font-weight:900;">
+        🏮 ¡Jugar Campaña Normal!
+      </button>
+      <button class="btn" onclick="TutorialManager.finishAndGoMenu()" style="background:#37474f; border-color:#607d8b; color:#eceff1; padding:9px 18px; font-size:12px; font-weight:800;">
+        🏠 Menú Principal
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST DE MODO BLOQUEADO (REQUIERE TUTORIAL) -->
+<div id="mode-locked-toast">
+  <span style="font-size: 18px;">🔒</span>
+  <span id="mode-locked-toast-text">Completa primero el Modo Tutorial para desbloquear el Modo Normal y Rash.</span>
 </div>
 
 <script>
@@ -5554,25 +5866,492 @@ function startLevel(lvlIndex) {
 /* ==========================================================================
    SISTEMA DE PANTALLA DE INICIO Y MODALES DE USUARIO
    ========================================================================== */
-let startSelectedMode = 'NORMAL';
+let startSelectedMode = 'TUTORIAL';
 let regSelectedAvatar = '🍜';
 let profSelectedAvatar = '🍜';
 
-function setStartSelectedMode(mode) {
-  startSelectedMode = mode;
-  playSound('add');
+function isTutorialCompleted() {
+  return safeStorage.getItem('ramen_tutorial_completed') === 'true';
+}
+
+let lockedToastTimer = null;
+function showLockedModeToast(msg) {
+  const toast = document.getElementById("mode-locked-toast");
+  const text = document.getElementById("mode-locked-toast-text");
+  if (!toast) return;
+  if (text) text.textContent = msg || "Completa primero el Modo Tutorial para desbloquear el Modo Normal y Rash.";
+  toast.classList.add("show");
+  try { playSound('fail'); } catch(e) {}
+  if (lockedToastTimer) clearTimeout(lockedToastTimer);
+  lockedToastTimer = setTimeout(() => {
+    toast.classList.remove("show");
+  }, 3500);
+}
+
+function updateStartModesDisplay() {
+  const tutCompleted = isTutorialCompleted();
+  const tutCard = document.getElementById("start-mode-card-tutorial");
   const normalCard = document.getElementById("start-mode-card-normal");
   const rashCard = document.getElementById("start-mode-card-rash");
-  if (normalCard && rashCard) {
-    if (mode === 'NORMAL') {
-      normalCard.classList.add("active");
-      rashCard.classList.remove("active");
+
+  if (normalCard) {
+    if (!tutCompleted) {
+      normalCard.classList.add("locked");
     } else {
-      normalCard.classList.remove("active");
-      rashCard.classList.add("active");
+      normalCard.classList.remove("locked");
+    }
+    normalCard.classList.toggle("active", startSelectedMode === 'NORMAL');
+  }
+
+  if (rashCard) {
+    if (!tutCompleted) {
+      rashCard.classList.add("locked");
+    } else {
+      rashCard.classList.remove("locked");
+    }
+    rashCard.classList.toggle("active", startSelectedMode === 'RASH');
+  }
+
+  if (tutCard) {
+    tutCard.classList.toggle("active", startSelectedMode === 'TUTORIAL');
+    const tutBadge = tutCard.querySelector(".start-mode-badge");
+    const tutStatus = document.getElementById("start-tutorial-stats-text");
+    if (tutBadge && tutStatus) {
+      if (tutCompleted) {
+        tutBadge.textContent = "COMPLETADO ✓";
+        tutBadge.style.background = "#2e7d32";
+        tutBadge.style.color = "#fff";
+        tutStatus.innerHTML = `✅ <strong>Dominado</strong> (Toca para repetir)`;
+      } else {
+        tutBadge.textContent = "PASO INICIAL";
+        tutBadge.style.background = "#00e5ff";
+        tutBadge.style.color = "#002b36";
+        tutStatus.innerHTML = `⭐ <strong>Completa aquí para desbloquear el juego</strong>`;
+      }
     }
   }
 }
+
+function setStartSelectedMode(mode) {
+  if (mode !== 'TUTORIAL' && !isTutorialCompleted()) {
+    showLockedModeToast("🔒 Completa primero el Modo Tutorial para desbloquear el Modo Normal y Rash.");
+    return;
+  }
+  startSelectedMode = mode;
+  try { playSound('add'); } catch(e) {}
+  updateStartModesDisplay();
+}
+
+/* ==========================================================================
+   DATOS Y GESTOR DEL MODO TUTORIAL (3 FASES INTERACTIVAS)
+   ========================================================================== */
+const TUTORIAL_DATA = [
+  // --- FASE 1: PANTALLA DE INICIO (5 pasos) ---
+  {
+    phase: 1,
+    phaseName: "Fase 1 / 3 · Pantalla de Inicio",
+    phaseClass: "phase-1",
+    targetId: "start-logo-box",
+    title: "🍜 Bienvenido a Ramen Mania",
+    text: "¡Te damos la bienvenida al restaurante del <b>Chef Shimaya</b>! En este tutorial aprenderás la interfaz y las mecánicas para dominar la cocina como un auténtico maestro.",
+    tip: "💡 Juega en formato horizontal para la mejor experiencia arcade.",
+    screen: "START"
+  },
+  {
+    phase: 1,
+    phaseName: "Fase 1 / 3 · Pantalla de Inicio",
+    phaseClass: "phase-1",
+    targetId: "start-profile-box",
+    title: "👤 Perfil y Registro de Chef",
+    text: "Aquí se vincula automáticamente tu dispositivo. Tu alias de Chef guardará tus récords personales, monedas acumuladas y tu posición en el <b>Ranking Oficial de Ramen Mania</b>.",
+    tip: "💡 Puedes tocar tu perfil para personalizar tu nombre y avatar.",
+    screen: "START"
+  },
+  {
+    phase: 1,
+    phaseName: "Fase 1 / 3 · Pantalla de Inicio",
+    phaseClass: "phase-1",
+    targetId: "start-modes-grid",
+    title: "🎮 Selector de Modos de Juego",
+    text: "Elige tu aventura: <b>🎓 Tutorial</b> (este modo introductorio), <b>🏮 Modo Normal</b> (campaña de 5 niveles con metas en Soles) o <b>⚡ Modo Rash</b> (100 rondas extremas de supervivencia).",
+    tip: "🔒 El Modo Normal y Rash se desbloquearán en cuanto completes este tutorial.",
+    screen: "START"
+  },
+  {
+    phase: 1,
+    phaseName: "Fase 1 / 3 · Pantalla de Inicio",
+    phaseClass: "phase-1",
+    targetId: "btn-start-play",
+    title: "▶️ Botón JUGAR AHORA",
+    text: "Este botón gigante inicia la acción de inmediato según el modo seleccionado. Cuando elijas Tutorial, entrarás directamente a la cocina guiada sin estrés de tiempo.",
+    tip: "💡 Toca Siguiente para entrar a la cocina y ver las subdivisiones.",
+    screen: "START"
+  },
+  {
+    phase: 1,
+    phaseName: "Fase 1 / 3 · Pantalla de Inicio",
+    phaseClass: "phase-1",
+    targetId: "start-btn-row-box",
+    title: "⚙️ Opciones, Ranking y Recetario",
+    text: "En la barra inferior encuentras: <b>🏆 Ranking Oficial</b> en tiempo real, <b>✨ Secretos 3D</b> del Chef, <b>📖 Recetario ilustrado</b> y la opción para <b>📲 Instalar la App</b> en tu pantalla de inicio.",
+    tip: "💡 ¡Ahora entremos a la cocina! Toca Siguiente.",
+    screen: "START"
+  },
+
+  // --- FASE 2: SUBDIVISIONES DE LA PANTALLA DE COCINA (6 pasos) ---
+  {
+    phase: 2,
+    phaseName: "Fase 2 / 3 · Subdivisiones de la Cocina",
+    phaseClass: "phase-2",
+    targetId: "game-hud-bar",
+    title: "⏱️ Barra Superior de Estado (HUD)",
+    text: "Monitorea tu partida en tiempo real:<br>• <b>⏱️ Tiempo / Vidas</b>: Tiempo restante para cumplir la jornada.<br>• <b>🪙 Monedas</b>: Ganancias recaudadas en Soles.<br>• <b>💰 Meta</b>: Monto que debes alcanzar para ganar el nivel.",
+    tip: "💡 Usa el botón 🏠 para pausar y volver al menú principal.",
+    screen: "KITCHEN"
+  },
+  {
+    phase: 2,
+    phaseName: "Fase 2 / 3 · Subdivisiones de la Cocina",
+    phaseClass: "phase-2",
+    targetId: "customers-container",
+    title: "👥 Barra de Clientes",
+    text: "Aquí esperan los comensales hambrientos. Cada cliente muestra su <b>burbuja con el ramen deseado</b> y una <b>barra de paciencia</b> que disminuye con el tiempo.",
+    tip: "💡 ¡Toca a cualquier cliente para ver el detalle de ingredientes requeridos!",
+    screen: "KITCHEN"
+  },
+  {
+    phase: 2,
+    phaseName: "Fase 2 / 3 · Subdivisiones de la Cocina",
+    phaseClass: "phase-2",
+    targetId: "prep-board-box",
+    title: "🥢 Tablero y Despensa de Ingredientes",
+    text: "En el centro tienes la despensa completa. Filtra con las pestañas superiores: <b>Bases</b>, <b>Salsas</b>, <b>Proteínas</b> y <b>Vegetales</b> para encontrar todo en segundos.",
+    tip: "💡 Al tocar un ingrediente, se añade directamente a tu cuenco activo.",
+    screen: "KITCHEN"
+  },
+  {
+    phase: 2,
+    phaseName: "Fase 2 / 3 · Subdivisiones de la Cocina",
+    phaseClass: "phase-2",
+    targetId: "cook-stations-panel",
+    title: "🔥 Estaciones de Cocción Activas",
+    text: "En la esquina inferior izquierda están las 4 hornillas interactivas: <b>Fideos</b>, <b>Caldo Shio</b>, <b>Caldo Tonkotsu</b> y <b>Chasu con soplete</b>.",
+    tip: "💡 Los ingredientes calientes deben cocinarse aquí antes de poder colocarlos en el tazón.",
+    screen: "KITCHEN"
+  },
+  {
+    phase: 2,
+    phaseName: "Fase 2 / 3 · Subdivisiones de la Cocina",
+    phaseClass: "phase-2",
+    targetId: "bowls-dock-box",
+    title: "🥣 Cuencos Donburi de Armado",
+    text: "Dispones de <b>3 cuencos</b> para preparar hasta 3 órdenes a la vez. Toca un cuenco para marcarlo como <b>● ACTIVO</b> y comenzar a llenarlo con su receta.",
+    tip: "🗑️ Si te equivocas de ingrediente, usa el basurero del cuenco para reiniciarlo.",
+    screen: "KITCHEN"
+  },
+  {
+    phase: 2,
+    phaseName: "Fase 2 / 3 · Subdivisiones de la Cocina",
+    phaseClass: "phase-2",
+    targetId: "hud-side-actions",
+    title: "⚡ Acciones Rápidas del Chef",
+    text: "Botones esenciales en el lateral:<br>• <b>⏸️ Pausa</b>: Detén el tiempo cuando necesites un respiro.<br>• <b>⛶ Pantalla Completa</b>: Máxima inmersión en tu dispositivo.<br>• <b>📖 Recetario</b>: Consulta las recetas si dudas.",
+    tip: "💡 ¡Pasemos a la Fase 3 para ver las mecánicas interactivas de cocción!",
+    screen: "KITCHEN"
+  },
+
+  // --- FASE 3: MECÁNICAS DE JUEGO Y ARMADO (5 pasos) ---
+  {
+    phase: 3,
+    phaseName: "Fase 3 / 3 · Mecánicas y Armado",
+    phaseClass: "phase-3",
+    targetId: "btn-cook-noodles",
+    title: "🥢 1. Cocinar Fideos (Toque)",
+    text: "<b>Toca una vez</b> para empezar a hervir fideos (4s). Puedes presionar varias veces para cocinar hasta 4 porciones en cadena. Cuando el reloj termine y brille en verde, <b>toca para recogerlos</b> e irán al cuenco activo.",
+    tip: "💡 Mantén siempre la olla con fideos listos para despachar velozmente.",
+    screen: "KITCHEN"
+  },
+  {
+    phase: 3,
+    phaseName: "Fase 3 / 3 · Mecánicas y Armado",
+    phaseClass: "phase-3",
+    targetId: "btn-heat-shio",
+    title: "🥣 2. Calentar Caldos (Mantener Presionado)",
+    text: "A diferencia de los fideos, los caldos (<b>Shio</b> y <b>Tonkotsu</b>) requieren que <b>MANTENGAS PRESIONADO</b> el botón durante 3 segundos continuos hasta que la barra se llene al 100%.",
+    tip: "⚠️ Si sueltas el botón antes de tiempo, la barra se vaciará. ¡Mantén firme!",
+    screen: "KITCHEN"
+  },
+  {
+    phase: 3,
+    phaseName: "Fase 3 / 3 · Mecánicas y Armado",
+    phaseClass: "phase-3",
+    targetId: "btn-flame-chasu",
+    title: "🥩 3. Flamear Láminas de Chasu (Soplete)",
+    text: "Para dorar el cerdo Chasu, <b>mantén presionado el soplete</b>. Cada 2 segundos de fuego obtendrás 1 lámina flameada y lista para colocarse sobre el ramen.",
+    tip: "💡 El Chasu flameado aporta el toque maestro y más dinero a tu receta.",
+    screen: "KITCHEN"
+  },
+  {
+    phase: 3,
+    phaseName: "Fase 3 / 3 · Mecánicas y Armado",
+    phaseClass: "phase-3",
+    targetId: "bowl-card-0",
+    title: "🍜 4. Orden Sagrado del Armado Donburi",
+    text: "Para crear un ramen que el cliente acepte, sigue este orden en tu cuenco activo:<br>1️⃣ <b>Base</b>: Fideos hervidos.<br>2️⃣ <b>Caldo</b>: Shio o Tonkotsu caliente.<br>3️⃣ <b>Salsa</b>: Soya, Miso o Picante.<br>4️⃣ <b>Toppings</b>: Chasu, Huevo Ajitsuke, Narutomaki, Alga Nori, etc.",
+    tip: "🗑️ ¿Pusiste un ingrediente equivocado? Toca el tachito del cuenco para vaciarlo.",
+    screen: "KITCHEN"
+  },
+  {
+    phase: 3,
+    phaseName: "Fase 3 / 3 · Mecánicas y Armado",
+    phaseClass: "phase-3",
+    targetId: "customers-container",
+    title: "💰 5. Servir y Cobrar al Instante",
+    text: "¡No necesitas pulsar ningún botón adicional para entregar! En cuanto tu cuenco tenga exactamente los ingredientes que el cliente pide, <b>se servirá automáticamente</b>, ganarás monedas en Soles 🪙 y el cliente se irá feliz.",
+    tip: "🎉 ¡Has completado con éxito todo el entrenamiento gastronómico!",
+    screen: "KITCHEN"
+  }
+];
+
+const TutorialManager = {
+  currentStep: 0,
+  isActive: false,
+
+  start() {
+    this.isActive = true;
+    this.currentStep = 0;
+    const overlay = document.getElementById("tutorial-overlay");
+    if (overlay) overlay.classList.add("active");
+    this.renderStep(0);
+    window.addEventListener("resize", this._onResize);
+    window.addEventListener("orientationchange", this._onResize);
+  },
+
+  _onResize() {
+    if (TutorialManager.isActive) {
+      TutorialManager.updatePosition();
+    }
+  },
+
+  renderStep(index) {
+    if (index < 0) index = 0;
+    if (index >= TUTORIAL_DATA.length) {
+      this.complete();
+      return;
+    }
+    this.currentStep = index;
+    const step = TUTORIAL_DATA[index];
+
+    // Asegurar pantalla correcta
+    if (step.screen === 'START') {
+      const startScr = document.getElementById("start-screen");
+      if (startScr) {
+        startScr.classList.remove("hidden");
+        startScr.style.display = "flex";
+        startScr.style.visibility = "visible";
+      }
+    } else if (step.screen === 'KITCHEN') {
+      const startScr = document.getElementById("start-screen");
+      if (startScr) {
+        startScr.classList.add("hidden");
+        startScr.style.display = "none";
+        startScr.style.visibility = "hidden";
+      }
+      this.ensureDemoKitchen();
+    }
+
+    // Actualizar datos de la tarjeta
+    const badgeEl = document.getElementById("tutorial-phase-badge");
+    const counterEl = document.getElementById("tutorial-step-counter");
+    const titleEl = document.getElementById("tutorial-title");
+    const bodyEl = document.getElementById("tutorial-body");
+    const tipEl = document.getElementById("tutorial-tip");
+    const dotsEl = document.getElementById("tutorial-dots");
+    const prevBtn = document.getElementById("tutorial-btn-prev");
+    const nextBtn = document.getElementById("tutorial-btn-next");
+
+    if (badgeEl) {
+      badgeEl.textContent = step.phaseName;
+      badgeEl.className = `tutorial-phase-badge ${step.phaseClass}`;
+    }
+    if (counterEl) {
+      counterEl.textContent = `Paso ${index + 1} / ${TUTORIAL_DATA.length}`;
+    }
+    if (titleEl) {
+      titleEl.innerHTML = step.title;
+    }
+    if (bodyEl) {
+      bodyEl.innerHTML = `<p>${step.text}</p>`;
+    }
+    if (tipEl) {
+      tipEl.innerHTML = step.tip;
+    }
+    if (prevBtn) {
+      prevBtn.style.visibility = index === 0 ? "hidden" : "visible";
+    }
+    if (nextBtn) {
+      if (index === TUTORIAL_DATA.length - 1) {
+        nextBtn.innerHTML = "🎓 ¡Completar!";
+        nextBtn.classList.add("tutorial-btn-primary");
+      } else {
+        nextBtn.innerHTML = "Siguiente ▶";
+        nextBtn.classList.remove("tutorial-btn-primary");
+      }
+    }
+
+    // Renderizar indicadores (dots)
+    if (dotsEl) {
+      dotsEl.innerHTML = TUTORIAL_DATA.map((_, i) =>
+        `<div class="tutorial-dot ${i === index ? 'active' : ''}"></div>`
+      ).join('');
+    }
+
+    // Posicionar el foco y la tarjeta
+    setTimeout(() => {
+      this.updatePosition();
+    }, 50);
+  },
+
+  updatePosition() {
+    if (!this.isActive) return;
+    const step = TUTORIAL_DATA[this.currentStep];
+    const target = document.getElementById(step.targetId);
+    const spotlight = document.getElementById("tutorial-spotlight-box");
+    const card = document.getElementById("tutorial-card");
+    if (!spotlight || !card) return;
+
+    if (target && target.offsetParent !== null) {
+      const rect = target.getBoundingClientRect();
+      const pad = 8;
+      spotlight.style.display = "block";
+      spotlight.style.top = `${Math.max(0, rect.top - pad)}px`;
+      spotlight.style.left = `${Math.max(0, rect.left - pad)}px`;
+      spotlight.style.width = `${rect.width + pad * 2}px`;
+      spotlight.style.height = `${rect.height + pad * 2}px`;
+
+      this.positionCard(rect);
+    } else {
+      spotlight.style.display = "none";
+      this.positionCard(null);
+    }
+  },
+
+  positionCard(targetRect) {
+    const card = document.getElementById("tutorial-card");
+    if (!card) return;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const pad = 12;
+    const cardRect = card.getBoundingClientRect();
+    const cW = cardRect.width || 420;
+    const cH = cardRect.height || 210;
+
+    let left = (vw - cW) / 2;
+    let top = (vh - cH) / 2;
+
+    if (targetRect) {
+      left = targetRect.left + (targetRect.width / 2) - (cW / 2);
+      left = Math.max(pad, Math.min(vw - cW - pad, left));
+
+      if (targetRect.top - cH - pad >= 10) {
+        top = targetRect.top - cH - pad;
+      } else if (targetRect.bottom + cH + pad <= vh - 10) {
+        top = targetRect.bottom + pad;
+      } else if (targetRect.right + cW + pad <= vw - 10) {
+        left = targetRect.right + pad;
+        top = Math.max(pad, Math.min(vh - cH - pad, targetRect.top));
+      } else if (targetRect.left - cW - pad >= 10) {
+        left = targetRect.left - cW - pad;
+        top = Math.max(pad, Math.min(vh - cH - pad, targetRect.top));
+      } else {
+        top = Math.max(pad, vh - cH - pad);
+      }
+    }
+
+    card.style.top = `${Math.round(top)}px`;
+    card.style.left = `${Math.round(left)}px`;
+  },
+
+  next() {
+    try { playSound('add'); } catch(e) {}
+    this.renderStep(this.currentStep + 1);
+  },
+
+  prev() {
+    try { playSound('add'); } catch(e) {}
+    this.renderStep(this.currentStep - 1);
+  },
+
+  stop() {
+    this.isActive = false;
+    const overlay = document.getElementById("tutorial-overlay");
+    if (overlay) overlay.classList.remove("active");
+    window.removeEventListener("resize", this._onResize);
+    window.removeEventListener("orientationchange", this._onResize);
+    returnToStartMenu();
+  },
+
+  ensureDemoKitchen() {
+    gameState.isPaused = true;
+    gameState.isGameOver = false;
+    gameState.money = 0;
+    gameState.activeBowlIndex = 0;
+    gameState.bowls = [
+      { ingredients: [], matchedRamen: null },
+      { ingredients: [], matchedRamen: null },
+      { ingredients: [], matchedRamen: null }
+    ];
+    if (!gameState.customerSlots[0]) {
+      gameState.customerSlots = [
+        {
+          name: "Kenji",
+          avatar: "👨‍🍳",
+          order: "Ramen Shio",
+          patience: 100,
+          maxPatience: 100,
+          requiredIngredients: ["fideos", "caldo_shio", "salsa_soya", "naruto", "huevo_duro"]
+        },
+        null,
+        null,
+        null
+      ];
+    }
+    resetCookingStations();
+    renderBowls();
+    renderCustomers();
+    updateHUD();
+  },
+
+  complete() {
+    this.isActive = false;
+    const overlay = document.getElementById("tutorial-overlay");
+    if (overlay) overlay.classList.remove("active");
+    window.removeEventListener("resize", this._onResize);
+    window.removeEventListener("orientationchange", this._onResize);
+
+    // Guardar desbloqueo permanente
+    safeStorage.setItem('ramen_tutorial_completed', 'true');
+    updateStartModesDisplay();
+
+    try { playSound('win'); } catch(e) {}
+
+    const modal = document.getElementById("tutorial-completed-modal");
+    if (modal) modal.style.display = "flex";
+  },
+
+  finishAndGoNormal() {
+    const modal = document.getElementById("tutorial-completed-modal");
+    if (modal) modal.style.display = "none";
+    setStartSelectedMode('NORMAL');
+    executeStartGame();
+  },
+
+  finishAndGoMenu() {
+    const modal = document.getElementById("tutorial-completed-modal");
+    if (modal) modal.style.display = "none";
+    returnToStartMenu();
+  }
+};
 
 function updateStartPlayerCard() {
   const box = document.getElementById("start-profile-box");
@@ -5693,6 +6472,18 @@ function handleStartPlayClick() {
     updateStartPlayerCard();
     renderLinkedUserBadges();
   }
+
+  if (startSelectedMode === 'TUTORIAL') {
+    TutorialManager.start();
+    return;
+  }
+
+  if (!isTutorialCompleted()) {
+    showLockedModeToast("🔒 Debes completar el Modo Tutorial antes de jugar este modo.");
+    setStartSelectedMode('TUTORIAL');
+    return;
+  }
+
   executeStartGame();
 }
 
@@ -5733,6 +6524,7 @@ function returnToStartMenu() {
     startScreen.style.pointerEvents = "auto";
   }
   updateStartPlayerCard();
+  updateStartModesDisplay();
 }
 
 function openRegisterPlayerModal(fromPlay = false) {
@@ -8987,7 +9779,12 @@ function bootGameUI() {
   DeviceManager.init();
   checkOrientation();
   updateStartPlayerCard();
-  setStartSelectedMode('NORMAL');
+  if (!isTutorialCompleted()) {
+    setStartSelectedMode('TUTORIAL');
+  } else {
+    setStartSelectedMode('NORMAL');
+  }
+  updateStartModesDisplay();
   setupKitchenStations();
   resetCookingStations();
 }
