@@ -12,8 +12,8 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16x16.png">
 <link rel="shortcut icon" href="favicon.ico">
+<link rel="preload" as="image" type="image/webp" href="assets/ramen_bg.webp">
 <link rel="preload" as="image" href="assets/ramen_bg.jpg">
 <title>Ramen Mania - Edición Horizontal Arcade</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -110,7 +110,7 @@
     height: -webkit-fill-available;
     height: 100dvh;
     max-width: 1200px;
-    background: url('assets/ramen_bg.jpg') center center / cover no-repeat, #190e0c;
+    background: url('assets/ramen_bg.webp') center center / cover no-repeat, url('assets/ramen_bg.jpg') center center / cover no-repeat, #190e0c;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -4183,6 +4183,20 @@ let currentLbTab = 'NORMAL';
 let gameLoopInterval = null;
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null;
+let cachedWhiteNoiseBuffer = null;
+
+function getWhiteNoiseBuffer() {
+  if (!audioCtx) return null;
+  if (!cachedWhiteNoiseBuffer || cachedWhiteNoiseBuffer.sampleRate !== audioCtx.sampleRate) {
+    const bufferSize = Math.floor(audioCtx.sampleRate * 0.25);
+    cachedWhiteNoiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const output = cachedWhiteNoiseBuffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      output[i] = (Math.random() * 2 - 1) * 0.14;
+    }
+  }
+  return cachedWhiteNoiseBuffer;
+}
 
 let audioUnlocked = false;
 function initAudio() {
@@ -4294,15 +4308,11 @@ function playSound(type) {
       osc.start(now);
       osc.stop(now + 0.07);
     } else if (type === 'flame') {
-      // Procedural burner / blowtorch flame whoosh
-      const bufferSize = Math.floor(audioCtx.sampleRate * 0.22);
-      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-      const output = buffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) {
-        output[i] = (Math.random() * 2 - 1) * 0.14;
-      }
+      // Procedural burner / blowtorch flame whoosh (usando buffer cacheado)
+      const noiseBuffer = getWhiteNoiseBuffer();
+      if (!noiseBuffer) return;
       const noise = audioCtx.createBufferSource();
-      noise.buffer = buffer;
+      noise.buffer = noiseBuffer;
       const filter = audioCtx.createBiquadFilter();
       filter.type = 'bandpass';
       filter.frequency.setValueAtTime(500, now);
@@ -4799,6 +4809,18 @@ function triggerGuideHighlight(btnId) {
   }, 2500);
 }
 
+function startNoodlesInterval() {
+  if (kitchenState.noodles.intervalId) return;
+  kitchenState.noodles.intervalId = setInterval(noodleTick, 100);
+}
+
+function stopNoodlesInterval() {
+  if (kitchenState.noodles.intervalId) {
+    clearInterval(kitchenState.noodles.intervalId);
+    kitchenState.noodles.intervalId = null;
+  }
+}
+
 function handleNoodlesBtnClick() {
   if (gameState.isPaused || gameState.isGameOver) return;
 
@@ -4819,6 +4841,7 @@ function handleNoodlesBtnClick() {
     if (fillEl) fillEl.style.width = '0%';
     playSound('bubble');
     if (statusEl) statusEl.textContent = 'Cociendo (1x) 4s ⏳';
+    startNoodlesInterval();
   } else if (kitchenState.noodles.state === 'COOKING') {
     // Añadir más fideos hasta un máximo de 4 (+1s cada uno)
     if (kitchenState.noodles.portionsCooking < 4) {
@@ -4832,6 +4855,7 @@ function handleNoodlesBtnClick() {
     }
   } else if (kitchenState.noodles.state === 'READY') {
     // Recoger los fideos antes de que se quemen
+    stopNoodlesInterval();
     const portions = kitchenState.noodles.portionsCooking;
     kitchenState.stocks.noodles += portions;
     playSound('stock_add');
@@ -4850,71 +4874,75 @@ function handleNoodlesBtnClick() {
   }
 }
 
-function initNoodlesLoop() {
-  if (kitchenState.noodles.intervalId) clearInterval(kitchenState.noodles.intervalId);
-  kitchenState.noodles.intervalId = setInterval(() => {
-    if (gameState.isPaused || gameState.isGameOver) return;
+function noodleTick() {
+  if (gameState.isPaused || gameState.isGameOver) return;
 
-    const btn = document.getElementById('btn-cook-noodles');
-    const fillEl = document.getElementById('noodles-fill');
-    const statusEl = document.getElementById('noodles-status');
+  const btn = document.getElementById('btn-cook-noodles');
+  const fillEl = document.getElementById('noodles-fill');
+  const statusEl = document.getElementById('noodles-status');
 
-    if (kitchenState.noodles.state === 'COOKING') {
-      kitchenState.noodles.cookTimeRemaining -= 0.1;
-      const fillPct = Math.min(100, Math.max(0, (1 - kitchenState.noodles.cookTimeRemaining / kitchenState.noodles.totalCookTime) * 100));
-      if (fillEl) fillEl.style.width = `${fillPct}%`;
+  if (kitchenState.noodles.state === 'COOKING') {
+    kitchenState.noodles.cookTimeRemaining -= 0.1;
+    const fillPct = Math.min(100, Math.max(0, (1 - kitchenState.noodles.cookTimeRemaining / kitchenState.noodles.totalCookTime) * 100));
+    if (fillEl) fillEl.style.width = `${fillPct}%`;
 
-      const secLeft = Math.ceil(Math.max(0, kitchenState.noodles.cookTimeRemaining));
-      if (statusEl) {
-        statusEl.textContent = `Cociendo (${kitchenState.noodles.portionsCooking}x) ${secLeft}s ⏳`;
-      }
+    const secLeft = Math.ceil(Math.max(0, kitchenState.noodles.cookTimeRemaining));
+    if (statusEl) {
+      statusEl.textContent = `Cociendo (${kitchenState.noodles.portionsCooking}x) ${secLeft}s ⏳`;
+    }
 
-      if (kitchenState.noodles.cookTimeRemaining <= 0) {
-        // Fideos listos: ventana de 5s para recoger
-        kitchenState.noodles.state = 'READY';
-        kitchenState.noodles.burnTimeRemaining = 5.0;
-        playSound('ding');
-        if (btn) {
-          btn.classList.remove('cooking-active');
-          btn.classList.add('noodle-ready-collect');
-        }
-      }
-    } else if (kitchenState.noodles.state === 'READY') {
-      kitchenState.noodles.burnTimeRemaining -= 0.1;
-      const fillPct = Math.max(0, (kitchenState.noodles.burnTimeRemaining / 5.0) * 100);
-      if (fillEl) fillEl.style.width = `${fillPct}%`;
-
-      if (statusEl) {
-        statusEl.innerHTML = `⚠️ ¡RECOGER! ${kitchenState.noodles.burnTimeRemaining.toFixed(1)}s`;
-      }
-
-      if (kitchenState.noodles.burnTimeRemaining <= 0) {
-        // Se pasaron los 5s: Fideos quemados y pérdida económica
-        kitchenState.noodles.state = 'BURNING';
-        const penalty = 10;
-        gameState.money = Math.max(0, (gameState.money || 0) - penalty);
-        updateHUD();
-        playSound('burn');
-        showStationToast(`💥 ¡Fideos quemados! Se dañaron (-S/ ${penalty})`);
-
-        if (btn) {
-          btn.classList.remove('noodle-ready-collect');
-          btn.classList.add('noodle-burnt');
-        }
-        if (statusEl) statusEl.textContent = `💥 ¡Quemado! (-S/${penalty})`;
-
-        setTimeout(() => {
-          if (btn) btn.classList.remove('noodle-burnt');
-          kitchenState.noodles.state = 'IDLE';
-          kitchenState.noodles.portionsCooking = 0;
-          kitchenState.noodles.cookTimeRemaining = 0;
-          kitchenState.noodles.burnTimeRemaining = 0;
-          if (fillEl) fillEl.style.width = '0%';
-          if (statusEl) statusEl.textContent = 'Toca para cocer';
-        }, 1300);
+    if (kitchenState.noodles.cookTimeRemaining <= 0) {
+      // Fideos listos: ventana de 5s para recoger
+      kitchenState.noodles.state = 'READY';
+      kitchenState.noodles.burnTimeRemaining = 5.0;
+      playSound('ding');
+      if (btn) {
+        btn.classList.remove('cooking-active');
+        btn.classList.add('noodle-ready-collect');
       }
     }
-  }, 100);
+  } else if (kitchenState.noodles.state === 'READY') {
+    kitchenState.noodles.burnTimeRemaining -= 0.1;
+    const fillPct = Math.max(0, (kitchenState.noodles.burnTimeRemaining / 5.0) * 100);
+    if (fillEl) fillEl.style.width = `${fillPct}%`;
+
+    if (statusEl) {
+      statusEl.innerHTML = `⚠️ ¡RECOGER! ${kitchenState.noodles.burnTimeRemaining.toFixed(1)}s`;
+    }
+
+    if (kitchenState.noodles.burnTimeRemaining <= 0) {
+      // Se pasaron los 5s: Fideos quemados y pérdida económica
+      stopNoodlesInterval();
+      kitchenState.noodles.state = 'BURNING';
+      const penalty = 10;
+      gameState.money = Math.max(0, (gameState.money || 0) - penalty);
+      updateHUD();
+      playSound('burn');
+      showStationToast(`💥 ¡Fideos quemados! Se dañaron (-S/ ${penalty})`);
+
+      if (btn) {
+        btn.classList.remove('noodle-ready-collect');
+        btn.classList.add('noodle-burnt');
+      }
+      if (statusEl) statusEl.textContent = `💥 ¡Quemado! (-S/${penalty})`;
+
+      setTimeout(() => {
+        if (btn) btn.classList.remove('noodle-burnt');
+        kitchenState.noodles.state = 'IDLE';
+        kitchenState.noodles.portionsCooking = 0;
+        kitchenState.noodles.cookTimeRemaining = 0;
+        kitchenState.noodles.burnTimeRemaining = 0;
+        if (fillEl) fillEl.style.width = '0%';
+        if (statusEl) statusEl.textContent = 'Toca para cocer';
+      }, 1300);
+    }
+  } else {
+    stopNoodlesInterval();
+  }
+}
+
+function initNoodlesLoop() {
+  stopNoodlesInterval();
 }
 
 function setupShioButton() {
@@ -5130,6 +5158,7 @@ function setupKitchenStations() {
 }
 
 function resetCookingStations() {
+  stopNoodlesInterval();
   kitchenState.stocks.noodles = 0;
   kitchenState.stocks.shio = 0;
   kitchenState.stocks.tonkotsu = 0;
@@ -5182,7 +5211,8 @@ function renderBowls() {
     const tagEl = document.getElementById(`bowl-tag-${i}`);
     if (!cardEl || !bowl) continue;
 
-    if (gameState.activeBowlIndex === i) {
+    const isActive = (gameState.activeBowlIndex === i);
+    if (isActive) {
       cardEl.classList.add("active");
       if (tagEl) tagEl.style.display = "block";
     } else {
@@ -5191,18 +5221,27 @@ function renderBowls() {
     }
 
     const analysis = analyzeBowl(i);
+    const bowlSig = `${i}_${bowl.ingredients.join(',')}_${analysis.status}_${analysis.recipe ? analysis.recipe.id : ''}_${isActive}`;
 
-    if (artEl) {
+    if (artEl && artEl._lastRenderedSig !== bowlSig) {
       artEl.innerHTML = generateBowlSVG(bowl, analysis);
+      artEl._lastRenderedSig = bowlSig;
     }
 
     if (analysis.status === "EMPTY") {
       bowl.matchedRamen = null;
-      if (badgeEl) badgeEl.textContent = "Vacío";
+      if (badgeEl && badgeEl._lastText !== "Vacío") {
+        badgeEl.textContent = "Vacío";
+        badgeEl._lastText = "Vacío";
+      }
       cardEl.onclick = () => selectBowl(i);
     } else if (analysis.status === "READY") {
       bowl.matchedRamen = analysis.recipe;
-      if (badgeEl) badgeEl.textContent = `¡Listo: ${analysis.recipe.name}!`;
+      const readyText = `¡Listo: ${analysis.recipe.name}!`;
+      if (badgeEl && badgeEl._lastText !== readyText) {
+        badgeEl.textContent = readyText;
+        badgeEl._lastText = readyText;
+      }
 
       cardEl.onclick = () => {
         if (gameState.activeBowlIndex !== i) {
@@ -5223,12 +5262,14 @@ function renderBowls() {
       };
     } else {
       bowl.matchedRamen = null;
-      if (badgeEl) badgeEl.textContent = `Armando (${bowl.ingredients.length})`;
+      const armandoText = `Armando (${bowl.ingredients.length})`;
+      if (badgeEl && badgeEl._lastText !== armandoText) {
+        badgeEl.textContent = armandoText;
+        badgeEl._lastText = armandoText;
+      }
       cardEl.onclick = () => selectBowl(i);
     }
   }
-
-  renderPantryGrid();
 }
 
 function shiftCustomersLeft() {
@@ -5243,12 +5284,11 @@ function shiftCustomersLeft() {
 function renderCustomers() {
   const container = document.getElementById("customers-container");
   if (!container) return;
-  container.innerHTML = "";
 
   let lowestPatience = 1.1;
   let mostUrgentIndex = -1;
   gameState.customerSlots.forEach((c, index) => {
-    if (c && c.orders.some(o => !o.served)) {
+    if (c && c.orders && c.orders.some(o => !o.served)) {
       const ratio = c.patience / c.maxPatience;
       if (ratio < lowestPatience) {
         lowestPatience = ratio;
@@ -5257,29 +5297,15 @@ function renderCustomers() {
     }
   });
 
+  const desiredIds = new Set();
+
   gameState.customerSlots.forEach((c, index) => {
     if (!c) return;
+    const cardId = `cust-slot-card-${index}`;
+    desiredIds.add(cardId);
 
     const pct = Math.max(0, Math.min(100, (c.patience / c.maxPatience) * 100));
     const isUrgent = (index === mostUrgentIndex && pct <= 40);
-
-    const card = document.createElement("div");
-    card.className = `customer-circle-card ${isUrgent ? "urgent" : ""}`;
-    card.title = `Toca para entregar ramen o ver detalle de ${c.name}`;
-
-    card.onclick = () => {
-      for (let bIdx = 0; bIdx < gameState.bowls.length; bIdx++) {
-        const bowl = gameState.bowls[bIdx];
-        if (bowl && bowl.matchedRamen) {
-          const matchIdx = c.orders.findIndex(o => !o.served && (o.recipe.id === bowl.matchedRamen.id || o.recipe.name === bowl.matchedRamen.name));
-          if (matchIdx !== -1) {
-            serveRamenToCustomer(index, matchIdx, bIdx);
-            return;
-          }
-        }
-      }
-      openCustomerOrderModal(index);
-    };
 
     const r = 16;
     const circ = 2 * Math.PI * r; // ≈ 100.53
@@ -5294,31 +5320,83 @@ function renderCustomers() {
       glowColor = "rgba(250, 204, 21, 0.5)";
     }
 
-    const ordersHtml = c.orders.map(o => {
-      const isThisReady = gameState.bowls.some(b => b && b.matchedRamen && (b.matchedRamen.id === o.recipe.id || b.matchedRamen.name === o.recipe.name));
-      if (o.served) return `<span class="cust-order-pill" style="background:#2e7d32; color:#fff;">✓ ${o.recipe.name}</span>`;
-      if (isThisReady) return `<span class="cust-order-pill ready-deliver">⚡ ${o.recipe.name}</span>`;
-      return `<span class="cust-order-pill">${o.recipe.name}</span>`;
-    }).join("");
+    let card = document.getElementById(cardId);
+    const custKey = `${c.name}_${c.spawnTime}`;
 
-    card.innerHTML = `
-      <div class="cust-portrait-box">
-        <svg class="cust-patience-ring-svg ${isUrgent ? 'urgent-ring' : ''}" viewBox="0 0 38 38">
-          <circle cx="19" cy="19" r="${r}" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="3.5" />
-          <circle cx="19" cy="19" r="${r}" fill="none" stroke="${strokeColor}" stroke-width="3.5"
-            stroke-dasharray="${circ}" stroke-dashoffset="${offset}" stroke-linecap="round"
-            style="filter: drop-shadow(0 0 3px ${glowColor}); transition: stroke-dashoffset 0.3s ease, stroke 0.3s ease;"
-            transform="rotate(-90 19 19)" />
-        </svg>
-        <div class="cust-face-circle">${c.avatar}</div>
-      </div>
-      <div class="cust-info-column">
-        <div class="cust-name-label">${c.name}</div>
-        <div class="cust-orders-wrap">${ordersHtml}</div>
-      </div>
-    `;
+    if (!card || card._custKey !== custKey) {
+      if (card) card.remove();
+      card = document.createElement("div");
+      card.id = cardId;
+      card._custKey = custKey;
+      card.className = `customer-circle-card ${isUrgent ? "urgent" : ""}`;
+      card.title = `Toca para entregar ramen o ver detalle de ${c.name}`;
 
-    container.appendChild(card);
+      card.onclick = () => {
+        for (let bIdx = 0; bIdx < gameState.bowls.length; bIdx++) {
+          const bowl = gameState.bowls[bIdx];
+          if (bowl && bowl.matchedRamen) {
+            const matchIdx = c.orders.findIndex(o => !o.served && (o.recipe.id === bowl.matchedRamen.id || o.recipe.name === bowl.matchedRamen.name));
+            if (matchIdx !== -1) {
+              serveRamenToCustomer(index, matchIdx, bIdx);
+              return;
+            }
+          }
+        }
+        openCustomerOrderModal(index);
+      };
+
+      card.innerHTML = `
+        <div class="cust-portrait-box">
+          <svg class="cust-patience-ring-svg ${isUrgent ? 'urgent-ring' : ''}" viewBox="0 0 38 38">
+            <circle cx="19" cy="19" r="${r}" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="3.5" />
+            <circle class="cust-patience-circle" cx="19" cy="19" r="${r}" fill="none" stroke="${strokeColor}" stroke-width="3.5"
+              stroke-dasharray="${circ}" stroke-dashoffset="${offset}" stroke-linecap="round"
+              style="filter: drop-shadow(0 0 3px ${glowColor}); transition: stroke-dashoffset 0.3s ease, stroke 0.3s ease;"
+              transform="rotate(-90 19 19)" />
+          </svg>
+          <div class="cust-face-circle">${c.avatar}</div>
+        </div>
+        <div class="cust-info-column">
+          <div class="cust-name-label">${c.name}</div>
+          <div class="cust-orders-wrap"></div>
+        </div>
+      `;
+      container.appendChild(card);
+    } else {
+      card.classList.toggle("urgent", isUrgent);
+      const ringSvg = card.querySelector(".cust-patience-ring-svg");
+      if (ringSvg) ringSvg.classList.toggle("urgent-ring", isUrgent);
+      const circleEl = card.querySelector(".cust-patience-circle");
+      if (circleEl) {
+        circleEl.setAttribute("stroke-dashoffset", offset);
+        circleEl.setAttribute("stroke", strokeColor);
+        circleEl.style.filter = `drop-shadow(0 0 3px ${glowColor})`;
+      }
+    }
+
+    const ordersWrap = card.querySelector(".cust-orders-wrap");
+    if (ordersWrap) {
+      const ordersSig = c.orders.map(o => {
+        const isReady = gameState.bowls.some(b => b && b.matchedRamen && (b.matchedRamen.id === o.recipe.id || b.matchedRamen.name === o.recipe.name));
+        return `${o.recipe.id}_${o.served}_${isReady}`;
+      }).join('|');
+
+      if (ordersWrap._lastOrdersSig !== ordersSig) {
+        ordersWrap._lastOrdersSig = ordersSig;
+        ordersWrap.innerHTML = c.orders.map(o => {
+          const isThisReady = gameState.bowls.some(b => b && b.matchedRamen && (b.matchedRamen.id === o.recipe.id || b.matchedRamen.name === o.recipe.name));
+          if (o.served) return `<span class="cust-order-pill" style="background:#2e7d32; color:#fff;">✓ ${o.recipe.name}</span>`;
+          if (isThisReady) return `<span class="cust-order-pill ready-deliver">⚡ ${o.recipe.name}</span>`;
+          return `<span class="cust-order-pill">${o.recipe.name}</span>`;
+        }).join("");
+      }
+    }
+  });
+
+  Array.from(container.children).forEach(child => {
+    if (!desiredIds.has(child.id)) {
+      child.remove();
+    }
   });
 }
 
@@ -5435,6 +5513,7 @@ function serveRamenToCustomer(customerIndex, itemIndex, bowlIndex) {
 function selectBowl(index) {
   gameState.activeBowlIndex = index;
   renderBowls();
+  renderPantryGrid();
 }
 
 function toggleIngredientInBowl(ingId) {
@@ -9813,7 +9892,11 @@ function renderAdminSessionsView() {
   }).join('');
 }
 
+let isGameUIBooted = false;
 function bootGameUI() {
+  if (isGameUIBooted) return;
+  isGameUIBooted = true;
+
   const startScr = document.getElementById("start-screen");
   if (startScr) {
     startScr.classList.remove("hidden");
@@ -9835,11 +9918,12 @@ function bootGameUI() {
   resetCookingStations();
 }
 
-// Ejecución instantánea sin esperar scripts de red ni eventos diferidos
+// Ejecución instantánea y única sin duplicados
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', bootGameUI);
+} else {
+  bootGameUI();
 }
-bootGameUI();
 </script>
 </body>
 </html>

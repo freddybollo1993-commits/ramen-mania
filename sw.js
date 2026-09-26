@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ramen-mania-v9';
+const CACHE_NAME = 'ramen-mania-v10';
 
 // Solo el shell esencial para instalación instantánea (< 50ms)
 const CORE_SHELL = [
@@ -43,6 +43,7 @@ self.addEventListener('activate', event => {
       // 3. Pre-cachea fondo e iconos en segundo plano SIN bloquear la app ni la instalación
       caches.open(CACHE_NAME).then(cache => {
         const bgAssets = [
+          './assets/ramen_bg.webp',
           './assets/ramen_bg.jpg',
           './assets/icons/icon-192.png',
           './assets/icons/favicon-32x32.png',
