@@ -18,12 +18,10 @@
 <title>Ramen Mania - Edición Horizontal Arcade</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-<!-- SUPABASE JS SDK (DEFER) -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-<!-- THREE.JS & ORBITCONTROLS PARA SECRETOS DEL CHEF 3D (DEFER) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js" defer></script>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap"></noscript>
+<!-- SUPABASE JS SDK (ASYNC - NO BLOQUEA EL ARRANQUE DEL DOM) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" async></script>
 <style>
   :root {
     --bg-dark: #190e0c;
@@ -3263,6 +3261,7 @@ const SUPABASE_CONFIG = {
 
 let supabaseClient = null;
 function initSupabase() {
+  if (supabaseClient) return supabaseClient;
   try {
     if (window.supabase && SUPABASE_CONFIG.url && SUPABASE_CONFIG.url !== "https://TU_PROYECTO.supabase.co") {
       supabaseClient = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
@@ -3270,7 +3269,12 @@ function initSupabase() {
   } catch (err) {
     console.warn("Supabase no configurado:", err);
   }
+  return supabaseClient;
 }
+
+window.addEventListener('load', () => {
+  if (!supabaseClient) initSupabase();
+});
 
 /* ==========================================================================
    ALMACENAMIENTO SEGURO Y COMPATIBILIDAD
@@ -3306,46 +3310,19 @@ const DeviceManager = {
   currentPlayer: null,
   isInitialized: false,
 
-  // Genera huella técnica única a partir del hardware y entorno del navegador
-  async generateFingerprint() {
-    const parts = [];
-    parts.push(navigator.userAgent || "");
-    parts.push(navigator.platform || "");
-    parts.push(navigator.language || "");
-    parts.push(navigator.hardwareConcurrency || "4");
-    parts.push(navigator.deviceMemory || "4");
-    parts.push(screen.width + "x" + screen.height + "x" + (screen.colorDepth || 24));
-    parts.push(window.devicePixelRatio || 1);
-    
+  // Genera huella técnica única instantánea (0ms, sin tocar GPU ni Canvas)
+  generateFingerprint() {
+    const parts = [
+      navigator.userAgent || "",
+      navigator.platform || "",
+      navigator.language || "",
+      navigator.hardwareConcurrency || "4",
+      navigator.deviceMemory || "4",
+      `${screen.width}x${screen.height}x${screen.colorDepth || 24}`,
+      window.devicePixelRatio || 1
+    ];
     try {
       parts.push(Intl.DateTimeFormat().resolvedOptions().timeZone || "");
-    } catch(e) {}
-
-    // Canvas 2D fingerprint
-    try {
-      const c = document.createElement("canvas");
-      c.width = 160; c.height = 40;
-      const ctx = c.getContext("2d");
-      if (ctx) {
-        ctx.fillStyle = "#ffb300";
-        ctx.fillRect(0, 0, 160, 40);
-        ctx.fillStyle = "#b71c1c";
-        ctx.font = "14px sans-serif";
-        ctx.fillText("RAMEN-MANIA-DEV", 5, 25);
-        parts.push(c.toDataURL());
-      }
-    } catch(e) {}
-
-    // WebGL GPU Renderer
-    try {
-      const glCanvas = document.createElement("canvas");
-      const gl = glCanvas.getContext("webgl") || glCanvas.getContext("experimental-webgl");
-      if (gl) {
-        const dbg = gl.getExtension("WEBGL_debug_renderer_info");
-        if (dbg) {
-          parts.push(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) || "");
-        }
-      }
     } catch(e) {}
 
     const raw = parts.join("|||");
@@ -3354,8 +3331,7 @@ const DeviceManager = {
       hash = ((hash << 5) - hash) + raw.charCodeAt(i);
       hash |= 0;
     }
-    const hex = Math.abs(hash).toString(16).toUpperCase().padStart(8, '0');
-    return hex;
+    return Math.abs(hash).toString(16).toUpperCase().padStart(8, '0');
   },
 
   // Genera o recupera el token persistente de dispositivo
@@ -3398,11 +3374,11 @@ const DeviceManager = {
   },
 
   // Inicializa el sistema de dispositivo y busca la cuenta vinculada (0ms de bloqueo)
-  async init() {
+  init() {
     try {
       let cachedFp = safeStorage.getItem("ramen_device_fingerprint");
       if (!cachedFp) {
-        cachedFp = await this.generateFingerprint();
+        cachedFp = this.generateFingerprint();
         safeStorage.setItem("ramen_device_fingerprint", cachedFp);
       }
       this.deviceFingerprint = cachedFp;
@@ -6385,10 +6361,23 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js')
     .then(reg => {
       console.log('[PWA] Service Worker registrado correctamente:', reg.scope);
+      if (reg) reg.update().catch(() => {});
     })
     .catch(err => {
       console.warn('[PWA] No se pudo registrar el Service Worker:', err);
     });
+
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!refreshing) {
+      refreshing = true;
+      const startScr = document.getElementById("start-screen");
+      if (startScr && !startScr.classList.contains("hidden")) {
+        console.log('[PWA] Nueva versión ultrarrápida activada, recargando...');
+        window.location.reload();
+      }
+    }
+  });
 }
 
 function togglePause() {
@@ -7198,10 +7187,43 @@ let tamagoPedestalGroup = null;
 let tamagoAnimId = null;
 let tamagoAutoRotate = true;
 let tamagoInitialized = false;
+let threeLoadingPromise = null;
 
-function initOrResumeTamago3D(item) {
+function ensureThreeLoaded() {
+  if (window.THREE && window.THREE.OrbitControls) {
+    return Promise.resolve();
+  }
+  if (threeLoadingPromise) return threeLoadingPromise;
+
+  threeLoadingPromise = new Promise((resolve, reject) => {
+    const s1 = document.createElement('script');
+    s1.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+    s1.onload = () => {
+      const s2 = document.createElement('script');
+      s2.src = 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js';
+      s2.onload = resolve;
+      s2.onerror = reject;
+      document.head.appendChild(s2);
+    };
+    s1.onerror = reject;
+    document.head.appendChild(s1);
+  });
+  return threeLoadingPromise;
+}
+
+async function initOrResumeTamago3D(item) {
   const container = document.getElementById("tamago-3d-canvas-container");
   if (!container) return;
+
+  if (!window.THREE || !window.THREE.OrbitControls) {
+    container.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;height:100%;color:#ffb300;font-weight:700;font-size:14px;">⏳ Preparando visualizador 3D...</div>';
+    try {
+      await ensureThreeLoaded();
+    } catch(e) {
+      container.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;height:100%;color:#ef5350;font-weight:700;font-size:13px;">⚠️ Requiere conexión para descargar el motor 3D</div>';
+      return;
+    }
+  }
 
   if (!tamagoInitialized) {
     setupTamagoScene(container, item);
@@ -8215,6 +8237,12 @@ function checkOrientation() {
   const overlay = document.getElementById('rotate-device-overlay');
   if (!overlay) return;
 
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  if (isStandalone && window.innerWidth >= window.innerHeight) {
+    overlay.style.display = 'none';
+    return;
+  }
+
   const isPortrait = window.innerHeight > window.innerWidth;
   const isSmallScreen = Math.min(window.innerWidth, window.innerHeight) < 750;
 
@@ -8934,7 +8962,7 @@ function renderAdminSessionsView() {
   }).join('');
 }
 
-window.addEventListener("DOMContentLoaded", () => {
+function bootGameUI() {
   const startScr = document.getElementById("start-screen");
   if (startScr) {
     startScr.classList.remove("hidden");
@@ -8949,7 +8977,13 @@ window.addEventListener("DOMContentLoaded", () => {
   setStartSelectedMode('NORMAL');
   setupKitchenStations();
   resetCookingStations();
-});
+}
+
+// Ejecución instantánea sin esperar scripts de red ni eventos diferidos
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', bootGameUI);
+}
+bootGameUI();
 </script>
 </body>
 </html>
