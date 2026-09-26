@@ -1623,7 +1623,7 @@
     width: 100vw;
     height: 100vh;
     z-index: 99990;
-    pointer-events: none;
+    pointer-events: auto;
     display: none;
     opacity: 0;
     transition: opacity 0.2s ease;
@@ -1639,7 +1639,8 @@
     border-radius: 10px;
     border: 2.5px solid #00e5ff;
     box-shadow: 0 0 16px rgba(0, 229, 255, 0.85), 0 0 0 9999px rgba(0, 0, 0, 0.42);
-    pointer-events: none;
+    pointer-events: auto;
+    cursor: pointer;
     transition: all 0.22s cubic-bezier(0.25, 1, 0.5, 1);
     z-index: 99991;
     animation: spotlightPulse 1.8s infinite alternate ease-in-out;
@@ -3589,6 +3590,7 @@
       <div class="tutorial-card-actions">
         <button class="tutorial-btn-nav" id="tutorial-btn-prev" onclick="TutorialManager.prev()">◀ Ant.</button>
         <button class="tutorial-btn-nav tutorial-btn-primary" id="tutorial-btn-next" onclick="TutorialManager.next()">Sig. ▶</button>
+        <button class="tutorial-btn-skip" id="tutorial-btn-kitchen" onclick="TutorialManager.jumpToKitchen()" title="Ir directo a la cocina interactiva">🍳 Cocina</button>
         <button class="tutorial-btn-skip" onclick="TutorialManager.skip()" title="Saltar tutorial y desbloquear">⏩ Saltar</button>
         <button class="tutorial-btn-exit" onclick="TutorialManager.stop()" title="Salir del tutorial">✕</button>
       </div>
@@ -5711,7 +5713,7 @@ function spawnCustomer() {
 }
 
 function gameTick() {
-  if (gameState.isPaused || gameState.isGameOver) return;
+  if (gameState.isPaused || gameState.isGameOver || (typeof TutorialManager !== 'undefined' && TutorialManager.isActive)) return;
 
   if (gameState.gameMode === 'NORMAL') {
     gameState.timeLeft--;
@@ -6130,6 +6132,10 @@ function setStartSelectedMode(mode) {
 
 function handleTutorialCardClick() {
   setStartSelectedMode('TUTORIAL');
+  if (TutorialManager.isActive) {
+    TutorialManager.jumpToKitchen();
+    return;
+  }
   TutorialManager.start();
 }
 
@@ -6275,21 +6281,82 @@ const TUTORIAL_DATA = [
 const TutorialManager = {
   currentStep: 0,
   isActive: false,
+  _listenersAttached: false,
 
   start() {
     this.isActive = true;
     this.currentStep = 0;
     const overlay = document.getElementById("tutorial-overlay");
     if (overlay) overlay.classList.add("active");
+    this.attachOverlayListeners();
     this.renderStep(0);
     window.addEventListener("resize", this._onResize);
     window.addEventListener("orientationchange", this._onResize);
+    const startScr = document.getElementById("start-screen");
+    if (startScr) {
+      startScr.addEventListener("scroll", this._onScroll);
+    }
+  },
+
+  attachOverlayListeners() {
+    if (this._listenersAttached) return;
+    this._listenersAttached = true;
+
+    const overlay = document.getElementById("tutorial-overlay");
+    const spotlight = document.getElementById("tutorial-spotlight-box");
+
+    if (overlay) {
+      overlay.addEventListener("click", (e) => {
+        // Tocar el fondo oscuro fuera de la tarjeta avanza de forma fluida
+        if (!e.target.closest("#tutorial-card") && !e.target.closest("#tutorial-spotlight-box")) {
+          TutorialManager.next();
+        }
+      });
+    }
+
+    if (spotlight) {
+      spotlight.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const step = TUTORIAL_DATA[TutorialManager.currentStep];
+        if (!step) {
+          TutorialManager.next();
+          return;
+        }
+
+        // Si el objetivo es el botón Jugar / Iniciar Tutorial, ir directo a la cocina
+        if (step.targetId === 'btn-start-play') {
+          TutorialManager.jumpToKitchen();
+          return;
+        }
+
+        // Si es una estación o cuenco interactivo, accionar su click
+        const target = document.getElementById(step.targetId);
+        if (target && (step.targetId === 'btn-cook-noodles' || step.targetId === 'btn-heat-shio' || step.targetId === 'btn-flame-chasu' || step.targetId === 'bowl-card-0')) {
+          try {
+            target.click();
+          } catch(err) {}
+        } else {
+          TutorialManager.next();
+        }
+      });
+    }
   },
 
   _onResize() {
     if (TutorialManager.isActive) {
       TutorialManager.updatePosition();
     }
+  },
+
+  _onScroll() {
+    if (TutorialManager.isActive) {
+      TutorialManager.updatePosition();
+    }
+  },
+
+  jumpToKitchen() {
+    try { playSound('add'); } catch(e) {}
+    this.renderStep(5);
   },
 
   renderStep(index) {
@@ -6326,6 +6393,7 @@ const TutorialManager = {
     const bodyEl = document.getElementById("tutorial-body");
     const prevBtn = document.getElementById("tutorial-btn-prev");
     const nextBtn = document.getElementById("tutorial-btn-next");
+    const kitchenBtn = document.getElementById("tutorial-btn-kitchen");
 
     if (badgeEl) {
       badgeEl.textContent = `FASE ${step.phase}`;
@@ -6343,6 +6411,9 @@ const TutorialManager = {
     if (prevBtn) {
       prevBtn.style.display = index === 0 ? "none" : "inline-flex";
     }
+    if (kitchenBtn) {
+      kitchenBtn.style.display = (step.screen === 'START') ? "inline-flex" : "none";
+    }
     if (nextBtn) {
       if (index === TUTORIAL_DATA.length - 1) {
         nextBtn.innerHTML = "🎓 Fin";
@@ -6358,6 +6429,14 @@ const TutorialManager = {
     if (fillEl) {
       const pct = Math.round(((index + 1) / TUTORIAL_DATA.length) * 100);
       fillEl.style.width = `${pct}%`;
+    }
+
+    // Scroll suave en pantalla de inicio si el elemento está fuera de vista
+    if (step.screen === 'START') {
+      const target = document.getElementById(step.targetId);
+      if (target) {
+        try { target.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch(e) {}
+      }
     }
 
     // Posicionar foco y anclaje
@@ -6450,11 +6529,15 @@ const TutorialManager = {
     if (overlay) overlay.classList.remove("active");
     window.removeEventListener("resize", this._onResize);
     window.removeEventListener("orientationchange", this._onResize);
+    const startScr = document.getElementById("start-screen");
+    if (startScr) {
+      startScr.removeEventListener("scroll", this._onScroll);
+    }
     returnToStartMenu();
   },
 
   ensureDemoKitchen() {
-    gameState.isPaused = true;
+    gameState.isPaused = false;
     gameState.isGameOver = false;
     gameState.money = 0;
     gameState.activeBowlIndex = 0;
@@ -6481,6 +6564,7 @@ const TutorialManager = {
     }
     initRecipeTable();
     renderPantryGrid();
+    setupKitchenStations();
     resetCookingStations();
     renderBowls();
     renderCustomers();
@@ -6639,6 +6723,10 @@ function handleStartPlayClick() {
   }
 
   if (startSelectedMode === 'TUTORIAL') {
+    if (TutorialManager.isActive) {
+      TutorialManager.jumpToKitchen();
+      return;
+    }
     TutorialManager.start();
     return;
   }
@@ -7338,15 +7426,27 @@ function handlePwaInstallClick() {
   }
 }
 
-// Registro limpio del Service Worker (arranque silencioso y fluido)
+// Registro limpio del Service Worker (arranque silencioso y actualización automática)
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js')
     .then(reg => {
       console.log('[PWA] Service Worker registrado:', reg.scope);
+      // Forzar chequeo de actualización en cada apertura de la app instalada
+      if (reg.update) {
+        reg.update().catch(() => {});
+      }
     })
     .catch(err => {
       console.warn('[PWA] Error registrando Service Worker:', err);
     });
+
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!window._swRefreshed) {
+      window._swRefreshed = true;
+      console.log('[PWA] Nueva versión de Service Worker activa, recargando...');
+      window.location.reload();
+    }
+  });
 }
 
 function togglePause() {

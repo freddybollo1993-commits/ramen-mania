@@ -1,16 +1,17 @@
 {
   "cleanUrls": true,
+  "framework": null,
   "rewrites": [
     { "source": "/dashboard", "destination": "/dashboard.html" },
     { "source": "/admin", "destination": "/dashboard.html" }
   ],
   "headers": [
     {
-      "source": "/assets/(.*)",
+      "source": "/sw.js",
       "headers": [
         {
           "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
+          "value": "no-cache, no-store, must-revalidate, max-age=0"
         }
       ]
     },
@@ -19,16 +20,16 @@
       "headers": [
         {
           "key": "Cache-Control",
-          "value": "public, max-age=86400, stale-while-revalidate=604800"
+          "value": "no-cache, must-revalidate"
         }
       ]
     },
     {
-      "source": "/sw.js",
+      "source": "/assets/(.*)",
       "headers": [
         {
           "key": "Cache-Control",
-          "value": "no-cache, no-store, must-revalidate, max-age=0"
+          "value": "public, max-age=31536000, immutable"
         }
       ]
     },

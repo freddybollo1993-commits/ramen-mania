@@ -1,8 +1,9 @@
-const CACHE_NAME = 'ramen-mania-v10';
+const CACHE_NAME = 'ramen-mania-v11';
 
 // Solo el shell esencial para instalación instantánea (< 50ms)
 const CORE_SHELL = [
   './',
+  './index.html',
   './manifest.json'
 ];
 
@@ -10,7 +11,6 @@ self.addEventListener('install', event => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then(async cache => {
-      // Guarda únicamente HTML y Manifest en < 50ms para que la app quede instalada al instante
       for (const url of CORE_SHELL) {
         try {
           const res = await fetch(url);
@@ -18,7 +18,6 @@ self.addEventListener('install', event => {
             await cache.put(url, res.clone());
             if (url === './') {
               await cache.put('/', res.clone());
-              await cache.put('./index.html', res.clone());
               await cache.put('/index.html', res.clone());
             }
           }
@@ -33,14 +32,14 @@ self.addEventListener('install', event => {
 self.addEventListener('activate', event => {
   event.waitUntil(
     (async () => {
-      // 1. Elimina versiones anteriores de caché
+      // 1. Elimina versiones anteriores de caché de inmediato
       const keys = await caches.keys();
       await Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)));
 
-      // 2. Reclama clientes inmediatamente
+      // 2. Reclama clientes inmediatamente para activar cambios sin reiniciar
       await self.clients.claim();
 
-      // 3. Pre-cachea fondo e iconos en segundo plano SIN bloquear la app ni la instalación
+      // 3. Pre-cachea fondo e iconos en segundo plano
       caches.open(CACHE_NAME).then(cache => {
         const bgAssets = [
           './assets/ramen_bg.webp',
@@ -70,45 +69,38 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // 1. NAVEGACIÓN (APERTURA DE LA APP INSTALADA / HTML):
-  // Si está en caché, responde INMEDIATAMENTE (0 milisegundos de espera)
+  // 1. NAVEGACIÓN (HTML / APERTURA DE LA APP INSTALADA):
+  // NETWORK-FIRST con timeout de 1200ms para garantizar que la app siempre cargue la versión más reciente
   if (req.mode === 'navigate' || (req.headers.get('accept') && req.headers.get('accept').includes('text/html'))) {
     event.respondWith(
       (async () => {
-        const cache = await caches.open(CACHE_NAME);
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 1200);
+          const networkRes = await fetch(req, { signal: controller.signal });
+          clearTimeout(timeoutId);
+          if (networkRes && networkRes.ok) {
+            const cache = await caches.open(CACHE_NAME);
+            cache.put('/', networkRes.clone());
+            cache.put('./', networkRes.clone());
+            cache.put('/index.html', networkRes.clone());
+            cache.put('./index.html', networkRes.clone());
+            return networkRes;
+          }
+        } catch (e) {
+          // Si no hay red o hubo timeout, usa la caché
+        }
 
-        // Buscar en caché local ignorando parámetros de búsqueda (?utm_source, etc.)
+        const cache = await caches.open(CACHE_NAME);
         const cached = (await cache.match(req, { ignoreSearch: true }))
           || (await cache.match('/', { ignoreSearch: true }))
           || (await cache.match('./', { ignoreSearch: true }))
           || (await cache.match('/index.html', { ignoreSearch: true }))
           || (await cache.match('./index.html', { ignoreSearch: true }));
 
-        if (cached) {
-          // Revalidación silenciosa en background sin frenar la apertura de la app
-          fetch(req).then(networkRes => {
-            if (networkRes && networkRes.ok) {
-              cache.put('/', networkRes.clone());
-              cache.put('./', networkRes.clone());
-              cache.put('/index.html', networkRes.clone());
-              cache.put('./index.html', networkRes.clone());
-            }
-          }).catch(() => {});
-          return cached;
-        }
+        if (cached) return cached;
 
-        // Si no estaba en caché, buscar en la red
-        try {
-          const networkRes = await fetch(req);
-          if (networkRes && networkRes.ok) {
-            const clone = networkRes.clone();
-            cache.put('/', clone.clone());
-            cache.put('./', clone.clone());
-          }
-          return networkRes;
-        } catch (e) {
-          return new Response('Ramen Mania Fuera de Línea', { status: 503, headers: { 'Content-Type': 'text/plain' } });
-        }
+        return new Response('Ramen Mania Fuera de Línea', { status: 503, headers: { 'Content-Type': 'text/plain' } });
       })()
     );
     return;
