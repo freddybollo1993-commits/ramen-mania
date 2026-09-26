@@ -1654,16 +1654,18 @@
     position: absolute;
     z-index: 99995;
     pointer-events: auto;
-    width: 90%;
-    max-width: 440px;
+    width: 92%;
+    max-width: 420px;
+    max-height: 86vh;
     background: linear-gradient(145deg, #1f110e, #120705);
     border: 2px solid #ffb300;
-    border-radius: 16px;
-    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.85), 0 0 18px rgba(255, 179, 0, 0.3);
-    padding: 12px 16px;
+    border-radius: 14px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.9), 0 0 16px rgba(255, 179, 0, 0.35);
+    padding: 8px 12px;
     color: #fff;
-    transition: top 0.22s ease, left 0.22s ease;
+    transition: top 0.16s ease, left 0.16s ease;
     animation: cardAppear 0.2s ease-out;
+    box-sizing: border-box;
   }
   @keyframes cardAppear {
     from { opacity: 0; transform: scale(0.96); }
@@ -1673,13 +1675,13 @@
   .tutorial-phase-badge {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
     background: #00e5ff;
     color: #002b36;
-    font-size: 9.5px;
+    font-size: 9px;
     font-weight: 900;
     letter-spacing: 0.5px;
-    padding: 3px 9px;
+    padding: 2px 8px;
     border-radius: 20px;
     text-transform: uppercase;
   }
@@ -1691,32 +1693,32 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
   }
   .tutorial-step-counter {
-    font-size: 11px;
+    font-size: 10.5px;
     font-weight: 800;
     color: #ffd54f;
   }
 
   .tutorial-title {
     font-family: 'Fredoka One', cursive;
-    font-size: 16px;
+    font-size: 14.5px;
     color: var(--ramen-gold);
-    margin-bottom: 6px;
+    margin-bottom: 4px;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
   }
 
   .tutorial-body {
-    font-size: 12px;
-    line-height: 1.4;
+    font-size: 11px;
+    line-height: 1.35;
     color: #efebe9;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
   }
   .tutorial-body p {
-    margin: 3px 0;
+    margin: 2px 0;
   }
   .tutorial-body b {
     color: #ffca28;
@@ -1725,11 +1727,11 @@
   .tutorial-tip-box {
     background: rgba(255, 179, 0, 0.12);
     border-left: 3px solid #ffb300;
-    padding: 4px 8px;
+    padding: 3px 6px;
     border-radius: 4px;
     color: #ffe082;
-    font-size: 11px;
-    margin-bottom: 8px;
+    font-size: 10.5px;
+    margin-bottom: 6px;
     font-weight: 600;
   }
 
@@ -1738,15 +1740,16 @@
     justify-content: space-between;
     align-items: center;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
-    padding-top: 8px;
+    padding-top: 6px;
+    gap: 6px;
   }
   .tutorial-btn-nav {
     background: #3e2723;
     border: 1px solid #795548;
     color: #fff;
-    padding: 5px 12px;
+    padding: 4px 10px;
     border-radius: 8px;
-    font-size: 11.5px;
+    font-size: 11px;
     font-weight: 800;
     cursor: pointer;
     transition: all 0.12s ease;
@@ -1766,34 +1769,35 @@
     box-shadow: 0 4px 12px rgba(0, 145, 234, 0.6);
   }
   .tutorial-btn-skip {
-    background: transparent;
-    border: none;
-    color: #a1887f;
-    font-size: 11px;
+    background: rgba(255, 179, 0, 0.15);
+    border: 1px solid rgba(255, 179, 0, 0.4);
+    color: #ffe082;
+    font-size: 10px;
+    font-weight: 800;
     cursor: pointer;
-    text-decoration: underline;
-    padding: 4px 6px;
+    padding: 4px 8px;
+    border-radius: 8px;
+    transition: all 0.12s ease;
   }
   .tutorial-btn-skip:hover {
-    color: #ffcc80;
+    background: rgba(255, 179, 0, 0.3);
+    color: #fff;
   }
 
-  .tutorial-dots {
-    display: flex;
-    gap: 4px;
-    align-items: center;
-  }
-  .tutorial-dot {
-    width: 6px;
+  .tutorial-progress-track {
+    flex: 1;
+    max-width: 80px;
     height: 6px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.25);
-    transition: all 0.2s ease;
-  }
-  .tutorial-dot.active {
-    width: 14px;
+    background: rgba(255, 255, 255, 0.18);
     border-radius: 4px;
-    background: #00e5ff;
+    overflow: hidden;
+  }
+  .tutorial-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #00e5ff, #00e676);
+    width: 6%;
+    border-radius: 4px;
+    transition: width 0.2s ease;
   }
 
   /* Toast de aviso de modo bloqueado */
@@ -3519,9 +3523,12 @@
     <div class="tutorial-tip-box" id="tutorial-tip"></div>
     <div class="tutorial-footer">
       <button class="tutorial-btn-nav" id="tutorial-btn-prev" onclick="TutorialManager.prev()">◀ Ant.</button>
-      <div class="tutorial-dots" id="tutorial-dots"></div>
+      <div class="tutorial-progress-track">
+        <div class="tutorial-progress-fill" id="tutorial-progress-fill"></div>
+      </div>
       <button class="tutorial-btn-nav tutorial-btn-primary" id="tutorial-btn-next" onclick="TutorialManager.next()">Sig. ▶</button>
-      <button class="tutorial-btn-skip" onclick="TutorialManager.stop()" title="Salir del tutorial">✕ Salir</button>
+      <button class="tutorial-btn-skip" onclick="TutorialManager.skip()" title="Saltar tutorial y desbloquear">⏩ Saltar</button>
+      <button class="tutorial-btn-nav" onclick="TutorialManager.stop()" style="background:#261310; padding:4px 8px;" title="Salir al menú principal">✕ Salir</button>
     </div>
   </div>
 </div>
@@ -3556,8 +3563,9 @@
 
 <!-- TOAST DE MODO BLOQUEADO (REQUIERE TUTORIAL) -->
 <div id="mode-locked-toast">
-  <span style="font-size: 18px;">🔒</span>
+  <span style="font-size: 16px;">🔒</span>
   <span id="mode-locked-toast-text">Completa primero el Modo Tutorial para desbloquear el Modo Normal y Rash.</span>
+  <button onclick="TutorialManager.skip();" style="background:#ffca28; color:#1b0a07; border:none; padding:4px 10px; border-radius:12px; font-weight:900; font-size:11px; cursor:pointer; margin-left:8px; box-shadow:0 2px 6px rgba(0,0,0,0.4);" title="Saltar tutorial si ya sabes jugar">⏩ Desbloquear</button>
 </div>
 
 <script>
@@ -3629,6 +3637,22 @@ const safeStorage = {
       }
     } catch(e) {}
     this._mem[key] = String(val);
+  },
+  removeItem: function(key) {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.removeItem(key);
+      }
+    } catch(e) {}
+    delete this._mem[key];
+  },
+  clear: function() {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.clear();
+      }
+    } catch(e) {}
+    this._mem = {};
   }
 };
 
@@ -5930,6 +5954,26 @@ function updateStartModesDisplay() {
       }
     }
   }
+
+  const btnPlay = document.getElementById("btn-start-play");
+  if (btnPlay) {
+    if (startSelectedMode === 'TUTORIAL') {
+      btnPlay.innerHTML = '<span style="font-size: 22px;">🎓</span><span>INICIAR TUTORIAL</span>';
+      btnPlay.style.background = "linear-gradient(135deg, #00b0ff 0%, #0091ea 60%, #01579b 100%)";
+      btnPlay.style.borderColor = "#80d8ff";
+      btnPlay.style.boxShadow = "0 5px 0 #002f6c, 0 0 20px rgba(0, 176, 255, 0.6)";
+    } else if (startSelectedMode === 'RASH') {
+      btnPlay.innerHTML = '<span style="font-size: 22px;">⚡</span><span>JUGAR RASH</span>';
+      btnPlay.style.background = "linear-gradient(135deg, #ff9800 0%, #e65100 60%, #bf360c 100%)";
+      btnPlay.style.borderColor = "#ffe082";
+      btnPlay.style.boxShadow = "0 5px 0 #4e1900, 0 0 20px rgba(255, 152, 0, 0.6)";
+    } else {
+      btnPlay.innerHTML = '<span style="font-size: 22px;">▶️</span><span>JUGAR CAMPAÑA</span>';
+      btnPlay.style.background = "linear-gradient(135deg, #ff9800 0%, #d32f2f 60%, #b71c1c 100%)";
+      btnPlay.style.borderColor = "#ffe082";
+      btnPlay.style.boxShadow = "0 5px 0 #5f0000, 0 0 20px rgba(255, 152, 0, 0.6)";
+    }
+  }
 }
 
 function setStartSelectedMode(mode) {
@@ -6199,11 +6243,11 @@ const TutorialManager = {
       }
     }
 
-    // Renderizar indicadores (dots)
-    if (dotsEl) {
-      dotsEl.innerHTML = TUTORIAL_DATA.map((_, i) =>
-        `<div class="tutorial-dot ${i === index ? 'active' : ''}"></div>`
-      ).join('');
+    // Actualizar barra de progreso continua
+    const fillEl = document.getElementById("tutorial-progress-fill");
+    if (fillEl) {
+      const pct = Math.round(((index + 1) / TUTORIAL_DATA.length) * 100);
+      fillEl.style.width = `${pct}%`;
     }
 
     // Posicionar el foco y la tarjeta
@@ -6241,35 +6285,34 @@ const TutorialManager = {
     if (!card) return;
     const vw = window.innerWidth;
     const vh = window.innerHeight;
-    const pad = 12;
+    const pad = 8;
     const cardRect = card.getBoundingClientRect();
-    const cW = cardRect.width || 420;
-    const cH = cardRect.height || 210;
+    const cW = cardRect.width || 380;
+    const cH = cardRect.height || 180;
 
     let left = (vw - cW) / 2;
     let top = (vh - cH) / 2;
 
     if (targetRect) {
       left = targetRect.left + (targetRect.width / 2) - (cW / 2);
-      left = Math.max(pad, Math.min(vw - cW - pad, left));
-
-      if (targetRect.top - cH - pad >= 10) {
-        top = targetRect.top - cH - pad;
-      } else if (targetRect.bottom + cH + pad <= vh - 10) {
+      if (targetRect.top + (targetRect.height / 2) < vh / 2) {
         top = targetRect.bottom + pad;
-      } else if (targetRect.right + cW + pad <= vw - 10) {
-        left = targetRect.right + pad;
-        top = Math.max(pad, Math.min(vh - cH - pad, targetRect.top));
-      } else if (targetRect.left - cW - pad >= 10) {
-        left = targetRect.left - cW - pad;
-        top = Math.max(pad, Math.min(vh - cH - pad, targetRect.top));
       } else {
-        top = Math.max(pad, vh - cH - pad);
+        top = targetRect.top - cH - pad;
       }
     }
 
+    top = Math.max(pad, Math.min(vh - cH - pad, top));
+    left = Math.max(pad, Math.min(vw - cW - pad, left));
+
     card.style.top = `${Math.round(top)}px`;
     card.style.left = `${Math.round(left)}px`;
+  },
+
+  skip() {
+    const toast = document.getElementById("mode-locked-toast");
+    if (toast) toast.classList.remove("show");
+    this.complete();
   },
 
   next() {
@@ -6301,21 +6344,24 @@ const TutorialManager = {
       { ingredients: [], matchedRamen: null },
       { ingredients: [], matchedRamen: null }
     ];
+    const shioRecipe = RECETAS_RAMEN.find(r => r.name.toLowerCase().includes("shio")) || RECETAS_RAMEN[0];
     if (!gameState.customerSlots[0]) {
       gameState.customerSlots = [
         {
           name: "Kenji",
           avatar: "👨‍🍳",
-          order: "Ramen Shio",
+          orders: [{ recipe: shioRecipe, served: false }],
           patience: 100,
           maxPatience: 100,
-          requiredIngredients: ["fideos", "caldo_shio", "salsa_soya", "naruto", "huevo_duro"]
+          spawnTime: Date.now()
         },
         null,
         null,
         null
       ];
     }
+    initRecipeTable();
+    renderPantryGrid();
     resetCookingStations();
     renderBowls();
     renderCustomers();
