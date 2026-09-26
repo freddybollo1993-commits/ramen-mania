@@ -1298,7 +1298,7 @@
   }
 
   /* ==========================================================================
-     PANTALLA DE INICIO (START / TITLE SCREEN)
+     PANTALLA DE INICIO (START / TITLE SCREEN) - NEO-TOKYO ARCADE PREMIUM
      ========================================================================== */
   .start-screen-overlay {
     position: fixed;
@@ -1306,16 +1306,19 @@
     width: 100vw;
     height: 100vh;
     height: 100dvh;
-    background: radial-gradient(circle at 50% 35%, #3d1b15 0%, #20100d 55%, #110705 100%);
+    background: radial-gradient(ellipse at 50% 30%, #3e1710 0%, #200d09 45%, #0f0504 100%);
     z-index: 8500;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 14px;
+    padding: calc(6px + var(--sat)) calc(12px + var(--sar)) calc(6px + var(--sab)) calc(12px + var(--sal));
     overflow-y: auto;
+    overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
+    transition: opacity 0.3s cubic-bezier(0.25, 1, 0.5, 1), visibility 0.3s ease;
+    user-select: none;
+    -webkit-user-select: none;
   }
 
   .start-screen-overlay.hidden {
@@ -1325,6 +1328,159 @@
     pointer-events: none;
   }
 
+  /* Capa de fondo ambiental con textura japonesa y resplandores cálidos */
+  .start-ambient-bg {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image: 
+      radial-gradient(circle at 15% 15%, rgba(255, 152, 0, 0.08) 0%, transparent 40%),
+      radial-gradient(circle at 85% 20%, rgba(198, 40, 40, 0.1) 0%, transparent 40%),
+      radial-gradient(circle at 50% 90%, rgba(255, 179, 0, 0.06) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Linternas tradicionales japonesas (提灯 Chōchin) decorativas */
+  .start-lantern {
+    position: absolute;
+    top: calc(0px + var(--sat));
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: none;
+    animation: lanternSway 3.6s infinite ease-in-out alternate;
+    transform-origin: top center;
+  }
+  .start-lantern.lantern-left {
+    left: calc(18px + var(--sal));
+    animation-delay: -0.8s;
+  }
+  .start-lantern.lantern-right {
+    right: calc(18px + var(--sar));
+    animation-delay: -1.8s;
+  }
+  .lantern-rope {
+    width: 2px;
+    height: 14px;
+    background: #3e1b14;
+    border-radius: 1px;
+  }
+  .lantern-body {
+    width: 32px;
+    height: 44px;
+    background: linear-gradient(180deg, #d32f2f 0%, #b71c1c 70%, #7f0000 100%);
+    border-radius: 16px / 20px;
+    border: 1.5px solid #ffca28;
+    box-shadow: 0 0 16px rgba(255, 110, 64, 0.55), inset 0 0 8px rgba(255, 235, 59, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .lantern-kanji {
+    color: #fff8e1;
+    font-size: 11px;
+    font-weight: 900;
+    writing-mode: vertical-rl;
+    text-shadow: 0 1px 2px #000;
+  }
+  .lantern-tassel {
+    width: 3px;
+    height: 12px;
+    background: #ffb300;
+    border-radius: 2px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  }
+  @keyframes lanternSway {
+    0% { transform: rotate(-2.5deg); }
+    100% { transform: rotate(2.5deg); }
+  }
+
+  /* Vapores de vapor flotantes (Ramen Steam) */
+  .start-steam-particles {
+    position: absolute;
+    top: 18%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 220px;
+    height: 130px;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+  }
+  .steam-particle {
+    position: absolute;
+    bottom: 0;
+    width: 28px;
+    height: 28px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.18) 0%, rgba(255, 248, 225, 0) 70%);
+    border-radius: 50%;
+    filter: blur(6px);
+    animation: riseSteam 4.5s infinite linear;
+  }
+  .sp-1 { left: 20%; animation-duration: 4.2s; animation-delay: 0s; }
+  .sp-2 { left: 38%; animation-duration: 5.1s; animation-delay: 1.2s; }
+  .sp-3 { left: 56%; animation-duration: 4.8s; animation-delay: 2.1s; }
+  .sp-4 { left: 74%; animation-duration: 5.4s; animation-delay: 0.6s; }
+  .sp-5 { left: 45%; animation-duration: 4.0s; animation-delay: 2.8s; }
+  @keyframes riseSteam {
+    0% { opacity: 0; transform: translateY(0) scale(0.6); }
+    30% { opacity: 0.35; transform: translateY(-30px) scale(1.1) translateX(4px); }
+    70% { opacity: 0.2; transform: translateY(-70px) scale(1.6) translateX(-6px); }
+    100% { opacity: 0; transform: translateY(-110px) scale(2.2) translateX(8px); }
+  }
+
+  /* BARRA SUPERIOR UNIFICADA */
+  .start-screen-top-bar {
+    width: 100%;
+    max-width: 960px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 100;
+    padding: 0 4px;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .start-top-center-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .start-audio-btn, .start-shortcuts-btn {
+    background: rgba(30, 14, 10, 0.85);
+    border: 1px solid rgba(255, 179, 0, 0.35);
+    border-radius: 20px;
+    color: #ffe0b2;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 4px 11px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    transition: all 0.15s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  }
+  .start-audio-btn:hover, .start-shortcuts-btn:hover {
+    background: rgba(56, 26, 19, 0.95);
+    border-color: #ffb300;
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 179, 0, 0.25);
+  }
+  .start-audio-btn.muted {
+    border-color: #e57373;
+    color: #ef9a9a;
+    background: rgba(50, 15, 15, 0.85);
+  }
+
+  /* CONTENIDO CENTRAL */
   .start-screen-content {
     width: 100%;
     max-width: 900px;
@@ -1333,6 +1489,8 @@
     align-items: center;
     gap: 8px;
     margin: auto 0;
+    position: relative;
+    z-index: 10;
   }
 
   /* LOGO PRINCIPAL */
@@ -1341,18 +1499,62 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1px;
+    gap: 2px;
+  }
+  .start-mascot-container {
+    position: relative;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 2px;
+  }
+  .start-mascot-img {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    border: 2.5px solid var(--ramen-gold);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.75), 0 0 14px rgba(255, 179, 0, 0.45);
+    object-fit: cover;
+    animation: mascotFloat 3s infinite ease-in-out alternate;
+  }
+  @keyframes mascotFloat {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-4px); }
+  }
+  .start-mascot-sparkle {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    font-size: 14px;
+    animation: sparklePulse 2s infinite ease-in-out;
+  }
+  @keyframes sparklePulse {
+    0%, 100% { transform: scale(0.8) rotate(0deg); opacity: 0.6; }
+    50% { transform: scale(1.2) rotate(15deg); opacity: 1; }
   }
 
   .start-logo-title {
     font-family: 'Fredoka One', cursive;
     font-size: 32px;
     color: var(--ramen-gold);
-    text-shadow: 3px 3px 0 #2a0502, 0 0 16px rgba(255, 179, 0, 0.6);
+    text-shadow: 3px 3px 0 #2a0502, 0 0 20px rgba(255, 179, 0, 0.7);
     display: flex;
     align-items: center;
     gap: 8px;
     letter-spacing: 1px;
+    position: relative;
+  }
+  .logo-text-shimmer {
+    background: linear-gradient(90deg, #ffca28 0%, #fff9c4 40%, #ffca28 70%, #ff9800 100%);
+    background-size: 200% auto;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: shineSweep 4.5s infinite linear;
+  }
+  @keyframes shineSweep {
+    0% { background-position: 0% center; }
+    100% { background-position: 200% center; }
   }
 
   .start-logo-subtitle {
@@ -1361,164 +1563,124 @@
     color: #ffcc80;
     letter-spacing: 2px;
     text-transform: uppercase;
-    background: rgba(183, 28, 28, 0.6);
-    border: 1px solid rgba(255, 179, 0, 0.4);
-    padding: 2px 10px;
+    background: linear-gradient(135deg, rgba(183, 28, 28, 0.75), rgba(95, 0, 0, 0.75));
+    border: 1px solid rgba(255, 179, 0, 0.5);
+    padding: 2px 14px;
     border-radius: 12px;
-  }
-
-  /* TARJETA DE PERFIL Y DISPOSITIVO */
-  .start-profile-box {
-    width: 100%;
-    max-width: 620px;
-    background: linear-gradient(135deg, rgba(74, 34, 26, 0.9), rgba(47, 23, 18, 0.9));
-    border: 2px solid #6d392b;
-    border-radius: 12px;
-    padding: 7px 14px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-  }
-
-  .start-profile-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .start-profile-avatar {
-    font-size: 26px;
-    width: 40px;
-    height: 40px;
-    background: rgba(0, 0, 0, 0.4);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid var(--ramen-gold);
-  }
-
-  .start-profile-texts {
-    text-align: left;
-  }
-
-  .start-profile-name {
-    font-family: 'Fredoka One', cursive;
-    font-size: 16px;
-    color: #ffeb3b;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .start-device-tag {
-    font-size: 10px;
-    color: #81c784;
-    font-weight: 800;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-
-  .start-unregistered-box {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    gap: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.5);
   }
 
   /* SELECTOR DE MODOS (3 COLUMNAS: TUTORIAL, NORMAL, RASH) */
   .start-modes-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
+    gap: 10px;
     width: 100%;
-    max-width: 760px;
+    max-width: 800px;
   }
 
   .start-mode-card {
-    background: linear-gradient(145deg, #2b1410, #1b0a07);
-    border: 2px solid #4e261d;
-    border-radius: 12px;
-    padding: 7px 10px;
+    background: linear-gradient(145deg, #2b130f, #180906);
+    border: 2px solid #4a221a;
+    border-radius: 14px;
+    padding: 8px 12px;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: all 0.18s cubic-bezier(0.25, 1, 0.5, 1);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     position: relative;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.08);
   }
 
-  .start-mode-card:hover {
+  .start-mode-card:hover:not(.locked) {
     border-color: #ff9800;
     transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(255, 152, 0, 0.25);
   }
 
   .start-mode-card.active {
     border-color: var(--ramen-gold);
-    background: linear-gradient(145deg, #441d16, #2a110d);
-    box-shadow: 0 0 14px rgba(255, 179, 0, 0.4), 0 3px 8px rgba(0, 0, 0, 0.6);
+    background: linear-gradient(145deg, #441d16, #28100c);
+    box-shadow: 0 0 16px rgba(255, 179, 0, 0.45), 0 4px 12px rgba(0, 0, 0, 0.65);
+    transform: translateY(-1px);
   }
 
   .start-mode-card.tutorial.active {
     border-color: #00e5ff;
     background: linear-gradient(145deg, #0e2a38, #071720);
-    box-shadow: 0 0 14px rgba(0, 229, 255, 0.45), 0 3px 8px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 0 16px rgba(0, 229, 255, 0.5), 0 4px 12px rgba(0, 0, 0, 0.65);
+  }
+
+  .start-mode-card.rash.active {
+    border-color: #ff5722;
+    background: linear-gradient(145deg, #3d140a, #200803);
+    box-shadow: 0 0 16px rgba(255, 87, 34, 0.5), 0 4px 12px rgba(0, 0, 0, 0.65);
   }
 
   .start-mode-card.locked {
-    opacity: 0.55;
-    filter: grayscale(0.7);
+    opacity: 0.65;
+    filter: grayscale(0.3);
     border-color: #3e2723 !important;
   }
   .start-mode-card.locked:hover {
     transform: none;
-    border-color: #5d4037 !important;
+    border-color: #6d4c41 !important;
   }
   .start-mode-card.locked::after {
-    content: "🔒 BLOQUEADO";
+    content: "🔒 BLOQUEADO · Requiere Tutorial";
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: rgba(18, 9, 8, 0.94);
-    color: #ffca28;
+    background: rgba(20, 9, 8, 0.94);
+    color: #ffe082;
     font-size: 10px;
     font-weight: 900;
-    padding: 3px 8px;
-    border-radius: 14px;
+    padding: 4px 10px;
+    border-radius: 16px;
     border: 1px solid #ffca28;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.75);
     white-space: nowrap;
     letter-spacing: 0.5px;
     pointer-events: none;
+    backdrop-filter: blur(4px);
+    transition: transform 0.15s ease;
+  }
+  .start-mode-card.locked:hover::after {
+    transform: translate(-50%, -50%) scale(1.04);
   }
 
   .start-mode-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 3px;
+    margin-bottom: 4px;
   }
-
+  .start-mode-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .start-mode-icon {
+    font-size: 15px;
+  }
   .start-mode-name {
     font-family: 'Fredoka One', cursive;
     font-size: 15px;
     color: var(--ramen-gold);
+    letter-spacing: 0.5px;
   }
-
   .start-mode-badge {
     font-size: 9px;
     font-weight: 900;
-    padding: 2px 6px;
-    border-radius: 6px;
+    padding: 2px 7px;
+    border-radius: 8px;
     background: #ff9800;
     color: #212121;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    letter-spacing: 0.5px;
   }
-
   .start-mode-card.rash .start-mode-badge {
     background: #e65100;
     color: #fff;
@@ -1527,16 +1689,60 @@
   .start-mode-desc {
     font-size: 11px;
     color: #d7ccc8;
-    line-height: 1.25;
-    margin-bottom: 4px;
+    line-height: 1.3;
+    margin-bottom: 6px;
     text-align: left;
   }
 
+  .start-mode-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 2px;
+  }
   .start-mode-status {
     font-size: 10px;
     font-weight: 800;
     color: #ffca28;
     text-align: left;
+  }
+  .start-mode-radio {
+    display: flex;
+    align-items: center;
+  }
+  .radio-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #3e1e18;
+    border: 1px solid #795548;
+    transition: all 0.2s ease;
+  }
+  .start-mode-card.active .radio-indicator {
+    background: #ffca28;
+    box-shadow: 0 0 6px #ffca28;
+    border-color: #fff;
+  }
+  .start-mode-card.tutorial.active .radio-indicator {
+    background: #00e5ff;
+    box-shadow: 0 0 6px #00e5ff;
+    border-color: #fff;
+  }
+  .start-mode-card.rash.active .radio-indicator {
+    background: #ff5722;
+    box-shadow: 0 0 6px #ff5722;
+    border-color: #fff;
+  }
+
+  /* SHAKE ANIMATION FOR LOCKED CARD FEEDBACK */
+  @keyframes cardShake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-6px); }
+    40%, 80% { transform: translateX(6px); }
+  }
+  .card-shake {
+    animation: cardShake 0.4s ease !important;
   }
 
   /* BOTÓN PLAY HERO */
@@ -1546,26 +1752,47 @@
     font-family: 'Fredoka One', cursive;
     font-size: 20px;
     letter-spacing: 1px;
-    padding: 10px 42px;
-    border-radius: 30px;
+    padding: 10px 44px;
+    border-radius: 32px;
     border: 3px solid #ffe082;
-    box-shadow: 0 5px 0 #5f0000, 0 0 20px rgba(255, 152, 0, 0.6);
+    box-shadow: 0 5px 0 #5f0000, 0 0 24px rgba(255, 152, 0, 0.65);
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    transition: all 0.12s ease;
+    transition: all 0.15s cubic-bezier(0.25, 1, 0.5, 1);
     animation: heroPulse 1.8s infinite ease-in-out;
+    position: relative;
+    overflow: hidden;
   }
-
+  .btn-play-hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%; width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+    animation: playShine 3s infinite linear;
+  }
+  @keyframes playShine {
+    0% { left: -100%; }
+    40%, 100% { left: 100%; }
+  }
   .btn-play-hero:hover {
     transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 7px 0 #5f0000, 0 0 25px rgba(255, 152, 0, 0.8);
+    box-shadow: 0 7px 0 #5f0000, 0 0 30px rgba(255, 152, 0, 0.85);
   }
-
   .btn-play-hero:active {
     transform: translateY(3px) scale(0.98);
-    box-shadow: 0 2px 0 #5f0000;
+    box-shadow: 0 2px 0 #5f0000, 0 0 15px rgba(255, 152, 0, 0.7);
+  }
+  .play-keyboard-tag {
+    font-size: 10px;
+    font-family: monospace;
+    font-weight: 800;
+    background: rgba(0, 0, 0, 0.35);
+    padding: 2px 6px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    margin-left: 4px;
   }
 
   @keyframes heroPulse {
@@ -1573,44 +1800,84 @@
     50% { transform: scale(1.03); }
   }
 
+  /* BOTONES SECUNDARIOS DE NAVEGACIÓN DIRECTA */
   .start-btn-row {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
     justify-content: center;
   }
-
   .btn-start-sec {
     background: #371d17;
-    border: 1px solid #6d392b;
+    border: 1.5px solid #6d392b;
     color: #ffe0b2;
     font-size: 11px;
     font-weight: 800;
-    padding: 5px 12px;
-    border-radius: 8px;
+    padding: 6px 14px;
+    border-radius: 10px;
     cursor: pointer;
-    transition: all 0.1s ease;
+    transition: all 0.12s ease;
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
   }
-
   .btn-start-sec:hover {
     background: #4e261d;
     border-color: var(--ramen-gold);
     color: #fff;
     transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(255, 179, 0, 0.3);
+  }
+  .btn-start-sec:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  }
+  .btn-start-sec.btn-secretos {
+    background: linear-gradient(135deg, #4a148c, #7b1fa2);
+    border-color: #ba68c8;
+    color: #f3e5f5;
+  }
+  .btn-start-sec.btn-secretos:hover {
+    background: linear-gradient(135deg, #6a1b9a, #8e24aa);
+    border-color: #e1bee7;
+    box-shadow: 0 4px 12px rgba(186, 104, 200, 0.4);
   }
 
+  /* PIE DE PÁGINA */
   .start-footer-bar {
     width: 100%;
+    max-width: 960px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 10px;
+    font-size: 10.5px;
     color: #8d6e63;
-    padding: 2px 10px;
+    padding: 2px 4px;
     flex-shrink: 0;
+  }
+  .footer-shortcut-hint {
+    color: #a1887f;
+    font-size: 10px;
+  }
+  .footer-shortcut-hint strong {
+    color: #ffca28;
+  }
+  .btn-cache-update {
+    background: rgba(0, 229, 255, 0.12);
+    border: 1px solid #00e5ff;
+    color: #80deea;
+    font-size: 10.5px;
+    font-weight: 800;
+    padding: 2px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .btn-cache-update:hover {
+    background: rgba(0, 229, 255, 0.25);
+    color: #fff;
+    box-shadow: 0 0 8px rgba(0, 229, 255, 0.4);
   }
 
   /* ==========================================
@@ -2114,26 +2381,30 @@
     border-radius: 4px;
   }
 
-  /* IDENTIFICADOR DE DISPOSITIVO (ARRIBA A LA IZQUIERDA) */
+  /* IDENTIFICADOR DE DISPOSITIVO Y BADGE DE USUARIO VINCULADO */
   .start-device-top-bar {
-    position: absolute;
-    top: 12px;
-    left: 14px;
-    z-index: 100;
     font-size: 11px;
     color: #b0bec5;
-    background: rgba(18, 11, 8, 0.72);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
+    background: rgba(18, 11, 8, 0.78);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     padding: 5px 12px;
     border-radius: 20px;
-    border: 1px solid rgba(255, 179, 0, 0.25);
+    border: 1px solid rgba(255, 179, 0, 0.3);
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55);
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 6px;
     pointer-events: auto;
+    cursor: pointer;
+    transition: all 0.15s ease;
     animation: fadeInDown 0.4s ease;
+  }
+  .start-device-top-bar:hover {
+    background: rgba(38, 18, 12, 0.9);
+    border-color: #ffb300;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(255, 179, 0, 0.25);
   }
   .start-device-top-bar strong {
     color: #ffb300;
@@ -2141,11 +2412,9 @@
 
   @media (max-width: 600px) {
     .start-device-top-bar {
-      top: 6px;
-      left: 8px;
       font-size: 9.5px;
       padding: 3px 8px;
-      max-width: 52vw;
+      max-width: 48vw;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -2154,10 +2423,6 @@
 
   /* BADGES Y AVISO DE USUARIO VINCULADO */
   .start-linked-user-bar {
-    position: absolute;
-    top: 12px;
-    right: 14px;
-    z-index: 100;
     cursor: pointer;
     animation: fadeInDown 0.4s ease;
   }
@@ -2171,7 +2436,8 @@
     padding: 4px 12px 4px 6px;
     box-shadow: 0 4px 14px rgba(0,0,0,0.6), 0 0 10px rgba(255, 179, 0, 0.35);
     backdrop-filter: blur(8px);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    -webkit-backdrop-filter: blur(8px);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
   }
   .linked-user-pill:hover {
     transform: translateY(-2px) scale(1.02);
@@ -2182,12 +2448,13 @@
     font-size: 16px;
     background: #3e1b14;
     border-radius: 50%;
-    width: 26px;
-    height: 26px;
+    width: 28px;
+    height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid #ffd54f;
+    border: 1.5px solid #ffd54f;
+    box-shadow: inset 0 0 4px rgba(255, 213, 79, 0.4);
   }
   .pill-texts {
     display: flex;
@@ -2211,6 +2478,15 @@
     color: #00e676;
     font-size: 11px;
     animation: pulseDot 1.5s infinite;
+  }
+  .pill-edit-icon {
+    font-size: 10px;
+    opacity: 0.65;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+  }
+  .linked-user-pill:hover .pill-edit-icon {
+    opacity: 1;
+    transform: scale(1.2);
   }
   @keyframes pulseDot {
     0%, 100% { opacity: 1; transform: scale(1); }
@@ -2723,25 +2999,48 @@
     .admin-kpi-grid { grid-template-columns: repeat(3, 1fr); }
   }
 
+  /* RESPONSIVE LANDSCAPE & ERGONOMICS */
   @media (max-height: 480px) {
-    .start-logo-title { font-size: 24px; }
-    .start-logo-subtitle { font-size: 9px; }
-    .start-profile-box { padding: 4px 10px; }
+    .start-screen-overlay {
+      padding: calc(4px + var(--sat)) calc(8px + var(--sar)) calc(4px + var(--sab)) calc(8px + var(--sal));
+    }
+    .start-lantern { display: none; }
+    .start-steam-particles { height: 60px; top: 10%; }
+    .start-mascot-img { width: 38px; height: 38px; }
+    .start-logo-title { font-size: 21px; }
+    .start-logo-subtitle { font-size: 8.5px; padding: 1px 8px; }
     .start-modes-grid { gap: 6px; }
-    .start-mode-card { padding: 5px 8px; }
-    .btn-play-hero { font-size: 16px; padding: 7px 28px; }
-    .start-screen-overlay { padding: 4px 8px; }
+    .start-mode-card { padding: 4px 8px; }
+    .start-mode-icon { font-size: 12px; }
+    .start-mode-name { font-size: 13px; }
+    .start-mode-badge { font-size: 8px; padding: 1px 5px; }
+    .start-mode-desc { font-size: 9.5px; line-height: 1.2; margin-bottom: 2px; }
+    .start-mode-status { font-size: 9px; }
+    .btn-play-hero { font-size: 15px; padding: 6px 28px; }
+    .start-btn-row { gap: 4px; }
+    .btn-start-sec { font-size: 9.5px; padding: 3px 8px; }
+    .start-footer-bar { font-size: 9px; }
+    .start-device-top-bar { font-size: 9px; padding: 2px 8px; }
+    .linked-user-pill { padding: 2px 8px 2px 4px; }
+    .pill-avatar { width: 22px; height: 22px; font-size: 13px; }
+    .pill-title { font-size: 7px; }
+    .pill-name { font-size: 10px; }
+    .start-audio-btn, .start-shortcuts-btn { font-size: 9px; padding: 2px 6px; }
   }
 
-  @media (max-width: 650px) {
-    .start-logo-title { font-size: 24px; }
-    .start-modes-grid { grid-template-columns: 1fr; gap: 6px; }
-    .start-mode-card { padding: 6px 10px; }
-    .btn-play-hero { font-size: 17px; padding: 8px 28px; }
-    .start-profile-box { flex-direction: column; text-align: center; gap: 6px; }
-    .start-unregistered-box { flex-direction: column; text-align: center; gap: 6px; }
-    .start-btn-row { gap: 5px; }
-    .btn-start-sec { font-size: 10px; padding: 4px 8px; }
+  @media (max-width: 680px) {
+    .start-modes-grid { grid-template-columns: repeat(3, 1fr); gap: 4px; }
+    .start-mode-card { padding: 4px 6px; }
+    .start-btn-row { gap: 4px; }
+    .btn-start-sec { font-size: 9.5px; padding: 3px 6px; }
+    .desktop-only, .btn-text-desktop { display: none !important; }
+  }
+
+  @media (min-width: 681px) and (pointer: fine) {
+    .desktop-only { display: inline-block; }
+  }
+  @media (max-width: 680px) or (pointer: coarse) {
+    .desktop-only { display: none !important; }
   }
 </style>
 </head>
@@ -2764,18 +3063,60 @@
 <div id="game-container">
   <!-- PANTALLA DE INICIO (START / TITLE SCREEN) -->
   <div id="start-screen" class="start-screen-overlay">
-    <!-- IDENTIFICADOR DE DISPOSITIVO (ARRIBA A LA IZQUIERDA) -->
-    <div id="start-device-info-bar" class="start-device-top-bar">🔒 Dispositivo: Detectando...</div>
+    <!-- AMBIENT LAYER: LINTERNAS JAPONESAS Y PARTÍCULAS DE VAPOR -->
+    <div class="start-ambient-bg" aria-hidden="true"></div>
+    <div class="start-lantern lantern-left" aria-hidden="true">
+      <div class="lantern-rope"></div>
+      <div class="lantern-body">
+        <span class="lantern-kanji">拉麺</span>
+      </div>
+      <div class="lantern-tassel"></div>
+    </div>
+    <div class="start-lantern lantern-right" aria-hidden="true">
+      <div class="lantern-rope"></div>
+      <div class="lantern-body">
+        <span class="lantern-kanji">名店</span>
+      </div>
+      <div class="lantern-tassel"></div>
+    </div>
+    <div class="start-steam-particles" aria-hidden="true">
+      <span class="steam-particle sp-1"></span>
+      <span class="steam-particle sp-2"></span>
+      <span class="steam-particle sp-3"></span>
+      <span class="steam-particle sp-4"></span>
+      <span class="steam-particle sp-5"></span>
+    </div>
 
-    <!-- BADGE SUPERIOR DE USUARIO VINCULADO (ÚNICO ACCESO AL PERFIL EN EL MENÚ) -->
-    <div class="start-linked-user-bar" id="start-linked-user-bar" onclick="openProfileModal()" style="display: block;" title="Toca para ver o configurar tu perfil de Chef">
-      <div class="linked-user-pill">
-        <span class="pill-avatar" id="start-pill-avatar">👤</span>
-        <div class="pill-texts">
-          <span class="pill-title" id="start-pill-title">MI PERFIL</span>
-          <span class="pill-name" id="start-pill-name">Chef Invitado</span>
+    <!-- BARRA SUPERIOR UNIFICADA (RESPETA SAFE AREA) -->
+    <div class="start-screen-top-bar">
+      <!-- IDENTIFICADOR DE DISPOSITIVO (ARRIBA A LA IZQUIERDA) -->
+      <div id="start-device-info-bar" class="start-device-top-bar" onclick="showDeviceInfoModal()" title="Identificador de Hardware seguro para vincular tus récords">
+        🛡️ Dispositivo: Detectando...
+      </div>
+
+      <!-- ACCIONES CENTRALES SUPERIORES (AUDIO TOGGLE + ATAJOS) -->
+      <div class="start-top-center-actions">
+        <button class="start-audio-btn" id="start-audio-toggle" onclick="toggleAudioMute()" title="Activar/Silenciar efectos sonoros (Atajo: M)">
+          <span id="start-audio-icon">🔊</span>
+          <span id="start-audio-text">Audio</span>
+        </button>
+        <button class="start-shortcuts-btn" onclick="openShortcutsModal()" title="Ver atajos de teclado y controles arcade">
+          <span>⌨️</span>
+          <span class="btn-text-desktop">Atajos</span>
+        </button>
+      </div>
+
+      <!-- BADGE SUPERIOR DE USUARIO VINCULADO (ACCESO AL PERFIL EN EL MENÚ) -->
+      <div class="start-linked-user-bar" id="start-linked-user-bar" onclick="openProfileModal()" style="display: block;" title="Toca para ver o personalizar tu perfil de Chef">
+        <div class="linked-user-pill">
+          <span class="pill-avatar" id="start-pill-avatar">👤</span>
+          <div class="pill-texts">
+            <span class="pill-title" id="start-pill-title">MI PERFIL</span>
+            <span class="pill-name" id="start-pill-name">Chef Invitado</span>
+          </div>
+          <span class="pill-status-dot" id="start-pill-dot" title="Dispositivo Conectado">●</span>
+          <span class="pill-edit-icon" title="Editar">✏️</span>
         </div>
-        <span class="pill-status-dot" id="start-pill-dot" title="Dispositivo Conectado">●</span>
       </div>
     </div>
 
@@ -2783,18 +3124,19 @@
       
       <!-- CABECERA Y LOGO CON MASCOTA SHIMAYA -->
       <div class="start-logo-wrap" id="start-logo-box">
-        <div style="display:flex; justify-content:center; align-items:center; margin-bottom:5px;">
-          <img src="assets/icons/icon-192.png" alt="Chef Shimaya Mascot" style="width:58px; height:58px; border-radius:50%; border:2px solid #ffb300; box-shadow:0 4px 14px rgba(0,0,0,0.65); object-fit:cover;">
+        <div class="start-mascot-container">
+          <img src="assets/icons/icon-192.png" alt="Chef Shimaya Mascot" class="start-mascot-img">
+          <span class="start-mascot-sparkle">✨</span>
         </div>
         <div class="start-logo-title">
-          <span>🥢</span>
-          <span>RAMEN MANIA</span>
-          <span>🍜</span>
+          <span class="logo-emoji-left">🥢</span>
+          <span class="logo-text-shimmer">RAMEN MANIA</span>
+          <span class="logo-emoji-right">🍜</span>
         </div>
         <div class="start-logo-subtitle">★ EDICIÓN ARCADE MASTER · SHIMAYA RAMEN ★</div>
       </div>
 
-      <!-- TARJETA DE PERFIL CENTRAL RETIRADA (SOLO SE USA EL BOTÓN SUPERIOR DERECHO) -->
+      <!-- TARJETA DE PERFIL CENTRAL RETIRADA (COMPATIBILIDAD CON JS) -->
       <div class="start-profile-box" id="start-profile-box" style="display: none !important;"></div>
 
       <!-- SELECTOR DE MODOS DE JUEGO (TUTORIAL, NORMAL, RASH) -->
@@ -2802,77 +3144,115 @@
         <!-- Modo Tutorial -->
         <div class="start-mode-card tutorial active" id="start-mode-card-tutorial" onclick="handleTutorialCardClick()">
           <div class="start-mode-header">
-            <span class="start-mode-name" style="color:#00e5ff;">🎓 TUTORIAL</span>
+            <div class="start-mode-title-wrap">
+              <span class="start-mode-icon">🎓</span>
+              <span class="start-mode-name" style="color:#00e5ff;">TUTORIAL</span>
+            </div>
             <span class="start-mode-badge" style="background:#00e5ff; color:#002b36;">INICIO</span>
           </div>
           <div class="start-mode-desc">
             Aprende paso a paso cómo funciona cada botón, los caldos y el armado de ramen.
           </div>
-          <div class="start-mode-status" id="start-tutorial-stats-text" style="color:#80deea;">
-            ⭐ Paso inicial para nuevos Chefs
+          <div class="start-mode-footer">
+            <div class="start-mode-status" id="start-tutorial-stats-text" style="color:#80deea;">
+              ⭐ Paso inicial para nuevos Chefs
+            </div>
+            <div class="start-mode-radio">
+              <span class="radio-indicator"></span>
+            </div>
           </div>
         </div>
 
         <!-- Modo Normal -->
-        <div class="start-mode-card" id="start-mode-card-normal" onclick="setStartSelectedMode('NORMAL')">
+        <div class="start-mode-card normal" id="start-mode-card-normal" onclick="setStartSelectedMode('NORMAL')">
           <div class="start-mode-header">
-            <span class="start-mode-name">🏮 MODO NORMAL</span>
+            <div class="start-mode-title-wrap">
+              <span class="start-mode-icon">🏮</span>
+              <span class="start-mode-name">CAMPAÑA</span>
+            </div>
             <span class="start-mode-badge">5 NIVELES</span>
           </div>
           <div class="start-mode-desc">
             Campaña gastronómica por metas de venta en Soles. Desbloquea recetas e ingredientes.
           </div>
-          <div class="start-mode-status" id="start-normal-stats-text">
-            🎯 Meta Nivel 1: S/ 160
+          <div class="start-mode-footer">
+            <div class="start-mode-status" id="start-normal-stats-text">
+              🎯 Meta Nivel 1: S/ 160
+            </div>
+            <div class="start-mode-radio">
+              <span class="radio-indicator"></span>
+            </div>
           </div>
         </div>
 
         <!-- Modo Rash -->
         <div class="start-mode-card rash" id="start-mode-card-rash" onclick="setStartSelectedMode('RASH')">
           <div class="start-mode-header">
-            <span class="start-mode-name" style="color:#ff9800;">⚡ MODO RASH</span>
+            <div class="start-mode-title-wrap">
+              <span class="start-mode-icon">⚡</span>
+              <span class="start-mode-name" style="color:#ff9800;">MODO RASH</span>
+            </div>
             <span class="start-mode-badge">100 RONDAS</span>
           </div>
           <div class="start-mode-desc">
             Supervivencia frenética con vidas limitadas. Cada ronda aumenta la velocidad y clientes.
           </div>
-          <div class="start-mode-status" id="start-rash-stats-text">
-            🏆 Tu Récord: Ronda 1 / 100
+          <div class="start-mode-footer">
+            <div class="start-mode-status" id="start-rash-stats-text">
+              🏆 Tu Récord: Ronda 1 / 100
+            </div>
+            <div class="start-mode-radio">
+              <span class="radio-indicator"></span>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- BOTÓN PLAY PRINCIPAL -->
-      <div style="margin: 4px 0;">
+      <!-- BOTÓN PLAY PRINCIPAL HERO -->
+      <div class="start-play-box" style="margin: 4px 0;">
         <button class="btn-play-hero" id="btn-start-play" onclick="handleStartPlayClick()">
-          <span style="font-size: 24px;">▶️</span>
-          <span>JUGAR AHORA</span>
+          <span class="play-icon" style="font-size: 24px;">▶️</span>
+          <span class="play-text">JUGAR AHORA</span>
+          <span class="play-keyboard-tag desktop-only">[ESPACIO]</span>
         </button>
       </div>
 
       <!-- BOTONES SECUNDARIOS DE NAVEGACIÓN DIRECTA -->
       <div class="start-btn-row" id="start-btn-row-box">
-        <button class="btn-start-sec btn-ranking" onclick="openLeaderboardModal()">
-          🏆 Ver Ranking
+        <button class="btn-start-sec btn-ranking" onclick="openLeaderboardModal()" title="Ver clasificación y mejores Chefs">
+          <span class="btn-ico">🏆</span>
+          <span>Ver Ranking</span>
         </button>
-        <button class="btn-start-sec" onclick="openSecretosModal()" style="background: linear-gradient(135deg, #4a148c, #7b1fa2); border-color: #ba68c8; color: #f3e5f5; font-weight: 800;">
-          ✨ Secretos del Chef
+        <button class="btn-start-sec btn-secretos" onclick="openSecretosModal()" title="Secretos culinarios y recetas especiales">
+          <span class="btn-ico">✨</span>
+          <span>Secretos del Chef</span>
         </button>
-        <button class="btn-start-sec" onclick="openRecipeModal()">
-          📖 Recetario
+        <button class="btn-start-sec btn-recipe" onclick="openRecipeModal()" title="Consulta ingredientes y recetas de ramen">
+          <span class="btn-ico">📖</span>
+          <span>Recetario</span>
         </button>
-        <button class="btn-start-sec" id="btn-start-fullscreen" onclick="toggleFullScreen()">
-          ⛶ Pantalla Completa
+        <button class="btn-start-sec btn-shortcuts" onclick="openShortcutsModal()" title="Atajos de teclado arcade en PC">
+          <span class="btn-ico">⌨️</span>
+          <span>Atajos</span>
+        </button>
+        <button class="btn-start-sec btn-fullscreen" id="btn-start-fullscreen" onclick="toggleFullScreen()" title="Modo Pantalla Completa (F)">
+          <span class="btn-ico">⛶</span>
+          <span>Pantalla Completa</span>
         </button>
       </div>
 
     </div>
 
     <!-- PIE DE PÁGINA -->
-    <div class="start-footer-bar" style="justify-content:center;">
-      <div style="display:flex; gap:12px; align-items:center;">
-        <button onclick="forceAppCacheUpdate()" style="background:rgba(0,229,255,0.15); border:1px solid #00e5ff; color:#80deea; font-size:10.5px; font-weight:800; padding:2px 10px; border-radius:5px; cursor:pointer;" title="Limpiar caché y forzar descarga de la última versión">🔄 Limpiar Caché (v11.2)</button>
-        <span id="start-network-status-bar" style="color:#81c784; font-size:10.5px;">🟢 Supabase Conectado</span>
+    <div class="start-footer-bar">
+      <div class="start-footer-left">
+        <span id="start-network-status-bar">🟢 En Línea · Supabase Conectado</span>
+      </div>
+      <div class="start-footer-center desktop-only">
+        <span class="footer-shortcut-hint">🕹️ Arcade: <strong>[Espacio]</strong> Jugar · <strong>[1,2,3]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Fullscreen</span>
+      </div>
+      <div class="start-footer-right">
+        <button onclick="forceAppCacheUpdate()" class="btn-cache-update" title="Limpiar caché y forzar descarga de la última versión">🔄 Limpiar Caché (v11.2)</button>
       </div>
     </div>
   </div>
@@ -3728,6 +4108,51 @@
     </div>
   </div>
 
+  <!-- MODAL DE ATAJOS DE TECLADO Y CONTROLES ARCADE -->
+  <div class="modal-overlay" id="shortcuts-modal" onclick="closeShortcutsModal()" style="display:none; z-index:10006;">
+    <div class="modal-card" onclick="event.stopPropagation()" style="max-width: 560px; width: 92%; border: 2.5px solid #ffb300; background: #1b0a07; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.85);">
+      <div class="modal-header" style="background: linear-gradient(90deg, #2b110b, #441a12); border-bottom: 2px solid #ffb300; padding: 10px 16px; display:flex; justify-content:space-between; align-items:center;">
+        <h2 style="font-family:'Fredoka One', cursive; color:#ffca28; font-size:18px; margin:0; display:flex; align-items:center; gap:8px;">
+          <span>⌨️</span> Atajos de Teclado & Controles Arcade
+        </h2>
+        <button class="btn btn-danger" style="padding: 2px 8px;" onclick="closeShortcutsModal()">✕</button>
+      </div>
+      <div style="padding: 14px 16px; display:flex; flex-direction:column; gap:12px; font-size:12px; color:#fff8f0;">
+        <div style="background: rgba(0,0,0,0.4); border-radius:10px; padding:10px 12px; border:1px solid #4a241a;">
+          <h4 style="color:#ffb300; font-family:'Fredoka One', cursive; font-size:13.5px; margin-bottom:8px;">🎮 Menú Principal (Pantalla de Inicio)</h4>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; font-size:11.5px;">
+            <div><kbd class="key-pill">Espacio / Enter</kbd> : Jugar modo activo</div>
+            <div><kbd class="key-pill">1</kbd> : Elegir Modo Tutorial</div>
+            <div><kbd class="key-pill">2</kbd> : Elegir Modo Normal</div>
+            <div><kbd class="key-pill">3</kbd> : Elegir Modo Rash</div>
+            <div><kbd class="key-pill">R</kbd> : Ver Ranking Oficial</div>
+            <div><kbd class="key-pill">S</kbd> : Secretos del Chef</div>
+            <div><kbd class="key-pill">L</kbd> : Abrir Recetario</div>
+            <div><kbd class="key-pill">M</kbd> : Silenciar / Activar Audio</div>
+            <div><kbd class="key-pill">F</kbd> : Pantalla Completa</div>
+            <div><kbd class="key-pill">Esc</kbd> : Cerrar Ventanas</div>
+          </div>
+        </div>
+        <div style="background: rgba(0,0,0,0.4); border-radius:10px; padding:10px 12px; border:1px solid rgba(0,229,255,0.25);">
+          <h4 style="color:#00e5ff; font-family:'Fredoka One', cursive; font-size:13.5px; margin-bottom:8px;">🍜 Durante la Partida (Cocina Arcade)</h4>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; font-size:11.5px;">
+            <div><kbd class="key-pill">1, 2, 3</kbd> : Cambiar Cuenco Donburi</div>
+            <div><kbd class="key-pill">Q</kbd> : Cocinar / Servir Fideos</div>
+            <div><kbd class="key-pill">W</kbd> : Hervir Caldo Shio</div>
+            <div><kbd class="key-pill">E</kbd> : Sopletear Lámina Chasu</div>
+            <div><kbd class="key-pill">P</kbd> : Pausar Partida</div>
+            <div><kbd class="key-pill">M</kbd> : Mute de Audio</div>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center; padding: 4px 16px 14px 16px;">
+        <button class="btn" onclick="closeShortcutsModal()" style="background:linear-gradient(135deg, #ff9800, #e65100); border-color:#ffe082; color:#fff; font-weight:900; padding:8px 24px; border-radius:20px; font-size:13px; cursor:pointer;">
+          ¡Entendido, a Cocinar! 🥢
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- TOAST DE MODO BLOQUEADO (REQUIERE TUTORIAL) -->
   <div id="mode-locked-toast">
     <span style="font-size: 16px;">🔒</span>
@@ -4382,7 +4807,37 @@ function initAudio() {
   } catch(e) {}
 }
 
+let isSoundMuted = safeStorage.getItem('ramen_sound_muted') === 'true';
+
+function toggleAudioMute() {
+  isSoundMuted = !isSoundMuted;
+  safeStorage.setItem('ramen_sound_muted', isSoundMuted ? 'true' : 'false');
+  updateAudioToggleUI();
+  if (!isSoundMuted) {
+    try { playSound('click'); } catch(e) {}
+  }
+}
+
+function updateAudioToggleUI() {
+  const btn = document.getElementById("start-audio-toggle");
+  const icon = document.getElementById("start-audio-icon");
+  const text = document.getElementById("start-audio-text");
+  if (!btn) return;
+  if (isSoundMuted) {
+    if (icon) icon.textContent = "🔇";
+    if (text) text.textContent = "Mute";
+    btn.classList.add("muted");
+    btn.setAttribute("title", "Audio Silenciado · Toca para activar (Atajo: M)");
+  } else {
+    if (icon) icon.textContent = "🔊";
+    if (text) text.textContent = "Audio";
+    btn.classList.remove("muted");
+    btn.setAttribute("title", "Audio Activo · Toca para silenciar (Atajo: M)");
+  }
+}
+
 function playSound(type) {
+  if (isSoundMuted) return;
   try {
     initAudio();
     if (!audioCtx || audioCtx.state !== 'running') return;
@@ -6207,18 +6662,18 @@ function updateStartModesDisplay() {
     if (startSelectedMode === 'TUTORIAL') {
       const isRepeat = isTutorialCompleted();
       btnPlay.innerHTML = isRepeat 
-        ? '<span style="font-size: 22px;">🎓</span><span>REPETIR TUTORIAL COMPLETO</span>'
-        : '<span style="font-size: 22px;">🎓</span><span>INICIAR TUTORIAL</span>';
+        ? '<span style="font-size: 22px;">🎓</span><span>REPETIR TUTORIAL COMPLETO</span><span class="play-keyboard-tag desktop-only">[ESPACIO]</span>'
+        : '<span style="font-size: 22px;">🎓</span><span>INICIAR TUTORIAL</span><span class="play-keyboard-tag desktop-only">[ESPACIO]</span>';
       btnPlay.style.background = "linear-gradient(135deg, #00b0ff 0%, #0091ea 60%, #01579b 100%)";
       btnPlay.style.borderColor = "#80d8ff";
       btnPlay.style.boxShadow = "0 5px 0 #002f6c, 0 0 20px rgba(0, 176, 255, 0.6)";
     } else if (startSelectedMode === 'RASH') {
-      btnPlay.innerHTML = '<span style="font-size: 22px;">⚡</span><span>JUGAR RASH</span>';
+      btnPlay.innerHTML = '<span style="font-size: 22px;">⚡</span><span>JUGAR RASH</span><span class="play-keyboard-tag desktop-only">[ESPACIO]</span>';
       btnPlay.style.background = "linear-gradient(135deg, #ff9800 0%, #e65100 60%, #bf360c 100%)";
       btnPlay.style.borderColor = "#ffe082";
       btnPlay.style.boxShadow = "0 5px 0 #4e1900, 0 0 20px rgba(255, 152, 0, 0.6)";
     } else {
-      btnPlay.innerHTML = '<span style="font-size: 22px;">▶️</span><span>JUGAR CAMPAÑA</span>';
+      btnPlay.innerHTML = '<span style="font-size: 22px;">▶️</span><span>JUGAR CAMPAÑA</span><span class="play-keyboard-tag desktop-only">[ESPACIO]</span>';
       btnPlay.style.background = "linear-gradient(135deg, #ff9800 0%, #d32f2f 60%, #b71c1c 100%)";
       btnPlay.style.borderColor = "#ffe082";
       btnPlay.style.boxShadow = "0 5px 0 #5f0000, 0 0 20px rgba(255, 152, 0, 0.6)";
@@ -6229,10 +6684,24 @@ function updateStartModesDisplay() {
 function setStartSelectedMode(mode) {
   if (mode !== 'TUTORIAL' && !isTutorialCompleted()) {
     showLockedModeToast("🔒 Completa primero el Modo Tutorial para desbloquear el Modo Normal y Rash.");
+    const cardEl = mode === 'NORMAL' 
+      ? document.getElementById("start-mode-card-normal") 
+      : document.getElementById("start-mode-card-rash");
+    if (cardEl) {
+      cardEl.classList.remove("card-shake");
+      void cardEl.offsetWidth; // trigger reflow
+      cardEl.classList.add("card-shake");
+    }
+    if ('vibrate' in navigator) {
+      try { navigator.vibrate([25, 35, 25]); } catch(e) {}
+    }
     return;
   }
   startSelectedMode = mode;
   try { playSound('add'); } catch(e) {}
+  if ('vibrate' in navigator) {
+    try { navigator.vibrate(12); } catch(e) {}
+  }
   updateStartModesDisplay();
 }
 
@@ -6243,6 +6712,80 @@ function handleTutorialCardClick() {
   }
   setStartSelectedMode('TUTORIAL');
 }
+
+function openShortcutsModal() {
+  try { playSound('click'); } catch(e) {}
+  const m = document.getElementById("shortcuts-modal");
+  if (m) m.style.display = "flex";
+}
+
+function closeShortcutsModal() {
+  try { playSound('click'); } catch(e) {}
+  const m = document.getElementById("shortcuts-modal");
+  if (m) m.style.display = "none";
+}
+
+function showDeviceInfoModal() {
+  try { playSound('click'); } catch(e) {}
+  const devId = (typeof DeviceManager !== 'undefined' && DeviceManager.deviceId) ? DeviceManager.deviceId : "DEV-LOCAL";
+  const devInfo = (typeof DeviceManager !== 'undefined' && DeviceManager.deviceInfoText) ? DeviceManager.deviceInfoText : "Dispositivo";
+  showLockedModeToast(`🛡️ ${devInfo} · ID: ${devId} (Seguro)`);
+}
+
+function closeAllActiveModals() {
+  const openModals = document.querySelectorAll(".modal-overlay");
+  openModals.forEach(m => {
+    if (m.id !== 'tutorial-completed-modal' && m.style.display === "flex") {
+      m.style.display = "none";
+    }
+  });
+}
+
+// Atajos globales de teclado arcade
+window.addEventListener("keydown", (e) => {
+  if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) {
+    return;
+  }
+  
+  const startScr = document.getElementById("start-screen");
+  const isStartVisible = startScr && !startScr.classList.contains("hidden") && startScr.style.display !== "none";
+
+  if (e.key === "Escape") {
+    closeAllActiveModals();
+    return;
+  }
+
+  if (e.key === "m" || e.key === "M") {
+    toggleAudioMute();
+    return;
+  }
+
+  if (e.key === "f" || e.key === "F") {
+    toggleFullScreen();
+    return;
+  }
+
+  if (isStartVisible) {
+    if (e.key === " " || e.key === "Enter") {
+      e.preventDefault();
+      handleStartPlayClick();
+    } else if (e.key === "1") {
+      setStartSelectedMode('TUTORIAL');
+    } else if (e.key === "2") {
+      setStartSelectedMode('NORMAL');
+    } else if (e.key === "3") {
+      setStartSelectedMode('RASH');
+    } else if (e.key === "r" || e.key === "R") {
+      openLeaderboardModal();
+    } else if (e.key === "s" || e.key === "S") {
+      openSecretosModal();
+    } else if (e.key === "l" || e.key === "L") {
+      openRecipeModal();
+    } else if (e.key === "?" || e.key === "h" || e.key === "H") {
+      openShortcutsModal();
+    }
+  }
+});
 
 async function forceAppCacheUpdate() {
   try {
@@ -6886,6 +7429,7 @@ function returnToStartMenu() {
   }
   updateStartPlayerCard();
   updateStartModesDisplay();
+  updateAudioToggleUI();
 }
 
 function openRegisterPlayerModal(fromPlay = false) {
@@ -10176,6 +10720,7 @@ function bootGameUI() {
     setStartSelectedMode('NORMAL');
   }
   updateStartModesDisplay();
+  updateAudioToggleUI();
   setupKitchenStations();
   resetCookingStations();
 
