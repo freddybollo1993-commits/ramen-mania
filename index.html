@@ -20,8 +20,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap"></noscript>
-<!-- SUPABASE JS SDK (ASYNC - NO BLOQUEA EL ARRANQUE DEL DOM) -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" async></script>
 <style>
   :root {
     --bg-dark: #190e0c;
@@ -3260,6 +3258,8 @@ const SUPABASE_CONFIG = {
 };
 
 let supabaseClient = null;
+let supabaseLoadingPromise = null;
+
 function initSupabase() {
   if (supabaseClient) return supabaseClient;
   try {
@@ -3272,9 +3272,29 @@ function initSupabase() {
   return supabaseClient;
 }
 
-window.addEventListener('load', () => {
-  if (!supabaseClient) initSupabase();
-});
+function ensureSupabaseLoaded() {
+  if (window.supabase) {
+    if (!supabaseClient) initSupabase();
+    return Promise.resolve(supabaseClient);
+  }
+  if (supabaseLoadingPromise) return supabaseLoadingPromise;
+
+  supabaseLoadingPromise = new Promise((resolve) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+    s.async = true;
+    s.onload = () => {
+      initSupabase();
+      resolve(supabaseClient);
+    };
+    s.onerror = () => {
+      console.warn('Supabase no disponible sin conexión');
+      resolve(null);
+    };
+    document.head.appendChild(s);
+  });
+  return supabaseLoadingPromise;
+}
 
 /* ==========================================================================
    ALMACENAMIENTO SEGURO Y COMPATIBILIDAD
@@ -3442,35 +3462,39 @@ const DeviceManager = {
         }, 300);
       }
 
-      // 4. Sincronizar en segundo plano con Supabase de forma totalmente asíncrona (NO bloquea el inicio)
-      if (supabaseClient) {
-        supabaseClient
-          .from('players')
-          .select('*')
-          .eq('device_id', this.deviceId)
-          .maybeSingle()
-          .then(({ data, error }) => {
-            if (!error && data && data.player_name) {
-              const remotePlayer = {
-                playerName: data.player_name,
-                contact: (data.contact !== undefined && data.contact !== null) ? data.contact : "",
-                avatar: data.avatar || "🍜",
-                deviceId: this.deviceId,
-                deviceInfo: this.deviceInfoText,
-                createdAt: data.created_at || new Date().toISOString()
-              };
-              this.currentPlayer = remotePlayer;
-              safeStorage.setItem("ramen_profile_explicit_registered", "true");
-              safeStorage.setItem("ramen_player_profile", JSON.stringify(remotePlayer));
-              safeStorage.setItem("ramen_player_name", remotePlayer.playerName);
-              safeStorage.setItem("ramen_player_contact", remotePlayer.contact);
-              safeStorage.setItem("ramen_player_avatar", remotePlayer.avatar);
-              updateStartPlayerCard();
-              renderLinkedUserBadges();
-            }
-          })
-          .catch(() => {});
-      }
+      // 4. Sincronizar en segundo plano con Supabase tras arrancar la pantalla (0ms de bloqueo inicial)
+      setTimeout(() => {
+        ensureSupabaseLoaded().then(() => {
+          if (supabaseClient) {
+            supabaseClient
+              .from('players')
+              .select('*')
+              .eq('device_id', this.deviceId)
+              .maybeSingle()
+              .then(({ data, error }) => {
+                if (!error && data && data.player_name) {
+                  const remotePlayer = {
+                    playerName: data.player_name,
+                    contact: (data.contact !== undefined && data.contact !== null) ? data.contact : "",
+                    avatar: data.avatar || "🍜",
+                    deviceId: this.deviceId,
+                    deviceInfo: this.deviceInfoText,
+                    createdAt: data.created_at || new Date().toISOString()
+                  };
+                  this.currentPlayer = remotePlayer;
+                  safeStorage.setItem("ramen_profile_explicit_registered", "true");
+                  safeStorage.setItem("ramen_player_profile", JSON.stringify(remotePlayer));
+                  safeStorage.setItem("ramen_player_name", remotePlayer.playerName);
+                  safeStorage.setItem("ramen_player_contact", remotePlayer.contact);
+                  safeStorage.setItem("ramen_player_avatar", remotePlayer.avatar);
+                  updateStartPlayerCard();
+                  renderLinkedUserBadges();
+                }
+              })
+              .catch(() => {});
+          }
+        });
+      }, 1500);
     } catch(err) {
       console.error("Error en DeviceManager.init:", err);
       this.isInitialized = true;
@@ -3658,13 +3682,13 @@ const AnalyticsTracker = {
     this.saveLocalSession(sessionData);
     this.accumulateUserStats(playerName, deviceId, durationSeconds, this.currentMode, this.currentLevelNumber, outcome);
 
-    if (supabaseClient) {
-      try {
-        await supabaseClient.from('game_sessions').insert([sessionData]);
-      } catch(e) {
-        console.warn("Analytics insert error:", e);
+    ensureSupabaseLoaded().then(client => {
+      if (client) {
+        client.from('game_sessions').insert([sessionData]).catch(e => {
+          console.warn("Analytics insert error:", e);
+        });
       }
-    }
+    });
   },
 
   incrementLevelAttempt(mode, level) {
@@ -6095,6 +6119,7 @@ async function loadLeaderboard() {
   let records = [];
   let isFromSupabase = false;
 
+  await ensureSupabaseLoaded();
   if (supabaseClient) {
     try {
       const query = supabaseClient
@@ -6356,28 +6381,15 @@ function handlePwaInstallClick() {
   }
 }
 
-// Registro inmediato del Service Worker (arranque instantáneo)
+// Registro limpio del Service Worker (arranque silencioso y fluido)
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js')
     .then(reg => {
-      console.log('[PWA] Service Worker registrado correctamente:', reg.scope);
-      if (reg) reg.update().catch(() => {});
+      console.log('[PWA] Service Worker registrado:', reg.scope);
     })
     .catch(err => {
-      console.warn('[PWA] No se pudo registrar el Service Worker:', err);
+      console.warn('[PWA] Error registrando Service Worker:', err);
     });
-
-  let refreshing = false;
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (!refreshing) {
-      refreshing = true;
-      const startScr = document.getElementById("start-screen");
-      if (startScr && !startScr.classList.contains("hidden")) {
-        console.log('[PWA] Nueva versión ultrarrápida activada, recargando...');
-        window.location.reload();
-      }
-    }
-  });
 }
 
 function togglePause() {
@@ -8238,7 +8250,7 @@ function checkOrientation() {
   if (!overlay) return;
 
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-  if (isStandalone && window.innerWidth >= window.innerHeight) {
+  if (isStandalone) {
     overlay.style.display = 'none';
     return;
   }
@@ -8668,6 +8680,7 @@ async function refreshAdminDashboard() {
   let dbPlayers = [];
   let dbLeaderboard = [];
 
+  await ensureSupabaseLoaded();
   if (supabaseClient) {
     try {
       const [resSessions, resPlayers, resLb] = await Promise.all([

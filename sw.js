@@ -1,49 +1,62 @@
-const CACHE_NAME = 'ramen-mania-v6';
+const CACHE_NAME = 'ramen-mania-v7';
 
-// Recursos esenciales que forman el Shell visual completo del juego
+// Solo el shell esencial para instalación instantánea (< 50ms)
 const CORE_SHELL = [
   './',
-  './manifest.json',
-  './assets/ramen_bg.jpg',
-  './assets/icons/icon-192.png',
-  './assets/icons/icon-512.png',
-  './assets/icons/icon-maskable.png',
-  './assets/icons/favicon-32x32.png',
-  './assets/icons/favicon-16x16.png'
+  './manifest.json'
 ];
 
 self.addEventListener('install', event => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then(async cache => {
-      await Promise.all(
-        CORE_SHELL.map(async url => {
-          try {
-            const res = await fetch(url, { cache: 'no-cache' });
-            if (res && (res.ok || res.type === 'opaque')) {
-              await cache.put(url, res.clone());
-              if (url === './') {
-                await cache.put('/', res.clone());
-                await cache.put('./index.html', res.clone());
-                await cache.put('/index.html', res.clone());
-              }
+      // Guarda únicamente HTML y Manifest en < 50ms para que la app quede instalada al instante
+      for (const url of CORE_SHELL) {
+        try {
+          const res = await fetch(url);
+          if (res && res.ok) {
+            await cache.put(url, res.clone());
+            if (url === './') {
+              await cache.put('/', res.clone());
+              await cache.put('./index.html', res.clone());
+              await cache.put('/index.html', res.clone());
             }
-          } catch (e) {
-            console.warn('[PWA] Cache prefetch warn:', url, e);
           }
-        })
-      );
+        } catch (e) {
+          console.warn('[PWA] Cache prefetch warn:', url, e);
+        }
+      }
     })
   );
 });
 
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(keys => {
-      return Promise.all(
-        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
-      );
-    }).then(() => self.clients.claim())
+    (async () => {
+      // 1. Elimina versiones anteriores de caché
+      const keys = await caches.keys();
+      await Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)));
+
+      // 2. Reclama clientes inmediatamente
+      await self.clients.claim();
+
+      // 3. Pre-cachea fondo e iconos en segundo plano SIN bloquear la app ni la instalación
+      caches.open(CACHE_NAME).then(cache => {
+        const bgAssets = [
+          './assets/ramen_bg.jpg',
+          './assets/icons/icon-192.png',
+          './assets/icons/favicon-32x32.png',
+          './assets/icons/favicon-16x16.png'
+        ];
+        bgAssets.forEach(u => {
+          fetch(u).then(r => {
+            if (r && (r.ok || r.type === 'opaque')) {
+              cache.put(u, r);
+            }
+          }).catch(() => {});
+        });
+      });
+    })()
   );
 });
 
@@ -61,23 +74,23 @@ self.addEventListener('fetch', event => {
   if (req.mode === 'navigate' || (req.headers.get('accept') && req.headers.get('accept').includes('text/html'))) {
     event.respondWith(
       (async () => {
-        // Buscar en caché local ignorando parámetros (?utm_source=homescreen, etc.)
-        const cached = (await caches.match(req, { ignoreSearch: true }))
-          || (await caches.match('/', { ignoreSearch: true }))
-          || (await caches.match('./', { ignoreSearch: true }))
-          || (await caches.match('/index.html', { ignoreSearch: true }))
-          || (await caches.match('./index.html', { ignoreSearch: true }));
+        const cache = await caches.open(CACHE_NAME);
+
+        // Buscar en caché local ignorando parámetros de búsqueda (?utm_source, etc.)
+        const cached = (await cache.match(req, { ignoreSearch: true }))
+          || (await cache.match('/', { ignoreSearch: true }))
+          || (await cache.match('./', { ignoreSearch: true }))
+          || (await cache.match('/index.html', { ignoreSearch: true }))
+          || (await cache.match('./index.html', { ignoreSearch: true }));
 
         if (cached) {
-          // Revalidación silenciosa en background sin frenar la apertura
+          // Revalidación silenciosa en background sin frenar la apertura de la app
           fetch(req).then(networkRes => {
             if (networkRes && networkRes.ok) {
-              caches.open(CACHE_NAME).then(c => {
-                c.put('/', networkRes.clone());
-                c.put('./', networkRes.clone());
-                c.put('/index.html', networkRes.clone());
-                c.put('./index.html', networkRes.clone());
-              });
+              cache.put('/', networkRes.clone());
+              cache.put('./', networkRes.clone());
+              cache.put('/index.html', networkRes.clone());
+              cache.put('./index.html', networkRes.clone());
             }
           }).catch(() => {});
           return cached;
@@ -88,10 +101,8 @@ self.addEventListener('fetch', event => {
           const networkRes = await fetch(req);
           if (networkRes && networkRes.ok) {
             const clone = networkRes.clone();
-            caches.open(CACHE_NAME).then(c => {
-              c.put('/', clone.clone());
-              c.put('./', clone.clone());
-            });
+            cache.put('/', clone.clone());
+            cache.put('./', clone.clone());
           }
           return networkRes;
         } catch (e) {
@@ -107,7 +118,7 @@ self.addEventListener('fetch', event => {
     caches.match(req, { ignoreSearch: true }).then(cached => {
       if (cached) return cached;
       return fetch(req).then(res => {
-        if (res && res.status === 200 && (
+        if (res && (res.status === 200 || res.type === 'opaque') && (
           req.url.startsWith(self.location.origin) ||
           req.url.includes('gstatic') ||
           req.url.includes('googleapis') ||
@@ -115,7 +126,7 @@ self.addEventListener('fetch', event => {
           req.url.includes('jsdelivr')
         )) {
           const resClone = res.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(req, resClone));
+          caches.open(CACHE_NAME).then(c => c.put(req, resClone));
         }
         return res;
       }).catch(err => {
