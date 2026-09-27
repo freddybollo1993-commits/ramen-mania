@@ -3567,6 +3567,13 @@
     25% { transform: translate(-52%, -50%) rotate(-3deg); }
     75% { transform: translate(-48%, -50%) rotate(3deg); }
   }
+  .station-locked-by-remote {
+    filter: brightness(0.65) saturate(0.8) !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+    border-color: #f44336 !important;
+    transition: all 0.2s ease;
+  }
 
   /* Toasts de acción en partida (¡X te arrebató el cliente!) */
   #mp-action-toasts-wrap {
@@ -6681,9 +6688,37 @@ function updateKitchenStockBadges() {
   });
 }
 
-function updateKitchenStationsUI() {
-  // Actualizar los números de stock en la despensa
+function updateKitchenStationsUI(skipSync = false, source = '', delta = '') {
+  // 1. Actualizar los números de stock en la despensa
   updateKitchenStockBadges();
+
+  // 2. Actualizar los textos informativos en los 4 botones de cocina
+  const chasuStatus = document.getElementById('chasu-status');
+  if (chasuStatus && (!kitchenState.chasu || !kitchenState.chasu.isFlaming)) {
+    chasuStatus.textContent = kitchenState.stocks.chasu >= 4 
+      ? 'Listo (4/4)' 
+      : (kitchenState.stocks.chasu > 0 ? `Listo (${kitchenState.stocks.chasu}/4)` : 'Mantén (2s c/u)');
+  }
+
+  const shioStatus = document.getElementById('shio-status');
+  if (shioStatus && (!kitchenState.shio || !kitchenState.shio.isHeating)) {
+    shioStatus.textContent = kitchenState.stocks.shio > 0 ? `Listo (${kitchenState.stocks.shio})` : 'Mantén 3s';
+  }
+
+  const tonkotsuStatus = document.getElementById('tonkotsu-status');
+  if (tonkotsuStatus && (!kitchenState.tonkotsu || !kitchenState.tonkotsu.isHeating)) {
+    tonkotsuStatus.textContent = kitchenState.stocks.tonkotsu > 0 ? `Listo (${kitchenState.stocks.tonkotsu})` : 'Mantén 3s';
+  }
+
+  const noodlesStatus = document.getElementById('noodles-status');
+  if (noodlesStatus && (!kitchenState.noodles || kitchenState.noodles.state === 'IDLE')) {
+    noodlesStatus.textContent = kitchenState.stocks.noodles > 0 ? `Stock (${kitchenState.stocks.noodles})` : 'Toca para cocer';
+  }
+
+  // 3. Sincronizar en tiempo real con los demás jugadores en Modo Cooperativo
+  if (!skipSync && typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP') {
+    MultiplayerManager.syncKitchenStocks(kitchenState.stocks, source, delta);
+  }
 }
 
 function showStationToast(msg) {
@@ -6835,7 +6870,7 @@ function handleNoodlesBtnClick() {
     }
     if (fillEl) fillEl.style.width = '0%';
     if (statusEl) statusEl.textContent = 'Toca para cocer';
-    updateKitchenStationsUI();
+    updateKitchenStationsUI(false, 'noodles', `+${portions} Fideos Ramen recogidos`);
     updateCookingVisualOverlay();
   }
 }
@@ -6972,7 +7007,7 @@ function setupShioButton() {
         if (statusEl) statusEl.textContent = '🔥 ¡Caliente! (4)';
         playSound('ding');
         showStationToast('🥣 ¡Caldo Shio caliente al punto! (4 porciones)');
-        updateKitchenStationsUI();
+        updateKitchenStationsUI(false, 'shio', '¡Caldo Shio caliente! (4)');
         updateCookingVisualOverlay();
       }
     }, 50);
@@ -6992,6 +7027,7 @@ function setupShioButton() {
       if (fillEl) fillEl.style.width = '0%';
       if (statusEl) statusEl.textContent = kitchenState.stocks.shio > 0 ? `Listo (${kitchenState.stocks.shio})` : 'Mantén 3s';
       updateCookingVisualOverlay();
+      updateKitchenStationsUI();
     }
 
     if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP') {
@@ -7051,7 +7087,7 @@ function setupTonkotsuButton() {
         if (statusEl) statusEl.textContent = '🔥 ¡Caliente! (4)';
         playSound('ding');
         showStationToast('🫕 ¡Caldo Tonkotsu hirviendo y listo! (4 porciones)');
-        updateKitchenStationsUI();
+        updateKitchenStationsUI(false, 'tonkotsu', '¡Caldo Tonkotsu listo! (4)');
         updateCookingVisualOverlay();
       }
     }, 50);
@@ -7071,6 +7107,7 @@ function setupTonkotsuButton() {
       if (fillEl) fillEl.style.width = '0%';
       if (statusEl) statusEl.textContent = kitchenState.stocks.tonkotsu > 0 ? `Listo (${kitchenState.stocks.tonkotsu})` : 'Mantén 3s';
       updateCookingVisualOverlay();
+      updateKitchenStationsUI();
     }
 
     if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP') {
@@ -7133,7 +7170,7 @@ function setupChasuButton() {
         kitchenState.stocks.chasu = Math.min(4, kitchenState.stocks.chasu + 1);
         playSound('ding');
         showStationToast(`🥩 +1 Chasu flameado! (${kitchenState.stocks.chasu}/4)`);
-        updateKitchenStationsUI();
+        updateKitchenStationsUI(false, 'chasu', `+1 Chasu flameado (${kitchenState.stocks.chasu}/4)`);
 
         if (kitchenState.stocks.chasu >= 4) {
           clearInterval(flameInterval);
@@ -7162,6 +7199,7 @@ function setupChasuButton() {
       if (fillEl) fillEl.style.width = '0%';
       if (statusEl) statusEl.textContent = kitchenState.stocks.chasu >= 4 ? 'Listo (4/4)' : 'Mantén (2s c/u)';
       updateCookingVisualOverlay();
+      updateKitchenStationsUI();
     }
 
     if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP') {
@@ -7512,7 +7550,9 @@ function serveRamenToCustomer(customerIndex, itemIndex, bowlIndex) {
     if (MultiplayerManager.gameMode === 'VS') {
       MultiplayerManager.claimCustomerInVS(customerIndex, c.id || `cust_${customerIndex}`, orderItem.recipe.name, orderItem.recipe.price);
     } else if (MultiplayerManager.gameMode === 'COOP') {
-      MultiplayerManager.coopServeCustomer(customerIndex, orderItem.recipe.name, orderItem.recipe.price);
+      MultiplayerManager.coopServeCustomer(customerIndex, itemIndex, orderItem.recipe.name, orderItem.recipe.price, bowlIndex);
+      MultiplayerManager.syncSharedBowl(bowlIndex, gameState.bowls[bowlIndex]);
+      MultiplayerManager.releaseStationLock(`bowl-card-${bowlIndex}`);
     }
   }
 
@@ -7555,7 +7595,10 @@ function serveRamenToCustomer(customerIndex, itemIndex, bowlIndex) {
 
 function selectBowl(index) {
   if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP') {
-    if (!MultiplayerManager.requestStationLock(`bowl_${index}`)) return;
+    if (gameState.activeBowlIndex !== index) {
+      MultiplayerManager.releaseStationLock(`bowl-card-${gameState.activeBowlIndex}`);
+    }
+    if (!MultiplayerManager.requestStationLock(`bowl-card-${index}`)) return;
   }
   gameState.activeBowlIndex = index;
   renderBowls();
@@ -7647,6 +7690,7 @@ function clearBowl(index) {
   gameState.bowls[index] = { ingredients: [], matchedRamen: null };
   if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP') {
     MultiplayerManager.syncSharedBowl(index, gameState.bowls[index]);
+    MultiplayerManager.releaseStationLock(`bowl-card-${index}`);
   }
   renderBowls();
   renderCustomers();
@@ -7654,6 +7698,9 @@ function clearBowl(index) {
 }
 
 function spawnCustomer() {
+  if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP') {
+    if (!MultiplayerManager.isHost) return;
+  }
   shiftCustomersLeft();
 
   const cfg = getCurrentLevelConfig();
@@ -7701,6 +7748,12 @@ function spawnCustomer() {
   if (gameState.gameMode === 'RASH') {
     updateHUD();
   }
+
+  if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP') {
+    if (MultiplayerManager.isHost) {
+      MultiplayerManager.syncCustomerQueue(gameState.customerSlots);
+    }
+  }
 }
 
 function gameTick() {
@@ -7721,6 +7774,9 @@ function gameTick() {
     if (c) {
       c.patience -= 1;
       if (c.patience <= 0) {
+        if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP' && !MultiplayerManager.isHost) {
+          continue;
+        }
         AnalyticsTracker.trackCustomerLost(c);
         playSound('lost');
         triggerAbolladoEffect();
@@ -7728,6 +7784,10 @@ function gameTick() {
         gameState.customerSlots[i] = null;
         if (gameState.selectedCustomerModalIndex === i) closeCustomerOrderModal();
         shiftCustomersLeft(); // Mover la fila hacia la izquierda
+
+        if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP' && MultiplayerManager.isHost) {
+          MultiplayerManager.syncCustomerQueue(gameState.customerSlots);
+        }
 
         if (gameState.gameMode === 'RASH') {
           gameState.rashLives--;
@@ -7753,7 +7813,9 @@ function gameTick() {
   const targetSpawnTime = (gameState.gameMode === 'RASH') ? (cfg.spawn_time || 3) : 4;
 
   if (gameState.customerSpawnTimer >= targetSpawnTime) {
-    spawnCustomer();
+    if (typeof MultiplayerManager === 'undefined' || !MultiplayerManager.isGameActive || MultiplayerManager.gameMode !== 'COOP' || MultiplayerManager.isHost) {
+      spawnCustomer();
+    }
     gameState.customerSpawnTimer = 0;
   }
 
@@ -8015,8 +8077,17 @@ function startLevel(lvlIndex) {
   renderBowls();
   renderCustomers();
 
-  spawnCustomer();
-  if (cfg.max_customers >= 2) spawnCustomer();
+  if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP') {
+    if (MultiplayerManager.isHost) {
+      spawnCustomer();
+      if (cfg.max_customers >= 2) spawnCustomer();
+      MultiplayerManager.syncCustomerQueue(gameState.customerSlots);
+      MultiplayerManager.syncKitchenStocks(kitchenState.stocks);
+    }
+  } else {
+    spawnCustomer();
+    if (cfg.max_customers >= 2) spawnCustomer();
+  }
 
   clearInterval(gameLoopInterval);
   gameLoopInterval = setInterval(gameTick, 1000);
@@ -12265,6 +12336,6 @@ if (document.readyState === 'loading') {
   bootGameUI();
 }
 </script>
-<script src="multiplayer.js?v=17"></script>
+<script src="multiplayer.js?v=18"></script>
 </body>
 </html>

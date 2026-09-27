@@ -652,8 +652,34 @@
       });
     },
 
+    // Sincronizar existencias de cocina en Modo Co-op (fideos, shio, tonkotsu, chasu)
+    syncKitchenStocks(stocks, source = '', delta = '') {
+      if (!this.isGameActive || this.gameMode !== 'COOP') return;
+      const myProf = this.getMyProfile();
+      this.broadcastEvent('KITCHEN_STOCKS_UPDATE', {
+        stocks: {
+          noodles: stocks.noodles || 0,
+          shio: stocks.shio || 0,
+          tonkotsu: stocks.tonkotsu || 0,
+          chasu: stocks.chasu || 0
+        },
+        source,
+        delta,
+        chefName: myProf.name,
+        avatar: myProf.avatar
+      });
+    },
+
+    // Sincronizar fila de clientes en Modo Co-op (el Host es la fuente de verdad)
+    syncCustomerQueue(customerSlots) {
+      if (!this.isGameActive || this.gameMode !== 'COOP' || !this.isHost) return;
+      this.broadcastEvent('CUSTOMER_QUEUE_SYNC', {
+        customerSlots
+      });
+    },
+
     // Servir un plato en cooperativo (suma a la caja y meta del equipo)
-    coopServeCustomer(customerIndex, ramenName, price) {
+    coopServeCustomer(customerIndex, itemIndex, ramenName, price, bowlIndex) {
       if (!this.isGameActive || this.gameMode !== 'COOP') return;
 
       const amount = Number(price) || 35;
@@ -663,8 +689,10 @@
       const myProf = this.getMyProfile();
       this.broadcastEvent('COOP_SERVE', {
         customerIndex,
+        itemIndex,
         ramenName,
         price: amount,
+        bowlIndex,
         sharedMoney: this.sharedMoney,
         serverName: myProf.name,
         avatar: myProf.avatar
@@ -743,10 +771,64 @@
           this.applyRemoteBowlUpdate(data.bowlIndex, data.bowlData);
           break;
 
+        case 'KITCHEN_STOCKS_UPDATE': // En Modo Co-op: Sincronización de existencias de cocina
+          if (typeof kitchenState !== 'undefined') {
+            kitchenState.stocks = {
+              noodles: data.stocks.noodles !== undefined ? data.stocks.noodles : kitchenState.stocks.noodles,
+              shio: data.stocks.shio !== undefined ? data.stocks.shio : kitchenState.stocks.shio,
+              tonkotsu: data.stocks.tonkotsu !== undefined ? data.stocks.tonkotsu : kitchenState.stocks.tonkotsu,
+              chasu: data.stocks.chasu !== undefined ? data.stocks.chasu : kitchenState.stocks.chasu
+            };
+            if (typeof updateKitchenStationsUI === 'function') {
+              updateKitchenStationsUI(true); // skipSync = true
+            }
+            if (data.delta && typeof showStationToast === 'function') {
+              showStationToast(`${data.avatar || '👨‍🍳'} ${data.chefName}: ${data.delta}`);
+            }
+          }
+          break;
+
+        case 'CUSTOMER_QUEUE_SYNC': // En Modo Co-op: Sincronización de clientes desde el Host
+          if (typeof gameState !== 'undefined') {
+            gameState.customerSlots = data.customerSlots;
+            if (typeof renderCustomers === 'function') renderCustomers();
+          }
+          break;
+
         case 'COOP_SERVE': // En Modo Co-op: Plato servido en equipo
           this.sharedMoney = data.sharedMoney;
           this.showActionToast(`🍜 ${data.serverName} sirvió ${data.ramenName} (+S/ ${data.price})`, '#2e7d32');
           this.updateMultiplayerHUD();
+
+          // Vaciar el tazón correspondiente en la pantalla del compañero
+          if (data.bowlIndex !== undefined && typeof gameState !== 'undefined' && gameState.bowls && gameState.bowls[data.bowlIndex]) {
+            gameState.bowls[data.bowlIndex] = { ingredients: [], matchedRamen: null };
+            if (typeof renderBowls === 'function') renderBowls();
+          }
+
+          // Marcar el cliente como atendido
+          if (typeof gameState !== 'undefined' && gameState.customerSlots) {
+            const cust = gameState.customerSlots[data.customerIndex];
+            if (cust && cust.orders) {
+              const order = (data.itemIndex !== undefined && cust.orders[data.itemIndex])
+                ? cust.orders[data.itemIndex]
+                : cust.orders.find(o => !o.served && o.recipe.name === data.ramenName) || cust.orders.find(o => !o.served);
+              if (order) {
+                order.served = true;
+              }
+              const allServed = cust.orders.every(o => o.served);
+              if (allServed) {
+                gameState.customerSlots[data.customerIndex] = null;
+                if (typeof closeCustomerOrderModal === 'function') closeCustomerOrderModal();
+                if (typeof shiftCustomersLeft === 'function') shiftCustomersLeft();
+              }
+              if (typeof renderCustomers === 'function') renderCustomers();
+            }
+          }
+
+          if (this.isHost && typeof gameState !== 'undefined') {
+            this.syncCustomerQueue(gameState.customerSlots);
+          }
           break;
 
         case 'REACTION': // Emote flotante en el HUD
@@ -1002,8 +1084,9 @@
 
     // Renderizar candados y avatares de bloqueo sobre las estaciones
     renderStationLocks() {
-      // Limpiar badges antiguos
+      // Limpiar badges antiguos y clases de bloqueo
       document.querySelectorAll('.station-lock-badge').forEach(el => el.remove());
+      document.querySelectorAll('.station-locked-by-remote').forEach(el => el.classList.remove('station-locked-by-remote'));
 
       const now = Date.now();
       Object.keys(this.stationLocks).forEach(stationId => {
@@ -1013,7 +1096,8 @@
           return;
         }
 
-        const btn = document.getElementById(stationId) || document.querySelector(`[data-station="${stationId}"]`);
+        const targetId = stationId.startsWith('bowl_') ? stationId.replace('bowl_', 'bowl-card-') : stationId;
+        const btn = document.getElementById(targetId) || document.getElementById(stationId) || document.querySelector(`[data-station="${stationId}"]`);
         if (btn) {
           const isMe = lock.playerId === this.myPlayerId;
           const badge = document.createElement('div');
@@ -1022,6 +1106,9 @@
           badge.innerHTML = `🔒 ${lock.avatar} ${lock.playerName}`;
           btn.style.position = 'relative';
           btn.appendChild(badge);
+          if (!isMe) {
+            btn.classList.add('station-locked-by-remote');
+          }
         }
       });
     },
