@@ -629,9 +629,10 @@
   .prep-ingredients-grid {
     display: grid;
     grid-template-columns: repeat(var(--ing-cols, 6), 1fr);
+    grid-template-rows: repeat(3, auto);
     gap: 5px;
     width: 100%;
-    max-height: 135px;
+    max-height: 148px;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     padding-right: 2px;
@@ -3743,9 +3744,10 @@
   }
   .config-ingredients-grid {
     display: grid;
-    grid-template-columns: repeat(12, minmax(68px, 1fr));
-    gap: 5px;
-    min-width: 840px;
+    grid-template-columns: repeat(10, minmax(72px, 1fr));
+    grid-template-rows: repeat(3, minmax(62px, auto));
+    gap: 6px;
+    min-width: 760px;
     box-sizing: border-box;
     padding: 2px;
   }
@@ -5607,12 +5609,12 @@
           </div>
         </div>
 
-        <!-- SIMULADOR DEL TABLERO DE PREPARACIÓN (MÁXIMO TAMAÑO: 12 COLUMNAS) -->
+        <!-- SIMULADOR DEL TABLERO DE PREPARACIÓN (MÁXIMO: 10 COLUMNAS x 3 FILAS) -->
         <div class="config-prep-station-board">
           <div class="config-prep-tab-row">
             <div class="prep-station-tab" style="font-size:12px; padding:4px 14px;">RAMEN</div>
             <div class="config-grid-info-pill">
-              <span>📐 Cuadrícula Máxima Arcade (12 Columnas • 28 Ranuras)</span>
+              <span>📐 Cuadrícula: Máximo 10 Columnas × 3 Filas (28 Ranuras)</span>
             </div>
           </div>
           
@@ -6963,18 +6965,13 @@ function renderPantryGrid() {
     tilePad = "3px 2px";
     iconSz = "22px";
     nameSz = "9px";
-  } else if (total <= 20) {
-    cols = 10;
-    tileMinH = "42px";
-    tilePad = "2px 1px";
-    iconSz = "20px";
-    nameSz = "8.5px";
   } else {
-    cols = 12;
-    tileMinH = "38px";
+    // Máximo 10 columnas y 3 filas (para hasta 28-30 ingredientes)
+    cols = 10;
+    tileMinH = "40px";
     tilePad = "2px 1px";
-    iconSz = "18px";
-    nameSz = "8px";
+    iconSz = "19px";
+    nameSz = "8.5px";
   }
 
   container.style.setProperty('--ing-cols', cols);
