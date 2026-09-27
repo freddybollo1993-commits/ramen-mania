@@ -1,10 +1,11 @@
-const CACHE_NAME = 'ramen-mania-v16';
+const CACHE_NAME = 'ramen-mania-v17';
 
 // Solo el shell esencial para instalación instantánea (< 50ms)
 const CORE_SHELL = [
   './',
   './index.html',
   './multiplayer.js',
+  './multiplayer.js?v=17',
   './manifest.json'
 ];
 

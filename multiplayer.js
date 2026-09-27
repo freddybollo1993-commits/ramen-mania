@@ -36,6 +36,23 @@
       type: 'TIME', // 'TIME', 'MONEY', 'CUSTOMERS'
       target: 120    // 120s, $600, o 10 clientes
     },
+    winPresets: {
+      TIME: [
+        { label: '⏱️ 120s (Normal)', target: 120 },
+        { label: '⚡ 60s (Rápido)', target: 60 },
+        { label: '🏆 180s (Maratón)', target: 180 }
+      ],
+      MONEY: [
+        { label: '💰 S/ 600 (Normal)', target: 600 },
+        { label: '⚡ S/ 300 (Rápido)', target: 300 },
+        { label: '🏆 S/ 1000 (Maratón)', target: 1000 }
+      ],
+      CUSTOMERS: [
+        { label: '🍜 10 Clientes (Normal)', target: 10 },
+        { label: '⚡ 5 Clientes (Rápido)', target: 5 },
+        { label: '🏆 15 Clientes (Maratón)', target: 15 }
+      ]
+    },
 
     // Jugadores en la sala
     players: [],
@@ -143,6 +160,11 @@
       document.querySelectorAll('.mp-tab-pane').forEach(pane => {
         pane.style.display = (pane.id === `mp-pane-${tab}`) ? 'block' : 'none';
       });
+      this.renderRulesUI();
+      if (tab === 'room') {
+        this.renderRoomSlots();
+        this.updateHostControls();
+      }
     },
 
     // Generar código amigable de sala ej: RAMEN-742
@@ -177,8 +199,8 @@
       this.roomType = 'PRIVATE';
       this.isHost = true;
       this.isReady = true; // El Host siempre está listo
-      this.gameMode = 'VS';
-      this.winCondition = { type: 'TIME', target: 120 };
+      this.gameMode = this.gameMode || 'VS';
+      this.winCondition = this.winCondition || { type: 'TIME', target: 120 };
 
       await this.connectToChannel(this.roomId);
       this.switchLobbyTab('room');
@@ -267,6 +289,12 @@
         if (joined) {
           this.showLobbyToast(`👋 ${joined.name || 'Un chef'} se ha unido a la sala.`, '#1976d2');
           this.playArcadeSound('join');
+          if (this.isHost) {
+            this.broadcastEvent('CONFIG_UPDATE', {
+              gameMode: this.gameMode,
+              winCondition: this.winCondition
+            });
+          }
         }
       });
 
@@ -394,21 +422,40 @@
       this.renderRoomSlots();
     },
 
-    // El Host cambia las reglas (VS/Co-op, Tiempo/Dinero/Clientes)
+    // El Host o creador cambia las reglas (VS/Co-op, Tiempo/Dinero/Clientes)
     setRoomRules(newMode, winType, winTarget) {
-      if (!this.isHost) return;
-      this.gameMode = newMode || this.gameMode;
-      this.winCondition = {
-        type: winType || this.winCondition.type,
-        target: Number(winTarget) || this.winCondition.target
-      };
+      // Si ya está dentro de una sala conectada y NO es el Host, los invitados no pueden cambiar
+      if (this.isInMultiplayer && !this.isHost) {
+        this.showLobbyToast('ℹ️ Solo el anfitrión de la sala puede modificar las reglas.', '#ff9800');
+        return;
+      }
+
+      if (newMode) {
+        this.gameMode = newMode;
+      }
+
+      if (winType) {
+        this.winCondition.type = winType;
+        if (winTarget !== null && winTarget !== undefined) {
+          this.winCondition.target = Number(winTarget);
+        } else {
+          if (winType === 'TIME') this.winCondition.target = 120;
+          else if (winType === 'MONEY') this.winCondition.target = 600;
+          else if (winType === 'CUSTOMERS') this.winCondition.target = 10;
+        }
+      } else if (winTarget !== null && winTarget !== undefined) {
+        this.winCondition.target = Number(winTarget);
+      }
 
       this.renderRulesUI();
-      this.broadcastEvent('CONFIG_UPDATE', {
-        gameMode: this.gameMode,
-        winCondition: this.winCondition
-      });
-      this.showLobbyToast(`⚙️ Reglas actualizadas: Modo ${this.gameMode} (${this.getWinConditionText()})`, '#ff9800');
+
+      if (this.isInMultiplayer && this.isHost) {
+        this.broadcastEvent('CONFIG_UPDATE', {
+          gameMode: this.gameMode,
+          winCondition: this.winCondition
+        });
+        this.showLobbyToast(`⚙️ Reglas actualizadas: Modo ${this.gameMode} (${this.getWinConditionText()})`, '#ff9800');
+      }
     },
 
     getWinConditionText() {
@@ -787,10 +834,27 @@
         btn.classList.toggle('active', btn.dataset.wintype === this.winCondition.type);
       });
 
-      // Indicadores de valor meta
-      document.querySelectorAll('.mp-target-btn').forEach(btn => {
-        btn.classList.toggle('active', Number(btn.dataset.target) === Number(this.winCondition.target));
-      });
+      // Indicadores y botones de valor meta adaptados a la condición elegida
+      const targetGroup = document.getElementById('mp-targets-group');
+      const presets = (this.winPresets && this.winPresets[this.winCondition.type]) || [
+        { label: '⏱️ 120s (Normal)', target: 120 },
+        { label: '⚡ 60s (Rápido)', target: 60 },
+        { label: '🏆 180s (Maratón)', target: 180 }
+      ];
+
+      if (targetGroup) {
+        targetGroup.innerHTML = presets.map(p => `
+          <button type="button" class="mp-opt-btn mp-target-btn ${Number(p.target) === Number(this.winCondition.target) ? 'active' : ''}"
+                  data-target="${p.target}"
+                  onclick="MultiplayerManager.setRoomRules(null, null, ${p.target})">
+            ${p.label}
+          </button>
+        `).join('');
+      } else {
+        document.querySelectorAll('.mp-target-btn').forEach(btn => {
+          btn.classList.toggle('active', Number(btn.dataset.target) === Number(this.winCondition.target));
+        });
+      }
 
       const badge = document.getElementById('mp-room-rule-badge');
       if (badge) {
@@ -838,6 +902,7 @@
       }
 
       slotsContainer.innerHTML = html;
+      this.updateHostControls();
     },
 
     updateHostControls() {
@@ -845,10 +910,12 @@
       const guestControls = document.getElementById('mp-guest-controls');
       const startBtn = document.getElementById('mp-start-game-btn');
       const readyBtn = document.getElementById('mp-ready-btn');
+      const editRulesBtn = document.getElementById('mp-host-edit-rules-btn');
 
       if (this.isHost) {
         if (hostControls) hostControls.style.display = 'block';
         if (guestControls) guestControls.style.display = 'none';
+        if (editRulesBtn) editRulesBtn.style.display = 'inline-block';
 
         if (startBtn) {
           const canStart = this.players.length >= 2;
@@ -861,6 +928,7 @@
       } else {
         if (hostControls) hostControls.style.display = 'none';
         if (guestControls) guestControls.style.display = 'block';
+        if (editRulesBtn) editRulesBtn.style.display = 'none';
 
         if (readyBtn) {
           readyBtn.textContent = this.isReady ? '✅ ¡ESTOY LISTO!' : '⏳ PULSAR LISTO';
