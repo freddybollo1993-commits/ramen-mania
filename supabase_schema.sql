@@ -50,6 +50,7 @@ create table if not exists public.game_sessions (
 -- 4. Índices para acelerar búsquedas y consultas del ranking y analíticas
 create index if not exists idx_players_device_id on public.players (device_id);
 create index if not exists idx_players_device_fingerprint on public.players (device_fingerprint);
+create unique index if not exists idx_players_player_name_unique on public.players (lower(player_name));
 create index if not exists idx_leaderboard_normal on public.leaderboard (game_mode, score_money desc);
 create index if not exists idx_leaderboard_rash on public.leaderboard (game_mode, level_reached desc, score_money desc);
 create index if not exists idx_leaderboard_device on public.leaderboard (device_id);

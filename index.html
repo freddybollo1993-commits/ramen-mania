@@ -1862,13 +1862,13 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.5);
   }
 
-  /* SELECTOR DE MODOS (3 COLUMNAS: TUTORIAL, NORMAL, RASH) */
+  /* SELECTOR DE MODOS (4 COLUMNAS: TUTORIAL, NORMAL, RASH, MULTIJUGADOR) */
   .start-modes-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
     width: 100%;
-    max-width: 800px;
+    max-width: 960px;
   }
 
   .start-mode-card {
@@ -3321,7 +3321,7 @@
   }
 
   @media (max-width: 680px) {
-    .start-modes-grid { grid-template-columns: repeat(3, 1fr); gap: 4px; }
+    .start-modes-grid { grid-template-columns: repeat(2, 1fr); gap: 4px; }
     .start-mode-card { padding: 4px 6px; }
     .start-btn-row { gap: 4px; }
     .btn-start-sec { font-size: 9.5px; padding: 3px 6px; }
@@ -3333,6 +3333,308 @@
   }
   @media (max-width: 680px) or (pointer: coarse) {
     .desktop-only { display: none !important; }
+  }
+
+  /* ==========================================================================
+     ESTILOS MULTIJUGADOR EN TIEMPO REAL (RAMEN MANIA ARCADE)
+     ========================================================================== */
+  .start-mode-card.multiplayer {
+    border-color: #ff3b30;
+    background: linear-gradient(145deg, #2e100d, #190805);
+  }
+  .start-mode-card.multiplayer:hover {
+    border-color: #ff6b6b;
+    box-shadow: 0 6px 18px rgba(255, 59, 48, 0.4);
+  }
+  .start-mode-card.multiplayer.active {
+    border-color: #ff3b30;
+    background: linear-gradient(145deg, #4d1511, #2b0805);
+    box-shadow: 0 0 16px rgba(255, 59, 48, 0.6), 0 4px 12px rgba(0, 0, 0, 0.65);
+  }
+
+  /* Modal de Lobby Multijugador */
+  #multiplayer-lobby-modal .modal-card {
+    max-width: 640px;
+    width: 95%;
+    border: 2.5px solid #ff3b30;
+    background: #190a07;
+    color: #fff;
+    border-radius: 16px;
+    box-shadow: 0 12px 36px rgba(0,0,0,0.85);
+  }
+
+  .mp-tabs {
+    display: flex;
+    gap: 6px;
+    background: rgba(0, 0, 0, 0.35);
+    padding: 6px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+  }
+  .mp-tab-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #ffccbc;
+    font-weight: 800;
+    font-size: 12px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .mp-tab-btn.active {
+    background: #ff3b30;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(255, 59, 48, 0.5);
+  }
+
+  /* Grid de Slots P1 - P4 */
+  .mp-slots-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin: 12px 0;
+  }
+  .mp-player-slot {
+    border: 2px dashed #55241b;
+    background: rgba(25, 10, 7, 0.6);
+    border-radius: 12px;
+    padding: 10px;
+    text-align: center;
+    position: relative;
+    transition: all 0.2s;
+  }
+  .mp-player-slot.filled {
+    border-style: solid;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  }
+  .mp-slot-badge {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    font-size: 9px;
+    font-weight: 900;
+    padding: 2px 6px;
+    border-radius: 6px;
+    color: #fff;
+  }
+  .mp-slot-avatar {
+    font-size: 32px;
+    margin-bottom: 4px;
+  }
+  .mp-slot-name {
+    font-weight: 800;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .mp-slot-status {
+    font-size: 11px;
+    font-weight: 800;
+    margin-top: 4px;
+  }
+  .mp-slot-status.ready { color: #4caf50; }
+  .mp-slot-status.pending { color: #ff9800; }
+
+  /* Selector de Reglas */
+  .mp-rules-box {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid #4a1f18;
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 12px;
+  }
+  .mp-btn-group {
+    display: flex;
+    gap: 6px;
+    margin-top: 4px;
+    margin-bottom: 8px;
+  }
+  .mp-opt-btn {
+    flex: 1;
+    background: #2a120c;
+    border: 1px solid #5a281e;
+    color: #ffd8cc;
+    font-weight: 800;
+    font-size: 11.5px;
+    padding: 6px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .mp-opt-btn.active {
+    background: linear-gradient(135deg, #ff9800, #e65100);
+    border-color: #ffb74d;
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(230, 81, 0, 0.4);
+  }
+
+  /* Overlay de Cuenta Regresiva 3.. 2.. 1.. */
+  #mp-countdown-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(15, 6, 4, 0.88);
+    backdrop-filter: blur(6px);
+    z-index: 999999;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    text-align: center;
+  }
+  #mp-countdown-num {
+    font-family: 'Fredoka One', cursive;
+    font-size: 80px;
+    color: #ffca28;
+    text-shadow: 0 0 30px rgba(255, 202, 40, 0.8);
+    animation: countdownPulse 0.9s infinite ease-out;
+  }
+  @keyframes countdownPulse {
+    0% { transform: scale(0.6); opacity: 0.4; }
+    50% { transform: scale(1.15); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  /* HUD Superior Multijugador durante la Partida */
+  #mp-game-hud {
+    display: none;
+    position: absolute;
+    top: var(--sat);
+    left: var(--sal);
+    right: var(--sar);
+    height: 38px;
+    background: rgba(20, 9, 7, 0.94);
+    border-bottom: 2px solid #ff3b30;
+    z-index: 1000;
+    padding: 2px 10px;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+  }
+  .mp-hud-chips-wrap {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    overflow-x: auto;
+  }
+  .mp-hud-chip {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(45, 20, 16, 0.85);
+    border: 1.5px solid #ff5722;
+    padding: 2px 8px;
+    border-radius: 14px;
+    font-size: 11px;
+    font-weight: 800;
+  }
+  .mp-hud-chip.is-me {
+    background: rgba(255, 152, 0, 0.25);
+    border-color: #ffb300;
+  }
+  .mp-hud-timer {
+    font-family: 'Fredoka One', cursive;
+    font-size: 15px;
+    color: #ffca28;
+    white-space: nowrap;
+    padding: 2px 8px;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.4);
+  }
+
+  /* Candado visual sobre estaciones en Modo Co-op */
+  .station-lock-badge {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 900;
+    padding: 3px 8px;
+    border-radius: 12px;
+    white-space: nowrap;
+    z-index: 10;
+    pointer-events: none;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.7);
+    animation: lockShake 0.4s ease-in-out;
+  }
+  @keyframes lockShake {
+    0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+    25% { transform: translate(-52%, -50%) rotate(-3deg); }
+    75% { transform: translate(-48%, -50%) rotate(3deg); }
+  }
+
+  /* Toasts de acción en partida (¡X te arrebató el cliente!) */
+  #mp-action-toasts-wrap {
+    position: fixed;
+    top: calc(var(--sat) + 44px);
+    right: 12px;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    pointer-events: none;
+  }
+  .mp-action-toast-float {
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 900;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    animation: toastSlideIn 0.25s ease-out;
+    transition: all 0.3s;
+  }
+  @keyframes toastSlideIn {
+    from { transform: translateX(50px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  /* Reacciones rápidas de emojis flotantes */
+  .mp-reaction-bubble {
+    position: fixed;
+    z-index: 99999;
+    background: rgba(0,0,0,0.8);
+    border: 1px solid #ffb300;
+    border-radius: 20px;
+    padding: 4px 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #fff;
+    pointer-events: none;
+    animation: floatUpFade 2.2s forwards cubic-bezier(0.1, 0.8, 0.3, 1);
+  }
+  @keyframes floatUpFade {
+    0% { transform: translateY(0) scale(0.5); opacity: 0; }
+    15% { transform: translateY(-20px) scale(1.1); opacity: 1; }
+    80% { opacity: 1; }
+    100% { transform: translateY(-100px) scale(0.9); opacity: 0; }
+  }
+
+  /* Podio Final */
+  .mp-podium-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 14px 0;
+  }
+  .mp-podium-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid #4a221a;
+    padding: 8px 12px;
+    border-radius: 10px;
+  }
+  .mp-podium-card.rank-1 {
+    border-color: #ffca28;
+    background: rgba(255, 202, 40, 0.15);
   }
 </style>
 </head>
@@ -3495,6 +3797,28 @@
             </div>
             <div class="start-mode-radio">
               <span class="radio-indicator"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modo Multijugador (Online 2 a 4P) -->
+        <div class="start-mode-card multiplayer" id="start-mode-card-multiplayer" onclick="MultiplayerManager.openLobbyModal()">
+          <div class="start-mode-header">
+            <div class="start-mode-title-wrap">
+              <span class="start-mode-icon">⚔️</span>
+              <span class="start-mode-name" style="color:#ff3b30;">MULTIJUGADOR</span>
+            </div>
+            <span class="start-mode-badge" style="background:#ff3b30; color:#fff;">2-4 CHEFS</span>
+          </div>
+          <div class="start-mode-desc">
+            Duelos VS en tiempo real (arrebata clientes) o Cocina Cooperativa con amigos por llamada.
+          </div>
+          <div class="start-mode-footer">
+            <div class="start-mode-status" style="color:#ffb300;">
+              🌐 Global & Salas Privadas
+            </div>
+            <div class="start-mode-radio">
+              <span class="radio-indicator" style="background:#ff3b30;"></span>
             </div>
           </div>
         </div>
@@ -4849,6 +5173,195 @@
     </div>
   </div>
 
+  <!-- ======================================================================
+       SISTEMA MULTIJUGADOR EN TIEMPO REAL: MODAL DE LOBBY Y SALAS
+       ====================================================================== -->
+  <div class="modal-overlay" id="multiplayer-lobby-modal" style="display:none; z-index:10008;" onclick="MultiplayerManager.closeLobbyModal()">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div class="modal-header" style="background: linear-gradient(90deg, #b71c1c, #e65100); border-bottom: 2px solid #ff3b30; padding: 10px 16px; display:flex; justify-content:space-between; align-items:center;">
+        <h2 style="font-family:'Fredoka One', cursive; color:#fff; font-size:18px; margin:0; display:flex; align-items:center; gap:8px;">
+          <span>⚔️</span> Multijugador en Vivo (2 a 4 Chefs)
+        </h2>
+        <button class="btn btn-danger" style="padding: 2px 8px;" onclick="MultiplayerManager.closeLobbyModal()">✕</button>
+      </div>
+
+      <div style="padding: 14px 16px;">
+        <!-- Pestañas de Navegación -->
+        <div class="mp-tabs">
+          <button class="mp-tab-btn active" data-tab="menu" onclick="MultiplayerManager.switchLobbyTab('menu')">🎮 Elegir Modo</button>
+          <button class="mp-tab-btn" data-tab="private" onclick="MultiplayerManager.switchLobbyTab('private')">🔑 Amigos / Privada</button>
+          <button class="mp-tab-btn" data-tab="room" onclick="MultiplayerManager.switchLobbyTab('room')">🏠 Mi Sala</button>
+        </div>
+
+        <!-- Pestaña 1: Menú General / Matchmaking Global -->
+        <div id="mp-pane-menu" class="mp-tab-pane" style="display:block;">
+          <div style="background:rgba(255,255,255,0.04); border:1px solid #4a1f18; border-radius:12px; padding:12px; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between;">
+            <div>
+              <div style="font-size:11px; color:#ffb300; font-weight:800;">TU PERFIL DE CHEF:</div>
+              <div style="font-size:15px; font-weight:900; color:#fff; display:flex; align-items:center; gap:6px;">
+                <span id="mp-my-avatar-display" style="font-size:22px;">🍜</span>
+                <span id="mp-my-name-display">Cargando...</span>
+              </div>
+            </div>
+            <button class="btn" onclick="openProfileModal()" style="background:#3e2723; color:#ffe082; font-size:11px; padding:4px 10px; border:1px solid #5d4037;">✏️ Cambiar</button>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:12px;">
+            <!-- Opción Matchmaking Global -->
+            <div style="background:linear-gradient(145deg, #1b2838, #0e1724); border:1.5px solid #00e5ff; border-radius:12px; padding:12px; text-align:center; cursor:pointer;" onclick="MultiplayerManager.joinGlobalQueue()">
+              <div style="font-size:32px; margin-bottom:4px;">🌐</div>
+              <div style="font-family:'Fredoka One', cursive; color:#00e5ff; font-size:15px;">Partida Global</div>
+              <p style="font-size:11px; color:#b0bec5; margin:6px 0 10px 0;">Busca automáticamente a los primeros 4 chefs conectados en línea.</p>
+              <button class="btn" style="background:#00e5ff; color:#002b36; font-weight:900; font-size:11.5px; width:100%; justify-content:center;">Buscar Chefs ⚡</button>
+            </div>
+
+            <!-- Opción Sala Privada Amigos -->
+            <div style="background:linear-gradient(145deg, #2b120c, #190905); border:1.5px solid #ff9800; border-radius:12px; padding:12px; text-align:center; cursor:pointer;" onclick="MultiplayerManager.switchLobbyTab('private')">
+              <div style="font-size:32px; margin-bottom:4px;">🔑</div>
+              <div style="font-family:'Fredoka One', cursive; color:#ff9800; font-size:15px;">Partida Privada</div>
+              <p style="font-size:11px; color:#ffccbc; margin:6px 0 10px 0;">Crea una sala con código para invitar de 2 a 4 amigos (VS o Cooperativo).</p>
+              <button class="btn" style="background:#ff9800; color:#1a0c02; font-weight:900; font-size:11.5px; width:100%; justify-content:center;">Invitar Amigos 👥</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pestaña Espera Global -->
+        <div id="mp-pane-global-wait" class="mp-tab-pane" style="display:none; text-align:center; padding:20px 10px;">
+          <div style="font-size:42px; animation: heroPulse 1s infinite alternate;">🔎🍜</div>
+          <h3 style="color:#00e5ff; font-family:'Fredoka One', cursive; margin:10px 0 4px 0;">Buscando Chefs en Línea...</h3>
+          <p style="font-size:12px; color:#cfd8dc;">Emparejando 4 jugadores para iniciar la batalla.</p>
+          <div style="font-family:'Fredoka One', cursive; font-size:28px; color:#ffca28; margin:12px 0;" id="mp-global-timer">00:00</div>
+          <button class="btn" onclick="MultiplayerManager.leaveRoom(); MultiplayerManager.switchLobbyTab('menu');" style="background:#455a64; color:#fff; font-size:12px; padding:6px 18px;">Cancelar Búsqueda</button>
+        </div>
+
+        <!-- Pestaña 2: Crear o Unirse a Sala Privada -->
+        <div id="mp-pane-private" class="mp-tab-pane" style="display:none;">
+          <!-- Sección Crear Sala -->
+          <div class="mp-rules-box">
+            <h4 style="color:#ffb300; font-family:'Fredoka One', cursive; font-size:13.5px; margin-bottom:8px;">⚙️ Configuración de la Sala</h4>
+
+            <label style="font-size:11px; font-weight:800; color:#ffccbc; display:block; margin-bottom:3px;">1. Modo de Juego:</label>
+            <div class="mp-btn-group">
+              <button class="mp-opt-btn mp-mode-opt-btn active" data-mode="VS" onclick="MultiplayerManager.setRoomRules('VS', null, null)">⚔️ Modo VS (Arrebato)</button>
+              <button class="mp-opt-btn mp-mode-opt-btn" data-mode="COOP" onclick="MultiplayerManager.setRoomRules('COOP', null, null)">🤝 Cooperativo (Equipo)</button>
+            </div>
+
+            <label style="font-size:11px; font-weight:800; color:#ffccbc; display:block; margin-bottom:3px;">2. Condición de Victoria:</label>
+            <div class="mp-btn-group">
+              <button class="mp-opt-btn mp-win-type-btn active" data-wintype="TIME" onclick="MultiplayerManager.setRoomRules(null, 'TIME', 120)">⏱️ Por Tiempo</button>
+              <button class="mp-opt-btn mp-win-type-btn" data-wintype="MONEY" onclick="MultiplayerManager.setRoomRules(null, 'MONEY', 600)">💰 Por Dinero</button>
+              <button class="mp-opt-btn mp-win-type-btn" data-wintype="CUSTOMERS" onclick="MultiplayerManager.setRoomRules(null, 'CUSTOMERS', 10)">🍜 Por Clientes</button>
+            </div>
+
+            <label style="font-size:11px; font-weight:800; color:#ffccbc; display:block; margin-bottom:3px;">3. Meta:</label>
+            <div class="mp-btn-group">
+              <button class="mp-opt-btn mp-target-btn active" data-target="120" onclick="MultiplayerManager.setRoomRules(null, null, 120)">120s / S/600 / 10🍜</button>
+              <button class="mp-opt-btn mp-target-btn" data-target="60" onclick="MultiplayerManager.setRoomRules(null, null, 60)">Rápido (60s / S/300 / 5🍜)</button>
+              <button class="mp-opt-btn mp-target-btn" data-target="180" onclick="MultiplayerManager.setRoomRules(null, null, 180)">Maratón (180s / S/1000 / 15🍜)</button>
+            </div>
+
+            <button class="btn" onclick="MultiplayerManager.createPrivateRoom()" style="width:100%; justify-content:center; background:linear-gradient(135deg, #e53935, #c62828); color:#fff; font-weight:900; font-size:13px; padding:10px; margin-top:6px; box-shadow:0 3px 0 #b71c1c;">
+              ✨ Crear Sala Privada y Generar Código
+            </button>
+          </div>
+
+          <!-- Sección Unirse a Sala -->
+          <div style="background:rgba(0,0,0,0.3); border:1px solid #4a1f18; border-radius:10px; padding:10px;">
+            <h4 style="color:#00e5ff; font-family:'Fredoka One', cursive; font-size:13px; margin-bottom:6px;">🔑 ¿Ya tienes un código de un amigo?</h4>
+            <div style="display:flex; gap:8px;">
+              <input type="text" id="mp-join-code-input" class="input-record" placeholder="Ej: RAMEN-84" maxlength="12" style="text-transform:uppercase; font-weight:900; letter-spacing:1px; flex:1;">
+              <button class="btn" onclick="MultiplayerManager.joinPrivateRoom(document.getElementById('mp-join-code-input').value)" style="background:#00e5ff; color:#002b36; font-weight:900; font-size:12px; padding:8px 16px;">
+                Unirse 🚀
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pestaña 3: Sala Actual (Slots de Jugadores) -->
+        <div id="mp-pane-room" class="mp-tab-pane" style="display:none;">
+          <div style="background:rgba(0,0,0,0.4); border:1px solid #4a1f18; border-radius:10px; padding:10px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <span style="font-size:11px; color:#ffb300; font-weight:800;">CÓDIGO DE SALA:</span>
+              <div id="mp-room-code-display" style="font-family:'Fredoka One', cursive; font-size:20px; color:#fff; letter-spacing:1px;">RAMEN-00</div>
+              <div id="mp-room-rule-badge" style="font-size:10.5px; color:#ffccbc;">Modo VS • Tiempo: 120s</div>
+            </div>
+            <button class="btn" onclick="MultiplayerManager.copyInviteLink()" style="background:#ff9800; color:#1b0a07; font-weight:900; font-size:11.5px; padding:6px 12px;">
+              📋 Copiar Enlace
+            </button>
+          </div>
+
+          <!-- Slots de los 4 jugadores -->
+          <div class="mp-slots-grid" id="mp-room-slots-grid">
+            <!-- Rellenado dinámicamente por MultiplayerManager -->
+          </div>
+
+          <!-- Controles de Inicio / Listo -->
+          <div id="mp-host-controls" style="display:none; margin-top:10px;">
+            <button class="btn" id="mp-start-game-btn" onclick="MultiplayerManager.startCountdownAndLaunch()" style="width:100%; justify-content:center; background:linear-gradient(135deg, #2e7d32, #1b5e20); color:#fff; font-size:14px; font-weight:900; padding:12px; box-shadow:0 3px 0 #0d3813;">
+              🚀 ¡COMENZAR PARTIDA (2-4P)!
+            </button>
+          </div>
+          <div id="mp-guest-controls" style="display:none; margin-top:10px;">
+            <button class="btn" id="mp-ready-btn" onclick="MultiplayerManager.toggleReady()" style="width:100%; justify-content:center; background:#ff9800; color:#1b0a07; font-size:13px; font-weight:900; padding:10px;">
+              ⏳ PULSAR LISTO
+            </button>
+          </div>
+        </div>
+
+        <!-- Toast de Estado del Lobby -->
+        <div id="mp-lobby-toast" style="display:none; margin-top:10px; padding:6px 12px; border-radius:8px; font-size:11.5px; font-weight:800; text-align:center; color:#fff; transition:all 0.3s;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OVERLAY DE CUENTA REGRESIVA 3.. 2.. 1.. -->
+  <div id="mp-countdown-overlay">
+    <div style="font-size:32px; margin-bottom:8px;">🍜 PREPÁRENSE CHEFS 🍜</div>
+    <div id="mp-countdown-num">3</div>
+  </div>
+
+  <!-- HUD SUPERIOR MULTIJUGADOR EN PARTIDA -->
+  <div id="mp-game-hud">
+    <div class="mp-hud-chips-wrap" id="mp-hud-players">
+      <!-- Rellenado en vivo con los chefs -->
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <div class="mp-hud-timer" id="mp-hud-timer">⏱️ 02:00</div>
+      <!-- Barra de reacciones arcade -->
+      <div style="display:flex; gap:4px;">
+        <button onclick="MultiplayerManager.sendReaction('🍜')" style="background:none; border:none; font-size:18px; cursor:pointer;" title="Ramen">🍜</button>
+        <button onclick="MultiplayerManager.sendReaction('🔥')" style="background:none; border:none; font-size:18px; cursor:pointer;" title="Fuego">🔥</button>
+        <button onclick="MultiplayerManager.sendReaction('😱')" style="background:none; border:none; font-size:18px; cursor:pointer;" title="Pánico">😱</button>
+        <button onclick="MultiplayerManager.sendReaction('👑')" style="background:none; border:none; font-size:18px; cursor:pointer;" title="Corona">👑</button>
+      </div>
+      <button onclick="MultiplayerManager.leaveRoom(); returnToStartMenu();" style="background:#b71c1c; color:#fff; border:none; padding:3px 8px; border-radius:8px; font-size:10px; font-weight:800; cursor:pointer;">✕ Salir</button>
+    </div>
+  </div>
+
+  <!-- TOASTS DE ACCIÓN EN PARTIDA (CLIENTES ARREBATADOS Y BLOQUEOS) -->
+  <div id="mp-action-toasts-wrap"></div>
+
+  <!-- CAPA PARA REACCIONES FLOTANTES -->
+  <div id="mp-reactions-layer" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:99999;"></div>
+
+  <!-- MODAL DE PODIO FINAL MULTIJUGADOR -->
+  <div class="modal-overlay" id="mp-podium-modal" style="display:none; z-index:10009;">
+    <div class="modal-card" style="max-width: 480px; width:92%; text-align:center; border:2.5px solid #ffca28; background:#1b0a07; color:#fff; padding:18px;">
+      <h2 id="mp-podium-title" style="font-family:'Fredoka One', cursive; color:#ffca28; font-size:22px; margin-bottom:8px;">
+        🏆 ¡Fin de la Partida!
+      </h2>
+      <div id="mp-podium-body"></div>
+      <div style="display:flex; gap:8px; justify-content:center; margin-top:14px;">
+        <button class="btn" onclick="document.getElementById('mp-podium-modal').classList.remove('active'); MultiplayerManager.openLobbyModal();" style="background:linear-gradient(135deg, #ff9800, #e65100); color:#fff; font-weight:900; padding:8px 18px; font-size:12.5px;">
+          🔄 Jugar Otra Partida
+        </button>
+        <button class="btn" onclick="document.getElementById('mp-podium-modal').classList.remove('active'); MultiplayerManager.leaveRoom(); returnToStartMenu();" style="background:#37474f; color:#fff; font-size:12px; padding:8px 16px;">
+          🏠 Menú Principal
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- TOAST DE MODO BLOQUEADO (REQUIERE TUTORIAL) -->
   <div id="mode-locked-toast">
     <span style="font-size: 16px;">🔒</span>
@@ -5126,6 +5639,49 @@ const DeviceManager = {
     }
   },
 
+  // Verifica de manera asíncrona si un alias ya está en uso por otro dispositivo (Supabase + local)
+  async isAliasTaken(name) {
+    const cleanName = (name || "").trim();
+    if (cleanName.length < 2) return false;
+
+    // Si coincide con el alias actual de este mismo dispositivo, no está bloqueado para sí mismo
+    if (this.currentPlayer && this.currentPlayer.playerName && this.currentPlayer.playerName.toLowerCase() === cleanName.toLowerCase()) {
+      return false;
+    }
+
+    // 1. Consulta en la nube (Supabase) para evitar duplicados globales
+    try {
+      const client = (typeof initSupabase === 'function' ? initSupabase() : null) || supabaseClient;
+      if (client) {
+        const { data, error } = await client
+          .from('players')
+          .select('id, device_id, player_name')
+          .ilike('player_name', cleanName)
+          .limit(10);
+
+        if (!error && Array.isArray(data) && data.length > 0) {
+          const takenByOther = data.some(p => p.device_id && p.device_id !== this.deviceId);
+          if (takenByOther) return true;
+        }
+      }
+    } catch(err) {
+      console.warn("Aviso al verificar alias en Supabase:", err);
+    }
+
+    // 2. Consulta en registro local de cuentas en este navegador
+    try {
+      const regList = JSON.parse(safeStorage.getItem("ramen_registered_users") || "[]");
+      const localTaken = regList.some(u => 
+        u.playerName && 
+        u.playerName.toLowerCase() === cleanName.toLowerCase() && 
+        u.deviceId && u.deviceId !== this.deviceId
+      );
+      if (localTaken) return true;
+    } catch(e) {}
+
+    return false;
+  },
+
   // Registrar un nuevo jugador vinculado a este dispositivo
   async register(playerName, contact, avatar) {
     const cleanName = (playerName || "").trim();
@@ -5137,6 +5693,15 @@ const DeviceManager = {
     }
     if (cleanName.length > 20) {
       return { success: false, error: "El nombre no puede exceder 20 caracteres." };
+    }
+
+    // Validación estricta de alias único
+    const isTaken = await this.isAliasTaken(cleanName);
+    if (isTaken) {
+      return { 
+        success: false, 
+        error: `El alias "${cleanName}" ya está ocupado por otro chef. Por favor elige otro nombre.` 
+      };
     }
 
     // Si el dispositivo ya tiene una cuenta registrada, se renombra/actualiza limpiamente
@@ -5213,6 +5778,17 @@ const DeviceManager = {
     const cleanName = (newName || "").trim() || this.currentPlayer.playerName;
     const cleanContact = (contact || "").trim();
     const cleanAvatar = avatar || this.currentPlayer.avatar || "🍜";
+
+    // Si cambia de nombre, validar que el nuevo alias no esté ocupado por otro chef
+    if (this.currentPlayer.playerName && cleanName.toLowerCase() !== this.currentPlayer.playerName.toLowerCase()) {
+      const isTaken = await this.isAliasTaken(cleanName);
+      if (isTaken) {
+        return { 
+          success: false, 
+          error: `El alias "${cleanName}" ya está ocupado por otro chef. Por favor elige otro nombre.` 
+        };
+      }
+    }
 
     this.currentPlayer.playerName = cleanName;
     this.currentPlayer.contact = cleanContact;
@@ -6196,6 +6772,11 @@ function stopNoodlesInterval() {
 function handleNoodlesBtnClick() {
   if (gameState.isPaused || gameState.isGameOver) return;
 
+  // Bloqueo de estación en Modo Cooperativo
+  if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP') {
+    if (!MultiplayerManager.requestStationLock('btn-cook-noodles')) return;
+  }
+
   const btn = document.getElementById('btn-cook-noodles');
   const fillEl = document.getElementById('noodles-fill');
   const statusEl = document.getElementById('noodles-status');
@@ -6234,6 +6815,11 @@ function handleNoodlesBtnClick() {
     kitchenState.stocks.noodles += portions;
     playSound('stock_add');
     showStationToast(`🍜 ¡+${portions} Fideos Ramen recogidos! (Total: ${kitchenState.stocks.noodles})`);
+
+    // Liberar estación al recoger
+    if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP') {
+      MultiplayerManager.releaseStationLock('btn-cook-noodles');
+    }
 
     kitchenState.noodles.state = 'IDLE';
     kitchenState.noodles.portionsCooking = 0;
@@ -6345,6 +6931,11 @@ function setupShioButton() {
   const startHeating = (e) => {
     if (e && e.cancelable) e.preventDefault();
     if (gameState.isPaused || gameState.isGameOver) return;
+
+    if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP') {
+      if (!MultiplayerManager.requestStationLock('btn-heat-shio')) return;
+    }
+
     if (kitchenState.shio.isHeating) return;
 
     try { if (e && e.pointerId && btn.setPointerCapture) btn.setPointerCapture(e.pointerId); } catch(err) {}
@@ -6397,6 +6988,10 @@ function setupShioButton() {
       if (statusEl) statusEl.textContent = kitchenState.stocks.shio > 0 ? `Listo (${kitchenState.stocks.shio})` : 'Mantén 3s';
       updateCookingVisualOverlay();
     }
+
+    if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP') {
+      MultiplayerManager.releaseStationLock('btn-heat-shio');
+    }
   };
 
   btn.addEventListener('pointerdown', startHeating);
@@ -6415,6 +7010,11 @@ function setupTonkotsuButton() {
   const startHeating = (e) => {
     if (e && e.cancelable) e.preventDefault();
     if (gameState.isPaused || gameState.isGameOver) return;
+
+    if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP') {
+      if (!MultiplayerManager.requestStationLock('btn-heat-tonkotsu')) return;
+    }
+
     if (kitchenState.tonkotsu.isHeating) return;
 
     try { if (e && e.pointerId && btn.setPointerCapture) btn.setPointerCapture(e.pointerId); } catch(err) {}
@@ -6467,6 +7067,10 @@ function setupTonkotsuButton() {
       if (statusEl) statusEl.textContent = kitchenState.stocks.tonkotsu > 0 ? `Listo (${kitchenState.stocks.tonkotsu})` : 'Mantén 3s';
       updateCookingVisualOverlay();
     }
+
+    if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP') {
+      MultiplayerManager.releaseStationLock('btn-heat-tonkotsu');
+    }
   };
 
   btn.addEventListener('pointerdown', startHeating);
@@ -6485,6 +7089,11 @@ function setupChasuButton() {
   const startFlaming = (e) => {
     if (e && e.cancelable) e.preventDefault();
     if (gameState.isPaused || gameState.isGameOver) return;
+
+    if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP') {
+      if (!MultiplayerManager.requestStationLock('btn-flame-chasu')) return;
+    }
+
     if (kitchenState.chasu.isFlaming) return;
 
     if (kitchenState.stocks.chasu >= 4) {
@@ -6548,6 +7157,10 @@ function setupChasuButton() {
       if (fillEl) fillEl.style.width = '0%';
       if (statusEl) statusEl.textContent = kitchenState.stocks.chasu >= 4 ? 'Listo (4/4)' : 'Mantén (2s c/u)';
       updateCookingVisualOverlay();
+    }
+
+    if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP') {
+      MultiplayerManager.releaseStationLock('btn-flame-chasu');
     }
   };
 
@@ -6889,6 +7502,15 @@ function serveRamenToCustomer(customerIndex, itemIndex, bowlIndex) {
   AnalyticsTracker.trackCustomerServed();
   playSound('serve');
 
+  // Integración Multijugador (VS Arrebato y Co-op)
+  if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive) {
+    if (MultiplayerManager.gameMode === 'VS') {
+      MultiplayerManager.claimCustomerInVS(customerIndex, c.id || `cust_${customerIndex}`, orderItem.recipe.name, orderItem.recipe.price);
+    } else if (MultiplayerManager.gameMode === 'COOP') {
+      MultiplayerManager.coopServeCustomer(customerIndex, orderItem.recipe.name, orderItem.recipe.price);
+    }
+  }
+
   c.patience = Math.min(c.maxPatience, c.patience + 15);
 
   const allServed = c.orders.every(o => o.served);
@@ -6927,6 +7549,9 @@ function serveRamenToCustomer(customerIndex, itemIndex, bowlIndex) {
 }
 
 function selectBowl(index) {
+  if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP') {
+    if (!MultiplayerManager.requestStationLock(`bowl_${index}`)) return;
+  }
   gameState.activeBowlIndex = index;
   renderBowls();
   renderPantryGrid();
@@ -6978,6 +7603,10 @@ function toggleIngredientInBowl(ingId) {
   bowl.ingredients.push(ingId);
   playSound('add');
 
+  if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP') {
+    MultiplayerManager.syncSharedBowl(gameState.activeBowlIndex, bowl);
+  }
+
   const analysis = analyzeBowl(gameState.activeBowlIndex);
   if (analysis.status === "READY") {
     playSound('match');
@@ -6999,15 +7628,21 @@ function removeIngredientFromBowl(bowlIndex, ingId) {
   if (ingId === 11) kitchenState.stocks.chasu++;
   updateKitchenStationsUI();
 
+  if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP') {
+    MultiplayerManager.syncSharedBowl(bowlIndex, bowl);
+  }
+
   playSound('trash');
   renderBowls();
   renderCustomers();
-  renderPantryGrid();
 }
 
 function clearBowl(index) {
   playSound('trash');
   gameState.bowls[index] = { ingredients: [], matchedRamen: null };
+  if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP') {
+    MultiplayerManager.syncSharedBowl(index, gameState.bowls[index]);
+  }
   renderBowls();
   renderCustomers();
   renderPantryGrid();
@@ -8207,6 +8842,9 @@ function executeStartGame() {
 }
 
 function returnToStartMenu() {
+  if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isInMultiplayer) {
+    MultiplayerManager.leaveRoom();
+  }
   if (!gameState.isGameOver) {
     AnalyticsTracker.endSession('ABANDONED');
   }
@@ -8273,7 +8911,60 @@ function openRegisterPlayerModal(fromPlay = false) {
   if (modal) {
     modal.classList.add("active");
   }
-  if (nameInput) setTimeout(() => nameInput.focus(), 150);
+  if (nameInput) {
+    bindAliasInputValidation("reg-player-name", "reg-status-msg", false);
+    setTimeout(() => nameInput.focus(), 150);
+  }
+}
+
+let aliasCheckDebounceTimer = null;
+function bindAliasInputValidation(inputId, statusMsgId, isProfileEdit = false) {
+  const input = document.getElementById(inputId);
+  const statusEl = document.getElementById(statusMsgId);
+  if (!input || !statusEl || input.dataset.aliasCheckBound === "true") return;
+  input.dataset.aliasCheckBound = "true";
+
+  input.addEventListener("input", () => {
+    clearTimeout(aliasCheckDebounceTimer);
+    const val = input.value.trim();
+    if (val.length === 0) {
+      statusEl.textContent = "";
+      return;
+    }
+    if (val.length < 2) {
+      statusEl.textContent = "ℹ️ El alias debe tener al menos 2 caracteres.";
+      statusEl.style.color = "#ff9800";
+      return;
+    }
+    if (val.length > 20) {
+      statusEl.textContent = "⚠️ Máximo 20 caracteres.";
+      statusEl.style.color = "#c62828";
+      return;
+    }
+    if (isProfileEdit && DeviceManager.currentPlayer && DeviceManager.currentPlayer.playerName.toLowerCase() === val.toLowerCase()) {
+      statusEl.textContent = "ℹ️ Es tu alias actual.";
+      statusEl.style.color = "#757575";
+      return;
+    }
+
+    statusEl.textContent = `🔍 Comprobando disponibilidad de "${val}"...`;
+    statusEl.style.color = "#ff9800";
+
+    aliasCheckDebounceTimer = setTimeout(async () => {
+      const currentVal = input.value.trim();
+      if (currentVal !== val) return;
+      const isTaken = await DeviceManager.isAliasTaken(currentVal);
+      if (input.value.trim() !== currentVal) return;
+
+      if (isTaken) {
+        statusEl.textContent = `❌ El alias "${currentVal}" ya está en uso. Por favor elige otro nombre.`;
+        statusEl.style.color = "#c62828";
+      } else {
+        statusEl.textContent = `✅ El alias "${currentVal}" está disponible.`;
+        statusEl.style.color = "#2e7d32";
+      }
+    }, 350);
+  });
 }
 
 function closeRegisterPlayerModal() {
@@ -8291,9 +8982,23 @@ function selectRegAvatar(av) {
 }
 
 async function handlePlayAsGuest() {
-  const guestNum = Math.floor(1000 + Math.random() * 9000);
-  const guestName = `Chef_${guestNum}`;
   const statusEl = document.getElementById("reg-status-msg");
+  if (statusEl) {
+    statusEl.textContent = `⚡ Generando alias de invitado disponible...`;
+    statusEl.style.color = "#ffb300";
+  }
+  let guestName = "";
+  for (let i = 0; i < 5; i++) {
+    const guestNum = Math.floor(1000 + Math.random() * 9000);
+    const candidate = `Chef_${guestNum}`;
+    const taken = await DeviceManager.isAliasTaken(candidate);
+    if (!taken) {
+      guestName = candidate;
+      break;
+    }
+  }
+  if (!guestName) guestName = `Chef_${Date.now().toString().slice(-4)}`;
+
   if (statusEl) {
     statusEl.textContent = `⚡ Entrando como ${guestName}...`;
     statusEl.style.color = "#ffb300";
@@ -8400,7 +9105,10 @@ function openProfileModal() {
   profSelectedAvatar = p.avatar || "🍜";
   selectProfAvatar(profSelectedAvatar);
   const nameInput = document.getElementById("prof-name-input");
-  if (nameInput) nameInput.value = p.playerName || "";
+  if (nameInput) {
+    nameInput.value = p.playerName || "";
+    bindAliasInputValidation("prof-name-input", "prof-save-status", true);
+  }
   document.getElementById("prof-contact-input").value = p.contact || "";
   document.getElementById("prof-save-status").textContent = "";
 
@@ -8449,7 +9157,7 @@ async function handleSaveProfileChanges() {
       statusEl.textContent = "";
     }, 2000);
   } else {
-    statusEl.textContent = "⚠️ Error al guardar cambios.";
+    statusEl.textContent = res.error || "⚠️ Error al guardar cambios.";
     statusEl.style.color = "#c62828";
   }
 }
@@ -11552,5 +12260,6 @@ if (document.readyState === 'loading') {
   bootGameUI();
 }
 </script>
+<script src="multiplayer.js"></script>
 </body>
 </html>
