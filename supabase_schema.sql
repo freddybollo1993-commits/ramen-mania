@@ -124,3 +124,16 @@ to anon, authenticated
 with check (
   length(player_name) >= 1
 );
+
+-- ==============================================================================
+-- 9. SISTEMA DE RANKING MMR COMPETITIVO (ESTILO DOTA 2 / LEAGUE OF LEGENDS)
+-- ==============================================================================
+alter table public.players add column if not exists mmr integer default 1000;
+alter table public.players add column if not exists rank_tier text default 'Bronce IV';
+alter table public.players add column if not exists pvp_wins integer default 0;
+alter table public.players add column if not exists pvp_losses integer default 0;
+alter table public.players add column if not exists pvp_streak integer default 0;
+alter table public.players add column if not exists highest_mmr integer default 1000;
+
+create index if not exists idx_players_mmr on public.players (mmr desc);
+

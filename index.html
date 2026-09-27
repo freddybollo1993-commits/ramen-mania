@@ -3715,6 +3715,7 @@
             <span class="pill-title" id="start-pill-title">MI PERFIL</span>
             <span class="pill-name" id="start-pill-name">Chef Invitado</span>
           </div>
+          <span class="pill-rank-badge" id="start-pill-rank" style="font-size:11px; font-weight:800; background:rgba(0,0,0,0.35); border-radius:12px; padding:2px 8px; margin:0 4px; color:#ffb300; border:1px solid rgba(255,179,0,0.4); display:inline-flex; align-items:center; gap:4px;">🥉 Bronce IV (1000 MMR)</span>
           <span class="pill-status-dot" id="start-pill-dot" title="Dispositivo Conectado">●</span>
           <span class="pill-edit-icon" title="Editar">✏️</span>
         </div>
@@ -4575,6 +4576,7 @@
           <div class="pantry-tabs">
             <button class="pantry-tab active" id="tab-lb-normal" onclick="switchLeaderboardTab('NORMAL')">🏮 Modo Normal</button>
             <button class="pantry-tab" id="tab-lb-rash" onclick="switchLeaderboardTab('RASH')">⚡ Modo Rash</button>
+            <button class="pantry-tab" id="tab-lb-mmr" onclick="switchLeaderboardTab('MMR')">⚔️ Ranking MMR (PvP)</button>
           </div>
           <button class="btn" onclick="loadLeaderboard()" style="font-size:10px; padding:3px 8px;">🔄 Actualizar</button>
         </div>
@@ -4730,6 +4732,49 @@
           <div>
             <div class="val-num" id="prof-stat-rash-best" style="font-size:16px; color:#e65100;">Ronda 1</div>
             <div class="val-lbl">Mejor Rash</div>
+          </div>
+        </div>
+
+        <!-- TARJETA DE RANGO COMPETITIVO MMR (ESTILO LOL / DOTA 2) -->
+        <div class="profile-rank-card" id="prof-mmr-card" style="background: linear-gradient(135deg, #1f1412, #3e2723); border: 2px solid #ffb300; border-radius: 12px; padding: 12px; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); text-align: center;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <span style="font-size:12px; font-weight:900; color:#ffb300; letter-spacing:1px; text-transform:uppercase;">⚔️ Rango Competitivo MMR</span>
+            <span id="prof-rank-season" style="font-size:10px; background:rgba(255,179,0,0.2); color:#ffe082; padding:2px 8px; border-radius:8px; font-weight:800;">Temporada 1</span>
+          </div>
+          <div style="display:flex; align-items:center; justify-content:center; gap:14px; margin:6px 0;">
+            <div id="prof-rank-icon" style="font-size:38px; filter: drop-shadow(0 2px 6px rgba(255,215,0,0.5));">🥉</div>
+            <div style="text-align:left;">
+              <div id="prof-rank-name" style="font-family:'Fredoka One', cursive; font-size:20px; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.8);">Bronce IV</div>
+              <div id="prof-rank-mmr" style="font-size:14px; font-weight:800; color:#ffca28;">1,000 MMR</div>
+            </div>
+          </div>
+          <div style="margin: 8px 0 4px 0;">
+            <div style="display:flex; justify-content:space-between; font-size:10px; color:#d7ccc8; margin-bottom:3px;">
+              <span id="prof-rank-tier-curr">Bronce IV</span>
+              <span id="prof-rank-progress-pts" style="font-weight:800; color:#ffca28;">0 / 100 LP</span>
+              <span id="prof-rank-tier-next">Bronce III</span>
+            </div>
+            <div style="background:rgba(255,255,255,0.15); height:8px; border-radius:4px; overflow:hidden; border:1px solid rgba(255,255,255,0.2);">
+              <div id="prof-rank-progress-bar" style="background:linear-gradient(90deg, #ff9800, #ffd54f); width:0%; height:100%; transition:width 0.4s ease;"></div>
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:6px; margin-top:10px; background:rgba(0,0,0,0.25); border-radius:8px; padding:6px;">
+            <div>
+              <div id="prof-stat-pvp-wins" style="font-weight:900; color:#4caf50; font-size:14px;">0</div>
+              <div style="font-size:9px; color:#bdbdbd;">Victorias</div>
+            </div>
+            <div>
+              <div id="prof-stat-pvp-losses" style="font-weight:900; color:#ef5350; font-size:14px;">0</div>
+              <div style="font-size:9px; color:#bdbdbd;">Derrotas</div>
+            </div>
+            <div>
+              <div id="prof-stat-pvp-winrate" style="font-weight:900; color:#ffb74d; font-size:14px;">0%</div>
+              <div style="font-size:9px; color:#bdbdbd;">Winrate</div>
+            </div>
+            <div>
+              <div id="prof-stat-pvp-streak" style="font-weight:900; color:#ff7043; font-size:14px;">🔥 0</div>
+              <div style="font-size:9px; color:#bdbdbd;">Racha</div>
+            </div>
           </div>
         </div>
 
@@ -5232,12 +5277,13 @@
           </div>
         </div>
 
-        <!-- Pestaña Espera Global -->
+        <!-- Pestaña Espera Global (SBMM Matchmaking) -->
         <div id="mp-pane-global-wait" class="mp-tab-pane" style="display:none; text-align:center; padding:20px 10px;">
-          <div style="font-size:42px; animation: heroPulse 1s infinite alternate;">🔎🍜</div>
+          <div style="font-size:42px; animation: heroPulse 1s infinite alternate;">🌐👨🏻‍🍳</div>
           <h3 style="color:#00e5ff; font-family:'Fredoka One', cursive; margin:10px 0 4px 0;">Buscando Chefs en Línea...</h3>
-          <p style="font-size:12px; color:#cfd8dc;">Emparejando 4 jugadores para iniciar la batalla.</p>
-          <div style="font-family:'Fredoka One', cursive; font-size:28px; color:#ffca28; margin:12px 0;" id="mp-global-timer">00:00</div>
+          <div id="mp-global-sbmm-status" style="font-size:12.5px; color:#ffca28; font-weight:800; margin-bottom:4px;">Emparejando por Rango MMR...</div>
+          <p id="mp-global-wait-desc" style="font-size:11.5px; color:#cfd8dc; margin-bottom:8px;">Buscando rivales de tu misma categoría competitiva.</p>
+          <div style="font-family:'Fredoka One', cursive; font-size:28px; color:#ffca28; margin:8px 0;" id="mp-global-timer">00:00</div>
           <button class="btn" onclick="MultiplayerManager.leaveRoom(); MultiplayerManager.switchLobbyTab('menu');" style="background:#455a64; color:#fff; font-size:12px; padding:6px 18px;">Cancelar Búsqueda</button>
         </div>
 
@@ -5629,7 +5675,13 @@ const DeviceManager = {
                     avatar: data.avatar || "🍜",
                     deviceId: this.deviceId,
                     deviceInfo: this.deviceInfoText,
-                    createdAt: data.created_at || new Date().toISOString()
+                    createdAt: data.created_at || new Date().toISOString(),
+                    mmr: data.mmr !== undefined && data.mmr !== null ? data.mmr : 1000,
+                    rankTier: data.rank_tier || 'Bronce IV',
+                    pvpWins: data.pvp_wins || 0,
+                    pvpLosses: data.pvp_losses || 0,
+                    pvpStreak: data.pvp_streak || 0,
+                    highestMmr: data.highest_mmr || 1000
                   };
                   this.currentPlayer = remotePlayer;
                   safeStorage.setItem("ramen_profile_explicit_registered", "true");
@@ -5637,6 +5689,12 @@ const DeviceManager = {
                   safeStorage.setItem("ramen_player_name", remotePlayer.playerName);
                   safeStorage.setItem("ramen_player_contact", remotePlayer.contact);
                   safeStorage.setItem("ramen_player_avatar", remotePlayer.avatar);
+                  safeStorage.setItem("ramen_player_mmr", String(remotePlayer.mmr));
+                  safeStorage.setItem("ramen_player_rank_tier", remotePlayer.rankTier);
+                  safeStorage.setItem("ramen_player_pvp_wins", String(remotePlayer.pvpWins));
+                  safeStorage.setItem("ramen_player_pvp_losses", String(remotePlayer.pvpLosses));
+                  safeStorage.setItem("ramen_player_pvp_streak", String(remotePlayer.pvpStreak));
+                  safeStorage.setItem("ramen_player_highest_mmr", String(remotePlayer.highestMmr));
                   updateStartPlayerCard();
                   renderLinkedUserBadges();
                 }
@@ -6332,6 +6390,18 @@ function getRashConfig(lvl) {
 }
 
 function getCurrentLevelConfig() {
+  if (typeof MultiplayerManager !== 'undefined' && (MultiplayerManager.isGameActive || MultiplayerManager.isInMultiplayer)) {
+    return {
+      level: 99,
+      name: "Servicio Multijugador",
+      customers: 999,
+      base_patience: 35,
+      max_orders: 2,
+      max_customers: 4,
+      ramen_names: RECETAS_RAMEN.map(r => r.name),
+      spawn_time: 4
+    };
+  }
   if (gameState.gameMode === 'RASH') {
     return getRashConfig(gameState.rashLevel || 1);
   }
@@ -6339,11 +6409,17 @@ function getCurrentLevelConfig() {
 }
 
 function getUnlockedRecipes() {
+  if (typeof MultiplayerManager !== 'undefined' && (MultiplayerManager.isGameActive || MultiplayerManager.isInMultiplayer)) {
+    return RECETAS_RAMEN;
+  }
   const cfg = getCurrentLevelConfig();
   return RECETAS_RAMEN.filter(r => cfg.ramen_names.includes(r.name));
 }
 
 function getUnlockedIngredients() {
+  if (typeof MultiplayerManager !== 'undefined' && (MultiplayerManager.isGameActive || MultiplayerManager.isInMultiplayer)) {
+    return INGREDIENTES;
+  }
   const unlockedRecs = getUnlockedRecipes();
   const ingIds = new Set();
   unlockedRecs.forEach(r => r.ingredients.forEach(id => ingIds.add(id)));
@@ -8812,6 +8888,18 @@ function renderLinkedUserBadges() {
 
   if (startBadge) startBadge.style.display = "block";
 
+  const rankPill = document.getElementById("start-pill-rank");
+  if (rankPill) {
+    const rawMmr = safeStorage.getItem("ramen_player_mmr");
+    const mmr = (rawMmr !== null && !isNaN(parseInt(rawMmr))) ? parseInt(rawMmr) : 1000;
+    const rankInfo = (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.getRankDetails)
+      ? MultiplayerManager.getRankDetails(mmr)
+      : { fullName: "Bronce IV", icon: "🥉", color: "#cd7f32" };
+    rankPill.innerHTML = `${rankInfo.icon} <strong>${rankInfo.fullName}</strong> (${mmr} MMR)`;
+    rankPill.style.color = rankInfo.color || "#ffb300";
+    rankPill.style.display = "inline-flex";
+  }
+
   if (p && p.playerName) {
     if (startPillTitle) startPillTitle.textContent = "CUENTA VINCULADA";
     if (startPillName) startPillName.textContent = `Chef ${p.playerName}`;
@@ -9178,6 +9266,43 @@ function openProfileModal() {
   document.getElementById("prof-stat-normal-best").textContent = `S/ ${normalBest}`;
   document.getElementById("prof-stat-rash-best").textContent = `Ronda ${rashBest}`;
 
+  // Datos de Rango MMR Competitivo
+  const rawMmr = safeStorage.getItem("ramen_player_mmr");
+  const mmr = (rawMmr !== null && !isNaN(parseInt(rawMmr))) ? parseInt(rawMmr) : 1000;
+  const rank = (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.getRankDetails) 
+    ? MultiplayerManager.getRankDetails(mmr)
+    : { fullName: 'Bronce IV', icon: '🥉', color: '#cd7f32', lp: 0, progressPercent: 0, nextRankName: 'Bronce III' };
+
+  const wins = parseInt(safeStorage.getItem('ramen_player_pvp_wins') || '0');
+  const losses = parseInt(safeStorage.getItem('ramen_player_pvp_losses') || '0');
+  const streak = parseInt(safeStorage.getItem('ramen_player_pvp_streak') || '0');
+  const totalMatches = wins + losses;
+  const winrate = totalMatches > 0 ? Math.round((wins / totalMatches) * 100) : 0;
+
+  const elIcon = document.getElementById("prof-rank-icon");
+  if (elIcon) elIcon.textContent = rank.icon;
+  const elName = document.getElementById("prof-rank-name");
+  if (elName) elName.textContent = rank.fullName;
+  const elMmr = document.getElementById("prof-rank-mmr");
+  if (elMmr) elMmr.textContent = `${mmr.toLocaleString()} MMR`;
+  const elCurr = document.getElementById("prof-rank-tier-curr");
+  if (elCurr) elCurr.textContent = rank.fullName;
+  const elPts = document.getElementById("prof-rank-progress-pts");
+  if (elPts) elPts.textContent = `${rank.lp} / 100 LP`;
+  const elNext = document.getElementById("prof-rank-tier-next");
+  if (elNext) elNext.textContent = rank.nextRankName;
+  const elBar = document.getElementById("prof-rank-progress-bar");
+  if (elBar) elBar.style.width = `${rank.progressPercent}%`;
+
+  const elWins = document.getElementById("prof-stat-pvp-wins");
+  if (elWins) elWins.textContent = wins;
+  const elLosses = document.getElementById("prof-stat-pvp-losses");
+  if (elLosses) elLosses.textContent = losses;
+  const elWr = document.getElementById("prof-stat-pvp-winrate");
+  if (elWr) elWr.textContent = `${winrate}%`;
+  const elStreak = document.getElementById("prof-stat-pvp-streak");
+  if (elStreak) elStreak.textContent = `🔥 ${streak}`;
+
   profSelectedAvatar = p.avatar || "🍜";
   selectProfAvatar(profSelectedAvatar);
   const nameInput = document.getElementById("prof-name-input");
@@ -9380,15 +9505,141 @@ function closeLeaderboardModal() {
 
 function switchLeaderboardTab(mode) {
   currentLbTab = mode;
-  document.getElementById("tab-lb-normal").className = `pantry-tab ${mode === 'NORMAL' ? 'active' : ''}`;
-  document.getElementById("tab-lb-rash").className = `pantry-tab ${mode === 'RASH' ? 'active' : ''}`;
+  const tabNormal = document.getElementById("tab-lb-normal");
+  const tabRash = document.getElementById("tab-lb-rash");
+  const tabMmr = document.getElementById("tab-lb-mmr");
+  if (tabNormal) tabNormal.className = `pantry-tab ${mode === 'NORMAL' ? 'active' : ''}`;
+  if (tabRash) tabRash.className = `pantry-tab ${mode === 'RASH' ? 'active' : ''}`;
+  if (tabMmr) tabMmr.className = `pantry-tab ${mode === 'MMR' ? 'active' : ''}`;
   loadLeaderboard();
 }
 
 async function loadLeaderboard() {
   const tbody = document.getElementById("leaderboard-body");
   const statusEl = document.getElementById("leaderboard-status-text");
-  tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:15px; color:#5d4037;">Cargando los mejores récords...</td></tr>`;
+  const thead = document.querySelector("#leaderboard-table thead");
+
+  tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:15px; color:#5d4037;">Cargando la clasificación oficial...</td></tr>`;
+
+  // 1. Caso Pestaña Ranking MMR (PvP Competitivo)
+  if (currentLbTab === 'MMR') {
+    if (thead) {
+      thead.innerHTML = `
+        <tr>
+          <th style="width:38px; text-align:center;">#</th>
+          <th>Chef</th>
+          <th>Rango & División</th>
+          <th style="text-align:right;">MMR</th>
+          <th style="text-align:center;">V / D (Ratio)</th>
+          <th style="text-align:center;">Racha</th>
+        </tr>
+      `;
+    }
+
+    let records = [];
+    let isFromSupabase = false;
+
+    await ensureSupabaseLoaded();
+    if (supabaseClient) {
+      try {
+        const { data, error } = await supabaseClient
+          .from('players')
+          .select('player_name, avatar, mmr, rank_tier, pvp_wins, pvp_losses, pvp_streak, device_id')
+          .order('mmr', { ascending: false })
+          .order('pvp_wins', { ascending: false })
+          .limit(50);
+        if (!error && data && data.length > 0) {
+          records = data;
+          isFromSupabase = true;
+        }
+      } catch(e) {
+        console.warn("Fallo cargando ranking MMR de Supabase:", e);
+      }
+    }
+
+    // Fallback a perfil local si aún no hay jugadores en Supabase
+    if (records.length === 0) {
+      const myName = (DeviceManager.currentPlayer && DeviceManager.currentPlayer.playerName) || safeStorage.getItem('ramen_player_name') || 'Chef Anónimo';
+      const myAvatar = (DeviceManager.currentPlayer && DeviceManager.currentPlayer.avatar) || safeStorage.getItem('ramen_player_avatar') || '🍜';
+      const myMmr = parseInt(safeStorage.getItem('ramen_player_mmr') || '1000');
+      const myRank = safeStorage.getItem('ramen_player_rank_tier') || 'Bronce IV';
+      const wins = parseInt(safeStorage.getItem('ramen_player_pvp_wins') || '0');
+      const losses = parseInt(safeStorage.getItem('ramen_player_pvp_losses') || '0');
+      const streak = parseInt(safeStorage.getItem('ramen_player_pvp_streak') || '0');
+      records = [{
+        player_name: myName,
+        avatar: myAvatar,
+        mmr: myMmr,
+        rank_tier: myRank,
+        pvp_wins: wins,
+        pvp_losses: losses,
+        pvp_streak: streak,
+        device_id: DeviceManager.deviceId
+      }];
+    }
+
+    statusEl.textContent = isFromSupabase 
+      ? "🟢 Clasificación Competitiva Oficial en Tiempo Real (Supabase)" 
+      : "🟡 Mostrando puntuaciones locales (Conecta tus llaves de Supabase para ver la clasificación global).";
+
+    tbody.innerHTML = "";
+    const medals = ["🥇", "🥈", "🥉"];
+    records.forEach((rec, idx) => {
+      const tr = document.createElement("tr");
+      const rankDisplay = idx < 3 ? medals[idx] : `#${idx + 1}`;
+      const isCurrentPlayer = (DeviceManager.currentPlayer && DeviceManager.currentPlayer.playerName && DeviceManager.currentPlayer.playerName.toLowerCase() === (rec.player_name || '').toLowerCase()) || (rec.device_id && rec.device_id === DeviceManager.deviceId);
+      const rankDetails = (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.getRankDetails) 
+        ? MultiplayerManager.getRankDetails(rec.mmr || 1000)
+        : { fullName: rec.rank_tier || 'Bronce IV', icon: '🥉', color: '#cd7f32' };
+
+      const wins = rec.pvp_wins || 0;
+      const losses = rec.pvp_losses || 0;
+      const total = wins + losses;
+      const winrate = total > 0 ? Math.round((wins / total) * 100) : 0;
+      const streak = rec.pvp_streak || 0;
+
+      tr.style.backgroundColor = isCurrentPlayer ? "#fffde7" : "";
+      tr.innerHTML = `
+        <td style="text-align:center; font-weight:900; font-size:13px;">${rankDisplay}</td>
+        <td style="font-weight:800; color:#3e2723;">
+          <span style="font-size:14px; margin-right:4px;">${rec.avatar || '🍜'}</span>
+          ${escapeHtml(rec.player_name)} ${isCurrentPlayer ? '<span style="font-size:9px; background:#ff9800; color:#fff; padding:1px 4px; border-radius:4px;">TÚ</span>' : ''}
+        </td>
+        <td>
+          <span style="display:inline-flex; align-items:center; gap:4px; font-weight:800; color:${rankDetails.color};">
+            <span>${rankDetails.icon}</span>
+            <span>${rankDetails.fullName}</span>
+          </span>
+        </td>
+        <td style="text-align:right; font-weight:900; color:#b71c1c; font-size:12px;">
+          ${(rec.mmr || 1000).toLocaleString()} MMR
+        </td>
+        <td style="text-align:center; font-size:11px;">
+          <span style="color:#2e7d32; font-weight:800;">${wins}V</span> - <span style="color:#c62828; font-weight:800;">${losses}D</span>
+          <span style="color:#757575; font-size:9px;">(${winrate}%)</span>
+        </td>
+        <td style="text-align:center; font-weight:800; color:${streak >= 3 ? '#ff3d00' : '#757575'};">
+          ${streak > 0 ? `🔥 ${streak}` : '-'}
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+    return;
+  }
+
+  // 2. Modos Campaña (NORMAL y RASH)
+  if (thead) {
+    thead.innerHTML = `
+      <tr>
+        <th style="width:40px; text-align:center;">#</th>
+        <th>Jugador</th>
+        <th>Recaudado</th>
+        <th>Atendidos</th>
+        <th>Nivel</th>
+        <th>Fecha</th>
+      </tr>
+    `;
+  }
 
   let records = [];
   let isFromSupabase = false;
@@ -12336,6 +12587,6 @@ if (document.readyState === 'loading') {
   bootGameUI();
 }
 </script>
-<script src="multiplayer.js?v=18"></script>
+<script src="multiplayer.js?v=19"></script>
 </body>
 </html>

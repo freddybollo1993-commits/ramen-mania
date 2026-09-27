@@ -18,6 +18,21 @@
     { name: 'Dorado Miso', hex: '#ffb300', bg: 'rgba(255, 179, 0, 0.2)', border: '#f57f17', label: 'P4' }
   ];
 
+  // Configuración del Sistema de Ranking MMR Competitivo (estilo Dota 2 / League of Legends)
+  const MMR_CONFIG = {
+    DEFAULT_MMR: 1000,
+    TIERS: [
+      { id: 'ROOKIE', name: 'Novato', icon: '🥢', minMmr: 0, maxMmr: 999, color: '#a1887f', bgGradient: 'linear-gradient(135deg, #4e342e, #3e2723)', hasDivisions: true },
+      { id: 'BRONZE', name: 'Bronce', icon: '🥉', minMmr: 1000, maxMmr: 1399, color: '#cd7f32', bgGradient: 'linear-gradient(135deg, #6d4c41, #4e342e)', hasDivisions: true },
+      { id: 'SILVER', name: 'Plata', icon: '🥈', minMmr: 1400, maxMmr: 1799, color: '#cfd8dc', bgGradient: 'linear-gradient(135deg, #78909c, #455a64)', hasDivisions: true },
+      { id: 'GOLD', name: 'Oro', icon: '🥇', minMmr: 1800, maxMmr: 2199, color: '#ffd700', bgGradient: 'linear-gradient(135deg, #ff8f00, #ff6f00)', hasDivisions: true },
+      { id: 'PLATINUM', name: 'Platino', icon: '💎', minMmr: 2200, maxMmr: 2599, color: '#00e5ff', bgGradient: 'linear-gradient(135deg, #00838f, #006064)', hasDivisions: true },
+      { id: 'DIAMOND', name: 'Diamante', icon: '💠', minMmr: 2600, maxMmr: 2999, color: '#b388ff', bgGradient: 'linear-gradient(135deg, #512da8, #311b92)', hasDivisions: true },
+      { id: 'MASTER', name: 'Maestro Itamae', icon: '👑', minMmr: 3000, maxMmr: 3499, color: '#ff4081', bgGradient: 'linear-gradient(135deg, #c2185b, #880e4f)', hasDivisions: false },
+      { id: 'DRAGON', name: 'Gran Dragón Ramen', icon: '🐉🔥', minMmr: 3500, maxMmr: 99999, color: '#ff1744', bgGradient: 'linear-gradient(135deg, #b71c1c, #bf360c)', hasDivisions: false }
+    ]
+  };
+
   const REACTION_EMOJIS = ['🍜', '🔥', '😱', '👑', '💨', '👏'];
 
   const MultiplayerManager = {
@@ -116,21 +131,224 @@
       return window.supabaseClient || null;
     },
 
+    /* ==========================================================================
+       SISTEMA DE RANKING MMR COMPETITIVO (ESTILO DOTA 2 / LEAGUE OF LEGENDS)
+       ========================================================================== */
+    getPlayerMmr() {
+      if (typeof safeStorage !== 'undefined') {
+        const saved = safeStorage.getItem('ramen_player_mmr');
+        if (saved !== null && saved !== undefined && !isNaN(parseInt(saved))) {
+          return Math.max(0, parseInt(saved));
+        }
+      }
+      return MMR_CONFIG.DEFAULT_MMR;
+    },
+
+    getRankDetails(rawMmr) {
+      const mmr = Math.max(0, parseInt(rawMmr !== undefined && rawMmr !== null ? rawMmr : MMR_CONFIG.DEFAULT_MMR) || MMR_CONFIG.DEFAULT_MMR);
+      const tiers = MMR_CONFIG.TIERS;
+      let tier = tiers[1]; // Bronce por defecto
+      for (let i = 0; i < tiers.length; i++) {
+        if (mmr >= tiers[i].minMmr && mmr <= tiers[i].maxMmr) {
+          tier = tiers[i];
+          break;
+        }
+      }
+
+      let division = '';
+      let lp = 0;
+      let nextRankName = '';
+      let progressPercent = 0;
+
+      if (tier.hasDivisions) {
+        const span = (tier.maxMmr - tier.minMmr + 1);
+        const divSpan = span / 4;
+        const offset = Math.max(0, mmr - tier.minMmr);
+        const divIndex = Math.min(3, Math.floor(offset / divSpan));
+        const roman = ['IV', 'III', 'II', 'I'][divIndex];
+        division = roman;
+        lp = Math.floor(offset % divSpan);
+        progressPercent = Math.min(100, Math.floor((lp / divSpan) * 100));
+
+        if (divIndex < 3) {
+          nextRankName = `${tier.name} ${['IV', 'III', 'II', 'I'][divIndex + 1]}`;
+        } else {
+          const nextTierIdx = tiers.findIndex(t => t.id === tier.id) + 1;
+          nextRankName = (nextTierIdx < tiers.length) ? `${tiers[nextTierIdx].name} IV` : 'Cima del Ranking';
+        }
+      } else {
+        if (tier.id === 'MASTER') {
+          lp = Math.max(0, mmr - 3000);
+          progressPercent = Math.min(100, Math.floor((lp / 500) * 100));
+          nextRankName = 'Gran Dragón Ramen';
+        } else {
+          lp = mmr;
+          progressPercent = 100;
+          nextRankName = 'Leyenda Inmortal';
+        }
+      }
+
+      const fullName = division ? `${tier.name} ${division}` : tier.name;
+
+      return {
+        mmr,
+        tierId: tier.id,
+        tierName: tier.name,
+        division,
+        fullName,
+        icon: tier.icon,
+        color: tier.color,
+        bgGradient: tier.bgGradient,
+        lp,
+        progressPercent,
+        nextRankName
+      };
+    },
+
+    calculateMatchMmrDelta(placement, totalPlayers, isCoop, coopSuccess) {
+      const currentStreak = parseInt((typeof safeStorage !== 'undefined' ? safeStorage.getItem('ramen_player_pvp_streak') : '0') || '0');
+      let delta = 0;
+
+      if (isCoop) {
+        if (coopSuccess) {
+          delta = 18;
+        } else {
+          delta = -8;
+        }
+      } else {
+        // Modo VS (PvP competitivo)
+        if (placement === 1) {
+          const nextStreak = currentStreak + 1;
+          const streakBonus = Math.min(15, (nextStreak > 1 ? (nextStreak - 1) * 4 : 0));
+          delta = 28 + streakBonus;
+        } else if (placement === 2 && totalPlayers >= 3) {
+          delta = 12; // Top 2 en FFA de 3 o 4 jugadores
+        } else if (placement === 2 && totalPlayers === 2) {
+          delta = -20; // Derrota directa en 1v1
+        } else if (placement === 3) {
+          delta = -14;
+        } else {
+          delta = -22;
+        }
+      }
+      return delta;
+    },
+
+    recordMatchMmr(placement, totalPlayers, isCoop, coopSuccess) {
+      const oldMmr = this.getPlayerMmr();
+      const delta = this.calculateMatchMmrDelta(placement, totalPlayers, isCoop, coopSuccess);
+      const newMmr = Math.max(0, oldMmr + delta);
+
+      let wins = parseInt((typeof safeStorage !== 'undefined' ? safeStorage.getItem('ramen_player_pvp_wins') : '0') || '0');
+      let losses = parseInt((typeof safeStorage !== 'undefined' ? safeStorage.getItem('ramen_player_pvp_losses') : '0') || '0');
+      let streak = parseInt((typeof safeStorage !== 'undefined' ? safeStorage.getItem('ramen_player_pvp_streak') : '0') || '0');
+      let highestMmr = parseInt((typeof safeStorage !== 'undefined' ? safeStorage.getItem('ramen_player_highest_mmr') : '1000') || '1000');
+
+      const isWin = isCoop ? coopSuccess : (placement === 1 || (placement === 2 && totalPlayers >= 3));
+      if (isWin) {
+        wins++;
+        streak++;
+      } else {
+        losses++;
+        streak = 0;
+      }
+      if (newMmr > highestMmr) highestMmr = newMmr;
+
+      const oldRank = this.getRankDetails(oldMmr);
+      const newRank = this.getRankDetails(newMmr);
+      const isTierPromoted = newRank.tierId !== oldRank.tierId && newMmr > oldMmr;
+      const isDivPromoted = newRank.division !== oldRank.division && newMmr > oldMmr;
+
+      if (typeof safeStorage !== 'undefined') {
+        safeStorage.setItem('ramen_player_mmr', String(newMmr));
+        safeStorage.setItem('ramen_player_rank_tier', newRank.fullName);
+        safeStorage.setItem('ramen_player_pvp_wins', String(wins));
+        safeStorage.setItem('ramen_player_pvp_losses', String(losses));
+        safeStorage.setItem('ramen_player_pvp_streak', String(streak));
+        safeStorage.setItem('ramen_player_highest_mmr', String(highestMmr));
+      }
+
+      if (typeof DeviceManager !== 'undefined' && DeviceManager.currentPlayer) {
+        DeviceManager.currentPlayer.mmr = newMmr;
+        DeviceManager.currentPlayer.rankTier = newRank.fullName;
+        DeviceManager.currentPlayer.pvpWins = wins;
+        DeviceManager.currentPlayer.pvpLosses = losses;
+        DeviceManager.currentPlayer.pvpStreak = streak;
+        DeviceManager.currentPlayer.highestMmr = highestMmr;
+      }
+
+      // Sincronizar en tiempo real con Supabase en segundo plano
+      const sb = this.getSupabase();
+      const devId = (typeof DeviceManager !== 'undefined') ? DeviceManager.deviceId : this.myPlayerId;
+      if (sb && devId) {
+        try {
+          sb.from('players').update({
+            mmr: newMmr,
+            rank_tier: newRank.fullName,
+            pvp_wins: wins,
+            pvp_losses: losses,
+            pvp_streak: streak,
+            highest_mmr: highestMmr,
+            last_login: new Date().toISOString()
+          }).eq('device_id', devId).then(() => {}).catch(() => {});
+        } catch(e) {}
+      }
+
+      if (typeof renderLinkedUserBadges === 'function') {
+        renderLinkedUserBadges();
+      }
+
+      return {
+        delta,
+        oldMmr,
+        newMmr,
+        oldRank,
+        newRank,
+        isTierPromoted,
+        isDivPromoted,
+        isPromoted: isTierPromoted || isDivPromoted,
+        streak,
+        wins,
+        losses
+      };
+    },
+
+    getMatchmakingRoomForMmr(mmr) {
+      const rank = this.getRankDetails(mmr);
+      if (rank.tierId === 'ROOKIE') return { bracket: 'Novato', room: 'RAMEN_SBMM_ROOKIE_V2' };
+      if (rank.tierId === 'BRONZE') return { bracket: 'Bronce', room: 'RAMEN_SBMM_BRONZE_V2' };
+      if (rank.tierId === 'SILVER') return { bracket: 'Plata', room: 'RAMEN_SBMM_SILVER_V2' };
+      if (rank.tierId === 'GOLD') return { bracket: 'Oro', room: 'RAMEN_SBMM_GOLD_V2' };
+      return { bracket: 'Platino y Superior', room: 'RAMEN_SBMM_HIGH_TIER_V2' };
+    },
+
     // Obtener datos del jugador actual
     getMyProfile() {
+      let name = 'Chef Invitado';
+      let avatar = '🍜';
+      let id = this.myPlayerId;
+
       if (typeof DeviceManager !== 'undefined' && DeviceManager.currentPlayer) {
-        return {
-          id: DeviceManager.deviceId,
-          name: DeviceManager.currentPlayer.playerName || 'Chef Anónimo',
-          avatar: DeviceManager.currentPlayer.avatar || '🍜'
-        };
+        id = DeviceManager.deviceId;
+        name = DeviceManager.currentPlayer.playerName || 'Chef Anónimo';
+        avatar = DeviceManager.currentPlayer.avatar || '🍜';
+      } else if (typeof safeStorage !== 'undefined') {
+        name = safeStorage.getItem('ramen_player_name') || 'Chef Invitado';
+        avatar = safeStorage.getItem('ramen_player_avatar') || '🍜';
       }
-      const savedName = (typeof safeStorage !== 'undefined') ? safeStorage.getItem('ramen_player_name') : 'Chef Invitado';
-      const savedAvatar = (typeof safeStorage !== 'undefined') ? safeStorage.getItem('ramen_player_avatar') : '🍜';
+
+      const mmr = this.getPlayerMmr();
+      const rank = this.getRankDetails(mmr);
+
       return {
-        id: this.myPlayerId,
-        name: savedName || 'Chef Invitado',
-        avatar: savedAvatar || '🍜'
+        id: id,
+        name: name,
+        avatar: avatar,
+        mmr: rank.mmr,
+        rankTier: rank.fullName,
+        rankIcon: rank.icon,
+        rankColor: rank.color,
+        rankBg: rank.bgGradient
       };
     },
 
@@ -232,7 +450,7 @@
       this.showLobbyToast(`🔑 Conectando a sala ${this.roomId}...`, '#1976d2');
     },
 
-    // Unirse a la Cola de Matchmaking Global
+    // Unirse a la Cola de Matchmaking Global con SBMM (Skill-Based Matchmaking)
     async joinGlobalQueue() {
       const sb = this.getSupabase();
       if (!sb) {
@@ -242,24 +460,52 @@
 
       this.leaveRoom();
       this.roomType = 'GLOBAL';
-      this.roomId = 'RAMEN_GLOBAL_LOBBY_V1';
+
+      const myMmr = this.getPlayerMmr();
+      const matchInfo = this.getMatchmakingRoomForMmr(myMmr);
+      this.roomId = matchInfo.room;
       this.isHost = false;
       this.isReady = true;
 
+      const rank = this.getRankDetails(myMmr);
+      const statusEl = document.getElementById('mp-global-sbmm-status');
+      if (statusEl) {
+        statusEl.innerHTML = `<span style="color:${rank.color}; font-weight:900;">${rank.icon} Categoría: ${rank.fullName}</span> <span style="color:#ffca28; font-size:11px;">(${myMmr} MMR)</span>`;
+      }
+      const descEl = document.getElementById('mp-global-wait-desc');
+      if (descEl) {
+        descEl.textContent = `Buscando rivales en el rango ${rank.tierName}...`;
+      }
+
       await this.connectToChannel(this.roomId);
       this.switchLobbyTab('global-wait');
-      this.startGlobalQueueTimer();
+      this.startGlobalQueueTimer(matchInfo);
     },
 
-    startGlobalQueueTimer() {
+    startGlobalQueueTimer(matchInfo) {
       let seconds = 0;
+      let expandedSearch = false;
       const timerEl = document.getElementById('mp-global-timer');
+      const descEl = document.getElementById('mp-global-wait-desc');
+      const statusEl = document.getElementById('mp-global-sbmm-status');
+
       clearInterval(this.globalQueueTimer);
       this.globalQueueTimer = setInterval(() => {
         seconds++;
         const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
         const secs = String(seconds % 60).padStart(2, '0');
         if (timerEl) timerEl.textContent = `${mins}:${secs}`;
+
+        // Si pasan 20 segundos y no hay contrincante, expandir búsqueda
+        if (seconds >= 20 && !expandedSearch && this.players.length < 2) {
+          expandedSearch = true;
+          if (descEl) {
+            descEl.innerHTML = '⚡ <em>Ampliando rango de búsqueda para emparejarte rápidamente...</em>';
+          }
+          if (statusEl) {
+            statusEl.innerHTML += ' <span style="font-size:10px; color:#4fc3f7;">[Búsqueda Ampliada]</span>';
+          }
+        }
       }, 1000);
     },
 
@@ -287,7 +533,7 @@
       this.channel.on('presence', { event: 'join' }, ({ key, newPresences }) => {
         const joined = newPresences[0];
         if (joined) {
-          this.showLobbyToast(`👋 ${joined.name || 'Un chef'} se ha unido a la sala.`, '#1976d2');
+          this.showLobbyToast(`👋 ${joined.name || 'Un chef'} (${joined.rankTier || 'Novato'}) se ha unido a la sala.`, '#1976d2');
           this.playArcadeSound('join');
           if (this.isHost) {
             this.broadcastEvent('CONFIG_UPDATE', {
@@ -311,7 +557,7 @@
         this.handleIncomingBroadcast(payload);
       });
 
-      // Suscribirse y publicar estado de presencia propio
+      // Suscribirse y publicar estado de presencia propio con MMR
       this.channel.subscribe(async (status) => {
         if (status === 'SUBSCRIBED') {
           this.isInMultiplayer = true;
@@ -319,6 +565,10 @@
             id: myProf.id,
             name: myProf.name,
             avatar: myProf.avatar,
+            mmr: myProf.mmr,
+            rankTier: myProf.rankTier,
+            rankIcon: myProf.rankIcon,
+            rankColor: myProf.rankColor,
             isHost: this.isHost,
             isReady: this.isReady,
             joinedAt: Date.now()
@@ -367,9 +617,21 @@
       this.updateHostControls();
 
       // En Modo Global: si somos 4 jugadores listos, arrancar automáticamente
-      if (this.roomType === 'GLOBAL' && this.players.length >= 4) {
-        if (this.isHost && !this.isGameActive && !this.countdownTimer) {
-          this.startCountdownAndLaunch();
+      if (this.roomType === 'GLOBAL') {
+        if (this.players.length >= 4) {
+          if (this.isHost && !this.isGameActive && !this.countdownTimer) {
+            this.startCountdownAndLaunch();
+          }
+        } else if (this.players.length >= 2 && !this.countdownTimer && !this.isGameActive) {
+          // Si hay 2 o 3 jugadores en matchmaking global, arrancar en 6s si no entra un 4to
+          if (!this.globalMatchLaunchTimer) {
+            this.globalMatchLaunchTimer = setTimeout(() => {
+              if (this.isHost && this.roomType === 'GLOBAL' && this.players.length >= 2 && !this.isGameActive && !this.countdownTimer) {
+                this.startCountdownAndLaunch();
+              }
+              this.globalMatchLaunchTimer = null;
+            }, 6000);
+          }
         }
       }
     },
@@ -379,6 +641,10 @@
       clearInterval(this.countdownTimer);
       clearInterval(this.gameLoopTimer);
       clearInterval(this.globalQueueTimer);
+      if (this.globalMatchLaunchTimer) {
+        clearTimeout(this.globalMatchLaunchTimer);
+        this.globalMatchLaunchTimer = null;
+      }
       this.countdownTimer = null;
       this.gameLoopTimer = null;
 
@@ -414,6 +680,10 @@
           id: myProf.id,
           name: myProf.name,
           avatar: myProf.avatar,
+          mmr: myProf.mmr,
+          rankTier: myProf.rankTier,
+          rankIcon: myProf.rankIcon,
+          rankColor: myProf.rankColor,
           isHost: this.isHost,
           isReady: this.isReady,
           joinedAt: Date.now()
@@ -960,13 +1230,22 @@
           const isMe = player.id === this.myPlayerId;
           const isHost = player.isHost;
           const isReady = player.isReady || isHost;
+          const rankTier = player.rankTier || 'Novato';
+          const rankIcon = player.rankIcon || '🥢';
+          const rankColor = player.rankColor || '#ffb300';
+          const playerMmr = player.mmr || 1000;
 
           html += `
             <div class="mp-player-slot filled" style="border-color: ${color.hex}; background: ${color.bg};">
               <div class="mp-slot-badge" style="background: ${color.hex};">${color.label}</div>
               <div class="mp-slot-avatar">${player.avatar || '🍜'}</div>
               <div class="mp-slot-name">${player.name} ${isMe ? '<span style="font-size:10px; color:#ffb300;">(Tú)</span>' : ''}</div>
-              <div class="mp-slot-status ${isReady ? 'ready' : 'pending'}">
+              <div class="mp-slot-rank" style="display:inline-flex; align-items:center; gap:4px; font-size:10.5px; font-weight:800; background:rgba(0,0,0,0.3); border-radius:10px; padding:2px 7px; margin-top:3px; color:${rankColor}; border:1px solid rgba(255,255,255,0.15);">
+                <span>${rankIcon}</span>
+                <span>${rankTier}</span>
+                <span style="opacity:0.8; font-size:9.5px;">(${playerMmr} MMR)</span>
+              </div>
+              <div class="mp-slot-status ${isReady ? 'ready' : 'pending'}" style="margin-top:4px;">
                 ${isHost ? '👑 Anfitrión' : (isReady ? '✅ Listo' : '⏳ Esperando...')}
               </div>
             </div>
@@ -1163,7 +1442,7 @@
       this.showLobbyToast('📋 ¡Enlace copiado! Pégalo en WhatsApp o Discord.', '#2e7d32');
     },
 
-    // Mostrar Podio Final
+    // Mostrar Podio Final con MMR Delta
     showPodiumModal(winnerName) {
       const modal = document.getElementById('mp-podium-modal');
       if (!modal) return;
@@ -1177,17 +1456,87 @@
           : `🎉 ¡Servicio Exitoso del Restaurante!`;
       }
 
+      // 1. Determinar posición del jugador local
+      let placement = 1;
+      let sorted = [];
+      const totalPlayers = Math.max(1, this.players.length);
+
+      if (this.gameMode === 'VS') {
+        sorted = [...this.players].sort((a, b) => (b.score || 0) - (a.score || 0));
+        const myRankIdx = sorted.findIndex(p => p.id === this.myPlayerId);
+        placement = myRankIdx >= 0 ? myRankIdx + 1 : 1;
+      }
+
+      const isCoopSuccess = this.sharedMoney >= (this.winCondition.target || 300);
+      // 2. Registrar y calcular delta MMR
+      const mmrInfo = this.recordMatchMmr(placement, totalPlayers, this.gameMode === 'COOP', isCoopSuccess);
+
       if (bodyEl) {
+        const deltaSign = mmrInfo.delta >= 0 ? `+${mmrInfo.delta}` : `${mmrInfo.delta}`;
+        const deltaColor = mmrInfo.delta >= 0 ? '#00e676' : '#ff5252';
+        const streakBadge = (mmrInfo.streak > 1 && mmrInfo.delta >= 0) 
+          ? `<span style="background:rgba(255,112,67,0.25); color:#ff7043; border:1px solid #ff7043; border-radius:10px; padding:2px 8px; font-size:11px; font-weight:900; margin-left:6px;">🔥 Racha x${mmrInfo.streak}</span>` 
+          : '';
+
+        let promoBanner = '';
+        if (mmrInfo.isTierPromoted) {
+          promoBanner = `
+            <div style="background:linear-gradient(90deg, #ff8f00, #ffb300); color:#1a0c02; font-family:'Fredoka One', cursive; font-size:14.5px; padding:8px 12px; border-radius:8px; margin-bottom:12px; box-shadow:0 3px 10px rgba(255,179,0,0.5);">
+              🎉 ¡FELICITACIONES! ASCENDISTE A ${mmrInfo.newRank.fullName.toUpperCase()} 🎉
+            </div>
+          `;
+        } else if (mmrInfo.isDivPromoted) {
+          promoBanner = `
+            <div style="background:linear-gradient(90deg, #2e7d32, #43a047); color:#fff; font-family:'Fredoka One', cursive; font-size:13.5px; padding:6px 10px; border-radius:8px; margin-bottom:10px; box-shadow:0 3px 8px rgba(67,160,71,0.4);">
+              ⭐ ¡Subiste a División ${mmrInfo.newRank.division}! (${mmrInfo.newRank.fullName})
+            </div>
+          `;
+        }
+
+        const mmrDeltaHtml = `
+          ${promoBanner}
+          <div class="mp-podium-mmr-card" style="background:linear-gradient(135deg, #2a1512, #180b09); border:2px solid ${mmrInfo.newRank.color}; border-radius:12px; padding:12px 14px; margin-bottom:14px; text-align:center; box-shadow:0 4px 14px rgba(0,0,0,0.5);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <span style="font-size:11px; font-weight:900; color:#ffb300; text-transform:uppercase; letter-spacing:1px;">⚔️ Calificación Competitiva (MMR)</span>
+              <div>${streakBadge}</div>
+            </div>
+            <div style="display:flex; align-items:center; justify-content:center; gap:12px; margin:8px 0;">
+              <div style="font-size:36px;">${mmrInfo.newRank.icon}</div>
+              <div style="text-align:left;">
+                <div style="font-family:'Fredoka One', cursive; font-size:19px; color:#fff;">${mmrInfo.newRank.fullName}</div>
+                <div style="font-size:13px; font-weight:800; color:#e0e0e0;">
+                  ${mmrInfo.newMmr.toLocaleString()} MMR 
+                  <span style="color:${deltaColor}; font-weight:900; font-size:14px; margin-left:4px;">(${deltaSign} MMR)</span>
+                </div>
+              </div>
+            </div>
+            <!-- Barra de progreso -->
+            <div style="margin-top:6px;">
+              <div style="display:flex; justify-content:space-between; font-size:10px; color:#cfd8dc; margin-bottom:3px;">
+                <span>Progreso a siguiente rango</span>
+                <span style="font-weight:800; color:#ffca28;">${mmrInfo.newRank.lp} / 100 LP</span>
+              </div>
+              <div style="background:rgba(255,255,255,0.12); height:7px; border-radius:4px; overflow:hidden; border:1px solid rgba(255,255,255,0.15);">
+                <div style="background:linear-gradient(90deg, #ff9800, #ffca28); width:${mmrInfo.newRank.progressPercent}%; height:100%; transition:width 0.5s ease;"></div>
+              </div>
+            </div>
+          </div>
+        `;
+
         if (this.gameMode === 'VS') {
-          const sorted = [...this.players].sort((a, b) => (b.score || 0) - (a.score || 0));
-          let html = `<div class="mp-podium-list">`;
+          let html = mmrDeltaHtml + `<div class="mp-podium-list">`;
           sorted.forEach((p, idx) => {
             const medal = idx === 0 ? '🥇 Oro' : (idx === 1 ? '🥈 Plata' : (idx === 2 ? '🥉 Bronce' : '4º Puesto'));
             const isMe = p.id === this.myPlayerId;
+            const rankIcon = p.rankIcon || '🥢';
+            const rankTier = p.rankTier || 'Novato';
             html += `
               <div class="mp-podium-card rank-${idx + 1}">
                 <div class="mp-podium-rank">${medal}</div>
-                <div class="mp-podium-chef">${p.avatar} ${p.name} ${isMe ? '<strong>(Tú)</strong>' : ''}</div>
+                <div class="mp-podium-chef">
+                  ${p.avatar} ${p.name} ${isMe ? '<strong>(Tú)</strong>' : ''}
+                  <span style="display:inline-block; font-size:10px; opacity:0.85; margin-left:4px;">${rankIcon} ${rankTier}</span>
+                </div>
                 <div class="mp-podium-score">S/ ${p.score || 0} • ${p.customersServed || 0} ramen</div>
               </div>
             `;
@@ -1195,10 +1544,10 @@
           html += `</div>`;
           bodyEl.innerHTML = html;
         } else {
-          bodyEl.innerHTML = `
-            <div style="text-align:center; padding:15px;">
-              <div style="font-size:48px;">⭐⭐⭐</div>
-              <h3 style="color:#ffb300; margin:10px 0;">¡Cocina 3 Estrellas Michelin!</h3>
+          bodyEl.innerHTML = mmrDeltaHtml + `
+            <div style="text-align:center; padding:15px; background:rgba(255,255,255,0.05); border-radius:10px;">
+              <div style="font-size:42px;">⭐⭐⭐</div>
+              <h3 style="color:#ffb300; margin:8px 0;">¡Cocina 3 Estrellas Michelin!</h3>
               <p>El equipo recaudó <strong>S/ ${this.sharedMoney}</strong> con un trabajo perfecto en equipo.</p>
             </div>
           `;
