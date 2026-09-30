@@ -594,6 +594,39 @@
     box-shadow: 0 -2px 5px rgba(0,0,0,0.3);
   }
 
+  .kitchen-area-tabs {
+    display: flex;
+    gap: 3px;
+    align-items: flex-end;
+  }
+
+  .kitchen-area-tab-btn {
+    background: linear-gradient(180deg, #4e261c 0%, #2f1712 100%);
+    border: 1px solid #6d392b;
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    color: #ffd699;
+    font-family: 'Fredoka One', cursive, sans-serif;
+    font-size: 11px;
+    padding: 3px 12px;
+    letter-spacing: 0.4px;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.3);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+  }
+  .kitchen-area-tab-btn:hover {
+    background: linear-gradient(180deg, #5d2e22 0%, #3a1c15 100%);
+    color: #fff;
+  }
+  .kitchen-area-tab-btn.active {
+    background: linear-gradient(180deg, #ffb300 0%, #ff8f00 100%);
+    color: #211202;
+    border-color: #ffe082;
+    font-weight: 900;
+    box-shadow: 0 0 12px rgba(255, 179, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  }
+
   .pantry-mini-filter {
     display: flex;
     gap: 4px;
@@ -4290,14 +4323,8 @@
   <main class="game-central-stage">
     <div class="prep-station-board" id="prep-board-box">
       <div class="prep-station-tab-row">
-        <div class="prep-station-tab">RAMEN</div>
-        <div class="pantry-mini-filter" id="pantry-tabs-bar">
-          <button class="mini-cat-btn active" onclick="filterCategory('todos')">Todos</button>
-          <button class="mini-cat-btn" onclick="filterCategory('bases')">Bases</button>
-          <button class="mini-cat-btn" onclick="filterCategory('salsas')">Salsas</button>
-          <button class="mini-cat-btn" onclick="filterCategory('proteinas')">Proteínas</button>
-          <button class="mini-cat-btn" onclick="filterCategory('vegetales')">Vegetales</button>
-        </div>
+        <div class="kitchen-area-tabs" id="kitchen-area-tabs"></div>
+        <div class="pantry-mini-filter" id="pantry-tabs-bar"></div>
       </div>
       <div class="prep-ingredients-grid" id="ingredients-grid"></div>
     </div>
@@ -6464,35 +6491,102 @@ const AnalyticsTracker = {
 
 
 const INGREDIENTES = [
-  {"id": 1, "name": "fideo ramen", "cat": "bases", "icon": "🥢", "display": "Fideo Ramen", "img": "assets/ingredients/ing_1_fideo_ramen.svg"},
-  {"id": 2, "name": "Caldo Shio", "cat": "bases", "icon": "🥣", "display": "Caldo Shio", "img": "assets/ingredients/ing_2_caldo_shio.svg"},
-  {"id": 3, "name": "caldo tonkotsu", "cat": "bases", "icon": "🫕", "display": "Caldo Tonkotsu", "img": "assets/ingredients/ing_3_caldo_tonkotsu.svg"},
-  {"id": 4, "name": "agua", "cat": "bases", "icon": "💧", "display": "Agua", "img": "assets/ingredients/ing_4_agua.svg"},
-  {"id": 5, "name": "Salsa Shoyu", "cat": "salsas", "icon": "🍶", "display": "Salsa Shoyu", "img": "assets/ingredients/ing_5_salsa_shoyu.svg"},
-  {"id": 6, "name": "salsa miso", "cat": "salsas", "icon": "🍲", "display": "Salsa Miso", "img": "assets/ingredients/ing_6_salsa_miso.svg"},
-  {"id": 7, "name": "salsa ebi ramen", "cat": "salsas", "icon": "🦐", "display": "Salsa Ebi", "img": "assets/ingredients/ing_7_salsa_ebi.svg"},
-  {"id": 8, "name": "salsa tan tan", "cat": "salsas", "icon": "🌶️", "display": "Salsa Tan Tan", "img": "assets/ingredients/ing_8_salsa_tantan.svg"},
-  {"id": 9, "name": "salsa vegetariana", "cat": "salsas", "icon": "🥬", "display": "Salsa Vegetariana", "img": "assets/ingredients/ing_9_salsa_vegetariana.svg"},
-  {"id": 10, "name": "salsa bajiru", "cat": "salsas", "icon": "🌿", "display": "Salsa Bajiru", "img": "assets/ingredients/ing_10_salsa_bajiru.svg"},
-  {"id": 11, "name": "Chasu Asado", "cat": "proteinas", "icon": "🥩", "display": "Chasu Asado", "img": "assets/ingredients/ing_11_chasu_asado.svg"},
-  {"id": 12, "name": "brisket laminado", "cat": "proteinas", "icon": "🥓", "display": "Brisket Laminado", "img": "assets/ingredients/ing_12_brisket.svg"},
-  {"id": 13, "name": "chancho molido", "cat": "proteinas", "icon": "🍖", "display": "Chancho Molido", "img": "assets/ingredients/ing_13_chancho_molido.svg"},
-  {"id": 14, "name": "langostinos", "cat": "proteinas", "icon": "🍤", "display": "Langostinos", "img": "assets/ingredients/ing_14_langostinos.svg"},
-  {"id": 15, "name": "Huevo", "cat": "proteinas", "icon": "🥚", "display": "Huevo", "img": "assets/ingredients/ing_15_huevo.svg"},
-  {"id": 16, "name": "triángulos de tofu", "cat": "proteinas", "icon": "🧈", "display": "Tofu Triángulos", "img": "assets/ingredients/ing_16_tofu.svg"},
-  {"id": 17, "name": "Poro", "cat": "vegetales", "icon": "🌱", "display": "Poro", "img": "assets/ingredients/ing_17_poro.svg"},
-  {"id": 18, "name": "Cebolla China", "cat": "vegetales", "icon": "🧅", "display": "Cebolla China", "img": "assets/ingredients/ing_18_cebolla_china.svg"},
-  {"id": 19, "name": "Ajonjolí Blanco", "cat": "vegetales", "icon": "✨", "display": "Ajonjolí Blanco", "img": "assets/ingredients/ing_19_ajonjoli_blanco.svg"},
-  {"id": 20, "name": "alga nori", "cat": "vegetales", "icon": "⬛", "display": "Nori", "img": "assets/ingredients/ing_20_nori.svg"},
-  {"id": 21, "name": "alga wanji", "cat": "vegetales", "icon": "🌿", "display": "Alga Wanji", "img": "assets/ingredients/ing_21_alga_wanji.svg"},
-  {"id": 22, "name": "bambú laminado", "cat": "vegetales", "icon": "🎍", "display": "Bamboo", "img": "assets/ingredients/ing_22_bamboo.svg"},
-  {"id": 23, "name": "holantao", "cat": "vegetales", "icon": "🫛", "display": "Holantao", "img": "assets/ingredients/ing_23_holantao.svg"},
-  {"id": 24, "name": "col cocida", "cat": "vegetales", "icon": "🥬", "display": "Col Cocida", "img": "assets/ingredients/ing_24_col_cocida.svg"},
-  {"id": 25, "name": "moyashi", "cat": "vegetales", "icon": "🌾", "display": "Moyashi", "img": "assets/ingredients/ing_25_moyashi.svg"},
-  {"id": 27, "name": "champiñones", "cat": "vegetales", "icon": "🍄", "display": "Champiñones", "img": "assets/ingredients/ing_27_champinones.svg"},
-  {"id": 28, "name": "shitake", "cat": "vegetales", "icon": "🟫", "display": "Shitake", "img": "assets/ingredients/ing_28_shitake.svg"},
-  {"id": 29, "name": "Espárrago", "cat": "vegetales", "icon": "🎋", "display": "Espárrago", "img": "assets/ingredients/ing_29_esparrago.svg"},
-  {"id": 30, "name": "zanahoria", "cat": "vegetales", "icon": "🥕", "display": "Zanahoria", "img": "assets/ingredients/ing_30_zanahoria.svg"}
+  {"id": 1, "name": "fideo ramen", "cat": "bases", "areas": ["ramen","salteados"], "icon": "🥢", "display": "Fideo Ramen", "img": "assets/ingredients/ing_1_fideo_ramen.svg"},
+  {"id": 2, "name": "Caldo Shio", "cat": "bases", "areas": ["ramen"], "icon": "🥣", "display": "Caldo Shio", "img": "assets/ingredients/ing_2_caldo_shio.svg"},
+  {"id": 3, "name": "caldo tonkotsu", "cat": "bases", "areas": ["ramen"], "icon": "🫕", "display": "Caldo Tonkotsu", "img": "assets/ingredients/ing_3_caldo_tonkotsu.svg"},
+  {"id": 4, "name": "agua", "cat": "bases", "areas": ["ramen"], "icon": "💧", "display": "Agua", "img": "assets/ingredients/ing_4_agua.svg"},
+  {"id": 5, "name": "Salsa Shoyu", "cat": "salsas", "areas": ["ramen"], "icon": "🍶", "display": "Salsa Shoyu", "img": "assets/ingredients/ing_5_salsa_shoyu.svg"},
+  {"id": 6, "name": "salsa miso", "cat": "salsas", "areas": ["ramen"], "icon": "🍲", "display": "Salsa Miso", "img": "assets/ingredients/ing_6_salsa_miso.svg"},
+  {"id": 7, "name": "salsa ebi ramen", "cat": "salsas", "areas": ["ramen"], "icon": "🦐", "display": "Salsa Ebi", "img": "assets/ingredients/ing_7_salsa_ebi.svg"},
+  {"id": 8, "name": "salsa tan tan", "cat": "salsas", "areas": ["ramen","salteados"], "icon": "🌶️", "display": "Salsa Tan Tan", "img": "assets/ingredients/ing_8_salsa_tantan.svg"},
+  {"id": 9, "name": "salsa vegetariana", "cat": "salsas", "areas": ["ramen"], "icon": "🥬", "display": "Salsa Vegetariana", "img": "assets/ingredients/ing_9_salsa_vegetariana.svg"},
+  {"id": 10, "name": "salsa bajiru", "cat": "salsas", "areas": ["ramen"], "icon": "🌿", "display": "Salsa Bajiru", "img": "assets/ingredients/ing_10_salsa_bajiru.svg"},
+  {"id": 11, "name": "Chasu Asado", "cat": "proteinas", "areas": ["ramen"], "icon": "🥩", "display": "Chasu Asado", "img": "assets/ingredients/ing_11_chasu_asado.svg"},
+  {"id": 12, "name": "brisket laminado", "cat": "proteinas", "areas": ["ramen"], "icon": "🥓", "display": "Brisket Laminado", "img": "assets/ingredients/ing_12_brisket.svg"},
+  {"id": 13, "name": "chancho molido", "cat": "proteinas", "areas": ["ramen"], "icon": "🍖", "display": "Chancho Molido", "img": "assets/ingredients/ing_13_chancho_molido.svg"},
+  {"id": 14, "name": "langostinos", "cat": "proteinas", "areas": ["ramen"], "icon": "🍤", "display": "Langostinos", "img": "assets/ingredients/ing_14_langostinos.svg"},
+  {"id": 15, "name": "Huevo", "cat": "proteinas", "areas": ["ramen","frituras","salteados"], "icon": "🥚", "display": "Huevo", "img": "assets/ingredients/ing_15_huevo.svg"},
+  {"id": 16, "name": "triángulos de tofu", "cat": "proteinas", "areas": ["ramen"], "icon": "🧈", "display": "Tofu Triángulos", "img": "assets/ingredients/ing_16_tofu.svg"},
+  {"id": 17, "name": "Poro", "cat": "vegetales", "areas": ["ramen"], "icon": "🌱", "display": "Poro", "img": "assets/ingredients/ing_17_poro.svg"},
+  {"id": 18, "name": "Cebolla China", "cat": "vegetales", "areas": ["ramen"], "icon": "🧅", "display": "Cebolla China", "img": "assets/ingredients/ing_18_cebolla_china.svg"},
+  {"id": 19, "name": "Ajonjolí Blanco", "cat": "vegetales", "areas": ["ramen"], "icon": "✨", "display": "Ajonjolí Blanco", "img": "assets/ingredients/ing_19_ajonjoli_blanco.svg"},
+  {"id": 20, "name": "alga nori", "cat": "vegetales", "areas": ["ramen","makis"], "icon": "⬛", "display": "Nori", "img": "assets/ingredients/ing_20_nori.svg"},
+  {"id": 21, "name": "alga wanji", "cat": "vegetales", "areas": ["ramen"], "icon": "🌿", "display": "Alga Wanji", "img": "assets/ingredients/ing_21_alga_wanji.svg"},
+  {"id": 22, "name": "bambú laminado", "cat": "vegetales", "areas": ["ramen"], "icon": "🎍", "display": "Bamboo", "img": "assets/ingredients/ing_22_bamboo.svg"},
+  {"id": 23, "name": "holantao", "cat": "vegetales", "areas": ["ramen","salteados"], "icon": "🫛", "display": "Holantao", "img": "assets/ingredients/ing_23_holantao.svg"},
+  {"id": 24, "name": "col cocida", "cat": "vegetales", "areas": ["ramen"], "icon": "🥬", "display": "Col Cocida", "img": "assets/ingredients/ing_24_col_cocida.svg"},
+  {"id": 25, "name": "moyashi", "cat": "vegetales", "areas": ["ramen","salteados"], "icon": "🌾", "display": "Moyashi", "img": "assets/ingredients/ing_25_moyashi.svg"},
+  {"id": 27, "name": "champiñones", "cat": "vegetales", "areas": ["ramen","salteados"], "icon": "🍄", "display": "Champiñones", "img": "assets/ingredients/ing_27_champinones.svg"},
+  {"id": 28, "name": "shitake", "cat": "vegetales", "areas": ["ramen"], "icon": "🟫", "display": "Shitake", "img": "assets/ingredients/ing_28_shitake.svg"},
+  {"id": 29, "name": "Espárrago", "cat": "vegetales", "areas": ["ramen","salteados"], "icon": "🎋", "display": "Espárrago", "img": "assets/ingredients/ing_29_esparrago.svg"},
+  {"id": 30, "name": "zanahoria", "cat": "vegetales", "areas": ["ramen","frituras","salteados"], "icon": "🥕", "display": "Zanahoria", "img": "assets/ingredients/ing_30_zanahoria.svg"},
+
+  // --- Ingredientes nuevos (Frituras / Makis / Salteados) — sin arte SVG todavía, usan icon emoji como placeholder ---
+  {"id": 31, "name": "aceite ajonjolí", "cat": "salsas", "areas": ["frituras"], "icon": "🧴", "display": "Aceite Ajonjolí", "img": null},
+  {"id": 32, "name": "ajo chino", "cat": "vegetales", "areas": ["frituras"], "icon": "🧄", "display": "Ajo Chino", "img": null},
+  {"id": 33, "name": "ajonjolí", "cat": "vegetales", "areas": ["salteados"], "icon": "⚪", "display": "Ajonjolí", "img": null},
+  {"id": 34, "name": "ajonjolí negro", "cat": "vegetales", "areas": ["makis"], "icon": "⚫", "display": "Ajonjolí Negro", "img": null},
+  {"id": 35, "name": "ají limo", "cat": "vegetales", "areas": ["salteados"], "icon": "🌶️", "display": "Ají Limo", "img": null},
+  {"id": 36, "name": "alas de pollo", "cat": "proteinas", "areas": ["frituras"], "icon": "🍗", "display": "Alas de Pollo", "img": null},
+  {"id": 37, "name": "arroz", "cat": "bases", "areas": ["salteados"], "icon": "🍚", "display": "Arroz", "img": null},
+  {"id": 38, "name": "arroz shari", "cat": "bases", "areas": ["makis"], "icon": "🍙", "display": "Arroz Shari", "img": null},
+  {"id": 39, "name": "atún", "cat": "proteinas", "areas": ["makis"], "icon": "🐟", "display": "Atún", "img": null},
+  {"id": 40, "name": "base shimaya", "cat": "salsas", "areas": ["salteados"], "icon": "🥫", "display": "Base Shimaya", "img": null},
+  {"id": 41, "name": "benishoga", "cat": "vegetales", "areas": ["salteados"], "icon": "🫚", "display": "Benishoga", "img": null},
+  {"id": 42, "name": "beterraga", "cat": "vegetales", "areas": ["frituras","salteados"], "icon": "🍠", "display": "Beterraga", "img": null},
+  {"id": 43, "name": "bife de cerdo", "cat": "proteinas", "areas": ["frituras"], "icon": "🥩", "display": "Bife de Cerdo", "img": null},
+  {"id": 44, "name": "bife de pollo", "cat": "proteinas", "areas": ["frituras"], "icon": "🍗", "display": "Bife de Pollo", "img": null},
+  {"id": 45, "name": "brócoli", "cat": "vegetales", "areas": ["salteados"], "icon": "🥦", "display": "Brócoli", "img": null},
+  {"id": 46, "name": "cebolla", "cat": "vegetales", "areas": ["salteados"], "icon": "🧅", "display": "Cebolla", "img": null},
+  {"id": 47, "name": "cecina", "cat": "proteinas", "areas": ["makis"], "icon": "🥓", "display": "Cecina", "img": null},
+  {"id": 48, "name": "chancho chaufa", "cat": "proteinas", "areas": ["salteados"], "icon": "🍖", "display": "Chancho Chaufa", "img": null},
+  {"id": 49, "name": "cobertura de atún", "cat": "proteinas", "areas": ["makis"], "icon": "🐟", "display": "Cobertura de Atún", "img": null},
+  {"id": 50, "name": "cobertura de conchas de abanico", "cat": "proteinas", "areas": ["makis"], "icon": "🐚", "display": "Cobertura de Conchas", "img": null},
+  {"id": 51, "name": "cobertura para amazon", "cat": "proteinas", "areas": ["makis"], "icon": "🌿", "display": "Cobertura Amazon", "img": null},
+  {"id": 52, "name": "col", "cat": "vegetales", "areas": ["frituras","salteados"], "icon": "🥬", "display": "Col", "img": null},
+  {"id": 53, "name": "condimentos", "cat": "otros", "areas": ["frituras"], "icon": "🧂", "display": "Condimentos", "img": null},
+  {"id": 54, "name": "ebi (langostino)", "cat": "proteinas", "areas": ["makis"], "icon": "🍤", "display": "Ebi (Langostino)", "img": null},
+  {"id": 55, "name": "ensalada", "cat": "vegetales", "areas": ["salteados"], "icon": "🥗", "display": "Ensalada", "img": null},
+  {"id": 56, "name": "ensalada fría", "cat": "vegetales", "areas": ["salteados"], "icon": "🥗", "display": "Ensalada Fría", "img": null},
+  {"id": 57, "name": "gohan", "cat": "bases", "areas": ["frituras"], "icon": "🍚", "display": "Gohan", "img": null},
+  {"id": 58, "name": "harina", "cat": "otros", "areas": ["frituras"], "icon": "🌾", "display": "Harina", "img": null},
+  {"id": 59, "name": "hilos de wantán", "cat": "otros", "areas": ["makis"], "icon": "🍜", "display": "Hilos de Wantán", "img": null},
+  {"id": 60, "name": "langostino (6 und)", "cat": "proteinas", "areas": ["frituras"], "icon": "🍤", "display": "Langostino (6 und)", "img": null},
+  {"id": 61, "name": "lomo", "cat": "proteinas", "areas": ["salteados"], "icon": "🥩", "display": "Lomo", "img": null},
+  {"id": 62, "name": "mayonesa de la casa", "cat": "salsas", "areas": ["frituras"], "icon": "🥫", "display": "Mayonesa de la Casa", "img": null},
+  {"id": 63, "name": "negi", "cat": "vegetales", "areas": ["salteados"], "icon": "🌱", "display": "Negi", "img": null},
+  {"id": 64, "name": "palta", "cat": "vegetales", "areas": ["makis"], "icon": "🥑", "display": "Palta", "img": null},
+  {"id": 65, "name": "panko", "cat": "otros", "areas": ["frituras"], "icon": "🍞", "display": "Panko", "img": null},
+  {"id": 66, "name": "pasta", "cat": "otros", "areas": ["frituras"], "icon": "🥟", "display": "Pasta", "img": null},
+  {"id": 67, "name": "pimentón", "cat": "vegetales", "areas": ["salteados"], "icon": "🫑", "display": "Pimentón", "img": null},
+  {"id": 68, "name": "pimiento", "cat": "vegetales", "areas": ["salteados"], "icon": "🫑", "display": "Pimiento", "img": null},
+  {"id": 69, "name": "pollo", "cat": "proteinas", "areas": ["salteados"], "icon": "🍗", "display": "Pollo", "img": null},
+  {"id": 70, "name": "pollo (7 piezas)", "cat": "proteinas", "areas": ["frituras"], "icon": "🍗", "display": "Pollo (7 piezas)", "img": null},
+  {"id": 71, "name": "poro especial", "cat": "vegetales", "areas": ["salteados"], "icon": "🌱", "display": "Poro Especial", "img": null},
+  {"id": 72, "name": "queso crema", "cat": "salsas", "areas": ["makis"], "icon": "🧀", "display": "Queso Crema", "img": null},
+  {"id": 73, "name": "relleno de langostino y chancho", "cat": "proteinas", "areas": ["frituras"], "icon": "🥟", "display": "Relleno Langostino y Chancho", "img": null},
+  {"id": 74, "name": "rulos de cebolla china", "cat": "vegetales", "areas": ["frituras"], "icon": "🧅", "display": "Rulos de Cebolla China", "img": null},
+  {"id": 75, "name": "sal", "cat": "otros", "areas": ["frituras"], "icon": "🧂", "display": "Sal", "img": null},
+  {"id": 76, "name": "salsa", "cat": "salsas", "areas": ["frituras"], "icon": "🥫", "display": "Salsa", "img": null},
+  {"id": 77, "name": "salsa acevichada", "cat": "salsas", "areas": ["makis"], "icon": "🍶", "display": "Salsa Acevichada", "img": null},
+  {"id": 78, "name": "salsa batayaki", "cat": "salsas", "areas": ["salteados"], "icon": "🍶", "display": "Salsa Batayaki", "img": null},
+  {"id": 79, "name": "salsa chaufa", "cat": "salsas", "areas": ["salteados"], "icon": "🍶", "display": "Salsa Chaufa", "img": null},
+  {"id": 80, "name": "salsa digion", "cat": "salsas", "areas": ["makis"], "icon": "🍶", "display": "Salsa Digión", "img": null},
+  {"id": 81, "name": "salsa guacamole", "cat": "salsas", "areas": ["makis"], "icon": "🥑", "display": "Salsa Guacamole", "img": null},
+  {"id": 82, "name": "salsa hotate", "cat": "salsas", "areas": ["makis"], "icon": "🍶", "display": "Salsa Hotate", "img": null},
+  {"id": 83, "name": "salsa kare", "cat": "salsas", "areas": ["frituras"], "icon": "🍛", "display": "Salsa Kare", "img": null},
+  {"id": 84, "name": "salsa katsu", "cat": "salsas", "areas": ["frituras","salteados"], "icon": "🍶", "display": "Salsa Katsu", "img": null},
+  {"id": 85, "name": "salsa nin niku", "cat": "salsas", "areas": ["makis"], "icon": "🍶", "display": "Salsa Nin Niku", "img": null},
+  {"id": 86, "name": "salsa omuraisu", "cat": "salsas", "areas": ["salteados"], "icon": "🍶", "display": "Salsa Omuraisu", "img": null},
+  {"id": 87, "name": "salsa teriyaki", "cat": "salsas", "areas": ["salteados"], "icon": "🍶", "display": "Salsa Teriyaki", "img": null},
+  {"id": 88, "name": "salsa yakitori", "cat": "salsas", "areas": ["salteados"], "icon": "🍶", "display": "Salsa Yakitori", "img": null},
+  {"id": 89, "name": "salsa yama", "cat": "salsas", "areas": ["makis"], "icon": "🍶", "display": "Salsa Yama", "img": null},
+  {"id": 90, "name": "salsa yasaitame", "cat": "salsas", "areas": ["salteados"], "icon": "🍶", "display": "Salsa Yasaitame", "img": null},
+  {"id": 91, "name": "togarashi", "cat": "otros", "areas": ["frituras"], "icon": "🌶️", "display": "Togarashi", "img": null},
+  {"id": 92, "name": "toping", "cat": "otros", "areas": ["frituras"], "icon": "✨", "display": "Toping", "img": null},
+  {"id": 93, "name": "tortilla", "cat": "otros", "areas": ["salteados"], "icon": "🍳", "display": "Tortilla", "img": null},
+  {"id": 94, "name": "wantán", "cat": "otros", "areas": ["salteados"], "icon": "🥟", "display": "Wantán", "img": null},
+  {"id": 95, "name": "zucchini", "cat": "vegetales", "areas": ["salteados"], "icon": "🥒", "display": "Zucchini", "img": null}
 ];
 const RECETAS_RAMEN = [
   {"id": 1, "name": "Shio", "price": 38, "desc": "Caldo Shio ligero, Chasu Asado, moyashi, nori y Ajonjolí Blanco", "ingredients": [1, 2, 11, 15, 17, 18, 19, 20, 25]},
@@ -6504,6 +6598,48 @@ const RECETAS_RAMEN = [
   {"id": 7, "name": "Tan tan", "price": 45, "desc": "Chancho molido picante, salsa tan tan, moyashi y nori", "ingredients": [1, 2, 8, 13, 15, 17, 18, 19, 20, 25]},
   {"id": 8, "name": "Vegetariano", "price": 42, "desc": "Base de agua, shitake, champiñones, Espárrago, tofu, nori y salsa vegetariana", "ingredients": [1, 4, 9, 16, 17, 18, 19, 20, 22, 27, 28, 29]},
   {"id": 9, "name": "Bajiru", "price": 48, "desc": "Salsa bajiru (albahaca), brisket laminado, alga wanji, nori y zanahoria", "ingredients": [1, 2, 10, 12, 15, 17, 19, 20, 21, 30]}
+];
+
+// --- Frituras: cada receta usa un timer de punto óptimo (fase de mecánicas, pendiente de implementar) ---
+// Nota: "Gyozas" y "Age Gyozas" comparten exactamente los mismos ingredientes.
+// Se distinguen por el campo "metodo" (hervido vs frito); cuando se construya la mecánica de Frituras,
+// analyzeBowl (o su equivalente para esta área) deberá comparar también "metodo" además del set de ingredientes.
+const RECETAS_FRITURAS = [
+  {"id": 1, "name": "Gyozas", "metodo": "hervido", "price": 32, "desc": "Empanadillas hervidas de langostino y chancho", "ingredients": [66, 73, 32, 31, 53, 52, 74]},
+  {"id": 2, "name": "Chicken Katsu", "price": 40, "desc": "Bife de pollo empanizado, col, zanahoria y salsa katsu", "ingredients": [44, 65, 58, 15, 75, 52, 30, 74, 91, 57, 84]},
+  {"id": 3, "name": "Age Gyozas", "metodo": "frito", "price": 36, "desc": "Empanadillas fritas de langostino y chancho", "ingredients": [66, 73, 32, 31, 53, 52, 74]},
+  {"id": 4, "name": "Alitas", "price": 30, "desc": "Alitas de pollo fritas con salsa y toping", "ingredients": [36, 53, 76, 92]},
+  {"id": 5, "name": "Ebi Furai", "price": 44, "desc": "Langostinos empanizados con mayonesa de la casa", "ingredients": [60, 65, 58, 15, 52, 42, 74, 62]},
+  {"id": 6, "name": "Kaarage", "price": 38, "desc": "Pollo frito estilo karaage con mayonesa de la casa", "ingredients": [70, 53, 52, 30, 62, 91, 74]},
+  {"id": 7, "name": "Katsu Kare", "price": 42, "desc": "Bife de cerdo empanizado con salsa kare", "ingredients": [43, 65, 58, 15, 75, 52, 30, 74, 91, 57, 83]},
+  {"id": 8, "name": "Tonkatsu", "price": 42, "desc": "Bife de cerdo empanizado con salsa katsu", "ingredients": [43, 65, 58, 15, 75, 52, 42, 74, 91, 57, 84]}
+];
+
+// --- Makis: el orden de armado importa (fase de mecánicas, pendiente de implementar) ---
+// "ingredients" aquí representa la secuencia de armado (capas), no un conjunto sin orden.
+const RECETAS_MAKIS = [
+  {"id": 1, "name": "Maki Acevichado", "price": 46, "desc": "Arroz shari, nori, palta, ebi y cobertura de atún acevichada", "ingredients": [38, 20, 64, 54, 49, 77]},
+  {"id": 2, "name": "Maki Furai", "price": 44, "desc": "Arroz shari, nori, palta, ebi y queso crema (se termina en Frituras)", "ingredients": [38, 20, 64, 54, 72]},
+  {"id": 3, "name": "Maki Hotate", "price": 48, "desc": "Arroz shari, nori, palta, ebi y conchas de abanico con salsa hotate", "ingredients": [38, 20, 64, 54, 50, 82]},
+  {"id": 4, "name": "Maki California", "price": 42, "desc": "Arroz shari, nori, palta, ebi, queso crema y ajonjolí negro", "ingredients": [38, 20, 64, 54, 72, 34]},
+  {"id": 5, "name": "Maki Guacamole", "price": 40, "desc": "Arroz shari, nori, atún, hilos de wantán y salsa guacamole", "ingredients": [38, 20, 39, 59, 81]},
+  {"id": 6, "name": "Maki Yama", "price": 45, "desc": "Arroz shari, nori, palta, ebi y salsa yama (flamear)", "ingredients": [38, 20, 64, 54, 89]},
+  {"id": 7, "name": "Maki Nin Niku", "price": 45, "desc": "Arroz shari, nori, palta, ebi y salsa nin niku (flamear)", "ingredients": [38, 20, 64, 54, 85]},
+  {"id": 8, "name": "Maki Amazon", "price": 43, "desc": "Arroz shari, nori, palta, cecina y cobertura amazon", "ingredients": [38, 20, 64, 47, 51]},
+  {"id": 9, "name": "Maki Digion", "price": 45, "desc": "Arroz shari, nori, palta y cobertura de atún con salsa digión (flamear)", "ingredients": [38, 20, 64, 49, 80]}
+];
+
+// --- Salteados: se cocinan con tiempo de salteado (fase de mecánicas, pendiente de implementar) ---
+const RECETAS_SALTEADOS = [
+  {"id": 1, "name": "Chaufa Shimaya", "price": 40, "desc": "Arroz chaufa con huevo, chancho, champiñones y wantán", "ingredients": [15, 37, 63, 25, 79, 48, 27, 94, 41]},
+  {"id": 2, "name": "Chicken Teriyaki", "price": 38, "desc": "Pollo con salsa teriyaki, arroz y ensalada fría", "ingredients": [69, 87, 37, 56]},
+  {"id": 3, "name": "Batayaki Ramen", "price": 44, "desc": "Lomo salteado con champiñones, fideo ramen y salsa batayaki", "ingredients": [61, 27, 78, 1, 71]},
+  {"id": 4, "name": "Yakimeshi", "price": 39, "desc": "Arroz salteado con huevo, pollo, zanahoria y holantao", "ingredients": [15, 69, 37, 30, 67, 23, 40]},
+  {"id": 5, "name": "Yakiramen", "price": 43, "desc": "Fideo ramen salteado con pollo y vegetales variados", "ingredients": [69, 46, 52, 95, 45, 68, 1, 25, 42]},
+  {"id": 6, "name": "Yasaitame", "price": 37, "desc": "Salteado de vegetales con lomo y salsa yasaitame", "ingredients": [61, 46, 95, 52, 25, 45, 68, 90, 33]},
+  {"id": 7, "name": "Yakitori", "price": 35, "desc": "Pollo a la parrilla con salsa yakitori y ensalada", "ingredients": [69, 88, 55]},
+  {"id": 8, "name": "Karameshi", "price": 41, "desc": "Arroz salteado picante con salsa tan tan y ajonjolí", "ingredients": [15, 69, 37, 23, 52, 25, 8, 33, 35, 63]},
+  {"id": 9, "name": "Omuraisu", "price": 42, "desc": "Arroz envuelto en tortilla con salsa katsu y omuraisu", "ingredients": [69, 37, 46, 30, 29, 93, 84, 86]}
 ];
 
 const NIVELES = [
@@ -6542,6 +6678,7 @@ let gameState = {
   isGameOver: true,
   activeBowlIndex: 0,
   currentCategory: 'todos',
+  activeArea: 'ramen',
   selectedCustomerModalIndex: null,
   targetCustomerIndex: null,
   bowls: [
@@ -6884,8 +7021,12 @@ function sortIngredientsByCustomOrder(list) {
 
 function getUnlockedIngredients() {
   let list;
-  if (typeof MultiplayerManager !== 'undefined' && (MultiplayerManager.isGameActive || MultiplayerManager.isInMultiplayer)) {
-    list = [...INGREDIENTES];
+  if (gameState.activeArea && gameState.activeArea !== 'ramen') {
+    // Áreas nuevas (Salteados/Frituras/Makis): todavía no tienen sistema de
+    // desbloqueo por nivel, así que se muestran todos los ingredientes del área.
+    list = INGREDIENTES.filter(i => i.areas && i.areas.includes(gameState.activeArea));
+  } else if (typeof MultiplayerManager !== 'undefined' && (MultiplayerManager.isGameActive || MultiplayerManager.isInMultiplayer)) {
+    list = INGREDIENTES.filter(i => i.areas && i.areas.includes('ramen'));
   } else {
     const unlockedRecs = getUnlockedRecipes();
     const ingIds = new Set();
@@ -6917,6 +7058,43 @@ function initRecipeTable() {
   });
 }
 
+const KITCHEN_AREAS = [
+  { id: 'ramen', label: 'RAMEN' },
+  { id: 'salteados', label: 'SALTEADO' },
+  { id: 'frituras', label: 'FRITURAS' },
+  { id: 'makis', label: 'MAKIS' }
+];
+
+const CATEGORY_LABELS = { bases: 'Bases', salsas: 'Salsas', proteinas: 'Proteínas', vegetales: 'Vegetales', otros: 'Otros' };
+
+function switchKitchenArea(areaId) {
+  if (gameState.activeArea === areaId) return;
+  gameState.activeArea = areaId;
+  gameState.currentCategory = 'todos';
+  renderPantryGrid();
+}
+
+function renderAreaTabs() {
+  const container = document.getElementById('kitchen-area-tabs');
+  if (!container) return;
+  container.innerHTML = KITCHEN_AREAS.map(area => `
+    <button class="kitchen-area-tab-btn ${gameState.activeArea === area.id ? 'active' : ''}" onclick="switchKitchenArea('${area.id}')">${area.label}</button>
+  `).join('');
+}
+
+function renderCategoryFilters() {
+  const container = document.getElementById('pantry-tabs-bar');
+  if (!container) return;
+  const areaIngredients = INGREDIENTES.filter(i => i.areas && i.areas.includes(gameState.activeArea));
+  const catsPresent = new Set(areaIngredients.map(i => i.cat));
+  const orderedCats = ['bases', 'salsas', 'proteinas', 'vegetales', 'otros'].filter(c => catsPresent.has(c));
+  let html = `<button class="mini-cat-btn ${gameState.currentCategory === 'todos' ? 'active' : ''}" onclick="filterCategory('todos')">Todos</button>`;
+  orderedCats.forEach(cat => {
+    html += `<button class="mini-cat-btn ${gameState.currentCategory === cat ? 'active' : ''}" onclick="filterCategory('${cat}')">${CATEGORY_LABELS[cat] || cat}</button>`;
+  });
+  container.innerHTML = html;
+}
+
 function filterCategory(cat) {
   gameState.currentCategory = cat;
   document.querySelectorAll(".mini-cat-btn, .pantry-tab").forEach(tab => {
@@ -6931,6 +7109,8 @@ function filterCategory(cat) {
 }
 
 function renderPantryGrid() {
+  renderAreaTabs();
+  renderCategoryFilters();
   const container = document.getElementById("ingredients-grid");
   if (!container) return;
   container.innerHTML = "";
@@ -8616,6 +8796,8 @@ function startLevel(lvlIndex) {
   updateHUD();
   renderBowls();
   renderCustomers();
+  gameState.activeArea = 'ramen';
+  renderPantryGrid();
 
   if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP') {
     if (MultiplayerManager.isHost) {
