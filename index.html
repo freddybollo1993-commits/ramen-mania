@@ -1392,6 +1392,326 @@
   .bowl-dock-card.active .bowl-status-hint {
     display: block;
   }
+  .bowl-status-hint.status-error {
+    background: rgba(198, 40, 40, 0.92);
+    color: #fff5f0;
+  }
+
+  /* --- Estación propia de Makis: tabla de enrollado horizontal, un rollo a la vez --- */
+  .maki-station-box {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    flex: 1;
+    width: 100%;
+  }
+  .maki-mat-card {
+    background: linear-gradient(180deg, #1b3a1f 0%, #10240f 100%);
+    border: 2px solid #4a7c3a;
+    border-radius: 10px;
+    padding: 6px 12px;
+    width: 100%;
+    max-width: 560px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06);
+    box-sizing: border-box;
+  }
+  .maki-mat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+  .maki-mat-title {
+    font-family: 'Fredoka One', cursive, sans-serif;
+    font-size: 12px;
+    color: #d7f5c8;
+    letter-spacing: 0.3px;
+  }
+  .maki-mat-strip {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    min-height: 44px;
+    background: repeating-linear-gradient(90deg, #0d3b14 0px, #0d3b14 7px, #0a2e10 7px, #0a2e10 14px);
+    border: 1.5px dashed #5d8f4a;
+    border-radius: 6px;
+    padding: 3px 8px;
+    overflow-x: auto;
+  }
+  .maki-mat-strip .maki-chip {
+    font-size: 24px;
+    line-height: 1;
+    flex-shrink: 0;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
+  }
+  .maki-chip-sep {
+    color: #5d8f4a;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+  .maki-strip-empty {
+    margin: auto;
+    color: #8fae7f;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: 'Nunito', sans-serif;
+    text-align: center;
+  }
+  .maki-mat-status {
+    font-size: 11px;
+    font-weight: 800;
+    padding: 2px 12px;
+    border-radius: 6px;
+    background: rgba(0,0,0,0.5);
+    color: #ffecb3;
+  }
+  .maki-mat-status.status-error {
+    background: rgba(198, 40, 40, 0.92);
+    color: #fff5f0;
+  }
+  .maki-mat-status.status-ready {
+    background: linear-gradient(180deg, #ffb300 0%, #ff8f00 100%);
+    color: #211202;
+    animation: makiReadyPulse 0.5s ease;
+  }
+  @keyframes makiReadyPulse {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+  }
+
+  /* --- Estación propia de Frituras: mesa de empanizado + freidora --- */
+  .frituras-station-box {
+    display: none;
+    justify-content: center;
+    align-items: stretch;
+    gap: 10px;
+    flex: 1;
+    width: 100%;
+  }
+  .fry-card {
+    background: linear-gradient(180deg, #2a1810 0%, #1a0f0a 100%);
+    border: 1.5px solid #6d4a1a;
+    border-radius: 10px;
+    padding: 4px 10px;
+    width: 260px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
+  }
+  .fry-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .fry-card-title {
+    font-family: 'Fredoka One', cursive, sans-serif;
+    font-size: 11px;
+    color: #ffd699;
+    letter-spacing: 0.3px;
+  }
+  .fry-status-badge {
+    font-size: 9.5px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: rgba(0,0,0,0.5);
+    color: #ffecb3;
+    text-align: center;
+  }
+  .fry-status-badge.status-error {
+    background: rgba(198, 40, 40, 0.92);
+    color: #fff5f0;
+  }
+  .fry-status-badge.status-warn {
+    background: rgba(239, 108, 0, 0.92);
+    color: #fff5f0;
+  }
+  .fry-status-badge.status-ready {
+    background: linear-gradient(180deg, #ffb300 0%, #ff8f00 100%);
+    color: #211202;
+  }
+  .fry-oil-visual {
+    text-align: center;
+    font-size: 26px;
+    line-height: 1.1;
+  }
+  .fry-action-btn {
+    background: linear-gradient(180deg, #ff9100 0%, #e65100 100%);
+    border: 1.5px solid #ffcc80;
+    border-radius: 7px;
+    color: #fff5e6;
+    font-family: 'Fredoka One', cursive, sans-serif;
+    font-size: 11px;
+    padding: 4px 8px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .fry-action-btn.zone-quemado {
+    background: linear-gradient(180deg, #c62828 0%, #8e0000 100%);
+    border-color: #ff8a65;
+  }
+  .fry-result-actions {
+    display: flex;
+    gap: 6px;
+  }
+  .fry-mini-btn {
+    flex: 1;
+    border-radius: 6px;
+    border: 1.5px solid;
+    font-size: 9px;
+    font-weight: 800;
+    padding: 4px 2px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .fry-btn-serve {
+    background: rgba(76, 175, 80, 0.18);
+    border-color: #66bb6a;
+    color: #c8e6c9;
+  }
+  .fry-btn-discard {
+    background: rgba(198, 40, 40, 0.18);
+    border-color: #ef5350;
+    color: #ffcdd2;
+  }
+
+  /* --- Estación propia de Salteados: 2 woks en paralelo --- */
+  .salteado-station-box {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    flex: 1;
+    width: 100%;
+  }
+  .wok-dock-card {
+    background: rgba(28, 14, 10, 0.94);
+    border: 1.5px solid #6d3d1a;
+    border-radius: 12px;
+    padding: 3px 8px 4px 8px;
+    width: 220px;
+    height: 84px;
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    transition: all 0.15s ease;
+    user-select: none;
+  }
+  .wok-dock-card:hover {
+    border-color: #ffb300;
+  }
+  .wok-dock-card.active {
+    border: 2px solid #ff9100;
+    box-shadow: 0 0 16px rgba(255, 145, 0, 0.5), inset 0 0 10px rgba(255, 145, 0, 0.12);
+    background: rgba(38, 20, 10, 0.98);
+  }
+  .wok-dock-tag {
+    position: absolute;
+    top: 3px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #ffb300;
+    font-size: 8.5px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+  .wok-dock-visual {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1px;
+    margin-top: 3px;
+    width: 100%;
+    max-height: 30px;
+    overflow: hidden;
+  }
+  .wok-dock-visual .maki-chip {
+    font-size: 16px;
+  }
+  .wok-empty-hint {
+    font-size: 22px;
+    opacity: 0.35;
+  }
+  .wok-dock-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-top: 1px;
+  }
+  .wok-dock-name {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: #ffd699;
+  }
+  .wok-stir-btn {
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    background: rgba(255, 145, 0, 0.12);
+    border: 1.5px solid #ff9100;
+    border-radius: 6px;
+    padding: 2px 5px;
+    cursor: pointer;
+    user-select: none;
+    touch-action: none;
+    margin: 1px 0;
+  }
+  .wok-stir-label {
+    font-size: 8px;
+    font-weight: 800;
+    color: #ffd699;
+    text-align: center;
+    line-height: 1.3;
+  }
+  .wok-stir-bar {
+    width: 100%;
+    height: 5px;
+    background: rgba(0,0,0,0.5);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 1px;
+  }
+  .wok-stir-fill {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #4fc3f7, #4fc3f7);
+    transition: width 0.08s linear, background 0.15s ease;
+  }
+  .wok-stir-btn.zone-crudo .wok-stir-fill { background: linear-gradient(90deg, #4fc3f7, #4fc3f7); }
+  .wok-stir-btn.zone-perfecto .wok-stir-fill { background: linear-gradient(90deg, #66bb6a, #a5d6a7); }
+  .wok-stir-btn.zone-quemado .wok-stir-fill { background: linear-gradient(90deg, #c62828, #ff3d00); }
+  .wok-stir-btn.stirring-active {
+    box-shadow: 0 0 10px rgba(255, 145, 0, 0.7);
+  }
+  .bowl-status-hint.status-warn {
+    background: rgba(239, 108, 0, 0.92);
+    color: #fff5f0;
+  }
+  .bowl-status-hint.status-ready {
+    background: linear-gradient(180deg, #ffb300 0%, #ff8f00 100%);
+    color: #211202;
+  }
+  .area-wip-text {
+    font-family: 'Nunito', sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    color: #d7ccc8;
+    opacity: 0.8;
+  }
   .pixel-sprite-large {
     width: 36px;
     height: 36px;
@@ -4830,6 +5150,78 @@
         <div class="bowl-status-hint" id="bowl-badge-2">Vacío</div>
       </div>
     </div>
+
+    <!-- Estación de Makis: un solo rollo a la vez, armado en secuencia -->
+    <div class="maki-station-box" id="maki-station-box">
+      <div class="maki-mat-card">
+        <div class="maki-mat-header">
+          <span class="maki-mat-title">🍣 Tabla de Enrollado</span>
+          <button class="btn-bowl-trash" onclick="clearMakiRoll()" title="Vaciar tabla">🗑️</button>
+        </div>
+        <div class="maki-mat-strip" id="maki-mat-strip"></div>
+      </div>
+      <div class="maki-mat-status" id="maki-status-badge">Vacío</div>
+    </div>
+
+    <!-- Estación de Salteados: 2 woks en paralelo, ingredientes + salteado con tiempo -->
+    <div class="salteado-station-box" id="salteado-station-box">
+      <!-- Wok 1 -->
+      <div class="wok-dock-card active" id="wok-card-0" onclick="selectWok(0)">
+        <div class="wok-dock-tag" id="wok-tag-0">● ACTIVO</div>
+        <div class="wok-dock-visual" id="wok-art-0"></div>
+        <button class="wok-stir-btn" id="wok-stir-btn-0" style="display:none;">
+          <span class="wok-stir-label" id="wok-stir-label-0">Mantén para saltear</span>
+          <div class="wok-stir-bar"><div class="wok-stir-fill" id="wok-stir-fill-0"></div></div>
+        </button>
+        <div class="wok-dock-footer">
+          <span class="wok-dock-name">Wok 1</span>
+          <button class="btn-bowl-trash" onclick="event.stopPropagation(); clearWok(0)" title="Vaciar Wok 1">🗑️</button>
+        </div>
+        <div class="bowl-status-hint" id="wok-badge-0">Vacío</div>
+      </div>
+
+      <!-- Wok 2 -->
+      <div class="wok-dock-card" id="wok-card-1" onclick="selectWok(1)">
+        <div class="wok-dock-tag" id="wok-tag-1" style="display:none;">● ACTIVO</div>
+        <div class="wok-dock-visual" id="wok-art-1"></div>
+        <button class="wok-stir-btn" id="wok-stir-btn-1" style="display:none;">
+          <span class="wok-stir-label" id="wok-stir-label-1">Mantén para saltear</span>
+          <div class="wok-stir-bar"><div class="wok-stir-fill" id="wok-stir-fill-1"></div></div>
+        </button>
+        <div class="wok-dock-footer">
+          <span class="wok-dock-name">Wok 2</span>
+          <button class="btn-bowl-trash" onclick="event.stopPropagation(); clearWok(1)" title="Vaciar Wok 2">🗑️</button>
+        </div>
+        <div class="bowl-status-hint" id="wok-badge-1">Vacío</div>
+      </div>
+    </div>
+
+    <!-- Estación de Frituras: mesa de preparación (empanizado) + freidora -->
+    <div class="frituras-station-box" id="frituras-station-box">
+      <!-- Mesa de preparación -->
+      <div class="fry-card" id="fry-table-card">
+        <div class="fry-card-header">
+          <span class="fry-card-title">🔪 Mesa de Preparación</span>
+          <button class="btn-bowl-trash" onclick="discardFryStation()" title="Descartar todo">🗑️</button>
+        </div>
+        <div class="maki-mat-strip" id="fry-table-strip"></div>
+        <div class="fry-status-badge" id="fry-table-badge">Vacío</div>
+      </div>
+
+      <!-- Freidora -->
+      <div class="fry-card" id="fry-oil-card">
+        <div class="fry-card-header">
+          <span class="fry-card-title">🍳 Freidora</span>
+        </div>
+        <div class="fry-oil-visual" id="fry-oil-visual">🛢️</div>
+        <button class="fry-action-btn" id="fry-action-btn" onclick="handleFryActionClick()" style="display:none;">Freír</button>
+        <div class="fry-result-actions" id="fry-result-actions" style="display:none;">
+          <button class="fry-mini-btn fry-btn-serve" onclick="attemptServeFryStation()">✅ Servir</button>
+          <button class="fry-mini-btn fry-btn-discard" onclick="discardFryStation()">🗑️ Desechar</button>
+        </div>
+        <div class="fry-status-badge" id="fry-oil-badge">Esperando...</div>
+      </div>
+    </div>
   </div>
 
   <!-- MODAL DE DETALLE DE PEDIDO DE CLIENTE -->
@@ -6679,6 +7071,13 @@ let gameState = {
   activeBowlIndex: 0,
   currentCategory: 'todos',
   activeArea: 'ramen',
+  makiRoll: { ingredients: [] },
+  woks: [
+    { ingredients: [], result: null, matchedRecipe: null, stirring: false, stirSeconds: 0 },
+    { ingredients: [], result: null, matchedRecipe: null, stirring: false, stirSeconds: 0 }
+  ],
+  activeWokIndex: 0,
+  fryStation: { ingredients: [], phase: 'BUILDING', fryResult: null, frySeconds: 0, matchedRecipe: null },
   selectedCustomerModalIndex: null,
   targetCustomerIndex: null,
   bowls: [
@@ -7071,7 +7470,480 @@ function switchKitchenArea(areaId) {
   if (gameState.activeArea === areaId) return;
   gameState.activeArea = areaId;
   gameState.currentCategory = 'todos';
+  // El cuenco es exclusivo de Ramen y no se toca al cambiar de área (sigue ahí cuando vuelvas).
+  // Las demás áreas tienen su propia estación, que sí se vacía al entrar/salir del área.
+  gameState.makiRoll = { ingredients: [] };
+  gameState.woks = [
+    { ingredients: [], result: null, matchedRecipe: null, stirring: false, stirSeconds: 0 },
+    { ingredients: [], result: null, matchedRecipe: null, stirring: false, stirSeconds: 0 }
+  ];
+  if (fryTimerInterval) { clearInterval(fryTimerInterval); fryTimerInterval = null; }
+  gameState.fryStation = { ingredients: [], phase: 'BUILDING', fryResult: null, frySeconds: 0, matchedRecipe: null };
+  updateStationVisibilityForArea();
   renderPantryGrid();
+  if (areaId === 'makis') renderMakiStation();
+  if (areaId === 'salteados') renderWoks();
+  if (areaId === 'frituras') renderFryStation();
+}
+
+// Muestra la estación de trabajo que corresponde al área activa (cuenco de Ramen,
+// tabla de Makis, o el aviso de "en construcción" para las áreas que aún no tienen mecánica).
+function updateStationVisibilityForArea() {
+  const cookPanel = document.getElementById('cook-stations-panel');
+  const bowlsBox = document.getElementById('bowls-dock-box');
+  const makiBox = document.getElementById('maki-station-box');
+  const wokBox = document.getElementById('salteado-station-box');
+  const fryBox = document.getElementById('frituras-station-box');
+  const area = gameState.activeArea;
+  if (cookPanel) cookPanel.style.display = area === 'ramen' ? '' : 'none';
+  if (bowlsBox) bowlsBox.style.display = area === 'ramen' ? '' : 'none';
+  if (makiBox) makiBox.style.display = area === 'makis' ? 'flex' : 'none';
+  if (wokBox) wokBox.style.display = area === 'salteados' ? 'flex' : 'none';
+  if (fryBox) fryBox.style.display = area === 'frituras' ? 'flex' : 'none';
+}
+
+function toggleIngredientInMaki(ingId) {
+  if (gameState.isPaused || gameState.isGameOver) return;
+  const roll = gameState.makiRoll;
+  if (roll.ingredients.includes(ingId)) {
+    roll.ingredients = roll.ingredients.filter(id => id !== ingId);
+  } else {
+    roll.ingredients.push(ingId);
+  }
+  playSound('add');
+  renderMakiStation();
+  renderPantryGrid();
+}
+
+function clearMakiRoll() {
+  gameState.makiRoll = { ingredients: [] };
+  playSound('trash');
+  renderMakiStation();
+  renderPantryGrid();
+}
+
+function renderMakiStation() {
+  const strip = document.getElementById('maki-mat-strip');
+  const statusEl = document.getElementById('maki-status-badge');
+  if (!strip || !statusEl) return;
+
+  const ings = gameState.makiRoll.ingredients;
+  const analysis = analyzeMakiSequence(ings);
+
+  if (ings.length === 0) {
+    strip.innerHTML = `<span class="maki-strip-empty">Toca los ingredientes en orden para armar el rollo</span>`;
+  } else {
+    strip.innerHTML = ings.map(id => {
+      const ing = INGREDIENTES.find(i => i.id === id);
+      return `<span class="maki-chip" title="${ing ? ing.display : ''}">${ing ? ing.icon : '❓'}</span>`;
+    }).join('<span class="maki-chip-sep">▸</span>');
+  }
+
+  statusEl.classList.remove('status-error', 'status-ready');
+  if (analysis.status === 'EMPTY') {
+    statusEl.textContent = 'Vacío — empieza a enrollar';
+  } else if (analysis.status === 'WRONG_ORDER') {
+    statusEl.textContent = '✗ Orden incorrecto';
+    statusEl.classList.add('status-error');
+  } else if (analysis.status === 'READY') {
+    statusEl.textContent = `¡Listo: ${analysis.recipe.name}!`;
+    statusEl.classList.add('status-ready');
+  } else {
+    statusEl.textContent = analysis.nextIngredient
+      ? `Sigue: ${analysis.nextIngredient}`
+      : `Armando (${ings.length})`;
+  }
+}
+
+// --- Estación de Salteados: 2 woks en paralelo. El plato se identifica por el CONJUNTO de
+// ingredientes (como Ramen), pero se registra el orden real de armado y el resultado del
+// salteado (crudo/perfecto/quemado) como señales crudas para el futuro sistema de calidad.
+function analyzeWok(index) {
+  const wok = gameState.woks[index];
+  if (!wok || wok.ingredients.length === 0) return { status: "EMPTY" };
+
+  const wokSet = new Set(wok.ingredients);
+  for (const r of RECETAS_SALTEADOS) {
+    const rSet = new Set(r.ingredients);
+    if (rSet.size === wokSet.size && [...rSet].every(x => wokSet.has(x))) {
+      let orderMatches = 0;
+      const n = Math.min(wok.ingredients.length, r.ingredients.length);
+      for (let i = 0; i < n; i++) {
+        if (wok.ingredients[i] === r.ingredients[i]) orderMatches++;
+      }
+      return { status: "MATCHED", recipe: r, orderMatches, orderTotal: r.ingredients.length };
+    }
+  }
+
+  let bestRecipe = null, bestOverlap = -1, bestMissing = [], bestExtra = [];
+  for (const r of RECETAS_SALTEADOS) {
+    const rSet = new Set(r.ingredients);
+    const missing = [...rSet].filter(x => !wokSet.has(x));
+    const extra = [...wokSet].filter(x => !rSet.has(x));
+    const overlap = [...wokSet].filter(x => rSet.has(x)).length;
+    if (overlap > bestOverlap) { bestOverlap = overlap; bestRecipe = r; bestMissing = missing; bestExtra = extra; }
+  }
+  return {
+    status: "PROGRESS",
+    recipe: bestRecipe,
+    overlap: bestOverlap,
+    missing: bestMissing.map(id => INGREDIENTES.find(i => i.id === id).display),
+    extra: bestExtra.map(id => INGREDIENTES.find(i => i.id === id).display)
+  };
+}
+
+function selectWok(index) {
+  gameState.activeWokIndex = index;
+  renderWoks();
+}
+
+function toggleIngredientInWok(ingId) {
+  if (gameState.isPaused || gameState.isGameOver) return;
+  const wok = gameState.woks[gameState.activeWokIndex];
+  if (wok.result) return; // ya salteado: hay que vaciar el wok para volver a armar
+  if (wok.ingredients.includes(ingId)) {
+    wok.ingredients = wok.ingredients.filter(id => id !== ingId);
+  } else {
+    wok.ingredients.push(ingId);
+  }
+  playSound('add');
+  renderWoks();
+  renderPantryGrid();
+}
+
+function clearWok(index) {
+  gameState.woks[index] = { ingredients: [], result: null, matchedRecipe: null, stirring: false, stirSeconds: 0 };
+  playSound('trash');
+  renderWoks();
+  renderPantryGrid();
+}
+
+function renderWoks() {
+  for (let i = 0; i < 2; i++) {
+    const wok = gameState.woks[i];
+    const cardEl = document.getElementById(`wok-card-${i}`);
+    const badgeEl = document.getElementById(`wok-badge-${i}`);
+    const artEl = document.getElementById(`wok-art-${i}`);
+    const tagEl = document.getElementById(`wok-tag-${i}`);
+    const stirBtn = document.getElementById(`wok-stir-btn-${i}`);
+    if (!cardEl || !wok) continue;
+
+    const isActive = gameState.activeWokIndex === i;
+    cardEl.classList.toggle('active', isActive);
+    if (tagEl) tagEl.style.display = isActive ? 'block' : 'none';
+
+    if (artEl) {
+      artEl.innerHTML = wok.ingredients.length === 0
+        ? `<div class="wok-empty-hint">🥘</div>`
+        : wok.ingredients.map(id => {
+            const ing = INGREDIENTES.find(x => x.id === id);
+            return `<span class="maki-chip" title="${ing ? ing.display : ''}">${ing ? ing.icon : '❓'}</span>`;
+          }).join('');
+    }
+
+    if (badgeEl) badgeEl.classList.remove('status-error', 'status-warn', 'status-ready');
+
+    if (wok.result) {
+      const labelMap = { PERFECTO: '🔥 ¡Perfecto!', CRUDO: '🥶 Crudo', QUEMADO: '💨 Quemado' };
+      const recipeName = wok.matchedRecipe ? wok.matchedRecipe.name : '';
+      if (badgeEl) {
+        badgeEl.textContent = `${labelMap[wok.result]}: ${recipeName}`;
+        badgeEl.classList.add(wok.result === 'PERFECTO' ? 'status-ready' : wok.result === 'CRUDO' ? 'status-error' : 'status-warn');
+      }
+      if (stirBtn) stirBtn.style.display = 'none';
+      cardEl.onclick = () => selectWok(i);
+    } else {
+      const analysis = analyzeWok(i);
+      if (analysis.status === 'EMPTY') {
+        if (badgeEl) badgeEl.textContent = 'Vacío';
+        if (stirBtn) stirBtn.style.display = 'none';
+      } else if (analysis.status === 'MATCHED') {
+        if (badgeEl) {
+          badgeEl.textContent = `Listo para saltear: ${analysis.recipe.name}`;
+          badgeEl.classList.add('status-ready');
+        }
+        if (stirBtn && !wok.stirring) {
+          stirBtn.style.display = 'flex';
+          stirBtn.classList.remove('stirring-active', 'zone-crudo', 'zone-perfecto', 'zone-quemado');
+          const fillEl = document.getElementById(`wok-stir-fill-${i}`);
+          const labelEl = document.getElementById(`wok-stir-label-${i}`);
+          if (fillEl) fillEl.style.width = '0%';
+          if (labelEl) labelEl.textContent = 'Mantén para saltear';
+        }
+      } else {
+        if (badgeEl) badgeEl.textContent = `Armando (${wok.ingredients.length})`;
+        if (stirBtn) stirBtn.style.display = 'none';
+      }
+      cardEl.onclick = () => selectWok(i);
+    }
+  }
+}
+
+// Mantener presionado el botón de saltear: barra de tiempo con 3 zonas (crudo/perfecto/quemado).
+// Igual que calentar Shio/Tonkotsu (pointerdown/pointerup), pero con zona de salida en vez de un único umbral.
+const WOK_STIR_CRUDO_MAX = 1.5;
+const WOK_STIR_PERFECTO_MAX = 2.5;
+const WOK_STIR_QUEMADO_AUTO = 4.0;
+
+function finishStir(index, result) {
+  const wok = gameState.woks[index];
+  if (!wok || wok.result) return;
+  const analysis = analyzeWok(index);
+  wok.stirring = false;
+  wok.result = result;
+  wok.matchedRecipe = analysis.recipe || null;
+  wok.orderMatches = analysis.orderMatches;
+  wok.orderTotal = analysis.orderTotal;
+  playSound(result === 'PERFECTO' ? 'match' : 'burn');
+  renderWoks();
+}
+
+function setupWokStirButtons() {
+  for (let i = 0; i < 2; i++) {
+    const btn = document.getElementById(`wok-stir-btn-${i}`);
+    if (!btn || btn._hasListeners) continue;
+    btn._hasListeners = true;
+    let stirInterval = null;
+    const index = i;
+
+    const startStir = (e) => {
+      if (e && e.cancelable) e.preventDefault();
+      if (gameState.isPaused || gameState.isGameOver) return;
+      const wok = gameState.woks[index];
+      if (wok.result || wok.stirring) return;
+      const analysis = analyzeWok(index);
+      if (analysis.status !== 'MATCHED') return;
+
+      try { if (e && e.pointerId && btn.setPointerCapture) btn.setPointerCapture(e.pointerId); } catch(err) {}
+
+      wok.stirring = true;
+      wok.stirSeconds = 0;
+      btn.classList.add('stirring-active');
+      playSound('flame');
+
+      const fillEl = document.getElementById(`wok-stir-fill-${index}`);
+      const labelEl = document.getElementById(`wok-stir-label-${index}`);
+
+      stirInterval = setInterval(() => {
+        if (gameState.isPaused || gameState.isGameOver) return;
+        wok.stirSeconds += 0.05;
+        const pct = Math.min(100, (wok.stirSeconds / WOK_STIR_QUEMADO_AUTO) * 100);
+        if (fillEl) fillEl.style.width = `${pct}%`;
+
+        let zone = 'crudo';
+        if (wok.stirSeconds >= WOK_STIR_CRUDO_MAX && wok.stirSeconds < WOK_STIR_PERFECTO_MAX) zone = 'perfecto';
+        else if (wok.stirSeconds >= WOK_STIR_PERFECTO_MAX) zone = 'quemado';
+        btn.classList.toggle('zone-crudo', zone === 'crudo');
+        btn.classList.toggle('zone-perfecto', zone === 'perfecto');
+        btn.classList.toggle('zone-quemado', zone === 'quemado');
+        if (labelEl) labelEl.textContent = zone === 'crudo' ? 'Saltea...' : zone === 'perfecto' ? '¡Suelta ahora!' : '¡Se quema!';
+
+        if (wok.stirSeconds >= WOK_STIR_QUEMADO_AUTO) {
+          clearInterval(stirInterval);
+          stirInterval = null;
+          finishStir(index, 'QUEMADO');
+        }
+      }, 50);
+    };
+
+    const stopStir = (e) => {
+      try { if (e && e.pointerId && btn.hasPointerCapture && btn.hasPointerCapture(e.pointerId)) btn.releasePointerCapture(e.pointerId); } catch(err) {}
+      const wok = gameState.woks[index];
+      if (!wok.stirring) return;
+      if (stirInterval) { clearInterval(stirInterval); stirInterval = null; }
+      btn.classList.remove('stirring-active', 'zone-crudo', 'zone-perfecto', 'zone-quemado');
+      const secs = wok.stirSeconds;
+      let result;
+      if (secs < WOK_STIR_CRUDO_MAX) result = 'CRUDO';
+      else if (secs < WOK_STIR_PERFECTO_MAX) result = 'PERFECTO';
+      else result = 'QUEMADO';
+      finishStir(index, result);
+    };
+
+    btn.addEventListener('pointerdown', startStir);
+    btn.addEventListener('pointerup', stopStir);
+    btn.addEventListener('pointerleave', stopStir);
+  }
+}
+
+// --- Estación de Frituras: 1 mesa de preparación + 1 freidora. El plato se identifica por el
+// conjunto de ingredientes (proteína + empanizado + guarnición), pero cuando la receta requiere
+// empanizado (harina+huevo+panko) ese trío debe agregarse en ese orden exacto. Al freír, el
+// jugador ve un contador manual: antes del umbral = Perfecto, después = Quemado (igual se puede
+// servir o desechar). "Gyozas" (hervido) no se puede completar aquí a propósito: esta estación
+// solo produce platos fritos — "Age Gyozas" es la versión alcanzable.
+const FRY_BURN_THRESHOLD = 3.0;
+let fryTimerInterval = null;
+
+function getFriturasFryableRecipes() {
+  return RECETAS_FRITURAS.filter(r => r.metodo !== 'hervido');
+}
+
+function analyzeFryStation() {
+  const station = gameState.fryStation;
+  const seq = station.ingredients;
+  if (seq.length === 0) return { status: "EMPTY" };
+
+  const seqSet = new Set(seq);
+  const catalog = getFriturasFryableRecipes();
+
+  for (const r of catalog) {
+    const rSet = new Set(r.ingredients);
+    if (rSet.size === seqSet.size && [...rSet].every(x => seqSet.has(x))) {
+      const needsBreading = rSet.has(58) && rSet.has(15) && rSet.has(65); // harina, huevo, panko
+      if (needsBreading) {
+        const posHarina = seq.indexOf(58);
+        const posHuevo = seq.indexOf(15);
+        const posPanko = seq.indexOf(65);
+        if (!(posHarina < posHuevo && posHuevo < posPanko)) {
+          return { status: "WRONG_BREADING_ORDER", recipe: r };
+        }
+      }
+      return { status: "MATCHED", recipe: r };
+    }
+  }
+
+  let bestRecipe = null, bestOverlap = -1, bestMissing = [], bestExtra = [];
+  for (const r of catalog) {
+    const rSet = new Set(r.ingredients);
+    const missing = [...rSet].filter(x => !seqSet.has(x));
+    const extra = [...seqSet].filter(x => !rSet.has(x));
+    const overlap = [...seqSet].filter(x => rSet.has(x)).length;
+    if (overlap > bestOverlap) { bestOverlap = overlap; bestRecipe = r; bestMissing = missing; bestExtra = extra; }
+  }
+  return {
+    status: "PROGRESS",
+    recipe: bestRecipe,
+    overlap: bestOverlap,
+    missing: bestMissing.map(id => INGREDIENTES.find(i => i.id === id).display),
+    extra: bestExtra.map(id => INGREDIENTES.find(i => i.id === id).display)
+  };
+}
+
+function toggleIngredientInFryStation(ingId) {
+  if (gameState.isPaused || gameState.isGameOver) return;
+  const station = gameState.fryStation;
+  if (station.phase !== 'BUILDING') return; // ya en la freidora o lista: hay que descartar para rearmar
+  if (station.ingredients.includes(ingId)) {
+    station.ingredients = station.ingredients.filter(id => id !== ingId);
+  } else {
+    station.ingredients.push(ingId);
+  }
+  playSound('add');
+  renderFryStation();
+  renderPantryGrid();
+}
+
+function discardFryStation() {
+  if (fryTimerInterval) { clearInterval(fryTimerInterval); fryTimerInterval = null; }
+  gameState.fryStation = { ingredients: [], phase: 'BUILDING', fryResult: null, frySeconds: 0, matchedRecipe: null };
+  playSound('trash');
+  renderFryStation();
+  renderPantryGrid();
+}
+
+function handleFryActionClick() {
+  const station = gameState.fryStation;
+  if (station.phase === 'BUILDING') {
+    const analysis = analyzeFryStation();
+    if (analysis.status !== 'MATCHED') return;
+    station.phase = 'FRYING';
+    station.frySeconds = 0;
+    station.matchedRecipe = analysis.recipe;
+    playSound('flame');
+    if (fryTimerInterval) clearInterval(fryTimerInterval);
+    fryTimerInterval = setInterval(() => {
+      if (gameState.isPaused || gameState.isGameOver) return;
+      station.frySeconds += 0.05;
+      renderFryStation();
+    }, 50);
+    renderFryStation();
+  } else if (station.phase === 'FRYING') {
+    if (fryTimerInterval) { clearInterval(fryTimerInterval); fryTimerInterval = null; }
+    station.fryResult = station.frySeconds >= FRY_BURN_THRESHOLD ? 'QUEMADO' : 'PERFECTO';
+    station.phase = 'FRIED';
+    playSound(station.fryResult === 'PERFECTO' ? 'match' : 'burn');
+    renderFryStation();
+  }
+}
+
+function attemptServeFryStation() {
+  const station = gameState.fryStation;
+  if (station.phase !== 'FRIED' || !station.matchedRecipe) return;
+  // Los pedidos de clientes todavía solo existen para Ramen; esto queda listo para
+  // cuando el sistema de pedidos se extienda a las demás áreas.
+  showStationToast('🍽️ Los pedidos de Frituras aún no están conectados con los clientes.');
+}
+
+function renderFryStation() {
+  const strip = document.getElementById('fry-table-strip');
+  const tableBadge = document.getElementById('fry-table-badge');
+  const oilBadge = document.getElementById('fry-oil-badge');
+  const oilVisual = document.getElementById('fry-oil-visual');
+  const actionBtn = document.getElementById('fry-action-btn');
+  const resultActions = document.getElementById('fry-result-actions');
+  if (!strip || !tableBadge || !oilBadge) return;
+
+  const station = gameState.fryStation;
+
+  if (station.ingredients.length === 0) {
+    strip.innerHTML = `<span class="maki-strip-empty">Toca los ingredientes para armar el plato</span>`;
+  } else {
+    strip.innerHTML = station.ingredients.map(id => {
+      const ing = INGREDIENTES.find(i => i.id === id);
+      return `<span class="maki-chip" title="${ing ? ing.display : ''}">${ing ? ing.icon : '❓'}</span>`;
+    }).join('');
+  }
+
+  tableBadge.classList.remove('status-error', 'status-ready', 'status-warn');
+  if (station.phase !== 'BUILDING') {
+    tableBadge.textContent = station.matchedRecipe ? `En la freidora: ${station.matchedRecipe.name}` : 'En la freidora...';
+  } else {
+    const analysis = analyzeFryStation();
+    if (analysis.status === 'EMPTY') {
+      tableBadge.textContent = 'Vacío';
+    } else if (analysis.status === 'WRONG_BREADING_ORDER') {
+      tableBadge.textContent = '✗ Orden de empanizado: harina → huevo → panko';
+      tableBadge.classList.add('status-error');
+    } else if (analysis.status === 'MATCHED') {
+      tableBadge.textContent = `Lista para freír: ${analysis.recipe.name}`;
+      tableBadge.classList.add('status-ready');
+    } else {
+      tableBadge.textContent = `Armando (${station.ingredients.length})`;
+    }
+  }
+
+  oilBadge.classList.remove('status-error', 'status-ready', 'status-warn');
+  if (resultActions) resultActions.style.display = 'none';
+
+  if (station.phase === 'BUILDING') {
+    const analysis = analyzeFryStation();
+    if (oilVisual) oilVisual.textContent = '🛢️';
+    if (analysis.status === 'MATCHED') {
+      oilBadge.textContent = 'Lista para freír';
+      if (actionBtn) { actionBtn.style.display = 'block'; actionBtn.textContent = '🍳 Freír'; actionBtn.className = 'fry-action-btn'; }
+    } else {
+      oilBadge.textContent = 'Esperando ingredientes...';
+      if (actionBtn) actionBtn.style.display = 'none';
+    }
+  } else if (station.phase === 'FRYING') {
+    const isBurning = station.frySeconds >= FRY_BURN_THRESHOLD;
+    if (oilVisual) oilVisual.textContent = isBurning ? '🔥' : '🍳';
+    oilBadge.textContent = isBurning ? `¡Se está quemando! ${station.frySeconds.toFixed(1)}s` : `Friendo... ${station.frySeconds.toFixed(1)}s`;
+    oilBadge.classList.add(isBurning ? 'status-warn' : 'status-ready');
+    if (actionBtn) {
+      actionBtn.style.display = 'block';
+      actionBtn.textContent = '✋ Retirar';
+      actionBtn.className = `fry-action-btn ${isBurning ? 'zone-quemado' : ''}`;
+    }
+  } else if (station.phase === 'FRIED') {
+    const labelMap = { PERFECTO: '🔥 ¡Perfecto!', QUEMADO: '💨 Quemado' };
+    if (oilVisual) oilVisual.textContent = station.fryResult === 'QUEMADO' ? '🕳️' : '✅';
+    oilBadge.textContent = `${labelMap[station.fryResult]}: ${station.matchedRecipe ? station.matchedRecipe.name : ''}`;
+    oilBadge.classList.add(station.fryResult === 'PERFECTO' ? 'status-ready' : 'status-warn');
+    if (actionBtn) actionBtn.style.display = 'none';
+    if (resultActions) resultActions.style.display = 'flex';
+  }
 }
 
 function renderAreaTabs() {
@@ -7160,13 +8032,27 @@ function renderPantryGrid() {
   container.style.setProperty('--icon-sz', iconSz);
   container.style.setProperty('--name-sz', nameSz);
 
+  const isMakisArea = gameState.activeArea === 'makis';
+  const isSalteadosArea = gameState.activeArea === 'salteados';
+  const isFriturasArea = gameState.activeArea === 'frituras';
   filtered.forEach(ing => {
     const tile = document.createElement("div");
-    const isInBowl = currentBowl.ingredients.includes(ing.id);
+    const isInBowl = isMakisArea
+      ? gameState.makiRoll.ingredients.includes(ing.id)
+      : isSalteadosArea
+      ? gameState.woks[gameState.activeWokIndex].ingredients.includes(ing.id)
+      : isFriturasArea
+      ? gameState.fryStation.ingredients.includes(ing.id)
+      : currentBowl.ingredients.includes(ing.id);
 
     tile.className = `ing-station-tile ${isInBowl ? "in-active-bowl" : ""}`;
-    tile.title = `${ing.display} (${isInBowl ? "En cuenco activo - Toca para retirar" : "Toca para añadir"})`;
-    tile.onclick = () => toggleIngredientInBowl(ing.id);
+    tile.title = `${ing.display} (${isInBowl ? "En uso - Toca para retirar" : "Toca para añadir"})`;
+    tile.onclick = () => {
+      if (isMakisArea) toggleIngredientInMaki(ing.id);
+      else if (isSalteadosArea) toggleIngredientInWok(ing.id);
+      else if (isFriturasArea) toggleIngredientInFryStation(ing.id);
+      else toggleIngredientInBowl(ing.id);
+    };
 
     const artHtml = ing.img 
       ? `<img src="${ing.img}" class="pixel-sprite-large" alt="${ing.display}" style="width:${iconSz}; height:${iconSz};">`
@@ -7187,11 +8073,64 @@ function renderPantryGrid() {
   });
 }
 
+function getRecetasByArea(area) {
+  if (area === 'salteados') return RECETAS_SALTEADOS;
+  if (area === 'frituras') return RECETAS_FRITURAS;
+  if (area === 'makis') return RECETAS_MAKIS;
+  return RECETAS_RAMEN;
+}
+
+// Makis: el orden de armado importa. A diferencia de las demás áreas (conjunto sin orden),
+// aquí se compara la secuencia exacta de ingredientes tal como se fueron agregando al cuenco.
+function analyzeMakiSequence(sequence) {
+  if (!sequence || sequence.length === 0) return { status: "EMPTY" };
+
+  for (const r of RECETAS_MAKIS) {
+    if (r.ingredients.length === sequence.length && r.ingredients.every((id, idx) => id === sequence[idx])) {
+      return { status: "READY", recipe: r };
+    }
+  }
+
+  // ¿La secuencia actual es, en orden, el inicio válido de alguna receta?
+  let bestRecipe = null;
+  let bestMatchLen = -1;
+  for (const r of RECETAS_MAKIS) {
+    let matchLen = 0;
+    while (matchLen < sequence.length && matchLen < r.ingredients.length && r.ingredients[matchLen] === sequence[matchLen]) {
+      matchLen++;
+    }
+    if (matchLen === sequence.length && matchLen > bestMatchLen) {
+      bestMatchLen = matchLen;
+      bestRecipe = r;
+    }
+  }
+
+  if (bestRecipe) {
+    const missingIds = bestRecipe.ingredients.slice(bestMatchLen);
+    const nextIng = INGREDIENTES.find(i => i.id === missingIds[0]);
+    return {
+      status: "PROGRESS",
+      recipe: bestRecipe,
+      overlap: bestMatchLen,
+      nextIngredient: nextIng ? nextIng.display : null,
+      missing: missingIds.map(id => INGREDIENTES.find(i => i.id === id).display),
+      extra: []
+    };
+  }
+
+  // La secuencia no calza con el inicio de ninguna receta: el orden está mal.
+  return { status: "WRONG_ORDER" };
+}
+
 function analyzeBowl(bowlIndex) {
+  // El cuenco (bowls-dock-box) es exclusivo de Ramen: las demás áreas tienen su propia
+  // estación de trabajo (ver renderMakiStation para Makis) y no pasan por esta función.
   const bowl = gameState.bowls[bowlIndex];
+  const area = gameState.activeArea || 'ramen';
+  const catalog = getRecetasByArea(area);
   const bowlSet = new Set(bowl.ingredients);
 
-  for (const r of RECETAS_RAMEN) {
+  for (const r of catalog) {
     const rSet = new Set(r.ingredients);
     if (rSet.size === bowlSet.size && [...rSet].every(x => bowlSet.has(x))) {
       return { status: "READY", recipe: r };
@@ -7200,8 +8139,8 @@ function analyzeBowl(bowlIndex) {
 
   if (bowl.ingredients.length === 0) return { status: "EMPTY" };
 
-  const unlocked = getUnlockedRecipes();
-  const candidateRecipes = unlocked.length > 0 ? unlocked : RECETAS_RAMEN;
+  const unlocked = area === 'ramen' ? getUnlockedRecipes() : catalog;
+  const candidateRecipes = unlocked.length > 0 ? unlocked : catalog;
   let bestRecipe = null;
   let bestOverlap = -1;
   let bestMissing = [];
@@ -7229,6 +8168,7 @@ function analyzeBowl(bowlIndex) {
     extra: bestExtra.map(id => INGREDIENTES.find(i => i.id === id).display)
   };
 }
+
 
 
 function generateBowlSVG(bowl, analysis) {
@@ -7939,6 +8879,7 @@ function setupKitchenStations() {
   setupChasuButton();
   initNoodlesLoop();
   updateKitchenStationsUI();
+  setupWokStirButtons();
 }
 
 function resetCookingStations() {
@@ -8797,6 +9738,14 @@ function startLevel(lvlIndex) {
   renderBowls();
   renderCustomers();
   gameState.activeArea = 'ramen';
+  gameState.makiRoll = { ingredients: [] };
+  gameState.woks = [
+    { ingredients: [], result: null, matchedRecipe: null, stirring: false, stirSeconds: 0 },
+    { ingredients: [], result: null, matchedRecipe: null, stirring: false, stirSeconds: 0 }
+  ];
+  if (fryTimerInterval) { clearInterval(fryTimerInterval); fryTimerInterval = null; }
+  gameState.fryStation = { ingredients: [], phase: 'BUILDING', fryResult: null, frySeconds: 0, matchedRecipe: null };
+  updateStationVisibilityForArea();
   renderPantryGrid();
 
   if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP') {
