@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 140" width="600" height="140">
+  <defs>
+    <linearGradient id="tableWood" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9c6835"/>
+      <stop offset="1" stop-color="#744720"/>
+    </linearGradient>
+    <linearGradient id="boardWood" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e8bf80"/>
+      <stop offset="1" stop-color="#d2a05f"/>
+    </linearGradient>
+    <linearGradient id="rollShade" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#a98a3c"/>
+      <stop offset="0.45" stop-color="#e9d68f"/>
+      <stop offset="1" stop-color="#b3944a"/>
+    </linearGradient>
+    <linearGradient id="blade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f8fafb"/>
+      <stop offset="0.55" stop-color="#c6ced4"/>
+      <stop offset="1" stop-color="#97a2aa"/>
+    </linearGradient>
+    <linearGradient id="handle" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#80501f"/>
+      <stop offset="1" stop-color="#43260d"/>
+    </linearGradient>
+    <pattern id="slats" patternUnits="userSpaceOnUse" width="10.3" height="10">
+      <rect x="0" y="0" width="10.3" height="10" fill="#c9ae5f"/>
+      <rect x="0.7" y="0" width="8.6" height="10" rx="2.2" fill="#e3cd82"/>
+      <rect x="2" y="0" width="2.2" height="10" fill="#f0e2a6" opacity="0.65"/>
+    </pattern>
+    <filter id="shadow" x="-10%" y="-12%" width="122%" height="132%">
+      <feDropShadow dx="0" dy="3" stdDeviation="2.6" flood-color="#000" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <!-- Mesa de madera (vista frontal, plana) -->
+  <rect x="2" y="2" width="596" height="136" rx="16" fill="url(#tableWood)" stroke="#4a2b11" stroke-width="3"/>
+  <g stroke="#5b3817" stroke-width="1.6" opacity="0.5">
+    <line x1="6" y1="36" x2="594" y2="36"/>
+    <line x1="6" y1="70" x2="594" y2="70"/>
+    <line x1="6" y1="104" x2="594" y2="104"/>
+  </g>
+  <g fill="none" stroke="#5b3817" stroke-width="1" opacity="0.28">
+    <path d="M12,20 C120,14 250,26 390,18 S560,22 590,16"/>
+    <path d="M10,54 C140,60 260,48 400,56 S560,50 592,58"/>
+    <path d="M14,88 C110,82 260,94 380,86 S540,92 590,84"/>
+    <path d="M12,122 C150,128 270,116 410,124 S560,118 590,126"/>
+  </g>
+
+  <!-- Esterilla de bambú (makisu): hoja plana + un extremo enrollado -->
+  <g filter="url(#shadow)">
+    <rect x="52" y="22" width="126" height="96" rx="4" fill="url(#slats)" stroke="#9c8236" stroke-width="1.6"/>
+    <rect x="52" y="37" width="126" height="4.5" fill="#6a5a2e"/>
+    <rect x="52" y="99" width="126" height="4.5" fill="#6a5a2e"/>
+    <circle cx="58" cy="39.2" r="3.6" fill="#4d3f1d"/>
+    <circle cx="58" cy="101.2" r="3.6" fill="#4d3f1d"/>
+    <rect x="20" y="20" width="36" height="100" rx="18" fill="url(#rollShade)" stroke="#8d7330" stroke-width="1.6"/>
+    <g stroke="#8d7330" stroke-width="1.4" opacity="0.8">
+      <line x1="24" y1="34" x2="52" y2="34"/>
+      <line x1="22" y1="46" x2="54" y2="46"/>
+      <line x1="22" y1="58" x2="54" y2="58"/>
+      <line x1="22" y1="70" x2="54" y2="70"/>
+      <line x1="22" y1="82" x2="54" y2="82"/>
+      <line x1="22" y1="94" x2="54" y2="94"/>
+      <line x1="24" y1="106" x2="52" y2="106"/>
+    </g>
+  </g>
+
+  <!-- Tabla de cortar -->
+  <g filter="url(#shadow)">
+    <rect x="192" y="14" width="238" height="112" rx="13" fill="url(#boardWood)" stroke="#9a6a35" stroke-width="2.6"/>
+    <rect x="198" y="20" width="226" height="100" rx="9" fill="none" stroke="#ffffff" stroke-opacity="0.28" stroke-width="1.6"/>
+    <g fill="none" stroke="#b98446" stroke-width="1.2" opacity="0.5">
+      <path d="M204,36 C260,30 330,42 418,34"/>
+      <path d="M204,62 C270,68 340,56 418,64"/>
+      <path d="M204,90 C262,84 332,96 418,88"/>
+      <path d="M204,110 C270,114 340,106 418,112"/>
+    </g>
+  </g>
+
+  <!-- Cuchillo -->
+  <g filter="url(#shadow)">
+    <path d="M528,53 L468,53 Q450,57 444,79 Q470,87 528,85 Z" fill="url(#blade)" stroke="#808b93" stroke-width="1.2"/>
+    <path d="M470,66 L526,66" stroke="#ffffff" stroke-opacity="0.7" stroke-width="1.4" fill="none"/>
+    <rect x="522" y="52" width="9" height="34" rx="2" fill="#2a2a2a"/>
+    <rect x="529" y="55" width="62" height="28" rx="8" fill="url(#handle)" stroke="#2f1a08" stroke-width="1.4"/>
+    <circle cx="550" cy="69" r="2.7" fill="#e9c66b" stroke="#8a6a1e" stroke-width="0.8"/>
+    <circle cx="570" cy="69" r="2.7" fill="#e9c66b" stroke="#8a6a1e" stroke-width="0.8"/>
+  </g>
+</svg>

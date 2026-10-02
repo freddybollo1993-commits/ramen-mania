@@ -1458,31 +1458,70 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 5px;
     flex: 1;
     width: 100%;
-  }
-  .maki-mat-card {
-    background: linear-gradient(180deg, #1b3a1f 0%, #10240f 100%);
-    border: 2px solid #4a7c3a;
-    border-radius: 10px;
-    padding: 6px 12px;
-    width: 100%;
-    max-width: 560px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06);
+    padding-bottom: 10px;
     box-sizing: border-box;
   }
-  .maki-mat-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 4px;
+  /* Ilustración frontal (sin perspectiva): esterilla de bambú | tabla | cuchillo.
+     Los ingredientes se colocan sobre la tabla, en el orden en que se arrastran. */
+  .maki-mat-card {
+    position: relative;
+    width: min(92vw, 480px);
+    aspect-ratio: 600 / 140;
+    background: url('assets/maki_table.svg') center / 100% 100% no-repeat;
+    border-radius: 14px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.55);
+    box-sizing: border-box;
+    container-type: inline-size;
   }
-  .maki-mat-title {
-    font-family: 'Fredoka One', cursive, sans-serif;
-    font-size: 12px;
-    color: #d7f5c8;
-    letter-spacing: 0.3px;
+  .maki-mat-header {
+    position: absolute;
+    top: 6%;
+    right: 2.4%;
+    z-index: 2;
+  }
+  .maki-board-chips {
+    position: absolute;
+    left: 33%;
+    top: 14.3%;
+    width: 37.7%;
+    height: 71.4%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    align-content: center;
+    gap: 1px 2px;
+    overflow: hidden;
+  }
+  .maki-board-chips .maki-chip {
+    font-size: 20px;
+    font-size: 4.2cqw;
+    line-height: 1;
+    flex-shrink: 0;
+    filter: drop-shadow(0 1px 1.5px rgba(0,0,0,0.45));
+  }
+  .maki-board-chips .maki-chip-sep {
+    color: #9a6a35;
+    font-size: 9px;
+    font-size: 1.9cqw;
+    flex-shrink: 0;
+  }
+  .maki-board-chips .maki-strip-empty {
+    color: #8a5d2b;
+    font-size: 9px;
+    font-size: 2cqw;
+    font-weight: 800;
+    padding: 0 4px;
+  }
+  .maki-mat-card .maki-mat-status {
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    translate: -50% 0;
+    white-space: nowrap;
+    z-index: 2;
   }
   .maki-mat-strip {
     display: flex;
@@ -5210,12 +5249,11 @@
     <div class="maki-station-box" id="maki-station-box">
       <div class="maki-mat-card">
         <div class="maki-mat-header">
-          <span class="maki-mat-title">🍣 Tabla de Enrollado</span>
           <button class="btn-bowl-trash" onclick="clearMakiRoll()" title="Vaciar tabla">🗑️</button>
         </div>
-        <div class="maki-mat-strip" id="maki-mat-strip"></div>
+        <div class="maki-board-chips" id="maki-mat-strip"></div>
+        <div class="maki-mat-status" id="maki-status-badge">Vacío</div>
       </div>
-      <div class="maki-mat-status" id="maki-status-badge">Vacío</div>
     </div>
 
     <!-- Estación de Salteados: 2 woks en paralelo, ingredientes + salteado con tiempo -->
@@ -7586,7 +7624,7 @@ function renderMakiStation() {
   const analysis = analyzeMakiSequence(ings);
 
   if (ings.length === 0) {
-    strip.innerHTML = `<span class="maki-strip-empty">Arrastra aquí los ingredientes, en orden, para armar el rollo</span>`;
+    strip.innerHTML = `<span class="maki-strip-empty">Arrastra aquí los ingredientes, en orden</span>`;
   } else {
     strip.innerHTML = ings.map(id => {
       const ing = INGREDIENTES.find(i => i.id === id);
