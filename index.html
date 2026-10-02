@@ -712,6 +712,61 @@
     font-size: 8px;
   }
 
+  /* --- Arrastrar ingredientes hasta el plato --- */
+  .ing-station-tile {
+    cursor: grab;
+    -webkit-touch-callout: none;
+  }
+  .ing-station-tile img {
+    -webkit-user-drag: none;
+    pointer-events: none;
+  }
+  .ing-station-tile.dragging-source {
+    opacity: 0.4;
+    transform: scale(0.94);
+  }
+  body.is-dragging-ingredient,
+  body.is-dragging-ingredient * {
+    cursor: grabbing !important;
+    user-select: none;
+  }
+  .drag-ghost {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 99999;
+    width: 54px;
+    height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 42px;
+    line-height: 1;
+    pointer-events: none;
+    opacity: 0.96;
+    filter: drop-shadow(0 8px 10px rgba(0,0,0,0.6));
+    will-change: transform;
+  }
+  .drag-ghost img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .drop-target-ready {
+    outline: 2px dashed rgba(255, 183, 3, 0.85);
+    outline-offset: 2px;
+    animation: dropTargetPulse 0.8s ease-in-out infinite alternate;
+  }
+  .drop-target-ready.drop-hover {
+    outline: 3px solid #ffd54f;
+    box-shadow: 0 0 20px rgba(255, 213, 79, 0.9) !important;
+    animation: none;
+  }
+  @keyframes dropTargetPulse {
+    from { outline-color: rgba(255, 183, 3, 0.35); }
+    to { outline-color: rgba(255, 183, 3, 0.95); }
+  }
+
   .ing-tile-icon {
     font-size: var(--icon-sz, 24px);
     line-height: 1;
@@ -7531,7 +7586,7 @@ function renderMakiStation() {
   const analysis = analyzeMakiSequence(ings);
 
   if (ings.length === 0) {
-    strip.innerHTML = `<span class="maki-strip-empty">Toca los ingredientes en orden para armar el rollo</span>`;
+    strip.innerHTML = `<span class="maki-strip-empty">Arrastra aquí los ingredientes, en orden, para armar el rollo</span>`;
   } else {
     strip.innerHTML = ings.map(id => {
       const ing = INGREDIENTES.find(i => i.id === id);
@@ -7887,7 +7942,7 @@ function renderFryStation() {
   const station = gameState.fryStation;
 
   if (station.ingredients.length === 0) {
-    strip.innerHTML = `<span class="maki-strip-empty">Toca los ingredientes para armar el plato</span>`;
+    strip.innerHTML = `<span class="maki-strip-empty">Arrastra aquí los ingredientes para armar el plato</span>`;
   } else {
     strip.innerHTML = station.ingredients.map(id => {
       const ing = INGREDIENTES.find(i => i.id === id);
@@ -7980,6 +8035,237 @@ function filterCategory(cat) {
   renderPantryGrid();
 }
 
+// --- Agregar ingredientes arrastrando ---
+// El jugador mantiene pulsado un ingrediente y lo arrastra hasta el plato (cuenco, wok, tabla de
+// makis o mesa de frituras). La imagen del ingrediente sigue al puntero mientras se arrastra.
+// Con el mouse el arrastre empieza al mover; con el dedo, al mantener ~160ms quieto (si el dedo se
+// mueve antes, se interpreta como scroll del panel). Un toque simple solo sirve para retirar un
+// ingrediente que ya está en el plato activo.
+const DRAG_TOUCH_HOLD_MS = 160;
+const DRAG_MOUSE_START_PX = 5;
+const DRAG_TOUCH_CANCEL_PX = 9;
+const DRAG_TOUCH_GHOST_OFFSET_Y = 34; // el fantasma se muestra sobre el dedo para no taparlo
+let ingredientDrag = null;
+let lastDragHintAt = 0;
+
+document.addEventListener('touchmove', (e) => {
+  if (ingredientDrag && ingredientDrag.active && e.cancelable) e.preventDefault();
+}, { passive: false });
+
+function getIngredientDropTargets() {
+  const area = gameState.activeArea;
+  const sel = area === 'ramen' ? '.bowl-dock-card'
+    : area === 'salteados' ? '.wok-dock-card'
+    : area === 'makis' ? '.maki-mat-card'
+    : area === 'frituras' ? '#fry-table-card'
+    : null;
+  return sel ? Array.from(document.querySelectorAll(sel)) : [];
+}
+
+function getIngredientDragPoint(d) {
+  return { x: d.x, y: d.pointerType === 'mouse' ? d.y : d.y - DRAG_TOUCH_GHOST_OFFSET_Y };
+}
+
+function findIngredientDropTarget(d) {
+  const p = getIngredientDragPoint(d);
+  const el = document.elementFromPoint(p.x, p.y);
+  if (!el) return null;
+  return getIngredientDropTargets().find(t => t === el || t.contains(el)) || null;
+}
+
+function isIngredientInActiveDish(ingId) {
+  const area = gameState.activeArea;
+  if (area === 'makis') return gameState.makiRoll.ingredients.includes(ingId);
+  if (area === 'salteados') return gameState.woks[gameState.activeWokIndex].ingredients.includes(ingId);
+  if (area === 'frituras') return gameState.fryStation.ingredients.includes(ingId);
+  const bowl = gameState.bowls[gameState.activeBowlIndex];
+  return !!bowl && bowl.ingredients.includes(ingId);
+}
+
+// Quita el ingrediente del plato activo (las funciones toggle retiran si ya está dentro).
+function removeIngredientFromActiveDish(ingId) {
+  const area = gameState.activeArea;
+  if (area === 'makis') toggleIngredientInMaki(ingId);
+  else if (area === 'salteados') toggleIngredientInWok(ingId);
+  else if (area === 'frituras') toggleIngredientInFryStation(ingId);
+  else toggleIngredientInBowl(ingId);
+}
+
+function handleIngredientTap(ing) {
+  if (isIngredientInActiveDish(ing.id)) {
+    removeIngredientFromActiveDish(ing.id);
+    return;
+  }
+  const now = Date.now();
+  if (now - lastDragHintAt > 5000) {
+    lastDragHintAt = now;
+    showStationToast('👆 Mantén pulsado el ingrediente y arrástralo hasta el plato.');
+  }
+}
+
+function applyIngredientDrop(target, ing) {
+  const area = gameState.activeArea;
+  if (area === 'ramen') {
+    const idx = parseInt(target.id.replace('bowl-card-', ''), 10);
+    if (gameState.activeBowlIndex !== idx) selectBowl(idx);
+    if (gameState.activeBowlIndex !== idx) return; // bloqueado por otro jugador (coop)
+    if (gameState.bowls[idx].ingredients.includes(ing.id)) {
+      showStationToast(`${ing.display} ya está en este cuenco.`);
+      return;
+    }
+    toggleIngredientInBowl(ing.id);
+  } else if (area === 'salteados') {
+    const idx = parseInt(target.id.replace('wok-card-', ''), 10);
+    selectWok(idx);
+    const wok = gameState.woks[idx];
+    if (wok.result) {
+      showStationToast('Ese wok ya está salteado: vacíalo para armar otro plato.');
+      return;
+    }
+    if (wok.ingredients.includes(ing.id)) {
+      showStationToast(`${ing.display} ya está en este wok.`);
+      return;
+    }
+    toggleIngredientInWok(ing.id);
+  } else if (area === 'makis') {
+    if (gameState.makiRoll.ingredients.includes(ing.id)) {
+      showStationToast(`${ing.display} ya está en el rollo.`);
+      return;
+    }
+    toggleIngredientInMaki(ing.id);
+  } else if (area === 'frituras') {
+    const station = gameState.fryStation;
+    if (station.phase !== 'BUILDING') {
+      showStationToast('La freidora está en uso: descarta o sirve el plato para armar otro.');
+      return;
+    }
+    if (station.ingredients.includes(ing.id)) {
+      showStationToast(`${ing.display} ya está en la mesa.`);
+      return;
+    }
+    toggleIngredientInFryStation(ing.id);
+  }
+}
+
+function moveIngredientGhost() {
+  const d = ingredientDrag;
+  if (!d || !d.ghost) return;
+  const p = getIngredientDragPoint(d);
+  d.ghost.style.transform = `translate(${p.x}px, ${p.y}px) translate(-50%, -50%) scale(1.15)`;
+}
+
+function updateIngredientDropHover() {
+  const d = ingredientDrag;
+  if (!d) return;
+  const target = findIngredientDropTarget(d);
+  if (d.hoverEl && d.hoverEl !== target) d.hoverEl.classList.remove('drop-hover');
+  if (target) target.classList.add('drop-hover');
+  d.hoverEl = target;
+}
+
+function activateIngredientDrag() {
+  const d = ingredientDrag;
+  if (!d || d.active) return;
+  if (d.holdTimer) { clearTimeout(d.holdTimer); d.holdTimer = null; }
+  d.active = true;
+
+  const ghost = document.createElement('div');
+  ghost.className = 'drag-ghost';
+  ghost.innerHTML = d.ing.img ? `<img src="${d.ing.img}" alt="">` : d.ing.icon;
+  document.body.appendChild(ghost);
+  d.ghost = ghost;
+
+  d.tile.classList.add('dragging-source');
+  document.body.classList.add('is-dragging-ingredient');
+  getIngredientDropTargets().forEach(el => el.classList.add('drop-target-ready'));
+  moveIngredientGhost();
+  updateIngredientDropHover();
+  try { if (navigator.vibrate) navigator.vibrate(12); } catch (err) {}
+}
+
+function cleanupIngredientDrag() {
+  const d = ingredientDrag;
+  document.removeEventListener('pointermove', onIngredientPointerMove);
+  document.removeEventListener('pointerup', onIngredientPointerUp);
+  document.removeEventListener('pointercancel', onIngredientPointerCancel);
+  if (d) {
+    if (d.holdTimer) clearTimeout(d.holdTimer);
+    if (d.ghost) d.ghost.remove();
+    if (d.tile) d.tile.classList.remove('dragging-source');
+  }
+  document.querySelectorAll('.drop-target-ready').forEach(el => el.classList.remove('drop-target-ready', 'drop-hover'));
+  document.body.classList.remove('is-dragging-ingredient');
+  ingredientDrag = null;
+}
+
+function onIngredientPointerMove(e) {
+  const d = ingredientDrag;
+  if (!d || e.pointerId !== d.pointerId) return;
+  d.x = e.clientX;
+  d.y = e.clientY;
+  if (!d.active) {
+    const dist = Math.hypot(d.x - d.startX, d.y - d.startY);
+    if (d.pointerType === 'mouse') {
+      if (dist > DRAG_MOUSE_START_PX) activateIngredientDrag();
+    } else if (dist > DRAG_TOUCH_CANCEL_PX) {
+      cleanupIngredientDrag(); // el dedo se movió antes de mantener: es un scroll del panel
+    }
+    return;
+  }
+  moveIngredientGhost();
+  updateIngredientDropHover();
+}
+
+function onIngredientPointerUp(e) {
+  const d = ingredientDrag;
+  if (!d || e.pointerId !== d.pointerId) return;
+  d.x = e.clientX;
+  d.y = e.clientY;
+  const ing = d.ing;
+  const moved = Math.hypot(d.x - d.startX, d.y - d.startY);
+  const target = d.active ? findIngredientDropTarget(d) : null;
+  cleanupIngredientDrag();
+  if (target) {
+    applyIngredientDrop(target, ing);
+  } else if (moved < 12) {
+    handleIngredientTap(ing); // toque simple (o mantener sin mover)
+  }
+}
+
+function onIngredientPointerCancel(e) {
+  const d = ingredientDrag;
+  if (!d || e.pointerId !== d.pointerId) return;
+  cleanupIngredientDrag();
+}
+
+function beginIngredientPress(e, tile, ing) {
+  if (e.pointerType === 'mouse' && e.button !== 0) return;
+  if (gameState.isPaused || gameState.isGameOver) return;
+  cleanupIngredientDrag();
+  const d = {
+    ing, tile,
+    pointerId: e.pointerId,
+    pointerType: e.pointerType,
+    startX: e.clientX, startY: e.clientY,
+    x: e.clientX, y: e.clientY,
+    active: false, ghost: null, hoverEl: null, holdTimer: null
+  };
+  ingredientDrag = d;
+  if (e.pointerType !== 'mouse') {
+    d.holdTimer = setTimeout(() => {
+      if (ingredientDrag === d && !d.active) activateIngredientDrag();
+    }, DRAG_TOUCH_HOLD_MS);
+  }
+  document.addEventListener('pointermove', onIngredientPointerMove);
+  document.addEventListener('pointerup', onIngredientPointerUp);
+  document.addEventListener('pointercancel', onIngredientPointerCancel);
+}
+
+function attachIngredientDrag(tile, ing) {
+  tile.addEventListener('contextmenu', (e) => e.preventDefault());
+  tile.addEventListener('pointerdown', (e) => beginIngredientPress(e, tile, ing));
+}
+
 function renderPantryGrid() {
   renderAreaTabs();
   renderCategoryFilters();
@@ -8046,13 +8332,8 @@ function renderPantryGrid() {
       : currentBowl.ingredients.includes(ing.id);
 
     tile.className = `ing-station-tile ${isInBowl ? "in-active-bowl" : ""}`;
-    tile.title = `${ing.display} (${isInBowl ? "En uso - Toca para retirar" : "Toca para añadir"})`;
-    tile.onclick = () => {
-      if (isMakisArea) toggleIngredientInMaki(ing.id);
-      else if (isSalteadosArea) toggleIngredientInWok(ing.id);
-      else if (isFriturasArea) toggleIngredientInFryStation(ing.id);
-      else toggleIngredientInBowl(ing.id);
-    };
+    tile.title = `${ing.display} (${isInBowl ? "En uso - Toca para retirar" : "Mantén y arrastra al plato"})`;
+    attachIngredientDrag(tile, ing);
 
     const artHtml = ing.img 
       ? `<img src="${ing.img}" class="pixel-sprite-large" alt="${ing.display}" style="width:${iconSz}; height:${iconSz};">`
@@ -10053,7 +10334,7 @@ const TUTORIAL_DATA = [
     phaseClass: "phase-2",
     targetId: "prep-board-box",
     title: "🥢 Despensa",
-    text: "Selecciona ingredientes por pestañas (Bases, Salsas, Proteínas, Toppings).",
+    text: "Filtra ingredientes por pestañas (Bases, Salsas, Proteínas, Toppings). Mantén pulsado uno y arrástralo hasta el plato.",
     screen: "KITCHEN"
   },
   {
@@ -10111,7 +10392,7 @@ const TUTORIAL_DATA = [
     phaseClass: "phase-3",
     targetId: "bowl-card-0",
     title: "🍜 Armado en Cuenco",
-    text: "Toca tu cuenco activo y agrega: 1° Fideos → 2° Caldo → 3° Salsa → 4° Toppings.",
+    text: "Arrastra los ingredientes hasta tu cuenco: 1° Fideos → 2° Caldo → 3° Salsa → 4° Toppings. Toca uno ya puesto para retirarlo.",
     screen: "KITCHEN"
   },
   {
