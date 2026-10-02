@@ -1683,88 +1683,156 @@
     flex: 1;
     width: 100%;
   }
+  .salteado-station-box {
+    padding-bottom: 16px;
+    gap: min(6vw, 48px);
+    box-sizing: border-box;
+  }
+  /* Wok ilustrado sin recuadro: el dibujo es la propia tarjeta. Los ingredientes se amontonan
+     dentro de la cavidad; nombre y basurero van en una franja inferior transparente. */
   .wok-dock-card {
-    background: rgba(28, 14, 10, 0.94);
-    border: 1.5px solid #6d3d1a;
-    border-radius: 12px;
-    padding: 3px 8px 4px 8px;
-    width: 220px;
-    height: 84px;
     position: relative;
+    width: clamp(100px, min(21vw, 34vh), 180px);
+    aspect-ratio: 300 / 186;
+    background: url('assets/wok.svg') center / 100% 100% no-repeat;
+    border-radius: 16px;
     cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-    transition: all 0.15s ease;
     user-select: none;
+    container-type: inline-size;
+    filter: brightness(0.82);
+    transition: filter 0.15s ease;
   }
   .wok-dock-card:hover {
-    border-color: #ffb300;
+    filter: brightness(0.95);
   }
   .wok-dock-card.active {
-    border: 2px solid #ff9100;
-    box-shadow: 0 0 16px rgba(255, 145, 0, 0.5), inset 0 0 10px rgba(255, 145, 0, 0.12);
-    background: rgba(38, 20, 10, 0.98);
+    filter: brightness(1) drop-shadow(0 0 10px rgba(255, 145, 0, 0.5));
   }
   .wok-dock-tag {
     position: absolute;
-    top: 3px;
-    left: 50%;
-    transform: translateX(-50%);
-    color: #ffb300;
-    font-size: 8.5px;
+    top: -4%;
+    left: 0;
+    color: #c8e66a;
+    font-size: 9px;
+    font-size: max(8px, 5.2cqw);
     font-weight: 900;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.4px;
     white-space: nowrap;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+  }
+  .wok-dock-tag::first-letter {
+    color: #5ddc4f;
   }
   .wok-dock-visual {
-    flex: 1;
+    position: absolute;
+    left: 7.3%;
+    top: 17.7%;
+    width: 65.3%;
+    height: 40.9%;
+    overflow: visible;
+    pointer-events: none;
+  }
+  .wok-chip {
+    position: absolute;
+    font-size: 16px;
+    font-size: 10.5cqw;
+    line-height: 1;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.6));
+    transition: left 0.2s ease, top 0.2s ease;
+  }
+  .wok-dock-card.is-stirring .wok-dock-visual {
+    animation: wokToss 0.28s ease-in-out infinite alternate;
+  }
+  @keyframes wokToss {
+    from { transform: translate(-2%, 1%) rotate(-3deg); }
+    to { transform: translate(2%, -2%) rotate(3deg); }
+  }
+  .wok-dock-card.wok-result-quemado .wok-dock-visual { filter: brightness(0.4) saturate(0.5); }
+  .wok-dock-card.wok-result-crudo .wok-dock-visual { filter: saturate(0.75) brightness(1.1); }
+  .wok-empty-hint {
+    position: absolute;
+    inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-wrap: wrap;
-    gap: 1px;
-    margin-top: 3px;
-    width: 100%;
-    max-height: 30px;
-    overflow: hidden;
-  }
-  .wok-dock-visual .maki-chip {
-    font-size: 16px;
-  }
-  .wok-empty-hint {
-    font-size: 22px;
-    opacity: 0.35;
+    text-align: center;
+    color: rgba(255, 236, 179, 0.5);
+    font-size: 8px;
+    font-size: max(7px, 4.4cqw);
+    font-weight: 800;
+    padding: 0 6%;
   }
   .wok-dock-footer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 11%;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 100%;
-    margin-top: 1px;
+    pointer-events: none;
+  }
+  .wok-dock-footer .btn-bowl-trash {
+    pointer-events: auto;
+    width: 18px;
+    height: 18px;
+    font-size: 9px;
   }
   .wok-dock-name {
     font-size: 10.5px;
+    font-size: max(9px, 6.2cqw);
     font-weight: 800;
-    color: #ffd699;
+    color: #ffe9c2;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.95);
+  }
+  .wok-badge {
+    position: absolute;
+    bottom: -16px;
+    left: 50%;
+    translate: -50% 0;
+    max-width: 150%;
+    white-space: nowrap;
+    background: rgba(0,0,0,0.78);
+    color: #ffecb3;
+    font-size: 8.5px;
+    font-weight: 800;
+    padding: 1px 7px;
+    border-radius: 5px;
+    pointer-events: none;
+    z-index: 3;
+  }
+  .wok-badge.status-ready {
+    background: linear-gradient(180deg, #ffb300 0%, #ff8f00 100%);
+    color: #211202;
+  }
+  .wok-badge.status-warn {
+    background: rgba(239, 108, 0, 0.94);
+    color: #fff5f0;
+  }
+  .wok-badge.status-error {
+    background: rgba(198, 40, 40, 0.94);
+    color: #fff5f0;
   }
   .wok-stir-btn {
     display: none;
     flex-direction: column;
     align-items: stretch;
-    width: 100%;
-    background: rgba(255, 145, 0, 0.12);
+    position: absolute;
+    left: 7%;
+    top: 56%;
+    width: 62%;
+    z-index: 2;
+    background: rgba(24, 10, 4, 0.82);
     border: 1.5px solid #ff9100;
     border-radius: 6px;
     padding: 2px 5px;
     cursor: pointer;
     user-select: none;
     touch-action: none;
-    margin: 1px 0;
   }
   .wok-stir-label {
+    white-space: nowrap;
     font-size: 8px;
     font-weight: 800;
     color: #ffd699;
@@ -5263,14 +5331,14 @@
         <div class="wok-dock-tag" id="wok-tag-0">● ACTIVO</div>
         <div class="wok-dock-visual" id="wok-art-0"></div>
         <button class="wok-stir-btn" id="wok-stir-btn-0" style="display:none;">
-          <span class="wok-stir-label" id="wok-stir-label-0">Mantén para saltear</span>
+          <span class="wok-stir-label" id="wok-stir-label-0">Saltear (mantén)</span>
           <div class="wok-stir-bar"><div class="wok-stir-fill" id="wok-stir-fill-0"></div></div>
         </button>
         <div class="wok-dock-footer">
           <span class="wok-dock-name">Wok 1</span>
           <button class="btn-bowl-trash" onclick="event.stopPropagation(); clearWok(0)" title="Vaciar Wok 1">🗑️</button>
         </div>
-        <div class="bowl-status-hint" id="wok-badge-0">Vacío</div>
+        <div class="wok-badge" id="wok-badge-0" style="display:none;">Vacío</div>
       </div>
 
       <!-- Wok 2 -->
@@ -5278,14 +5346,14 @@
         <div class="wok-dock-tag" id="wok-tag-1" style="display:none;">● ACTIVO</div>
         <div class="wok-dock-visual" id="wok-art-1"></div>
         <button class="wok-stir-btn" id="wok-stir-btn-1" style="display:none;">
-          <span class="wok-stir-label" id="wok-stir-label-1">Mantén para saltear</span>
+          <span class="wok-stir-label" id="wok-stir-label-1">Saltear (mantén)</span>
           <div class="wok-stir-bar"><div class="wok-stir-fill" id="wok-stir-fill-1"></div></div>
         </button>
         <div class="wok-dock-footer">
           <span class="wok-dock-name">Wok 2</span>
           <button class="btn-bowl-trash" onclick="event.stopPropagation(); clearWok(1)" title="Vaciar Wok 2">🗑️</button>
         </div>
-        <div class="bowl-status-hint" id="wok-badge-1">Vacío</div>
+        <div class="wok-badge" id="wok-badge-1" style="display:none;">Vacío</div>
       </div>
     </div>
 
@@ -7725,35 +7793,48 @@ function renderWoks() {
     cardEl.classList.toggle('active', isActive);
     if (tagEl) tagEl.style.display = isActive ? 'block' : 'none';
 
+    // Los ingredientes se amontonan dentro de la cavidad del wok (espiral estable: cada
+    // ingrediente conserva su posición al agregar más).
     if (artEl) {
       artEl.innerHTML = wok.ingredients.length === 0
-        ? `<div class="wok-empty-hint">🥘</div>`
-        : wok.ingredients.map(id => {
+        ? `<div class="wok-empty-hint">Arrastra aquí los ingredientes</div>`
+        : wok.ingredients.map((id, idx) => {
             const ing = INGREDIENTES.find(x => x.id === id);
-            return `<span class="maki-chip" title="${ing ? ing.display : ''}">${ing ? ing.icon : '❓'}</span>`;
+            const radius = 0.27 * Math.sqrt(idx + 0.6);
+            const angle = idx * 2.39996;
+            const x = 50 + Math.cos(angle) * radius * 42;
+            const y = 50 + Math.sin(angle) * radius * 38;
+            const rot = ((idx * 47) % 50) - 25;
+            return `<span class="wok-chip" title="${ing ? ing.display : ''}" style="left:${x.toFixed(1)}%;top:${y.toFixed(1)}%;z-index:${idx};transform:translate(-50%,-50%) rotate(${rot}deg)">${ing ? ing.icon : '❓'}</span>`;
           }).join('');
     }
+
+    cardEl.classList.toggle('is-stirring', !!wok.stirring);
+    cardEl.classList.remove('wok-result-perfecto', 'wok-result-crudo', 'wok-result-quemado');
+    if (wok.result) cardEl.classList.add(`wok-result-${wok.result.toLowerCase()}`);
 
     if (badgeEl) badgeEl.classList.remove('status-error', 'status-warn', 'status-ready');
 
     if (wok.result) {
-      const labelMap = { PERFECTO: '🔥 ¡Perfecto!', CRUDO: '🥶 Crudo', QUEMADO: '💨 Quemado' };
+      const labelMap = { PERFECTO: '🔥 Perfecto', CRUDO: '🥶 Crudo', QUEMADO: '💨 Quemado' };
       const recipeName = wok.matchedRecipe ? wok.matchedRecipe.name : '';
       if (badgeEl) {
         badgeEl.textContent = `${labelMap[wok.result]}: ${recipeName}`;
         badgeEl.classList.add(wok.result === 'PERFECTO' ? 'status-ready' : wok.result === 'CRUDO' ? 'status-error' : 'status-warn');
+        badgeEl.style.display = 'block';
       }
       if (stirBtn) stirBtn.style.display = 'none';
       cardEl.onclick = () => selectWok(i);
     } else {
       const analysis = analyzeWok(i);
       if (analysis.status === 'EMPTY') {
-        if (badgeEl) badgeEl.textContent = 'Vacío';
+        if (badgeEl) badgeEl.style.display = 'none';
         if (stirBtn) stirBtn.style.display = 'none';
       } else if (analysis.status === 'MATCHED') {
         if (badgeEl) {
-          badgeEl.textContent = `Listo para saltear: ${analysis.recipe.name}`;
+          badgeEl.textContent = `Listo: ${analysis.recipe.name}`;
           badgeEl.classList.add('status-ready');
+          badgeEl.style.display = 'block';
         }
         if (stirBtn && !wok.stirring) {
           stirBtn.style.display = 'flex';
@@ -7761,10 +7842,13 @@ function renderWoks() {
           const fillEl = document.getElementById(`wok-stir-fill-${i}`);
           const labelEl = document.getElementById(`wok-stir-label-${i}`);
           if (fillEl) fillEl.style.width = '0%';
-          if (labelEl) labelEl.textContent = 'Mantén para saltear';
+          if (labelEl) labelEl.textContent = 'Saltear (mantén)';
         }
       } else {
-        if (badgeEl) badgeEl.textContent = `Armando (${wok.ingredients.length})`;
+        if (badgeEl) {
+          badgeEl.textContent = `Armando (${wok.ingredients.length})`;
+          badgeEl.style.display = 'block';
+        }
         if (stirBtn) stirBtn.style.display = 'none';
       }
       cardEl.onclick = () => selectWok(i);
@@ -7812,6 +7896,8 @@ function setupWokStirButtons() {
       wok.stirring = true;
       wok.stirSeconds = 0;
       btn.classList.add('stirring-active');
+      const wokCard = document.getElementById(`wok-card-${index}`);
+      if (wokCard) wokCard.classList.add('is-stirring');
       playSound('flame');
 
       const fillEl = document.getElementById(`wok-stir-fill-${index}`);
