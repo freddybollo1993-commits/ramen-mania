@@ -1589,6 +1589,21 @@
     height: 100%;
     pointer-events: none;
   }
+  .maki-log-toppings {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .maki-log-toppings .mk-layer.enter {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: mkLayerIn 0.45s ease-out both;
+  }
+  .maki-log-toppings .mk-drizzle { stroke-dasharray: 420; stroke-dashoffset: 0; }
+  .maki-log-toppings .mk-layer.enter .mk-drizzle { animation: mkDraw 0.8s ease-out both; }
   .maki-slice-mark {
     position: absolute;
     top: 8%;
@@ -5702,6 +5717,7 @@
           <div class="maki-board-chips" id="maki-mat-strip"></div>
           <div class="maki-roll-wrap" id="maki-roll-wrap" style="display:none;">
             <img class="maki-roll-log" src="assets/maki_roll.svg" alt="" draggable="false">
+            <svg class="maki-log-toppings" viewBox="0 0 300 50" preserveAspectRatio="none" aria-hidden="true"><g id="mk-top-root" transform="translate(0 -5) scale(1 0.6)"></g></svg>
             <i class="maki-slice-mark" style="left:16.6%"></i>
             <i class="maki-slice-mark" style="left:33.3%"></i>
             <i class="maki-slice-mark" style="left:50%"></i>
@@ -7565,18 +7581,20 @@ const RECETAS_FRITURAS = [
   {"id": 8, "name": "Tonkatsu", "price": 42, "desc": "Bife de cerdo empanizado con salsa katsu", "ingredients": [43, 65, 58, 15, 75, 52, 42, 74, 91, 57, 84]}
 ];
 
-// --- Makis: el orden de armado importa (fase de mecánicas, pendiente de implementar) ---
-// "ingredients" aquí representa la secuencia de armado (capas), no un conjunto sin orden.
+// --- Makis: el orden de armado importa ---
+// "ingredients" es la secuencia completa. Los primeros "baseCount" forman la ESTRUCTURA BASE: al
+// completarla ya se puede enrollar el maki. El resto (coberturas, salsas, ajonjolí) se agrega
+// encima, DESPUÉS de enrollar.
 const RECETAS_MAKIS = [
-  {"id": 1, "name": "Maki Acevichado", "price": 46, "desc": "Arroz shari, nori, palta, ebi y cobertura de atún acevichada", "ingredients": [38, 20, 64, 54, 49, 77]},
-  {"id": 2, "name": "Maki Furai", "price": 44, "desc": "Arroz shari, nori, palta, ebi y queso crema (se termina en Frituras)", "ingredients": [38, 20, 64, 54, 72]},
-  {"id": 3, "name": "Maki Hotate", "price": 48, "desc": "Arroz shari, nori, palta, ebi y conchas de abanico con salsa hotate", "ingredients": [38, 20, 64, 54, 50, 82]},
-  {"id": 4, "name": "Maki California", "price": 42, "desc": "Arroz shari, nori, palta, ebi, queso crema y ajonjolí negro", "ingredients": [38, 20, 64, 54, 72, 34]},
-  {"id": 5, "name": "Maki Guacamole", "price": 40, "desc": "Arroz shari, nori, atún, hilos de wantán y salsa guacamole", "ingredients": [38, 20, 39, 59, 81]},
-  {"id": 6, "name": "Maki Yama", "price": 45, "desc": "Arroz shari, nori, palta, ebi y salsa yama (flamear)", "ingredients": [38, 20, 64, 54, 89]},
-  {"id": 7, "name": "Maki Nin Niku", "price": 45, "desc": "Arroz shari, nori, palta, ebi y salsa nin niku (flamear)", "ingredients": [38, 20, 64, 54, 85]},
-  {"id": 8, "name": "Maki Amazon", "price": 43, "desc": "Arroz shari, nori, palta, cecina y cobertura amazon", "ingredients": [38, 20, 64, 47, 51]},
-  {"id": 9, "name": "Maki Digion", "price": 45, "desc": "Arroz shari, nori, palta y cobertura de atún con salsa digión (flamear)", "ingredients": [38, 20, 64, 49, 80]}
+  {"id": 1, "name": "Maki Acevichado", "price": 46, "baseCount": 4, "desc": "Arroz shari, nori, palta y langostino; encima cobertura de atún y salsa acevichada", "ingredients": [38, 20, 64, 54, 49, 77]},
+  {"id": 2, "name": "Maki Furai", "price": 44, "baseCount": 5, "desc": "Arroz shari, nori, palta, langostino y queso crema (se termina en Frituras)", "ingredients": [38, 20, 64, 54, 72]},
+  {"id": 3, "name": "Maki Hotate", "price": 48, "baseCount": 4, "desc": "Arroz shari, nori, palta y langostino; encima conchas de abanico y salsa hotate", "ingredients": [38, 20, 64, 54, 50, 82]},
+  {"id": 4, "name": "Maki California", "price": 42, "baseCount": 5, "desc": "Arroz shari, nori, palta, langostino y queso crema; encima ajonjolí negro", "ingredients": [38, 20, 64, 54, 72, 34]},
+  {"id": 5, "name": "Maki Guacamole", "price": 40, "baseCount": 4, "desc": "Arroz shari, nori, atún y wantán frito; encima salsa guacamole", "ingredients": [38, 20, 39, 59, 81]},
+  {"id": 6, "name": "Maki Yama", "price": 45, "baseCount": 4, "desc": "Arroz shari, nori, palta y langostino; encima salsa yama (flamear)", "ingredients": [38, 20, 64, 54, 89]},
+  {"id": 7, "name": "Maki Nin Niku", "price": 45, "baseCount": 4, "desc": "Arroz shari, nori, palta y langostino; encima salsa nin niku (flamear)", "ingredients": [38, 20, 64, 54, 85]},
+  {"id": 8, "name": "Maki Amazon", "price": 43, "baseCount": 4, "desc": "Arroz shari, nori, palta y cecina; encima cobertura amazon", "ingredients": [38, 20, 64, 47, 51]},
+  {"id": 9, "name": "Maki Digion", "price": 45, "baseCount": 4, "desc": "Arroz shari, nori, palta y langostino; encima cobertura de atún y salsa digión (flamear)", "ingredients": [38, 20, 64, 54, 49, 80]}
 ];
 
 // --- Salteados: se cocinan con tiempo de salteado (fase de mecánicas, pendiente de implementar) ---
@@ -8068,10 +8086,42 @@ function updateStationVisibilityForArea() {
 const MAKI_CUT_SECONDS = 3;
 let makiToolDrag = null;
 
-// rollState: NONE (ingredientes sueltos) → ROLLING (el jugador desliza) → ROLLED (maki enrollado).
-// Solo un maki enrollado se puede cortar.
+// Flujo: 1) estructura base en orden (arroz, nori, relleno…) → 2) enrollar → 3) coberturas /
+// salsas / ajonjolí encima → 4) cortar.
+// rollState: NONE (armando la base) → ROLLING (el jugador desliza) → ROLLED (maki enrollado).
+// baseLen: cuántos ingredientes quedaron enrollados (los de la base). Lo que se agrega después va encima.
 function newMakiRoll() {
-  return { ingredients: [], matPlaced: false, rollState: 'NONE', rollProgress: 0, cutState: 'NONE', cutProgress: 0 };
+  return { ingredients: [], matPlaced: false, rollState: 'NONE', rollProgress: 0, baseLen: 0, cutState: 'NONE', cutProgress: 0 };
+}
+
+// Estructuras base de todas las recetas (los primeros baseCount ingredientes).
+function makiBases() {
+  return RECETAS_MAKIS.map(r => r.ingredients.slice(0, r.baseCount));
+}
+
+// ¿Esta secuencia es exactamente la estructura base de alguna receta? (ya se puede enrollar)
+function makiSequenceIsBase(seq) {
+  return makiBases().some(b => b.length === seq.length && b.every((id, i) => id === seq[i]));
+}
+
+// Antes de enrollar solo entra la base: si la secuencia ya es una base completa, el siguiente
+// ingrediente solo se acepta si alarga alguna base (p. ej. el queso crema de Furai/California).
+function makiPreRollAllows(seq, ingId) {
+  if (!makiSequenceIsBase(seq)) return true; // se avisa "orden incorrecto" si no calza
+  const next = [...seq, ingId];
+  return makiBases().some(b => b.length >= next.length && next.every((id, i) => id === b[i]));
+}
+
+// Nombres de los siguientes ingredientes posibles. preRoll=true limita a la estructura base.
+// Con baseLen (maki ya enrollado) solo cuentan las recetas cuya base tiene ese largo.
+function makiNextOptions(seq, preRoll, baseLen) {
+  const ids = new Set();
+  RECETAS_MAKIS.forEach(r => {
+    if (baseLen && r.baseCount !== baseLen) return;
+    const limit = preRoll ? r.baseCount : r.ingredients.length;
+    if (seq.length < limit && seq.every((id, i) => id === r.ingredients[i])) ids.add(r.ingredients[seq.length]);
+  });
+  return [...ids].map(id => { const ing = INGREDIENTES.find(i => i.id === id); return ing ? ing.display : ''; }).filter(Boolean);
 }
 
 function makiIsComplete() {
@@ -8079,15 +8129,17 @@ function makiIsComplete() {
   return roll.matPlaced && analyzeMakiSequence(roll.ingredients).status === 'READY';
 }
 
+// Cortar: la receta completa y el maki ya enrollado.
 function makiCanCut() {
   const roll = gameState.makiRoll;
   return makiIsComplete() && roll.rollState === 'ROLLED' && roll.cutState !== 'CUT';
 }
 
-// ¿Se puede empezar (o seguir) a enrollar? Hace falta la receta completa y que no esté cortado.
+// Enrollar: la estructura base completa (o ya a medio enrollar), sin cortar.
 function makiCanRoll() {
   const roll = gameState.makiRoll;
-  return makiIsComplete() && roll.cutState === 'NONE' && roll.rollState !== 'ROLLED';
+  if (!roll.matPlaced || roll.cutState !== 'NONE' || roll.rollState === 'ROLLED') return false;
+  return roll.rollState === 'ROLLING' || makiSequenceIsBase(roll.ingredients);
 }
 
 function toggleIngredientInMaki(ingId) {
@@ -8101,13 +8153,33 @@ function toggleIngredientInMaki(ingId) {
     showStationToast('El maki ya se está cortando: vacía la tabla para armar otro.');
     return;
   }
-  if (roll.rollState !== 'NONE') {
-    showStationToast('El maki ya se está enrollando: vacía la tabla para armar otro.');
+  if (roll.rollState === 'ROLLING') {
+    showStationToast('El maki se está enrollando: termina de enrollarlo o desenróllalo deslizando hacia abajo.');
     return;
   }
-  if (roll.ingredients.includes(ingId)) {
+  const idx = roll.ingredients.indexOf(ingId);
+  if (idx !== -1) {
+    // Quitar: lo ya enrollado (la base) no se puede retirar.
+    if (roll.rollState === 'ROLLED' && idx < roll.baseLen) {
+      showStationToast('Ese ingrediente ya está enrollado: vacía la tabla para armar otro maki.');
+      return;
+    }
     roll.ingredients = roll.ingredients.filter(id => id !== ingId);
   } else {
+    if (roll.rollState === 'NONE' && !makiPreRollAllows(roll.ingredients, ingId)) {
+      showStationToast('🎍 Ese ingrediente va encima: primero enrolla el maki (desliza hacia arriba sobre la esterilla).');
+      return;
+    }
+    if (roll.rollState === 'ROLLED') {
+      // Encima del maki enrollado solo entra lo que continúa alguna receta con esta misma base.
+      const next = [...roll.ingredients, ingId];
+      const fits = RECETAS_MAKIS.some(r => r.baseCount === roll.baseLen && next.length <= r.ingredients.length &&
+        next.every((id, i) => id === r.ingredients[i]));
+      if (!fits) {
+        showStationToast('Ese ingrediente no va encima de este maki, o lleva otro orden.');
+        return;
+      }
+    }
     roll.ingredients.push(ingId);
   }
   playSound('add');
@@ -8263,6 +8335,22 @@ function renderMakiLayers(ings, visible) {
   svg._ids = ings.slice();
 }
 
+// Coberturas, salsas y ajonjolí que se agregan DESPUÉS de enrollar: se dibujan sobre el maki
+// entero (lienzo 300x50). Se reutiliza el mismo dibujo de capas, aplastado a la mitad de alto.
+function renderMakiToppings(ids) {
+  const root = document.getElementById('mk-top-root');
+  if (!root) return;
+  const prev = root._ids || [];
+  const extendsPrev = ids.length >= prev.length && prev.every((id, i) => ids[i] === id);
+  if (extendsPrev && ids.length === prev.length) return;
+  const start = extendsPrev ? prev.length : 0;
+  let html = '';
+  for (let i = start; i < ids.length; i++) html += makiLayerMarkup(ids[i], 0, extendsPrev);
+  if (extendsPrev) root.insertAdjacentHTML('beforeend', html);
+  else root.innerHTML = html;
+  root._ids = ids.slice();
+}
+
 // Rodaja de maki con los colores de los rellenos, la cobertura, la salsa y el ajonjolí del plato.
 function makiPieceMarkup(ings) {
   const fills = ings.filter(id => MAKI_FILL_COLORS[id]).slice(0, 3).map(id => MAKI_FILL_COLORS[id]);
@@ -8325,21 +8413,24 @@ function renderMakiStation() {
     strip.innerHTML = '';
   }
 
-  // Capas ilustradas (arroz → nori → rellenos → coberturas / salsas / ajonjolí).
-  renderMakiLayers(ings, roll.matPlaced && !cut);
+  // Capas planas de la estructura base (arroz → nori → relleno), sobre la esterilla. Lo que se
+  // agrega después de enrollar (coberturas, salsas, ajonjolí) se dibuja encima del maki.
+  const baseIds = roll.rollState === 'NONE' ? ings : ings.slice(0, roll.baseLen);
+  renderMakiLayers(baseIds, roll.matPlaced && !cut);
+  renderMakiToppings(roll.rollState === 'ROLLED' ? ings.slice(roll.baseLen) : []);
 
   // Enrollado: el avance lo marca el jugador deslizando sobre la esterilla. Las capas se van
   // comprimiendo (rollProgress 0→1) mientras aparece el maki entero; las marcas de corte
   // aparecen según avanza el cuchillo.
   const layersEl = document.getElementById('maki-layers');
   const rollWrap = document.getElementById('maki-roll-wrap');
-  const p = (roll.matPlaced && isReady && !cut) ? roll.rollProgress : 0;
+  const p = (roll.matPlaced && !cut) ? roll.rollProgress : 0;
   if (layersEl) {
     layersEl.style.transform = p > 0 ? `scaleY(${(1 - 0.62 * p).toFixed(3)})` : '';
     layersEl.style.opacity = p > 0.6 ? String(Math.max(0, 1 - (p - 0.6) / 0.4).toFixed(3)) : '';
   }
   if (rollWrap) {
-    const showLog = roll.matPlaced && isReady && !cut && p > 0;
+    const showLog = roll.matPlaced && !cut && p > 0;
     rollWrap.style.display = showLog ? 'block' : 'none';
     rollWrap.style.opacity = p < 1 ? String(Math.max(0, (p - 0.4) / 0.6).toFixed(3)) : '';
     rollWrap.style.transform = p < 1 ? `scaleX(${(0.62 + 0.38 * p).toFixed(3)})` : '';
@@ -8391,19 +8482,30 @@ function renderMakiStation() {
   } else if (analysis.status === 'WRONG_ORDER') {
     statusEl.textContent = '✗ Orden incorrecto';
     statusEl.classList.add('status-error');
-  } else if (isReady && roll.rollState === 'ROLLED') {
-    statusEl.textContent = `¡Enrollado: ${analysis.recipe.name}! Corta con el cuchillo (3 s)`;
-    statusEl.classList.add('status-ready');
-  } else if (isReady && roll.rollState === 'ROLLING') {
+  } else if (roll.rollState === 'ROLLING') {
     statusEl.textContent = `🎍 Enrollando… ${Math.round(roll.rollProgress * 100)}%`;
     statusEl.classList.add('status-ready');
-  } else if (isReady) {
-    statusEl.textContent = `¡Ingredientes listos! Desliza hacia arriba sobre la esterilla para enrollar`;
+  } else if (roll.rollState === 'ROLLED') {
+    // Maki enrollado: ahora van encima las coberturas, salsas y el ajonjolí de la receta.
+    const more = makiNextOptions(ings, false, roll.baseLen);
+    if (isReady) {
+      statusEl.textContent = more.length
+        ? `¡Enrollado: ${analysis.recipe.name}! Corta (3 s) o agrega encima: ${more.join(' · ')}`
+        : `¡Enrollado: ${analysis.recipe.name}! Corta con el cuchillo (3 s)`;
+      statusEl.classList.add('status-ready');
+    } else {
+      statusEl.textContent = `🎍 Enrollado — agrega encima: ${more.join(' · ') || '…'}`;
+    }
+  } else if (makiSequenceIsBase(ings)) {
+    // Estructura base completa: ya se puede enrollar (algunas bases admiten un ingrediente más).
+    const more = makiNextOptions(ings, true);
+    statusEl.textContent = more.length
+      ? `¡Estructura lista! Desliza ⬆ para enrollar (o agrega: ${more.join(' · ')})`
+      : `¡Estructura lista! Desliza hacia arriba sobre la esterilla para enrollar`;
     statusEl.classList.add('status-ready');
   } else {
-    statusEl.textContent = analysis.nextIngredient
-      ? `Sigue: ${analysis.nextIngredient}`
-      : `Armando (${ings.length})`;
+    const options = makiNextOptions(ings, true);
+    statusEl.textContent = options.length ? `Sigue: ${options.join(' / ')}` : `Armando (${ings.length})`;
   }
 }
 
@@ -8596,8 +8698,10 @@ function setMakiRollProgress(value) {
   const roll = gameState.makiRoll;
   const p = Math.max(0, Math.min(1, value));
   if (p === roll.rollProgress) return;
+  if (roll.rollState === 'NONE' && p > 0) roll.baseLen = roll.ingredients.length; // la base queda enrollada
   roll.rollProgress = p;
   roll.rollState = p >= 1 ? 'ROLLED' : (p > 0 ? 'ROLLING' : 'NONE');
+  if (roll.rollState === 'NONE') roll.baseLen = 0;
   if (roll.rollState === 'ROLLED') {
     endMakiRollDrag();
     playSound('match');
