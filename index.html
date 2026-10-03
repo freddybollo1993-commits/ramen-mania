@@ -1611,6 +1611,29 @@
     align-items: center;
     pointer-events: none;
   }
+  .maki-board-zone { touch-action: none; }
+  .maki-board-zone.can-roll { cursor: grab; }
+  .maki-roll-hint {
+    position: absolute;
+    left: 50%;
+    bottom: 8%;
+    translate: -50% 0;
+    z-index: 6;
+    padding: 2px 9px;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.72);
+    color: #ffe9a8;
+    font-size: 9px;
+    font-size: max(8px, 2.1cqw);
+    font-weight: 800;
+    white-space: nowrap;
+    pointer-events: none;
+    animation: mkHintBob 0.9s ease-in-out infinite alternate;
+  }
+  @keyframes mkHintBob {
+    from { transform: translateY(2px); }
+    to { transform: translateY(-4px); }
+  }
   .maki-pieces { z-index: 4; }
   .maki-roll-wrap { z-index: 3; }
   .maki-cut-progress { z-index: 5; }
@@ -5686,6 +5709,7 @@
             <i class="maki-slice-mark" style="left:83.3%"></i>
           </div>
           <div class="maki-pieces" id="maki-pieces"></div>
+          <div class="maki-roll-hint" id="maki-roll-hint" style="display:none;">⬆ Desliza para enrollar</div>
           <div class="maki-cut-progress" id="maki-cut-progress"><i id="maki-cut-fill"></i></div>
         </div>
 
@@ -7605,7 +7629,7 @@ let gameState = {
   activeBowlIndex: 0,
   currentCategory: 'todos',
   activeArea: 'ramen',
-  makiRoll: { ingredients: [], matPlaced: false, cutState: 'NONE', cutProgress: 0 },
+  makiRoll: { ingredients: [], matPlaced: false, rollState: 'NONE', rollProgress: 0, cutState: 'NONE', cutProgress: 0 },
   woks: [
     { ingredients: [], result: null, matchedRecipe: null, stirring: false, stirSeconds: 0 },
     { ingredients: [], result: null, matchedRecipe: null, stirring: false, stirSeconds: 0 }
@@ -8044,14 +8068,26 @@ function updateStationVisibilityForArea() {
 const MAKI_CUT_SECONDS = 3;
 let makiToolDrag = null;
 
+// rollState: NONE (ingredientes sueltos) → ROLLING (el jugador desliza) → ROLLED (maki enrollado).
+// Solo un maki enrollado se puede cortar.
 function newMakiRoll() {
-  return { ingredients: [], matPlaced: false, cutState: 'NONE', cutProgress: 0 };
+  return { ingredients: [], matPlaced: false, rollState: 'NONE', rollProgress: 0, cutState: 'NONE', cutProgress: 0 };
+}
+
+function makiIsComplete() {
+  const roll = gameState.makiRoll;
+  return roll.matPlaced && analyzeMakiSequence(roll.ingredients).status === 'READY';
 }
 
 function makiCanCut() {
   const roll = gameState.makiRoll;
-  return roll.matPlaced && roll.cutState !== 'CUT' &&
-    analyzeMakiSequence(roll.ingredients).status === 'READY';
+  return makiIsComplete() && roll.rollState === 'ROLLED' && roll.cutState !== 'CUT';
+}
+
+// ¿Se puede empezar (o seguir) a enrollar? Hace falta la receta completa y que no esté cortado.
+function makiCanRoll() {
+  const roll = gameState.makiRoll;
+  return makiIsComplete() && roll.cutState === 'NONE' && roll.rollState !== 'ROLLED';
 }
 
 function toggleIngredientInMaki(ingId) {
@@ -8063,6 +8099,10 @@ function toggleIngredientInMaki(ingId) {
   }
   if (roll.cutState !== 'NONE') {
     showStationToast('El maki ya se está cortando: vacía la tabla para armar otro.');
+    return;
+  }
+  if (roll.rollState !== 'NONE') {
+    showStationToast('El maki ya se está enrollando: vacía la tabla para armar otro.');
     return;
   }
   if (roll.ingredients.includes(ingId)) {
@@ -8288,28 +8328,29 @@ function renderMakiStation() {
   // Capas ilustradas (arroz → nori → rellenos → coberturas / salsas / ajonjolí).
   renderMakiLayers(ings, roll.matPlaced && !cut);
 
-  // Enrollando: al completar la receta las capas se comprimen y aparece el maki entero,
-  // con las marcas de corte según avanza el cuchillo.
+  // Enrollado: el avance lo marca el jugador deslizando sobre la esterilla. Las capas se van
+  // comprimiendo (rollProgress 0→1) mientras aparece el maki entero; las marcas de corte
+  // aparecen según avanza el cuchillo.
   const layersEl = document.getElementById('maki-layers');
   const rollWrap = document.getElementById('maki-roll-wrap');
-  const rollingNow = roll.matPlaced && isReady && !cut;
+  const p = (roll.matPlaced && isReady && !cut) ? roll.rollProgress : 0;
   if (layersEl) {
-    if (rollingNow && !layersEl._rolled) {
-      layersEl._rolled = true;
-      layersEl.classList.add('is-rolling');
-      if (rollWrap) rollWrap.classList.add('enter');
-    } else if (!rollingNow && layersEl._rolled) {
-      layersEl._rolled = false;
-      layersEl.classList.remove('is-rolling');
-      if (rollWrap) rollWrap.classList.remove('enter');
-    }
+    layersEl.style.transform = p > 0 ? `scaleY(${(1 - 0.62 * p).toFixed(3)})` : '';
+    layersEl.style.opacity = p > 0.6 ? String(Math.max(0, 1 - (p - 0.6) / 0.4).toFixed(3)) : '';
   }
   if (rollWrap) {
-    rollWrap.style.display = rollingNow ? 'block' : 'none';
+    const showLog = roll.matPlaced && isReady && !cut && p > 0;
+    rollWrap.style.display = showLog ? 'block' : 'none';
+    rollWrap.style.opacity = p < 1 ? String(Math.max(0, (p - 0.4) / 0.6).toFixed(3)) : '';
+    rollWrap.style.transform = p < 1 ? `scaleX(${(0.62 + 0.38 * p).toFixed(3)})` : '';
     rollWrap.querySelectorAll('.maki-slice-mark').forEach((mark, k) => {
       mark.classList.toggle('show', cutting && roll.cutProgress >= (k + 1) / 6);
     });
   }
+  const zone = document.getElementById('maki-board-zone');
+  if (zone) zone.classList.toggle('can-roll', makiCanRoll());
+  const rollHint = document.getElementById('maki-roll-hint');
+  if (rollHint) rollHint.style.display = (makiCanRoll() && roll.rollProgress === 0) ? 'block' : 'none';
 
   // Maki cortado: 6 rodajas que se separan sobre la hoja, con soya, wasabi y jengibre.
   const plating = document.getElementById('maki-plating');
@@ -8350,8 +8391,14 @@ function renderMakiStation() {
   } else if (analysis.status === 'WRONG_ORDER') {
     statusEl.textContent = '✗ Orden incorrecto';
     statusEl.classList.add('status-error');
+  } else if (isReady && roll.rollState === 'ROLLED') {
+    statusEl.textContent = `¡Enrollado: ${analysis.recipe.name}! Corta con el cuchillo (3 s)`;
+    statusEl.classList.add('status-ready');
+  } else if (isReady && roll.rollState === 'ROLLING') {
+    statusEl.textContent = `🎍 Enrollando… ${Math.round(roll.rollProgress * 100)}%`;
+    statusEl.classList.add('status-ready');
   } else if (isReady) {
-    statusEl.textContent = `¡Listo: ${analysis.recipe.name}! Corta con el cuchillo (3 s)`;
+    statusEl.textContent = `¡Ingredientes listos! Desliza hacia arriba sobre la esterilla para enrollar`;
     statusEl.classList.add('status-ready');
   } else {
     statusEl.textContent = analysis.nextIngredient
@@ -8372,6 +8419,7 @@ function moveMakiToolGhost() {
 }
 
 function cleanupMakiToolDrag() {
+  endMakiRollDrag();
   const d = makiToolDrag;
   document.removeEventListener('pointermove', onMakiToolMove);
   document.removeEventListener('pointerup', onMakiToolUp);
@@ -8497,7 +8545,9 @@ function onMakiToolUp(e) {
     return;
   }
   if (tool === 'knife' && inside && roll.cutState !== 'CUT') {
-    showStationToast('🔪 Primero arma el maki completo y luego mantén el cuchillo sobre él 3 segundos.');
+    showStationToast(makiCanRoll()
+      ? '🎍 Primero enrolla el maki: desliza hacia arriba sobre la esterilla.'
+      : '🔪 Primero arma y enrolla el maki; luego mantén el cuchillo sobre él 3 segundos.');
   }
   renderMakiStation();
 }
@@ -8530,7 +8580,69 @@ function beginMakiToolPress(e, tool, el) {
   document.addEventListener('pointercancel', onMakiToolCancel);
 }
 
+// --- Enrollar: con la receta completa, deslizar hacia arriba sobre la esterilla (desde el borde
+// de abajo, como en la referencia). El avance sigue al dedo y se puede deshacer deslizando hacia
+// abajo; al llegar al 100% el maki queda enrollado y recién entonces se puede cortar.
+let makiRollDrag = null;
+
+function endMakiRollDrag() {
+  document.removeEventListener('pointermove', onMakiRollMove);
+  document.removeEventListener('pointerup', onMakiRollUp);
+  document.removeEventListener('pointercancel', onMakiRollUp);
+  makiRollDrag = null;
+}
+
+function setMakiRollProgress(value) {
+  const roll = gameState.makiRoll;
+  const p = Math.max(0, Math.min(1, value));
+  if (p === roll.rollProgress) return;
+  roll.rollProgress = p;
+  roll.rollState = p >= 1 ? 'ROLLED' : (p > 0 ? 'ROLLING' : 'NONE');
+  if (roll.rollState === 'ROLLED') {
+    endMakiRollDrag();
+    playSound('match');
+  }
+  renderMakiStation();
+}
+
+function onMakiRollMove(e) {
+  const d = makiRollDrag;
+  if (!d || e.pointerId !== d.pointerId) return;
+  const range = d.height * 0.8;
+  setMakiRollProgress(d.startProgress + (d.startY - e.clientY) / range);
+}
+
+function onMakiRollUp(e) {
+  const d = makiRollDrag;
+  if (!d || e.pointerId !== d.pointerId) return;
+  endMakiRollDrag();
+  renderMakiStation();
+}
+
+function attachMakiRollGesture() {
+  const zone = document.getElementById('maki-board-zone');
+  if (!zone || zone._rollBound) return;
+  zone._rollBound = true;
+  zone.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    if (gameState.isPaused || gameState.isGameOver || makiToolDrag) return;
+    if (!makiCanRoll()) return;
+    e.preventDefault();
+    endMakiRollDrag();
+    makiRollDrag = {
+      pointerId: e.pointerId,
+      startY: e.clientY,
+      startProgress: gameState.makiRoll.rollProgress,
+      height: zone.getBoundingClientRect().height
+    };
+    document.addEventListener('pointermove', onMakiRollMove);
+    document.addEventListener('pointerup', onMakiRollUp);
+    document.addEventListener('pointercancel', onMakiRollUp);
+  });
+}
+
 function attachMakiTools() {
+  attachMakiRollGesture();
   [['maki-tool-mat', 'mat'], ['maki-tool-knife', 'knife']].forEach(([id, tool]) => {
     const el = document.getElementById(id);
     if (!el || el._makiToolBound) return;
