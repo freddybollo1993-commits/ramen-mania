@@ -1469,7 +1469,7 @@
     position: relative;
     width: min(92vw, 480px);
     aspect-ratio: 600 / 140;
-    background: url('assets/maki_table.svg') center / 100% 100% no-repeat;
+    background: url('assets/maki_table_v2.svg') center / 100% 100% no-repeat;
     border-radius: 14px;
     box-shadow: 0 6px 16px rgba(0,0,0,0.55);
     box-sizing: border-box;
@@ -1492,10 +1492,10 @@
   }
   .maki-mat-open {
     position: absolute;
-    left: 3.1%;
-    top: 6.9%;
-    width: 93.8%;
-    height: 86.2%;
+    left: 2.2%;
+    top: 6%;
+    width: 95.6%;
+    height: 88%;
     display: none;
     pointer-events: none;
     transform-origin: left center;
@@ -1600,17 +1600,19 @@
   }
   .maki-tool:hover { transform: translateY(-2px) scale(1.05); }
   .maki-tool.is-lifted { opacity: 0.3; }
+  /* Alto exacto de la tabla (12–128 de 140): la esterilla y el cuchillo van al ras de sus bordes
+     y centrados en el hueco que queda a cada lado de la tabla. */
   .maki-tool-mat {
-    left: 8.2%;
-    top: 11%;
-    height: 78%;
+    left: 7.3%;
+    top: 8.57%;
+    height: 82.86%;
     width: auto;
     aspect-ratio: 50 / 110;
   }
   .maki-tool-knife {
-    left: 85.3%;
-    top: 9%;
-    height: 82%;
+    left: 85.1%;
+    top: 8.57%;
+    height: 82.86%;
     width: auto;
     aspect-ratio: 40 / 120;
   }
