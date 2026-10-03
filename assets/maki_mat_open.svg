@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 100" width="300" height="100">
+  <defs>
+    <pattern id="slats" patternUnits="userSpaceOnUse" width="10" height="9.4">
+      <rect x="0" y="0" width="10" height="9.4" fill="#c9ae5f"/>
+      <rect x="0" y="0.6" width="10" height="8" rx="2.2" fill="#e3cd82"/>
+      <rect x="0" y="2" width="10" height="2" fill="#f0e2a6" opacity="0.65"/>
+    </pattern>
+    <filter id="shadow" x="-4%" y="-10%" width="108%" height="126%">
+      <feDropShadow dx="0" dy="2.5" stdDeviation="2.2" flood-color="#000" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+  <!-- Esterilla abierta por completo, en horizontal: las varillas corren a lo largo -->
+  <g filter="url(#shadow)">
+    <rect x="3" y="4" width="294" height="92" rx="5" fill="url(#slats)" stroke="#9c8236" stroke-width="1.8"/>
+    <rect x="38" y="4" width="5" height="92" fill="#6a5a2e"/>
+    <rect x="257" y="4" width="5" height="92" fill="#6a5a2e"/>
+    <circle cx="40.5" cy="12" r="3.2" fill="#4d3f1d"/>
+    <circle cx="40.5" cy="88" r="3.2" fill="#4d3f1d"/>
+    <circle cx="259.5" cy="12" r="3.2" fill="#4d3f1d"/>
+    <circle cx="259.5" cy="88" r="3.2" fill="#4d3f1d"/>
+  </g>
+</svg>

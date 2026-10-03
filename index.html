@@ -1481,12 +1481,39 @@
     right: 2.4%;
     z-index: 2;
   }
+  /* Zona de la tabla (centro de la ilustración): destino de la esterilla, los ingredientes y el cuchillo */
+  .maki-board-zone {
+    position: absolute;
+    left: 23.33%;
+    top: 8.57%;
+    width: 53.33%;
+    height: 82.86%;
+    border-radius: 12px;
+  }
+  .maki-mat-open {
+    position: absolute;
+    left: 3.1%;
+    top: 6.9%;
+    width: 93.8%;
+    height: 86.2%;
+    display: none;
+    pointer-events: none;
+    transform-origin: left center;
+  }
+  .maki-mat-open.is-open {
+    display: block;
+    animation: matUnroll 0.7s cubic-bezier(0.2, 0.8, 0.25, 1) both;
+  }
+  @keyframes matUnroll {
+    from { transform: scaleX(0.14); opacity: 0.5; }
+    to { transform: scaleX(1); opacity: 1; }
+  }
   .maki-board-chips {
     position: absolute;
-    left: 33%;
-    top: 14.3%;
-    width: 37.7%;
-    height: 71.4%;
+    left: 8%;
+    top: 22%;
+    width: 84%;
+    height: 56%;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -1494,6 +1521,119 @@
     align-content: center;
     gap: 1px 2px;
     overflow: hidden;
+  }
+  .maki-roll-wrap {
+    position: absolute;
+    left: 8%;
+    top: 50%;
+    width: 84%;
+    translate: 0 -50%;
+    aspect-ratio: 6 / 1;
+  }
+  .maki-roll-log {
+    display: block;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .maki-slice-mark {
+    position: absolute;
+    top: 8%;
+    bottom: 8%;
+    width: 2px;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 0 5px #fff;
+    opacity: 0;
+    transition: opacity 0.12s ease;
+  }
+  .maki-slice-mark.show { opacity: 1; }
+  .maki-pieces {
+    position: absolute;
+    left: 8%;
+    top: 50%;
+    width: 84%;
+    translate: 0 -50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+  }
+  .maki-piece {
+    display: block;
+    width: 14.5%;
+    aspect-ratio: 1;
+    margin: 0 -2.4%;
+    transform: scale(0.88);
+    transition: margin 0.55s ease, transform 0.55s ease;
+  }
+  .maki-pieces.spread .maki-piece {
+    margin: 0 0.5%;
+    transform: scale(1);
+  }
+  .maki-cut-progress {
+    position: absolute;
+    left: 20%;
+    right: 20%;
+    bottom: 3%;
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(0, 0, 0, 0.6);
+    display: none;
+    overflow: hidden;
+  }
+  .maki-cut-progress i {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, #ffd54f, #ff8f00);
+  }
+  /* Herramientas arrastrables: esterilla (enrollada, a la izquierda) y cuchillo (vertical, a la derecha) */
+  .maki-tool {
+    position: absolute;
+    z-index: 5;
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    -webkit-touch-callout: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+  }
+  .maki-tool:hover { transform: translateY(-2px) scale(1.05); }
+  .maki-tool.is-lifted { opacity: 0.3; }
+  .maki-tool-mat {
+    left: 8.2%;
+    top: 11%;
+    height: 78%;
+    width: auto;
+    aspect-ratio: 50 / 110;
+  }
+  .maki-tool-knife {
+    left: 85.3%;
+    top: 9%;
+    height: 82%;
+    width: auto;
+    aspect-ratio: 40 / 120;
+  }
+  .maki-tool-ghost {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 99999;
+    pointer-events: none;
+    will-change: transform;
+    filter: drop-shadow(0 8px 8px rgba(0, 0, 0, 0.55));
+  }
+  .maki-tool-ghost img {
+    display: block;
+    height: 100%;
+    width: auto;
+  }
+  .maki-tool-ghost.is-cutting img {
+    animation: knifeChop 0.2s ease-in-out infinite alternate;
+  }
+  @keyframes knifeChop {
+    from { transform: translateY(-7px); }
+    to { transform: translateY(9px); }
   }
   .maki-board-chips .maki-chip {
     font-size: 20px;
@@ -1509,7 +1649,8 @@
     flex-shrink: 0;
   }
   .maki-board-chips .maki-strip-empty {
-    color: #8a5d2b;
+    color: #5a3d14;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
     font-size: 9px;
     font-size: 2cqw;
     font-weight: 800;
@@ -5452,11 +5593,31 @@
 
     <!-- Estación de Makis: un solo rollo a la vez, armado en secuencia -->
     <div class="maki-station-box" id="maki-station-box">
-      <div class="maki-mat-card">
+      <div class="maki-mat-card" id="maki-scene">
         <div class="maki-mat-header">
           <button class="btn-bowl-trash" onclick="clearMakiRoll()" title="Vaciar tabla">🗑️</button>
         </div>
-        <div class="maki-board-chips" id="maki-mat-strip"></div>
+
+        <!-- Tabla: aquí se abre la esterilla, se arma el maki y se corta -->
+        <div class="maki-board-zone" id="maki-board-zone">
+          <img class="maki-mat-open" id="maki-mat-open" src="assets/maki_mat_open.svg" alt="" draggable="false">
+          <div class="maki-board-chips" id="maki-mat-strip"></div>
+          <div class="maki-roll-wrap" id="maki-roll-wrap" style="display:none;">
+            <img class="maki-roll-log" src="assets/maki_roll.svg" alt="" draggable="false">
+            <i class="maki-slice-mark" style="left:16.6%"></i>
+            <i class="maki-slice-mark" style="left:33.3%"></i>
+            <i class="maki-slice-mark" style="left:50%"></i>
+            <i class="maki-slice-mark" style="left:66.6%"></i>
+            <i class="maki-slice-mark" style="left:83.3%"></i>
+          </div>
+          <div class="maki-pieces" id="maki-pieces"></div>
+          <div class="maki-cut-progress" id="maki-cut-progress"><i id="maki-cut-fill"></i></div>
+        </div>
+
+        <!-- Herramientas: se pulsan y se arrastran por la pantalla -->
+        <img class="maki-tool maki-tool-mat" id="maki-tool-mat" src="assets/maki_mat_rolled.svg" alt="Esterilla de bambú" draggable="false">
+        <img class="maki-tool maki-tool-knife" id="maki-tool-knife" src="assets/maki_knife.svg" alt="Cuchillo" draggable="false">
+
         <div class="maki-mat-status" id="maki-status-badge">Vacío</div>
       </div>
     </div>
@@ -7369,7 +7530,7 @@ let gameState = {
   activeBowlIndex: 0,
   currentCategory: 'todos',
   activeArea: 'ramen',
-  makiRoll: { ingredients: [] },
+  makiRoll: { ingredients: [], matPlaced: false, cutState: 'NONE', cutProgress: 0 },
   woks: [
     { ingredients: [], result: null, matchedRecipe: null, stirring: false, stirSeconds: 0 },
     { ingredients: [], result: null, matchedRecipe: null, stirring: false, stirSeconds: 0 }
@@ -7770,7 +7931,8 @@ function switchKitchenArea(areaId) {
   gameState.currentCategory = 'todos';
   // El cuenco es exclusivo de Ramen y no se toca al cambiar de área (sigue ahí cuando vuelvas).
   // Las demás áreas tienen su propia estación, que sí se vacía al entrar/salir del área.
-  gameState.makiRoll = { ingredients: [] };
+  cleanupMakiToolDrag();
+  gameState.makiRoll = newMakiRoll();
   gameState.woks = [
     { ingredients: [], result: null, matchedRecipe: null, stirring: false, stirSeconds: 0 },
     { ingredients: [], result: null, matchedRecipe: null, stirring: false, stirSeconds: 0 }
@@ -7800,9 +7962,34 @@ function updateStationVisibilityForArea() {
   if (fryBox) fryBox.style.display = area === 'frituras' ? 'flex' : 'none';
 }
 
+// --- Makis: cada maki empieza moviendo la esterilla de bambú (enrollada) hasta la tabla; al
+// soltarla se abre por completo en horizontal y recién ahí se arrastran los ingredientes, en
+// orden. Con el maki armado, el cuchillo (vertical) debe mantenerse 3 segundos sobre él para
+// cortarlo. Esterilla y cuchillo se pulsan y se arrastran por la pantalla.
+const MAKI_CUT_SECONDS = 3;
+let makiToolDrag = null;
+
+function newMakiRoll() {
+  return { ingredients: [], matPlaced: false, cutState: 'NONE', cutProgress: 0 };
+}
+
+function makiCanCut() {
+  const roll = gameState.makiRoll;
+  return roll.matPlaced && roll.cutState !== 'CUT' &&
+    analyzeMakiSequence(roll.ingredients).status === 'READY';
+}
+
 function toggleIngredientInMaki(ingId) {
   if (gameState.isPaused || gameState.isGameOver) return;
   const roll = gameState.makiRoll;
+  if (!roll.matPlaced) {
+    showStationToast('🎍 Primero mueve la esterilla de bambú sobre la tabla.');
+    return;
+  }
+  if (roll.cutState !== 'NONE') {
+    showStationToast('El maki ya se está cortando: vacía la tabla para armar otro.');
+    return;
+  }
   if (roll.ingredients.includes(ingId)) {
     roll.ingredients = roll.ingredients.filter(id => id !== ingId);
   } else {
@@ -7814,10 +8001,28 @@ function toggleIngredientInMaki(ingId) {
 }
 
 function clearMakiRoll() {
-  gameState.makiRoll = { ingredients: [] };
+  cleanupMakiToolDrag();
+  gameState.makiRoll = newMakiRoll();
   playSound('trash');
   renderMakiStation();
   renderPantryGrid();
+}
+
+function placeMakiMat() {
+  const roll = gameState.makiRoll;
+  if (roll.matPlaced) return;
+  roll.matPlaced = true;
+  playSound('add');
+  renderMakiStation();
+}
+
+function completeMakiCut() {
+  const roll = gameState.makiRoll;
+  cleanupMakiToolDrag();
+  roll.cutState = 'CUT';
+  roll.cutProgress = 1;
+  playSound('match');
+  renderMakiStation();
 }
 
 function renderMakiStation() {
@@ -7825,11 +8030,26 @@ function renderMakiStation() {
   const statusEl = document.getElementById('maki-status-badge');
   if (!strip || !statusEl) return;
 
-  const ings = gameState.makiRoll.ingredients;
+  const roll = gameState.makiRoll;
+  const ings = roll.ingredients;
   const analysis = analyzeMakiSequence(ings);
+  const isReady = analysis.status === 'READY';
+  const cutting = roll.cutState === 'CUTTING';
+  const cut = roll.cutState === 'CUT';
 
-  if (ings.length === 0) {
+  // Esterilla: enrollada a la izquierda hasta que se coloca; luego se abre sobre la tabla.
+  const matOpen = document.getElementById('maki-mat-open');
+  const matTool = document.getElementById('maki-tool-mat');
+  if (matOpen) matOpen.classList.toggle('is-open', roll.matPlaced);
+  if (matTool) matTool.style.visibility = roll.matPlaced ? 'hidden' : 'visible';
+
+  // Ingredientes en orden sobre la esterilla (al completarse se enrollan en el maki).
+  if (!roll.matPlaced) {
+    strip.innerHTML = `<span class="maki-strip-empty">Mueve la esterilla sobre la tabla</span>`;
+  } else if (ings.length === 0) {
     strip.innerHTML = `<span class="maki-strip-empty">Arrastra aquí los ingredientes, en orden</span>`;
+  } else if (isReady || cut) {
+    strip.innerHTML = '';
   } else {
     strip.innerHTML = ings.map(id => {
       const ing = INGREDIENTES.find(i => i.id === id);
@@ -7837,20 +8057,239 @@ function renderMakiStation() {
     }).join('<span class="maki-chip-sep">▸</span>');
   }
 
+  // Maki armado (rollo entero) con las marcas de corte según avanza el cuchillo.
+  const rollWrap = document.getElementById('maki-roll-wrap');
+  if (rollWrap) {
+    rollWrap.style.display = (roll.matPlaced && isReady && !cut) ? 'block' : 'none';
+    rollWrap.querySelectorAll('.maki-slice-mark').forEach((mark, k) => {
+      mark.classList.toggle('show', cutting && roll.cutProgress >= (k + 1) / 6);
+    });
+  }
+
+  // Maki cortado: 6 rodajas que se separan.
+  const pieces = document.getElementById('maki-pieces');
+  if (pieces) {
+    if (cut) {
+      if (pieces._sig !== 'cut') {
+        pieces._sig = 'cut';
+        pieces.classList.remove('spread');
+        pieces.innerHTML = Array.from({ length: 6 }, () => '<img class="maki-piece" src="assets/maki_piece.svg" alt="" draggable="false">').join('');
+        setTimeout(() => { if (pieces._sig === 'cut') pieces.classList.add('spread'); }, 40);
+      }
+    } else if (pieces._sig) {
+      pieces._sig = '';
+      pieces.classList.remove('spread');
+      pieces.innerHTML = '';
+    }
+  }
+
+  const progBox = document.getElementById('maki-cut-progress');
+  const progFill = document.getElementById('maki-cut-fill');
+  if (progBox) progBox.style.display = cutting ? 'block' : 'none';
+  if (progFill) progFill.style.width = `${Math.round(roll.cutProgress * 100)}%`;
+
   statusEl.classList.remove('status-error', 'status-ready');
-  if (analysis.status === 'EMPTY') {
-    statusEl.textContent = 'Vacío — empieza a enrollar';
+  if (!roll.matPlaced) {
+    statusEl.textContent = 'Mueve la esterilla sobre la tabla';
+  } else if (cut) {
+    statusEl.textContent = `✅ Cortado: ${analysis.recipe.name}`;
+    statusEl.classList.add('status-ready');
+  } else if (cutting) {
+    statusEl.textContent = `✂️ Cortando… ${(MAKI_CUT_SECONDS * (1 - roll.cutProgress)).toFixed(1)}s`;
+    statusEl.classList.add('status-ready');
+  } else if (analysis.status === 'EMPTY') {
+    statusEl.textContent = 'Esterilla lista — arrastra los ingredientes';
   } else if (analysis.status === 'WRONG_ORDER') {
     statusEl.textContent = '✗ Orden incorrecto';
     statusEl.classList.add('status-error');
-  } else if (analysis.status === 'READY') {
-    statusEl.textContent = `¡Listo: ${analysis.recipe.name}!`;
+  } else if (isReady) {
+    statusEl.textContent = `¡Listo: ${analysis.recipe.name}! Corta con el cuchillo (3 s)`;
     statusEl.classList.add('status-ready');
   } else {
     statusEl.textContent = analysis.nextIngredient
       ? `Sigue: ${analysis.nextIngredient}`
       : `Armando (${ings.length})`;
   }
+}
+
+function getMakiToolPoint(d) {
+  return { x: d.x, y: d.pointerType === 'mouse' ? d.y : d.y - DRAG_TOUCH_GHOST_OFFSET_Y };
+}
+
+function moveMakiToolGhost() {
+  const d = makiToolDrag;
+  if (!d || !d.ghost) return;
+  const p = getMakiToolPoint(d);
+  d.ghost.style.transform = `translate(${p.x}px, ${p.y}px) translate(-50%, -50%)`;
+}
+
+function cleanupMakiToolDrag() {
+  const d = makiToolDrag;
+  document.removeEventListener('pointermove', onMakiToolMove);
+  document.removeEventListener('pointerup', onMakiToolUp);
+  document.removeEventListener('pointercancel', onMakiToolCancel);
+  if (d) {
+    if (d.timer) clearInterval(d.timer);
+    if (d.ghost) d.ghost.remove();
+    if (d.el) d.el.classList.remove('is-lifted');
+  }
+  const zone = document.getElementById('maki-board-zone');
+  if (zone) zone.classList.remove('drop-target-ready', 'drop-hover');
+  makiToolDrag = null;
+}
+
+function abortMakiCut() {
+  const roll = gameState.makiRoll;
+  if (roll.cutState === 'CUTTING') {
+    roll.cutState = 'NONE';
+    roll.cutProgress = 0;
+  }
+}
+
+// Con el cuchillo sobre un maki listo, mantenerlo 3 s sin soltar ni salir de la tabla.
+function updateMakiToolDrag() {
+  const d = makiToolDrag;
+  if (!d || !d.active) return;
+  if (gameState.isPaused || gameState.isGameOver) return;
+  const zone = document.getElementById('maki-board-zone');
+  if (!zone) return;
+  const p = getMakiToolPoint(d);
+  const r = zone.getBoundingClientRect();
+  const inside = p.x >= r.left && p.x <= r.right && p.y >= r.top && p.y <= r.bottom;
+  const roll = gameState.makiRoll;
+
+  if (d.tool === 'mat') {
+    zone.classList.toggle('drop-hover', inside && !roll.matPlaced);
+    return;
+  }
+
+  const canCut = makiCanCut();
+  zone.classList.toggle('drop-hover', inside && canCut);
+  if (inside && canCut) {
+    if (!d.holdStart) {
+      d.holdStart = performance.now();
+      roll.cutState = 'CUTTING';
+      if (d.ghost) d.ghost.classList.add('is-cutting');
+    }
+    roll.cutProgress = Math.min(1, (performance.now() - d.holdStart) / (MAKI_CUT_SECONDS * 1000));
+    if (roll.cutProgress >= 1) {
+      completeMakiCut();
+      return;
+    }
+    renderMakiStation();
+  } else if (d.holdStart) {
+    d.holdStart = null;
+    abortMakiCut();
+    if (d.ghost) d.ghost.classList.remove('is-cutting');
+    renderMakiStation();
+  }
+}
+
+function activateMakiToolDrag() {
+  const d = makiToolDrag;
+  if (!d || d.active) return;
+  d.active = true;
+  const rect = d.el.getBoundingClientRect();
+  const ghost = document.createElement('div');
+  ghost.className = 'maki-tool-ghost';
+  ghost.style.height = `${rect.height * 1.15}px`;
+  ghost.innerHTML = `<img src="${d.el.getAttribute('src')}" alt="" draggable="false">`;
+  document.body.appendChild(ghost);
+  d.ghost = ghost;
+  d.el.classList.add('is-lifted');
+
+  const zone = document.getElementById('maki-board-zone');
+  const valid = d.tool === 'mat' ? !gameState.makiRoll.matPlaced : makiCanCut();
+  if (zone && valid) zone.classList.add('drop-target-ready');
+  d.timer = setInterval(updateMakiToolDrag, 50);
+  moveMakiToolGhost();
+  updateMakiToolDrag();
+  try { if (navigator.vibrate) navigator.vibrate(12); } catch (err) {}
+}
+
+function onMakiToolMove(e) {
+  const d = makiToolDrag;
+  if (!d || e.pointerId !== d.pointerId) return;
+  d.x = e.clientX;
+  d.y = e.clientY;
+  if (!d.active) {
+    if (Math.hypot(d.x - d.startX, d.y - d.startY) > 4) activateMakiToolDrag();
+    return;
+  }
+  moveMakiToolGhost();
+  updateMakiToolDrag();
+}
+
+function onMakiToolUp(e) {
+  const d = makiToolDrag;
+  if (!d || e.pointerId !== d.pointerId) return;
+  d.x = e.clientX;
+  d.y = e.clientY;
+  const tool = d.tool;
+  const wasActive = d.active;
+  const zone = document.getElementById('maki-board-zone');
+  const p = getMakiToolPoint(d);
+  const r = zone ? zone.getBoundingClientRect() : null;
+  const inside = !!r && p.x >= r.left && p.x <= r.right && p.y >= r.top && p.y <= r.bottom;
+  const roll = gameState.makiRoll;
+
+  if (tool === 'knife') abortMakiCut();
+  cleanupMakiToolDrag();
+
+  if (!wasActive) {
+    // toque simple: recordatorio de cómo se usa
+    showStationToast(tool === 'mat'
+      ? '🎍 Arrastra la esterilla hasta la tabla para empezar un maki.'
+      : '🔪 Arrastra el cuchillo sobre un maki listo y mantenlo 3 segundos para cortarlo.');
+    renderMakiStation();
+    return;
+  }
+  if (tool === 'mat' && inside) {
+    placeMakiMat();
+    return;
+  }
+  if (tool === 'knife' && inside && roll.cutState !== 'CUT') {
+    showStationToast('🔪 Primero arma el maki completo y luego mantén el cuchillo sobre él 3 segundos.');
+  }
+  renderMakiStation();
+}
+
+function onMakiToolCancel(e) {
+  const d = makiToolDrag;
+  if (!d || e.pointerId !== d.pointerId) return;
+  abortMakiCut();
+  cleanupMakiToolDrag();
+  renderMakiStation();
+}
+
+function beginMakiToolPress(e, tool, el) {
+  if (e.pointerType === 'mouse' && e.button !== 0) return;
+  if (gameState.isPaused || gameState.isGameOver) return;
+  if (gameState.activeArea !== 'makis') return;
+  if (tool === 'mat' && gameState.makiRoll.matPlaced) return;
+  cleanupMakiToolDrag();
+  e.preventDefault();
+  makiToolDrag = {
+    tool, el,
+    pointerId: e.pointerId,
+    pointerType: e.pointerType,
+    startX: e.clientX, startY: e.clientY,
+    x: e.clientX, y: e.clientY,
+    active: false, ghost: null, timer: null, holdStart: null
+  };
+  document.addEventListener('pointermove', onMakiToolMove);
+  document.addEventListener('pointerup', onMakiToolUp);
+  document.addEventListener('pointercancel', onMakiToolCancel);
+}
+
+function attachMakiTools() {
+  [['maki-tool-mat', 'mat'], ['maki-tool-knife', 'knife']].forEach(([id, tool]) => {
+    const el = document.getElementById(id);
+    if (!el || el._makiToolBound) return;
+    el._makiToolBound = true;
+    el.addEventListener('contextmenu', (ev) => ev.preventDefault());
+    el.addEventListener('pointerdown', (ev) => beginMakiToolPress(ev, tool, el));
+  });
 }
 
 // --- Estación de Salteados: 2 woks en paralelo. El plato se identifica por el CONJUNTO de
@@ -8343,7 +8782,7 @@ function getIngredientDropTargets() {
   const area = gameState.activeArea;
   const sel = area === 'ramen' ? '.bowl-dock-card'
     : area === 'salteados' ? '.wok-dock-card'
-    : area === 'makis' ? '.maki-mat-card'
+    : area === 'makis' ? '#maki-board-zone'
     : area === 'frituras' ? '#fry-table-card'
     : null;
   return sel ? Array.from(document.querySelectorAll(sel)) : [];
@@ -9448,6 +9887,7 @@ function setupKitchenStations() {
   initNoodlesLoop();
   updateKitchenStationsUI();
   setupWokStirButtons();
+  attachMakiTools();
 }
 
 function resetCookingStations() {
@@ -10306,7 +10746,8 @@ function startLevel(lvlIndex) {
   renderBowls();
   renderCustomers();
   gameState.activeArea = 'ramen';
-  gameState.makiRoll = { ingredients: [] };
+  cleanupMakiToolDrag();
+  gameState.makiRoll = newMakiRoll();
   gameState.woks = [
     { ingredients: [], result: null, matchedRecipe: null, stirring: false, stirSeconds: 0 },
     { ingredients: [], result: null, matchedRecipe: null, stirring: false, stirSeconds: 0 }

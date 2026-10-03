@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 50" width="300" height="50">
+  <defs>
+    <linearGradient id="nori" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2f4a35"/>
+      <stop offset="0.5" stop-color="#17261b"/>
+      <stop offset="1" stop-color="#0d1610"/>
+    </linearGradient>
+    <filter id="shadow" x="-4%" y="-20%" width="108%" height="150%">
+      <feDropShadow dx="0" dy="3" stdDeviation="2.2" flood-color="#000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+  <!-- Maki ya enrollado (rollo largo, antes de cortar) -->
+  <g filter="url(#shadow)">
+    <rect x="6" y="5" width="288" height="38" rx="19" fill="url(#nori)" stroke="#0a110c" stroke-width="1.6"/>
+    <ellipse cx="10" cy="24" rx="5" ry="16" fill="#f6f2e4"/>
+    <ellipse cx="290" cy="24" rx="5" ry="16" fill="#f6f2e4"/>
+    <rect x="22" y="10" width="256" height="5" rx="2.5" fill="#ffffff" opacity="0.14"/>
+    <path d="M30,30 Q100,34 170,30 T270,31" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="1.4"/>
+  </g>
+</svg>
