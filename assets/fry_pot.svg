@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 186" width="300" height="186">
+  <defs>
+    <linearGradient id="potBody" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#2f3237"/>
+      <stop offset="0.22" stop-color="#8f959d"/>
+      <stop offset="0.5" stop-color="#585d64"/>
+      <stop offset="0.82" stop-color="#2a2d31"/>
+      <stop offset="1" stop-color="#1c1e21"/>
+    </linearGradient>
+    <linearGradient id="potRim" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c3c8cf"/>
+      <stop offset="1" stop-color="#7b8189"/>
+    </linearGradient>
+    <radialGradient id="oil" cx="0.5" cy="0.4" r="0.7">
+      <stop offset="0" stop-color="#fbd75a"/>
+      <stop offset="0.55" stop-color="#e0a21b"/>
+      <stop offset="1" stop-color="#94610c"/>
+    </radialGradient>
+    <linearGradient id="ear" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3a3c41"/>
+      <stop offset="1" stop-color="#17181a"/>
+    </linearGradient>
+    <filter id="soft" x="-20%" y="-60%" width="140%" height="220%">
+      <feGaussianBlur stdDeviation="3.2"/>
+    </filter>
+  </defs>
+
+  <!-- Sombra sobre la mesa -->
+  <ellipse cx="150" cy="162" rx="112" ry="9" fill="#000" opacity="0.5" filter="url(#soft)"/>
+
+  <!-- Asas laterales -->
+  <rect x="22" y="84" width="34" height="18" rx="9" fill="url(#ear)" stroke="#0a0a0b" stroke-width="1.4"/>
+  <rect x="244" y="84" width="34" height="18" rx="9" fill="url(#ear)" stroke="#0a0a0b" stroke-width="1.4"/>
+  <rect x="28" y="87" width="22" height="3" rx="1.5" fill="#fff" opacity="0.18"/>
+  <rect x="250" y="87" width="22" height="3" rx="1.5" fill="#fff" opacity="0.18"/>
+
+  <!-- Cuerpo de la olla -->
+  <path d="M52,72 L52,140 Q52,154 68,154 L232,154 Q248,154 248,140 L248,72 Z" fill="url(#potBody)" stroke="#0a0b0d" stroke-width="2.2"/>
+  <rect x="70" y="82" width="8" height="60" rx="4" fill="#fff" opacity="0.14"/>
+  <path d="M60,126 Q150,140 240,126" fill="none" stroke="#000" stroke-opacity="0.2" stroke-width="3"/>
+
+  <!-- Borde y aceite -->
+  <ellipse cx="150" cy="72" rx="98" ry="33" fill="url(#potRim)" stroke="#4d5259" stroke-width="2.4"/>
+  <ellipse cx="150" cy="74" rx="90" ry="28" fill="#3a2a0b" stroke="#2a1e07" stroke-width="1.6"/>
+  <ellipse cx="150" cy="77" rx="84" ry="24" fill="url(#oil)"/>
+  <ellipse cx="118" cy="68" rx="30" ry="5" fill="#fff" opacity="0.38" transform="rotate(-6 118 68)"/>
+  <g fill="#fff" opacity="0.5">
+    <circle cx="190" cy="80" r="2.6"/>
+    <circle cx="200" cy="74" r="1.8"/>
+    <circle cx="104" cy="84" r="2.2"/>
+    <circle cx="176" cy="88" r="1.6"/>
+  </g>
+</svg>

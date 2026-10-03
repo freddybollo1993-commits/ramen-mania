@@ -1578,42 +1578,169 @@
 
   /* --- Estación propia de Frituras: mesa de empanizado + freidora --- */
   .frituras-station-box {
+    --fry-h: clamp(76px, 23vh, 118px);
     display: none;
     justify-content: center;
-    align-items: stretch;
-    gap: 10px;
+    align-items: center;
+    gap: min(6vw, 48px);
     flex: 1;
     width: 100%;
-  }
-  .fry-card {
-    background: linear-gradient(180deg, #2a1810 0%, #1a0f0a 100%);
-    border: 1.5px solid #6d4a1a;
-    border-radius: 10px;
-    padding: 4px 10px;
-    width: 260px;
+    padding-bottom: 16px;
     box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 3px;
   }
-  .fry-card-header {
+  /* Ilustraciones sin recuadro: tabla de cocina (ingredientes) y olla de aceite (freír). */
+  .fry-scene {
+    position: relative;
+    height: var(--fry-h);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    border-radius: 14px;
+    container-type: inline-size;
+  }
+  .fry-board-card {
+    width: calc(var(--fry-h) * 2);
+    background-image: url('assets/fry_board.svg');
+  }
+  .fry-pot-card {
+    width: calc(var(--fry-h) * 1.613);
+    background-image: url('assets/fry_pot.svg');
+  }
+  .fry-board-chips {
+    position: absolute;
+    left: 8%;
+    top: 17.3%;
+    width: 72%;
+    height: 65%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    align-content: center;
+    gap: 1px 2px;
+    overflow: hidden;
+  }
+  .fry-board-chips .maki-chip {
+    font-size: 17px;
+    font-size: 8.8cqw;
+    line-height: 1;
+    flex-shrink: 0;
+    filter: drop-shadow(0 1px 1.5px rgba(0,0,0,0.4));
+  }
+  .fry-board-chips .maki-strip-empty {
+    color: #8a5d2b;
+    font-size: 9px;
+    font-size: max(8px, 4.2cqw);
+    font-weight: 800;
+    padding: 0 4px;
+  }
+  .fry-scene-footer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 12%;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    pointer-events: none;
   }
-  .fry-card-title {
-    font-family: 'Fredoka One', cursive, sans-serif;
-    font-size: 11px;
-    color: #ffd699;
-    letter-spacing: 0.3px;
+  .fry-scene-footer .btn-bowl-trash {
+    pointer-events: auto;
+    width: 18px;
+    height: 18px;
+    font-size: 9px;
+  }
+  .fry-scene-name {
+    font-size: 9px;
+    font-size: max(8px, 4.6cqw);
+    font-weight: 800;
+    color: #ffe9c2;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.95);
+  }
+  .fry-pot-card .fry-scene-name {
+    margin-left: 2px;
+  }
+  /* Superficie del aceite: aquí se ve la comida friéndose */
+  .fry-oil-visual {
+    position: absolute;
+    left: 22%;
+    top: 28.5%;
+    width: 56%;
+    height: 25.8%;
+    pointer-events: none;
+    overflow: visible;
+  }
+  .fry-food {
+    position: absolute;
+    left: 50%;
+    top: 46%;
+    translate: -50% -50%;
+    font-size: 18px;
+    font-size: 12cqw;
+    line-height: 1;
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5));
+  }
+  .fry-pot-card.is-frying .fry-food {
+    animation: fryBob 0.45s ease-in-out infinite alternate;
+  }
+  @keyframes fryBob {
+    from { transform: translateY(1px) rotate(-4deg); }
+    to { transform: translateY(-2px) rotate(4deg); }
+  }
+  .fry-bubble {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: rgba(255, 246, 196, 0.9);
+    opacity: 0;
+    animation: fryBubble 0.9s linear infinite;
+  }
+  .fry-bubble.b1 { left: 14%; top: 55%; animation-delay: 0s; }
+  .fry-bubble.b2 { left: 34%; top: 70%; animation-delay: 0.25s; }
+  .fry-bubble.b3 { left: 66%; top: 60%; animation-delay: 0.5s; }
+  .fry-bubble.b4 { left: 84%; top: 50%; animation-delay: 0.7s; }
+  @keyframes fryBubble {
+    0% { transform: translateY(4px) scale(0.5); opacity: 0.9; }
+    100% { transform: translateY(-10px) scale(1.3); opacity: 0; }
+  }
+  .fry-smoke {
+    position: absolute;
+    left: 50%;
+    top: -60%;
+    translate: -50% 0;
+    font-size: 14px;
+    font-size: 8cqw;
+    animation: frySmoke 0.9s ease-out infinite;
+  }
+  @keyframes frySmoke {
+    from { transform: translateY(6px); opacity: 0.9; }
+    to { transform: translateY(-10px); opacity: 0; }
+  }
+  .fry-pot-card.is-burning .fry-food {
+    filter: brightness(0.5) sepia(0.7) drop-shadow(0 2px 2px rgba(0,0,0,0.6));
+  }
+  .fry-pot-card.fried-perfecto .fry-food {
+    filter: drop-shadow(0 0 6px rgba(255, 213, 79, 0.95));
+  }
+  .fry-pot-card.fried-quemado .fry-food {
+    filter: brightness(0.35) drop-shadow(0 2px 2px rgba(0,0,0,0.6));
   }
   .fry-status-badge {
-    font-size: 9.5px;
+    position: absolute;
+    bottom: -16px;
+    left: 50%;
+    translate: -50% 0;
+    max-width: 170%;
+    white-space: nowrap;
+    z-index: 3;
+    pointer-events: none;
+    font-size: 8.5px;
     font-weight: 800;
-    padding: 2px 8px;
-    border-radius: 6px;
-    background: rgba(0,0,0,0.5);
+    padding: 1px 7px;
+    border-radius: 5px;
+    background: rgba(0,0,0,0.78);
     color: #ffecb3;
     text-align: center;
   }
@@ -1629,47 +1756,57 @@
     background: linear-gradient(180deg, #ffb300 0%, #ff8f00 100%);
     color: #211202;
   }
-  .fry-oil-visual {
-    text-align: center;
-    font-size: 26px;
-    line-height: 1.1;
-  }
+  /* Botones sobre el cuerpo de la olla */
   .fry-action-btn {
+    position: absolute;
+    left: 20%;
+    top: 57%;
+    width: 60%;
+    z-index: 2;
     background: linear-gradient(180deg, #ff9100 0%, #e65100 100%);
     border: 1.5px solid #ffcc80;
     border-radius: 7px;
     color: #fff5e6;
     font-family: 'Fredoka One', cursive, sans-serif;
     font-size: 11px;
-    padding: 4px 8px;
+    font-size: max(8px, 7.4cqw);
+    padding: 2px 4px;
     cursor: pointer;
     user-select: none;
+    white-space: nowrap;
   }
   .fry-action-btn.zone-quemado {
     background: linear-gradient(180deg, #c62828 0%, #8e0000 100%);
     border-color: #ff8a65;
   }
   .fry-result-actions {
+    position: absolute;
+    left: 14%;
+    top: 57%;
+    width: 72%;
+    z-index: 2;
     display: flex;
-    gap: 6px;
+    gap: 4px;
   }
   .fry-mini-btn {
     flex: 1;
     border-radius: 6px;
     border: 1.5px solid;
-    font-size: 9px;
+    font-size: 8px;
+    font-size: max(7px, 5.4cqw);
     font-weight: 800;
-    padding: 4px 2px;
+    padding: 2px 1px;
     cursor: pointer;
     user-select: none;
+    white-space: nowrap;
   }
   .fry-btn-serve {
-    background: rgba(76, 175, 80, 0.18);
+    background: rgba(18, 48, 20, 0.88);
     border-color: #66bb6a;
     color: #c8e6c9;
   }
   .fry-btn-discard {
-    background: rgba(198, 40, 40, 0.18);
+    background: rgba(60, 14, 14, 0.88);
     border-color: #ef5350;
     color: #ffcdd2;
   }
@@ -5359,26 +5496,26 @@
 
     <!-- Estación de Frituras: mesa de preparación (empanizado) + freidora -->
     <div class="frituras-station-box" id="frituras-station-box">
-      <!-- Mesa de preparación -->
-      <div class="fry-card" id="fry-table-card">
-        <div class="fry-card-header">
-          <span class="fry-card-title">🔪 Mesa de Preparación</span>
-          <button class="btn-bowl-trash" onclick="discardFryStation()" title="Descartar todo">🗑️</button>
+      <!-- Tabla de cocina: aquí se arman y empanizan los ingredientes -->
+      <div class="fry-scene fry-board-card" id="fry-table-card">
+        <div class="fry-board-chips" id="fry-table-strip"></div>
+        <div class="fry-scene-footer">
+          <span class="fry-scene-name">Tabla de cocina</span>
+          <button class="btn-bowl-trash" onclick="event.stopPropagation(); discardFryStation()" title="Descartar todo">🗑️</button>
         </div>
-        <div class="maki-mat-strip" id="fry-table-strip"></div>
         <div class="fry-status-badge" id="fry-table-badge">Vacío</div>
       </div>
 
-      <!-- Freidora -->
-      <div class="fry-card" id="fry-oil-card">
-        <div class="fry-card-header">
-          <span class="fry-card-title">🍳 Freidora</span>
-        </div>
-        <div class="fry-oil-visual" id="fry-oil-visual">🛢️</div>
+      <!-- Olla de aceite: aquí se fríe -->
+      <div class="fry-scene fry-pot-card" id="fry-oil-card">
+        <div class="fry-oil-visual" id="fry-oil-visual"></div>
         <button class="fry-action-btn" id="fry-action-btn" onclick="handleFryActionClick()" style="display:none;">Freír</button>
         <div class="fry-result-actions" id="fry-result-actions" style="display:none;">
           <button class="fry-mini-btn fry-btn-serve" onclick="attemptServeFryStation()">✅ Servir</button>
           <button class="fry-mini-btn fry-btn-discard" onclick="discardFryStation()">🗑️ Desechar</button>
+        </div>
+        <div class="fry-scene-footer">
+          <span class="fry-scene-name">Olla de aceite</span>
         </div>
         <div class="fry-status-badge" id="fry-oil-badge">Esperando...</div>
       </div>
@@ -8066,7 +8203,7 @@ function renderFryStation() {
   const station = gameState.fryStation;
 
   if (station.ingredients.length === 0) {
-    strip.innerHTML = `<span class="maki-strip-empty">Arrastra aquí los ingredientes para armar el plato</span>`;
+    strip.innerHTML = `<span class="maki-strip-empty">Arrastra aquí los ingredientes</span>`;
   } else {
     strip.innerHTML = station.ingredients.map(id => {
       const ing = INGREDIENTES.find(i => i.id === id);
@@ -8095,9 +8232,37 @@ function renderFryStation() {
   oilBadge.classList.remove('status-error', 'status-ready', 'status-warn');
   if (resultActions) resultActions.style.display = 'none';
 
+  // Comida dentro del aceite: la proteína principal del plato (o el primer ingrediente).
+  // Solo se reescribe cuando cambia algo, para no reiniciar las animaciones de burbujas.
+  const oilCard = document.getElementById('fry-oil-card');
+  const mainIng = station.ingredients
+    .map(id => INGREDIENTES.find(i => i.id === id))
+    .find(i => i && i.cat === 'proteinas') || INGREDIENTES.find(i => i.id === station.ingredients[0]);
+  const isBurningNow = station.phase === 'FRYING' && station.frySeconds >= FRY_BURN_THRESHOLD;
+  if (oilVisual) {
+    const sig = `${station.phase}_${mainIng ? mainIng.id : ''}_${isBurningNow}`;
+    if (oilVisual._sig !== sig) {
+      oilVisual._sig = sig;
+      if (station.phase === 'BUILDING' || !mainIng) {
+        oilVisual.innerHTML = '';
+      } else {
+        const bubbles = station.phase === 'FRYING'
+          ? '<i class="fry-bubble b1"></i><i class="fry-bubble b2"></i><i class="fry-bubble b3"></i><i class="fry-bubble b4"></i>'
+          : '';
+        const smoke = isBurningNow ? '<span class="fry-smoke">💨</span>' : '';
+        oilVisual.innerHTML = `<span class="fry-food">${mainIng.icon}</span>${bubbles}${smoke}`;
+      }
+    }
+  }
+  if (oilCard) {
+    oilCard.classList.toggle('is-frying', station.phase === 'FRYING');
+    oilCard.classList.toggle('is-burning', isBurningNow);
+    oilCard.classList.toggle('fried-perfecto', station.phase === 'FRIED' && station.fryResult === 'PERFECTO');
+    oilCard.classList.toggle('fried-quemado', station.phase === 'FRIED' && station.fryResult === 'QUEMADO');
+  }
+
   if (station.phase === 'BUILDING') {
     const analysis = analyzeFryStation();
-    if (oilVisual) oilVisual.textContent = '🛢️';
     if (analysis.status === 'MATCHED') {
       oilBadge.textContent = 'Lista para freír';
       if (actionBtn) { actionBtn.style.display = 'block'; actionBtn.textContent = '🍳 Freír'; actionBtn.className = 'fry-action-btn'; }
@@ -8107,7 +8272,6 @@ function renderFryStation() {
     }
   } else if (station.phase === 'FRYING') {
     const isBurning = station.frySeconds >= FRY_BURN_THRESHOLD;
-    if (oilVisual) oilVisual.textContent = isBurning ? '🔥' : '🍳';
     oilBadge.textContent = isBurning ? `¡Se está quemando! ${station.frySeconds.toFixed(1)}s` : `Friendo... ${station.frySeconds.toFixed(1)}s`;
     oilBadge.classList.add(isBurning ? 'status-warn' : 'status-ready');
     if (actionBtn) {
@@ -8117,7 +8281,6 @@ function renderFryStation() {
     }
   } else if (station.phase === 'FRIED') {
     const labelMap = { PERFECTO: '🔥 ¡Perfecto!', QUEMADO: '💨 Quemado' };
-    if (oilVisual) oilVisual.textContent = station.fryResult === 'QUEMADO' ? '🕳️' : '✅';
     oilBadge.textContent = `${labelMap[station.fryResult]}: ${station.matchedRecipe ? station.matchedRecipe.name : ''}`;
     oilBadge.classList.add(station.fryResult === 'PERFECTO' ? 'status-ready' : 'status-warn');
     if (actionBtn) actionBtn.style.display = 'none';
