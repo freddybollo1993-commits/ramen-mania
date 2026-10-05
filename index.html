@@ -1866,6 +1866,139 @@
     width: calc(var(--fry-h) * 1.613);
     background-image: url('assets/fry_pot.svg');
   }
+  /* Tres espacios junto a la tabla: la proteína se arrastra por harina → huevo → panko */
+  .fry-breading {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--fry-h) * 0.07);
+  }
+  .fry-bread-slot {
+    position: relative;
+    width: calc(var(--fry-h) * 0.62);
+    border-radius: 12px;
+    transition: filter 0.15s ease, transform 0.15s ease;
+  }
+  .fry-bread-slot img {
+    display: block;
+    width: 100%;
+    pointer-events: none;
+  }
+  .fry-bread-label {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -15px;
+    text-align: center;
+    font-size: 9px;
+    font-weight: 800;
+    color: #ffe9c2;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95);
+    pointer-events: none;
+  }
+  .fry-bread-progress {
+    position: absolute;
+    left: 10%;
+    right: 10%;
+    top: -7px;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(0, 0, 0, 0.55);
+    overflow: hidden;
+    opacity: 0;
+  }
+  .fry-bread-progress::after {
+    content: '';
+    display: block;
+    height: 100%;
+    width: calc(var(--p, 0) * 100%);
+    background: linear-gradient(90deg, #ffd54f, #ff8f00);
+  }
+  .fry-bread-slot.is-dwelling .fry-bread-progress { opacity: 1; }
+  .fry-bread-slot.slot-next { filter: drop-shadow(0 0 7px rgba(255, 213, 79, 0.95)); transform: translateY(-2px); }
+  .fry-bread-slot.slot-done::after {
+    content: '✓';
+    position: absolute;
+    top: -9px;
+    right: -3px;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: #43a047;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 900;
+    line-height: 15px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  }
+  /* Proteína (con su empanizado) sobre la tabla, en la olla o frita */
+  .fry-item {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+  .fry-item-base { position: relative; z-index: 1; transition: opacity 0.2s ease; }
+  .fry-item-coat {
+    position: absolute;
+    inset: -14% -10%;
+    border-radius: 48% 52% 50% 46%;
+    opacity: 0;
+    z-index: 2;
+    transition: opacity 0.25s ease;
+  }
+  .fry-item.coat-1 .fry-item-coat {
+    opacity: 0.88;
+    background: radial-gradient(circle at 38% 32%, #ffffff 0 38%, #e9e6dc 78%);
+  }
+  .fry-item.coat-2 .fry-item-coat {
+    opacity: 0.92;
+    background: radial-gradient(circle at 38% 32%, #ffe680 0 38%, #f2c33f 78%);
+  }
+  .fry-item.coat-3 .fry-item-coat {
+    opacity: 1;
+    background:
+      radial-gradient(circle, #b5791f 0 1.1px, transparent 1.6px) 0 0 / 5px 5px,
+      radial-gradient(circle at 36% 30%, #ecc067 0 40%, #cf9a3f 85%);
+  }
+  .fry-item.coat-3 .fry-item-base { opacity: 0; }
+  .fry-board-item {
+    font-size: 24px;
+    font-size: 15cqw;
+    margin-right: 4px;
+    touch-action: none;
+    cursor: grab;
+    user-select: none;
+    -webkit-touch-callout: none;
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.45));
+  }
+  .fry-board-item.is-static { cursor: default; touch-action: auto; }
+  .fry-board-item.is-lifted { opacity: 0.3; }
+  /* Contador de la olla: cruda (azul) → lista (verde) → se quema (rojo) */
+  .fry-counter {
+    position: absolute;
+    left: 20%;
+    top: 55%;
+    width: 60%;
+    height: 6px;
+    display: flex;
+    z-index: 2;
+  }
+  .fry-counter i { display: block; height: 100%; }
+  .fry-counter .fz-raw { width: 35.7%; background: #6fa8d6; border-radius: 3px 0 0 3px; }
+  .fry-counter .fz-ready { width: 28.6%; background: #66bb6a; }
+  .fry-counter .fz-burn { width: 35.7%; background: linear-gradient(90deg, #ef6c00, #7a0000); border-radius: 0 3px 3px 0; }
+  .fry-marker {
+    position: absolute;
+    left: 0;
+    top: -4px;
+    width: 3px;
+    height: 14px;
+    border-radius: 2px;
+    background: #fff;
+    box-shadow: 0 0 4px #000;
+  }
   .fry-board-chips {
     position: absolute;
     left: 8%;
@@ -2020,7 +2153,7 @@
   .fry-action-btn {
     position: absolute;
     left: 20%;
-    top: 57%;
+    top: 63%;
     width: 60%;
     z-index: 2;
     background: linear-gradient(180deg, #ff9100 0%, #e65100 100%);
@@ -5794,7 +5927,7 @@
 
     <!-- Estación de Frituras: mesa de preparación (empanizado) + freidora -->
     <div class="frituras-station-box" id="frituras-station-box">
-      <!-- Tabla de cocina: aquí se arman y empanizan los ingredientes -->
+      <!-- Tabla de cocina: recibe la proteína empanizada (cruda) y las guarniciones -->
       <div class="fry-scene fry-board-card" id="fry-table-card">
         <div class="fry-board-chips" id="fry-table-strip"></div>
         <div class="fry-scene-footer">
@@ -5804,10 +5937,33 @@
         <div class="fry-status-badge" id="fry-table-badge">Vacío</div>
       </div>
 
+      <!-- Empanizado: la proteína se arrastra por harina → huevo → panko, en ese orden -->
+      <div class="fry-breading" id="fry-breading">
+        <div class="fry-bread-slot" id="fry-slot-0" data-step="0">
+          <img src="assets/fry_bowl_harina.svg" alt="" draggable="false">
+          <span class="fry-bread-label">Harina</span>
+          <i class="fry-bread-progress"></i>
+        </div>
+        <div class="fry-bread-slot" id="fry-slot-1" data-step="1">
+          <img src="assets/fry_bowl_huevo.svg" alt="" draggable="false">
+          <span class="fry-bread-label">Huevo</span>
+          <i class="fry-bread-progress"></i>
+        </div>
+        <div class="fry-bread-slot" id="fry-slot-2" data-step="2">
+          <img src="assets/fry_bowl_panko.svg" alt="" draggable="false">
+          <span class="fry-bread-label">Panko</span>
+          <i class="fry-bread-progress"></i>
+        </div>
+      </div>
+
       <!-- Olla de aceite: aquí se fríe -->
       <div class="fry-scene fry-pot-card" id="fry-oil-card">
         <div class="fry-oil-visual" id="fry-oil-visual"></div>
-        <button class="fry-action-btn" id="fry-action-btn" onclick="handleFryActionClick()" style="display:none;">Freír</button>
+        <div class="fry-counter" id="fry-counter" style="display:none;">
+          <i class="fz-raw"></i><i class="fz-ready"></i><i class="fz-burn"></i>
+          <b class="fry-marker" id="fry-marker"></b>
+        </div>
+        <button class="fry-action-btn" id="fry-action-btn" onclick="handleFryActionClick()" style="display:none;">Retirar</button>
         <div class="fry-result-actions" id="fry-result-actions" style="display:none;">
           <button class="fry-mini-btn fry-btn-serve" onclick="attemptServeFryStation()">✅ Servir</button>
           <button class="fry-mini-btn fry-btn-discard" onclick="discardFryStation()">🗑️ Desechar</button>
@@ -7675,7 +7831,7 @@ let gameState = {
     { ingredients: [], result: null, matchedRecipe: null, stirring: false, stirSeconds: 0 }
   ],
   activeWokIndex: 0,
-  fryStation: { ingredients: [], phase: 'BUILDING', fryResult: null, frySeconds: 0, matchedRecipe: null },
+  fryStation: { ingredients: [], phase: 'BUILDING', proteinId: null, coat: 0, fryResult: null, frySeconds: 0, fryTone: '', matchedRecipe: null },
   selectedCustomerModalIndex: null,
   targetCustomerIndex: null,
   bowls: [
@@ -8023,6 +8179,8 @@ function getUnlockedIngredients() {
     // Áreas nuevas (Salteados/Frituras/Makis): todavía no tienen sistema de
     // desbloqueo por nivel, así que se muestran todos los ingredientes del área.
     list = INGREDIENTES.filter(i => i.areas && i.areas.includes(gameState.activeArea));
+    // En Frituras la harina, el huevo y el panko son los tres espacios de empanizado, no fichas.
+    if (gameState.activeArea === 'frituras') list = list.filter(i => !FRY_BREADING_IDS.includes(i.id));
   } else if (typeof MultiplayerManager !== 'undefined' && (MultiplayerManager.isGameActive || MultiplayerManager.isInMultiplayer)) {
     list = INGREDIENTES.filter(i => i.areas && i.areas.includes('ramen'));
   } else {
@@ -8076,6 +8234,7 @@ function switchKitchenArea(areaId) {
   // a medias (arrastrar el cuchillo o deslizar para enrollar), que no tiene sentido cruzar áreas.
   abortMakiCut();
   cleanupMakiToolDrag();
+  cleanupFryItemDrag();
   updateStationVisibilityForArea();
   renderPantryGrid();
   renderBowls();
@@ -9042,8 +9201,51 @@ function setupWokStirButtons() {
 // jugador ve un contador manual: antes del umbral = Perfecto, después = Quemado (igual se puede
 // servir o desechar). "Gyozas" (hervido) no se puede completar aquí a propósito: esta estación
 // solo produce platos fritos — "Age Gyozas" es la versión alcanzable.
-const FRY_BURN_THRESHOLD = 3.0;
+//
+// Flujo actual: 1) la proteína se arrastra por los tres espacios (harina → huevo → panko, en ese
+// orden, un instante en cada uno) y se suelta en la tabla ya empanizada y cruda; 2) se arrastra
+// de la tabla a la olla; 3) el contador marca cruda → lista → se quema, y hay que retirarla a
+// tiempo (si no, sale muy oscura); 4) la proteína frita vuelve a la tabla y se agregan las
+// guarniciones hasta completar el plato.
+const FRY_READY_AT = 2.5;        // desde aquí la proteína está lista (dorada)
+const FRY_BURN_THRESHOLD = 4.5;  // pasado esto se quema
+const FRY_BLACK_AT = 7.0;        // carbonizada: color muy oscuro
+const FRY_SCALE_MAX = 7.0;       // escala total del contador
+const BREAD_DWELL_MS = 450;      // tiempo sobre cada espacio para que cuente el paso
+const FRY_BREADING_IDS = [58, 15, 65]; // harina, huevo, panko
+const FRY_PROTEIN_IDS = [36, 43, 44, 60, 70, 73]; // alas, bife de cerdo, bife de pollo, langostinos, pollo, relleno
+const FRY_BREAD_NAMES = ['la harina', 'el huevo', 'el panko'];
 let fryTimerInterval = null;
+let fryItemDrag = null;
+
+function newFryStation() {
+  return { ingredients: [], phase: 'BUILDING', proteinId: null, coat: 0, fryResult: null, frySeconds: 0, fryTone: '', matchedRecipe: null };
+}
+
+// ¿Esta proteína va empanizada? (la usa alguna receta que lleva harina + huevo + panko)
+function fryProteinNeedsBreading(id) {
+  return getFriturasFryableRecipes().some(r => r.ingredients.includes(id) && FRY_BREADING_IDS.every(b => r.ingredients.includes(b)));
+}
+
+// Proteína con su empanizado: coat 0 = cruda sin empanizar, 1 = harina, 2 = huevo, 3 = panko.
+function fryItemMarkup(proteinId, coat) {
+  const ing = INGREDIENTES.find(i => i.id === proteinId);
+  return `<span class="fry-item coat-${coat}"><span class="fry-item-base">${ing ? ing.icon : '❓'}</span><i class="fry-item-coat"></i></span>`;
+}
+
+// Color de la comida según el tiempo en el aceite: pálida (cruda) → dorada (lista) → muy oscura.
+function fryToneFilter(sec) {
+  if (sec <= FRY_BURN_THRESHOLD) {
+    const p = Math.min(1, sec / FRY_READY_AT);
+    return `saturate(${(0.55 + 0.95 * p).toFixed(2)}) sepia(${(0.05 + 0.55 * p).toFixed(2)}) brightness(${(1.15 - 0.12 * p).toFixed(2)})`;
+  }
+  const q = Math.min(1, (sec - FRY_BURN_THRESHOLD) / (FRY_BLACK_AT - FRY_BURN_THRESHOLD));
+  return `sepia(0.65) saturate(${(1.5 - 1.0 * q).toFixed(2)}) brightness(${(0.95 - 0.75 * q).toFixed(2)})`;
+}
+
+function fryResultFor(sec) {
+  return sec < FRY_READY_AT ? 'CRUDO' : (sec < FRY_BURN_THRESHOLD ? 'PERFECTO' : 'QUEMADO');
+}
 
 function getFriturasFryableRecipes() {
   return RECETAS_FRITURAS.filter(r => r.metodo !== 'hervido');
@@ -9090,10 +9292,67 @@ function analyzeFryStation() {
   };
 }
 
+// Proteína ya empanizada (o sin empanizar, si la receta no lo lleva) que se suelta en la tabla.
+function placeFryProtein(ing, coat) {
+  const station = gameState.fryStation;
+  if (station.phase !== 'BUILDING' || station.proteinId) {
+    showStationToast('Ya hay una proteína en proceso: descarta con 🗑️ para empezar otra.');
+    return;
+  }
+  const needs = fryProteinNeedsBreading(ing.id);
+  if (needs && coat < 3) {
+    showStationToast('🥖 Falta empanizar: arrastra la proteína por la harina, el huevo y el panko (en ese orden) y suéltala en la tabla.');
+    return;
+  }
+  if (!needs && coat > 0) {
+    showStationToast(`${ing.display} no lleva empanizado: arrástrala directo a la tabla.`);
+    return;
+  }
+  station.proteinId = ing.id;
+  station.coat = needs ? 3 : 0;
+  station.ingredients.push(ing.id);
+  if (needs) station.ingredients.push(...FRY_BREADING_IDS);
+  playSound('add');
+  renderFryStation();
+  renderPantryGrid();
+}
+
+// Quita la proteína cruda de la tabla (con su empanizado). Solo antes de meterla a la olla.
+function removeFryProtein() {
+  const station = gameState.fryStation;
+  if (!station.proteinId || station.phase !== 'BUILDING') return false;
+  station.ingredients = station.ingredients.filter(id => id !== station.proteinId && !FRY_BREADING_IDS.includes(id));
+  station.proteinId = null;
+  station.coat = 0;
+  return true;
+}
+
+// Guarniciones y demás ingredientes que van sobre la tabla (la proteína entra arrastrándola
+// por el empanizado; la harina, el huevo y el panko son los tres espacios).
 function toggleIngredientInFryStation(ingId) {
   if (gameState.isPaused || gameState.isGameOver) return;
   const station = gameState.fryStation;
-  if (station.phase !== 'BUILDING') return; // ya en la freidora o lista: hay que descartar para rearmar
+  if (FRY_BREADING_IDS.includes(ingId)) {
+    showStationToast('🥖 El empanizado se hace arrastrando la proteína por los tres espacios.');
+    return;
+  }
+  if (FRY_PROTEIN_IDS.includes(ingId)) {
+    if (station.proteinId === ingId && station.phase === 'BUILDING') {
+      removeFryProtein();
+      playSound('add');
+      renderFryStation();
+      renderPantryGrid();
+    } else if (station.proteinId === ingId) {
+      showStationToast('Esa proteína ya está en proceso: descarta con 🗑️ para empezar otra.');
+    } else {
+      showStationToast('Arrastra la proteína por harina → huevo → panko y suéltala en la tabla.');
+    }
+    return;
+  }
+  if (station.phase === 'FRYING') {
+    showStationToast('La olla está en uso: retira la proteína para seguir.');
+    return;
+  }
   if (station.ingredients.includes(ingId)) {
     station.ingredients = station.ingredients.filter(id => id !== ingId);
   } else {
@@ -9106,43 +9365,145 @@ function toggleIngredientInFryStation(ingId) {
 
 function discardFryStation() {
   if (fryTimerInterval) { clearInterval(fryTimerInterval); fryTimerInterval = null; }
-  gameState.fryStation = { ingredients: [], phase: 'BUILDING', fryResult: null, frySeconds: 0, matchedRecipe: null };
+  cleanupFryItemDrag();
+  gameState.fryStation = newFryStation();
   playSound('trash');
   renderFryStation();
   renderPantryGrid();
 }
 
+// La proteína de la tabla se mete a la olla (arrastrándola hasta ella): arranca el contador.
+function startFryingFromBoard() {
+  const station = gameState.fryStation;
+  if (station.phase !== 'BUILDING' || !station.proteinId) return;
+  station.phase = 'FRYING';
+  station.frySeconds = 0;
+  station.fryTone = '';
+  playSound('flame');
+  if (fryTimerInterval) clearInterval(fryTimerInterval);
+  fryTimerInterval = setInterval(() => {
+    if (gameState.isPaused || gameState.isGameOver) return;
+    station.frySeconds += 0.05;
+    renderFryStation();
+  }, 50);
+  renderFryStation();
+}
+
+// Retirar la proteína del aceite (botón de la olla): crudo / perfecto / quemado según el
+// momento, y vuelve a la tabla con el color que alcanzó.
 function handleFryActionClick() {
   const station = gameState.fryStation;
-  if (station.phase === 'BUILDING') {
-    const analysis = analyzeFryStation();
-    if (analysis.status !== 'MATCHED') return;
-    station.phase = 'FRYING';
-    station.frySeconds = 0;
-    station.matchedRecipe = analysis.recipe;
-    playSound('flame');
-    if (fryTimerInterval) clearInterval(fryTimerInterval);
-    fryTimerInterval = setInterval(() => {
-      if (gameState.isPaused || gameState.isGameOver) return;
-      station.frySeconds += 0.05;
-      renderFryStation();
-    }, 50);
-    renderFryStation();
-  } else if (station.phase === 'FRYING') {
-    if (fryTimerInterval) { clearInterval(fryTimerInterval); fryTimerInterval = null; }
-    station.fryResult = station.frySeconds >= FRY_BURN_THRESHOLD ? 'QUEMADO' : 'PERFECTO';
-    station.phase = 'FRIED';
-    playSound(station.fryResult === 'PERFECTO' ? 'match' : 'burn');
-    renderFryStation();
-  }
+  if (station.phase !== 'FRYING') return;
+  if (fryTimerInterval) { clearInterval(fryTimerInterval); fryTimerInterval = null; }
+  station.fryResult = fryResultFor(station.frySeconds);
+  station.fryTone = fryToneFilter(station.frySeconds);
+  station.phase = 'FRIED';
+  playSound(station.fryResult === 'PERFECTO' ? 'match' : 'burn');
+  renderFryStation();
 }
 
 function attemptServeFryStation() {
   const station = gameState.fryStation;
-  if (station.phase !== 'FRIED' || !station.matchedRecipe) return;
+  if (station.phase !== 'FRIED' || analyzeFryStation().status !== 'MATCHED') return;
   // Los pedidos de clientes todavía solo existen para Ramen; esto queda listo para
   // cuando el sistema de pedidos se extienda a las demás áreas.
   showStationToast('🍽️ Los pedidos de Frituras aún no están conectados con los clientes.');
+}
+
+// --- Arrastrar la proteína empanizada de la tabla a la olla ---
+function cleanupFryItemDrag() {
+  const d = fryItemDrag;
+  document.removeEventListener('pointermove', onFryItemMove);
+  document.removeEventListener('pointerup', onFryItemUp);
+  document.removeEventListener('pointercancel', onFryItemCancel);
+  if (d) {
+    if (d.ghost) d.ghost.remove();
+    if (d.el) d.el.classList.remove('is-lifted');
+  }
+  const pot = document.getElementById('fry-oil-card');
+  if (pot) pot.classList.remove('drop-target-ready', 'drop-hover');
+  fryItemDrag = null;
+}
+
+function fryItemOverPot(d) {
+  const pot = document.getElementById('fry-oil-card');
+  if (!pot) return false;
+  const p = { x: d.x, y: d.pointerType === 'mouse' ? d.y : d.y - DRAG_TOUCH_GHOST_OFFSET_Y };
+  const r = pot.getBoundingClientRect();
+  return p.x >= r.left && p.x <= r.right && p.y >= r.top && p.y <= r.bottom;
+}
+
+function moveFryItemGhost() {
+  const d = fryItemDrag;
+  if (!d || !d.ghost) return;
+  const py = d.pointerType === 'mouse' ? d.y : d.y - DRAG_TOUCH_GHOST_OFFSET_Y;
+  d.ghost.style.transform = `translate(${d.x}px, ${py}px) translate(-50%, -50%) scale(1.15)`;
+}
+
+function onFryItemMove(e) {
+  const d = fryItemDrag;
+  if (!d || e.pointerId !== d.pointerId) return;
+  d.x = e.clientX;
+  d.y = e.clientY;
+  if (!d.active) {
+    if (Math.hypot(d.x - d.startX, d.y - d.startY) <= 4) return;
+    d.active = true;
+    const station = gameState.fryStation;
+    const ghost = document.createElement('div');
+    ghost.className = 'drag-ghost';
+    ghost.innerHTML = fryItemMarkup(station.proteinId, station.coat);
+    document.body.appendChild(ghost);
+    d.ghost = ghost;
+    d.el.classList.add('is-lifted');
+    const pot = document.getElementById('fry-oil-card');
+    if (pot) pot.classList.add('drop-target-ready');
+    try { if (navigator.vibrate) navigator.vibrate(12); } catch (err) {}
+  }
+  moveFryItemGhost();
+  const pot = document.getElementById('fry-oil-card');
+  if (pot) pot.classList.toggle('drop-hover', fryItemOverPot(d));
+}
+
+function onFryItemUp(e) {
+  const d = fryItemDrag;
+  if (!d || e.pointerId !== d.pointerId) return;
+  d.x = e.clientX;
+  d.y = e.clientY;
+  const wasActive = d.active;
+  const overPot = wasActive && fryItemOverPot(d);
+  cleanupFryItemDrag();
+  if (overPot) startFryingFromBoard();
+  else if (!wasActive) showStationToast('🍳 Arrastra la proteína empanizada hasta la olla de aceite.');
+}
+
+function onFryItemCancel(e) {
+  const d = fryItemDrag;
+  if (!d || e.pointerId !== d.pointerId) return;
+  cleanupFryItemDrag();
+}
+
+function attachFryItemDrag() {
+  const strip = document.getElementById('fry-table-strip');
+  if (!strip || strip._fryBound) return;
+  strip._fryBound = true;
+  strip.addEventListener('pointerdown', (e) => {
+    const el = e.target.closest('.fry-board-item');
+    if (!el || el.classList.contains('is-static')) return;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    if (gameState.isPaused || gameState.isGameOver) return;
+    const station = gameState.fryStation;
+    if (station.phase !== 'BUILDING' || !station.proteinId) return;
+    cleanupFryItemDrag();
+    e.preventDefault();
+    fryItemDrag = {
+      el, pointerId: e.pointerId, pointerType: e.pointerType,
+      startX: e.clientX, startY: e.clientY, x: e.clientX, y: e.clientY,
+      active: false, ghost: null
+    };
+    document.addEventListener('pointermove', onFryItemMove);
+    document.addEventListener('pointerup', onFryItemUp);
+    document.addEventListener('pointercancel', onFryItemCancel);
+  });
 }
 
 function renderFryStation() {
@@ -9152,93 +9513,120 @@ function renderFryStation() {
   const oilVisual = document.getElementById('fry-oil-visual');
   const actionBtn = document.getElementById('fry-action-btn');
   const resultActions = document.getElementById('fry-result-actions');
+  const counter = document.getElementById('fry-counter');
+  const marker = document.getElementById('fry-marker');
   if (!strip || !tableBadge || !oilBadge) return;
 
   const station = gameState.fryStation;
+  const analysis = analyzeFryStation();
+  const matched = analysis.status === 'MATCHED';
+  station.matchedRecipe = matched ? analysis.recipe : null;
+  const sec = station.frySeconds;
+  const frying = station.phase === 'FRYING';
+  const burning = frying && sec >= FRY_BURN_THRESHOLD;
+  const pid = station.proteinId;
 
-  if (station.ingredients.length === 0) {
-    strip.innerHTML = `<span class="maki-strip-empty">Arrastra aquí los ingredientes</span>`;
-  } else {
-    strip.innerHTML = station.ingredients.map(id => {
+  // --- Tabla: la proteína (cruda empanizada / en la olla / frita) y las guarniciones ---
+  const extras = station.ingredients.filter(id => id !== pid && !FRY_BREADING_IDS.includes(id));
+  const stripSig = JSON.stringify([station.phase, pid, station.coat, extras, station.phase === 'FRIED' ? station.fryTone : '']);
+  if (strip._sig !== stripSig) {
+    strip._sig = stripSig;
+    let html = '';
+    if (pid && station.phase === 'BUILDING') {
+      html += `<span class="fry-board-item" title="Arrástrala a la olla">${fryItemMarkup(pid, station.coat)}</span>`;
+    } else if (pid && station.phase === 'FRIED') {
+      html += `<span class="fry-board-item is-static" style="filter:${station.fryTone} drop-shadow(0 2px 2px rgba(0,0,0,0.45))">${fryItemMarkup(pid, station.coat)}</span>`;
+    }
+    html += extras.map(id => {
       const ing = INGREDIENTES.find(i => i.id === id);
       return `<span class="maki-chip" title="${ing ? ing.display : ''}">${ing ? ing.icon : '❓'}</span>`;
     }).join('');
+    if (!html) html = `<span class="maki-strip-empty">Arrastra la proteína por harina → huevo → panko</span>`;
+    else if (frying && !extras.length) html = `<span class="maki-strip-empty">La proteína está en la olla…</span>`;
+    strip.innerHTML = html;
   }
 
   tableBadge.classList.remove('status-error', 'status-ready', 'status-warn');
-  if (station.phase !== 'BUILDING') {
-    tableBadge.textContent = station.matchedRecipe ? `En la freidora: ${station.matchedRecipe.name}` : 'En la freidora...';
-  } else {
-    const analysis = analyzeFryStation();
-    if (analysis.status === 'EMPTY') {
-      tableBadge.textContent = 'Vacío';
-    } else if (analysis.status === 'WRONG_BREADING_ORDER') {
-      tableBadge.textContent = '✗ Orden de empanizado: harina → huevo → panko';
-      tableBadge.classList.add('status-error');
-    } else if (analysis.status === 'MATCHED') {
-      tableBadge.textContent = `Lista para freír: ${analysis.recipe.name}`;
+  if (frying) {
+    tableBadge.textContent = 'En la olla: retírala a tiempo';
+  } else if (station.phase === 'FRIED') {
+    if (matched) {
+      tableBadge.textContent = `¡Listo: ${analysis.recipe.name}!`;
       tableBadge.classList.add('status-ready');
     } else {
-      tableBadge.textContent = `Armando (${station.ingredients.length})`;
+      const falta = (analysis.missing || []).filter(n => !['Harina', 'Huevo', 'Panko'].includes(n));
+      tableBadge.textContent = falta.length ? `Frita — agrega: ${falta.slice(0, 3).join(' · ')}${falta.length > 3 ? '…' : ''}` : 'Frita — agrega las guarniciones';
     }
+  } else if (pid) {
+    tableBadge.textContent = '🥖 Lista: arrástrala a la olla';
+    tableBadge.classList.add('status-ready');
+  } else if (analysis.status === 'EMPTY') {
+    tableBadge.textContent = 'Vacío';
+  } else {
+    tableBadge.textContent = `Armando (${station.ingredients.length})`;
   }
 
-  oilBadge.classList.remove('status-error', 'status-ready', 'status-warn');
-  if (resultActions) resultActions.style.display = 'none';
-
-  // Comida dentro del aceite: la proteína principal del plato (o el primer ingrediente).
-  // Solo se reescribe cuando cambia algo, para no reiniciar las animaciones de burbujas.
+  // --- Olla: la proteína dentro del aceite, con el color que va tomando ---
   const oilCard = document.getElementById('fry-oil-card');
-  const mainIng = station.ingredients
-    .map(id => INGREDIENTES.find(i => i.id === id))
-    .find(i => i && i.cat === 'proteinas') || INGREDIENTES.find(i => i.id === station.ingredients[0]);
-  const isBurningNow = station.phase === 'FRYING' && station.frySeconds >= FRY_BURN_THRESHOLD;
   if (oilVisual) {
-    const sig = `${station.phase}_${mainIng ? mainIng.id : ''}_${isBurningNow}`;
+    const sig = `${station.phase}_${pid}_${station.coat}_${burning}`;
     if (oilVisual._sig !== sig) {
       oilVisual._sig = sig;
-      if (station.phase === 'BUILDING' || !mainIng) {
+      if (station.phase === 'BUILDING' || !pid) {
         oilVisual.innerHTML = '';
       } else {
-        const bubbles = station.phase === 'FRYING'
+        const bubbles = frying
           ? '<i class="fry-bubble b1"></i><i class="fry-bubble b2"></i><i class="fry-bubble b3"></i><i class="fry-bubble b4"></i>'
           : '';
-        const smoke = isBurningNow ? '<span class="fry-smoke">💨</span>' : '';
-        oilVisual.innerHTML = `<span class="fry-food">${mainIng.icon}</span>${bubbles}${smoke}`;
+        const smoke = burning ? '<span class="fry-smoke">💨</span>' : '';
+        oilVisual.innerHTML = `<span class="fry-food">${fryItemMarkup(pid, station.coat)}</span>${bubbles}${smoke}`;
       }
+    }
+    const foodEl = oilVisual.querySelector('.fry-food');
+    if (foodEl) {
+      const tone = frying ? fryToneFilter(sec) : station.fryTone;
+      foodEl.style.filter = `${tone} drop-shadow(0 2px 2px rgba(0,0,0,0.5))`;
     }
   }
   if (oilCard) {
-    oilCard.classList.toggle('is-frying', station.phase === 'FRYING');
-    oilCard.classList.toggle('is-burning', isBurningNow);
-    oilCard.classList.toggle('fried-perfecto', station.phase === 'FRIED' && station.fryResult === 'PERFECTO');
-    oilCard.classList.toggle('fried-quemado', station.phase === 'FRIED' && station.fryResult === 'QUEMADO');
+    oilCard.classList.toggle('is-frying', frying);
+    oilCard.classList.toggle('is-burning', burning);
   }
 
+  // Contador: cruda (azul) → lista (verde) → se quema (rojo)
+  if (counter) counter.style.display = frying ? 'flex' : 'none';
+  if (marker) marker.style.left = `${Math.min(100, (sec / FRY_SCALE_MAX) * 100).toFixed(1)}%`;
+
+  oilBadge.classList.remove('status-error', 'status-ready', 'status-warn');
+  if (resultActions) resultActions.style.display = 'none';
+  if (actionBtn) actionBtn.style.display = 'none';
+
   if (station.phase === 'BUILDING') {
-    const analysis = analyzeFryStation();
-    if (analysis.status === 'MATCHED') {
-      oilBadge.textContent = 'Lista para freír';
-      if (actionBtn) { actionBtn.style.display = 'block'; actionBtn.textContent = '🍳 Freír'; actionBtn.className = 'fry-action-btn'; }
+    oilBadge.textContent = pid ? 'Arrastra la proteína a la olla' : 'Esperando proteína…';
+  } else if (frying) {
+    const t = sec.toFixed(1);
+    if (sec < FRY_READY_AT) {
+      oilBadge.textContent = `Friendo… ${t}s`;
+    } else if (sec < FRY_BURN_THRESHOLD) {
+      oilBadge.textContent = `¡Lista! Retírala (${t}s)`;
+      oilBadge.classList.add('status-ready');
+    } else if (sec < FRY_BLACK_AT) {
+      oilBadge.textContent = `¡Se quema! ${t}s`;
+      oilBadge.classList.add('status-warn');
     } else {
-      oilBadge.textContent = 'Esperando ingredientes...';
-      if (actionBtn) actionBtn.style.display = 'none';
+      oilBadge.textContent = `¡Carbonizada! ${t}s`;
+      oilBadge.classList.add('status-error');
     }
-  } else if (station.phase === 'FRYING') {
-    const isBurning = station.frySeconds >= FRY_BURN_THRESHOLD;
-    oilBadge.textContent = isBurning ? `¡Se está quemando! ${station.frySeconds.toFixed(1)}s` : `Friendo... ${station.frySeconds.toFixed(1)}s`;
-    oilBadge.classList.add(isBurning ? 'status-warn' : 'status-ready');
     if (actionBtn) {
       actionBtn.style.display = 'block';
       actionBtn.textContent = '✋ Retirar';
-      actionBtn.className = `fry-action-btn ${isBurning ? 'zone-quemado' : ''}`;
+      actionBtn.className = `fry-action-btn ${burning ? 'zone-quemado' : ''}`;
     }
   } else if (station.phase === 'FRIED') {
-    const labelMap = { PERFECTO: '🔥 ¡Perfecto!', QUEMADO: '💨 Quemado' };
-    oilBadge.textContent = `${labelMap[station.fryResult]}: ${station.matchedRecipe ? station.matchedRecipe.name : ''}`;
-    oilBadge.classList.add(station.fryResult === 'PERFECTO' ? 'status-ready' : 'status-warn');
-    if (actionBtn) actionBtn.style.display = 'none';
-    if (resultActions) resultActions.style.display = 'flex';
+    const labelMap = { CRUDO: '🥶 Cruda', PERFECTO: '🔥 ¡Perfecta!', QUEMADO: '💨 Quemada' };
+    oilBadge.textContent = `${labelMap[station.fryResult]}`;
+    oilBadge.classList.add(station.fryResult === 'PERFECTO' ? 'status-ready' : (station.fryResult === 'CRUDO' ? 'status-error' : 'status-warn'));
+    if (resultActions && matched) resultActions.style.display = 'flex';
   }
   updateAreaTabAlerts();
 }
@@ -9345,7 +9733,7 @@ function handleIngredientTap(ing) {
   }
 }
 
-function applyIngredientDrop(target, ing) {
+function applyIngredientDrop(target, ing, coat) {
   const area = gameState.activeArea;
   if (area === 'ramen') {
     const idx = parseInt(target.id.replace('bowl-card-', ''), 10);
@@ -9376,16 +9764,67 @@ function applyIngredientDrop(target, ing) {
     }
     toggleIngredientInMaki(ing.id);
   } else if (area === 'frituras') {
+    // La proteína llega con el empanizado que consiguió al pasar por los tres espacios.
+    if (FRY_PROTEIN_IDS.includes(ing.id)) {
+      placeFryProtein(ing, coat || 0);
+      return;
+    }
     const station = gameState.fryStation;
-    if (station.phase !== 'BUILDING') {
-      showStationToast('La freidora está en uso: descarta o sirve el plato para armar otro.');
+    if (station.phase === 'FRYING') {
+      showStationToast('La olla está en uso: retira la proteína para seguir.');
       return;
     }
     if (station.ingredients.includes(ing.id)) {
-      showStationToast(`${ing.display} ya está en la mesa.`);
+      showStationToast(`${ing.display} ya está en la tabla.`);
       return;
     }
     toggleIngredientInFryStation(ing.id);
+  }
+}
+
+// --- Empanizado: mientras se arrastra una proteína en Frituras, pasar por la harina, el huevo y
+// el panko (en ese orden, ~0.45 s sobre cada espacio) la va cubriendo; el dibujo que sigue al
+// dedo cambia en cada paso. Se suelta sobre la tabla ya empanizada.
+function setFryBreadingUi(on, coat) {
+  const slots = Array.from(document.querySelectorAll('.fry-bread-slot'));
+  slots.forEach((slot, i) => {
+    slot.classList.toggle('slot-done', !!on && i < coat);
+    slot.classList.toggle('slot-next', !!on && i === coat && coat < 3);
+    if (!on) slot.classList.remove('is-dwelling');
+  });
+}
+
+function updateBreadingDwell() {
+  const d = ingredientDrag;
+  if (!d || !d.active || d.coat === undefined) return;
+  const p = getIngredientDragPoint(d);
+  const slots = Array.from(document.querySelectorAll('.fry-bread-slot'));
+  let slotIdx = -1;
+  slots.forEach((slot, i) => {
+    const r = slot.getBoundingClientRect();
+    if (p.x >= r.left - 6 && p.x <= r.right + 6 && p.y >= r.top - 8 && p.y <= r.bottom + 14) slotIdx = i;
+  });
+
+  if (slotIdx !== -1 && slotIdx === d.coat && d.coat < 3) {
+    if (d.dwellIdx !== slotIdx) { d.dwellIdx = slotIdx; d.dwellStart = performance.now(); }
+    const prog = Math.min(1, (performance.now() - d.dwellStart) / BREAD_DWELL_MS);
+    slots[slotIdx].style.setProperty('--p', prog.toFixed(2));
+    slots[slotIdx].classList.add('is-dwelling');
+    if (prog >= 1) {
+      d.coat++;
+      d.dwellIdx = -1;
+      slots[slotIdx].classList.remove('is-dwelling');
+      if (d.ghost) d.ghost.innerHTML = fryItemMarkup(d.ing.id, d.coat);
+      setFryBreadingUi(true, d.coat);
+      playSound('add');
+    }
+  } else {
+    if (d.dwellIdx !== undefined && d.dwellIdx !== -1 && slots[d.dwellIdx]) slots[d.dwellIdx].classList.remove('is-dwelling');
+    d.dwellIdx = -1;
+    if (slotIdx > d.coat && d.coat < 3 && performance.now() - (d.lastHint || 0) > 2500) {
+      d.lastHint = performance.now();
+      showStationToast(`🥖 Primero pásala por ${FRY_BREAD_NAMES[d.coat]}.`);
+    }
   }
 }
 
@@ -9417,6 +9856,15 @@ function activateIngredientDrag() {
   document.body.appendChild(ghost);
   d.ghost = ghost;
 
+  // Proteína en Frituras: el dibujo que sigue al dedo se va empanizando al pasar por los espacios.
+  if (gameState.activeArea === 'frituras' && FRY_PROTEIN_IDS.includes(d.ing.id)) {
+    d.coat = 0;
+    d.dwellIdx = -1;
+    ghost.innerHTML = fryItemMarkup(d.ing.id, 0);
+    setFryBreadingUi(true, 0);
+    d.breadTimer = setInterval(updateBreadingDwell, 50);
+  }
+
   d.tile.classList.add('dragging-source');
   document.body.classList.add('is-dragging-ingredient');
   getIngredientDropTargets().forEach(el => el.classList.add('drop-target-ready'));
@@ -9432,9 +9880,11 @@ function cleanupIngredientDrag() {
   document.removeEventListener('pointercancel', onIngredientPointerCancel);
   if (d) {
     if (d.holdTimer) clearTimeout(d.holdTimer);
+    if (d.breadTimer) clearInterval(d.breadTimer);
     if (d.ghost) d.ghost.remove();
     if (d.tile) d.tile.classList.remove('dragging-source');
   }
+  setFryBreadingUi(false, 0);
   document.querySelectorAll('.drop-target-ready').forEach(el => el.classList.remove('drop-target-ready', 'drop-hover'));
   document.body.classList.remove('is-dragging-ingredient');
   ingredientDrag = null;
@@ -9466,9 +9916,15 @@ function onIngredientPointerUp(e) {
   const ing = d.ing;
   const moved = Math.hypot(d.x - d.startX, d.y - d.startY);
   const target = d.active ? findIngredientDropTarget(d) : null;
+  const coat = d.coat || 0;
+  const fryProteinDrag = d.coat !== undefined;
   cleanupIngredientDrag();
   if (target) {
-    applyIngredientDrop(target, ing);
+    applyIngredientDrop(target, ing, coat);
+  } else if (fryProteinDrag && d.active && moved >= 12) {
+    showStationToast(coat > 0
+      ? '🥖 Suelta la proteína sobre la tabla de cocina para dejarla lista.'
+      : 'Pasa la proteína por la harina, el huevo y el panko y suéltala en la tabla.');
   } else if (moved < 12) {
     handleIngredientTap(ing); // toque simple (o mantener sin mover)
   }
@@ -10404,6 +10860,7 @@ function setupKitchenStations() {
   updateKitchenStationsUI();
   setupWokStirButtons();
   attachMakiTools();
+  attachFryItemDrag();
 }
 
 function resetCookingStations() {
@@ -11299,7 +11756,8 @@ function startLevel(lvlIndex) {
     { ingredients: [], result: null, matchedRecipe: null, stirring: false, stirSeconds: 0 }
   ];
   if (fryTimerInterval) { clearInterval(fryTimerInterval); fryTimerInterval = null; }
-  gameState.fryStation = { ingredients: [], phase: 'BUILDING', fryResult: null, frySeconds: 0, matchedRecipe: null };
+  cleanupFryItemDrag();
+  gameState.fryStation = newFryStation();
   updateStationVisibilityForArea();
   renderPantryGrid();
 
