@@ -1973,8 +1973,72 @@
     -webkit-touch-callout: none;
     filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.45));
   }
+  .fry-board-item { position: relative; }
   .fry-board-item.is-static { cursor: default; touch-action: auto; }
   .fry-board-item.is-lifted { opacity: 0.3; }
+  /* Corte: igual que en Makis, el cuchillo se sostiene 3 s sobre la proteína frita */
+  .fry-knife-tool {
+    height: calc(var(--fry-h) * 0.83);
+    width: auto;
+    aspect-ratio: 40 / 120;
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    -webkit-touch-callout: none;
+    filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.5));
+    transition: opacity 0.15s ease, transform 0.15s ease, filter 0.2s ease;
+  }
+  .fry-knife-tool:hover { transform: translateY(-2px) scale(1.05); }
+  .fry-knife-tool.is-lifted { opacity: 0.3; }
+  .fry-knife-tool.is-ready { filter: drop-shadow(0 0 8px rgba(255, 213, 79, 0.95)); }
+  .fry-cut-progress {
+    position: absolute;
+    left: 14%;
+    right: 26%;
+    bottom: 14%;
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(0, 0, 0, 0.6);
+    display: none;
+    overflow: hidden;
+    z-index: 3;
+  }
+  .fry-cut-progress i {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, #ffd54f, #ff8f00);
+  }
+  .fry-cut-mark {
+    position: absolute;
+    top: -10%;
+    bottom: -10%;
+    width: 2px;
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 0 5px #fff;
+    z-index: 3;
+  }
+  .fry-slices {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 6px;
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.45));
+  }
+  .fry-slice {
+    display: block;
+    width: 4.4cqw;
+    height: 13cqw;
+    margin: 0 -0.5cqw;
+    border-radius: 3px;
+    border: 1.5px solid #bd8430;
+    background: var(--meat, #f3e3c0);
+    box-shadow: inset 0 0 0 1.6px #e0ae55;
+    transition: margin 0.55s ease, transform 0.55s ease;
+  }
+  .fry-slices.spread .fry-slice { margin: 0 0.45cqw; }
+  .fry-slices.spread .fry-slice:nth-child(odd) { transform: rotate(-3deg); }
+  .fry-slices.spread .fry-slice:nth-child(even) { transform: rotate(3deg); }
   /* Contador de la olla: cruda (azul) → lista (verde) → se quema (rojo) */
   .fry-counter {
     position: absolute;
@@ -5927,9 +5991,13 @@
 
     <!-- Estación de Frituras: mesa de preparación (empanizado) + freidora -->
     <div class="frituras-station-box" id="frituras-station-box">
+      <!-- Cuchillo: se arrastra sobre la proteína frita y se mantiene 3 s para cortarla -->
+      <img class="fry-knife-tool" id="fry-tool-knife" src="assets/maki_knife.svg" alt="Cuchillo" draggable="false">
+
       <!-- Tabla de cocina: recibe la proteína empanizada (cruda) y las guarniciones -->
       <div class="fry-scene fry-board-card" id="fry-table-card">
         <div class="fry-board-chips" id="fry-table-strip"></div>
+        <div class="fry-cut-progress" id="fry-cut-progress"><i id="fry-cut-fill"></i></div>
         <div class="fry-scene-footer">
           <span class="fry-scene-name">Tabla de cocina</span>
           <button class="btn-bowl-trash" onclick="event.stopPropagation(); discardFryStation()" title="Descartar todo">🗑️</button>
@@ -7831,7 +7899,7 @@ let gameState = {
     { ingredients: [], result: null, matchedRecipe: null, stirring: false, stirSeconds: 0 }
   ],
   activeWokIndex: 0,
-  fryStation: { ingredients: [], phase: 'BUILDING', proteinId: null, coat: 0, fryResult: null, frySeconds: 0, fryTone: '', matchedRecipe: null },
+  fryStation: { ingredients: [], phase: 'BUILDING', proteinId: null, coat: 0, fryResult: null, frySeconds: 0, fryTone: '', matchedRecipe: null, cutState: 'NONE', cutProgress: 0 },
   selectedCustomerModalIndex: null,
   targetCustomerIndex: null,
   bowls: [
@@ -8235,6 +8303,8 @@ function switchKitchenArea(areaId) {
   abortMakiCut();
   cleanupMakiToolDrag();
   cleanupFryItemDrag();
+  abortFryCut();
+  cleanupFryKnifeDrag();
   updateStationVisibilityForArea();
   renderPantryGrid();
   renderBowls();
@@ -8254,7 +8324,7 @@ function getAreaAlert(areaId) {
   } else if (areaId === 'frituras') {
     const st = gameState.fryStation;
     if (st.phase === 'FRYING') return st.frySeconds >= FRY_BURN_THRESHOLD ? 'warn' : 'busy';
-    if (st.phase === 'FRIED') return 'ready';
+    if (st.phase === 'FRIED') return fryDishComplete() ? 'ready' : 'busy';
     if (st.ingredients.length > 0) return 'busy';
   } else if (areaId === 'makis') {
     const roll = gameState.makiRoll;
@@ -9219,7 +9289,31 @@ let fryTimerInterval = null;
 let fryItemDrag = null;
 
 function newFryStation() {
-  return { ingredients: [], phase: 'BUILDING', proteinId: null, coat: 0, fryResult: null, frySeconds: 0, fryTone: '', matchedRecipe: null };
+  return { ingredients: [], phase: 'BUILDING', proteinId: null, coat: 0, fryResult: null, frySeconds: 0, fryTone: '', matchedRecipe: null, cutState: 'NONE', cutProgress: 0 };
+}
+
+// Corte (como en Makis: cuchillo vertical sostenido 3 s sobre la proteína frita). Solo se cortan
+// los filetes empanizados (bife de pollo / de cerdo); el resto (alitas, kaarage, langostinos,
+// gyozas) se sirve entero.
+const FRY_CUT_PROTEIN_IDS = [43, 44];
+const FRY_MEAT_COLORS = { 43: '#f2cfae', 44: '#f6e7c6' }; // interior del filete: cerdo / pollo
+
+function fryProteinNeedsCut(id) { return FRY_CUT_PROTEIN_IDS.includes(id); }
+
+function fryCutDone(station) {
+  return !station.proteinId || !fryProteinNeedsCut(station.proteinId) || station.cutState === 'CUT';
+}
+
+// ¿Se puede cortar ahora? Proteína frita, de las que se cortan, y todavía sin cortar.
+function fryCanCut() {
+  const station = gameState.fryStation;
+  return station.phase === 'FRIED' && !!station.proteinId && fryProteinNeedsCut(station.proteinId) && station.cutState !== 'CUT';
+}
+
+// Plato completo: receta completa, proteína frita y (si lleva) ya cortada.
+function fryDishComplete() {
+  const station = gameState.fryStation;
+  return station.phase === 'FRIED' && analyzeFryStation().status === 'MATCHED' && fryCutDone(station);
 }
 
 // ¿Esta proteína va empanizada? (la usa alguna receta que lleva harina + huevo + panko)
@@ -9366,6 +9460,7 @@ function toggleIngredientInFryStation(ingId) {
 function discardFryStation() {
   if (fryTimerInterval) { clearInterval(fryTimerInterval); fryTimerInterval = null; }
   cleanupFryItemDrag();
+  cleanupFryKnifeDrag();
   gameState.fryStation = newFryStation();
   playSound('trash');
   renderFryStation();
@@ -9403,8 +9498,7 @@ function handleFryActionClick() {
 }
 
 function attemptServeFryStation() {
-  const station = gameState.fryStation;
-  if (station.phase !== 'FRIED' || analyzeFryStation().status !== 'MATCHED') return;
+  if (!fryDishComplete()) return;
   // Los pedidos de clientes todavía solo existen para Ramen; esto queda listo para
   // cuando el sistema de pedidos se extienda a las demás áreas.
   showStationToast('🍽️ Los pedidos de Frituras aún no están conectados con los clientes.');
@@ -9506,6 +9600,160 @@ function attachFryItemDrag() {
   });
 }
 
+// --- Cuchillo de Frituras (igual que el de Makis): se arrastra sobre la proteína frita que está
+// en la tabla y se mantiene 3 s sin soltar ni salirse de la tabla. Soltar antes cancela.
+let fryKnifeDrag = null;
+
+function fryKnifePoint(d) {
+  return { x: d.x, y: d.pointerType === 'mouse' ? d.y : d.y - DRAG_TOUCH_GHOST_OFFSET_Y };
+}
+
+function abortFryCut() {
+  const station = gameState.fryStation;
+  if (station.cutState === 'CUTTING') {
+    station.cutState = 'NONE';
+    station.cutProgress = 0;
+  }
+}
+
+function cleanupFryKnifeDrag() {
+  const d = fryKnifeDrag;
+  document.removeEventListener('pointermove', onFryKnifeMove);
+  document.removeEventListener('pointerup', onFryKnifeUp);
+  document.removeEventListener('pointercancel', onFryKnifeCancel);
+  if (d) {
+    if (d.timer) clearInterval(d.timer);
+    if (d.ghost) d.ghost.remove();
+    if (d.el) d.el.classList.remove('is-lifted');
+  }
+  const board = document.getElementById('fry-table-card');
+  if (board) board.classList.remove('drop-target-ready', 'drop-hover');
+  fryKnifeDrag = null;
+}
+
+function completeFryCut() {
+  const station = gameState.fryStation;
+  cleanupFryKnifeDrag();
+  station.cutState = 'CUT';
+  station.cutProgress = 1;
+  playSound('match');
+  renderFryStation();
+}
+
+function updateFryKnifeDrag() {
+  const d = fryKnifeDrag;
+  if (!d || !d.active) return;
+  if (gameState.isPaused || gameState.isGameOver) return;
+  const board = document.getElementById('fry-table-card');
+  if (!board) return;
+  const p = fryKnifePoint(d);
+  const r = board.getBoundingClientRect();
+  const inside = p.x >= r.left && p.x <= r.right && p.y >= r.top && p.y <= r.bottom;
+  const station = gameState.fryStation;
+  const can = fryCanCut();
+  board.classList.toggle('drop-hover', inside && can);
+  if (inside && can) {
+    if (!d.holdStart) {
+      d.holdStart = performance.now();
+      station.cutState = 'CUTTING';
+      if (d.ghost) d.ghost.classList.add('is-cutting');
+    }
+    station.cutProgress = Math.min(1, (performance.now() - d.holdStart) / (MAKI_CUT_SECONDS * 1000));
+    if (station.cutProgress >= 1) { completeFryCut(); return; }
+    renderFryStation();
+  } else if (d.holdStart) {
+    d.holdStart = null;
+    abortFryCut();
+    if (d.ghost) d.ghost.classList.remove('is-cutting');
+    renderFryStation();
+  }
+}
+
+function moveFryKnifeGhost() {
+  const d = fryKnifeDrag;
+  if (!d || !d.ghost) return;
+  const p = fryKnifePoint(d);
+  d.ghost.style.transform = `translate(${p.x}px, ${p.y}px) translate(-50%, -50%)`;
+}
+
+function onFryKnifeMove(e) {
+  const d = fryKnifeDrag;
+  if (!d || e.pointerId !== d.pointerId) return;
+  d.x = e.clientX;
+  d.y = e.clientY;
+  if (!d.active) {
+    if (Math.hypot(d.x - d.startX, d.y - d.startY) <= 4) return;
+    d.active = true;
+    const rect = d.el.getBoundingClientRect();
+    const ghost = document.createElement('div');
+    ghost.className = 'maki-tool-ghost';
+    ghost.style.height = `${rect.height * 1.15}px`;
+    ghost.innerHTML = `<img src="${d.el.getAttribute('src')}" alt="" draggable="false">`;
+    document.body.appendChild(ghost);
+    d.ghost = ghost;
+    d.el.classList.add('is-lifted');
+    const board = document.getElementById('fry-table-card');
+    if (board && fryCanCut()) board.classList.add('drop-target-ready');
+    d.timer = setInterval(updateFryKnifeDrag, 50);
+    try { if (navigator.vibrate) navigator.vibrate(12); } catch (err) {}
+  }
+  moveFryKnifeGhost();
+  updateFryKnifeDrag();
+}
+
+function onFryKnifeUp(e) {
+  const d = fryKnifeDrag;
+  if (!d || e.pointerId !== d.pointerId) return;
+  d.x = e.clientX;
+  d.y = e.clientY;
+  const wasActive = d.active;
+  const board = document.getElementById('fry-table-card');
+  const p = fryKnifePoint(d);
+  const r = board ? board.getBoundingClientRect() : null;
+  const inside = !!r && p.x >= r.left && p.x <= r.right && p.y >= r.top && p.y <= r.bottom;
+  abortFryCut();
+  cleanupFryKnifeDrag();
+  if (!wasActive) {
+    showStationToast('🔪 Arrastra el cuchillo sobre la proteína frita y mantenlo 3 segundos para cortarla.');
+  } else if (inside && !fryCanCut()) {
+    const station = gameState.fryStation;
+    if (station.cutState === 'CUT') showStationToast('Esa proteína ya está cortada.');
+    else if (station.phase !== 'FRIED') showStationToast('🔪 Primero fríe la proteína y retírala de la olla.');
+    else showStationToast('Esta proteína se sirve entera: no hace falta cortarla.');
+  }
+  renderFryStation();
+}
+
+function onFryKnifeCancel(e) {
+  const d = fryKnifeDrag;
+  if (!d || e.pointerId !== d.pointerId) return;
+  abortFryCut();
+  cleanupFryKnifeDrag();
+  renderFryStation();
+}
+
+function attachFryKnifeDrag() {
+  const el = document.getElementById('fry-tool-knife');
+  if (!el || el._fryKnifeBound) return;
+  el._fryKnifeBound = true;
+  el.addEventListener('contextmenu', (ev) => ev.preventDefault());
+  el.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    if (gameState.isPaused || gameState.isGameOver) return;
+    if (gameState.activeArea !== 'frituras') return;
+    cleanupFryKnifeDrag();
+    e.preventDefault();
+    fryKnifeDrag = {
+      el, pointerId: e.pointerId, pointerType: e.pointerType,
+      startX: e.clientX, startY: e.clientY, x: e.clientX, y: e.clientY,
+      active: false, ghost: null, timer: null, holdStart: null
+    };
+    document.addEventListener('pointermove', onFryKnifeMove);
+    document.addEventListener('pointerup', onFryKnifeUp);
+    document.addEventListener('pointercancel', onFryKnifeCancel);
+  });
+}
+
 function renderFryStation() {
   const strip = document.getElementById('fry-table-strip');
   const tableBadge = document.getElementById('fry-table-badge');
@@ -9525,17 +9773,28 @@ function renderFryStation() {
   const frying = station.phase === 'FRYING';
   const burning = frying && sec >= FRY_BURN_THRESHOLD;
   const pid = station.proteinId;
+  const needsCut = !!pid && fryProteinNeedsCut(pid);
+  const cutting = station.cutState === 'CUTTING';
+  const isCut = needsCut && station.cutState === 'CUT';
+  const cutDone = fryCutDone(station);
+  const complete = station.phase === 'FRIED' && matched && cutDone;
 
-  // --- Tabla: la proteína (cruda empanizada / en la olla / frita) y las guarniciones ---
+  // --- Tabla: la proteína (cruda empanizada / en la olla / frita / cortada) y las guarniciones ---
   const extras = station.ingredients.filter(id => id !== pid && !FRY_BREADING_IDS.includes(id));
-  const stripSig = JSON.stringify([station.phase, pid, station.coat, extras, station.phase === 'FRIED' ? station.fryTone : '']);
+  const marksOn = cutting ? Math.min(5, Math.floor(station.cutProgress * 6)) : 0;
+  const stripSig = JSON.stringify([station.phase, pid, station.coat, extras, station.phase === 'FRIED' ? station.fryTone : '', station.cutState, marksOn]);
   if (strip._sig !== stripSig) {
     strip._sig = stripSig;
     let html = '';
     if (pid && station.phase === 'BUILDING') {
       html += `<span class="fry-board-item" title="Arrástrala a la olla">${fryItemMarkup(pid, station.coat)}</span>`;
+    } else if (pid && station.phase === 'FRIED' && isCut) {
+      // Filete cortado: 5 rodajas con el color que alcanzó al freírse
+      const slices = '<i class="fry-slice"></i>'.repeat(5);
+      html += `<span class="fry-slices" style="--meat:${FRY_MEAT_COLORS[pid] || '#f3e3c0'};filter:${station.fryTone} drop-shadow(0 2px 2px rgba(0,0,0,0.45))">${slices}</span>`;
     } else if (pid && station.phase === 'FRIED') {
-      html += `<span class="fry-board-item is-static" style="filter:${station.fryTone} drop-shadow(0 2px 2px rgba(0,0,0,0.45))">${fryItemMarkup(pid, station.coat)}</span>`;
+      const marks = Array.from({ length: marksOn }, (_, k) => `<i class="fry-cut-mark" style="left:${(k + 1) * 16.6}%"></i>`).join('');
+      html += `<span class="fry-board-item is-static" style="filter:${station.fryTone} drop-shadow(0 2px 2px rgba(0,0,0,0.45))">${fryItemMarkup(pid, station.coat)}${marks}</span>`;
     }
     html += extras.map(id => {
       const ing = INGREDIENTES.find(i => i.id === id);
@@ -9544,18 +9803,26 @@ function renderFryStation() {
     if (!html) html = `<span class="maki-strip-empty">Arrastra la proteína por harina → huevo → panko</span>`;
     else if (frying && !extras.length) html = `<span class="maki-strip-empty">La proteína está en la olla…</span>`;
     strip.innerHTML = html;
+    const slicesEl = strip.querySelector('.fry-slices');
+    if (slicesEl) setTimeout(() => slicesEl.classList.add('spread'), 40); // las rodajas se separan
   }
 
   tableBadge.classList.remove('status-error', 'status-ready', 'status-warn');
   if (frying) {
     tableBadge.textContent = 'En la olla: retírala a tiempo';
   } else if (station.phase === 'FRIED') {
-    if (matched) {
+    if (cutting) {
+      tableBadge.textContent = `✂️ Cortando… ${(MAKI_CUT_SECONDS * (1 - station.cutProgress)).toFixed(1)}s`;
+      tableBadge.classList.add('status-ready');
+    } else if (complete) {
       tableBadge.textContent = `¡Listo: ${analysis.recipe.name}!`;
+      tableBadge.classList.add('status-ready');
+    } else if (needsCut && !isCut) {
+      tableBadge.textContent = '🔪 Frita — córtala con el cuchillo (3 s)';
       tableBadge.classList.add('status-ready');
     } else {
       const falta = (analysis.missing || []).filter(n => !['Harina', 'Huevo', 'Panko'].includes(n));
-      tableBadge.textContent = falta.length ? `Frita — agrega: ${falta.slice(0, 3).join(' · ')}${falta.length > 3 ? '…' : ''}` : 'Frita — agrega las guarniciones';
+      tableBadge.textContent = falta.length ? `Cortada — agrega: ${falta.slice(0, 3).join(' · ')}${falta.length > 3 ? '…' : ''}` : 'Agrega las guarniciones';
     }
   } else if (pid) {
     tableBadge.textContent = '🥖 Lista: arrástrala a la olla';
@@ -9572,8 +9839,8 @@ function renderFryStation() {
     const sig = `${station.phase}_${pid}_${station.coat}_${burning}`;
     if (oilVisual._sig !== sig) {
       oilVisual._sig = sig;
-      if (station.phase === 'BUILDING' || !pid) {
-        oilVisual.innerHTML = '';
+      if (station.phase !== 'FRYING' || !pid) {
+        oilVisual.innerHTML = ''; // retirada: la proteína ya volvió a la tabla
       } else {
         const bubbles = frying
           ? '<i class="fry-bubble b1"></i><i class="fry-bubble b2"></i><i class="fry-bubble b3"></i><i class="fry-bubble b4"></i>'
@@ -9626,8 +9893,16 @@ function renderFryStation() {
     const labelMap = { CRUDO: '🥶 Cruda', PERFECTO: '🔥 ¡Perfecta!', QUEMADO: '💨 Quemada' };
     oilBadge.textContent = `${labelMap[station.fryResult]}`;
     oilBadge.classList.add(station.fryResult === 'PERFECTO' ? 'status-ready' : (station.fryResult === 'CRUDO' ? 'status-error' : 'status-warn'));
-    if (resultActions && matched) resultActions.style.display = 'flex';
+    if (resultActions && complete) resultActions.style.display = 'flex';
   }
+
+  // Cuchillo: resaltado cuando hay algo que cortar; barra de avance mientras corta.
+  const knifeEl = document.getElementById('fry-tool-knife');
+  if (knifeEl) knifeEl.classList.toggle('is-ready', fryCanCut());
+  const cutBox = document.getElementById('fry-cut-progress');
+  const cutFill = document.getElementById('fry-cut-fill');
+  if (cutBox) cutBox.style.display = cutting ? 'block' : 'none';
+  if (cutFill) cutFill.style.width = `${Math.round(station.cutProgress * 100)}%`;
   updateAreaTabAlerts();
 }
 
@@ -10861,6 +11136,7 @@ function setupKitchenStations() {
   setupWokStirButtons();
   attachMakiTools();
   attachFryItemDrag();
+  attachFryKnifeDrag();
 }
 
 function resetCookingStations() {
@@ -11757,6 +12033,7 @@ function startLevel(lvlIndex) {
   ];
   if (fryTimerInterval) { clearInterval(fryTimerInterval); fryTimerInterval = null; }
   cleanupFryItemDrag();
+  cleanupFryKnifeDrag();
   gameState.fryStation = newFryStation();
   updateStationVisibilityForArea();
   renderPantryGrid();
