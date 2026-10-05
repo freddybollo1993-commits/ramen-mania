@@ -615,6 +615,28 @@
     transition: all 0.15s ease;
     user-select: none;
   }
+  .kitchen-area-tab-btn { position: relative; }
+  .kitchen-area-tab-btn .area-dot {
+    display: none;
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    border: 1.5px solid #1a0f0a;
+  }
+  .kitchen-area-tab-btn:not(.active)[data-alert="busy"] .area-dot { display: block; background: #ffb300; }
+  .kitchen-area-tab-btn:not(.active)[data-alert="ready"] .area-dot { display: block; background: #4caf50; }
+  .kitchen-area-tab-btn:not(.active)[data-alert="warn"] .area-dot {
+    display: block;
+    background: #e53935;
+    animation: areaDotPulse 0.5s ease-in-out infinite alternate;
+  }
+  @keyframes areaDotPulse {
+    from { transform: scale(0.8); box-shadow: 0 0 0 rgba(229, 57, 53, 0); }
+    to { transform: scale(1.35); box-shadow: 0 0 8px rgba(229, 57, 53, 0.95); }
+  }
   .kitchen-area-tab-btn:hover {
     background: linear-gradient(180deg, #5d2e22 0%, #3a1c15 100%);
     color: #fff;
@@ -7911,7 +7933,8 @@ function triggerAbolladoEffect() {
 
 function getRashConfig(lvl) {
   const customers = 8 + (lvl - 1) * 4;
-  const basePatience = Math.max(14, 60 - (lvl - 1) * 2);
+  // Piso de 25s (antes 14s): un ramen de 9 ingredientes ya toma ~11–13s solo en armarse y cocer.
+  const basePatience = Math.max(25, 60 - (lvl - 1) * 2);
   let maxOrders = 1;
   if (lvl > 30) maxOrders = 3;
   else if (lvl > 10) maxOrders = 2;
@@ -8046,21 +8069,47 @@ function switchKitchenArea(areaId) {
   if (gameState.activeArea === areaId) return;
   gameState.activeArea = areaId;
   gameState.currentCategory = 'todos';
-  // El cuenco es exclusivo de Ramen y no se toca al cambiar de área (sigue ahí cuando vuelvas).
-  // Las demás áreas tienen su propia estación, que sí se vacía al entrar/salir del área.
+  // Cada estación conserva su estado al cambiar de pestaña, como en una cocina real: los
+  // cuencos de Ramen, los woks, la tabla de Makis y la mesa/olla de Frituras siguen como los
+  // dejaste. La olla incluso sigue friendo (y quemando) mientras trabajas en otra área; las
+  // pestañas muestran un indicador de lo que está en curso o listo. Solo se cancela un gesto
+  // a medias (arrastrar el cuchillo o deslizar para enrollar), que no tiene sentido cruzar áreas.
+  abortMakiCut();
   cleanupMakiToolDrag();
-  gameState.makiRoll = newMakiRoll();
-  gameState.woks = [
-    { ingredients: [], result: null, matchedRecipe: null, stirring: false, stirSeconds: 0 },
-    { ingredients: [], result: null, matchedRecipe: null, stirring: false, stirSeconds: 0 }
-  ];
-  if (fryTimerInterval) { clearInterval(fryTimerInterval); fryTimerInterval = null; }
-  gameState.fryStation = { ingredients: [], phase: 'BUILDING', fryResult: null, frySeconds: 0, matchedRecipe: null };
   updateStationVisibilityForArea();
   renderPantryGrid();
+  renderBowls();
   if (areaId === 'makis') renderMakiStation();
   if (areaId === 'salteados') renderWoks();
   if (areaId === 'frituras') renderFryStation();
+}
+
+// Indicador en cada pestaña (menos la activa): en curso, listo o a punto de quemarse.
+function getAreaAlert(areaId) {
+  if (areaId === 'ramen') {
+    if (gameState.bowls.some(b => b.matchedRamen)) return 'ready';
+    if (gameState.bowls.some(b => b.ingredients.length > 0)) return 'busy';
+  } else if (areaId === 'salteados') {
+    if (gameState.woks.some(w => w.result)) return 'ready';
+    if (gameState.woks.some(w => w.stirring || w.ingredients.length > 0)) return 'busy';
+  } else if (areaId === 'frituras') {
+    const st = gameState.fryStation;
+    if (st.phase === 'FRYING') return st.frySeconds >= FRY_BURN_THRESHOLD ? 'warn' : 'busy';
+    if (st.phase === 'FRIED') return 'ready';
+    if (st.ingredients.length > 0) return 'busy';
+  } else if (areaId === 'makis') {
+    const roll = gameState.makiRoll;
+    if (roll.cutState === 'CUT' || makiCanCut()) return 'ready';
+    if (roll.matPlaced || roll.ingredients.length > 0) return 'busy';
+  }
+  return '';
+}
+
+function updateAreaTabAlerts() {
+  document.querySelectorAll('.kitchen-area-tab-btn[data-area]').forEach(btn => {
+    const alert = getAreaAlert(btn.dataset.area);
+    if (btn.dataset.alert !== alert) btn.dataset.alert = alert;
+  });
 }
 
 // Muestra la estación de trabajo que corresponde al área activa (cuenco de Ramen,
@@ -8507,6 +8556,7 @@ function renderMakiStation() {
     const options = makiNextOptions(ings, true);
     statusEl.textContent = options.length ? `Sigue: ${options.join(' / ')}` : `Armando (${ings.length})`;
   }
+  updateAreaTabAlerts();
 }
 
 function getMakiToolPoint(d) {
@@ -8894,6 +8944,7 @@ function renderWoks() {
       cardEl.onclick = () => selectWok(i);
     }
   }
+  updateAreaTabAlerts();
 }
 
 // Mantener presionado el botón de saltear: barra de tiempo con 3 zonas (crudo/perfecto/quemado).
@@ -9189,13 +9240,14 @@ function renderFryStation() {
     if (actionBtn) actionBtn.style.display = 'none';
     if (resultActions) resultActions.style.display = 'flex';
   }
+  updateAreaTabAlerts();
 }
 
 function renderAreaTabs() {
   const container = document.getElementById('kitchen-area-tabs');
   if (!container) return;
   container.innerHTML = KITCHEN_AREAS.map(area => `
-    <button class="kitchen-area-tab-btn ${gameState.activeArea === area.id ? 'active' : ''}" onclick="switchKitchenArea('${area.id}')">${area.label}</button>
+    <button class="kitchen-area-tab-btn ${gameState.activeArea === area.id ? 'active' : ''}" data-area="${area.id}" data-alert="${getAreaAlert(area.id)}" onclick="switchKitchenArea('${area.id}')">${area.label}<i class="area-dot"></i></button>
   `).join('');
 }
 
@@ -9597,7 +9649,7 @@ function analyzeBowl(bowlIndex) {
   // El cuenco (bowls-dock-box) es exclusivo de Ramen: las demás áreas tienen su propia
   // estación de trabajo (ver renderMakiStation para Makis) y no pasan por esta función.
   const bowl = gameState.bowls[bowlIndex];
-  const area = gameState.activeArea || 'ramen';
+  const area = 'ramen'; // los cuencos son de Ramen aunque el jugador esté trabajando en otra área
   const catalog = getRecetasByArea(area);
   const bowlSet = new Set(bowl.ingredients);
 
@@ -10475,6 +10527,7 @@ function renderBowls() {
       cardEl.onclick = () => selectBowl(i);
     }
   }
+  updateAreaTabAlerts();
 }
 
 function shiftCustomersLeft() {
@@ -10830,6 +10883,34 @@ function clearBowl(index) {
   renderPantryGrid();
 }
 
+// --- Paciencia según la complejidad del plato ---
+// La fórmula base cuenta ingredientes; los platos de otras áreas además tienen pasos de proceso
+// (salteado, freír, enrollar y cortar) y, en Makis y Frituras, una sola estación de trabajo:
+// dos pedidos del mismo cliente en esas áreas se atienden uno tras otro, no en paralelo.
+const AREA_PROCESS_SECONDS = { ramen: 0, salteados: 6, makis: 8, frituras: 12 };
+const SINGLE_STATION_AREAS = ['makis', 'frituras'];
+const SINGLE_STATION_EXTRA_SECONDS = 10;
+
+function getRecipeArea(recipe) {
+  if (RECETAS_SALTEADOS.includes(recipe)) return 'salteados';
+  if (RECETAS_FRITURAS.includes(recipe)) return 'frituras';
+  if (RECETAS_MAKIS.includes(recipe)) return 'makis';
+  return 'ramen';
+}
+
+// Segundos extra de paciencia por el proceso de los pedidos (0 si todo es Ramen).
+function getOrdersProcessSeconds(orders) {
+  const perArea = {};
+  let total = 0;
+  orders.forEach(o => {
+    const area = getRecipeArea(o.recipe);
+    total += AREA_PROCESS_SECONDS[area] || 0;
+    perArea[area] = (perArea[area] || 0) + 1;
+    if (SINGLE_STATION_AREAS.includes(area) && perArea[area] > 1) total += SINGLE_STATION_EXTRA_SECONDS;
+  });
+  return total;
+}
+
 function spawnCustomer() {
   if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP') {
     if (!MultiplayerManager.isHost) return;
@@ -10859,12 +10940,13 @@ function spawnCustomer() {
   }
 
   let totalPatience = 0;
+  const processSeconds = getOrdersProcessSeconds(orders);
   if (gameState.gameMode === 'RASH') {
     const baseP = cfg.base_patience;
-    totalPatience = baseP + (orders.length - 1) * 8;
+    totalPatience = baseP + (orders.length - 1) * 8 + processSeconds;
   } else {
     const totalIngredients = orders.reduce((acc, o) => acc + o.recipe.ingredients.length, 0);
-    totalPatience = 25 + totalIngredients * 2.5;
+    totalPatience = 25 + totalIngredients * 2.5 + processSeconds;
   }
 
   gameState.customerSlots[emptyIndex] = {
