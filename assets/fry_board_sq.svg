@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ebc687"/>
+      <stop offset="1" stop-color="#d09f5d"/>
+    </linearGradient>
+    <filter id="shadow" x="-8%" y="-8%" width="116%" height="124%">
+      <feDropShadow dx="0" dy="4" stdDeviation="3.2" flood-color="#000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <!-- Tabla de cocina completamente cuadrada -->
+  <g filter="url(#shadow)">
+    <rect x="6" y="6" width="188" height="188" rx="16" fill="url(#wood)" stroke="#97672f" stroke-width="3"/>
+  </g>
+  <rect x="14" y="14" width="172" height="172" rx="11" fill="none" stroke="#ffffff" stroke-opacity="0.3" stroke-width="2"/>
+
+  <!-- Ranura de jugos -->
+  <rect x="22" y="22" width="156" height="156" rx="12" fill="none" stroke="#b5803f" stroke-opacity="0.42" stroke-width="2.2"/>
+
+  <!-- Veta de la madera -->
+  <g fill="none" stroke="#b98446" stroke-width="1.3" opacity="0.5">
+    <path d="M26,52 C70,46 130,58 176,50"/>
+    <path d="M26,86 C76,92 134,80 176,88"/>
+    <path d="M26,120 C72,114 132,126 176,118"/>
+    <path d="M26,154 C78,158 136,148 176,156"/>
+  </g>
+
+  <!-- Agujero para colgar (dentro del cuadrado) -->
+  <circle cx="100" cy="14" r="4" fill="#5f3d1a" stroke="#97672f" stroke-width="1.2"/>
+</svg>

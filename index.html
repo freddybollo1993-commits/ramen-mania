@@ -683,7 +683,7 @@
 
   .prep-ingredients-grid {
     display: grid;
-    grid-template-columns: repeat(var(--ing-cols, 6), 1fr);
+    grid-template-columns: repeat(var(--ing-cols, 6), minmax(0, 1fr));
     grid-template-rows: repeat(3, auto);
     gap: 5px;
     width: 100%;
@@ -1842,7 +1842,7 @@
     display: none;
     justify-content: center;
     align-items: center;
-    gap: min(6vw, 48px);
+    gap: min(4.5vw, 40px);
     flex: 1;
     width: 100%;
     padding-bottom: 16px;
@@ -1858,9 +1858,11 @@
     border-radius: 14px;
     container-type: inline-size;
   }
+  /* Tabla completamente cuadrada y más grande que antes; los tres contenedores también son cuadrados. */
   .fry-board-card {
-    width: calc(var(--fry-h) * 2);
-    background-image: url('assets/fry_board.svg');
+    width: min(calc(var(--fry-h) * 1.5), 38vh);
+    height: min(calc(var(--fry-h) * 1.5), 38vh);
+    background-image: url('assets/fry_board_sq.svg');
   }
   .fry-pot-card {
     width: calc(var(--fry-h) * 1.613);
@@ -1874,7 +1876,8 @@
   }
   .fry-bread-slot {
     position: relative;
-    width: calc(var(--fry-h) * 0.62);
+    width: calc(var(--fry-h) * 0.74);
+    aspect-ratio: 1;
     border-radius: 12px;
     transition: filter 0.15s ease, transform 0.15s ease;
   }
@@ -1964,8 +1967,8 @@
   }
   .fry-item.coat-3 .fry-item-base { opacity: 0; }
   .fry-board-item {
-    font-size: 24px;
-    font-size: 15cqw;
+    font-size: 28px;
+    font-size: 19cqw;
     margin-right: 4px;
     touch-action: none;
     cursor: grab;
@@ -1978,7 +1981,7 @@
   .fry-board-item.is-lifted { opacity: 0.3; }
   /* Corte: igual que en Makis, el cuchillo se sostiene 3 s sobre la proteína frita */
   .fry-knife-tool {
-    height: calc(var(--fry-h) * 0.83);
+    height: calc(var(--fry-h) * 1.05);
     width: auto;
     aspect-ratio: 40 / 120;
     cursor: grab;
@@ -1995,8 +1998,8 @@
   .fry-cut-progress {
     position: absolute;
     left: 14%;
-    right: 26%;
-    bottom: 14%;
+    right: 14%;
+    bottom: 15%;
     height: 6px;
     border-radius: 3px;
     background: rgba(0, 0, 0, 0.6);
@@ -2027,9 +2030,9 @@
   }
   .fry-slice {
     display: block;
-    width: 4.4cqw;
-    height: 13cqw;
-    margin: 0 -0.5cqw;
+    width: 5.6cqw;
+    height: 17cqw;
+    margin: 0 -0.6cqw;
     border-radius: 3px;
     border: 1.5px solid #bd8430;
     background: var(--meat, #f3e3c0);
@@ -2065,10 +2068,10 @@
   }
   .fry-board-chips {
     position: absolute;
-    left: 8%;
-    top: 17.3%;
-    width: 72%;
-    height: 65%;
+    left: 10%;
+    top: 12%;
+    width: 80%;
+    height: 68%;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -2079,7 +2082,7 @@
   }
   .fry-board-chips .maki-chip {
     font-size: 17px;
-    font-size: 8.8cqw;
+    font-size: 11.5cqw;
     line-height: 1;
     flex-shrink: 0;
     filter: drop-shadow(0 1px 1.5px rgba(0,0,0,0.4));
@@ -2087,7 +2090,7 @@
   .fry-board-chips .maki-strip-empty {
     color: #8a5d2b;
     font-size: 9px;
-    font-size: max(8px, 4.2cqw);
+    font-size: max(8px, 5.4cqw);
     font-weight: 800;
     padding: 0 4px;
   }
@@ -6008,17 +6011,17 @@
       <!-- Empanizado: la proteína se arrastra por harina → huevo → panko, en ese orden -->
       <div class="fry-breading" id="fry-breading">
         <div class="fry-bread-slot" id="fry-slot-0" data-step="0">
-          <img src="assets/fry_bowl_harina.svg" alt="" draggable="false">
+          <img src="assets/fry_tray_harina.svg" alt="" draggable="false">
           <span class="fry-bread-label">Harina</span>
           <i class="fry-bread-progress"></i>
         </div>
         <div class="fry-bread-slot" id="fry-slot-1" data-step="1">
-          <img src="assets/fry_bowl_huevo.svg" alt="" draggable="false">
+          <img src="assets/fry_tray_huevo.svg" alt="" draggable="false">
           <span class="fry-bread-label">Huevo</span>
           <i class="fry-bread-progress"></i>
         </div>
         <div class="fry-bread-slot" id="fry-slot-2" data-step="2">
-          <img src="assets/fry_bowl_panko.svg" alt="" draggable="false">
+          <img src="assets/fry_tray_panko.svg" alt="" draggable="false">
           <span class="fry-bread-label">Panko</span>
           <i class="fry-bread-progress"></i>
         </div>
@@ -10277,8 +10280,9 @@ function renderPantryGrid() {
     iconSz = "22px";
     nameSz = "9px";
   } else {
-    // Máximo 10 columnas y 3 filas (para hasta 28-30 ingredientes)
-    cols = 10;
+    // Hasta 22 ingredientes caben en 2 filas de 11; más de eso, máximo 10 columnas y 3 filas
+    // (para hasta 28-30 ingredientes).
+    cols = total <= 22 ? 11 : 10;
     tileMinH = "40px";
     tilePad = "2px 1px";
     iconSz = "19px";
