@@ -1838,11 +1838,12 @@
 
   /* --- Estación propia de Frituras: mesa de empanizado + freidora --- */
   .frituras-station-box {
-    --fry-h: clamp(76px, 23vh, 118px);
+    --fry-h: clamp(70px, min(23vh, 11vw), 118px);
+    --fry-tray: calc(var(--fry-h) * 0.95);
     display: none;
     justify-content: center;
     align-items: center;
-    gap: min(4.5vw, 40px);
+    gap: min(2.6vw, 26px);
     flex: 1;
     width: 100%;
     padding-bottom: 16px;
@@ -1858,25 +1859,53 @@
     border-radius: 14px;
     container-type: inline-size;
   }
-  /* Tabla completamente cuadrada y más grande que antes; los tres contenedores también son cuadrados. */
+  /* Tabla rectangular y baja; los tres contenedores cuadrados van pegados entre sí. */
   .fry-board-card {
-    width: min(calc(var(--fry-h) * 1.5), 38vh);
-    height: min(calc(var(--fry-h) * 1.5), 38vh);
-    background-image: url('assets/fry_board_sq.svg');
+    width: calc(var(--fry-h) * 1.7);
+    height: calc(var(--fry-h) * 1.05);
+    background-image: url('assets/fry_board_rect.svg');
   }
+  /* Cocina de 2 hornillas: la olla de aceite va sobre la izquierda; la derecha queda libre para el sartén (gyozas al vapor, katsudon, ebidon). */
+  .fry-stove {
+    position: relative;
+    width: calc(var(--fry-h) * 2.9);
+    height: calc(var(--fry-h) * 1.3775);
+    background: url('assets/fry_stove.svg') center / 100% 100% no-repeat;
+    container-type: inline-size;
+    flex-shrink: 0;
+  }
+  .fry-stove-label {
+    position: absolute;
+    top: 71%;
+    font-size: 9px;
+    font-size: max(8px, 3.4cqw);
+    font-weight: 800;
+    color: #1d1f22;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .fry-stove-label.l1 { left: 34%; }
+  .fry-stove-label.l2 { left: 78%; }
+  .fry-stove .fry-status-badge { left: 27%; }
   .fry-pot-card {
-    width: calc(var(--fry-h) * 1.613);
+    position: absolute;
+    left: 2%;
+    top: calc(var(--fry-h) * -0.107);
+    width: calc(var(--fry-h) * 1.45);
+    height: calc(var(--fry-h) * 0.9);
     background-image: url('assets/fry_pot.svg');
   }
   /* Tres espacios junto a la tabla: la proteína se arrastra por harina → huevo → panko */
   .fry-breading {
     display: flex;
     align-items: center;
-    gap: calc(var(--fry-h) * 0.07);
+    gap: 0;
   }
   .fry-bread-slot {
     position: relative;
-    width: calc(var(--fry-h) * 0.74);
+    width: var(--fry-tray);
+    margin: 0 calc(var(--fry-tray) * -0.04);
     aspect-ratio: 1;
     border-radius: 12px;
     transition: filter 0.15s ease, transform 0.15s ease;
@@ -1968,7 +1997,7 @@
   .fry-item.coat-3 .fry-item-base { opacity: 0; }
   .fry-board-item {
     font-size: 28px;
-    font-size: 19cqw;
+    font-size: 15cqw;
     margin-right: 4px;
     touch-action: none;
     cursor: grab;
@@ -2030,16 +2059,16 @@
   }
   .fry-slice {
     display: block;
-    width: 5.6cqw;
-    height: 17cqw;
-    margin: 0 -0.6cqw;
+    width: 4.4cqw;
+    height: 13cqw;
+    margin: 0 -0.5cqw;
     border-radius: 3px;
     border: 1.5px solid #bd8430;
     background: var(--meat, #f3e3c0);
     box-shadow: inset 0 0 0 1.6px #e0ae55;
     transition: margin 0.55s ease, transform 0.55s ease;
   }
-  .fry-slices.spread .fry-slice { margin: 0 0.45cqw; }
+  .fry-slices.spread .fry-slice { margin: 0 0.4cqw; }
   .fry-slices.spread .fry-slice:nth-child(odd) { transform: rotate(-3deg); }
   .fry-slices.spread .fry-slice:nth-child(even) { transform: rotate(3deg); }
   /* Contador de la olla: cruda (azul) → lista (verde) → se quema (rojo) */
@@ -2082,7 +2111,7 @@
   }
   .fry-board-chips .maki-chip {
     font-size: 17px;
-    font-size: 11.5cqw;
+    font-size: 9cqw;
     line-height: 1;
     flex-shrink: 0;
     filter: drop-shadow(0 1px 1.5px rgba(0,0,0,0.4));
@@ -6028,6 +6057,7 @@
       </div>
 
       <!-- Olla de aceite: aquí se fríe -->
+      <div class="fry-stove" id="fry-stove">
       <div class="fry-scene fry-pot-card" id="fry-oil-card">
         <div class="fry-oil-visual" id="fry-oil-visual"></div>
         <div class="fry-counter" id="fry-counter" style="display:none;">
@@ -6039,9 +6069,9 @@
           <button class="fry-mini-btn fry-btn-serve" onclick="attemptServeFryStation()">✅ Servir</button>
           <button class="fry-mini-btn fry-btn-discard" onclick="discardFryStation()">🗑️ Desechar</button>
         </div>
-        <div class="fry-scene-footer">
-          <span class="fry-scene-name">Olla de aceite</span>
-        </div>
+      </div>
+        <span class="fry-stove-label l1">Olla de aceite</span>
+        <span class="fry-stove-label l2">Hornilla 2</span>
         <div class="fry-status-badge" id="fry-oil-badge">Esperando...</div>
       </div>
     </div>

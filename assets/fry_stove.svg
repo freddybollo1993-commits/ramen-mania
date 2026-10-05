@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 190" width="400" height="190">
+  <defs>
+    <linearGradient id="top" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5b6168"/>
+      <stop offset="1" stop-color="#3a3e44"/>
+    </linearGradient>
+    <linearGradient id="front" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c9ced4"/>
+      <stop offset="0.5" stop-color="#9aa1a9"/>
+      <stop offset="1" stop-color="#6d737b"/>
+    </linearGradient>
+    <radialGradient id="burner" cx="0.5" cy="0.45" r="0.65">
+      <stop offset="0" stop-color="#17181a"/>
+      <stop offset="1" stop-color="#2b2e32"/>
+    </radialGradient>
+    <radialGradient id="knob" cx="0.4" cy="0.35" r="0.8">
+      <stop offset="0" stop-color="#4a4d52"/>
+      <stop offset="1" stop-color="#121315"/>
+    </radialGradient>
+    <filter id="soft" x="-20%" y="-60%" width="140%" height="220%">
+      <feGaussianBlur stdDeviation="3.4"/>
+    </filter>
+  </defs>
+
+  <!-- Sombra sobre la mesa -->
+  <ellipse cx="200" cy="182" rx="186" ry="7" fill="#000" opacity="0.5" filter="url(#soft)"/>
+
+  <!-- Patas -->
+  <rect x="22" y="164" width="18" height="14" rx="3" fill="#1d1f22"/>
+  <rect x="360" y="164" width="18" height="14" rx="3" fill="#1d1f22"/>
+
+  <!-- Frente de la cocina -->
+  <rect x="10" y="112" width="380" height="56" rx="6" fill="url(#front)" stroke="#40454b" stroke-width="2.2"/>
+  <rect x="16" y="118" width="368" height="3" rx="1.5" fill="#fff" opacity="0.35"/>
+
+  <!-- Superficie superior -->
+  <path d="M10,112 L22,52 Q24,46 32,46 L368,46 Q376,46 378,52 L390,112 Z" fill="url(#top)" stroke="#23262a" stroke-width="2.2"/>
+  <path d="M16,108 L27,56 L373,56 L384,108" fill="none" stroke="#fff" stroke-opacity="0.08" stroke-width="2"/>
+
+  <!-- Hornilla izquierda (encendida: aceite) -->
+  <ellipse cx="108" cy="88" rx="76" ry="21" fill="url(#burner)" stroke="#0b0c0d" stroke-width="2"/>
+  <ellipse cx="108" cy="88" rx="58" ry="14.5" fill="none" stroke="#f08a1c" stroke-width="3" stroke-dasharray="7 5" opacity="0.95"/>
+  <ellipse cx="108" cy="88" rx="44" ry="10.5" fill="none" stroke="#5aa9ff" stroke-width="2.4" stroke-dasharray="5 6" opacity="0.9"/>
+  <ellipse cx="108" cy="88" rx="70" ry="19" fill="none" stroke="#ffb74d" stroke-opacity="0.35" stroke-width="5" filter="url(#soft)"/>
+  <g stroke="#0b0c0d" stroke-width="3.4" stroke-linecap="round" opacity="0.9">
+    <path d="M36,88 L180,88"/><path d="M108,68 L108,108"/>
+  </g>
+
+  <!-- Hornilla derecha (libre: sartén próximamente) -->
+  <ellipse cx="292" cy="88" rx="76" ry="21" fill="url(#burner)" stroke="#0b0c0d" stroke-width="2"/>
+  <ellipse cx="292" cy="88" rx="58" ry="14.5" fill="none" stroke="#4b4f55" stroke-width="2.6"/>
+  <ellipse cx="292" cy="88" rx="38" ry="9" fill="none" stroke="#3c4045" stroke-width="2"/>
+  <g stroke="#0b0c0d" stroke-width="3.4" stroke-linecap="round" opacity="0.9">
+    <path d="M220,88 L364,88"/><path d="M292,68 L292,108"/>
+  </g>
+
+  <!-- Perillas -->
+  <circle cx="108" cy="141" r="12" fill="url(#knob)" stroke="#050506" stroke-width="1.6"/>
+  <rect x="106.6" y="131" width="2.8" height="8" rx="1.4" fill="#ff9d3a"/>
+  <circle cx="292" cy="141" r="12" fill="url(#knob)" stroke="#050506" stroke-width="1.6"/>
+  <rect x="290.6" y="131" width="2.8" height="8" rx="1.4" fill="#9aa1a9"/>
+</svg>
