@@ -922,6 +922,12 @@
       });
     },
 
+    // Sincronizar el estado de una estación de otra área (woks, tabla de makis, frituras) en Modo Co-op
+    syncStation(area, index, data) {
+      if (!this.isGameActive || this.gameMode !== 'COOP') return;
+      this.broadcastEvent('STATION_SYNC', { area, index, data });
+    },
+
     // Sincronizar existencias de cocina en Modo Co-op (fideos, shio, tonkotsu, chasu)
     syncKitchenStocks(stocks, source = '', delta = '') {
       if (!this.isGameActive || this.gameMode !== 'COOP') return;
@@ -949,7 +955,7 @@
     },
 
     // Servir un plato en cooperativo (suma a la caja y meta del equipo)
-    coopServeCustomer(customerIndex, itemIndex, ramenName, price, bowlIndex) {
+    coopServeCustomer(customerIndex, itemIndex, ramenName, price, bowlIndex, area = 'ramen') {
       if (!this.isGameActive || this.gameMode !== 'COOP') return;
 
       const amount = Number(price) || 35;
@@ -963,6 +969,7 @@
         ramenName,
         price: amount,
         bowlIndex,
+        area,
         sharedMoney: this.sharedMoney,
         serverName: myProf.name,
         avatar: myProf.avatar
@@ -1041,6 +1048,10 @@
           this.applyRemoteBowlUpdate(data.bowlIndex, data.bowlData);
           break;
 
+        case 'STATION_SYNC': // En Modo Co-op: estado de woks / tabla de makis / frituras
+          if (typeof applyRemoteStation === 'function') applyRemoteStation(data.area, data.index, data.data);
+          break;
+
         case 'KITCHEN_STOCKS_UPDATE': // En Modo Co-op: Sincronización de existencias de cocina
           if (typeof kitchenState !== 'undefined') {
             kitchenState.stocks = {
@@ -1067,11 +1078,14 @@
 
         case 'COOP_SERVE': // En Modo Co-op: Plato servido en equipo
           this.sharedMoney = data.sharedMoney;
-          this.showActionToast(`🍜 ${data.serverName} sirvió ${data.ramenName} (+S/ ${data.price})`, '#2e7d32');
+          const areaIcon = (typeof AREA_ICONS !== 'undefined' && AREA_ICONS[data.area || 'ramen']) || '🍜';
+          this.showActionToast(`${areaIcon} ${data.serverName} sirvió ${data.ramenName} (+S/ ${data.price})`, '#2e7d32');
           this.updateMultiplayerHUD();
 
-          // Vaciar el tazón correspondiente en la pantalla del compañero
-          if (data.bowlIndex !== undefined && typeof gameState !== 'undefined' && gameState.bowls && gameState.bowls[data.bowlIndex]) {
+          // Vaciar la estación correspondiente en la pantalla del compañero
+          if (data.area && data.area !== 'ramen') {
+            if (typeof applyRemoteStationServed === 'function') applyRemoteStationServed(data.area, data.bowlIndex);
+          } else if (data.bowlIndex !== undefined && typeof gameState !== 'undefined' && gameState.bowls && gameState.bowls[data.bowlIndex]) {
             gameState.bowls[data.bowlIndex] = { ingredients: [], matchedRamen: null };
             if (typeof renderBowls === 'function') renderBowls();
           }

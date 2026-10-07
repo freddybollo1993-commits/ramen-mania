@@ -801,10 +801,14 @@
     font-weight: 800;
     color: #ffd699;
     text-align: center;
-    white-space: nowrap;
+    white-space: normal;
     overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 95%;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow-wrap: break-word;
+    max-width: 98%;
     line-height: 1.1;
   }
 
@@ -1502,6 +1506,34 @@
     top: 6%;
     right: 2.4%;
     z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+  }
+  .station-serve-btn {
+    display: none;
+    background: linear-gradient(180deg, #43a047 0%, #1b5e20 100%);
+    border: 1.5px solid #a5d6a7;
+    border-radius: 7px;
+    color: #f1fff2;
+    font-weight: 900;
+    font-size: 10px;
+    padding: 3px 7px;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    animation: serveBtnPulse 1.1s ease-in-out infinite alternate;
+  }
+  .station-serve-btn.is-visible { display: block; }
+  @keyframes serveBtnPulse { from { transform: scale(1); } to { transform: scale(1.07); } }
+  .wok-serve-btn {
+    position: absolute;
+    left: 7%;
+    top: 56%;
+    width: 62%;
+    z-index: 3;
   }
   /* Zona de la tabla (centro de la ilustración): destino de la esterilla, los ingredientes y el cuchillo */
   .maki-board-zone {
@@ -2082,9 +2114,9 @@
     z-index: 2;
   }
   .fry-counter i { display: block; height: 100%; }
-  .fry-counter .fz-raw { width: 35.7%; background: #6fa8d6; border-radius: 3px 0 0 3px; }
-  .fry-counter .fz-ready { width: 28.6%; background: #66bb6a; }
-  .fry-counter .fz-burn { width: 35.7%; background: linear-gradient(90deg, #ef6c00, #7a0000); border-radius: 0 3px 3px 0; }
+  .fry-counter .fz-raw { width: calc(var(--raw, 35.7) * 1%); background: #6fa8d6; border-radius: 3px 0 0 3px; }
+  .fry-counter .fz-ready { width: calc(var(--rdy, 28.6) * 1%); background: #66bb6a; }
+  .fry-counter .fz-burn { width: calc(var(--brn, 35.7) * 1%); background: linear-gradient(90deg, #ef6c00, #7a0000); border-radius: 0 3px 3px 0; }
   .fry-marker {
     position: absolute;
     left: 0;
@@ -5404,6 +5436,10 @@
         <span class="stat-ico">🪙</span>
         <span class="stat-val-money" id="hud-money">0</span>
       </div>
+      <div class="hud-capsule-stat stat-mottainai" title="Mottainai: 3 recortes = 1 dashi gratis (reemplaza el Caldo Shio)">
+        <span class="stat-ico">♻️</span>
+        <span class="stat-val-gold" id="hud-mottainai">0/3 · 🐟0</span>
+      </div>
       <div class="hud-capsule-stat stat-goal" title="Meta de Ventas">
         <span class="stat-ico">💰</span>
         <span class="stat-val-gold" id="hud-goal">S/160</span>
@@ -5943,6 +5979,7 @@
     <div class="maki-station-box" id="maki-station-box">
       <div class="maki-mat-card" id="maki-scene">
         <div class="maki-mat-header">
+          <button class="station-serve-btn" id="maki-serve-btn" onclick="serveReadyDish('makis', 0)">✅ Servir</button>
           <button class="btn-bowl-trash" onclick="clearMakiRoll()" title="Vaciar tabla">🗑️</button>
         </div>
 
@@ -5998,6 +6035,7 @@
           <span class="wok-stir-label" id="wok-stir-label-0">Saltear (mantén)</span>
           <div class="wok-stir-bar"><div class="wok-stir-fill" id="wok-stir-fill-0"></div></div>
         </button>
+        <button class="station-serve-btn wok-serve-btn" id="wok-serve-btn-0" onclick="event.stopPropagation(); serveReadyDish('salteados', 0)">✅ Servir</button>
         <div class="wok-dock-footer">
           <span class="wok-dock-name">Wok 1</span>
           <button class="btn-bowl-trash" onclick="event.stopPropagation(); clearWok(0)" title="Vaciar Wok 1">🗑️</button>
@@ -6013,6 +6051,7 @@
           <span class="wok-stir-label" id="wok-stir-label-1">Saltear (mantén)</span>
           <div class="wok-stir-bar"><div class="wok-stir-fill" id="wok-stir-fill-1"></div></div>
         </button>
+        <button class="station-serve-btn wok-serve-btn" id="wok-serve-btn-1" onclick="event.stopPropagation(); serveReadyDish('salteados', 1)">✅ Servir</button>
         <div class="wok-dock-footer">
           <span class="wok-dock-name">Wok 2</span>
           <button class="btn-bowl-trash" onclick="event.stopPropagation(); clearWok(1)" title="Vaciar Wok 2">🗑️</button>
@@ -7777,7 +7816,7 @@ const INGREDIENTES = [
   {"id": 38, "name": "arroz shari", "cat": "bases", "areas": ["makis"], "icon": "🍙", "display": "Arroz Shari", "img": null},
   {"id": 39, "name": "atún", "cat": "proteinas", "areas": ["makis"], "icon": "🐟", "display": "Atún", "img": null},
   {"id": 40, "name": "base shimaya", "cat": "salsas", "areas": ["salteados"], "icon": "🥫", "display": "Base Shimaya", "img": null},
-  {"id": 41, "name": "benishoga", "cat": "vegetales", "areas": ["salteados"], "icon": "🫚", "display": "Benishoga", "img": null},
+  {"id": 41, "name": "benishoga", "cat": "vegetales", "areas": ["salteados"], "icon": "🌸", "display": "Benishoga", "img": null},
   {"id": 42, "name": "beterraga", "cat": "vegetales", "areas": ["frituras","salteados"], "icon": "🍠", "display": "Beterraga", "img": null},
   {"id": 43, "name": "bife de cerdo", "cat": "proteinas", "areas": ["frituras"], "icon": "🥩", "display": "Bife de Cerdo", "img": null},
   {"id": 44, "name": "bife de pollo", "cat": "proteinas", "areas": ["frituras"], "icon": "🍗", "display": "Bife de Pollo", "img": null},
@@ -7833,6 +7872,16 @@ const INGREDIENTES = [
   {"id": 94, "name": "wantán", "cat": "otros", "areas": ["salteados"], "icon": "🥟", "display": "Wantán", "img": null},
   {"id": 95, "name": "zucchini", "cat": "vegetales", "areas": ["salteados"], "icon": "🥒", "display": "Zucchini", "img": null}
 ];
+// Nombre corto para las fichas del panel (en pantallas angostas el nombre completo se cortaba) y
+// iconos propios donde dos ingredientes de la misma área compartían el mismo.
+const ING_SHORT = { 73: 'Relleno Gyoza', 60: 'Langostino ×6', 70: 'Pollo ×7', 62: 'Mayo Casa', 74: 'Rulos Cebolla',
+  49: 'Cob. Atún', 54: 'Ebi Langost.', 77: 'Acevichada', 50: 'Cob. Conchas', 51: 'Cob. Amazon', 28: 'Shitake', 21: 'Alga Wanji' };
+const ING_ICON_FIX = { 62: '🍯', 76: '🍅', 53: '🌿', 44: '🐔', 70: '🍖', 49: '🍣' };
+INGREDIENTES.forEach(i => {
+  if (ING_SHORT[i.id]) i.short = ING_SHORT[i.id];
+  if (ING_ICON_FIX[i.id]) i.icon = ING_ICON_FIX[i.id];
+});
+
 const RECETAS_RAMEN = [
   {"id": 1, "name": "Shio", "price": 38, "desc": "Caldo Shio ligero, Chasu Asado, moyashi, nori y Ajonjolí Blanco", "ingredients": [1, 2, 11, 15, 17, 18, 19, 20, 25]},
   {"id": 2, "name": "Shoyu", "price": 40, "desc": "Caldo Shio con Salsa Shoyu, Chasu Asado, bambú, holantao y nori", "ingredients": [1, 2, 5, 11, 15, 17, 18, 19, 20, 22, 23]},
@@ -7851,13 +7900,13 @@ const RECETAS_RAMEN = [
 // analyzeBowl (o su equivalente para esta área) deberá comparar también "metodo" además del set de ingredientes.
 const RECETAS_FRITURAS = [
   {"id": 1, "name": "Gyozas", "metodo": "hervido", "price": 32, "desc": "Empanadillas hervidas de langostino y chancho", "ingredients": [66, 73, 32, 31, 53, 52, 74]},
-  {"id": 2, "name": "Chicken Katsu", "price": 40, "desc": "Bife de pollo empanizado, col, zanahoria y salsa katsu", "ingredients": [44, 65, 58, 15, 75, 52, 30, 74, 91, 57, 84]},
+  {"id": 2, "name": "Chicken Katsu", "price": 52, "desc": "Bife de pollo empanizado, col, zanahoria y salsa katsu", "ingredients": [44, 65, 58, 15, 75, 52, 30, 74, 91, 57, 84]},
   {"id": 3, "name": "Age Gyozas", "metodo": "frito", "price": 36, "desc": "Empanadillas fritas de langostino y chancho", "ingredients": [66, 73, 32, 31, 53, 52, 74]},
   {"id": 4, "name": "Alitas", "price": 30, "desc": "Alitas de pollo fritas con salsa y toping", "ingredients": [36, 53, 76, 92]},
   {"id": 5, "name": "Ebi Furai", "price": 44, "desc": "Langostinos empanizados con mayonesa de la casa", "ingredients": [60, 65, 58, 15, 52, 42, 74, 62]},
   {"id": 6, "name": "Kaarage", "price": 38, "desc": "Pollo frito estilo karaage con mayonesa de la casa", "ingredients": [70, 53, 52, 30, 62, 91, 74]},
-  {"id": 7, "name": "Katsu Kare", "price": 42, "desc": "Bife de cerdo empanizado con salsa kare", "ingredients": [43, 65, 58, 15, 75, 52, 30, 74, 91, 57, 83]},
-  {"id": 8, "name": "Tonkatsu", "price": 42, "desc": "Bife de cerdo empanizado con salsa katsu", "ingredients": [43, 65, 58, 15, 75, 52, 42, 74, 91, 57, 84]}
+  {"id": 7, "name": "Katsu Kare", "price": 56, "desc": "Bife de cerdo empanizado con salsa kare", "ingredients": [43, 65, 58, 15, 75, 52, 30, 74, 91, 57, 83]},
+  {"id": 8, "name": "Tonkatsu", "price": 54, "desc": "Bife de cerdo empanizado con salsa katsu", "ingredients": [43, 65, 58, 15, 75, 52, 42, 74, 91, 57, 84]}
 ];
 
 // --- Makis: el orden de armado importa ---
@@ -7888,6 +7937,28 @@ const RECETAS_SALTEADOS = [
   {"id": 8, "name": "Karameshi", "price": 41, "desc": "Arroz salteado picante con salsa tan tan y ajonjolí", "ingredients": [15, 69, 37, 23, 52, 25, 8, 33, 35, 63]},
   {"id": 9, "name": "Omuraisu", "price": 42, "desc": "Arroz envuelto en tortilla con salsa katsu y omuraisu", "ingredients": [69, 37, 46, 30, 29, 93, 84, 86]}
 ];
+
+// Cada receta lleva su área: así sobrevive a la sincronización JSON del modo cooperativo, y los ids
+// (que se repiten entre catálogos) ya no chocan al comparar platos.
+[[RECETAS_RAMEN, 'ramen'], [RECETAS_SALTEADOS, 'salteados'], [RECETAS_MAKIS, 'makis'], [RECETAS_FRITURAS, 'frituras']]
+  .forEach(([lista, area]) => lista.forEach(r => { r.area = area; }));
+
+function sameDish(a, b) {
+  return !!a && !!b && (a.area || 'ramen') === (b.area || 'ramen') && a.name === b.name;
+}
+
+// Platos que los clientes pueden pedir, por área: [nombre, nivel de campaña, ronda Rash] desde los
+// que entra al menú. Quedan fuera los que aún no se pueden preparar: Gyozas (al vapor, necesita la
+// 2.ª hornilla con sartén) y Maki Furai (termina en Frituras).
+const AREA_DISH_UNLOCKS = {
+  salteados: [['Yakimeshi', 2, 6], ['Chicken Teriyaki', 2, 6], ['Chaufa Shimaya', 3, 10], ['Yakitori', 3, 10],
+              ['Yakiramen', 4, 18], ['Yasaitame', 4, 18], ['Batayaki Ramen', 5, 25], ['Karameshi', 5, 25], ['Omuraisu', 5, 25]],
+  makis: [['Maki California', 3, 12], ['Maki Guacamole', 3, 12], ['Maki Acevichado', 4, 20], ['Maki Hotate', 4, 20],
+          ['Maki Amazon', 4, 20], ['Maki Yama', 5, 30], ['Maki Nin Niku', 5, 30], ['Maki Digion', 5, 30]],
+  frituras: [['Alitas', 4, 22], ['Kaarage', 4, 22], ['Tonkatsu', 5, 32], ['Katsu Kare', 5, 32], ['Chicken Katsu', 5, 32],
+             ['Ebi Furai', 5, 35], ['Age Gyozas', 5, 35]]
+};
+const AREA_CATALOGS = { salteados: RECETAS_SALTEADOS, makis: RECETAS_MAKIS, frituras: RECETAS_FRITURAS };
 
 const NIVELES = [
   { level: 1, name: "Nivel 1: Aprendiz de Barra", ramen_names: ["Shio", "Shoyu"], max_orders: 1, max_customers: 2, goal: 160, time: 90 },
@@ -7941,7 +8012,9 @@ let gameState = {
     { ingredients: [], matchedRamen: null }
   ],
   customerSlots: [null, null, null, null],
-  customerSpawnTimer: 0
+  customerSpawnTimer: 0,
+  recortes: 0, // mottainai: mermas aprovechables (3 = 1 dashi)
+  dashi: 0
 };
 
 let currentLbTab = 'NORMAL';
@@ -8239,12 +8312,32 @@ function getCurrentLevelConfig() {
   return NIVELES[currentLevelIndex];
 }
 
-function getUnlockedRecipes() {
-  if (typeof MultiplayerManager !== 'undefined' && (MultiplayerManager.isGameActive || MultiplayerManager.isInMultiplayer)) {
-    return RECETAS_RAMEN;
-  }
+function isMultiplayerSession() {
+  return typeof MultiplayerManager !== 'undefined' && (MultiplayerManager.isGameActive || MultiplayerManager.isInMultiplayer);
+}
+
+// Solo los ramen del menú actual (cuencos, ingredientes de la pestaña Ramen).
+function getUnlockedRamenRecipes() {
+  if (isMultiplayerSession()) return RECETAS_RAMEN;
   const cfg = getCurrentLevelConfig();
   return RECETAS_RAMEN.filter(r => cfg.ramen_names.includes(r.name));
+}
+
+// Todo lo que los clientes pueden pedir ahora: ramen + los platos de las otras áreas que ya entraron
+// al menú (por nivel de campaña o ronda Rash; en multijugador, todos los preparables).
+function getUnlockedRecipes() {
+  const list = [...getUnlockedRamenRecipes()];
+  const mp = isMultiplayerSession();
+  const campaign = gameState.gameMode === 'NORMAL';
+  const lvl = campaign ? (currentLevelIndex + 1) : (gameState.rashLevel || 1);
+  Object.keys(AREA_DISH_UNLOCKS).forEach(area => {
+    AREA_DISH_UNLOCKS[area].forEach(([name, campLvl, rashLvl]) => {
+      if (!mp && lvl < (campaign ? campLvl : rashLvl)) return;
+      const r = AREA_CATALOGS[area].find(x => x.name === name);
+      if (r) list.push(r);
+    });
+  });
+  return list;
 }
 
 function getCustomIngredientOrder() {
@@ -8282,10 +8375,10 @@ function getUnlockedIngredients() {
     list = INGREDIENTES.filter(i => i.areas && i.areas.includes(gameState.activeArea));
     // En Frituras la harina, el huevo y el panko son los tres espacios de empanizado, no fichas.
     if (gameState.activeArea === 'frituras') list = list.filter(i => !FRY_BREADING_IDS.includes(i.id));
-  } else if (typeof MultiplayerManager !== 'undefined' && (MultiplayerManager.isGameActive || MultiplayerManager.isInMultiplayer)) {
+  } else if (isMultiplayerSession()) {
     list = INGREDIENTES.filter(i => i.areas && i.areas.includes('ramen'));
   } else {
-    const unlockedRecs = getUnlockedRecipes();
+    const unlockedRecs = getUnlockedRamenRecipes();
     const ingIds = new Set();
     unlockedRecs.forEach(r => r.ingredients.forEach(id => ingIds.add(id)));
     list = INGREDIENTES.filter(i => ingIds.has(i.id));
@@ -8307,7 +8400,7 @@ function initRecipeTable() {
     }).join(" ");
 
     tr.innerHTML = `
-      <td style="font-weight:900; color:#b71c1c;">${r.name} (${r.ingredients.length})</td>
+      <td style="font-weight:900; color:#b71c1c;">${r.name} (${r.ingredients.length})<div style="font-size:9px;font-weight:700;color:#8d6e63;">${AREA_LABELS[r.area || 'ramen']}</div></td>
       <td>${ingsList}</td>
       <td style="font-weight:900; color:#2e7d32;">S/ ${r.price}</td>
     `;
@@ -8315,6 +8408,7 @@ function initRecipeTable() {
   });
 }
 
+const AREA_LABELS = { ramen: 'Ramen', salteados: 'Salteado', makis: 'Makis', frituras: 'Frituras' };
 const KITCHEN_AREAS = [
   { id: 'ramen', label: 'RAMEN' },
   { id: 'salteados', label: 'SALTEADO' },
@@ -8356,7 +8450,7 @@ function getAreaAlert(areaId) {
     if (gameState.woks.some(w => w.stirring || w.ingredients.length > 0)) return 'busy';
   } else if (areaId === 'frituras') {
     const st = gameState.fryStation;
-    if (st.phase === 'FRYING') return st.frySeconds >= FRY_BURN_THRESHOLD ? 'warn' : 'busy';
+    if (st.phase === 'FRYING') return st.frySeconds >= fryProfile(st.proteinId).burn ? 'warn' : 'busy';
     if (st.phase === 'FRIED') return fryDishComplete() ? 'ready' : 'busy';
     if (st.ingredients.length > 0) return 'busy';
   } else if (areaId === 'makis') {
@@ -8455,6 +8549,7 @@ function makiCanRoll() {
 
 function toggleIngredientInMaki(ingId) {
   if (gameState.isPaused || gameState.isGameOver) return;
+  if (!coopLock('maki-scene')) return;
   const roll = gameState.makiRoll;
   if (!roll.matPlaced) {
     showStationToast('🎍 Primero mueve la esterilla de bambú sobre la tabla.');
@@ -8499,6 +8594,7 @@ function toggleIngredientInMaki(ingId) {
 }
 
 function clearMakiRoll() {
+  if (gameState.makiRoll.ingredients.length >= MOTTAINAI_MIN_DISCARD && gameState.makiRoll.cutState !== 'CUT') addTrimmings(1, 'maki descartado');
   cleanupMakiToolDrag();
   gameState.makiRoll = newMakiRoll();
   playSound('trash');
@@ -8509,6 +8605,7 @@ function clearMakiRoll() {
 function placeMakiMat() {
   const roll = gameState.makiRoll;
   if (roll.matPlaced) return;
+  if (!coopLock('maki-scene')) return;
   roll.matPlaced = true;
   playSound('add');
   renderMakiStation();
@@ -8521,6 +8618,7 @@ function completeMakiCut() {
   roll.cutProgress = 1;
   playSound('match');
   renderMakiStation();
+  addTrimmings(2, 'puntas del maki');
 }
 
 // --- Capas ilustradas del maki (lienzo 300x100, el mismo cuadro que la esterilla abierta) ---
@@ -8779,6 +8877,9 @@ function renderMakiStation() {
   if (progBox) progBox.style.display = cutting ? 'block' : 'none';
   if (progFill) progFill.style.width = `${Math.round(roll.cutProgress * 100)}%`;
 
+  const makiServeBtn = document.getElementById('maki-serve-btn');
+  if (makiServeBtn) makiServeBtn.classList.toggle('is-visible', cut && isReady);
+
   statusEl.classList.remove('status-error', 'status-ready');
   if (!roll.matPlaced) {
     statusEl.textContent = 'Mueve la esterilla sobre la tabla';
@@ -8818,6 +8919,7 @@ function renderMakiStation() {
     const options = makiNextOptions(ings, true);
     statusEl.textContent = options.length ? `Sigue: ${options.join(' / ')}` : `Armando (${ings.length})`;
   }
+  syncStationIfChanged('makis');
   updateAreaTabAlerts();
 }
 
@@ -9112,6 +9214,7 @@ function selectWok(index) {
 
 function toggleIngredientInWok(ingId) {
   if (gameState.isPaused || gameState.isGameOver) return;
+  if (!coopLock(`wok-card-${gameState.activeWokIndex}`)) return;
   const wok = gameState.woks[gameState.activeWokIndex];
   if (wok.result) return; // ya salteado: hay que vaciar el wok para volver a armar
   if (wok.ingredients.includes(ingId)) {
@@ -9125,6 +9228,11 @@ function toggleIngredientInWok(ingId) {
 }
 
 function clearWok(index) {
+  const w = gameState.woks[index];
+  if (w && w.ingredients.length >= MOTTAINAI_MIN_DISCARD) {
+    if (w.result === 'QUEMADO') showStationToast('💨 Lo quemado no se aprovecha: a la basura.');
+    else addTrimmings(1, 'salteado descartado');
+  }
   gameState.woks[index] = { ingredients: [], result: null, matchedRecipe: null, stirring: false, stirSeconds: 0 };
   playSound('trash');
   renderWoks();
@@ -9161,6 +9269,9 @@ function renderWoks() {
           }).join('');
     }
 
+    const serveBtn = document.getElementById(`wok-serve-btn-${i}`);
+    if (serveBtn) serveBtn.classList.toggle('is-visible', !!(wok.result && wok.matchedRecipe));
+    syncStationIfChanged('salteados', i);
     cardEl.classList.toggle('is-stirring', !!wok.stirring);
     cardEl.classList.remove('wok-result-perfecto', 'wok-result-crudo', 'wok-result-quemado');
     if (wok.result) cardEl.classList.add(`wok-result-${wok.result.toLowerCase()}`);
@@ -9211,9 +9322,24 @@ function renderWoks() {
 
 // Mantener presionado el botón de saltear: barra de tiempo con 3 zonas (crudo/perfecto/quemado).
 // Igual que calentar Shio/Tonkotsu (pointerdown/pointerup), pero con zona de salida en vez de un único umbral.
-const WOK_STIR_CRUDO_MAX = 1.5;
-const WOK_STIR_PERFECTO_MAX = 2.5;
-const WOK_STIR_QUEMADO_AUTO = 4.0;
+// Cada plato tiene su propia ventana (segundos): hasta `crudo` está crudo, hasta `perfecto` está en su
+// punto, y a los `quemado` se quema solo. El arroz pide fuego fuerte y más tiempo (wok hei); el
+// teriyaki se quema rápido por el azúcar de la salsa; las verduras de yasaitame deben quedar crujientes.
+const WOK_PROFILE_DEFAULT = { crudo: 1.5, perfecto: 2.5, quemado: 4.0 };
+const WOK_PROFILES = {
+  'Chaufa Shimaya': { crudo: 1.8, perfecto: 3.0, quemado: 4.2 },
+  'Yakimeshi': { crudo: 1.8, perfecto: 3.0, quemado: 4.2 },
+  'Karameshi': { crudo: 1.8, perfecto: 3.0, quemado: 4.2 },
+  'Omuraisu': { crudo: 1.6, perfecto: 2.8, quemado: 4.0 },
+  'Chicken Teriyaki': { crudo: 1.2, perfecto: 2.2, quemado: 3.2 },
+  'Yakitori': { crudo: 2.0, perfecto: 3.4, quemado: 4.6 },
+  'Batayaki Ramen': { crudo: 1.5, perfecto: 2.6, quemado: 3.8 },
+  'Yakiramen': { crudo: 1.5, perfecto: 2.6, quemado: 3.8 },
+  'Yasaitame': { crudo: 1.0, perfecto: 2.0, quemado: 3.0 }
+};
+function wokProfile(recipe) {
+  return (recipe && WOK_PROFILES[recipe.name]) || WOK_PROFILE_DEFAULT;
+}
 
 function finishStir(index, result) {
   const wok = gameState.woks[index];
@@ -9243,11 +9369,13 @@ function setupWokStirButtons() {
       if (wok.result || wok.stirring) return;
       const analysis = analyzeWok(index);
       if (analysis.status !== 'MATCHED') return;
+      if (!coopLock(`wok-card-${index}`)) return;
 
       try { if (e && e.pointerId && btn.setPointerCapture) btn.setPointerCapture(e.pointerId); } catch(err) {}
 
       wok.stirring = true;
       wok.stirSeconds = 0;
+      wok.profile = wokProfile(analysis.recipe);
       btn.classList.add('stirring-active');
       const wokCard = document.getElementById(`wok-card-${index}`);
       if (wokCard) wokCard.classList.add('is-stirring');
@@ -9259,18 +9387,19 @@ function setupWokStirButtons() {
       stirInterval = setInterval(() => {
         if (gameState.isPaused || gameState.isGameOver) return;
         wok.stirSeconds += 0.05;
-        const pct = Math.min(100, (wok.stirSeconds / WOK_STIR_QUEMADO_AUTO) * 100);
+        const prof = wok.profile || WOK_PROFILE_DEFAULT;
+        const pct = Math.min(100, (wok.stirSeconds / prof.quemado) * 100);
         if (fillEl) fillEl.style.width = `${pct}%`;
 
         let zone = 'crudo';
-        if (wok.stirSeconds >= WOK_STIR_CRUDO_MAX && wok.stirSeconds < WOK_STIR_PERFECTO_MAX) zone = 'perfecto';
-        else if (wok.stirSeconds >= WOK_STIR_PERFECTO_MAX) zone = 'quemado';
+        if (wok.stirSeconds >= prof.crudo && wok.stirSeconds < prof.perfecto) zone = 'perfecto';
+        else if (wok.stirSeconds >= prof.perfecto) zone = 'quemado';
         btn.classList.toggle('zone-crudo', zone === 'crudo');
         btn.classList.toggle('zone-perfecto', zone === 'perfecto');
         btn.classList.toggle('zone-quemado', zone === 'quemado');
         if (labelEl) labelEl.textContent = zone === 'crudo' ? 'Saltea...' : zone === 'perfecto' ? '¡Suelta ahora!' : '¡Se quema!';
 
-        if (wok.stirSeconds >= WOK_STIR_QUEMADO_AUTO) {
+        if (wok.stirSeconds >= prof.quemado) {
           clearInterval(stirInterval);
           stirInterval = null;
           finishStir(index, 'QUEMADO');
@@ -9286,8 +9415,9 @@ function setupWokStirButtons() {
       btn.classList.remove('stirring-active', 'zone-crudo', 'zone-perfecto', 'zone-quemado');
       const secs = wok.stirSeconds;
       let result;
-      if (secs < WOK_STIR_CRUDO_MAX) result = 'CRUDO';
-      else if (secs < WOK_STIR_PERFECTO_MAX) result = 'PERFECTO';
+      const prof = wok.profile || WOK_PROFILE_DEFAULT;
+      if (secs < prof.crudo) result = 'CRUDO';
+      else if (secs < prof.perfecto) result = 'PERFECTO';
       else result = 'QUEMADO';
       finishStir(index, result);
     };
@@ -9310,10 +9440,21 @@ function setupWokStirButtons() {
 // de la tabla a la olla; 3) el contador marca cruda → lista → se quema, y hay que retirarla a
 // tiempo (si no, sale muy oscura); 4) la proteína frita vuelve a la tabla y se agregan las
 // guarniciones hasta completar el plato.
-const FRY_READY_AT = 2.5;        // desde aquí la proteína está lista (dorada)
-const FRY_BURN_THRESHOLD = 4.5;  // pasado esto se quema
-const FRY_BLACK_AT = 7.0;        // carbonizada: color muy oscuro
-const FRY_SCALE_MAX = 7.0;       // escala total del contador
+// Ventana de fritura por proteína (segundos): `ready` = lista (dorada), `burn` = desde aquí se quema,
+// `black` = carbonizada (también es el fin de la escala del contador). El langostino y el relleno de
+// gyoza se pasan rápido; el filete grueso pide más tiempo; el pollo con hueso (alitas) es el más lento.
+const FRY_PROFILE_DEFAULT = { ready: 2.5, burn: 4.5, black: 7.0 };
+const FRY_PROFILES = {
+  60: { ready: 1.8, burn: 3.2, black: 5.7 }, // langostino (Ebi Furai)
+  73: { ready: 1.6, burn: 3.0, black: 5.5 }, // relleno de gyoza (Age Gyoza)
+  70: { ready: 2.4, burn: 4.4, black: 6.9 }, // pollo (Kaarage)
+  43: { ready: 2.8, burn: 5.0, black: 7.5 }, // bife de cerdo (Tonkatsu / Katsu Kare)
+  44: { ready: 2.8, burn: 5.0, black: 7.5 }, // bife de pollo (Chicken Katsu)
+  36: { ready: 3.4, burn: 6.0, black: 8.5 }  // alas de pollo (Alitas)
+};
+function fryProfile(proteinId) {
+  return FRY_PROFILES[proteinId] || FRY_PROFILE_DEFAULT;
+}
 const BREAD_DWELL_MS = 450;      // tiempo sobre cada espacio para que cuente el paso
 const FRY_BREADING_IDS = [58, 15, 65]; // harina, huevo, panko
 const FRY_PROTEIN_IDS = [36, 43, 44, 60, 70, 73]; // alas, bife de cerdo, bife de pollo, langostinos, pollo, relleno
@@ -9361,17 +9502,19 @@ function fryItemMarkup(proteinId, coat) {
 }
 
 // Color de la comida según el tiempo en el aceite: pálida (cruda) → dorada (lista) → muy oscura.
-function fryToneFilter(sec) {
-  if (sec <= FRY_BURN_THRESHOLD) {
-    const p = Math.min(1, sec / FRY_READY_AT);
+function fryToneFilter(sec, proteinId) {
+  const prof = fryProfile(proteinId);
+  if (sec <= prof.burn) {
+    const p = Math.min(1, sec / prof.ready);
     return `saturate(${(0.55 + 0.95 * p).toFixed(2)}) sepia(${(0.05 + 0.55 * p).toFixed(2)}) brightness(${(1.15 - 0.12 * p).toFixed(2)})`;
   }
-  const q = Math.min(1, (sec - FRY_BURN_THRESHOLD) / (FRY_BLACK_AT - FRY_BURN_THRESHOLD));
+  const q = Math.min(1, (sec - prof.burn) / (prof.black - prof.burn));
   return `sepia(0.65) saturate(${(1.5 - 1.0 * q).toFixed(2)}) brightness(${(0.95 - 0.75 * q).toFixed(2)})`;
 }
 
-function fryResultFor(sec) {
-  return sec < FRY_READY_AT ? 'CRUDO' : (sec < FRY_BURN_THRESHOLD ? 'PERFECTO' : 'QUEMADO');
+function fryResultFor(sec, proteinId) {
+  const prof = fryProfile(proteinId);
+  return sec < prof.ready ? 'CRUDO' : (sec < prof.burn ? 'PERFECTO' : 'QUEMADO');
 }
 
 function getFriturasFryableRecipes() {
@@ -9422,6 +9565,7 @@ function analyzeFryStation() {
 // Proteína ya empanizada (o sin empanizar, si la receta no lo lleva) que se suelta en la tabla.
 function placeFryProtein(ing, coat) {
   const station = gameState.fryStation;
+  if (!coopLock('fry-table-card')) return;
   if (station.phase !== 'BUILDING' || station.proteinId) {
     showStationToast('Ya hay una proteína en proceso: descarta con 🗑️ para empezar otra.');
     return;
@@ -9458,6 +9602,7 @@ function removeFryProtein() {
 // por el empanizado; la harina, el huevo y el panko son los tres espacios).
 function toggleIngredientInFryStation(ingId) {
   if (gameState.isPaused || gameState.isGameOver) return;
+  if (!coopLock('fry-table-card')) return;
   const station = gameState.fryStation;
   if (FRY_BREADING_IDS.includes(ingId)) {
     showStationToast('🥖 El empanizado se hace arrastrando la proteína por los tres espacios.');
@@ -9491,6 +9636,11 @@ function toggleIngredientInFryStation(ingId) {
 }
 
 function discardFryStation() {
+  const fs0 = gameState.fryStation;
+  if (fs0.ingredients.length >= MOTTAINAI_MIN_DISCARD) {
+    if (fs0.fryResult === 'QUEMADO' || (fs0.phase === 'FRYING' && fs0.frySeconds >= fryProfile(fs0.proteinId).burn)) showStationToast('💨 Lo quemado no se aprovecha: a la basura.');
+    else addTrimmings(1, 'fritura descartada');
+  }
   if (fryTimerInterval) { clearInterval(fryTimerInterval); fryTimerInterval = null; }
   cleanupFryItemDrag();
   cleanupFryKnifeDrag();
@@ -9504,17 +9654,26 @@ function discardFryStation() {
 function startFryingFromBoard() {
   const station = gameState.fryStation;
   if (station.phase !== 'BUILDING' || !station.proteinId) return;
+  if (!coopLock('fry-table-card')) return;
   station.phase = 'FRYING';
   station.frySeconds = 0;
   station.fryTone = '';
   playSound('flame');
-  if (fryTimerInterval) clearInterval(fryTimerInterval);
+  if (fryTimerInterval) { clearInterval(fryTimerInterval); fryTimerInterval = null; }
+  ensureFryTimer();
+  renderFryStation();
+}
+
+// El contador de la olla siempre corre sobre la estación actual (también si el compañero la reemplaza).
+function ensureFryTimer() {
+  if (fryTimerInterval) return;
   fryTimerInterval = setInterval(() => {
+    const st = gameState.fryStation;
+    if (st.phase !== 'FRYING') { clearInterval(fryTimerInterval); fryTimerInterval = null; return; }
     if (gameState.isPaused || gameState.isGameOver) return;
-    station.frySeconds += 0.05;
+    st.frySeconds += 0.05;
     renderFryStation();
   }, 50);
-  renderFryStation();
 }
 
 // Retirar la proteína del aceite (botón de la olla): crudo / perfecto / quemado según el
@@ -9522,9 +9681,10 @@ function startFryingFromBoard() {
 function handleFryActionClick() {
   const station = gameState.fryStation;
   if (station.phase !== 'FRYING') return;
+  if (!coopLock('fry-table-card')) return;
   if (fryTimerInterval) { clearInterval(fryTimerInterval); fryTimerInterval = null; }
-  station.fryResult = fryResultFor(station.frySeconds);
-  station.fryTone = fryToneFilter(station.frySeconds);
+  station.fryResult = fryResultFor(station.frySeconds, station.proteinId);
+  station.fryTone = fryToneFilter(station.frySeconds, station.proteinId);
   station.phase = 'FRIED';
   playSound(station.fryResult === 'PERFECTO' ? 'match' : 'burn');
   renderFryStation();
@@ -9532,9 +9692,7 @@ function handleFryActionClick() {
 
 function attemptServeFryStation() {
   if (!fryDishComplete()) return;
-  // Los pedidos de clientes todavía solo existen para Ramen; esto queda listo para
-  // cuando el sistema de pedidos se extienda a las demás áreas.
-  showStationToast('🍽️ Los pedidos de Frituras aún no están conectados con los clientes.');
+  serveReadyDish('frituras', 0);
 }
 
 // --- Arrastrar la proteína empanizada de la tabla a la olla ---
@@ -9671,6 +9829,7 @@ function completeFryCut() {
   station.cutProgress = 1;
   playSound('match');
   renderFryStation();
+  addTrimmings(1, 'recortes del katsu');
 }
 
 function updateFryKnifeDrag() {
@@ -9804,7 +9963,8 @@ function renderFryStation() {
   station.matchedRecipe = matched ? analysis.recipe : null;
   const sec = station.frySeconds;
   const frying = station.phase === 'FRYING';
-  const burning = frying && sec >= FRY_BURN_THRESHOLD;
+  const prof = fryProfile(station.proteinId);
+  const burning = frying && sec >= prof.burn;
   const pid = station.proteinId;
   const needsCut = !!pid && fryProteinNeedsCut(pid);
   const cutting = station.cutState === 'CUTTING';
@@ -9884,7 +10044,7 @@ function renderFryStation() {
     }
     const foodEl = oilVisual.querySelector('.fry-food');
     if (foodEl) {
-      const tone = frying ? fryToneFilter(sec) : station.fryTone;
+      const tone = frying ? fryToneFilter(sec, pid) : station.fryTone;
       foodEl.style.filter = `${tone} drop-shadow(0 2px 2px rgba(0,0,0,0.5))`;
     }
   }
@@ -9895,7 +10055,13 @@ function renderFryStation() {
 
   // Contador: cruda (azul) → lista (verde) → se quema (rojo)
   if (counter) counter.style.display = frying ? 'flex' : 'none';
-  if (marker) marker.style.left = `${Math.min(100, (sec / FRY_SCALE_MAX) * 100).toFixed(1)}%`;
+  if (counter) {
+    // Tramos del contador según la proteína: cruda → lista → se quema
+    counter.style.setProperty('--raw', (prof.ready / prof.black * 100).toFixed(1));
+    counter.style.setProperty('--rdy', ((prof.burn - prof.ready) / prof.black * 100).toFixed(1));
+    counter.style.setProperty('--brn', ((prof.black - prof.burn) / prof.black * 100).toFixed(1));
+  }
+  if (marker) marker.style.left = `${Math.min(100, (sec / prof.black) * 100).toFixed(1)}%`;
 
   oilBadge.classList.remove('status-error', 'status-ready', 'status-warn');
   if (resultActions) resultActions.style.display = 'none';
@@ -9905,12 +10071,12 @@ function renderFryStation() {
     oilBadge.textContent = pid ? 'Arrastra la proteína a la olla' : 'Esperando proteína…';
   } else if (frying) {
     const t = sec.toFixed(1);
-    if (sec < FRY_READY_AT) {
+    if (sec < prof.ready) {
       oilBadge.textContent = `Friendo… ${t}s`;
-    } else if (sec < FRY_BURN_THRESHOLD) {
+    } else if (sec < prof.burn) {
       oilBadge.textContent = `¡Lista! Retírala (${t}s)`;
       oilBadge.classList.add('status-ready');
-    } else if (sec < FRY_BLACK_AT) {
+    } else if (sec < prof.black) {
       oilBadge.textContent = `¡Se quema! ${t}s`;
       oilBadge.classList.add('status-warn');
     } else {
@@ -9936,6 +10102,7 @@ function renderFryStation() {
   const cutFill = document.getElementById('fry-cut-fill');
   if (cutBox) cutBox.style.display = cutting ? 'block' : 'none';
   if (cutFill) cutFill.style.width = `${Math.round(station.cutProgress * 100)}%`;
+  syncStationIfChanged('frituras');
   updateAreaTabAlerts();
 }
 
@@ -10305,18 +10472,18 @@ function renderPantryGrid() {
     nameSz = "9.5px";
   } else if (total <= 16) {
     cols = 8;
-    tileMinH = "46px";
+    tileMinH = "48px";
     tilePad = "3px 2px";
     iconSz = "22px";
     nameSz = "9px";
   } else {
     // Hasta 22 ingredientes caben en 2 filas de 11; más de eso, máximo 10 columnas y 3 filas
     // (para hasta 28-30 ingredientes).
-    cols = total <= 22 ? 11 : 10;
-    tileMinH = "40px";
+    cols = total <= 22 ? 11 : (total <= 30 ? 10 : 12); // 31-36 (Salteado) en 3 filas de 12, sin scroll
+    tileMinH = "42px";
     tilePad = "2px 1px";
     iconSz = "19px";
-    nameSz = "8.5px";
+    nameSz = total > 30 ? "7.2px" : "8.5px";
   }
 
   container.style.setProperty('--ing-cols', cols);
@@ -10354,7 +10521,7 @@ function renderPantryGrid() {
 
     tile.innerHTML = `
       ${artHtml}
-      <div class="ing-tile-name">${ing.display}</div>
+      <div class="ing-tile-name">${ing.short || ing.display}</div>
       ${stockBadgeHtml}
     `;
     container.appendChild(tile);
@@ -10427,7 +10594,7 @@ function analyzeBowl(bowlIndex) {
 
   if (bowl.ingredients.length === 0) return { status: "EMPTY" };
 
-  const unlocked = area === 'ramen' ? getUnlockedRecipes() : catalog;
+  const unlocked = area === 'ramen' ? getUnlockedRamenRecipes() : catalog;
   const candidateRecipes = unlocked.length > 0 ? unlocked : catalog;
   let bestRecipe = null;
   let bestOverlap = -1;
@@ -11261,7 +11428,7 @@ function renderBowls() {
       cardEl.onclick = () => selectBowl(i);
     } else if (analysis.status === "READY") {
       bowl.matchedRamen = analysis.recipe;
-      const readyText = `¡Listo: ${analysis.recipe.name}!`;
+      const readyText = bowl.coldSoup ? `🥶 ${analysis.recipe.name} (fría)` : `¡Listo: ${analysis.recipe.name}!`;
       if (badgeEl && badgeEl._lastText !== readyText) {
         badgeEl.textContent = readyText;
         badgeEl._lastText = readyText;
@@ -11275,7 +11442,7 @@ function renderBowls() {
           for (let cIdx = 0; cIdx < gameState.customerSlots.length; cIdx++) {
             const c = gameState.customerSlots[cIdx];
             if (c) {
-              const itemIdx = c.orders.findIndex(o => !o.served && (o.recipe.id === analysis.recipe.id || o.recipe.name === analysis.recipe.name));
+              const itemIdx = c.orders.findIndex(o => !o.served && sameDish(o.recipe, analysis.recipe));
               if (itemIdx !== -1) {
                 serveRamenToCustomer(cIdx, itemIdx, i);
                 return;
@@ -11323,6 +11490,7 @@ function renderCustomers() {
   });
 
   const desiredIds = new Set();
+  const readyDishes = getReadyDishes();
 
   gameState.customerSlots.forEach((c, index) => {
     if (!c) return;
@@ -11357,17 +11525,9 @@ function renderCustomers() {
       card.title = `Toca para entregar ramen o ver detalle de ${c.name}`;
 
       card.onclick = () => {
-        for (let bIdx = 0; bIdx < gameState.bowls.length; bIdx++) {
-          const bowl = gameState.bowls[bIdx];
-          if (bowl && bowl.matchedRamen) {
-            const matchIdx = c.orders.findIndex(o => !o.served && (o.recipe.id === bowl.matchedRamen.id || o.recipe.name === bowl.matchedRamen.name));
-            if (matchIdx !== -1) {
-              serveRamenToCustomer(index, matchIdx, bIdx);
-              return;
-            }
-          }
-        }
-        openCustomerOrderModal(index);
+        const slot = Number(card.id.replace('cust-slot-card-', ''));
+        if (tryServeAnyOrder(slot)) return;
+        openCustomerOrderModal(slot);
       };
 
       card.innerHTML = `
@@ -11402,17 +11562,18 @@ function renderCustomers() {
     const ordersWrap = card.querySelector(".cust-orders-wrap");
     if (ordersWrap) {
       const ordersSig = c.orders.map(o => {
-        const isReady = gameState.bowls.some(b => b && b.matchedRamen && (b.matchedRamen.id === o.recipe.id || b.matchedRamen.name === o.recipe.name));
-        return `${o.recipe.id}_${o.served}_${isReady}`;
+        const isReady = !!findReadyDishFor(o.recipe, readyDishes);
+        return `${o.recipe.area}_${o.recipe.id}_${o.served}_${isReady}`;
       }).join('|');
 
       if (ordersWrap._lastOrdersSig !== ordersSig) {
         ordersWrap._lastOrdersSig = ordersSig;
         ordersWrap.innerHTML = c.orders.map(o => {
-          const isThisReady = gameState.bowls.some(b => b && b.matchedRamen && (b.matchedRamen.id === o.recipe.id || b.matchedRamen.name === o.recipe.name));
+          const isThisReady = !!findReadyDishFor(o.recipe, readyDishes);
+          const icon = AREA_ICONS[o.recipe.area || 'ramen'];
           if (o.served) return `<span class="cust-order-pill" style="background:#2e7d32; color:#fff;">✓ ${o.recipe.name}</span>`;
           if (isThisReady) return `<span class="cust-order-pill ready-deliver">⚡ ${o.recipe.name}</span>`;
-          return `<span class="cust-order-pill">${o.recipe.name}</span>`;
+          return `<span class="cust-order-pill" title="${AREA_LABELS[o.recipe.area || 'ramen']}">${icon} ${o.recipe.name}</span>`;
         }).join("");
       }
     }
@@ -11445,18 +11606,27 @@ function openCustomerOrderModal(customerIndex) {
     row.style.justifyContent = "space-between";
     row.style.alignItems = "center";
 
-    const bowlIdx = gameState.bowls.findIndex(b => b.matchedRamen && (b.matchedRamen.id === orderItem.recipe.id || b.matchedRamen.name === orderItem.recipe.name));
-    const canServe = (!orderItem.served && bowlIdx !== -1);
+    const readyDish = orderItem.served ? null : findReadyDishFor(orderItem.recipe);
+    const canServe = !!readyDish;
+    const orderArea = orderItem.recipe.area || 'ramen';
 
     let actionBtnHtml = "";
     if (orderItem.served) {
       actionBtnHtml = `<span style="font-size:10px; font-weight:900; padding:2px 6px; border-radius:4px; background:#c8e6c9; color:#2e7d32;">✓ Servido</span>`;
-    } else {
+    } else if (canServe) {
       actionBtnHtml = `
-        <button class="btn" style="background:#2e7d32; color:white; font-size:11px;" ${canServe ? "" : "disabled"} onclick="serveRamenToCustomer(${customerIndex}, ${itemIdx}, ${bowlIdx})">
-          ${canServe ? `⚡ Servir (Tazón ${bowlIdx + 1})` : "Preparar"}
+        <button class="btn" style="background:#2e7d32; color:white; font-size:11px;" onclick="tryServeOrder(${customerIndex}, ${itemIdx})">
+          ⚡ Servir (${readyDish.label})
         </button>
       `;
+    } else if (orderArea !== 'ramen' && gameState.activeArea !== orderArea) {
+      actionBtnHtml = `
+        <button class="btn" style="background:#ef6c00; color:white; font-size:11px;" onclick="closeCustomerOrderModal(); switchKitchenArea('${orderArea}')">
+          ${AREA_ICONS[orderArea]} Ir a ${AREA_LABELS[orderArea]}
+        </button>
+      `;
+    } else {
+      actionBtnHtml = `<button class="btn" style="background:#2e7d32; color:white; font-size:11px;" disabled>Preparar</button>`;
     }
 
     const ingsList = orderItem.recipe.ingredients.map(ingId => {
@@ -11467,7 +11637,7 @@ function openCustomerOrderModal(customerIndex) {
 
     row.innerHTML = `
       <div style="flex: 1; margin-right: 8px;">
-        <div style="font-size:13px; font-weight:800; color:#3e2723;">${itemIdx + 1}. ${orderItem.recipe.name} (S/ ${orderItem.recipe.price})</div>
+        <div style="font-size:13px; font-weight:800; color:#3e2723;">${itemIdx + 1}. ${AREA_ICONS[orderArea]} ${orderItem.recipe.name} (S/ ${orderItem.recipe.price})</div>
         <div style="font-size:10px; color:#5d4037; margin-bottom: 4px;">${orderItem.recipe.desc}</div>
         <div style="display:flex; flex-wrap:wrap; gap:3px;">${ingsList}</div>
       </div>
@@ -11484,37 +11654,243 @@ function closeCustomerOrderModal() {
   gameState.selectedCustomerModalIndex = null;
 }
 
-function serveRamenToCustomer(customerIndex, itemIndex, bowlIndex) {
+// --- Cooperativo: woks, tabla de makis y frituras se comparten con el equipo ---
+// Cada vez que una de esas estaciones cambia se envía una foto de su estado (sin los temporizadores
+// locales: el compañero cuenta su propio tiempo de fritura). Y una estación tiene un solo cocinero a
+// la vez: quien la toca la bloquea unos segundos, igual que los tazones y las ollas de ramen.
+let _applyingRemoteStation = false;
+const _lastStationSig = {};
+
+function isCoopActive() {
+  return typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP';
+}
+
+function coopLock(stationId) {
+  return !isCoopActive() || MultiplayerManager.requestStationLock(stationId);
+}
+
+function stationSnapshot(area, index) {
+  if (area === 'salteados') {
+    const w = gameState.woks[index];
+    return { ingredients: [...w.ingredients], result: w.result, matchedRecipe: w.matchedRecipe, profile: w.profile || null };
+  }
+  if (area === 'makis') {
+    const r = gameState.makiRoll;
+    return { ingredients: [...r.ingredients], matPlaced: r.matPlaced, rollState: r.rollState === 'ROLLING' ? 'NONE' : r.rollState,
+      rollProgress: r.rollState === 'ROLLED' ? 1 : 0, baseLen: r.baseLen, cutState: r.cutState === 'CUTTING' ? 'NONE' : r.cutState,
+      cutProgress: r.cutState === 'CUT' ? 1 : 0 };
+  }
+  const f = gameState.fryStation;
+  return { ingredients: [...f.ingredients], phase: f.phase, proteinId: f.proteinId, coat: f.coat, fryResult: f.fryResult,
+    frySeconds: f.frySeconds, fryTone: f.fryTone, cutState: f.cutState === 'CUTTING' ? 'NONE' : f.cutState, cutProgress: f.cutState === 'CUT' ? 1 : 0 };
+}
+
+function syncStationIfChanged(area, index = 0) {
+  if (_applyingRemoteStation || !isCoopActive()) return;
+  const snap = stationSnapshot(area, index);
+  const sig = JSON.stringify({ ...snap, frySeconds: 0 });
+  const key = area + index;
+  if (_lastStationSig[key] === sig) return;
+  _lastStationSig[key] = sig;
+  MultiplayerManager.syncStation(area, index, snap);
+}
+
+function applyRemoteStation(area, index, data) {
+  if (!data) return;
+  _applyingRemoteStation = true;
+  try {
+    _lastStationSig[area + index] = JSON.stringify({ ...data, frySeconds: 0 });
+    if (area === 'salteados') {
+      gameState.woks[index] = { ...data, stirring: false, stirSeconds: 0 };
+      renderWoks();
+    } else if (area === 'makis') {
+      gameState.makiRoll = { ...newMakiRoll(), ...data };
+      renderMakiStation();
+    } else if (area === 'frituras') {
+      gameState.fryStation = { ...newFryStation(), ...data };
+      if (data.phase === 'FRYING') ensureFryTimer();
+      renderFryStation();
+    }
+    if (gameState.activeArea === area) renderPantryGrid();
+    renderCustomers();
+  } finally {
+    _applyingRemoteStation = false;
+  }
+}
+
+// El compañero sirvió el plato de una de estas estaciones: se vacía también aquí.
+function applyRemoteStationServed(area, index) {
+  _applyingRemoteStation = true;
+  try { consumeReadyDish({ area, index: index || 0 }); }
+  finally { _applyingRemoteStation = false; }
+  renderCustomers();
+}
+
+// --- Mottainai (cero desperdicio): las mermas limpias no se tiran, se juntan ---
+// Puntas de maki, recortes de katsu y lo descartado sin quemar suman recortes; cada 3 hacen 1 dashi,
+// que reemplaza el calentado del Caldo Shio (fondo de aprovechamiento, como en la cocina real).
+const MOTTAINAI_PER_DASHI = 3;
+const MOTTAINAI_MAX_DASHI = 3;
+const MOTTAINAI_MIN_DISCARD = 3; // un descarte solo cuenta si ya había trabajo hecho (3+ ingredientes)
+
+function updateMottainaiHUD() {
+  const el = document.getElementById('hud-mottainai');
+  if (el) el.textContent = `${gameState.recortes}/${MOTTAINAI_PER_DASHI} · 🐟${gameState.dashi}`;
+}
+
+function addTrimmings(n, source) {
+  if (n <= 0 || gameState.isGameOver) return;
+  gameState.recortes += n;
+  let made = 0;
+  while (gameState.recortes >= MOTTAINAI_PER_DASHI) {
+    gameState.recortes -= MOTTAINAI_PER_DASHI;
+    if (gameState.dashi < MOTTAINAI_MAX_DASHI) { gameState.dashi++; made++; }
+  }
+  updateMottainaiHUD();
+  showStationToast(made
+    ? `♻️ Mottainai: ${source} → ¡1 dashi listo! (sirve de Caldo Shio)`
+    : `♻️ +${n} recorte${n > 1 ? 's' : ''} (${source}) · ${gameState.recortes}/${MOTTAINAI_PER_DASHI} para el dashi`);
+}
+
+// --- Platos listos: cada estación ofrece el suyo y los clientes lo toman desde cualquier área ---
+// Un plato crudo, quemado o con la sopa fría se puede servir, pero paga la mitad y no deja propina
+// (provisional: el sistema de calidad definitivo se define después).
+const IMPERFECT_PAY_RATIO = 0.5;
+const AREA_ICONS = { ramen: '🍜', salteados: '🍳', makis: '🍣', frituras: '🍤' };
+
+function getReadyDishes() {
+  const list = [];
+  gameState.bowls.forEach((b, i) => {
+    if (b && b.matchedRamen) list.push({ area: 'ramen', index: i, recipe: b.matchedRamen, quality: b.coldSoup ? 'FRIO' : 'PERFECTO', label: `Tazón ${i + 1}` });
+  });
+  gameState.woks.forEach((w, i) => {
+    if (w && w.result && w.matchedRecipe) list.push({ area: 'salteados', index: i, recipe: w.matchedRecipe, quality: w.result, label: `Wok ${i + 1}` });
+  });
+  const roll = gameState.makiRoll;
+  if (roll && roll.cutState === 'CUT') {
+    const a = analyzeMakiSequence(roll.ingredients);
+    if (a.status === 'READY') list.push({ area: 'makis', index: 0, recipe: a.recipe, quality: 'PERFECTO', label: 'Tabla de makis' });
+  }
+  const fry = gameState.fryStation;
+  if (fry && fry.phase === 'FRIED' && fryDishComplete()) {
+    const a = analyzeFryStation();
+    if (a.status === 'MATCHED') list.push({ area: 'frituras', index: 0, recipe: a.recipe, quality: fry.fryResult || 'PERFECTO', label: 'Tabla de frituras' });
+  }
+  return list;
+}
+
+function findReadyDishFor(recipe, ready) {
+  return (ready || getReadyDishes()).find(d => sameDish(d.recipe, recipe)) || null;
+}
+
+// Vacía la estación de la que salió el plato servido.
+function consumeReadyDish(d) {
+  if (d.area === 'ramen') {
+    gameState.bowls[d.index] = { ingredients: [], matchedRamen: null };
+  } else if (d.area === 'salteados') {
+    gameState.woks[d.index] = { ingredients: [], result: null, matchedRecipe: null, stirring: false, stirSeconds: 0 };
+    renderWoks();
+  } else if (d.area === 'makis') {
+    cleanupMakiToolDrag();
+    gameState.makiRoll = newMakiRoll();
+    renderMakiStation();
+  } else if (d.area === 'frituras') {
+    if (fryTimerInterval) { clearInterval(fryTimerInterval); fryTimerInterval = null; }
+    cleanupFryItemDrag();
+    cleanupFryKnifeDrag();
+    gameState.fryStation = newFryStation();
+    renderFryStation();
+  }
+  renderPantryGrid();
+}
+
+// Sirve el plato listo de una estación al cliente que más urgido esté y lo esté esperando.
+function serveReadyDish(area, index) {
+  const d = getReadyDishes().find(x => x.area === area && x.index === index);
+  if (!d) return false;
+  const waiting = [];
+  gameState.customerSlots.forEach((c, ci) => {
+    if (!c) return;
+    const oi = c.orders.findIndex(o => !o.served && sameDish(o.recipe, d.recipe));
+    if (oi !== -1) waiting.push({ ci, oi, ratio: c.patience / c.maxPatience });
+  });
+  if (!waiting.length) {
+    showStationToast(`${AREA_ICONS[area]} Ningún cliente espera ${d.recipe.name} ahora.`);
+    return false;
+  }
+  waiting.sort((a, b) => a.ratio - b.ratio);
+  serveOrder(waiting[0].ci, waiting[0].oi, d);
+  return true;
+}
+
+// Sirve el pedido `itemIndex` del cliente con lo que haya listo en esa receta; false si no hay nada.
+function tryServeOrder(customerIndex, itemIndex) {
   const c = gameState.customerSlots[customerIndex];
-  if (!c || bowlIndex < 0 || bowlIndex >= gameState.bowls.length) return;
+  const o = c && c.orders[itemIndex];
+  if (!o || o.served) return false;
+  const d = findReadyDishFor(o.recipe);
+  if (!d) return false;
+  serveOrder(customerIndex, itemIndex, d);
+  return true;
+}
+
+// Primer pedido pendiente del cliente que ya tiene plato listo (para tocar al cliente).
+function tryServeAnyOrder(customerIndex) {
+  const c = gameState.customerSlots[customerIndex];
+  if (!c) return false;
+  const ready = getReadyDishes();
+  const idx = c.orders.findIndex(o => !o.served && findReadyDishFor(o.recipe, ready));
+  return idx !== -1 && tryServeOrder(customerIndex, idx);
+}
+
+// Compatibilidad: servir con un tazón concreto.
+function serveRamenToCustomer(customerIndex, itemIndex, bowlIndex) {
+  const d = getReadyDishes().find(x => x.area === 'ramen' && x.index === bowlIndex);
+  if (d) serveOrder(customerIndex, itemIndex, d);
+}
+
+function serveOrder(customerIndex, itemIndex, dish) {
+  const c = gameState.customerSlots[customerIndex];
+  if (!c || !dish) return;
 
   const orderItem = c.orders[itemIndex];
-  if (!orderItem || orderItem.served) return;
+  if (!orderItem || orderItem.served || !sameDish(orderItem.recipe, dish.recipe)) return;
 
+  const perfect = dish.quality === 'PERFECTO';
+  const pay = perfect ? orderItem.recipe.price : Math.round(orderItem.recipe.price * IMPERFECT_PAY_RATIO);
   orderItem.served = true;
-  gameState.bowls[bowlIndex] = { ingredients: [], matchedRamen: null };
-  gameState.money += orderItem.recipe.price;
+  orderItem.quality = dish.quality;
+  if (!perfect) c.imperfect = true;
+  consumeReadyDish(dish);
+  gameState.money += pay;
   gameState.customersServed++;
   AnalyticsTracker.trackCustomerServed();
   playSound('serve');
+  if (!perfect) {
+    const why = { CRUDO: 'cruda', QUEMADO: 'quemada', FRIO: 'con la sopa fría' }[dish.quality] || 'imperfecta';
+    showStationToast(`${AREA_ICONS[dish.area]} ${orderItem.recipe.name} salió ${why}: paga la mitad (S/ ${pay}).`);
+  }
 
   // Integración Multijugador (VS Arrebato y Co-op)
   if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive) {
     if (MultiplayerManager.gameMode === 'VS') {
-      MultiplayerManager.claimCustomerInVS(customerIndex, c.id || `cust_${customerIndex}`, orderItem.recipe.name, orderItem.recipe.price);
+      MultiplayerManager.claimCustomerInVS(customerIndex, c.id || `cust_${customerIndex}`, orderItem.recipe.name, pay);
     } else if (MultiplayerManager.gameMode === 'COOP') {
-      MultiplayerManager.coopServeCustomer(customerIndex, itemIndex, orderItem.recipe.name, orderItem.recipe.price, bowlIndex);
-      MultiplayerManager.syncSharedBowl(bowlIndex, gameState.bowls[bowlIndex]);
-      MultiplayerManager.releaseStationLock(`bowl-card-${bowlIndex}`);
+      MultiplayerManager.coopServeCustomer(customerIndex, itemIndex, orderItem.recipe.name, pay, dish.index, dish.area);
+      if (dish.area === 'ramen') {
+        MultiplayerManager.syncSharedBowl(dish.index, gameState.bowls[dish.index]);
+        MultiplayerManager.releaseStationLock(`bowl-card-${dish.index}`);
+      }
     }
   }
 
-  c.patience = Math.min(c.maxPatience, c.patience + 15);
+  c.patience = Math.min(c.maxPatience, c.patience + (perfect ? 15 : 5));
 
   const allServed = c.orders.every(o => o.served);
   if (allServed) {
     const ratio = c.patience / c.maxPatience;
-    if (ratio > 0.5) gameState.money += 8;
+    if (c.imperfect) { /* sin propina si algún plato salió imperfecto */ }
+    else if (ratio > 0.5) gameState.money += 8;
     else if (ratio > 0.25) gameState.money += 4;
     gameState.customerSlots[customerIndex] = null;
     closeCustomerOrderModal();
@@ -11558,6 +11934,15 @@ function selectBowl(index) {
   renderPantryGrid();
 }
 
+// Orden real del ramen: tare/caldo primero y los fideos después. Si los fideos entran antes del
+// caldo, la sopa queda fría: se puede servir, pero paga la mitad y no deja propina.
+const RAMEN_BROTH_IDS = [2, 3, 4];
+function isColdSoup(ings) {
+  const n = ings.indexOf(1);
+  const b = ings.findIndex(id => RAMEN_BROTH_IDS.includes(id));
+  return n !== -1 && b !== -1 && n < b;
+}
+
 function toggleIngredientInBowl(ingId) {
   if (gameState.isPaused || gameState.isGameOver) return;
   const bowl = gameState.bowls[gameState.activeBowlIndex];
@@ -11575,7 +11960,7 @@ function toggleIngredientInBowl(ingId) {
     showStationToast('🍜 ¡Sin fideos! Toca "Cocinar Fideos" para preparar una tanda.');
     return;
   }
-  if (ingId === 2 && kitchenState.stocks.shio <= 0) {
+  if (ingId === 2 && kitchenState.stocks.shio <= 0 && !(gameState.dashi > 0)) {
     triggerGuideHighlight('btn-heat-shio');
     playSound('burn');
     showStationToast('🥣 ¡Está Frío! Mantén presionado "Calentar Shio" 3 segundos.');
@@ -11596,13 +11981,20 @@ function toggleIngredientInBowl(ingId) {
 
   // Descontar del stock preparado si corresponde
   if (ingId === 1) kitchenState.stocks.noodles--;
-  if (ingId === 2) kitchenState.stocks.shio--;
+  if (ingId === 2) {
+    if (kitchenState.stocks.shio > 0) kitchenState.stocks.shio--;
+    else { gameState.dashi--; bowl.dashiUsed = true; updateMottainaiHUD(); showStationToast('🐟 Dashi de recortes: Caldo Shio sin calentar.'); }
+  }
   if (ingId === 3) kitchenState.stocks.tonkotsu--;
   if (ingId === 11) kitchenState.stocks.chasu--;
   updateKitchenStationsUI();
 
+  const noodlesBeforeBroth = ingId === 1 && !bowl.ingredients.some(id => RAMEN_BROTH_IDS.includes(id));
   bowl.ingredients.push(ingId);
+  bowl.coldSoup = isColdSoup(bowl.ingredients);
   playSound('add');
+  if (noodlesBeforeBroth) showStationToast('🍜 Ojo: el caldo va primero y los fideos después. Si agregas el caldo ahora, la sopa saldrá fría.');
+  else if (bowl.coldSoup && RAMEN_BROTH_IDS.includes(ingId)) showStationToast('🥶 Los fideos entraron antes del caldo: sopa fría (paga la mitad).');
 
   if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP') {
     MultiplayerManager.syncSharedBowl(gameState.activeBowlIndex, bowl);
@@ -11621,10 +12013,14 @@ function toggleIngredientInBowl(ingId) {
 function removeIngredientFromBowl(bowlIndex, ingId) {
   const bowl = gameState.bowls[bowlIndex];
   bowl.ingredients = bowl.ingredients.filter(id => id !== ingId);
+  bowl.coldSoup = isColdSoup(bowl.ingredients);
 
   // Restaurar stock si se retira un ingrediente preparado
   if (ingId === 1) kitchenState.stocks.noodles++;
-  if (ingId === 2) kitchenState.stocks.shio++;
+  if (ingId === 2) {
+    if (bowl.dashiUsed) { bowl.dashiUsed = false; gameState.dashi++; updateMottainaiHUD(); }
+    else kitchenState.stocks.shio++;
+  }
   if (ingId === 3) kitchenState.stocks.tonkotsu++;
   if (ingId === 11) kitchenState.stocks.chasu++;
   updateKitchenStationsUI();
@@ -11639,6 +12035,7 @@ function removeIngredientFromBowl(bowlIndex, ingId) {
 }
 
 function clearBowl(index) {
+  if (gameState.bowls[index] && gameState.bowls[index].ingredients.length >= MOTTAINAI_MIN_DISCARD) addTrimmings(1, 'tazón descartado');
   playSound('trash');
   gameState.bowls[index] = { ingredients: [], matchedRamen: null };
   if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP') {
@@ -11659,10 +12056,20 @@ const SINGLE_STATION_AREAS = ['makis', 'frituras'];
 const SINGLE_STATION_EXTRA_SECONDS = 10;
 
 function getRecipeArea(recipe) {
-  if (RECETAS_SALTEADOS.includes(recipe)) return 'salteados';
-  if (RECETAS_FRITURAS.includes(recipe)) return 'frituras';
-  if (RECETAS_MAKIS.includes(recipe)) return 'makis';
-  return 'ramen';
+  return (recipe && recipe.area) || 'ramen';
+}
+
+// El ramen sigue siendo la base del menú (40 % de los pedidos); el resto se reparte entre las
+// áreas que ya entraron al menú, para que todas las estaciones tengan trabajo.
+function pickOrderRecipe(unlocked) {
+  const byArea = {};
+  unlocked.forEach(r => { (byArea[getRecipeArea(r)] = byArea[getRecipeArea(r)] || []).push(r); });
+  const others = Object.keys(byArea).filter(a => a !== 'ramen');
+  let area = 'ramen';
+  if (!byArea.ramen) area = others[Math.floor(Math.random() * others.length)];
+  else if (others.length && Math.random() >= 0.4) area = others[Math.floor(Math.random() * others.length)];
+  const pool = byArea[area];
+  return pool[Math.floor(Math.random() * pool.length)];
 }
 
 // Segundos extra de paciencia por el proceso de los pedidos (0 si todo es Ramen).
@@ -11702,7 +12109,7 @@ function spawnCustomer() {
   const numOrders = Math.floor(Math.random() * cfg.max_orders) + 1;
   const orders = [];
   for (let i = 0; i < numOrders; i++) {
-    const r = unlocked[Math.floor(Math.random() * unlocked.length)];
+    const r = pickOrderRecipe(unlocked);
     orders.push({ recipe: r, served: false });
   }
 
@@ -12050,6 +12457,10 @@ function startLevel(lvlIndex) {
     { ingredients: [], matchedRamen: null }
   ];
   gameState.customerSlots = [null, null, null, null];
+  gameState.recortes = 0;
+  gameState.dashi = 0;
+  Object.keys(_lastStationSig).forEach(k => delete _lastStationSig[k]);
+  updateMottainaiHUD();
 
   document.getElementById("btn-pause").textContent = "⏸️";
 
@@ -16833,6 +17244,6 @@ if (document.readyState === 'loading') {
   bootGameUI();
 }
 </script>
-<script src="multiplayer.js?v=19"></script>
+<script src="multiplayer.js?v=20"></script>
 </body>
 </html>
