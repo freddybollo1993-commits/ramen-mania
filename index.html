@@ -2817,6 +2817,16 @@
     padding: 18px;
   }
   .level-end-modal h2 { font-family: 'Fredoka One', cursive; font-size: 26px; margin-bottom: 6px; }
+  /* Cocina libre */
+  .free-opts { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 6px; }
+  .free-chip { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 800; color: #3e2723; background: #fff3e0; border: 1.5px solid #e0b98a; border-radius: 14px; padding: 3px 9px; cursor: pointer; }
+  .free-chips { display: inline-flex; gap: 4px; flex-wrap: wrap; vertical-align: middle; }
+  .free-note { font-size: 11px; color: #5d4037; margin: 4px 0; }
+  .free-h { font-size: 12px; color: #b71c1c; margin: 8px 0 3px; font-weight: 900; }
+  .free-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 5px; }
+  .free-dish { display: flex; justify-content: space-between; align-items: center; gap: 6px; text-align: left; border: 1.5px solid #e0b98a; border-radius: 9px; background: #fff8e1; color: #3e2723; font-size: 11px; font-weight: 800; padding: 6px 8px; cursor: pointer; min-height: 34px; }
+  .free-dish:hover { background: #ffe0b2; }
+  .free-dish small { font-size: 9px; color: #6d4c41; font-weight: 700; white-space: nowrap; }
   /* Entrenamiento: lista de retos */
   .training-card { max-width: min(96vw, 820px); max-height: 94vh; display: flex; flex-direction: column; }
   .training-card .modal-body { overflow-y: auto; }
@@ -3608,7 +3618,8 @@
   #start-screen .start-mascot-img { width: 44px; height: 44px; }
   #start-screen .start-logo-title { font-size: 26px; }
   #start-screen .start-logo-subtitle { flex-basis: 100%; font-size: 9px; }
-  #start-screen .start-modes-grid { grid-template-columns: repeat(5, 1fr); gap: 6px; max-width: 900px; }
+  #start-screen .start-modes-grid { grid-template-columns: repeat(6, 1fr); gap: 5px; max-width: 900px; }
+  #start-screen .start-mode-card.free.active { border-color: #81c784; box-shadow: 0 0 0 2px rgba(129, 199, 132, 0.45), 0 6px 16px rgba(76, 175, 80, 0.3); }
   #start-screen .start-mode-card { padding: 7px 6px; min-height: 52px; border-width: 1.5px; border-radius: 12px; justify-content: center; align-items: center; text-align: center; }
   #start-screen .start-mode-card .start-mode-desc, #start-screen .start-mode-card .start-mode-footer { display: none; }
   #start-screen .start-mode-header { flex-direction: column; align-items: center; gap: 3px; width: 100%; }
@@ -5594,6 +5605,28 @@
           </div>
         </div>
 
+        <!-- Modo Cocina libre -->
+        <div class="start-mode-card free" id="start-mode-card-free" onclick="setStartSelectedMode('FREE')">
+          <div class="start-mode-header">
+            <div class="start-mode-title-wrap">
+              <span class="start-mode-icon">🌿</span>
+              <span class="start-mode-name" style="color:#81c784;">COCINA LIBRE</span>
+            </div>
+            <span class="start-mode-badge" style="background:#66bb6a; color:#0b2e13;">SIN PRISA</span>
+          </div>
+          <div class="start-mode-desc">
+            Todo el catálogo desbloqueado, sin tiempo, sin perder clientes y sin final. Cocina con calma cualquier plato y aprende a tu ritmo.
+          </div>
+          <div class="start-mode-footer">
+            <div class="start-mode-status" style="color:#a5d6a7;">
+              🌿 Sin metas ni reloj: 33 platos
+            </div>
+            <div class="start-mode-radio">
+              <span class="radio-indicator"></span>
+            </div>
+          </div>
+        </div>
+
         <!-- Modo Normal -->
         <div class="start-mode-card normal" id="start-mode-card-normal" onclick="setStartSelectedMode('NORMAL')">
           <div class="start-mode-header">
@@ -5710,7 +5743,7 @@
         <span id="start-network-status-bar">🟢 En línea</span>
       </div>
       <div class="start-footer-center desktop-only">
-        <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-4]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
+        <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
       <div class="start-footer-right"></div>
     </div>
@@ -5777,6 +5810,7 @@
     <div class="hud-side-actions-dock" id="hud-side-actions">
       <button class="hud-side-btn" onclick="togglePause()" id="btn-pause" title="Pausar / Reanudar">⏸️</button>
       <button class="hud-side-btn" onclick="toggleFullScreen()" id="btn-fullscreen" title="Pantalla Completa">⛶</button>
+      <button class="hud-side-btn" id="btn-free-menu" onclick="openFreePracticeModal()" title="Cocina libre: pedir un plato y ajustes" style="display:none;">🍽️</button>
       <button class="hud-side-btn" onclick="openRecipeModal()" title="📖 Recetario de Ramen">📖</button>
     </div>
   </header>
@@ -6449,6 +6483,17 @@
   </div>
 
   <!-- MODAL DE RECETAS -->
+  <!-- COCINA LIBRE: pedir platos y ajustes -->
+  <div class="modal-overlay" id="free-modal" onclick="closeFreePracticeModal()">
+    <div class="modal-card upgrades-card training-card" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h2>🌿 Cocina libre</h2>
+        <button class="btn btn-danger" style="padding: 3px 8px;" onclick="closeFreePracticeModal()">✕</button>
+      </div>
+      <div class="modal-body" id="free-body"></div>
+    </div>
+  </div>
+
   <!-- ENTRENAMIENTO: lista de retos, ficha y resultado -->
   <div class="modal-overlay" id="training-modal" onclick="closeTrainingModal()">
     <div class="modal-card upgrades-card training-card" onclick="event.stopPropagation()">
@@ -7246,8 +7291,9 @@
             <div><kbd class="key-pill">Espacio / Enter</kbd> : Jugar modo activo</div>
             <div><kbd class="key-pill">1</kbd> : Elegir Modo Tutorial</div>
             <div><kbd class="key-pill">2</kbd> : Elegir Modo Entrenamiento</div>
-            <div><kbd class="key-pill">3</kbd> : Elegir Modo Campaña</div>
-            <div><kbd class="key-pill">4</kbd> : Elegir Modo Rash</div>
+            <div><kbd class="key-pill">3</kbd> : Elegir Cocina libre</div>
+            <div><kbd class="key-pill">4</kbd> : Elegir Modo Campaña</div>
+            <div><kbd class="key-pill">5</kbd> : Elegir Modo Rash</div>
             <div><kbd class="key-pill">R</kbd> : Ver Ranking Oficial</div>
             <div><kbd class="key-pill">S</kbd> : Secretos del Chef</div>
             <div><kbd class="key-pill">L</kbd> : Abrir Recetario</div>
@@ -8426,6 +8472,7 @@ let gameState = {
   ],
   customerSlots: [null, null, null, null],
   customerSpawnTimer: 0,
+  free: null, // Cocina libre: { auto: clientes automáticos, areas: áreas que pueden pedir }
   propinasSession: 0, // propinas ganadas en esta partida (el total acumulado vive en localStorage)
   gameClock: 0, // segundos de juego (no avanza en pausa): edad de los platos listos
   recortes: 0, // mottainai: mermas aprovechables (3 = 1 dashi)
@@ -8710,6 +8757,7 @@ function getRashConfig(lvl) {
 
 function getCurrentLevelConfig() {
   if (isTraining()) return trainingConfig();
+  if (isFree()) return freeConfig();
   if (typeof MultiplayerManager !== 'undefined' && (MultiplayerManager.isGameActive || MultiplayerManager.isInMultiplayer)) {
     return {
       level: 99,
@@ -8735,6 +8783,7 @@ function isMultiplayerSession() {
 // Solo los ramen del menú actual (cuencos, ingredientes de la pestaña Ramen).
 function getUnlockedRamenRecipes() {
   if (isTraining()) return trainingPoolRecipes(gameState.training.challenge, 'ramen');
+  if (isFree()) return RECETAS_RAMEN;
   if (isMultiplayerSession()) return RECETAS_RAMEN;
   const cfg = getCurrentLevelConfig();
   return RECETAS_RAMEN.filter(r => cfg.ramen_names.includes(r.name));
@@ -8743,6 +8792,7 @@ function getUnlockedRamenRecipes() {
 // Todo lo que los clientes pueden pedir ahora: ramen + los platos de las otras áreas que ya entraron
 // al menú (por nivel de campaña o ronda Rash; en multijugador, todos los preparables).
 function getUnlockedRecipes() {
+  if (isFree()) return freeAllRecipes();
   const list = [...getUnlockedRamenRecipes()];
   if (isTraining()) {
     ['salteados', 'makis', 'frituras'].forEach(a => list.push(...trainingPoolRecipes(gameState.training.challenge, a)));
@@ -10565,6 +10615,7 @@ function renderFryStation() {
 
 // Un área se abre cuando ya hay algún plato suyo en el menú del nivel (o ronda) actual.
 function isAreaUnlocked(area) {
+  if (isFree()) return true;
   if (isTraining() && area !== 'ramen' && !trainingFeature('area_' + area)) return false;
   return area === 'ramen' || getUnlockedRecipes().some(r => r.area === area);
 }
@@ -13098,6 +13149,92 @@ function trainingResultToList() {
   openTrainingModal();
 }
 
+// ================= COCINA LIBRE =================
+// Todo el catálogo desbloqueado, sin tiempo, sin perder clientes y sin final: para cocinar con calma
+// cualquier plato y aprender a tu ritmo. Los clientes esperan siempre; no hay rechazos, ni frescura,
+// ni propinas ni récords. Desde 🍽️ se puede pedir un plato concreto, elegir qué áreas piden al azar
+// y pausar la llegada de clientes.
+const FREE_AREAS = ['ramen', 'salteados', 'makis', 'frituras'];
+const isFree = () => gameState.gameMode === 'FREE' && !!gameState.free && !gameState.isGameOver;
+
+function freeAllRecipes() {
+  const list = [...RECETAS_RAMEN];
+  Object.keys(AREA_DISH_UNLOCKS).forEach(a => AREA_DISH_UNLOCKS[a].forEach(([name]) => {
+    const r = AREA_CATALOGS[a].find(x => x.name === name);
+    if (r) list.push(r);
+  }));
+  return list;
+}
+
+function freeConfig() {
+  return { level: 1, name: 'Cocina libre', customers: 999, base_patience: 999, max_orders: 2, max_customers: 3,
+    ramen_names: RECETAS_RAMEN.map(r => r.name), spawn_time: 10, patience_mult: 1 };
+}
+
+function freePickRecipe() {
+  const all = freeAllRecipes();
+  const pool = all.filter(r => gameState.free.areas.includes(getRecipeArea(r)));
+  const src = pool.length ? pool : all;
+  return src[Math.floor(Math.random() * src.length)];
+}
+
+function openFreePracticeModal() {
+  if (!isFree()) return;
+  renderFreeModal();
+  const m = document.getElementById('free-modal');
+  m.style.display = '';
+  m.classList.add('active');
+}
+function closeFreePracticeModal() {
+  const m = document.getElementById('free-modal');
+  if (m) m.classList.remove('active');
+}
+
+function renderFreeModal() {
+  const f = gameState.free;
+  if (!f) return;
+  const names = { ramen: 'Ramen', salteados: 'Salteado', makis: 'Makis', frituras: 'Frituras' };
+  const chips = FREE_AREAS.map(a => `<label class="free-chip"><input type="checkbox" ${f.areas.includes(a) ? 'checked' : ''} onchange="freeToggleArea('${a}')"> ${AREA_ICONS[a]} ${names[a]}</label>`).join('');
+  const all = freeAllRecipes();
+  const groups = FREE_AREAS.map(a => {
+    const dishes = all.filter(r => getRecipeArea(r) === a).map(r =>
+      `<button class="free-dish" onclick="freeOrderDish('${a}', '${r.name.replace(/'/g, "\\'")}')">${r.name}<small>S/ ${r.price}</small></button>`).join('');
+    return `<h3 class="free-h">${AREA_ICONS[a]} ${names[a]}</h3><div class="free-grid">${dishes}</div>`;
+  }).join('');
+  document.getElementById('free-body').innerHTML = `
+    <div class="free-opts">
+      <label class="free-chip"><input type="checkbox" ${f.auto ? 'checked' : ''} onchange="freeSetAuto(this.checked)"> 👥 Clientes automáticos</label>
+      <button class="acc-btn alt" onclick="freeClearCustomers()">🧹 Despejar clientes</button>
+    </div>
+    <div class="free-note">Los pedidos al azar vienen de: <span class="free-chips">${chips}</span></div>
+    <div class="free-note"><b>Toca un plato para que un cliente lo pida ahora.</b> Nadie se va ni hay tiempo: cocina con calma.</div>
+    ${groups}`;
+}
+
+function freeSetAuto(on) { if (gameState.free) gameState.free.auto = !!on; }
+function freeToggleArea(a) {
+  const f = gameState.free; if (!f) return;
+  f.areas = f.areas.includes(a) ? f.areas.filter(x => x !== a) : [...f.areas, a];
+  if (!f.areas.length) f.areas = [a]; // siempre queda al menos un área
+  renderFreeModal();
+}
+function freeClearCustomers() {
+  gameState.customerSlots = [null, null, null, null];
+  closeCustomerOrderModal();
+  renderCustomers();
+  renderBowls();
+  showStationToast('🧹 Fila despejada.');
+}
+function freeOrderDish(area, name) {
+  const r = (area === 'ramen' ? RECETAS_RAMEN : AREA_CATALOGS[area]).find(x => x.name === name);
+  if (!r) return;
+  const before = gameState.customerSlots.filter(Boolean).length;
+  spawnCustomer(r);
+  const after = gameState.customerSlots.filter(Boolean).length;
+  closeFreePracticeModal();
+  showStationToast(after > before ? `🍽️ Un cliente pidió ${r.name}.` : '🍽️ La fila está llena: atiende a un cliente primero.');
+}
+
 // --- Tienda de mejoras (menú de inicio) ---
 function buyUpgrade(id) {
   const u = UPGRADE_BY_ID[id];
@@ -13402,7 +13539,7 @@ function evalProcess(dish) {
 }
 
 function evalFreshness(dish) {
-  if (!QUALITY_FRESHNESS_ON || (isTraining() && !trainingFeature('q_fresh'))) return 20;
+  if (!QUALITY_FRESHNESS_ON || isFree() || (isTraining() && !trainingFeature('q_fresh'))) return 20;
   const m = dish.meta || {};
   const warmth = 1 + [0, 0.3, 0.6, 1][getUpgradeLevel('bandeja')];
   const t = m.readyAt == null ? 0 : Math.max(0, gameState.gameClock - m.readyAt) / warmth;
@@ -13430,6 +13567,7 @@ function qualityTier(ev, minScore = 35) {
     if (ev.capped) t = Math.min(t, 1);
   }
   if (t === 0 && isTraining() && !trainingFeature('q_reject')) t = 1; // aún no hay rechazos
+  if (t === 0 && isFree()) t = 1; // en cocina libre nadie rechaza un plato
   return t;
 }
 
@@ -13611,7 +13749,7 @@ function serveOrder(customerIndex, itemIndex, dish) {
     // Propina: ninguna si algún plato fue de 1 estrella; doble si todos fueron de 3.
     const ratio = c.patience / c.maxPatience;
     const tipRate = ratio > 0.5 ? TIP_RATE_HAPPY : (ratio > 0.25 ? TIP_RATE_OK : 0);
-    if (c.worstTier >= 2 && tipRate > 0 && !isTraining()) { // en el entrenamiento solo dan propina los retos
+    if (c.worstTier >= 2 && tipRate > 0 && !isTraining() && !isFree()) { // en el entrenamiento solo dan propina los retos
       const orderTotal = c.orders.reduce((t, o) => t + o.recipe.price, 0);
       const tip = Math.max(1, Math.round(orderTotal * tipRate * (c.worstTier === 3 ? 2 : 1)));
       addPropinas(tip);
@@ -13834,7 +13972,7 @@ function getOrdersProcessSeconds(orders) {
   return total;
 }
 
-function spawnCustomer() {
+function spawnCustomer(forced) {
   if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP') {
     if (!MultiplayerManager.isHost) return;
   }
@@ -13842,7 +13980,8 @@ function spawnCustomer() {
 
   const cfg = getCurrentLevelConfig();
   const activeCount = gameState.customerSlots.filter(s => s !== null).length;
-  if (activeCount >= cfg.max_customers) return;
+  if (activeCount >= (forced ? 4 : cfg.max_customers)) return;
+  if (isFree() && !forced && gameState.free.auto === false) return;
 
   if (gameState.gameMode === 'RASH') {
     if (gameState.rashCustomersSpawned >= cfg.customers) return;
@@ -13855,11 +13994,17 @@ function spawnCustomer() {
   const template = CUSTOMER_TEMPLATES[Math.floor(Math.random() * CUSTOMER_TEMPLATES.length)];
   const unlocked = getUnlockedRecipes();
 
-  const numOrders = Math.floor(Math.random() * cfg.max_orders) + 1;
+  const numOrders = forced ? 1 : Math.floor(Math.random() * cfg.max_orders) + 1;
   const orders = [];
-  for (let i = 0; i < numOrders; i++) {
-    const r = pickOrderRecipe(unlocked);
-    orders.push({ recipe: r, served: false });
+  if (isTraining()) {
+    // solo lo que aún falta para el reto (así el reto es finito y el tiempo no depende de la suerte)
+    orders.push(...trainingPickOrders(cfg));
+    if (!orders.length) return;
+  } else {
+    for (let i = 0; i < numOrders; i++) {
+      const r = forced ? forced : (isFree() ? freePickRecipe() : pickOrderRecipe(unlocked));
+      orders.push({ recipe: r, served: false });
+    }
   }
 
   let totalPatience = 0;
@@ -13914,7 +14059,7 @@ function gameTick() {
   for (let i = 0; i < gameState.customerSlots.length; i++) {
     const c = gameState.customerSlots[i];
     if (c) {
-      c.patience -= 1;
+      if (!isFree()) c.patience -= 1; // en cocina libre los clientes esperan siempre
       if (c.patience <= 0) {
         if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP' && !MultiplayerManager.isHost) {
           continue;
@@ -13992,6 +14137,18 @@ function updateHUD() {
     if (timerIcon) timerIcon.textContent = "⏱️";
     const timerEl = document.getElementById("hud-timer");
     if (timerEl) timerEl.textContent = `${gameState.timeLeft}s`;
+  } else if (gameState.gameMode === 'FREE' && gameState.free) {
+    if (badgeEl) badgeEl.textContent = 'LIBRE';
+    if (modeBtn) {
+      modeBtn.innerHTML = '<span class="hud-icon">🌿</span><span class="btn-text">Libre</span>';
+      modeBtn.style.background = "linear-gradient(180deg, #66bb6a, #2e7d32)";
+    }
+    if (goalLabel) goalLabel.textContent = "Servidos:";
+    const goalEl = document.getElementById("hud-goal");
+    if (goalEl) goalEl.textContent = gameState.customersServed;
+    if (timerIcon) timerIcon.textContent = "🌿";
+    const timerEl = document.getElementById("hud-timer");
+    if (timerEl) timerEl.textContent = "Sin prisa";
   } else if (gameState.gameMode === 'TRAINING' && gameState.training) {
     if (badgeEl) badgeEl.textContent = `RETO ${gameState.training.challenge.num}`;
     if (modeBtn) {
@@ -14190,8 +14347,8 @@ function startLevel(lvlIndex) {
     currentLevelIndex = lvlIndex !== undefined ? lvlIndex : 0;
     const cfg = NIVELES[currentLevelIndex];
     gameState.timeLeft = cfg.time;
-  } else if (gameState.gameMode === 'TRAINING') {
-    gameState.timeLeft = 0; // sin cuenta regresiva: el reloj sube y mide tu tiempo
+  } else if (gameState.gameMode === 'TRAINING' || gameState.gameMode === 'FREE') {
+    gameState.timeLeft = 0; // sin cuenta regresiva (entrenamiento: el reloj sube; cocina libre: sin tiempo)
   } else {
     if (lvlIndex !== undefined && lvlIndex !== null) {
       gameState.rashLevel = lvlIndex + 1;
@@ -14237,6 +14394,8 @@ function startLevel(lvlIndex) {
   updatePropinasHUD();
   const mottCap = document.querySelector('.stat-mottainai');
   if (mottCap) mottCap.style.display = (isTraining() && !trainingFeature('mottainai')) ? 'none' : '';
+  const freeBtn = document.getElementById('btn-free-menu');
+  if (freeBtn) freeBtn.style.display = isFree() ? '' : 'none';
   Object.keys(_lastStationSig).forEach(k => delete _lastStationSig[k]);
   updateMottainaiHUD();
 
@@ -14279,6 +14438,9 @@ function startLevel(lvlIndex) {
   if (gameState.gameMode === 'NORMAL' && cfg.intro && !isMultiplayerSession()) {
     setTimeout(() => showStationToast(`🏮 ${cfg.name}<br>${cfg.intro}`), 400);
   }
+  if (isFree()) {
+    setTimeout(() => showStationToast('🌿 Cocina libre: todo el catálogo, sin tiempo y sin perder clientes.<br>Toca 🍽️ para pedir el plato que quieras practicar.'), 400);
+  }
   if (isTraining()) {
     const ch = gameState.training.challenge;
     setTimeout(() => showStationToast(`🏋️ Reto ${ch.num}: ${ch.title}<br>${trainingObjectiveText(ch)}`), 400);
@@ -14293,7 +14455,7 @@ let startSelectedMode = (function () {
     const done = localStorage.getItem('ramen_tutorial_completed') === 'true';
     const last = localStorage.getItem('ramen_last_mode');
     if (!done) return 'TUTORIAL';
-    return ['TRAINING', 'NORMAL', 'RASH', 'TUTORIAL'].includes(last) ? last : 'TRAINING';
+    return ['TRAINING', 'FREE', 'NORMAL', 'RASH', 'TUTORIAL'].includes(last) ? last : 'TRAINING';
   } catch (e) { return 'TUTORIAL'; }
 })();
 let regSelectedAvatar = '🍜';
@@ -14321,7 +14483,7 @@ function showLockedModeToast(msg) {
 function renderStartModeDetail() {
   const el = document.getElementById('start-mode-detail');
   if (!el) return;
-  const ids = { TUTORIAL: 'tutorial', TRAINING: 'training', NORMAL: 'normal', RASH: 'rash' };
+  const ids = { TUTORIAL: 'tutorial', TRAINING: 'training', FREE: 'free', NORMAL: 'normal', RASH: 'rash' };
   const card = document.getElementById('start-mode-card-' + (ids[startSelectedMode] || 'tutorial'));
   if (!card) return;
   const name = card.querySelector('.start-mode-name');
@@ -14343,6 +14505,8 @@ document.addEventListener('click', e => {
 
 function updateStartModesDisplay() {
   setTimeout(renderStartModeDetail, 0);
+  const freeCard = document.getElementById('start-mode-card-free');
+  if (freeCard) freeCard.classList.toggle('active', startSelectedMode === 'FREE');
   const trnCard = document.getElementById('start-mode-card-training');
   if (trnCard) {
     trnCard.classList.toggle('active', startSelectedMode === 'TRAINING');
@@ -14406,6 +14570,11 @@ function updateStartModesDisplay() {
       btnPlay.style.background = "linear-gradient(135deg, #00b0ff 0%, #0091ea 60%, #01579b 100%)";
       btnPlay.style.borderColor = "#80d8ff";
       btnPlay.style.boxShadow = "0 5px 0 #002f6c, 0 0 20px rgba(0, 176, 255, 0.6)";
+    } else if (startSelectedMode === 'FREE') {
+      btnPlay.innerHTML = '<span style="font-size: 22px;">🌿</span><span>COCINAR LIBRE</span><span class="play-keyboard-tag desktop-only">[ESPACIO]</span>';
+      btnPlay.style.background = "linear-gradient(135deg, #66bb6a 0%, #43a047 60%, #1b5e20 100%)";
+      btnPlay.style.borderColor = "#c8e6c9";
+      btnPlay.style.boxShadow = "0 5px 0 #0b2e13, 0 0 20px rgba(102, 187, 106, 0.6)";
     } else if (startSelectedMode === 'TRAINING') {
       btnPlay.innerHTML = '<span style="font-size: 22px;">🏋️</span><span>ENTRENAR</span><span class="play-keyboard-tag desktop-only">[ESPACIO]</span>';
       btnPlay.style.background = "linear-gradient(135deg, #26a69a 0%, #00897b 60%, #004d40 100%)";
@@ -14426,7 +14595,7 @@ function updateStartModesDisplay() {
 }
 
 function setStartSelectedMode(mode) {
-  if (mode !== 'TUTORIAL' && mode !== 'TRAINING' && !isTutorialCompleted()) {
+  if (mode !== 'TUTORIAL' && mode !== 'TRAINING' && mode !== 'FREE' && !isTutorialCompleted()) {
     showLockedModeToast("🔒 Completa primero el Modo Tutorial para desbloquear el Modo Normal y Rash.");
     const cardEl = mode === 'NORMAL' 
       ? document.getElementById("start-mode-card-normal") 
@@ -14521,8 +14690,10 @@ window.addEventListener("keydown", (e) => {
     } else if (e.key === "2") {
       setStartSelectedMode('TRAINING');
     } else if (e.key === "3") {
-      setStartSelectedMode('NORMAL');
+      setStartSelectedMode('FREE');
     } else if (e.key === "4") {
+      setStartSelectedMode('NORMAL');
+    } else if (e.key === "5") {
       setStartSelectedMode('RASH');
     } else if (e.key === "r" || e.key === "R") {
       openLeaderboardModal();
@@ -14583,7 +14754,7 @@ const TUTORIAL_DATA = [
     phaseClass: "phase-1",
     targetId: "start-modes-grid",
     title: "🎮 Selector de Modos",
-    text: "Elige un modo: Entrenamiento (27 retos guiados sin cuenta regresiva), Campaña (8 niveles) o Rash. Campaña y Rash se desbloquean al completar este tutorial.",
+    text: "Elige un modo: Entrenamiento (27 retos guiados), Cocina libre (todo el catálogo, sin prisa), Campaña (8 niveles) o Rash. Campaña y Rash se desbloquean al completar este tutorial.",
     screen: "START"
   },
   {
@@ -15166,6 +15337,11 @@ function handleStartPlayClick() {
     return;
   }
 
+  if (startSelectedMode === 'FREE') {
+    executeStartGame();
+    return;
+  }
+
   if (!isTutorialCompleted()) {
     showLockedModeToast("🔒 Debes completar el Modo Tutorial antes de jugar este modo.");
     setStartSelectedMode('TUTORIAL');
@@ -15190,9 +15366,10 @@ function executeStartGame() {
 
   gameState.gameMode = startSelectedMode;
   if (startSelectedMode !== 'TRAINING') gameState.training = null;
+  gameState.free = startSelectedMode === 'FREE' ? { auto: true, areas: [...FREE_AREAS] } : null;
   if (startSelectedMode === 'NORMAL') {
     startLevel(0);
-  } else if (startSelectedMode === 'TRAINING') {
+  } else if (startSelectedMode === 'TRAINING' || startSelectedMode === 'FREE') {
     startLevel(0);
   } else {
     const savedRash = parseInt(safeStorage.getItem('ramen_mania_rash_level') || '1');
@@ -15203,6 +15380,9 @@ function executeStartGame() {
 function returnToStartMenu() {
   updatePropinasHUD();
   if (gameState.gameMode === 'TRAINING') gameState.training = null;
+  if (gameState.gameMode === 'FREE') gameState.free = null;
+  const freeBtnMenu = document.getElementById('btn-free-menu');
+  if (freeBtnMenu) freeBtnMenu.style.display = 'none';
   if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isInMultiplayer) {
     MultiplayerManager.leaveRoom();
   }
