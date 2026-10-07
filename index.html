@@ -294,6 +294,12 @@
     line-height: 1;
     flex-shrink: 0;
   }
+  /* Pantallas angostas: ahora hay 5 indicadores (tiempo, ventas, mottainai, propinas, meta) */
+  @media (max-width: 760px) {
+    .hud-capsule-horizontal { gap: 6px; padding: 3px 7px; margin-right: 4px; }
+    .hud-capsule-horizontal .hud-capsule-stat { font-size: 11px; gap: 2px; }
+    .hud-capsule-horizontal .stat-ico { font-size: 11px; }
+  }
 
   .stat-val-gold {
     color: #ffd54f;
@@ -653,6 +659,7 @@
     user-select: none;
   }
   .kitchen-area-tab-btn { position: relative; }
+  .kitchen-area-tab-btn.locked { opacity: 0.5; filter: grayscale(0.7); cursor: not-allowed; }
   .kitchen-area-tab-btn .area-dot {
     display: none;
     position: absolute;
@@ -2803,7 +2810,7 @@
     padding: 10px;
     margin: 12px 0;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 8px;
   }
   .level-stats .val-num { font-size: 20px; font-weight: 900; color: #b71c1c; }
@@ -5433,7 +5440,7 @@
               <span class="start-mode-icon">🏮</span>
               <span class="start-mode-name">CAMPAÑA</span>
             </div>
-            <span class="start-mode-badge">5 NIVELES</span>
+            <span class="start-mode-badge">8 NIVELES</span>
           </div>
           <div class="start-mode-desc">
             Campaña gastronómica por metas de venta en Soles. Desbloquea recetas e ingredientes.
@@ -5583,9 +5590,13 @@
         <span class="stat-ico">🪙</span>
         <span class="stat-val-money" id="hud-money">0</span>
       </div>
-      <div class="hud-capsule-stat stat-mottainai" title="Mottainai: 3 recortes = 1 dashi gratis (reemplaza el Caldo Shio)">
+      <div class="hud-capsule-stat stat-mottainai" title="Mottainai: 3 recortes = 1 dashi gratis (reemplaza el Caldo Shio o mejora el caldo Vegetariano)">
         <span class="stat-ico">♻️</span>
-        <span class="stat-val-gold" id="hud-mottainai">0/3 · 🐟0</span>
+        <span class="stat-val-gold" id="hud-mottainai">0/3·🐟0</span>
+      </div>
+      <div class="hud-capsule-stat stat-propinas" title="Propinas acumuladas: servirán para comprar mejoras">
+        <span class="stat-ico">🧧</span>
+        <span class="stat-val-gold" id="hud-propinas">0</span>
       </div>
       <div class="hud-capsule-stat stat-goal" title="Meta de Ventas">
         <span class="stat-ico">💰</span>
@@ -6285,6 +6296,9 @@
         <p style="font-size: 11px; color:#5d4037; margin-bottom: 6px;">
           Platos disponibles para servir en tu nivel actual.
         </p>
+        <p style="font-size: 11px; color:#b71c1c; font-weight:800; margin-bottom: 6px;">
+          🍜 Orden del ramen: fideo → caldo (Shio / Tonkotsu) → salsa → proteína → complementos.
+        </p>
         <table class="recipes-table" id="recipes-table">
           <thead>
             <tr>
@@ -6308,6 +6322,10 @@
         <div>
           <div class="val-num" id="end-money">S/ 0</div>
           <div class="val-lbl">Recaudado</div>
+        </div>
+        <div>
+          <div class="val-num" id="end-tips" style="color:#e65100;">🧧 0</div>
+          <div class="val-lbl">Propinas</div>
         </div>
         <div>
           <div class="val-num" id="end-served" style="color:#2e7d32;">0</div>
@@ -8106,21 +8124,28 @@ function sameDish(a, b) {
 // que entra al menú. Quedan fuera los que aún no se pueden preparar: Gyozas (al vapor, necesita la
 // 2.ª hornilla con sartén) y Maki Furai (termina en Frituras).
 const AREA_DISH_UNLOCKS = {
-  salteados: [['Yakimeshi', 2, 6], ['Chicken Teriyaki', 2, 6], ['Chaufa Shimaya', 3, 10], ['Yakitori', 3, 10],
-              ['Yakiramen', 4, 18], ['Yasaitame', 4, 18], ['Batayaki Ramen', 5, 25], ['Karameshi', 5, 25], ['Omuraisu', 5, 25]],
-  makis: [['Maki California', 3, 12], ['Maki Guacamole', 3, 12], ['Maki Acevichado', 4, 20], ['Maki Hotate', 4, 20],
-          ['Maki Amazon', 4, 20], ['Maki Yama', 5, 30], ['Maki Nin Niku', 5, 30], ['Maki Digion', 5, 30]],
-  frituras: [['Alitas', 4, 22], ['Kaarage', 4, 22], ['Tonkatsu', 5, 32], ['Katsu Kare', 5, 32], ['Chicken Katsu', 5, 32],
-             ['Ebi Furai', 5, 35], ['Age Gyozas', 5, 35]]
+  salteados: [['Yakimeshi', 3, 6], ['Chicken Teriyaki', 3, 6], ['Chaufa Shimaya', 4, 10], ['Yakitori', 4, 10],
+              ['Yakiramen', 6, 18], ['Yasaitame', 6, 18], ['Batayaki Ramen', 7, 25], ['Karameshi', 7, 25], ['Omuraisu', 8, 25]],
+  makis: [['Maki California', 5, 12], ['Maki Guacamole', 5, 12], ['Maki Acevichado', 7, 20], ['Maki Hotate', 7, 20],
+          ['Maki Amazon', 7, 20], ['Maki Yama', 8, 30], ['Maki Nin Niku', 8, 30], ['Maki Digion', 8, 30]],
+  frituras: [['Alitas', 6, 22], ['Kaarage', 6, 22], ['Tonkatsu', 7, 32], ['Chicken Katsu', 7, 32],
+             ['Katsu Kare', 8, 32], ['Ebi Furai', 8, 35], ['Age Gyozas', 8, 35]]
 };
 const AREA_CATALOGS = { salteados: RECETAS_SALTEADOS, makis: RECETAS_MAKIS, frituras: RECETAS_FRITURAS };
 
+// Campaña de 8 niveles: empieza tranquila (1 pedido por cliente, mucha paciencia, clientes espaciados)
+// y sube de a poco: una área nueva cada dos niveles, más pedidos por cliente y menos paciencia.
+// Meta = pedidos a servir × precio medio (las propinas van aparte); tiempo calculado para un jugador
+// que todavía está aprendiendo (ver tools/economia-niveles.cjs).
 const NIVELES = [
-  { level: 1, name: "Nivel 1: Aprendiz de Barra", ramen_names: ["Shio", "Shoyu"], max_orders: 1, max_customers: 2, goal: 160, time: 90 },
-  { level: 2, name: "Nivel 2: Cocinero de Turno", ramen_names: ["Shio", "Shoyu", "Miso", "Chashu"], max_orders: 2, max_customers: 3, goal: 320, time: 120 },
-  { level: 3, name: "Nivel 3: Chef de Partida", ramen_names: ["Shio", "Shoyu", "Miso", "Chashu", "Tonkotsu", "Tan tan"], max_orders: 2, max_customers: 3, goal: 500, time: 140 },
-  { level: 4, name: "Nivel 4: Sous Chef", ramen_names: ["Shio", "Shoyu", "Miso", "Chashu", "Tonkotsu", "Tan tan", "Ebi", "Bajiru"], max_orders: 3, max_customers: 4, goal: 700, time: 160 },
-  { level: 5, name: "Nivel 5: Maestro del Ramen", ramen_names: ["Shio", "Shoyu", "Miso", "Chashu", "Tonkotsu", "Tan tan", "Ebi", "Bajiru", "Vegetariano"], max_orders: 3, max_customers: 4, goal: 950, time: 180 }
+  { level: 1, name: "Nivel 1: Aprendiz de Barra", ramen_names: ["Shio","Shoyu"], max_orders: 1, max_customers: 2, goal: 160, time: 150, spawn_time: 9, patience_mult: 1.6, intro: "Solo ramen Shio y Shoyu. Sin prisa: arma el cuenco en orden y sirve." },
+  { level: 2, name: "Nivel 2: Cocinero de Turno", ramen_names: ["Shio","Shoyu","Miso","Chashu"], max_orders: 1, max_customers: 2, goal: 210, time: 170, spawn_time: 8, patience_mult: 1.4, intro: "Llegan Miso y Chashu." },
+  { level: 3, name: "Nivel 3: El Primer Wok", ramen_names: ["Shio","Shoyu","Miso","Chashu"], max_orders: 1, max_customers: 3, goal: 240, time: 190, spawn_time: 8, patience_mult: 1.3, intro: "Nueva área: SALTEADO. Tres clientes a la vez." },
+  { level: 4, name: "Nivel 4: Chef de Partida", ramen_names: ["Shio","Shoyu","Miso","Chashu","Tonkotsu","Tan tan"], max_orders: 2, max_customers: 3, goal: 280, time: 200, spawn_time: 7, patience_mult: 1.2, intro: "Tonkotsu y Tan tan; los clientes ya pueden pedir dos platos." },
+  { level: 5, name: "Nivel 5: Mesa de Makis", ramen_names: ["Shio","Shoyu","Miso","Chashu","Tonkotsu","Tan tan"], max_orders: 2, max_customers: 3, goal: 330, time: 210, spawn_time: 7, patience_mult: 1.15, intro: "Nueva área: MAKIS. Primero la base, luego enrolla y corta." },
+  { level: 6, name: "Nivel 6: La Freidora", ramen_names: ["Shio","Shoyu","Miso","Chashu","Tonkotsu","Tan tan","Ebi","Bajiru"], max_orders: 2, max_customers: 4, goal: 370, time: 240, spawn_time: 6, patience_mult: 1.1, intro: "Nueva área: FRITURAS. Empanizado, olla y corte." },
+  { level: 7, name: "Nivel 7: Sous Chef", ramen_names: ["Shio","Shoyu","Miso","Chashu","Tonkotsu","Tan tan","Ebi","Bajiru"], max_orders: 3, max_customers: 4, goal: 470, time: 260, spawn_time: 5, patience_mult: 1.05, intro: "Más platos de cada área y pedidos de hasta tres platos." },
+  { level: 8, name: "Nivel 8: Maestro del Ramen", ramen_names: ["Shio","Shoyu","Miso","Chashu","Tonkotsu","Tan tan","Ebi","Bajiru","Vegetariano"], max_orders: 3, max_customers: 4, goal: 560, time: 280, spawn_time: 4, patience_mult: 1, intro: "La carta completa. ¡A todo ritmo!" }
 ];
 
 const CUSTOMER_TEMPLATES = [
@@ -8168,6 +8193,7 @@ let gameState = {
   ],
   customerSlots: [null, null, null, null],
   customerSpawnTimer: 0,
+  propinasSession: 0, // propinas ganadas en esta partida (el total acumulado vive en localStorage)
   gameClock: 0, // segundos de juego (no avanza en pausa): edad de los platos listos
   recortes: 0, // mottainai: mermas aprovechables (3 = 1 dashi)
   dashi: 0
@@ -8526,9 +8552,10 @@ function sortIngredientsByCustomOrder(list) {
 function getUnlockedIngredients() {
   let list;
   if (gameState.activeArea && gameState.activeArea !== 'ramen') {
-    // Áreas nuevas (Salteados/Frituras/Makis): todavía no tienen sistema de
-    // desbloqueo por nivel, así que se muestran todos los ingredientes del área.
-    list = INGREDIENTES.filter(i => i.areas && i.areas.includes(gameState.activeArea));
+    // Áreas nuevas (Salteados/Frituras/Makis): solo los ingredientes de los platos ya desbloqueados.
+    const ids = new Set();
+    getUnlockedRecipes().filter(r => r.area === gameState.activeArea).forEach(r => r.ingredients.forEach(id => ids.add(id)));
+    list = INGREDIENTES.filter(i => ids.has(i.id));
     // En Frituras la harina, el huevo y el panko son los tres espacios de empanizado, no fichas.
     if (gameState.activeArea === 'frituras') list = list.filter(i => !FRY_BREADING_IDS.includes(i.id));
   } else if (isMultiplayerSession()) {
@@ -8576,6 +8603,10 @@ const CATEGORY_LABELS = { bases: 'Bases', salsas: 'Salsas', proteinas: 'Proteín
 
 function switchKitchenArea(areaId) {
   if (gameState.activeArea === areaId) return;
+  if (!isAreaUnlocked(areaId)) {
+    showStationToast(`🔒 ${AREA_LABELS[areaId]} se desbloquea en ${areaUnlockHint(areaId)}.`);
+    return;
+  }
   gameState.activeArea = areaId;
   gameState.currentCategory = 'todos';
   // Cada estación conserva su estado al cambiar de pestaña, como en una cocina real: los
@@ -10278,12 +10309,25 @@ function renderFryStation() {
   updateAreaTabAlerts();
 }
 
+// Un área se abre cuando ya hay algún plato suyo en el menú del nivel (o ronda) actual.
+function isAreaUnlocked(area) {
+  return area === 'ramen' || getUnlockedRecipes().some(r => r.area === area);
+}
+
+function areaUnlockHint(area) {
+  const list = AREA_DISH_UNLOCKS[area] || [];
+  const campaign = gameState.gameMode === 'NORMAL';
+  const min = Math.min(...list.map(d => (campaign ? d[1] : d[2])));
+  return campaign ? `nivel ${min}` : `la ronda ${min}`;
+}
+
 function renderAreaTabs() {
   const container = document.getElementById('kitchen-area-tabs');
   if (!container) return;
-  container.innerHTML = KITCHEN_AREAS.map(area => `
-    <button class="kitchen-area-tab-btn ${gameState.activeArea === area.id ? 'active' : ''}" data-area="${area.id}" data-alert="${getAreaAlert(area.id)}" onclick="switchKitchenArea('${area.id}')">${area.label}<i class="area-dot"></i></button>
-  `).join('');
+  container.innerHTML = KITCHEN_AREAS.map(area => {
+    const unlocked = isAreaUnlocked(area.id);
+    return `<button class="kitchen-area-tab-btn ${gameState.activeArea === area.id ? 'active' : ''} ${unlocked ? '' : 'locked'}" data-area="${area.id}" data-alert="${unlocked ? getAreaAlert(area.id) : ''}" ${unlocked ? '' : `title="Se desbloquea en ${areaUnlockHint(area.id)}" aria-disabled="true"`} onclick="switchKitchenArea('${area.id}')">${unlocked ? '' : '🔒 '}${area.label}<i class="area-dot"></i></button>`;
+  }).join('');
 }
 
 function renderCategoryFilters() {
@@ -11906,6 +11950,27 @@ function applyRemoteStationServed(area, index) {
   renderCustomers();
 }
 
+// --- Propinas: moneda aparte de las ventas, se acumula entre partidas para comprar mejoras ---
+const PROPINAS_KEY = 'ramen_propinas_wallet';
+const TIP_RATE_HAPPY = 0.12; // % del pedido si el cliente aún tiene más de la mitad de su paciencia
+const TIP_RATE_OK = 0.06;    // entre 25 % y 50 % de paciencia
+
+function getPropinasWallet() {
+  return parseInt(safeStorage.getItem(PROPINAS_KEY) || '0', 10) || 0;
+}
+
+function updatePropinasHUD() {
+  const el = document.getElementById('hud-propinas');
+  if (el) el.textContent = getPropinasWallet();
+}
+
+function addPropinas(n) {
+  if (!(n > 0)) return;
+  gameState.propinasSession += n;
+  safeStorage.setItem(PROPINAS_KEY, String(getPropinasWallet() + n));
+  updatePropinasHUD();
+}
+
 // --- Mottainai (cero desperdicio): las mermas limpias no se tiran, se juntan ---
 // Puntas de maki, recortes de katsu y lo descartado sin quemar suman recortes; cada 3 hacen 1 dashi,
 // que reemplaza el calentado del Caldo Shio (fondo de aprovechamiento, como en la cocina real).
@@ -11915,7 +11980,7 @@ const MOTTAINAI_MIN_DISCARD = 3; // un descarte solo cuenta si ya había trabajo
 
 function updateMottainaiHUD() {
   const el = document.getElementById('hud-mottainai');
-  if (el) el.textContent = `${gameState.recortes}/${MOTTAINAI_PER_DASHI} · 🐟${gameState.dashi}`;
+  if (el) el.textContent = `${gameState.recortes}/${MOTTAINAI_PER_DASHI}·🐟${gameState.dashi}`;
 }
 
 function addTrimmings(n, source) {
@@ -12083,7 +12148,7 @@ const FRESHNESS_CURVES = {
 function customerMinScore(name) {
   let base;
   if (isMultiplayerSession()) base = 35;
-  else if (gameState.gameMode === 'NORMAL') base = 25 + currentLevelIndex * 5;
+  else if (gameState.gameMode === 'NORMAL') base = 15 + currentLevelIndex * 5;
   else base = 25 + Math.min(20, Math.floor(((gameState.rashLevel || 1) - 1) / 2));
   return Math.max(10, Math.min(60, base + (CUSTOMER_PICKY[name] || 0)));
 }
@@ -12174,7 +12239,7 @@ function getReadyDishes() {
   const list = [];
   gameState.bowls.forEach((b, i) => {
     if (b && b.matchedRamen) list.push({ area: 'ramen', index: i, recipe: b.matchedRamen, quality: b.orderErrors ? 'ORDEN' : 'PERFECTO', label: `Tazón ${i + 1}`,
-      meta: { orderErrors: b.orderErrors || 0, readyAt: b.readyAt } });
+      meta: { orderErrors: b.orderErrors || 0, dashiBase: !!b.dashiBase, readyAt: b.readyAt } });
   });
   gameState.woks.forEach((w, i) => {
     if (w && w.result && w.matchedRecipe) list.push({ area: 'salteados', index: i, recipe: w.matchedRecipe, quality: w.result, label: `Wok ${i + 1}`,
@@ -12289,7 +12354,8 @@ function serveOrder(customerIndex, itemIndex, dish) {
   const tier = qualityTier(ev, c.minScore != null ? c.minScore : 35);
   if (tier === 0) { rejectDish(customerIndex, c, orderItem, dish, ev); return; }
 
-  const pay = Math.round(orderItem.recipe.price * QUALITY_PAY_MULT[tier]);
+  let pay = Math.round(orderItem.recipe.price * QUALITY_PAY_MULT[tier]);
+  if (dish.meta && dish.meta.dashiBase && orderItem.recipe.name === 'Vegetariano') pay = Math.round(pay * 1.2);
   serveVfx(customerIndex, pay, tier);
   orderItem.served = true;
   orderItem.quality = dish.quality;
@@ -12324,8 +12390,15 @@ function serveOrder(customerIndex, itemIndex, dish) {
   if (allServed) {
     // Propina: ninguna si algún plato fue de 1 estrella; doble si todos fueron de 3.
     const ratio = c.patience / c.maxPatience;
-    const baseTip = ratio > 0.5 ? 8 : (ratio > 0.25 ? 4 : 0);
-    if (c.worstTier >= 2) gameState.money += baseTip * (c.worstTier === 3 ? 2 : 1);
+    const tipRate = ratio > 0.5 ? TIP_RATE_HAPPY : (ratio > 0.25 ? TIP_RATE_OK : 0);
+    if (c.worstTier >= 2 && tipRate > 0) {
+      const orderTotal = c.orders.reduce((t, o) => t + o.recipe.price, 0);
+      const tip = Math.max(1, Math.round(orderTotal * tipRate * (c.worstTier === 3 ? 2 : 1)));
+      addPropinas(tip);
+      const card = document.getElementById(`cust-slot-card-${customerIndex}`);
+      const cr = card ? card.getBoundingClientRect() : null;
+      if (cr && cr.width) vfxText(`+${tip} 🧧`, cr.left + cr.width / 2, cr.top + cr.height + 4, '#ff8a65');
+    }
     gameState.customerSlots[customerIndex] = null;
     closeCustomerOrderModal();
     shiftCustomersLeft(); // Mover la fila hacia la izquierda
@@ -12441,6 +12514,12 @@ function toggleIngredientInBowl(ingId) {
   bowl.orderErrors = ramenOrderErrors(bowl.ingredients);
   playSound('add');
   if (outOfOrder) showStationToast('🍜 Orden del ramen: fideo → caldo → salsa → proteína → complementos. Este ingrediente llegó tarde (−8 pts de proceso).');
+  if (ingId === 4 && gameState.dashi > 0) {
+    gameState.dashi--;
+    bowl.dashiBase = true;
+    updateMottainaiHUD();
+    showStationToast('🐟 Dashi casero en el caldo: el ramen Vegetariano se paga +20 %.');
+  }
 
   if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP') {
     MultiplayerManager.syncSharedBowl(gameState.activeBowlIndex, bowl);
@@ -12463,6 +12542,7 @@ function removeIngredientFromBowl(bowlIndex, ingId) {
 
   // Restaurar stock si se retira un ingrediente preparado
   if (ingId === 1) kitchenState.stocks.noodles++;
+  if (ingId === 4 && bowl.dashiBase) { bowl.dashiBase = false; gameState.dashi++; updateMottainaiHUD(); }
   if (ingId === 2) {
     if (bowl.dashiUsed) { bowl.dashiUsed = false; gameState.dashi++; updateMottainaiHUD(); }
     else kitchenState.stocks.shio++;
@@ -12566,7 +12646,7 @@ function spawnCustomer() {
     totalPatience = baseP + (orders.length - 1) * 8 + processSeconds;
   } else {
     const totalIngredients = orders.reduce((acc, o) => acc + o.recipe.ingredients.length, 0);
-    totalPatience = 25 + totalIngredients * 2.5 + processSeconds;
+    totalPatience = (25 + totalIngredients * 2.5 + processSeconds) * (cfg.patience_mult || 1);
   }
 
   gameState.customerSlots[emptyIndex] = {
@@ -12647,7 +12727,7 @@ function gameTick() {
 
   const cfg = getCurrentLevelConfig();
   gameState.customerSpawnTimer++;
-  const targetSpawnTime = (gameState.gameMode === 'RASH') ? (cfg.spawn_time || 3) : 4;
+  const targetSpawnTime = (gameState.gameMode === 'RASH') ? (cfg.spawn_time || 3) : (cfg.spawn_time || 4);
 
   if (gameState.customerSpawnTimer >= targetSpawnTime) {
     if (typeof MultiplayerManager === 'undefined' || !MultiplayerManager.isGameActive || MultiplayerManager.gameMode !== 'COOP' || MultiplayerManager.isHost) {
@@ -12758,6 +12838,8 @@ function winLevel() {
   document.getElementById("end-money").textContent = `S/ ${gameState.money}`;
   document.getElementById("end-served").textContent = gameState.customersServed;
   document.getElementById("end-lost").textContent = gameState.customersLost;
+  const endTips = document.getElementById("end-tips");
+  if (endTips) endTips.textContent = `🧧 ${gameState.propinasSession}`;
 
   if (gameState.gameMode === 'NORMAL') {
     if (currentLevelIndex < NIVELES.length - 1) {
@@ -12767,7 +12849,7 @@ function winLevel() {
       btn.textContent = `▶️ Siguiente Nivel (${currentLevelIndex + 2})`;
     } else {
       title.textContent = "🏆 ¡ERES EL MAESTRO SUPREMO DEL RAMEN!";
-      desc.textContent = "¡Has dominado los 5 niveles con los 9 tipos de ramen y todos los 30 ingredientes!";
+      desc.textContent = "¡Has dominado los 8 niveles: ramen, salteados, makis y frituras!";
       title.style.color = "var(--ramen-gold)";
       btn.textContent = "🔄 Volver a Jugar Campaña";
     }
@@ -12805,6 +12887,8 @@ function loseLevel() {
   document.getElementById("end-money").textContent = `S/ ${gameState.money}`;
   document.getElementById("end-served").textContent = gameState.customersServed;
   document.getElementById("end-lost").textContent = gameState.customersLost;
+  const endTips = document.getElementById("end-tips");
+  if (endTips) endTips.textContent = `🧧 ${gameState.propinasSession}`;
 
   if (gameState.gameMode === 'NORMAL') {
     title.textContent = "⏱️ Tiempo Agotado";
@@ -12909,6 +12993,8 @@ function startLevel(lvlIndex) {
   gameState.recortes = 0;
   gameState.dashi = 0;
   gameState.gameClock = 0;
+  gameState.propinasSession = 0;
+  updatePropinasHUD();
   Object.keys(_lastStationSig).forEach(k => delete _lastStationSig[k]);
   updateMottainaiHUD();
 
@@ -12947,6 +13033,9 @@ function startLevel(lvlIndex) {
 
   clearInterval(gameLoopInterval);
   gameLoopInterval = setInterval(gameTick, 1000);
+  if (gameState.gameMode === 'NORMAL' && cfg.intro && !isMultiplayerSession()) {
+    setTimeout(() => showStationToast(`🏮 ${cfg.name}<br>${cfg.intro}`), 400);
+  }
 }
 
 /* ==========================================================================
@@ -13196,7 +13285,7 @@ const TUTORIAL_DATA = [
     phaseClass: "phase-1",
     targetId: "start-modes-grid",
     title: "🎮 Selector de Modos",
-    text: "Completa este tutorial para desbloquear la Campaña Normal (5 niveles) y Rash.",
+    text: "Completa este tutorial para desbloquear la Campaña Normal (8 niveles) y Rash.",
     screen: "START"
   },
   {
@@ -13304,7 +13393,23 @@ const TUTORIAL_DATA = [
     phaseClass: "phase-3",
     targetId: "customers-container",
     title: "💰 Servir a Kenji",
-    text: "Al completar la receta exacta de Kenji se despacha solo y cobras tus Soles.",
+    text: "Toca al cliente con su plato listo para servirlo. Verás ⭐ en el pedido: 3 estrellas pagan más y dejan propina doble.",
+    screen: "KITCHEN"
+  },
+  {
+    phase: 3,
+    phaseClass: "phase-3",
+    targetId: "kitchen-area-tabs",
+    title: "🔓 Más áreas de cocina",
+    text: "A medida que subes de nivel se abren Salteado, Makis y Frituras. Cada una trae su propia estación; las que ves con 🔒 aún están cerradas.",
+    screen: "KITCHEN"
+  },
+  {
+    phase: 3,
+    phaseClass: "phase-3",
+    targetId: "hud-stats-bar",
+    title: "🧧 Propinas y ♻️ Dashi",
+    text: "Las propinas se guardan entre partidas y servirán para comprar mejoras. Los recortes (♻️) se convierten en dashi gratis.",
     screen: "KITCHEN"
   }
 ];
