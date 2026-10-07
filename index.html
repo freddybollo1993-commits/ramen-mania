@@ -2817,6 +2817,48 @@
     padding: 18px;
   }
   .level-end-modal h2 { font-family: 'Fredoka One', cursive; font-size: 26px; margin-bottom: 6px; }
+  /* Entrenamiento: lista de retos */
+  .training-card { max-width: min(96vw, 820px); max-height: 94vh; display: flex; flex-direction: column; }
+  .training-card .modal-body { overflow-y: auto; }
+  .trn-summary { background: #fff3e0; border: 1.5px solid #e0b98a; border-radius: 10px; padding: 8px 10px; margin-bottom: 8px; display: flex; flex-direction: column; gap: 5px; }
+  .trn-sumline { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; font-size: 12px; color: #3e2723; }
+  .trn-bar { height: 8px; border-radius: 4px; background: #d7ccc8; overflow: hidden; }
+  .trn-bar i { display: block; height: 100%; background: linear-gradient(90deg, #26a69a, #ffb300); }
+  .trn-note { font-size: 10px; color: #5d4037; }
+  .trn-feats { display: flex; flex-wrap: wrap; gap: 4px; }
+  .trn-featbox summary { font-size: 11px; font-weight: 800; color: #5d4037; cursor: pointer; padding: 2px 0; }
+  .trn-featbox .trn-feats { margin-top: 4px; }
+  .trn-feat { font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 10px; background: #cfd8dc; color: #546e7a; }
+  .trn-feat.on { background: #c8e6c9; color: #1b5e20; }
+  .trn-chapter { margin-bottom: 8px; }
+  .trn-chead { display: flex; justify-content: space-between; font-size: 12px; font-weight: 900; color: #b71c1c; margin-bottom: 4px; }
+  .trn-cprog { color: #6d4c41; font-size: 10px; }
+  .trn-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 6px; }
+  .trn-card { position: relative; display: flex; flex-direction: column; gap: 2px; text-align: left; border: 1.5px solid #e0b98a; border-radius: 9px; padding: 6px 7px 6px 26px; background: #fff8e1; cursor: pointer; min-height: 46px; }
+  .trn-card.done { background: #e8f5e9; border-color: #81c784; }
+  .trn-card.locked { background: #eceff1; border-color: #cfd8dc; color: #90a4ae; cursor: not-allowed; }
+  .trn-card.next { box-shadow: 0 0 0 2px #ff9800; }
+  .trn-num { position: absolute; left: 5px; top: 5px; width: 17px; height: 17px; border-radius: 50%; background: #5d4037; color: #fff; font-size: 9px; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+  .trn-ctitle { font-size: 10.5px; font-weight: 900; line-height: 1.1; color: #3e2723; }
+  .trn-card.locked .trn-ctitle { color: #90a4ae; }
+  .trn-meta { font-size: 10px; font-weight: 800; color: #6d4c41; }
+  .trn-back { border: 0; background: transparent; color: #b71c1c; font-weight: 900; font-size: 11px; cursor: pointer; padding: 0 0 6px; }
+  .trn-brief { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+  .trn-bcol h3 { font-size: 11px; color: #b71c1c; margin: 6px 0 2px; font-weight: 900; }
+  .trn-list { margin: 0; padding-left: 16px; font-size: 12px; color: #3e2723; }
+  .trn-dishes { font-size: 11px; color: #4e342e; margin-bottom: 2px; }
+  .trn-unlock { font-size: 11px; font-weight: 800; color: #2e7d32; background: #e8f5e9; border-radius: 8px; padding: 4px 8px; margin: 6px 0; }
+  .trn-hist { font-size: 11px; color: #5d4037; margin: 6px 0; }
+  .trn-go { width: 100%; font-size: 13px; padding: 8px; margin-top: 4px; }
+  .training-result-card { max-width: min(92vw, 460px); text-align: center; }
+  .trn-medal { font-size: 44px; line-height: 1; }
+  .trn-rtitle { font-size: 14px; font-weight: 900; color: #3e2723; margin: 4px 0; }
+  .trn-rline { font-size: 12px; color: #4e342e; margin: 3px 0; }
+  .trn-up { color: #2e7d32; font-weight: 900; }
+  .trn-down { color: #c62828; font-weight: 800; }
+  /* Entrenamiento: estaciones aún bloqueadas */
+  .bowl-locked, .wok-dock-card.wok-locked { opacity: 0.4; filter: grayscale(0.9) !important; position: relative; }
+  .bowl-locked::after, .wok-dock-card.wok-locked::after { content: '🔒'; position: absolute; right: 8px; top: 6px; font-size: 18px; }
   /* Cuenta */
   .account-card { max-width: min(94vw, 560px); }
   .acc-status { display: flex; flex-direction: column; gap: 2px; background: #fff3e0; border: 1.5px solid #e0b98a; border-radius: 10px; padding: 8px 10px; margin-bottom: 8px; font-size: 13px; color: #3e2723; }
@@ -3549,6 +3591,60 @@
     background: rgba(0, 229, 255, 0.25);
     color: #fff;
     box-shadow: 0 0 8px rgba(0, 229, 255, 0.4);
+  }
+
+  /* ==========================================
+     INICIO REDISEÑADO: una acción principal, modos compactos, accesos rápidos agrupados
+     ========================================== */
+  #start-screen .start-screen-top-bar { padding: 2px 4px; flex-wrap: nowrap; }
+  .start-top-left, .start-top-right { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  #start-screen .start-audio-btn { width: 38px; height: 38px; padding: 0; justify-content: center; border-radius: 50%; font-size: 16px; }
+  #start-screen .start-audio-btn .start-btn-text { display: none; }
+  .start-wallet-chip { height: 38px; padding: 0 12px; border-radius: 19px; border: 1px solid rgba(255, 179, 0, 0.45); background: rgba(30, 14, 10, 0.88); color: #ffd54f; font-weight: 900; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+  .start-wallet-chip:hover { border-color: #ffb300; color: #fff; }
+  #start-screen .start-screen-content { gap: 6px; }
+  #start-screen .start-logo-wrap { flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px 12px; }
+  #start-screen .start-mascot-container { width: 44px; height: 44px; }
+  #start-screen .start-mascot-img { width: 44px; height: 44px; }
+  #start-screen .start-logo-title { font-size: 26px; }
+  #start-screen .start-logo-subtitle { flex-basis: 100%; font-size: 9px; }
+  #start-screen .start-modes-grid { grid-template-columns: repeat(5, 1fr); gap: 6px; max-width: 900px; }
+  #start-screen .start-mode-card { padding: 7px 6px; min-height: 52px; border-width: 1.5px; border-radius: 12px; justify-content: center; align-items: center; text-align: center; }
+  #start-screen .start-mode-card .start-mode-desc, #start-screen .start-mode-card .start-mode-footer { display: none; }
+  #start-screen .start-mode-header { flex-direction: column; align-items: center; gap: 3px; width: 100%; }
+  #start-screen .start-mode-title-wrap { flex-direction: column; gap: 1px; align-items: center; }
+  #start-screen .start-mode-icon { font-size: 18px; }
+  #start-screen .start-mode-name { font-size: 11px; letter-spacing: 0.3px; }
+  #start-screen .start-mode-badge { font-size: 8.5px; padding: 1px 6px; }
+  #start-screen .start-mode-card.training.active { border-color: #4db6ac; box-shadow: 0 0 0 2px rgba(77, 182, 172, 0.45), 0 6px 16px rgba(38, 166, 154, 0.3); }
+  #start-screen .start-mode-card.locked { opacity: 0.6; }
+  #start-screen .start-mode-card.locked::after { content: '🔒'; left: auto; right: 6px; top: 4px; transform: none; background: none; border: 0; box-shadow: none; padding: 0; font-size: 12px; letter-spacing: 0; }
+  .start-detail { width: 100%; max-width: 900px; display: flex; justify-content: space-between; align-items: center; gap: 12px; background: rgba(20, 9, 8, 0.72); border: 1px solid rgba(255, 179, 0, 0.25); border-radius: 12px; padding: 6px 12px; min-height: 44px; box-sizing: border-box; }
+  .start-detail-main { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+  .start-detail-title { font-family: 'Fredoka One', cursive; font-size: 14px; color: #ffca28; }
+  .start-detail-desc { font-size: 11px; color: #d7ccc8; line-height: 1.25; }
+  .start-detail-status { font-size: 11px; font-weight: 800; color: #80deea; text-align: right; max-width: 36%; line-height: 1.25; }
+  #start-screen .btn-play-hero { padding: 8px 44px; font-size: 19px; }
+  #start-screen .start-btn-row { gap: 6px; flex-wrap: nowrap; }
+  #start-screen .btn-start-sec { min-height: 40px; padding: 4px 12px; font-size: 11.5px; }
+  .start-more-wrap { position: relative; }
+  .start-more-menu { display: none; position: absolute; bottom: 46px; right: 0; min-width: 220px; background: #2a120d; border: 1.5px solid #6d392b; border-radius: 12px; padding: 6px; z-index: 300; flex-direction: column; gap: 2px; box-shadow: 0 8px 22px rgba(0,0,0,0.7); }
+  .start-more-menu.open { display: flex; }
+  .start-more-menu button { background: transparent; border: 0; color: #ffe0b2; font-size: 12px; font-weight: 800; text-align: left; padding: 8px 10px; border-radius: 8px; cursor: pointer; min-height: 36px; }
+  .start-more-menu button:hover { background: #4e261d; color: #fff; }
+  .start-more-menu .start-device-top-bar { max-width: none; width: auto; white-space: normal; font-size: 10px; margin: 2px 4px; }
+  @media (max-width: 760px) {
+    #start-screen .start-mode-badge { display: none; }
+    #start-screen .start-mode-name { font-size: 9.5px; }
+    #start-screen .start-logo-title { font-size: 22px; }
+    #start-screen .btn-start-sec { padding: 4px 8px; font-size: 10.5px; }
+    .start-detail-status { max-width: 42%; font-size: 10px; }
+    .start-detail-desc { font-size: 10px; }
+  }
+  @media (max-height: 430px) {
+    #start-screen .start-logo-subtitle { display: none; }
+    #start-screen .start-mascot-container, #start-screen .start-mascot-img { width: 34px; height: 34px; }
+    #start-screen .start-logo-title { font-size: 20px; }
   }
 
   /* ==========================================
@@ -5405,27 +5501,18 @@
 
     <!-- BARRA SUPERIOR UNIFICADA (RESPETA SAFE AREA) -->
     <div class="start-screen-top-bar">
-      <!-- IDENTIFICADOR DE DISPOSITIVO (ARRIBA A LA IZQUIERDA) -->
-      <div id="start-device-info-bar" class="start-device-top-bar" onclick="showDeviceInfoModal()" title="Identificador de Hardware seguro para vincular tus récords">
-        🛡️ Dispositivo: Detectando...
-      </div>
-
-      <!-- ACCIONES CENTRALES SUPERIORES (AUDIO TOGGLE + ATAJOS) -->
-      <div class="start-top-center-actions">
+      <!-- IZQUIERDA: audio y pantalla completa (solo iconos) -->
+      <div class="start-top-center-actions start-top-left">
         <button class="start-audio-btn" id="start-audio-toggle" onclick="toggleAudioMute()" title="Activar/Silenciar efectos sonoros (Atajo: M)">
           <span id="start-audio-icon">🔊</span>
-          <span id="start-audio-text">Audio</span>
+          <span id="start-audio-text" class="start-btn-text">Audio</span>
         </button>
-        <button class="start-shortcuts-btn" onclick="openIngredientOrderModal()" title="Personalizar orden de los ingredientes en el tablero RAMEN (Atajo: O)">
-          <span>🍱</span>
-          <span class="btn-text-desktop">Ingredientes</span>
-        </button>
-        <button class="start-shortcuts-btn" onclick="openShortcutsModal()" title="Ver atajos de teclado y controles arcade">
-          <span>⌨️</span>
-          <span class="btn-text-desktop">Atajos</span>
-        </button>
+        <button class="start-audio-btn" onclick="toggleFullScreen()" title="Pantalla completa (Atajo: F)" aria-label="Pantalla completa">⛶</button>
       </div>
 
+      <!-- DERECHA: propinas y perfil -->
+      <div class="start-top-right">
+        <button class="start-wallet-chip" onclick="openUpgradesModal()" title="Tus propinas: se gastan en la tienda de mejoras" aria-label="Propinas y mejoras">🧧 <b id="start-wallet-val">0</b></button>
       <!-- BADGE SUPERIOR DE USUARIO VINCULADO (ACCESO AL PERFIL EN EL MENÚ) -->
       <div class="start-linked-user-bar" id="start-linked-user-bar" onclick="openProfileModal()" style="display: block;" title="Toca para ver o personalizar tu perfil de Chef">
         <div class="linked-user-pill">
@@ -5438,6 +5525,7 @@
           <span class="pill-status-dot" id="start-pill-dot" title="Dispositivo Conectado">●</span>
           <span class="pill-edit-icon" title="Editar">✏️</span>
         </div>
+      </div>
       </div>
     </div>
 
@@ -5477,6 +5565,28 @@
           <div class="start-mode-footer">
             <div class="start-mode-status" id="start-tutorial-stats-text" style="color:#80deea;">
               ⭐ Paso inicial para nuevos Chefs
+            </div>
+            <div class="start-mode-radio">
+              <span class="radio-indicator"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modo Entrenamiento -->
+        <div class="start-mode-card training" id="start-mode-card-training" onclick="setStartSelectedMode('TRAINING')">
+          <div class="start-mode-header">
+            <div class="start-mode-title-wrap">
+              <span class="start-mode-icon">🏋️</span>
+              <span class="start-mode-name" style="color:#4db6ac;">ENTRENAMIENTO</span>
+            </div>
+            <span class="start-mode-badge" style="background:#26a69a; color:#00251f;">27 RETOS</span>
+          </div>
+          <div class="start-mode-desc">
+            Retos sin cuenta regresiva que van de lo corto y fácil a lo largo y exigente por las 4 áreas. Mides tu mejora por tiempo, ganas propinas y desbloqueas las funciones de la cocina.
+          </div>
+          <div class="start-mode-footer">
+            <div class="start-mode-status" id="start-training-stats-text" style="color:#80cbc4;">
+              🏋️ Retos 0/27
             </div>
             <div class="start-mode-radio">
               <span class="radio-indicator"></span>
@@ -5551,6 +5661,9 @@
         </div>
       </div>
 
+      <!-- DETALLE DEL MODO ELEGIDO -->
+      <div class="start-detail" id="start-mode-detail" aria-live="polite"></div>
+
       <!-- BOTÓN PLAY PRINCIPAL HERO -->
       <div class="start-play-box" style="margin: 4px 0;">
         <button class="btn-play-hero" id="btn-start-play" onclick="handleStartPlayClick()">
@@ -5560,40 +5673,33 @@
         </button>
       </div>
 
-      <!-- BOTONES SECUNDARIOS DE NAVEGACIÓN DIRECTA -->
+      <!-- ACCESOS RÁPIDOS (los menos usados van en "Más") -->
       <div class="start-btn-row" id="start-btn-row-box">
-        <button class="btn-start-sec btn-ranking" onclick="openLeaderboardModal()" title="Ver clasificación y mejores Chefs">
-          <span class="btn-ico">🏆</span>
-          <span>Ver Ranking</span>
+        <button class="btn-start-sec btn-ranking" onclick="openLeaderboardModal()" title="Ver clasificación y mejores Chefs (R)">
+          <span class="btn-ico">🏆</span><span>Ranking</span>
         </button>
-        <button class="btn-start-sec btn-secretos" onclick="openSecretosModal()" title="Secretos culinarios y recetas especiales">
-          <span class="btn-ico">✨</span>
-          <span>Secretos del Chef</span>
-        </button>
-        <button class="btn-start-sec btn-account" onclick="openAccountModal()" title="Tu cuenta: clave de acceso y cambio de cuenta">
-          <span class="btn-ico">🔐</span>
-          <span id="acc-btn-label">Cuenta</span>
+        <button class="btn-start-sec btn-recipe" onclick="openRecipeModal()" title="Consulta ingredientes y recetas (L)">
+          <span class="btn-ico">📖</span><span>Recetario</span>
         </button>
         <button class="btn-start-sec btn-upgrades" onclick="openUpgradesModal()" title="Gasta tus propinas en mejoras para la cocina">
-          <span class="btn-ico">🧧</span>
-          <span>Mejoras <b class="upg-start-badge" id="start-upg-badge">0</b></span>
+          <span class="btn-ico">🧧</span><span>Mejoras <b class="upg-start-badge" id="start-upg-badge">0</b></span>
         </button>
-        <button class="btn-start-sec btn-recipe" onclick="openRecipeModal()" title="Consulta ingredientes y recetas de ramen">
-          <span class="btn-ico">📖</span>
-          <span>Recetario</span>
+        <button class="btn-start-sec btn-account" onclick="openAccountModal()" title="Tu cuenta: clave de acceso y cambio de cuenta">
+          <span class="btn-ico">🔐</span><span id="acc-btn-label">Cuenta</span>
         </button>
-        <button class="btn-start-sec btn-order-config" onclick="openIngredientOrderModal()" title="Personalizar orden de los ingredientes en el tablero RAMEN (Atajo: O)">
-          <span class="btn-ico">🍱</span>
-          <span>Ordenar Ingredientes</span>
-        </button>
-        <button class="btn-start-sec btn-shortcuts" onclick="openShortcutsModal()" title="Atajos de teclado arcade en PC">
-          <span class="btn-ico">⌨️</span>
-          <span>Atajos</span>
-        </button>
-        <button class="btn-start-sec btn-fullscreen" id="btn-start-fullscreen" onclick="toggleFullScreen()" title="Modo Pantalla Completa (F)">
-          <span class="btn-ico">⛶</span>
-          <span>Pantalla Completa</span>
-        </button>
+        <div class="start-more-wrap">
+          <button class="btn-start-sec btn-more" onclick="toggleStartMoreMenu(event)" aria-haspopup="true" title="Más opciones">
+            <span class="btn-ico">⋯</span><span>Más</span>
+          </button>
+          <div class="start-more-menu" id="start-more-menu">
+            <button onclick="openSecretosModal(); toggleStartMoreMenu()">✨ Secretos del Chef</button>
+            <button onclick="openIngredientOrderModal(); toggleStartMoreMenu()">🍱 Ordenar ingredientes</button>
+            <button onclick="openShortcutsModal(); toggleStartMoreMenu()">⌨️ Atajos de teclado</button>
+            <button id="btn-start-fullscreen" onclick="toggleFullScreen(); toggleStartMoreMenu()">⛶ Pantalla completa</button>
+            <div id="start-device-info-bar" class="start-device-top-bar" onclick="showDeviceInfoModal(); toggleStartMoreMenu()" title="Identificador de hardware para vincular tus récords">🛡️ Dispositivo: Detectando...</div>
+            <button onclick="forceAppCacheUpdate()" title="Limpiar caché y forzar descarga de la última versión">🔄 Actualizar juego</button>
+          </div>
+        </div>
       </div>
 
     </div>
@@ -5601,14 +5707,12 @@
     <!-- PIE DE PÁGINA -->
     <div class="start-footer-bar">
       <div class="start-footer-left">
-        <span id="start-network-status-bar">🟢 En Línea · Supabase Conectado</span>
+        <span id="start-network-status-bar">🟢 En línea</span>
       </div>
       <div class="start-footer-center desktop-only">
-        <span class="footer-shortcut-hint">🕹️ Arcade: <strong>[Espacio]</strong> Jugar · <strong>[1,2,3]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Fullscreen</span>
+        <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-4]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right">
-        <button onclick="forceAppCacheUpdate()" class="btn-cache-update" title="Limpiar caché y forzar descarga de la última versión">🔄 Limpiar Caché (v16.0 - Multijugador)</button>
-      </div>
+      <div class="start-footer-right"></div>
     </div>
   </div>
 
@@ -5657,7 +5761,7 @@
         <span class="stat-ico">🧧</span>
         <span class="stat-val-gold" id="hud-propinas">0</span>
       </div>
-      <div class="hud-capsule-stat stat-goal" title="Meta de Ventas">
+      <div class="hud-capsule-stat stat-goal" title="Meta de ventas (en el entrenamiento: avance del reto, toca para ver el objetivo)" onclick="showTrainingObjective()">
         <span class="stat-ico">💰</span>
         <span class="stat-val-gold" id="hud-goal">S/160</span>
       </div>
@@ -6345,6 +6449,22 @@
   </div>
 
   <!-- MODAL DE RECETAS -->
+  <!-- ENTRENAMIENTO: lista de retos, ficha y resultado -->
+  <div class="modal-overlay" id="training-modal" onclick="closeTrainingModal()">
+    <div class="modal-card upgrades-card training-card" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h2 id="trn-title">🏋️ Entrenamiento</h2>
+        <button class="btn btn-danger" style="padding: 3px 8px;" onclick="closeTrainingModal()">✕</button>
+      </div>
+      <div class="modal-body" id="trn-body"></div>
+    </div>
+  </div>
+  <div class="modal-overlay" id="training-result-modal">
+    <div class="modal-card training-result-card" onclick="event.stopPropagation()">
+      <div class="modal-body" id="trn-result-body"></div>
+    </div>
+  </div>
+
   <!-- CUENTA: clave de acceso y cambio de cuenta -->
   <div class="modal-overlay" id="account-modal" onclick="closeAccountModal()">
     <div class="modal-card upgrades-card account-card" onclick="event.stopPropagation()">
@@ -7125,8 +7245,9 @@
           <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; font-size:11.5px;">
             <div><kbd class="key-pill">Espacio / Enter</kbd> : Jugar modo activo</div>
             <div><kbd class="key-pill">1</kbd> : Elegir Modo Tutorial</div>
-            <div><kbd class="key-pill">2</kbd> : Elegir Modo Normal</div>
-            <div><kbd class="key-pill">3</kbd> : Elegir Modo Rash</div>
+            <div><kbd class="key-pill">2</kbd> : Elegir Modo Entrenamiento</div>
+            <div><kbd class="key-pill">3</kbd> : Elegir Modo Campaña</div>
+            <div><kbd class="key-pill">4</kbd> : Elegir Modo Rash</div>
             <div><kbd class="key-pill">R</kbd> : Ver Ranking Oficial</div>
             <div><kbd class="key-pill">S</kbd> : Secretos del Chef</div>
             <div><kbd class="key-pill">L</kbd> : Abrir Recetario</div>
@@ -8588,6 +8709,7 @@ function getRashConfig(lvl) {
 }
 
 function getCurrentLevelConfig() {
+  if (isTraining()) return trainingConfig();
   if (typeof MultiplayerManager !== 'undefined' && (MultiplayerManager.isGameActive || MultiplayerManager.isInMultiplayer)) {
     return {
       level: 99,
@@ -8612,6 +8734,7 @@ function isMultiplayerSession() {
 
 // Solo los ramen del menú actual (cuencos, ingredientes de la pestaña Ramen).
 function getUnlockedRamenRecipes() {
+  if (isTraining()) return trainingPoolRecipes(gameState.training.challenge, 'ramen');
   if (isMultiplayerSession()) return RECETAS_RAMEN;
   const cfg = getCurrentLevelConfig();
   return RECETAS_RAMEN.filter(r => cfg.ramen_names.includes(r.name));
@@ -8621,6 +8744,10 @@ function getUnlockedRamenRecipes() {
 // al menú (por nivel de campaña o ronda Rash; en multijugador, todos los preparables).
 function getUnlockedRecipes() {
   const list = [...getUnlockedRamenRecipes()];
+  if (isTraining()) {
+    ['salteados', 'makis', 'frituras'].forEach(a => list.push(...trainingPoolRecipes(gameState.training.challenge, a)));
+    return list;
+  }
   const mp = isMultiplayerSession();
   const campaign = gameState.gameMode === 'NORMAL';
   const lvl = campaign ? (currentLevelIndex + 1) : (gameState.rashLevel || 1);
@@ -9513,12 +9640,14 @@ function analyzeWok(index) {
 }
 
 function selectWok(index) {
+  if (index >= wokLimit()) { showStationToast('🔒 Este wok se abre completando más retos del entrenamiento.'); return; }
   gameState.activeWokIndex = index;
   renderWoks();
 }
 
 function toggleIngredientInWok(ingId) {
   if (gameState.isPaused || gameState.isGameOver) return;
+  if (gameState.activeWokIndex >= wokLimit()) { showStationToast('🔒 Este wok se abre completando más retos del entrenamiento.'); return; }
   if (!coopLock(`wok-card-${gameState.activeWokIndex}`)) return;
   const wok = gameState.woks[gameState.activeWokIndex];
   if (wok.result) return; // ya salteado: hay que vaciar el wok para volver a armar
@@ -9555,6 +9684,7 @@ function renderWoks() {
     if (!cardEl || !wok) continue;
 
     const isActive = gameState.activeWokIndex === i;
+    cardEl.classList.toggle('wok-locked', i >= wokLimit());
     cardEl.classList.toggle('active', isActive);
     if (tagEl) tagEl.style.display = isActive ? 'block' : 'none';
 
@@ -10435,10 +10565,12 @@ function renderFryStation() {
 
 // Un área se abre cuando ya hay algún plato suyo en el menú del nivel (o ronda) actual.
 function isAreaUnlocked(area) {
+  if (isTraining() && area !== 'ramen' && !trainingFeature('area_' + area)) return false;
   return area === 'ramen' || getUnlockedRecipes().some(r => r.area === area);
 }
 
 function areaUnlockHint(area) {
+  if (isTraining()) return 'el entrenamiento (completa los retos anteriores)';
   const list = AREA_DISH_UNLOCKS[area] || [];
   const campaign = gameState.gameMode === 'NORMAL';
   const min = Math.min(...list.map(d => (campaign ? d[1] : d[2])));
@@ -11750,6 +11882,7 @@ function renderBowls() {
     if (!cardEl || !bowl) continue;
 
     const isActive = (gameState.activeBowlIndex === i);
+    cardEl.classList.toggle('bowl-locked', i >= bowlLimit());
     if (isActive) {
       cardEl.classList.add("active");
       if (tagEl) tagEl.style.display = "block";
@@ -12118,7 +12251,8 @@ const UPGRADES = [
 ];
 const UPGRADE_BY_ID = Object.fromEntries(UPGRADES.map(u => [u.id, u]));
 
-const accountProgress = { earned: 0, levels: {}, loaded: false, sync: 'local', pushTimer: null };
+const TRAINING_KEY = 'ramen_training';
+const accountProgress = { earned: 0, levels: {}, training: {}, loaded: false, sync: 'local', pushTimer: null };
 
 function loadAccountProgressLocal() {
   if (accountProgress.loaded) return;
@@ -12129,12 +12263,15 @@ function loadAccountProgressLocal() {
     accountProgress.earned = Math.max(0, earned);
     const lv = JSON.parse(safeStorage.getItem(UPGRADES_KEY) || '{}');
     accountProgress.levels = (lv && typeof lv === 'object') ? lv : {};
-  } catch (e) { accountProgress.levels = {}; }
+    const tr = JSON.parse(safeStorage.getItem(TRAINING_KEY) || '{}');
+    accountProgress.training = (tr && typeof tr === 'object') ? tr : {};
+  } catch (e) { accountProgress.levels = {}; accountProgress.training = {}; }
 }
 
 function saveAccountProgressLocal() {
   safeStorage.setItem(TIPS_EARNED_KEY, String(accountProgress.earned));
   safeStorage.setItem(UPGRADES_KEY, JSON.stringify(accountProgress.levels));
+  safeStorage.setItem(TRAINING_KEY, JSON.stringify(accountProgress.training || {}));
 }
 
 function upgradesSpent() {
@@ -12151,7 +12288,7 @@ function getPropinasWallet() {
 
 // Nivel de una mejora (0 si no la tienes). En multijugador no cuentan, para que nadie parta con ventaja.
 function getUpgradeLevel(id) {
-  if (isMultiplayerSession()) return 0;
+  if (isMultiplayerSession() || isTraining()) return 0; // en el entrenamiento los tiempos deben ser comparables
   loadAccountProgressLocal();
   return Math.max(0, Math.min((UPGRADE_BY_ID[id] || { costs: [] }).costs.length, accountProgress.levels[id] || 0));
 }
@@ -12160,6 +12297,8 @@ function updatePropinasHUD() {
   const w = getPropinasWallet();
   const el = document.getElementById('hud-propinas');
   if (el) el.textContent = w;
+  const chip = document.getElementById('start-wallet-val');
+  if (chip) chip.textContent = w;
   const badge = document.getElementById('start-upg-badge');
   if (badge) badge.textContent = w;
 }
@@ -12176,6 +12315,18 @@ function addPropinas(n) {
 
 function accountDeviceId() {
   return (typeof DeviceManager !== 'undefined' && DeviceManager.deviceId) ? DeviceManager.deviceId : null;
+}
+
+// Marcas del entrenamiento: menor tiempo, mayor medalla, mayor cobro (igual que en el servidor).
+function mergeTraining(a, b) {
+  const out = {};
+  new Set([...Object.keys(a || {}), ...Object.keys(b || {})]).forEach(k => {
+    const x = (a && a[k]) || {}, y = (b && b[k]) || {};
+    const t = (x.t && y.t) ? Math.min(x.t, y.t) : (x.t || y.t || 0);
+    out[k] = { t, l: (y.n || 0) > (x.n || 0) ? (y.l || 0) : (x.l || 0), m: Math.max(x.m || 0, y.m || 0),
+      n: Math.max(x.n || 0, y.n || 0), paid: Math.max(x.paid || 0, y.paid || 0) };
+  });
+  return out;
 }
 
 function mergeLevels(a, b) {
@@ -12264,12 +12415,16 @@ function applyCloudAccount(acc) {
   loadAccountProgressLocal();
   const owner = safeStorage.getItem(ACCOUNT_OWNER_KEY);
   const mergeLocal = !owner || owner === acc.id; // sin dueño = datos de antes de la nube: se adoptan
+  let trainingAhead = false;
   if (mergeLocal) {
     accountProgress.earned = Math.max(accountProgress.earned, acc.tips_earned || 0);
     accountProgress.levels = mergeLevels(accountProgress.levels, acc.upgrades || {});
+    accountProgress.training = mergeTraining(accountProgress.training || {}, acc.training || {});
+    trainingAhead = JSON.stringify(accountProgress.training) !== JSON.stringify(mergeTraining({}, acc.training || {}));
   } else {
     accountProgress.earned = acc.tips_earned || 0;
     accountProgress.levels = mergeLevels({}, acc.upgrades || {});
+    accountProgress.training = mergeTraining({}, acc.training || {});
   }
   saveAccountProgressLocal();
   safeStorage.setItem(ACCOUNT_OWNER_KEY, acc.id);
@@ -12278,7 +12433,7 @@ function applyCloudAccount(acc) {
   if (hasCloudProfile) setLocalProfileFromAccount(acc);
   updatePropinasHUD();
   return { mergeLocal, needsProfileUpload: mergeLocal && !hasCloudProfile && !!readLocalProfile().alias,
-    localAhead: mergeLocal && (accountProgress.earned > (acc.tips_earned || 0)) };
+    localAhead: mergeLocal && (trainingAhead || accountProgress.earned > (acc.tips_earned || 0)) };
 }
 
 async function cloudLogin() {
@@ -12394,10 +12549,11 @@ async function accountPull() {
 async function accountPush() {
   try {
     loadAccountProgressLocal();
-    const d = await cloudCall('save_account', { p_tips: accountProgress.earned, p_upgrades: accountProgress.levels });
+    const d = await cloudCall('save_account', { p_tips: accountProgress.earned, p_upgrades: accountProgress.levels, p_training: accountProgress.training || {} });
     if (d && d.ok) {
       accountProgress.earned = Math.max(accountProgress.earned, d.account.tips_earned || 0);
       accountProgress.levels = mergeLevels(accountProgress.levels, d.account.upgrades || {});
+      accountProgress.training = mergeTraining(accountProgress.training || {}, d.account.training || {});
       saveAccountProgressLocal();
       updatePropinasHUD();
       accountProgress.sync = 'ok';
@@ -12436,7 +12592,7 @@ async function cloudSwitchWithKey(rawKey) {
   if (CloudAuth.kind === 'device') {
     loadAccountProgressLocal();
     safeStorage.setItem(DEVICE_STASH_KEY, JSON.stringify({ id: CloudAuth.deviceAccountId, profile: readLocalProfile(),
-      earned: accountProgress.earned, levels: accountProgress.levels }));
+      earned: accountProgress.earned, levels: accountProgress.levels, training: accountProgress.training || {} }));
   }
   const oldToken = CloudAuth.token;
   CloudAuth.token = data.token; CloudAuth.kind = 'key'; CloudAuth.status = 'key'; CloudAuth.lastActivity = Date.now();
@@ -12462,7 +12618,7 @@ async function cloudReturnToDevice(reason) {
     try { // sin conexión: se restaura la copia de la cuenta del dispositivo
       const st = JSON.parse(safeStorage.getItem(DEVICE_STASH_KEY) || 'null');
       if (st) {
-        accountProgress.earned = st.earned || 0; accountProgress.levels = st.levels || {};
+        accountProgress.earned = st.earned || 0; accountProgress.levels = st.levels || {}; accountProgress.training = st.training || {};
         saveAccountProgressLocal();
         safeStorage.setItem(ACCOUNT_OWNER_KEY, st.id);
         if (st.profile && st.profile.alias) setLocalProfileFromAccount({ alias: st.profile.alias, avatar: st.profile.avatar, contact: st.profile.contact });
@@ -12545,6 +12701,7 @@ function maybeShowPendingKey() {
 
 function openAccountModal() {
   renderAccountModal();
+  document.getElementById('account-modal').style.display = '';
   document.getElementById('account-modal').classList.add('active');
 }
 function closeAccountModal() {
@@ -12610,6 +12767,337 @@ function copyAccountKey() {
   try { navigator.clipboard.writeText(k); showStationToast('📋 Clave copiada.'); } catch (e) { showStationToast('Selecciona y copia la clave manualmente.'); }
 }
 
+// ================= MODO ENTRENAMIENTO =================
+// Sin cuenta regresiva: el reloj sube y mide cuánto tardas en completar cada reto. Los retos van de lo
+// corto y fácil a lo largo y exigente, recorren las 4 áreas y, al completarlos, desbloquean las funciones
+// de la cocina (cuencos, woks, áreas, estrellas, rechazos, frescura, mottainai). Cada reto da propinas
+// según la medalla de tiempo (bronce 60 %, plata 85 %, oro 100 %) y solo se cobra la diferencia al mejorar.
+const TRAINING_FEATURES = {
+  bowls2: { icon: '🥣', name: 'Segundo cuenco de ramen' },
+  bowls3: { icon: '🥣', name: 'Tercer cuenco de ramen' },
+  q_stars: { icon: '⭐', name: 'Estrellas de calidad' },
+  area_salteados: { icon: '🍳', name: 'Área Salteado' },
+  wok2: { icon: '🍳', name: 'Segundo wok' },
+  q_reject: { icon: '🚫', name: 'Los clientes rechazan platos malos' },
+  area_makis: { icon: '🍣', name: 'Área Makis' },
+  mottainai: { icon: '♻️', name: 'Mottainai: recortes y dashi' },
+  area_frituras: { icon: '🍤', name: 'Área Frituras' },
+  q_fresh: { icon: '♨️', name: 'Frescura: los platos se enfrían' }
+};
+const TRAINING_CHAPTERS = [
+  { id: 'ramen', icon: '🍜', name: 'Ramen: los fundamentos' },
+  { id: 'salteado', icon: '🍳', name: 'Salteado: el wok' },
+  { id: 'makis', icon: '🍣', name: 'Makis: orden y enrollado' },
+  { id: 'frituras', icon: '🍤', name: 'Frituras: aceite y empanizado' },
+  { id: 'servicio', icon: '🏮', name: 'Servicio completo' },
+  { id: 'maestria', icon: '🏆', name: 'Maestría' }
+];
+const TRN_RAMEN = ['Shio', 'Shoyu', 'Miso', 'Chashu', 'Tonkotsu', 'Tan tan', 'Ebi', 'Bajiru', 'Vegetariano'];
+const TRN_SAL = ['Yakimeshi', 'Chicken Teriyaki', 'Chaufa Shimaya', 'Yakitori', 'Yakiramen', 'Yasaitame', 'Batayaki Ramen', 'Karameshi', 'Omuraisu'];
+const TRN_MAKI = ['Maki California', 'Maki Guacamole', 'Maki Acevichado', 'Maki Hotate', 'Maki Amazon', 'Maki Yama', 'Maki Nin Niku', 'Maki Digion'];
+const TRN_FRY = ['Alitas', 'Kaarage', 'Tonkatsu', 'Chicken Katsu', 'Katsu Kare', 'Ebi Furai', 'Age Gyozas'];
+// c = id, ch = capítulo, r = pedidos exigidos por área, M = clientes a la vez, O = pedidos por cliente,
+// spawn = segundos entre clientes, pm = multiplicador de paciencia, reward = propinas (medalla de oro)
+const TRAINING_CHALLENGES = [
+  { id: 'c01', ch: 'ramen', title: 'Tu primer ramen', r: { ramen: 1 }, pool: { ramen: ['Shio'] }, M: 1, O: 1, spawn: 6, pm: 3, reward: 8, unlocks: [] },
+  { id: 'c02', ch: 'ramen', title: 'Dos pedidos', r: { ramen: 2 }, pool: { ramen: ['Shio', 'Shoyu'] }, M: 1, O: 1, spawn: 6, pm: 3, reward: 10, unlocks: ['bowls2'] },
+  { id: 'c03', ch: 'ramen', title: 'Dos cuencos a la vez', r: { ramen: 3 }, pool: { ramen: ['Shio', 'Shoyu', 'Miso'] }, M: 2, O: 1, spawn: 6, pm: 2.5, reward: 12, unlocks: ['q_stars'] },
+  { id: 'c04', ch: 'ramen', title: 'Cuida el punto', r: { ramen: 4 }, minStars: 2, pool: { ramen: ['Shio', 'Shoyu', 'Miso', 'Chashu'] }, M: 2, O: 1, spawn: 6, pm: 2.5, reward: 15, unlocks: ['bowls3'] },
+  { id: 'c05', ch: 'ramen', title: 'Caldos espesos', r: { ramen: 6 }, pool: { ramen: ['Shio', 'Miso', 'Chashu', 'Tonkotsu', 'Tan tan'] }, M: 3, O: 2, spawn: 6, pm: 2.5, reward: 22, unlocks: ['area_salteados'] },
+  { id: 'c06', ch: 'salteado', title: 'Tu primer wok', r: { salteados: 1 }, pool: { salteados: ['Yakimeshi'] }, M: 1, O: 1, spawn: 6, pm: 3, reward: 12, unlocks: [] },
+  { id: 'c07', ch: 'salteado', title: 'El punto del wok', r: { salteados: 2 }, minStars: 2, pool: { salteados: ['Yakimeshi', 'Chicken Teriyaki'] }, M: 1, O: 1, spawn: 6, pm: 3, reward: 15, unlocks: ['wok2'] },
+  { id: 'c08', ch: 'salteado', title: 'Dos woks en paralelo', r: { salteados: 4 }, pool: { salteados: ['Yakimeshi', 'Chicken Teriyaki', 'Chaufa Shimaya', 'Yakitori'] }, M: 2, O: 2, spawn: 6, pm: 2.5, reward: 22, unlocks: [] },
+  { id: 'c09', ch: 'salteado', title: 'Ramen y wok', r: { ramen: 3, salteados: 3 }, pool: { ramen: ['Shio', 'Shoyu', 'Miso', 'Chashu'], salteados: ['Yakimeshi', 'Chicken Teriyaki', 'Chaufa Shimaya', 'Yakitori'] }, M: 3, O: 2, spawn: 6, pm: 2.5, reward: 30, unlocks: ['q_reject'] },
+  { id: 'c10', ch: 'salteado', title: 'Salteados de carta', r: { salteados: 5 }, minStars: 2, pool: { salteados: TRN_SAL }, M: 2, O: 2, spawn: 6, pm: 2.5, reward: 30, unlocks: ['area_makis'] },
+  { id: 'c11', ch: 'makis', title: 'Tu primer maki', r: { makis: 1 }, pool: { makis: ['Maki California'] }, M: 1, O: 1, spawn: 6, pm: 3, reward: 15, unlocks: [] },
+  { id: 'c12', ch: 'makis', title: 'Dos makis', r: { makis: 2 }, pool: { makis: ['Maki California', 'Maki Guacamole'] }, M: 1, O: 2, spawn: 6, pm: 3, reward: 20, unlocks: [] },
+  { id: 'c13', ch: 'makis', title: 'Con coberturas', r: { makis: 3 }, minStars: 2, pool: { makis: ['Maki Acevichado', 'Maki Hotate', 'Maki Amazon'] }, M: 2, O: 2, spawn: 6, pm: 2.5, reward: 28, unlocks: [] },
+  { id: 'c14', ch: 'makis', title: 'La barra completa', r: { ramen: 2, salteados: 2, makis: 3 }, pool: { ramen: ['Shio', 'Shoyu', 'Miso', 'Chashu'], salteados: ['Yakimeshi', 'Chicken Teriyaki', 'Chaufa Shimaya', 'Yakitori'], makis: ['Maki California', 'Maki Guacamole', 'Maki Acevichado'] }, M: 3, O: 2, spawn: 6, pm: 2.5, reward: 40, unlocks: ['mottainai'] },
+  { id: 'c15', ch: 'makis', title: 'Makis finos', r: { makis: 4 }, minStars: 2, pool: { makis: TRN_MAKI }, M: 2, O: 2, spawn: 6, pm: 2.5, reward: 40, unlocks: ['area_frituras'] },
+  { id: 'c16', ch: 'frituras', title: 'Tu primera fritura', r: { frituras: 1 }, pool: { frituras: ['Alitas'] }, M: 1, O: 1, spawn: 6, pm: 3, reward: 15, unlocks: [] },
+  { id: 'c17', ch: 'frituras', title: 'El punto de la olla', r: { frituras: 2 }, pool: { frituras: ['Alitas', 'Kaarage'] }, M: 1, O: 2, spawn: 6, pm: 3, reward: 20, unlocks: [] },
+  { id: 'c18', ch: 'frituras', title: 'Empanizado y corte', r: { frituras: 2 }, minStars: 2, pool: { frituras: ['Tonkatsu', 'Chicken Katsu'] }, M: 1, O: 2, spawn: 6, pm: 3, reward: 30, unlocks: [] },
+  { id: 'c19', ch: 'frituras', title: 'Fritura surtida', r: { frituras: 4 }, pool: { frituras: ['Katsu Kare', 'Ebi Furai', 'Age Gyozas', 'Tonkatsu'] }, M: 2, O: 2, spawn: 6, pm: 2.5, reward: 40, unlocks: ['q_fresh'] },
+  { id: 'c20', ch: 'frituras', title: 'Cocina caliente', r: { frituras: 3, salteados: 3 }, minStars: 2, pool: { frituras: TRN_FRY, salteados: TRN_SAL }, M: 3, O: 2, spawn: 6, pm: 2.5, reward: 45, unlocks: [] },
+  { id: 'c21', ch: 'servicio', title: 'El almuerzo', r: { ramen: 2, salteados: 2, makis: 2, frituras: 2 }, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 3, O: 2, spawn: 6, pm: 2, reward: 55, unlocks: [] },
+  { id: 'c22', ch: 'servicio', title: 'Servicio de tarde', r: { ramen: 3, salteados: 3, makis: 2, frituras: 2 }, minStars: 2, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 3, O: 2, spawn: 5, pm: 2, reward: 65, unlocks: [] },
+  { id: 'c23', ch: 'servicio', title: 'Hora pico', r: { ramen: 3, salteados: 3, makis: 3, frituras: 3 }, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 4, O: 3, spawn: 5, pm: 2, reward: 80, unlocks: [] },
+  { id: 'c24', ch: 'servicio', title: 'Cena concurrida', r: { ramen: 4, salteados: 4, makis: 4, frituras: 4 }, minStars: 2, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 4, O: 3, spawn: 4, pm: 2, reward: 95, unlocks: [] },
+  { id: 'c25', ch: 'maestria', title: 'Perfección', r: { ramen: 2, salteados: 2, makis: 1, frituras: 1 }, minStars: 3, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 3, O: 2, spawn: 6, pm: 1.6, reward: 100, unlocks: [] },
+  { id: 'c26', ch: 'maestria', title: 'Maratón', r: { ramen: 6, salteados: 6, makis: 6, frituras: 6 }, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 4, O: 3, spawn: 4, pm: 1.6, reward: 120, unlocks: [] },
+  { id: 'c27', ch: 'maestria', title: 'Examen del maestro', r: { ramen: 8, salteados: 8, makis: 7, frituras: 7 }, minStars: 2, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 4, O: 3, spawn: 4, pm: 1.6, reward: 150, unlocks: [] }
+].map((c, i) => ({ ...c, num: i + 1, index: i, reqs: Object.entries(c.r).map(([area, n]) => ({ area, n })) }));
+const TRAINING_BY_ID = Object.fromEntries(TRAINING_CHALLENGES.map(c => [c.id, c]));
+const TRAINING_SEC = { ramen: 13, salteados: 14, makis: 15, frituras: 24 };   // segundos por pedido (jugador que ya conoce el juego)
+const TRAINING_MEDAL_SHARE = [0, 0.6, 0.85, 1];
+
+const isTraining = () => gameState.gameMode === 'TRAINING' && !!gameState.training && !gameState.isGameOver;
+
+function trainingTotal(ch) { return ch.reqs.reduce((t, r) => t + r.n, 0); }
+// Tiempo de oro: el trabajo estimado de los pedidos con un margen de 1.5 más 25 s de preparación.
+function trainingPar(ch) {
+  return Math.round((25 + ch.reqs.reduce((t, r) => t + r.n * TRAINING_SEC[r.area] * 1.5, 0)) / 5) * 5;
+}
+function trainingMedalFor(time, par) { return time <= par ? 3 : (time <= par * 1.35 ? 2 : 1); }
+function trainingMedalIcon(m) { return ['', '🥉', '🥈', '🥇'][m] || ''; }
+function formatTrainingTime(sec) { sec = Math.max(0, Math.round(sec)); return `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`; }
+
+function trainingProgressOf(id) { loadAccountProgressLocal(); return (accountProgress.training || {})[id] || null; }
+function trainingIsOpen(ch) { return ch.index === 0 || ((trainingProgressOf(TRAINING_CHALLENGES[ch.index - 1].id) || {}).m || 0) > 0; }
+function trainingDoneCount() { return TRAINING_CHALLENGES.filter(c => (trainingProgressOf(c.id) || {}).m > 0).length; }
+function trainingMedalCount(m) { return TRAINING_CHALLENGES.filter(c => (trainingProgressOf(c.id) || {}).m === m).length; }
+function trainingNextChallenge() { return TRAINING_CHALLENGES.find(c => !((trainingProgressOf(c.id) || {}).m > 0)) || null; }
+
+// Funciones de la cocina abiertas por los retos ya completados.
+function trainingFeaturesUnlocked() {
+  const set = new Set();
+  TRAINING_CHALLENGES.forEach(c => { if ((trainingProgressOf(c.id) || {}).m > 0) c.unlocks.forEach(f => set.add(f)); });
+  return set;
+}
+function trainingFeature(id) {
+  if (!isTraining()) return true;
+  return trainingFeaturesUnlocked().has(id);
+}
+const bowlLimit = () => (!isTraining() ? 3 : (trainingFeature('bowls3') ? 3 : (trainingFeature('bowls2') ? 2 : 1)));
+const wokLimit = () => (!isTraining() ? 2 : (trainingFeature('wok2') ? 2 : 1));
+
+function trainingPoolRecipes(ch, area) {
+  const cat = area === 'ramen' ? RECETAS_RAMEN : AREA_CATALOGS[area];
+  return (ch.pool[area] || []).map(n => cat.find(r => r.name === n)).filter(Boolean);
+}
+
+function trainingConfig() {
+  const ch = gameState.training.challenge;
+  return { level: ch.num, name: ch.title, customers: 999, base_patience: 60, max_orders: ch.O, max_customers: ch.M,
+    ramen_names: ch.pool.ramen || [], spawn_time: ch.spawn, patience_mult: ch.pm };
+}
+
+function trainingObjectiveText(ch) {
+  const words = { ramen: 'ramen', salteados: 'salteados', makis: 'makis', frituras: 'frituras' };
+  return ch.reqs.map(r => `${AREA_ICONS[r.area]} ${r.n} ${words[r.area]}`).join(' · ') + (ch.minStars ? ` · con ⭐${ch.minStars}+` : '');
+}
+
+function showTrainingObjective() {
+  if (!isTraining()) return;
+  const t = gameState.training, ch = t.challenge;
+  const left = ch.reqs.map(r => `${AREA_ICONS[r.area]} ${Math.min(r.n, t.counts[r.area] || 0)}/${r.n}`).join(' · ');
+  showStationToast(`🏋️ Reto ${ch.num}: ${ch.title}<br>${left}${ch.minStars ? ' · con ⭐' + ch.minStars + '+' : ''}`);
+}
+
+// Pedidos del siguiente cliente: solo lo que aún falta para el reto (así el reto es finito y justo).
+function trainingPickOrders(cfg) {
+  const t = gameState.training, ch = t.challenge;
+  const outstanding = {};
+  gameState.customerSlots.forEach(c => { if (c) c.orders.forEach(o => { if (!o.served) outstanding[getRecipeArea(o.recipe)] = (outstanding[getRecipeArea(o.recipe)] || 0) + 1; }); });
+  const avail = {};
+  let cap = 0;
+  ch.reqs.forEach(r => {
+    const left = r.n - (t.counts[r.area] || 0) - (outstanding[r.area] || 0);
+    if (left > 0) { avail[r.area] = left; cap += left; }
+  });
+  if (!cap) return [];
+  const want = Math.min(Math.floor(Math.random() * cfg.max_orders) + 1, cap);
+  const orders = [];
+  for (let i = 0; i < want; i++) {
+    const areas = Object.keys(avail).filter(a => avail[a] > 0);
+    const a = areas[Math.floor(Math.random() * areas.length)];
+    avail[a]--;
+    const pool = trainingPoolRecipes(ch, a);
+    orders.push({ recipe: pool[Math.floor(Math.random() * pool.length)], served: false });
+  }
+  return orders;
+}
+
+function trainingTotalCount() { return trainingTotal(gameState.training.challenge); }
+function trainingDoneInRun() {
+  const t = gameState.training;
+  return t.challenge.reqs.reduce((sum, r) => sum + Math.min(r.n, t.counts[r.area] || 0), 0);
+}
+
+// Un pedido servido cuenta para el reto si cumple las estrellas mínimas.
+function trainingOnServe(area, tier) {
+  if (!isTraining()) return;
+  const t = gameState.training;
+  if (tier >= (t.challenge.minStars || 0)) t.counts[area] = (t.counts[area] || 0) + 1;
+}
+
+function trainingCheckComplete() {
+  if (!isTraining()) return;
+  const t = gameState.training;
+  if (t.challenge.reqs.every(r => (t.counts[r.area] || 0) >= r.n)) trainingComplete();
+}
+
+function trainingComplete() {
+  const t = gameState.training;
+  if (t.done) return;
+  t.done = true;
+  const time = gameState.gameClock;
+  const result = trainingRecord(t.challenge, time);
+  gameState.isGameOver = true;
+  clearInterval(gameLoopInterval);
+  resetCookingStations();
+  try { playSound('win'); } catch (e) {}
+  showTrainingResult(result);
+}
+
+// Guarda el tiempo, la medalla y cobra solo la parte de propinas que aún no se había cobrado.
+function trainingRecord(ch, time) {
+  loadAccountProgressLocal();
+  const featuresBefore = trainingFeaturesUnlocked();
+  const prev = (accountProgress.training || {})[ch.id] || {};
+  const par = trainingPar(ch);
+  const medal = trainingMedalFor(time, par);
+  const best = prev.t ? Math.min(prev.t, time) : time;
+  const m = Math.max(prev.m || 0, medal);
+  const target = Math.round(ch.reward * TRAINING_MEDAL_SHARE[m]);
+  const reward = Math.max(0, target - (prev.paid || 0));
+  accountProgress.training[ch.id] = { t: best, l: time, m, n: (prev.n || 0) + 1, paid: Math.max(prev.paid || 0, target) };
+  saveAccountProgressLocal();
+  if (reward > 0) addPropinas(reward);
+  accountPushSoon(true);
+  const unlockedNow = [...trainingFeaturesUnlocked()].filter(f => !featuresBefore.has(f));
+  return { challenge: ch, time, par, medal, prevBest: prev.t || 0, best, improved: !!prev.t && time < prev.t, firstTime: !prev.m,
+    medalUp: medal > (prev.m || 0), reward, unlocked: unlockedNow, next: TRAINING_CHALLENGES[ch.index + 1] || null };
+}
+
+function startTrainingChallenge(id) {
+  const ch = TRAINING_BY_ID[id];
+  if (!ch || !trainingIsOpen(ch)) return;
+  closeTrainingModal();
+  const rm = document.getElementById('training-result-modal'); if (rm) rm.classList.remove('active');
+  startSelectedMode = 'TRAINING';
+  gameState.training = { challenge: ch, counts: {}, done: false };
+  executeStartGame();
+}
+
+// --- Entrenamiento: lista de retos, ficha del reto y resultado ---
+let trainingView = { mode: 'list', id: null };
+
+function openTrainingModal(id) {
+  trainingView = id ? { mode: 'brief', id } : { mode: 'list', id: null };
+  renderTrainingHub();
+  const m = document.getElementById('training-modal');
+  m.style.display = '';
+  m.classList.add('active');
+}
+function closeTrainingModal() {
+  const m = document.getElementById('training-modal');
+  if (m) m.classList.remove('active');
+}
+
+function trnWordArea(a) { return { ramen: 'ramen', salteados: 'salteados', makis: 'makis', frituras: 'frituras' }[a]; }
+
+function renderTrainingHub() {
+  const body = document.getElementById('trn-body');
+  const title = document.getElementById('trn-title');
+  if (!body) return;
+  if (trainingView.mode === 'brief' && TRAINING_BY_ID[trainingView.id]) {
+    const ch = TRAINING_BY_ID[trainingView.id];
+    if (title) title.textContent = `🏋️ Reto ${ch.num}: ${ch.title}`;
+    body.innerHTML = trainingBriefHtml(ch);
+    return;
+  }
+  if (title) title.textContent = '🏋️ Entrenamiento';
+  const done = trainingDoneCount(), total = TRAINING_CHALLENGES.length;
+  const feats = trainingFeaturesUnlocked();
+  const next = trainingNextChallenge();
+  const featChips = Object.entries(TRAINING_FEATURES).map(([id, f]) =>
+    `<span class="trn-feat ${feats.has(id) ? 'on' : ''}" title="${f.name}">${feats.has(id) ? f.icon : '🔒'} ${f.name}</span>`).join('');
+  const chapters = TRAINING_CHAPTERS.map(chp => {
+    const list = TRAINING_CHALLENGES.filter(c => c.ch === chp.id);
+    const dn = list.filter(c => (trainingProgressOf(c.id) || {}).m > 0).length;
+    const cards = list.map(c => {
+      const p = trainingProgressOf(c.id) || {};
+      const open = trainingIsOpen(c);
+      const state = !open ? 'locked' : (p.m > 0 ? 'done' : 'open');
+      const isNext = next && next.id === c.id;
+      const meta = !open ? '🔒' : (p.m > 0 ? `${trainingMedalIcon(p.m)} ${formatTrainingTime(p.t)}` : '▶ Nuevo');
+      return `<button class="trn-card ${state} ${isNext ? 'next' : ''}" ${open ? '' : 'disabled'} onclick="openTrainingBriefing('${c.id}')">
+        <span class="trn-num">${c.num}</span><span class="trn-ctitle">${c.title}</span><span class="trn-meta">${meta}</span></button>`;
+    }).join('');
+    return `<div class="trn-chapter"><div class="trn-chead"><span>${chp.icon} ${chp.name}</span><span class="trn-cprog">${dn}/${list.length}</span></div><div class="trn-grid">${cards}</div></div>`;
+  }).join('');
+  body.innerHTML = `
+    <div class="trn-summary">
+      <div class="trn-sumline"><b>Retos ${done}/${total}</b><span>🥇 ${trainingMedalCount(3)} · 🥈 ${trainingMedalCount(2)} · 🥉 ${trainingMedalCount(1)}</span><span>🧧 Saldo ${getPropinasWallet()}</span></div>
+      <div class="trn-bar"><i style="width:${Math.round(100 * done / total)}%"></i></div>
+      <div class="trn-note">Sin cuenta regresiva: se mide cuánto tardas. Mejora tu tiempo para subir de medalla y cobrar más propinas.</div>
+      <details class="trn-featbox"><summary>🔓 Funciones de la cocina: ${[...feats].length}/${Object.keys(TRAINING_FEATURES).length} desbloqueadas</summary><div class="trn-feats">${featChips}</div></details>
+      ${next ? `<button class="acc-btn" onclick="openTrainingBriefing('${next.id}')">▶ Continuar: Reto ${next.num} · ${next.title}</button>` : '<div class="trn-note">🏆 ¡Completaste todo el recorrido! Repite retos para bajar tus tiempos.</div>'}
+    </div>
+    ${chapters}`;
+}
+
+function openTrainingBriefing(id) {
+  const ch = TRAINING_BY_ID[id];
+  if (!ch || !trainingIsOpen(ch)) return;
+  trainingView = { mode: 'brief', id };
+  renderTrainingHub();
+  const b = document.getElementById('trn-body'); if (b) b.scrollTop = 0;
+}
+function backToTrainingList() { trainingView = { mode: 'list', id: null }; renderTrainingHub(); }
+
+function trainingBriefHtml(ch) {
+  const p = trainingProgressOf(ch.id) || {};
+  const par = trainingPar(ch);
+  const reqs = ch.reqs.map(r => `<li>${AREA_ICONS[r.area]} Sirve <b>${r.n}</b> ${trnWordArea(r.area)}</li>`).join('') +
+    (ch.minStars ? `<li>⭐ Cada plato debe llegar a <b>${ch.minStars} estrella(s)</b> o más para contar</li>` : '');
+  const dishes = Object.entries(ch.pool).map(([a, names]) => `<div class="trn-dishes">${AREA_ICONS[a]} ${names.join(', ')}</div>`).join('');
+  const unlocks = ch.unlocks.length ? `<div class="trn-unlock">🔓 Al completarlo: ${ch.unlocks.map(f => TRAINING_FEATURES[f].icon + ' ' + TRAINING_FEATURES[f].name).join(' · ')}</div>` : '';
+  const rw = [1, 2, 3].map(m => `${trainingMedalIcon(m)} ${Math.round(ch.reward * TRAINING_MEDAL_SHARE[m])}`).join(' · ');
+  const hist = p.t ? `<div class="trn-hist">Tu mejor: <b>${formatTrainingTime(p.t)}</b> ${trainingMedalIcon(p.m)} · Último: ${formatTrainingTime(p.l)} · Intentos: ${p.n || 1}</div>` : '<div class="trn-hist">Aún no lo has completado.</div>';
+  return `
+    <button class="trn-back" onclick="backToTrainingList()">← Todos los retos</button>
+    <div class="trn-brief">
+      <div class="trn-bcol">
+        <h3>Objetivo</h3><ul class="trn-list">${reqs}</ul>
+        <h3>Platos que pedirán</h3>${dishes}
+        <h3>Ritmo</h3><div class="trn-dishes">👥 Hasta ${ch.M} cliente(s) a la vez · ${ch.O > 1 ? 'hasta ' + ch.O + ' pedidos' : '1 pedido'} por cliente · llegan cada ~${ch.spawn} s · mucha paciencia</div>
+      </div>
+      <div class="trn-bcol">
+        <h3>Medallas por tiempo</h3>
+        <div class="trn-dishes">🥇 hasta ${formatTrainingTime(par)} · 🥈 hasta ${formatTrainingTime(par * 1.35)} · 🥉 cualquier tiempo</div>
+        <h3>Propinas (🧧)</h3><div class="trn-dishes">${rw} <small>(solo se cobra la diferencia al mejorar)</small></div>
+        ${unlocks}${hist}
+        <button class="acc-btn trn-go" onclick="startTrainingChallenge('${ch.id}')">▶ Empezar reto</button>
+      </div>
+    </div>`;
+}
+
+function showTrainingResult(res) {
+  const ch = res.challenge;
+  const delta = res.prevBest ? res.time - res.prevBest : 0;
+  let cmp;
+  if (res.firstTime) cmp = '🆕 Primera vez completado';
+  else if (res.improved) cmp = `<span class="trn-up">▼ ${formatTrainingTime(-delta)} más rápido que tu mejor (${formatTrainingTime(res.prevBest)})</span>`;
+  else if (delta === 0) cmp = `= Igualaste tu mejor tiempo (${formatTrainingTime(res.best)})`;
+  else cmp = `<span class="trn-down">▲ +${formatTrainingTime(delta)} sobre tu mejor (${formatTrainingTime(res.best)})</span>`;
+  const tips = res.reward > 0 ? `🧧 <b>+${res.reward}</b> propinas${res.medalUp && !res.firstTime ? ' por subir de medalla' : ''}` : '🧧 Sin propinas nuevas: sube de medalla para cobrar más';
+  const unl = res.unlocked.length ? `<div class="trn-unlock">🔓 ¡Desbloqueaste! ${res.unlocked.map(f => TRAINING_FEATURES[f].icon + ' ' + TRAINING_FEATURES[f].name).join(' · ')}</div>` : '';
+  const nextOpen = res.next && trainingIsOpen(res.next);
+  const body = document.getElementById('trn-result-body');
+  body.innerHTML = `
+    <div class="trn-medal">${trainingMedalIcon(res.medal)}</div>
+    <div class="trn-rtitle">Reto ${ch.num} completado · ${ch.title}</div>
+    <div class="trn-rline">⏱ Tu tiempo: <b>${formatTrainingTime(res.time)}</b> · 🎯 Oro: ${formatTrainingTime(res.par)}</div>
+    <div class="trn-rline">${cmp}</div>
+    <div class="trn-rline">${tips}</div>
+    ${unl}
+    <div class="acc-row" style="justify-content:center;margin-top:8px;">
+      ${nextOpen ? `<button class="acc-btn" onclick="startTrainingChallenge('${res.next.id}')">▶ Siguiente: ${res.next.title}</button>` : ''}
+      <button class="acc-btn alt" onclick="startTrainingChallenge('${ch.id}')">↻ Repetir</button>
+      <button class="acc-btn alt" onclick="trainingResultToList()">☰ Lista de retos</button>
+    </div>`;
+  const m = document.getElementById('training-result-modal');
+  m.style.display = '';
+  m.classList.add('active');
+}
+function trainingResultToList() {
+  document.getElementById('training-result-modal').classList.remove('active');
+  returnToStartMenu();
+  openTrainingModal();
+}
+
 // --- Tienda de mejoras (menú de inicio) ---
 function buyUpgrade(id) {
   const u = UPGRADE_BY_ID[id];
@@ -12671,6 +13159,7 @@ function refreshUpgradesShopIfOpen() {
 
 function openUpgradesModal() {
   renderUpgradesShop();
+  document.getElementById('upgrades-modal').style.display = '';
   document.getElementById('upgrades-modal').classList.add('active');
   accountPull();
 }
@@ -12709,7 +13198,7 @@ function updateMottainaiHUD() {
 }
 
 function addTrimmings(n, source) {
-  if (n <= 0 || gameState.isGameOver) return;
+  if (n <= 0 || gameState.isGameOver || (isTraining() && !trainingFeature('mottainai'))) return;
   gameState.recortes += n;
   let made = 0;
   while (gameState.recortes >= MOTTAINAI_PER_DASHI) {
@@ -12913,7 +13402,7 @@ function evalProcess(dish) {
 }
 
 function evalFreshness(dish) {
-  if (!QUALITY_FRESHNESS_ON) return 20;
+  if (!QUALITY_FRESHNESS_ON || (isTraining() && !trainingFeature('q_fresh'))) return 20;
   const m = dish.meta || {};
   const warmth = 1 + [0, 0.3, 0.6, 1][getUpgradeLevel('bandeja')];
   const t = m.readyAt == null ? 0 : Math.max(0, gameState.gameClock - m.readyAt) / warmth;
@@ -12934,13 +13423,17 @@ function evaluateDish(dish) {
 }
 
 function qualityTier(ev, minScore = 35) {
-  if (ev.gate || ev.score < minScore) return 0;
-  let t = ev.score >= 85 ? 3 : (ev.score >= 60 ? 2 : 1);
-  if (ev.capped) t = Math.min(t, 1);
+  if (isTraining() && !trainingFeature('q_stars')) return 2; // aún sin estrellas: todo plato servido paga lo normal
+  let t = 0;
+  if (!(ev.gate || ev.score < minScore)) {
+    t = ev.score >= 85 ? 3 : (ev.score >= 60 ? 2 : 1);
+    if (ev.capped) t = Math.min(t, 1);
+  }
+  if (t === 0 && isTraining() && !trainingFeature('q_reject')) t = 1; // aún no hay rechazos
   return t;
 }
 
-const starsText = t => (t > 0 ? '⭐'.repeat(t) : '🚫');
+const starsText = t => ((isTraining() && !trainingFeature('q_stars')) ? '' : (t > 0 ? '⭐'.repeat(t) : '🚫'));
 
 function rejectReason(ev) {
   if (ev.gate === 'carbonizado') return 'está carbonizado';
@@ -13087,13 +13580,14 @@ function serveOrder(customerIndex, itemIndex, dish) {
   orderItem.quality = dish.quality;
   orderItem.stars = tier;
   orderItem.score = ev.score;
+  trainingOnServe(orderItem.recipe.area || 'ramen', tier);
   c.worstTier = Math.min(c.worstTier == null ? 3 : c.worstTier, tier);
   consumeReadyDish(dish);
   gameState.money += pay;
   gameState.customersServed++;
   AnalyticsTracker.trackCustomerServed();
   playSound('serve');
-  if (tier === 1) {
+  if (tier === 1 && (!isTraining() || trainingFeature('q_stars'))) {
     showStationToast(`${AREA_ICONS[dish.area]} ${orderItem.recipe.name}: ⭐ regular (${ev.score} pts) · paga S/ ${pay}.`);
   }
 
@@ -13117,7 +13611,7 @@ function serveOrder(customerIndex, itemIndex, dish) {
     // Propina: ninguna si algún plato fue de 1 estrella; doble si todos fueron de 3.
     const ratio = c.patience / c.maxPatience;
     const tipRate = ratio > 0.5 ? TIP_RATE_HAPPY : (ratio > 0.25 ? TIP_RATE_OK : 0);
-    if (c.worstTier >= 2 && tipRate > 0) {
+    if (c.worstTier >= 2 && tipRate > 0 && !isTraining()) { // en el entrenamiento solo dan propina los retos
       const orderTotal = c.orders.reduce((t, o) => t + o.recipe.price, 0);
       const tip = Math.max(1, Math.round(orderTotal * tipRate * (c.worstTier === 3 ? 2 : 1)));
       addPropinas(tip);
@@ -13137,6 +13631,7 @@ function serveOrder(customerIndex, itemIndex, dish) {
   updateHUD();
   renderBowls();
   renderCustomers();
+  if (isTraining()) trainingCheckComplete();
 
   if (gameState.gameMode === 'NORMAL') {
     const cfg = getCurrentLevelConfig();
@@ -13156,6 +13651,7 @@ function serveOrder(customerIndex, itemIndex, dish) {
 }
 
 function selectBowl(index) {
+  if (index >= bowlLimit()) { showStationToast('🔒 Este cuenco se abre completando más retos del entrenamiento.'); return; }
   if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP') {
     if (gameState.activeBowlIndex !== index) {
       MultiplayerManager.releaseStationLock(`bowl-card-${gameState.activeBowlIndex}`);
@@ -13191,6 +13687,7 @@ function ramenOrderErrors(ings) {
 
 function toggleIngredientInBowl(ingId) {
   if (gameState.isPaused || gameState.isGameOver) return;
+  if (gameState.activeBowlIndex >= bowlLimit()) { showStationToast('🔒 Este cuenco se abre completando más retos del entrenamiento.'); return; }
   const bowl = gameState.bowls[gameState.activeBowlIndex];
 
   if (bowl.ingredients.includes(ingId)) {
@@ -13495,6 +13992,18 @@ function updateHUD() {
     if (timerIcon) timerIcon.textContent = "⏱️";
     const timerEl = document.getElementById("hud-timer");
     if (timerEl) timerEl.textContent = `${gameState.timeLeft}s`;
+  } else if (gameState.gameMode === 'TRAINING' && gameState.training) {
+    if (badgeEl) badgeEl.textContent = `RETO ${gameState.training.challenge.num}`;
+    if (modeBtn) {
+      modeBtn.innerHTML = '<span class="hud-icon">🏋️</span><span class="btn-text">Entreno</span>';
+      modeBtn.style.background = "linear-gradient(180deg, #26a69a, #00695c)";
+    }
+    if (goalLabel) goalLabel.textContent = "Reto:";
+    const goalEl = document.getElementById("hud-goal");
+    if (goalEl) goalEl.textContent = `${trainingDoneInRun()}/${trainingTotalCount()}`;
+    if (timerIcon) timerIcon.textContent = "⏱️";
+    const timerEl = document.getElementById("hud-timer");
+    if (timerEl) timerEl.textContent = formatTrainingTime(gameState.gameClock); // el reloj SUBE: mide tu tiempo
   } else {
     if (badgeEl) badgeEl.textContent = `RASH R${cfg.level}`;
     if (modeBtn) {
@@ -13681,6 +14190,8 @@ function startLevel(lvlIndex) {
     currentLevelIndex = lvlIndex !== undefined ? lvlIndex : 0;
     const cfg = NIVELES[currentLevelIndex];
     gameState.timeLeft = cfg.time;
+  } else if (gameState.gameMode === 'TRAINING') {
+    gameState.timeLeft = 0; // sin cuenta regresiva: el reloj sube y mide tu tiempo
   } else {
     if (lvlIndex !== undefined && lvlIndex !== null) {
       gameState.rashLevel = lvlIndex + 1;
@@ -13724,6 +14235,8 @@ function startLevel(lvlIndex) {
   gameState.gameClock = 0;
   gameState.propinasSession = 0;
   updatePropinasHUD();
+  const mottCap = document.querySelector('.stat-mottainai');
+  if (mottCap) mottCap.style.display = (isTraining() && !trainingFeature('mottainai')) ? 'none' : '';
   Object.keys(_lastStationSig).forEach(k => delete _lastStationSig[k]);
   updateMottainaiHUD();
 
@@ -13758,7 +14271,7 @@ function startLevel(lvlIndex) {
     }
   } else {
     spawnCustomer();
-    if (cfg.max_customers >= 2) spawnCustomer();
+    if (cfg.max_customers >= 2 && !isTraining()) spawnCustomer();
   }
 
   clearInterval(gameLoopInterval);
@@ -13766,12 +14279,23 @@ function startLevel(lvlIndex) {
   if (gameState.gameMode === 'NORMAL' && cfg.intro && !isMultiplayerSession()) {
     setTimeout(() => showStationToast(`🏮 ${cfg.name}<br>${cfg.intro}`), 400);
   }
+  if (isTraining()) {
+    const ch = gameState.training.challenge;
+    setTimeout(() => showStationToast(`🏋️ Reto ${ch.num}: ${ch.title}<br>${trainingObjectiveText(ch)}`), 400);
+  }
 }
 
 /* ==========================================================================
    SISTEMA DE PANTALLA DE INICIO Y MODALES DE USUARIO
    ========================================================================== */
-let startSelectedMode = 'TUTORIAL';
+let startSelectedMode = (function () {
+  try {
+    const done = localStorage.getItem('ramen_tutorial_completed') === 'true';
+    const last = localStorage.getItem('ramen_last_mode');
+    if (!done) return 'TUTORIAL';
+    return ['TRAINING', 'NORMAL', 'RASH', 'TUTORIAL'].includes(last) ? last : 'TRAINING';
+  } catch (e) { return 'TUTORIAL'; }
+})();
 let regSelectedAvatar = '🍜';
 let profSelectedAvatar = '🍜';
 
@@ -13793,7 +14317,43 @@ function showLockedModeToast(msg) {
   }, 3500);
 }
 
+// Panel con el detalle del modo elegido (copia el texto de su tarjeta, que se mantiene actualizado).
+function renderStartModeDetail() {
+  const el = document.getElementById('start-mode-detail');
+  if (!el) return;
+  const ids = { TUTORIAL: 'tutorial', TRAINING: 'training', NORMAL: 'normal', RASH: 'rash' };
+  const card = document.getElementById('start-mode-card-' + (ids[startSelectedMode] || 'tutorial'));
+  if (!card) return;
+  const name = card.querySelector('.start-mode-name');
+  const desc = card.querySelector('.start-mode-desc');
+  const status = card.querySelector('.start-mode-status');
+  const icon = card.querySelector('.start-mode-icon');
+  el.innerHTML = `<div class="start-detail-main"><div class="start-detail-title">${icon ? icon.textContent : ''} ${name ? name.textContent : ''}</div><div class="start-detail-desc">${desc ? desc.textContent.trim() : ''}</div></div><div class="start-detail-status">${status ? status.innerHTML : ''}</div>`;
+}
+
+function toggleStartMoreMenu(e) {
+  if (e) e.stopPropagation();
+  const m = document.getElementById('start-more-menu');
+  if (m) m.classList.toggle('open');
+}
+document.addEventListener('click', e => {
+  const m = document.getElementById('start-more-menu');
+  if (m && m.classList.contains('open') && !e.target.closest('.start-more-wrap')) m.classList.remove('open');
+});
+
 function updateStartModesDisplay() {
+  setTimeout(renderStartModeDetail, 0);
+  const trnCard = document.getElementById('start-mode-card-training');
+  if (trnCard) {
+    trnCard.classList.toggle('active', startSelectedMode === 'TRAINING');
+    const st = document.getElementById('start-training-stats-text');
+    if (st) {
+      const next = trainingNextChallenge();
+      st.innerHTML = next
+        ? `🏋️ Retos <strong>${trainingDoneCount()}/${TRAINING_CHALLENGES.length}</strong> · Próximo: ${next.title}`
+        : '🏆 <strong>Recorrido completo</strong> · mejora tus tiempos';
+    }
+  }
   const tutCompleted = isTutorialCompleted();
   const tutCard = document.getElementById("start-mode-card-tutorial");
   const normalCard = document.getElementById("start-mode-card-normal");
@@ -13846,6 +14406,11 @@ function updateStartModesDisplay() {
       btnPlay.style.background = "linear-gradient(135deg, #00b0ff 0%, #0091ea 60%, #01579b 100%)";
       btnPlay.style.borderColor = "#80d8ff";
       btnPlay.style.boxShadow = "0 5px 0 #002f6c, 0 0 20px rgba(0, 176, 255, 0.6)";
+    } else if (startSelectedMode === 'TRAINING') {
+      btnPlay.innerHTML = '<span style="font-size: 22px;">🏋️</span><span>ENTRENAR</span><span class="play-keyboard-tag desktop-only">[ESPACIO]</span>';
+      btnPlay.style.background = "linear-gradient(135deg, #26a69a 0%, #00897b 60%, #004d40 100%)";
+      btnPlay.style.borderColor = "#b2dfdb";
+      btnPlay.style.boxShadow = "0 5px 0 #00251f, 0 0 20px rgba(38, 166, 154, 0.6)";
     } else if (startSelectedMode === 'RASH') {
       btnPlay.innerHTML = '<span style="font-size: 22px;">⚡</span><span>JUGAR RASH</span><span class="play-keyboard-tag desktop-only">[ESPACIO]</span>';
       btnPlay.style.background = "linear-gradient(135deg, #ff9800 0%, #e65100 60%, #bf360c 100%)";
@@ -13861,7 +14426,7 @@ function updateStartModesDisplay() {
 }
 
 function setStartSelectedMode(mode) {
-  if (mode !== 'TUTORIAL' && !isTutorialCompleted()) {
+  if (mode !== 'TUTORIAL' && mode !== 'TRAINING' && !isTutorialCompleted()) {
     showLockedModeToast("🔒 Completa primero el Modo Tutorial para desbloquear el Modo Normal y Rash.");
     const cardEl = mode === 'NORMAL' 
       ? document.getElementById("start-mode-card-normal") 
@@ -13877,6 +14442,7 @@ function setStartSelectedMode(mode) {
     return;
   }
   startSelectedMode = mode;
+  safeStorage.setItem('ramen_last_mode', mode);
   try { playSound('add'); } catch(e) {}
   if ('vibrate' in navigator) {
     try { navigator.vibrate(12); } catch(e) {}
@@ -13953,8 +14519,10 @@ window.addEventListener("keydown", (e) => {
     } else if (e.key === "1") {
       setStartSelectedMode('TUTORIAL');
     } else if (e.key === "2") {
-      setStartSelectedMode('NORMAL');
+      setStartSelectedMode('TRAINING');
     } else if (e.key === "3") {
+      setStartSelectedMode('NORMAL');
+    } else if (e.key === "4") {
       setStartSelectedMode('RASH');
     } else if (e.key === "r" || e.key === "R") {
       openLeaderboardModal();
@@ -14015,7 +14583,7 @@ const TUTORIAL_DATA = [
     phaseClass: "phase-1",
     targetId: "start-modes-grid",
     title: "🎮 Selector de Modos",
-    text: "Completa este tutorial para desbloquear la Campaña Normal (8 niveles) y Rash.",
+    text: "Elige un modo: Entrenamiento (27 retos guiados sin cuenta regresiva), Campaña (8 niveles) o Rash. Campaña y Rash se desbloquean al completar este tutorial.",
     screen: "START"
   },
   {
@@ -14593,6 +15161,11 @@ function handleStartPlayClick() {
     return;
   }
 
+  if (startSelectedMode === 'TRAINING') {
+    openTrainingModal();
+    return;
+  }
+
   if (!isTutorialCompleted()) {
     showLockedModeToast("🔒 Debes completar el Modo Tutorial antes de jugar este modo.");
     setStartSelectedMode('TUTORIAL');
@@ -14616,7 +15189,10 @@ function executeStartGame() {
   if (rotateOverlay) rotateOverlay.style.display = "none";
 
   gameState.gameMode = startSelectedMode;
+  if (startSelectedMode !== 'TRAINING') gameState.training = null;
   if (startSelectedMode === 'NORMAL') {
+    startLevel(0);
+  } else if (startSelectedMode === 'TRAINING') {
     startLevel(0);
   } else {
     const savedRash = parseInt(safeStorage.getItem('ramen_mania_rash_level') || '1');
@@ -14626,6 +15202,7 @@ function executeStartGame() {
 
 function returnToStartMenu() {
   updatePropinasHUD();
+  if (gameState.gameMode === 'TRAINING') gameState.training = null;
   if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isInMultiplayer) {
     MultiplayerManager.leaveRoom();
   }
