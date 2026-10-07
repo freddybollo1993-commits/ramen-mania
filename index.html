@@ -2817,6 +2817,22 @@
     padding: 18px;
   }
   .level-end-modal h2 { font-family: 'Fredoka One', cursive; font-size: 26px; margin-bottom: 6px; }
+  /* Cuenta */
+  .account-card { max-width: min(94vw, 560px); }
+  .acc-status { display: flex; flex-direction: column; gap: 2px; background: #fff3e0; border: 1.5px solid #e0b98a; border-radius: 10px; padding: 8px 10px; margin-bottom: 8px; font-size: 13px; color: #3e2723; }
+  .acc-status span { font-size: 10px; color: #6d4c41; font-weight: 700; }
+  .acc-section { margin-bottom: 10px; }
+  .acc-section h3 { font-size: 12px; color: #b71c1c; margin: 0 0 4px; font-weight: 900; }
+  .acc-hint { font-size: 10px; color: #5d4037; margin: 0 0 6px; }
+  .acc-warn { font-size: 10px; color: #c62828; font-weight: 800; margin: 4px 0 6px; }
+  .acc-key { font-family: monospace; font-size: 17px; font-weight: 900; letter-spacing: 1px; background: #212121; color: #ffd54f; border-radius: 8px; padding: 8px; text-align: center; user-select: all; }
+  .acc-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .acc-input { flex: 1; min-width: 180px; padding: 6px 8px; border: 1.5px solid #bcaaa4; border-radius: 8px; font-family: monospace; font-size: 13px; text-transform: uppercase; }
+  .acc-btn { border: 0; border-radius: 8px; padding: 6px 10px; font-weight: 900; font-size: 11px; cursor: pointer; color: #fff; background: linear-gradient(180deg, #ff9800, #e65100); }
+  .acc-btn.alt { background: linear-gradient(180deg, #5c6bc0, #283593); }
+  .acc-msg { font-size: 11px; font-weight: 800; min-height: 14px; color: #c62828; }
+  .btn-account.is-temp { border-color: #ff9800 !important; box-shadow: 0 0 8px rgba(255, 152, 0, 0.8); }
+  .btn-account.has-key { box-shadow: 0 0 10px rgba(255, 213, 79, 0.95); }
   /* Tienda de mejoras */
   .upgrades-card { max-width: min(94vw, 760px); max-height: 92vh; display: flex; flex-direction: column; }
   .upgrades-card .modal-body { overflow-y: auto; }
@@ -5554,6 +5570,10 @@
           <span class="btn-ico">✨</span>
           <span>Secretos del Chef</span>
         </button>
+        <button class="btn-start-sec btn-account" onclick="openAccountModal()" title="Tu cuenta: clave de acceso y cambio de cuenta">
+          <span class="btn-ico">🔐</span>
+          <span id="acc-btn-label">Cuenta</span>
+        </button>
         <button class="btn-start-sec btn-upgrades" onclick="openUpgradesModal()" title="Gasta tus propinas en mejoras para la cocina">
           <span class="btn-ico">🧧</span>
           <span>Mejoras <b class="upg-start-badge" id="start-upg-badge">0</b></span>
@@ -6325,6 +6345,40 @@
   </div>
 
   <!-- MODAL DE RECETAS -->
+  <!-- CUENTA: clave de acceso y cambio de cuenta -->
+  <div class="modal-overlay" id="account-modal" onclick="closeAccountModal()">
+    <div class="modal-card upgrades-card account-card" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h2>🔐 Cuenta</h2>
+        <button class="btn btn-danger" style="padding: 3px 8px;" onclick="closeAccountModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="acc-status" id="acc-status"></div>
+        <div class="acc-section">
+          <h3>Tu clave de cuenta</h3>
+          <div id="acc-key-box"></div>
+          <button class="acc-btn" id="acc-rotate-btn" onclick="accountUiRotate()">🔑 Generar clave nueva</button>
+        </div>
+        <div class="acc-section">
+          <h3>Cambiar de cuenta</h3>
+          <p class="acc-hint">Escribe la clave única de otra cuenta. Primero se valida este dispositivo.</p>
+          <div class="acc-row">
+            <input id="acc-key-input" class="acc-input" placeholder="RAMEN-XXXX-XXXX-XXXX-XXXX" autocomplete="off" autocapitalize="characters" spellcheck="false">
+            <button class="acc-btn" onclick="accountUiSwitch()">Entrar</button>
+          </div>
+        </div>
+        <div class="acc-section" id="acc-temp" style="display:none;">
+          <h3>Sesión temporal</h3>
+          <div class="acc-row">
+            <button class="acc-btn" onclick="accountUiReturn()">↩ Volver a mi cuenta</button>
+            <button class="acc-btn alt" onclick="accountUiLink()">📌 Usar siempre esta cuenta en este dispositivo</button>
+          </div>
+        </div>
+        <div class="acc-msg" id="acc-msg"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- TIENDA DE MEJORAS (propinas) -->
   <div class="modal-overlay" id="upgrades-modal" onclick="closeUpgradesModal()">
     <div class="modal-card upgrades-card" onclick="event.stopPropagation()">
@@ -6731,6 +6785,7 @@
         <div style="display:flex; gap:6px; align-items:center;">
           <a href="/dashboard" target="_blank" class="btn" style="background:#0288d1; color:#fff; font-size:10px; padding:3px 8px; text-decoration:none; display:inline-flex; align-items:center; gap:3px; font-weight:800; border-radius:5px;">📊 Abrir Dashboard Web ↗</a>
           <button class="btn" onclick="refreshAdminDashboard()" style="background:#ff9800; color:#212121; font-size:10px; padding:3px 8px;">🔄 Actualizar</button>
+          <button class="btn" onclick="adminUnlockPrivateData()" style="background:#5c6bc0; color:#fff; font-size:10px; padding:3px 8px;" title="Los contactos ya no son públicos">🔑 Datos privados</button>
           <button class="btn" onclick="handleAdminLogout()" style="background:#37474f; color:#fff; font-size:10px; padding:3px 8px;">🔒 Salir</button>
           <button class="btn btn-danger" style="padding: 2px 8px;" onclick="closeAdminDashboardModal()">✕</button>
         </div>
@@ -7807,6 +7862,7 @@ const DeviceManager = {
     updateStartPlayerCard();
     renderLinkedUserBadges();
     showWelcomeToast(cleanName, cleanAvatar);
+    if (typeof cloudSaveProfile === 'function') cloudSaveProfile();
     return { success: true, player: newPlayer };
   },
 
@@ -7855,6 +7911,8 @@ const DeviceManager = {
       } catch(e) {}
     }
 
+
+    if (typeof cloudSaveProfile === 'function') cloudSaveProfile();
     updateStartPlayerCard();
     renderLinkedUserBadges();
     return { success: true, player: this.currentPlayer };
@@ -12128,30 +12186,205 @@ function mergeLevels(a, b) {
   return out;
 }
 
-// Trae el progreso de la cuenta y lo combina con lo local (lo mayor gana); si lo local va por delante, lo sube.
-async function accountPull() {
-  const id = accountDeviceId();
-  if (!id) return;
+// ================= Sesión en la nube (login inteligente) =================
+// 1) El dispositivo se valida solo: guarda un secreto propio (en la base solo queda su huella) y entra
+//    a SU cuenta sin pedir nada.
+// 2) Para usar otra cuenta se escribe su clave única; esa sesión es TEMPORAL: se cierra tras 15 min sin
+//    actividad (o al cerrar la pestaña) y se vuelve a la cuenta del dispositivo.
+// 3) Todo el acceso a la cuenta (alias, contacto, propinas, mejoras) pasa por funciones del servidor que
+//    exigen una sesión vigente; las tablas no se pueden leer desde el navegador.
+const CLOUD_IDLE_KEY_MS = 15 * 60 * 1000;
+const CLOUD_IDLE_DEVICE_MS = 30 * 60 * 1000;
+const CLOUD_SESSION_KEY = 'ramen_cloud_session';
+const DEVICE_SECRET_KEY = 'ramen_device_secret';
+const ACCOUNT_OWNER_KEY = 'ramen_account_id';
+const DEVICE_STASH_KEY = 'ramen_device_account_stash';
+const CloudAuth = { token: null, kind: null, accountId: null, deviceAccountId: null, status: 'idle',
+  lastActivity: Date.now(), touchedAt: 0, persistedAt: 0, pendingKey: null, loginPromise: null };
+
+function getDeviceSecret() {
+  let sec = safeStorage.getItem(DEVICE_SECRET_KEY);
+  if (!sec) {
+    try { const m = document.cookie.match(/(?:^|; )ramen_device_secret=([^;]*)/); if (m && m[1]) sec = m[1]; } catch (e) {}
+  }
+  if (!sec || sec.length < 32) {
+    const bytes = new Uint8Array(32);
+    if (window.crypto && crypto.getRandomValues) crypto.getRandomValues(bytes);
+    else for (let i = 0; i < 32; i++) bytes[i] = Math.floor(Math.random() * 256);
+    sec = Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
+  }
+  safeStorage.setItem(DEVICE_SECRET_KEY, sec);
+  try { document.cookie = `ramen_device_secret=${sec}; max-age=315360000; path=/; SameSite=Lax`; } catch (e) {}
+  return sec;
+}
+
+// Llamada al servidor sin esperar respuesta (el cliente devuelve un objeto con .then, no una promesa completa).
+function cloudFire(p) { try { Promise.resolve(p).catch(() => {}); } catch (e) {} }
+
+async function cloudClient() {
+  await ensureSupabaseLoaded();
+  return initSupabase() || supabaseClient;
+}
+
+function persistCloudSession() {
   try {
-    await ensureSupabaseLoaded();
-    const client = initSupabase() || supabaseClient;
-    if (!client) throw new Error('sin cliente');
+    sessionStorage.setItem(CLOUD_SESSION_KEY, JSON.stringify({ token: CloudAuth.token, kind: CloudAuth.kind,
+      accountId: CloudAuth.accountId, deviceAccountId: CloudAuth.deviceAccountId, lastActivity: CloudAuth.lastActivity }));
+  } catch (e) {}
+}
+function clearCloudSession() { try { sessionStorage.removeItem(CLOUD_SESSION_KEY); } catch (e) {} }
+
+function readLocalProfile() {
+  const p = (typeof DeviceManager !== 'undefined' && DeviceManager.currentPlayer) || null;
+  return {
+    alias: (p && p.playerName) || safeStorage.getItem('ramen_player_name') || '',
+    avatar: (p && p.avatar) || safeStorage.getItem('ramen_player_avatar') || '🍜',
+    contact: (p && p.contact) || safeStorage.getItem('ramen_player_contact') || ''
+  };
+}
+
+// Escribe el perfil de la cuenta en el almacenamiento local (que usa el resto del juego).
+function setLocalProfileFromAccount(acc) {
+  const prev = (DeviceManager.currentPlayer) || {};
+  const player = { ...prev, playerName: acc.alias, contact: acc.contact || '', avatar: acc.avatar || '🍜',
+    deviceId: DeviceManager.deviceId, deviceInfo: DeviceManager.deviceInfoText, createdAt: prev.createdAt || new Date().toISOString() };
+  DeviceManager.currentPlayer = player;
+  safeStorage.setItem('ramen_profile_explicit_registered', 'true');
+  safeStorage.setItem('ramen_player_profile', JSON.stringify(player));
+  safeStorage.setItem('ramen_player_name', player.playerName);
+  safeStorage.setItem('ramen_player_contact', player.contact);
+  safeStorage.setItem('ramen_player_avatar', player.avatar);
+  updateStartPlayerCard();
+  renderLinkedUserBadges();
+}
+
+// Combina la cuenta del servidor con la caché local. La caché lleva el id de su dueño: si es de otra
+// cuenta se REEMPLAZA (nunca se mezcla) para que las propinas de una cuenta no pasen a otra.
+function applyCloudAccount(acc) {
+  loadAccountProgressLocal();
+  const owner = safeStorage.getItem(ACCOUNT_OWNER_KEY);
+  const mergeLocal = !owner || owner === acc.id; // sin dueño = datos de antes de la nube: se adoptan
+  if (mergeLocal) {
+    accountProgress.earned = Math.max(accountProgress.earned, acc.tips_earned || 0);
+    accountProgress.levels = mergeLevels(accountProgress.levels, acc.upgrades || {});
+  } else {
+    accountProgress.earned = acc.tips_earned || 0;
+    accountProgress.levels = mergeLevels({}, acc.upgrades || {});
+  }
+  saveAccountProgressLocal();
+  safeStorage.setItem(ACCOUNT_OWNER_KEY, acc.id);
+  CloudAuth.accountId = acc.id;
+  const hasCloudProfile = acc.alias && acc.alias !== 'Chef';
+  if (hasCloudProfile) setLocalProfileFromAccount(acc);
+  updatePropinasHUD();
+  return { mergeLocal, needsProfileUpload: mergeLocal && !hasCloudProfile && !!readLocalProfile().alias,
+    localAhead: mergeLocal && (accountProgress.earned > (acc.tips_earned || 0)) };
+}
+
+async function cloudLogin() {
+  if (CloudAuth.loginPromise) return CloudAuth.loginPromise;
+  CloudAuth.loginPromise = (async () => {
+    const id = accountDeviceId();
+    if (!id) return false;
+    try {
+      const client = await cloudClient();
+      if (!client) throw new Error('sin cliente');
+      CloudAuth.status = 'connecting';
+      const local = readLocalProfile();
+      const { data, error } = await client.rpc('auth_device', {
+        p_device_id: id, p_secret: getDeviceSecret(), p_alias: local.alias || null, p_avatar: local.avatar || null });
+      if (error || !data || !data.ok) throw new Error((data && data.error) || (error && error.message) || 'login');
+      CloudAuth.token = data.token; CloudAuth.kind = 'device'; CloudAuth.status = 'device';
+      CloudAuth.deviceAccountId = data.account.id; CloudAuth.lastActivity = Date.now();
+      persistCloudSession();
+      if (data.new_key) CloudAuth.pendingKey = data.new_key;
+      const r = applyCloudAccount(data.account);
+      if (r.needsProfileUpload) await cloudSaveProfile();
+      if (r.localAhead) await accountPush();
+      accountProgress.sync = 'ok';
+      updateAccountButton();
+      refreshUpgradesShopIfOpen();
+      if (CloudAuth.pendingKey) maybeShowPendingKey();
+      return true;
+    } catch (e) {
+      CloudAuth.status = 'offline';
+      accountProgress.sync = 'error';
+      updateAccountButton();
+      return false;
+    } finally {
+      CloudAuth.loginPromise = null;
+    }
+  })();
+  return CloudAuth.loginPromise;
+}
+
+// Al abrir el juego: se reutiliza la sesión de esta pestaña si sigue vigente; si no, el dispositivo entra solo.
+async function cloudBoot() {
+  try {
+    const saved = JSON.parse(sessionStorage.getItem(CLOUD_SESSION_KEY) || 'null');
+    if (saved && saved.token) {
+      const ttl = saved.kind === 'key' ? CLOUD_IDLE_KEY_MS : CLOUD_IDLE_DEVICE_MS;
+      if (Date.now() - (saved.lastActivity || 0) < ttl) {
+        CloudAuth.token = saved.token; CloudAuth.kind = saved.kind; CloudAuth.accountId = saved.accountId;
+        CloudAuth.deviceAccountId = saved.deviceAccountId; CloudAuth.lastActivity = saved.lastActivity;
+        const client = await cloudClient();
+        const { data } = client ? await client.rpc('get_account', { p_token: saved.token }) : { data: null };
+        if (data && data.ok) {
+          CloudAuth.status = saved.kind === 'key' ? 'key' : 'device';
+          applyCloudAccount(data.account);
+          accountProgress.sync = 'ok';
+          updateAccountButton();
+          refreshUpgradesShopIfOpen();
+          return;
+        }
+      } else if (saved.kind === 'key') {
+        showStationToast('🔐 Tu sesión temporal se cerró por inactividad.');
+      }
+    }
+  } catch (e) {}
+  CloudAuth.token = null; CloudAuth.kind = null; clearCloudSession();
+  await cloudLogin();
+}
+
+// Llamada al servidor con la sesión actual; si caducó, el dispositivo se vuelve a validar solo.
+async function cloudCall(fn, args) {
+  const client = await cloudClient();
+  if (!client) throw new Error('offline');
+  if (!CloudAuth.token && !(await cloudLogin())) throw new Error('sin sesión');
+  let { data, error } = await client.rpc(fn, { p_token: CloudAuth.token, ...(args || {}) });
+  if (error) throw error;
+  if (data && data.ok === false && data.error === 'sesion_vencida') {
+    if (CloudAuth.kind === 'key') {
+      await cloudReturnToDevice('Tu sesión temporal caducó');
+      throw new Error('sesion temporal caducada');
+    }
+    CloudAuth.token = null;
+    if (!(await cloudLogin())) throw new Error('sin sesión');
+    ({ data, error } = await client.rpc(fn, { p_token: CloudAuth.token, ...(args || {}) }));
+    if (error) throw error;
+  }
+  return data;
+}
+
+async function cloudSaveProfile() {
+  const p = readLocalProfile();
+  if (!p.alias) return;
+  try {
+    await cloudCall('save_account', { p_alias: p.alias, p_avatar: p.avatar, p_contact: p.contact || '' });
+  } catch (e) {}
+}
+
+// Trae la cuenta y la combina con lo local (lo mayor gana).
+async function accountPull() {
+  try {
     accountProgress.sync = 'syncing';
     refreshUpgradesShopIfOpen();
-    const { data, error } = await client.rpc('get_player_progress', { p_device_id: id });
-    if (error) throw error;
-    loadAccountProgressLocal();
-    const row = Array.isArray(data) ? data[0] : data;
-    const remoteEarned = row ? row.tips_earned || 0 : 0;
-    const remoteLevels = row ? row.upgrades || {} : {};
-    accountProgress.earned = Math.max(accountProgress.earned, remoteEarned);
-    accountProgress.levels = mergeLevels(accountProgress.levels, remoteLevels);
-    saveAccountProgressLocal();
-    updatePropinasHUD();
-    const localAhead = accountProgress.earned > remoteEarned ||
-      JSON.stringify(mergeLevels(remoteLevels, accountProgress.levels)) !== JSON.stringify(mergeLevels(remoteLevels, remoteLevels));
-    if (!row || localAhead) await accountPush();
-    accountProgress.sync = 'ok';
+    const d = await cloudCall('get_account', {});
+    if (d && d.ok) {
+      const r = applyCloudAccount(d.account);
+      if (r.localAhead) await accountPush();
+    }
+    accountProgress.sync = (d && d.ok) ? 'ok' : 'error';
   } catch (e) {
     accountProgress.sync = 'error';
   }
@@ -12159,35 +12392,222 @@ async function accountPull() {
 }
 
 async function accountPush() {
-  const id = accountDeviceId();
-  if (!id) return;
   try {
-    await ensureSupabaseLoaded();
-    const client = initSupabase() || supabaseClient;
-    if (!client) throw new Error('sin cliente');
     loadAccountProgressLocal();
-    const { data, error } = await client.rpc('save_player_progress', {
-      p_device_id: id, p_tips: accountProgress.earned, p_upgrades: accountProgress.levels
-    });
-    if (error) throw error;
-    const row = Array.isArray(data) ? data[0] : data;
-    if (row) {
-      accountProgress.earned = Math.max(accountProgress.earned, row.tips_earned || 0);
-      accountProgress.levels = mergeLevels(accountProgress.levels, row.upgrades || {});
+    const d = await cloudCall('save_account', { p_tips: accountProgress.earned, p_upgrades: accountProgress.levels });
+    if (d && d.ok) {
+      accountProgress.earned = Math.max(accountProgress.earned, d.account.tips_earned || 0);
+      accountProgress.levels = mergeLevels(accountProgress.levels, d.account.upgrades || {});
       saveAccountProgressLocal();
       updatePropinasHUD();
-    }
-    accountProgress.sync = 'ok';
+      accountProgress.sync = 'ok';
+    } else accountProgress.sync = 'error';
   } catch (e) {
     accountProgress.sync = 'error';
   }
   refreshUpgradesShopIfOpen();
 }
 
-// Las propinas llegan de a pocas: se agrupan para no llamar a la nube en cada una.
+// Las propinas llegan de a pocas: se agrupan para no llamar al servidor en cada una.
 function accountPushSoon(immediate) {
   clearTimeout(accountProgress.pushTimer);
   accountProgress.pushTimer = setTimeout(accountPush, immediate ? 0 : 2500);
+}
+
+// ----- Cambio de cuenta con clave -----
+async function cloudSwitchWithKey(rawKey) {
+  const key = (rawKey || '').trim();
+  if (key.replace(/[^A-Za-z0-9]/g, '').length < 12) return { ok: false, message: 'Escribe la clave completa (RAMEN-XXXX-XXXX-XXXX-XXXX).' };
+  const client = await cloudClient();
+  if (!client) return { ok: false, message: 'Sin conexión: no se puede validar la clave.' };
+  if (!CloudAuth.token) await cloudLogin();
+  const { data, error } = await client.rpc('auth_key', { p_device_id: accountDeviceId(), p_secret: getDeviceSecret(), p_key: key });
+  if (error || !data) return { ok: false, message: 'No se pudo validar la clave. Inténtalo de nuevo.' };
+  if (!data.ok) {
+    if (data.error === 'clave_no_valida') return { ok: false, message: `Clave no válida. Te quedan ${data.remaining} intento(s).` };
+    if (data.error === 'bloqueado') return { ok: false, message: `Demasiados intentos. Espera ${Math.ceil(data.retry_in_seconds / 60)} min.` };
+    return { ok: false, message: 'Este dispositivo no pudo validarse. Recarga la página.' };
+  }
+  if (data.account.id === CloudAuth.deviceAccountId) {
+    cloudFire(client.rpc('end_session', { p_token: data.token }));
+    return { ok: false, message: 'Esa es la cuenta de este dispositivo: ya estás en ella.' };
+  }
+  // Se guarda una copia de la cuenta del dispositivo para poder volver aunque no haya conexión.
+  if (CloudAuth.kind === 'device') {
+    loadAccountProgressLocal();
+    safeStorage.setItem(DEVICE_STASH_KEY, JSON.stringify({ id: CloudAuth.deviceAccountId, profile: readLocalProfile(),
+      earned: accountProgress.earned, levels: accountProgress.levels }));
+  }
+  const oldToken = CloudAuth.token;
+  CloudAuth.token = data.token; CloudAuth.kind = 'key'; CloudAuth.status = 'key'; CloudAuth.lastActivity = Date.now();
+  persistCloudSession();
+  if (oldToken && CloudAuth.deviceAccountId) cloudFire(client.rpc('end_session', { p_token: oldToken }));
+  applyCloudAccount(data.account);
+  accountProgress.sync = 'ok';
+  updateAccountButton();
+  refreshUpgradesShopIfOpen();
+  return { ok: true, message: `Entraste como ${data.account.alias}. La sesión temporal se cierra tras 15 min sin actividad.` };
+}
+
+// Cierra la sesión temporal y vuelve a la cuenta del dispositivo.
+async function cloudReturnToDevice(reason) {
+  const oldToken = CloudAuth.token;
+  CloudAuth.token = null; CloudAuth.kind = null; clearCloudSession();
+  try {
+    const client = await cloudClient();
+    if (client && oldToken) cloudFire(client.rpc('end_session', { p_token: oldToken }));
+  } catch (e) {}
+  const ok = await cloudLogin();
+  if (!ok) {
+    try { // sin conexión: se restaura la copia de la cuenta del dispositivo
+      const st = JSON.parse(safeStorage.getItem(DEVICE_STASH_KEY) || 'null');
+      if (st) {
+        accountProgress.earned = st.earned || 0; accountProgress.levels = st.levels || {};
+        saveAccountProgressLocal();
+        safeStorage.setItem(ACCOUNT_OWNER_KEY, st.id);
+        if (st.profile && st.profile.alias) setLocalProfileFromAccount({ alias: st.profile.alias, avatar: st.profile.avatar, contact: st.profile.contact });
+        updatePropinasHUD();
+      }
+    } catch (e) {}
+  }
+  if (reason) showStationToast(`🔐 ${reason}. Volviste a la cuenta de este dispositivo.`);
+  updateAccountButton();
+  refreshUpgradesShopIfOpen();
+  refreshAccountModalIfOpen();
+}
+
+async function cloudLinkDevice() {
+  try {
+    const d = await cloudCall('link_device', {});
+    if (!d || !d.ok) return { ok: false, message: 'No se pudo vincular. Vuelve a entrar con la clave.' };
+    CloudAuth.token = d.token; CloudAuth.kind = 'device'; CloudAuth.status = 'device';
+    CloudAuth.deviceAccountId = d.account.id; CloudAuth.accountId = d.account.id; CloudAuth.lastActivity = Date.now();
+    safeStorage.removeItem(DEVICE_STASH_KEY);
+    persistCloudSession();
+    updateAccountButton();
+    return { ok: true, message: 'Listo: este dispositivo ahora entra siempre a esta cuenta.' };
+  } catch (e) {
+    return { ok: false, message: 'No se pudo vincular (sin conexión).' };
+  }
+}
+
+async function cloudRotateKey() {
+  try {
+    const d = await cloudCall('rotate_access_key', {});
+    if (d && d.ok) { CloudAuth.pendingKey = d.key; return { ok: true, key: d.key }; }
+    return { ok: false, message: d && d.error === 'solo_sesion_del_dispositivo' ? 'Vuelve a tu cuenta del dispositivo para cambiar su clave.' : 'No se pudo generar la clave.' };
+  } catch (e) {
+    return { ok: false, message: 'Sin conexión: no se puede generar la clave.' };
+  }
+}
+
+// ----- Actividad e inactividad -----
+function cloudMarkActivity() {
+  const now = Date.now();
+  CloudAuth.lastActivity = now;
+  if (CloudAuth.token && now - CloudAuth.persistedAt > 10000) { CloudAuth.persistedAt = now; persistCloudSession(); }
+  if (CloudAuth.token && now - CloudAuth.touchedAt > 120000) {
+    CloudAuth.touchedAt = now;
+    cloudClient().then(c => c && c.rpc('touch_session', { p_token: CloudAuth.token })).catch(() => {});
+  }
+}
+
+function cloudIdleCheck() {
+  const idle = Date.now() - CloudAuth.lastActivity;
+  if (CloudAuth.kind === 'key' && idle > CLOUD_IDLE_KEY_MS) {
+    cloudReturnToDevice('Sesión temporal cerrada por inactividad');
+  } else if (CloudAuth.kind === 'device' && CloudAuth.token && idle > CLOUD_IDLE_DEVICE_MS) {
+    CloudAuth.token = null; CloudAuth.status = 'idle'; clearCloudSession(); // el dispositivo vuelve a entrar solo al usarse
+  }
+}
+
+['pointerdown', 'keydown', 'touchstart', 'wheel'].forEach(ev => document.addEventListener(ev, cloudMarkActivity, { passive: true, capture: true }));
+setInterval(cloudIdleCheck, 30000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) cloudIdleCheck(); });
+
+// ----- Pantalla "Cuenta" -----
+function updateAccountButton() {
+  const btn = document.querySelector('.btn-account');
+  if (!btn) return;
+  const label = document.getElementById('acc-btn-label');
+  const temp = CloudAuth.kind === 'key';
+  btn.classList.toggle('is-temp', temp);
+  btn.classList.toggle('has-key', !!CloudAuth.pendingKey);
+  if (label) label.textContent = temp ? 'Temporal' : 'Cuenta';
+}
+
+function maybeShowPendingKey() {
+  const start = document.getElementById('start-screen');
+  const visible = start && !start.classList.contains('hidden') && start.style.display !== 'none';
+  if (visible) openAccountModal();
+  else showStationToast('🔐 Se creó tu cuenta. Abre "Cuenta" en el menú de inicio para ver tu clave.');
+}
+
+function openAccountModal() {
+  renderAccountModal();
+  document.getElementById('account-modal').classList.add('active');
+}
+function closeAccountModal() {
+  document.getElementById('account-modal').classList.remove('active');
+  CloudAuth.pendingKey = null;
+  updateAccountButton();
+}
+function refreshAccountModalIfOpen() {
+  const m = document.getElementById('account-modal');
+  if (m && m.classList.contains('active')) renderAccountModal();
+}
+
+function renderAccountModal() {
+  const temp = CloudAuth.kind === 'key';
+  const p = readLocalProfile();
+  const st = document.getElementById('acc-status');
+  if (st) {
+    const conn = CloudAuth.status === 'offline' ? '📴 Sin conexión con la nube' : (temp ? '🔓 Sesión temporal' : '🔒 Sesión del dispositivo');
+    st.innerHTML = `<b>${escapeHtml(p.avatar)} ${escapeHtml(p.alias || 'Chef')}</b><span>${conn}${temp ? ' · se cierra tras 15 min sin actividad' : ' · este dispositivo entra solo'}</span>`;
+  }
+  const keyBox = document.getElementById('acc-key-box');
+  if (keyBox) {
+    keyBox.innerHTML = CloudAuth.pendingKey
+      ? `<div class="acc-key">${escapeHtml(CloudAuth.pendingKey)}</div><div class="acc-warn">⚠️ Guárdala ahora: solo se muestra esta vez. Con ella puedes entrar a tu cuenta desde otro dispositivo.</div><button class="acc-btn" onclick="copyAccountKey()">📋 Copiar</button>`
+      : `<div class="acc-hint">Tu clave no se puede volver a mostrar. Si la perdiste, genera una nueva (la anterior deja de funcionar).</div>`;
+  }
+  const rot = document.getElementById('acc-rotate-btn');
+  if (rot) rot.style.display = temp ? 'none' : '';
+  const tempBox = document.getElementById('acc-temp');
+  if (tempBox) tempBox.style.display = temp ? '' : 'none';
+  const msg = document.getElementById('acc-msg');
+  if (msg && !msg.dataset.keep) msg.textContent = '';
+}
+
+async function accountUiRotate() {
+  const msg = document.getElementById('acc-msg');
+  msg.textContent = 'Generando clave…'; msg.dataset.keep = '1';
+  const r = await cloudRotateKey();
+  msg.dataset.keep = '';
+  if (r.ok) { msg.textContent = ''; renderAccountModal(); } else msg.textContent = r.message;
+}
+async function accountUiSwitch() {
+  const input = document.getElementById('acc-key-input');
+  const msg = document.getElementById('acc-msg');
+  msg.textContent = 'Validando…'; msg.dataset.keep = '1';
+  const r = await cloudSwitchWithKey(input.value);
+  msg.textContent = r.message; msg.dataset.keep = '1';
+  msg.style.color = r.ok ? '#2e7d32' : '#c62828';
+  if (r.ok) { input.value = ''; renderAccountModal(); renderUpgradesShop(); }
+}
+async function accountUiReturn() {
+  await cloudReturnToDevice('Cerraste la sesión temporal');
+  const msg = document.getElementById('acc-msg'); msg.textContent = ''; msg.dataset.keep = '';
+}
+async function accountUiLink() {
+  const r = await cloudLinkDevice();
+  const msg = document.getElementById('acc-msg'); msg.textContent = r.message; msg.dataset.keep = '1';
+  msg.style.color = r.ok ? '#2e7d32' : '#c62828';
+  renderAccountModal();
+}
+function copyAccountKey() {
+  const k = CloudAuth.pendingKey; if (!k) return;
+  try { navigator.clipboard.writeText(k); showStationToast('📋 Clave copiada.'); } catch (e) { showStationToast('Selecciona y copia la clave manualmente.'); }
 }
 
 // --- Tienda de mejoras (menú de inicio) ---
@@ -13254,6 +13674,7 @@ function startLevel(lvlIndex) {
     safeStorage.setItem("ramen_player_name", DeviceManager.currentPlayer.playerName);
     updateStartPlayerCard();
     renderLinkedUserBadges();
+    if (typeof cloudSaveProfile === 'function') cloudSaveProfile();
   }
 
   if (gameState.gameMode === 'NORMAL') {
@@ -14848,7 +15269,7 @@ async function loadLeaderboard() {
     try {
       const query = supabaseClient
         .from('leaderboard')
-        .select('*')
+        .select('id,player_name,score_money,customers_served,level_reached,game_mode,created_at')
         .eq('game_mode', currentLbTab);
 
       if (currentLbTab === 'NORMAL') {
@@ -17748,6 +18169,30 @@ function processAndRenderAdminData(dbSessions = [], dbPlayers = [], dbLeaderboar
   else if (currentAdminTab === 'sessions') renderAdminSessionsView();
 }
 
+// Contacto y dispositivo de cada récord: solo se piden al servidor con el secreto de administrador.
+async function mergePrivateLeaderboard(rows) {
+  let secret = null;
+  try { secret = sessionStorage.getItem('ramen_admin_secret'); } catch (e) {}
+  if (!secret || !supabaseClient) return rows;
+  try {
+    const { data } = await supabaseClient.rpc('admin_private_leaderboard', { p_secret: secret });
+    if (data && data.ok) {
+      const byId = new Map(data.rows.map(r => [r.id, r]));
+      rows.forEach(r => { const p = byId.get(r.id); if (p) { r.contact = p.contact; r.device_id = p.device_id; } });
+    } else {
+      sessionStorage.removeItem('ramen_admin_secret');
+    }
+  } catch (e) {}
+  return rows;
+}
+
+function adminUnlockPrivateData() {
+  const secret = window.prompt('Secreto de administrador para ver contactos y dispositivos:');
+  if (!secret) return;
+  try { sessionStorage.setItem('ramen_admin_secret', secret.trim()); } catch (e) {}
+  refreshAdminDashboard();
+}
+
 async function refreshAdminDashboard() {
   let dbSessions = [];
   let dbPlayers = [];
@@ -17759,11 +18204,11 @@ async function refreshAdminDashboard() {
       const [resSessions, resPlayers, resLb] = await Promise.all([
         supabaseClient.from('game_sessions').select('*').order('created_at', { ascending: false }).limit(300),
         supabaseClient.from('players').select('*').order('last_login', { ascending: false }),
-        supabaseClient.from('leaderboard').select('*').order('created_at', { ascending: false })
+        supabaseClient.from('leaderboard').select('id,player_name,score_money,customers_served,level_reached,game_mode,created_at').order('created_at', { ascending: false })
       ]);
       dbSessions = resSessions.data || [];
       dbPlayers = resPlayers.data || [];
-      dbLeaderboard = resLb.data || [];
+      dbLeaderboard = await mergePrivateLeaderboard(resLb.data || []);
     } catch(err) {
       console.warn("Error cargando analíticas de Supabase:", err);
     }
@@ -18060,7 +18505,7 @@ function bootGameUI() {
   if (isGameUIBooted) return;
   isGameUIBooted = true;
   applyA11yLabels();
-  setTimeout(() => { updatePropinasHUD(); accountPull(); }, 2500);
+  setTimeout(() => { updatePropinasHUD(); cloudBoot(); }, 1800);
 
   const startScr = document.getElementById("start-screen");
   if (startScr) {

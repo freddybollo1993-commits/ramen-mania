@@ -503,6 +503,9 @@
       <span class="status-dot"></span>
       <span id="conn-status-text">Conectando...</span>
     </div>
+    <button class="btn-action" onclick="adminUnlockPrivateData()" title="Los contactos ya no son públicos: requiere el secreto de administrador">
+      🔑 Datos privados
+    </button>
     <button class="btn-action" onclick="fetchLiveMetrics(true)" title="Forzar actualización de datos en tiempo real">
       🔄 <span>Actualizar</span>
     </button>
@@ -992,6 +995,30 @@ function escapeHtml(text) {
 }
 
 // OBTENCIÓN DE DATOS EN VIVO DESDE SUPABASE
+// Contacto y dispositivo de cada récord: solo se piden al servidor con el secreto de administrador.
+async function mergePrivateLeaderboard(rows) {
+  let secret = null;
+  try { secret = sessionStorage.getItem('ramen_admin_secret'); } catch (e) {}
+  if (!secret || !supabaseClient) return rows;
+  try {
+    const { data } = await supabaseClient.rpc('admin_private_leaderboard', { p_secret: secret });
+    if (data && data.ok) {
+      const byId = new Map(data.rows.map(r => [r.id, r]));
+      rows.forEach(r => { const p = byId.get(r.id); if (p) { r.contact = p.contact; r.device_id = p.device_id; } });
+    } else {
+      sessionStorage.removeItem('ramen_admin_secret');
+    }
+  } catch (e) {}
+  return rows;
+}
+
+function adminUnlockPrivateData() {
+  const secret = window.prompt('Secreto de administrador para ver contactos y dispositivos:');
+  if (!secret) return;
+  try { sessionStorage.setItem('ramen_admin_secret', secret.trim()); } catch (e) {}
+  fetchLiveMetrics(true);
+}
+
 async function fetchLiveMetrics(showLoader = false) {
   const loader = document.getElementById("loading-overlay");
   if (showLoader && loader) loader.style.display = "flex";
@@ -1005,8 +1032,8 @@ async function fetchLiveMetrics(showLoader = false) {
     // 1. Cargar Leaderboard (Récords oficiales y participaciones)
     let lbData = [];
     try {
-      const resLb = await supabaseClient.from('leaderboard').select('*').order('created_at', { ascending: false });
-      if (resLb.data) lbData = resLb.data;
+      const resLb = await supabaseClient.from('leaderboard').select('id,player_name,score_money,customers_served,level_reached,game_mode,created_at').order('created_at', { ascending: false });
+      if (resLb.data) lbData = await mergePrivateLeaderboard(resLb.data);
     } catch(e) {}
 
     // 2. Cargar Jugadores Registrados
