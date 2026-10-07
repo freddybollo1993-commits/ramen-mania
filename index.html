@@ -2822,6 +2822,11 @@
   .stt-kpi { background: #fff3e0; border: 1.5px solid #e0b98a; border-radius: 10px; padding: 6px 8px; display: flex; flex-direction: column; gap: 1px; }
   .stt-kpi span { font-size: 10px; color: #6d4c41; font-weight: 700; }
   .stt-kpi b { font-size: 15px; color: #3e2723; }
+  .stt-learn { background: #f1f8e9; border: 1.5px solid #aed581; border-radius: 10px; padding: 6px 8px; margin-bottom: 6px; }
+  .stt-learn-h { font-size: 11.5px; font-weight: 800; color: #33691e; }
+  .stt-learn-h small { font-weight: 600; color: #6d4c41; font-size: 9.5px; margin-left: 4px; }
+  .stt-learn-l { font-size: 11px; color: #3e2723; margin-top: 3px; line-height: 1.35; }
+  .stt-spark { width: 100%; max-width: 260px; height: 54px; display: block; margin: 2px 0; }
   .stt-times { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
   .stt-chip { font-size: 10px; background: #e8f5e9; color: #1b5e20; border-radius: 10px; padding: 2px 8px; font-weight: 700; }
   .stt-filters { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
@@ -12332,7 +12337,7 @@ const UPGRADE_BY_ID = Object.fromEntries(UPGRADES.map(u => [u.id, u]));
 
 const TRAINING_KEY = 'ramen_training';
 const STATS_KEY = 'ramen_stats';
-const accountProgress = { earned: 0, levels: {}, training: {}, stats: { d: {}, t: {} }, statsDirty: false, loaded: false, sync: 'local', pushTimer: null };
+const accountProgress = { earned: 0, levels: {}, training: {}, stats: { d: {}, t: {}, h: {} }, statsDirty: false, loaded: false, sync: 'local', pushTimer: null };
 
 function loadAccountProgressLocal() {
   if (accountProgress.loaded) return;
@@ -12347,14 +12352,14 @@ function loadAccountProgressLocal() {
     accountProgress.training = (tr && typeof tr === 'object') ? tr : {};
     const st = JSON.parse(safeStorage.getItem(STATS_KEY) || '{}');
     accountProgress.stats = mergeStats({}, st);
-  } catch (e) { accountProgress.levels = {}; accountProgress.training = {}; accountProgress.stats = { d: {}, t: {} }; }
+  } catch (e) { accountProgress.levels = {}; accountProgress.training = {}; accountProgress.stats = { d: {}, t: {}, h: {} }; }
 }
 
 function saveAccountProgressLocal() {
   safeStorage.setItem(TIPS_EARNED_KEY, String(accountProgress.earned));
   safeStorage.setItem(UPGRADES_KEY, JSON.stringify(accountProgress.levels));
   safeStorage.setItem(TRAINING_KEY, JSON.stringify(accountProgress.training || {}));
-  safeStorage.setItem(STATS_KEY, JSON.stringify(accountProgress.stats || { d: {}, t: {} }));
+  safeStorage.setItem(STATS_KEY, JSON.stringify(accountProgress.stats || { d: {}, t: {}, h: {} }));
 }
 
 function upgradesSpent() {
@@ -12406,17 +12411,25 @@ function mergeTraining(a, b) {
   new Set([...Object.keys(a || {}), ...Object.keys(b || {})]).forEach(k => {
     const x = (a && a[k]) || {}, y = (b && b[k]) || {};
     const t = (x.t && y.t) ? Math.min(x.t, y.t) : (x.t || y.t || 0);
-    out[k] = { t, l: (y.n || 0) > (x.n || 0) ? (y.l || 0) : (x.l || 0), m: Math.max(x.m || 0, y.m || 0),
+    const f = (x.f && y.f) ? Math.min(x.f, y.f) : (x.f || y.f || 0);
+    out[k] = { t, ...(f ? { f } : {}), l: (y.n || 0) > (x.n || 0) ? (y.l || 0) : (x.l || 0), m: Math.max(x.m || 0, y.m || 0),
       n: Math.max(x.n || 0, y.n || 0), paid: Math.max(x.paid || 0, y.paid || 0) };
   });
   return out;
 }
 
 // Estadísticas: contadores acumulados; al combinar se queda el mayor de cada campo (igual que en el servidor).
-const STATS_DISH_FIELDS = ['n', 's', 's1', 's2', 's3', 'b', 'f'];
+const STATS_DISH_FIELDS = ['n', 's', 's1', 's2', 's3', 'b', 'f', 'e', 'ne'];
+const STATS_DAY_FIELDS = ['t', 'n', 's', 's3', 'er', 'bu', 'cr', 'rj', 'lc', 'g'];
+const STATS_DAYS_KEPT = 90;
 function mergeStats(a, b) {
-  const out = { d: {}, t: {} };
+  const out = { d: {}, t: {}, h: {} };
   const da = (a && a.d) || {}, db = (b && b.d) || {}, ta = (a && a.t) || {}, tb = (b && b.t) || {};
+  const ha = (a && a.h) || {}, hb = (b && b.h) || {};
+  [...new Set([...Object.keys(ha), ...Object.keys(hb)])].filter(k => /^\d{4}-\d{2}-\d{2}$/.test(k)).sort().slice(-STATS_DAYS_KEPT).forEach(k => {
+    out.h[k] = {};
+    STATS_DAY_FIELDS.forEach(f => { out.h[k][f] = Math.max(Number((ha[k] || {})[f]) || 0, Number((hb[k] || {})[f]) || 0); });
+  });
   new Set([...Object.keys(da), ...Object.keys(db)]).forEach(k => {
     out.d[k] = {};
     STATS_DISH_FIELDS.forEach(f => { out.d[k][f] = Math.max(Number((da[k] || {})[f]) || 0, Number((db[k] || {})[f]) || 0); });
@@ -13052,7 +13065,7 @@ function trainingRecord(ch, time) {
   const m = Math.max(prev.m || 0, medal);
   const target = Math.round(ch.reward * TRAINING_MEDAL_SHARE[m]);
   const reward = Math.max(0, target - (prev.paid || 0));
-  accountProgress.training[ch.id] = { t: best, l: time, m, n: (prev.n || 0) + 1, paid: Math.max(prev.paid || 0, target) };
+  accountProgress.training[ch.id] = { t: best, ...(prev.f || !prev.m ? { f: prev.f || time } : {}), l: time, m, n: (prev.n || 0) + 1, paid: Math.max(prev.paid || 0, target) };
   saveAccountProgressLocal();
   if (reward > 0) addPropinas(reward);
   accountPushSoon(true);
@@ -13212,13 +13225,45 @@ function statsModeKey() {
   return { NORMAL: 'normal', RASH: 'rash', TRAINING: 'training', FREE: 'free' }[gameState.gameMode] || 'normal';
 }
 
+// Historial diario (para ver la curva de aprendizaje): tiempo, platos, calidad y tipos de error de cada día.
+function statsDayKey() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+function statsDay() {
+  const h = accountProgress.stats.h || (accountProgress.stats.h = {});
+  const k = statsDayKey();
+  if (!h[k]) {
+    h[k] = { t: 0, n: 0, s: 0, s3: 0, er: 0, bu: 0, cr: 0, rj: 0, lc: 0, g: 0 };
+    const keys = Object.keys(h).sort();
+    while (keys.length > STATS_DAYS_KEPT) delete h[keys.shift()];
+  }
+  return h[k];
+}
+function statsBump(field, n = 1) {
+  loadAccountProgressLocal();
+  statsDay()[field] += n;
+  accountProgress.statsDirty = true;
+}
+// Tipo de error del plato: desorden (proceso), quemado o crudo.
+function statsMistakes(ev) {
+  const day = statsDay();
+  if (ev.proc < 30) day.er++;
+  if (ev.cook.state === 'QUEMADO' || ev.cook.state === 'CARBONIZADO') day.bu++;
+  else if (ev.cook.state === 'CRUDO') day.cr++;
+}
+
 function statsRecordDish(recipe, ev) {
   loadAccountProgressLocal();
   let tier = ev.score >= 85 ? 3 : (ev.score >= 60 ? 2 : 1);
   if (ev.capped) tier = Math.min(tier, 1);
   const k = statsDishKey(getRecipeArea(recipe), recipe.name);
-  const d = accountProgress.stats.d[k] || (accountProgress.stats.d[k] = { n: 0, s: 0, s1: 0, s2: 0, s3: 0, b: 0, f: 0 });
+  const d = accountProgress.stats.d[k] || (accountProgress.stats.d[k] = { n: 0, s: 0, s1: 0, s2: 0, s3: 0, b: 0, f: 0, e: 0, ne: 0 });
   d.n++; d.s += ev.score; d['s' + tier]++;
+  if ((d.ne || 0) < 5) { d.e = (d.e || 0) + ev.score; d.ne = (d.ne || 0) + 1; } // primeros 5 intentos: punto de partida
+  const day = statsDay();
+  day.n++; day.s += ev.score; if (tier === 3) day.s3++;
+  statsMistakes(ev);
   d.b = Math.max(d.b, ev.score);
   if (isFree()) d.f++;
   accountProgress.statsDirty = true;
@@ -13231,6 +13276,7 @@ function statsAddTime() {
   loadAccountProgressLocal();
   const m = statsModeKey();
   accountProgress.stats.t[m] = (accountProgress.stats.t[m] || 0) + 1;
+  statsDay().t++;
   accountProgress.statsDirty = true;
   if (++statsTickCount % 10 === 0) saveAccountProgressLocal();
 }
@@ -13255,6 +13301,57 @@ window.addEventListener('pagehide', () => {
   } catch (e) {}
 });
 setInterval(statsFlush, 60000);
+
+// --- Tu curva de aprendizaje (resumen para el jugador) ---
+function learningSummary() {
+  const st = accountProgress.stats, tr = accountProgress.training || {};
+  const days = Object.keys(st.h || {}).filter(k => st.h[k].n > 0).sort();
+  const series = days.slice(-14).map(k => ({ day: k, avg: st.h[k].s / st.h[k].n, n: st.h[k].n }));
+  // calidad de tus primeros 5 platos de cada receta frente al resto
+  let eSum = 0, eN = 0, rSum = 0, rN = 0;
+  Object.values(st.d).forEach(d => {
+    if ((d.ne || 0) >= 5 && d.n - d.ne >= 3) { eSum += d.e; eN += d.ne; rSum += d.s - d.e; rN += d.n - d.ne; }
+  });
+  // mejora de tiempo en los retos: primer intento frente a tu mejor marca
+  const gains = Object.values(tr).filter(x => x.f && x.t && x.n >= 2).map(x => (x.f - x.t) / x.f);
+  // errores por plato: últimos 7 días frente a los 7 anteriores
+  const last = days.slice(-14);
+  const sum = (arr, f) => arr.reduce((t, k) => t + (st.h[k][f] || 0), 0);
+  const prevDays = last.slice(0, Math.max(0, last.length - 7)), nowDays = last.slice(-7);
+  const rate = (arr) => { const n = sum(arr, 'n'); return n ? (sum(arr, 'er') + sum(arr, 'bu') + sum(arr, 'cr')) / n : null; };
+  return { series, first: eN ? eSum / eN : null, rest: rN ? rSum / rN : null,
+    trainGain: gains.length ? 100 * gains.reduce((a, b) => a + b, 0) / gains.length : null, trainCount: gains.length,
+    errNow: rate(nowDays), errPrev: prevDays.length ? rate(prevDays) : null };
+}
+
+function learningSparkline(series) {
+  if (series.length < 2) return '';
+  const W = 260, H = 54, pad = 6;
+  const pts = series.map((p, i) => [pad + i * (W - 2 * pad) / (series.length - 1), H - pad - (Math.max(0, Math.min(100, p.avg)) / 100) * (H - 2 * pad)]);
+  return `<svg viewBox="0 0 ${W} ${H}" class="stt-spark" role="img" aria-label="Calidad media por día">
+    <polyline fill="none" stroke="#43a047" stroke-width="2.5" stroke-linejoin="round" points="${pts.map(p => p.map(v => v.toFixed(1)).join(',')).join(' ')}"/>
+    ${pts.map(p => `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.8" fill="#ef6c00"/>`).join('')}</svg>`;
+}
+
+function renderLearningBlock() {
+  const L = learningSummary();
+  const lines = [];
+  if (L.first != null && L.rest != null) {
+    const diff = Math.round(L.rest - L.first);
+    lines.push(diff > 0 ? `📈 Tus primeros platos de cada receta sacaron <b>${Math.round(L.first)}</b> y ahora sacas <b>${Math.round(L.rest)}</b> (+${diff}). ¡Mejoras con la práctica!`
+      : `🎯 Tus primeros platos sacaron <b>${Math.round(L.first)}</b> y ahora <b>${Math.round(L.rest)}</b>. Prueba con la Cocina libre para afinar los puntos débiles.`);
+  }
+  if (L.trainGain != null) {
+    lines.push(L.trainGain > 0 ? `⏱ En el Entrenamiento ahora tardas en promedio un <b>${Math.round(L.trainGain)}%</b> menos que en tu primer intento (${L.trainCount} retos).`
+      : `⏱ Repite retos del Entrenamiento para bajar tus tiempos.`);
+  }
+  if (L.errNow != null && L.errPrev != null) {
+    const a = Math.round(L.errPrev * 100), b = Math.round(L.errNow * 100);
+    lines.push(b < a ? `✅ Fallos por plato (desorden, crudo o quemado): de <b>${a}%</b> a <b>${b}%</b> esta semana.` : `🔎 Fallos por plato esta semana: <b>${b}%</b> (antes ${a}%). Revisa el orden y los puntos de cocción.`);
+  }
+  if (!lines.length && L.series.length < 2) return '<div class="stt-learn"><div class="free-note">📈 Juega en varios días y aquí verás tu curva de aprendizaje.</div></div>';
+  return `<div class="stt-learn"><div class="stt-learn-h">📈 Tu curva de aprendizaje <small>calidad media por día</small></div>${learningSparkline(L.series)}${lines.map(l => `<div class="stt-learn-l">${l}</div>`).join('')}</div>`;
+}
 
 // --- Pantalla "Mis estadísticas" ---
 let statsView = { area: 'all' };
@@ -13304,6 +13401,7 @@ function renderStatsModal() {
       <div class="stt-kpi"><span>⭐ Calidad media</span><b>${served ? Math.round(avgAll) + ' ' + statsStarsFor(avgAll) : '—'}</b></div>
     </div>
     <div class="stt-times">${times || '<span class="free-note">Aún no hay tiempo registrado.</span>'}</div>
+    ${renderLearningBlock()}
     <div class="stt-filters">${chips}</div>
     ${table}`;
 }
@@ -13849,6 +13947,8 @@ function serveRamenToCustomer(customerIndex, itemIndex, bowlIndex) {
 // El cliente no acepta el plato: se descarta, pierde paciencia y, si no estaba quemado, aporta un recorte.
 function rejectDish(customerIndex, c, orderItem, dish, ev) {
   const burnt = ev.cook.state === 'QUEMADO' || ev.cook.state === 'CARBONIZADO';
+  loadAccountProgressLocal();
+  statsDay().rj++; statsMistakes(ev); accountProgress.statsDirty = true;
   consumeReadyDish(dish);
   c.patience = Math.max(1, c.patience - c.maxPatience * QUALITY_REJECT_PATIENCE);
   playSound('burn');
@@ -14230,6 +14330,7 @@ function gameTick() {
         playSound('lost');
         triggerAbolladoEffect();
         gameState.customersLost++;
+        if (!isFree() && !isTraining()) statsBump('lc'); // solo cuenta donde perder clientes es posible
         gameState.customerSlots[i] = null;
         if (gameState.selectedCustomerModalIndex === i) closeCustomerOrderModal();
         shiftCustomersLeft(); // Mover la fila hacia la izquierda
@@ -15527,6 +15628,7 @@ function executeStartGame() {
   if (rotateOverlay) rotateOverlay.style.display = "none";
 
   gameState.gameMode = startSelectedMode;
+  statsBump('g');
   if (startSelectedMode !== 'TRAINING') gameState.training = null;
   gameState.free = startSelectedMode === 'FREE' ? { auto: true, areas: [...FREE_AREAS] } : null;
   if (startSelectedMode === 'NORMAL') {

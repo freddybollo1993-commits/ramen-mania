@@ -590,6 +590,7 @@
     <button class="tab-btn" onclick="switchTab('tab-leaderboard')">🏆 Ranking & Leaderboard (<span id="tab-count-lb">0</span>)</button>
     <button class="tab-btn" onclick="switchTab('tab-sessions')">📜 Historial de Partidas (<span id="tab-count-sessions">0</span>)</button>
     <button class="tab-btn" onclick="switchTab('tab-stats')">📈 Estadísticas de cocina</button>
+    <button class="tab-btn" onclick="switchTab('tab-learning')">🎓 Curva de aprendizaje</button>
     <button class="tab-btn" onclick="switchTab('tab-recipes')">🍲 Análisis de Ramen & Dificultad</button>
     <button class="tab-btn" onclick="switchTab('tab-settings')">⚙️ Base de Datos & SQL</button>
   </div>
@@ -764,6 +765,20 @@
         (puntaje 0-100: cocción, proceso y frescura) y cuánto tiempo se juega en cada modo. No incluyen contactos.
       </p>
       <div id="stats-content"><div style="color:var(--text-muted); font-size:13px;">Cargando…</div></div>
+    </div>
+  </div>
+
+  <div class="tab-pane" id="tab-learning">
+    <div class="table-card">
+      <div class="table-title" style="margin-bottom:10px;">
+        <span>🎓 Curva de aprendizaje: ¿los jugadores están aprendiendo a cocinar?</span>
+      </div>
+      <p style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">
+        Cruza calidad, fallos, práctica (Cocina libre y Entrenamiento), tiempos de los retos y recetas para ver cómo
+        mejora cada jugador con los días. El objetivo del juego es aprender: aquí se ve dónde se aprende, dónde se atasca
+        y qué conviene reforzar. No incluye contactos.
+      </p>
+      <div id="learning-content"><div style="color:var(--text-muted); font-size:13px;">Cargando…</div></div>
     </div>
   </div>
 
@@ -1064,6 +1079,265 @@ function renderKitchenStats(rows) {
   }
 }
 
+// ===== Curva de aprendizaje: cruce de KPIs por jugador, plato y reto =====
+// Lee las mismas estadísticas por cuenta (admin_stats). La pregunta de fondo: ¿los jugadores están aprendiendo?
+// Calidad = puntaje 0-100 (cocción 50 + proceso 30 + frescura 20). Fallo = plato con desorden de proceso, quemado o crudo.
+const LEARN_CHALLENGES = [["c01","Tu primer ramen","ramen",{"ramen":1}],["c02","Dos pedidos","ramen",{"ramen":2}],["c03","Dos cuencos a la vez","ramen",{"ramen":3}],["c04","Cuida el punto","ramen",{"ramen":4}],["c05","Caldos espesos","ramen",{"ramen":6}],["c06","Tu primer wok","salteado",{"salteados":1}],["c07","El punto del wok","salteado",{"salteados":2}],["c08","Dos woks en paralelo","salteado",{"salteados":4}],["c09","Ramen y wok","salteado",{"ramen":3,"salteados":3}],["c10","Salteados de carta","salteado",{"salteados":5}],["c11","Tu primer maki","makis",{"makis":1}],["c12","Dos makis","makis",{"makis":2}],["c13","Con coberturas","makis",{"makis":3}],["c14","La barra completa","makis",{"ramen":2,"salteados":2,"makis":3}],["c15","Makis finos","makis",{"makis":4}],["c16","Tu primera fritura","frituras",{"frituras":1}],["c17","El punto de la olla","frituras",{"frituras":2}],["c18","Empanizado y corte","frituras",{"frituras":2}],["c19","Fritura surtida","frituras",{"frituras":4}],["c20","Cocina caliente","frituras",{"frituras":3,"salteados":3}],["c21","El almuerzo","servicio",{"ramen":2,"salteados":2,"makis":2,"frituras":2}],["c22","Servicio de tarde","servicio",{"ramen":3,"salteados":3,"makis":2,"frituras":2}],["c23","Hora pico","servicio",{"ramen":3,"salteados":3,"makis":3,"frituras":3}],["c24","Cena concurrida","servicio",{"ramen":4,"salteados":4,"makis":4,"frituras":4}],["c25","Perfección","maestria",{"ramen":2,"salteados":2,"makis":1,"frituras":1}],["c26","Maratón","maestria",{"ramen":6,"salteados":6,"makis":6,"frituras":6}],["c27","Examen del maestro","maestria",{"ramen":8,"salteados":8,"makis":7,"frituras":7}]];
+const LEARN_CH_ICON = { ramen: '🍜', salteado: '🍳', makis: '🍣', frituras: '🍤', servicio: '🏮', maestria: '🏆' };
+const LEARN_SEC = { ramen: 13, salteados: 14, makis: 15, frituras: 24 };
+const LEARN_STAGES = {
+  nuevo: '🌱 Nuevo', dominando: '🎯 Dominando', mejorando: '📈 Mejorando', camino: '🔄 En camino', estancado: '⏸ Estancado', retrocede: '📉 Retrocede'
+};
+let learnCharts = {};
+
+function learnPar(r) {
+  return Math.round((25 + Object.entries(r).reduce((t, [a, n]) => t + n * LEARN_SEC[a] * 1.5, 0)) / 5) * 5;
+}
+function learnNotice(html) {
+  document.getElementById('learning-content').innerHTML = '<div style="padding:18px; text-align:center; color:var(--text-muted); font-size:13px;">' + html + '</div>';
+}
+
+async function loadLearning() {
+  let secret = null;
+  try { secret = sessionStorage.getItem('ramen_admin_secret'); } catch (e) {}
+  if (!secret) {
+    learnNotice('🔒 Estos datos son privados.<br><br><button class="btn-action btn-primary" onclick="adminUnlockPrivateData()">🔑 Ingresar secreto de administrador</button>');
+    return;
+  }
+  if (!supabaseClient) initSupabase();
+  learnNotice('Cargando…');
+  try {
+    const { data, error } = await supabaseClient.rpc('admin_stats', { p_secret: secret });
+    if (error || !data || !data.ok) {
+      try { sessionStorage.removeItem('ramen_admin_secret'); } catch (e) {}
+      learnNotice('❌ Secreto incorrecto o sin conexión.<br><br><button class="btn-action btn-primary" onclick="adminUnlockPrivateData()">🔑 Volver a intentar</button>');
+      return;
+    }
+    renderLearning(data.rows || []);
+  } catch (e) {
+    learnNotice('❌ No se pudieron cargar los datos.');
+  }
+}
+
+// Todo lo que se sabe de un jugador para ver cómo evoluciona.
+function learnPlayer(r) {
+  const st = r.stats || {}, h = st.h || {}, t = st.t || {};
+  const days = Object.keys(h).filter(k => (h[k].n || 0) > 0).sort();
+  const sum = (ds, f) => ds.reduce((a, k) => a + (h[k][f] || 0), 0);
+  const quality = ds => { const n = sum(ds, 'n'); return n ? sum(ds, 's') / n : null; };
+  const failRate = ds => { const a = sum(ds, 'n') + sum(ds, 'rj'); return a ? (sum(ds, 'er') + sum(ds, 'bu') + sum(ds, 'cr')) / a : null; };
+  let served = 0, score = 0;
+  Object.values(st.d || {}).forEach(v => { served += v.n || 0; score += v.s || 0; });
+  const total = Object.values(t).reduce((a, v) => a + v, 0);
+  const practice = (t.free || 0) + (t.training || 0);
+  const k = Math.min(3, Math.floor(days.length / 2));
+  const early = k ? days.slice(0, k) : [], late = k ? days.slice(-k) : [];
+  const qE = k ? quality(early) : null, qL = k ? quality(late) : null;
+  const avg = served ? score / served : 0;
+  const delta = (qE != null && qL != null) ? qL - qE : null;
+  let stage = 'camino';
+  if (served < 30) stage = 'nuevo';
+  else if (avg >= 85) stage = 'dominando';
+  else if (delta != null && delta >= 5) stage = 'mejorando';
+  else if (delta != null && delta <= -5) stage = 'retrocede';
+  else if (served >= 100 && (delta == null || Math.abs(delta) < 5)) stage = 'estancado';
+  const hrs = total / 3600;
+  const tr = r.training || {};
+  const gains = Object.values(tr).filter(x => x.f && x.t && x.n >= 2).map(x => (x.f - x.t) / x.f);
+  return {
+    alias: r.alias, avatar: r.avatar, last: r.last_login, days, nDays: days.length, served, avg, total, practice,
+    share: total ? practice / total : 0, qE, qL, delta, fE: k ? failRate(early) : null, fL: k ? failRate(late) : null,
+    perHour: hrs >= 0.1 ? served / hrs : null, trn: r.training_done || 0, trainGain: gains.length ? gains.reduce((a, b) => a + b, 0) / gains.length : null,
+    stage, trend: days.slice(-8).map(d => h[d].s / h[d].n), h
+  };
+}
+
+function learnSpark(vals) {
+  const bars = '▁▂▃▄▅▆▇█';
+  return vals.map(v => bars[Math.max(0, Math.min(7, Math.floor(v / 100 * 7.99)))]).join('');
+}
+const learnPct = v => v == null ? '—' : Math.round(v * 100) + '%';
+const learnNum = (v, d = 0) => v == null ? '—' : Number(v).toFixed(d);
+const learnSign = v => v == null ? '—' : (v > 0 ? '+' : '') + Math.round(v);
+const learnAvg = arr => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null;
+
+function renderLearning(rows) {
+  const players = rows.map(learnPlayer).filter(p => p.served > 0 || p.total > 0);
+  const curve = players.filter(p => p.delta != null);
+  const improving = curve.filter(p => p.delta >= 5);
+
+  // --- Curva por día de práctica (día 1, 2, 3… de cada jugador) ---
+  const MAXD = 14;
+  const byDay = Array.from({ length: MAXD }, () => ({ s: 0, n: 0, er: 0, bu: 0, cr: 0, rj: 0, t: 0, players: 0 }));
+  players.forEach(p => p.days.slice(0, MAXD).forEach((d, i) => {
+    const x = p.h[d], b = byDay[i];
+    b.s += x.s || 0; b.n += x.n || 0; b.er += x.er || 0; b.bu += x.bu || 0; b.cr += x.cr || 0; b.rj += x.rj || 0; b.t += x.t || 0; b.players++;
+  }));
+  let lastIdx = byDay.length - 1;
+  while (lastIdx >= 0 && byDay[lastIdx].players < 1) lastIdx--;
+  const dayPts = byDay.slice(0, lastIdx + 1);
+
+  // --- Platos: primeros 5 intentos frente al resto ---
+  const dish = {};
+  rows.forEach(r => Object.entries((r.stats || {}).d || {}).forEach(([key, v]) => {
+    if ((v.ne || 0) >= 5 && (v.n || 0) - v.ne >= 3) {
+      const o = dish[key] || (dish[key] = { e: 0, ne: 0, r: 0, nr: 0, players: 0 });
+      o.e += v.e; o.ne += v.ne; o.r += v.s - v.e; o.nr += v.n - v.ne; o.players++;
+    }
+  }));
+  const dishNames = {};
+  STATS_DISHES.forEach(([area, name]) => { dishNames[statsSlug(area, name)] = STATS_AREA_ICON[area] + ' ' + name; });
+  const dishRows = Object.entries(dish).map(([key, o]) => ({ name: dishNames[key] || key, players: o.players, first: o.e / o.ne, rest: o.r / o.nr, delta: o.r / o.nr - o.e / o.ne }))
+    .sort((a, b) => b.delta - a.delta);
+
+  // --- Retos del Entrenamiento ---
+  const trainers = rows.filter(r => r.training && Object.keys(r.training).length);
+  const chal = LEARN_CHALLENGES.map(([id, title, ch, req], i) => {
+    const recs = trainers.map(r => r.training[id]).filter(x => x && x.m > 0);
+    const withF = recs.filter(x => x.f && x.t);
+    const rep = withF.filter(x => x.n >= 2);
+    const par = learnPar(req);
+    return { id, title, ch, num: i + 1, par, done: recs.length, attempts: learnAvg(recs.map(x => x.n || 1)), firstAvg: learnAvg(withF.map(x => x.f)),
+      bestAvg: learnAvg(withF.map(x => x.t)), gain: rep.length ? learnAvg(rep.map(x => (x.f - x.t) / x.f)) : null,
+      medals: [0, 0, 0, 0].map((_, m) => recs.filter(x => x.m === m).length) };
+  });
+  let worstDrop = null;
+  for (let i = 0; i < chal.length - 1; i++) {
+    if (chal[i].done >= 2) {
+      const drop = (chal[i].done - chal[i + 1].done) / chal[i].done;
+      if (!worstDrop || drop > worstDrop.drop) worstDrop = { drop, from: chal[i], to: chal[i + 1] };
+    }
+  }
+
+  // --- Práctica libre/entrenamiento frente a mejora ---
+  const practicing = curve.filter(p => p.share >= 0.3), noPractice = curve.filter(p => p.share < 0.3);
+  const grp = arr => ({ n: arr.length, q: learnAvg(arr.map(p => p.avg)), d: learnAvg(arr.map(p => p.delta)), f: learnAvg(arr.filter(p => p.fL != null).map(p => p.fL)) });
+  const gP = grp(practicing), gN = grp(noPractice);
+
+  // --- KPIs globales ---
+  const fE = learnAvg(curve.filter(p => p.fE != null).map(p => p.fE)), fL = learnAvg(curve.filter(p => p.fL != null).map(p => p.fL));
+  const dishGain = dishRows.length ? learnAvg(dishRows.map(x => x.delta)) : null;
+  const trainGain = learnAvg(players.filter(p => p.trainGain != null).map(p => p.trainGain));
+  const kpi = (icon, label, value, sub) => '<div class="kpi-card"><div class="kpi-icon">' + icon + '</div><div class="kpi-content"><span class="kpi-label">' + label + '</span><span class="kpi-value">' + value + '</span><span class="kpi-sub">' + sub + '</span></div></div>';
+
+  // --- Lectura rápida (conclusiones automáticas) ---
+  const ins = [];
+  if (curve.length) ins.push('📈 <b>' + improving.length + ' de ' + curve.length + '</b> jugadores con 2+ días de juego ya mejoran su calidad (+5 pts o más).');
+  else ins.push('🌱 Aún no hay jugadores con 2 o más días de juego: la curva aparece cuando vuelven a jugar. Los datos diarios empiezan a registrarse desde esta versión.');
+  if (fE != null && fL != null) ins.push((fL < fE ? '✅' : '⚠️') + ' Los fallos por plato pasan de <b>' + learnPct(fE) + '</b> (primeros días) a <b>' + learnPct(fL) + '</b> (últimos días).');
+  if (dishRows.length) {
+    const best = dishRows[0], worst = dishRows[dishRows.length - 1];
+    ins.push('🌱 El plato que más se aprende con la práctica: <b>' + escapeHtml(best.name) + '</b> (' + learnSign(best.delta) + ' pts).');
+    const stuck = dishRows.filter(x => x.rest < 70 && x.delta < 5);
+    if (stuck.length) ins.push('⚠️ Platos donde los jugadores <b>no mejoran</b> y siguen con baja calidad: <b>' + stuck.slice(0, 4).map(x => escapeHtml(x.name)).join(', ') + '</b>. Candidatos a más ayuda (pista, tutorial o reto específico).');
+    else if (worst !== best) ins.push('🔎 El plato que menos mejora: <b>' + escapeHtml(worst.name) + '</b> (' + learnSign(worst.delta) + ' pts).');
+  }
+  if (worstDrop && worstDrop.drop > 0) ins.push('🚧 Mayor abandono en el Entrenamiento: entre <b>' + escapeHtml(worstDrop.from.title) + '</b> y <b>' + escapeHtml(worstDrop.to.title) + '</b> (' + Math.round(worstDrop.drop * 100) + '% de quienes llegan no avanzan).');
+  if (gP.n && gN.n) ins.push('🏋️ Quienes practican (≥30% del tiempo en Libre/Entrenamiento) mejoran <b>' + learnSign(gP.d) + '</b> pts; quienes solo juegan Campaña/Rash, <b>' + learnSign(gN.d) + '</b> pts.');
+  const stalled = players.filter(p => p.stage === 'estancado');
+  if (stalled.length) ins.push('⏸ <b>' + stalled.length + '</b> jugador(es) estancado(s): mucho tiempo jugado sin mejorar. Conviene sugerirles Entrenamiento o Cocina libre.');
+  const fixed = fL != null ? { er: 0, bu: 0, cr: 0 } : null;
+  if (fixed) {
+    const last = dayPts.slice(-3);
+    last.forEach(b => { fixed.er += b.er; fixed.bu += b.bu; fixed.cr += b.cr; });
+    const tot = fixed.er + fixed.bu + fixed.cr;
+    if (tot) {
+      const top = Object.entries({ 'desorden en el proceso': fixed.er, 'platos quemados': fixed.bu, 'platos crudos': fixed.cr }).sort((a, b) => b[1] - a[1])[0];
+      ins.push('🔥 Error más común en los últimos días de práctica: <b>' + top[0] + '</b> (' + Math.round(100 * top[1] / tot) + '% de los fallos).');
+    }
+  }
+
+  // --- HTML ---
+  const stageCounts = Object.keys(LEARN_STAGES).map(k => '<span class="badge-tag badge-normal" style="margin-right:4px;">' + LEARN_STAGES[k] + ' ' + players.filter(p => p.stage === k).length + '</span>').join('');
+  const chalRows = chal.map((c, i) => {
+    const ratio = c.firstAvg ? c.firstAvg / c.par : null;
+    const drop = worstDrop && worstDrop.from.id === c.id ? ' <span title="Mayor abandono">🚧</span>' : '';
+    return '<tr><td>' + c.num + '. ' + LEARN_CH_ICON[c.ch] + ' <strong style="color:#ffb300;">' + escapeHtml(c.title) + '</strong>' + drop + '</td><td>' + c.done + '</td><td>' + learnNum(c.attempts, 1) + '</td><td>' + (c.firstAvg ? Math.round(c.firstAvg) + ' s' : '—') + '</td><td>' + (c.bestAvg ? Math.round(c.bestAvg) + ' s' : '—') + '</td><td>' + (ratio ? ratio.toFixed(1) + '×' : '—') + '</td><td>' + (c.gain != null ? '−' + Math.round(c.gain * 100) + '%' : '—') + '</td><td>🥉' + c.medals[1] + ' 🥈' + c.medals[2] + ' 🥇' + c.medals[3] + '</td></tr>';
+  }).join('');
+  const dishTable = dishRows.map(x => {
+    const diag = x.rest < 70 && x.delta < 5 ? '⚠️ No mejora' : (x.delta >= 10 ? '🌱 Se aprende' : '➡ Estable');
+    return '<tr><td>' + escapeHtml(x.name) + '</td><td>' + x.players + '</td><td>' + Math.round(x.first) + '</td><td>' + Math.round(x.rest) + '</td><td><strong style="color:' + (x.delta >= 0 ? '#66bb6a' : '#ef5350') + ';">' + learnSign(x.delta) + '</strong></td><td>' + diag + '</td></tr>';
+  }).join('') || '<tr><td colspan="6" style="color:var(--text-muted);">Se necesitan 5+ platos de una receta y 3+ después (desde esta versión).</td></tr>';
+  const playerTable = players.sort((a, b) => b.total - a.total).map(p =>
+    '<tr><td>' + escapeHtml(p.avatar || '') + ' <strong>' + escapeHtml(p.alias || '') + '</strong></td><td>' + LEARN_STAGES[p.stage] + '</td><td>' + p.nDays + '</td><td>' + p.served + '</td><td>' +
+    (p.qE != null ? Math.round(p.qE) + ' → ' + Math.round(p.qL) + ' <strong style="color:' + (p.delta >= 0 ? '#66bb6a' : '#ef5350') + ';">(' + learnSign(p.delta) + ')</strong>' : (p.served ? Math.round(p.avg) : '—')) + '</td><td>' +
+    (p.fE != null ? learnPct(p.fE) + ' → ' + learnPct(p.fL) : '—') + '</td><td>' + learnNum(p.perHour, 0) + '</td><td>' + p.trn + '/27' + (p.trainGain != null ? ' <small style="color:var(--text-muted);">(−' + Math.round(p.trainGain * 100) + '% tiempo)</small>' : '') + '</td><td>' + Math.round(p.share * 100) + '%</td><td style="font-family:monospace;letter-spacing:1px;color:#66bb6a;">' + learnSpark(p.trend) + '</td></tr>'
+  ).join('') || '<tr><td colspan="10" style="color:var(--text-muted);">Aún no hay jugadores con estadísticas.</td></tr>';
+  const card = (title, sub, inner) => '<div style="background:rgba(0,0,0,0.25); border-radius:10px; padding:10px;"><div style="font-size:12px; font-weight:800;">' + title + '</div><div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">' + sub + '</div>' + inner + '</div>';
+
+  document.getElementById('learning-content').innerHTML =
+    '<div class="kpi-grid" style="margin-bottom:14px;">' +
+      kpi('🎓', 'Jugadores con curva', curve.length, 'con 2+ días de juego (de ' + players.length + ')') +
+      kpi('📈', 'Mejoran su calidad', curve.length ? Math.round(100 * improving.length / curve.length) + '%' : '—', 'primeros vs últimos días (+5 pts)') +
+      kpi('🍽️', 'Mejora por receta', dishGain != null ? learnSign(dishGain) + ' pts' : '—', 'primeros 5 platos vs el resto') +
+      kpi('🎯', 'Fallos por plato', fE != null ? learnPct(fE) + ' → ' + learnPct(fL) : '—', 'desorden, quemado o crudo') +
+      kpi('⏱️', 'Mejora de tiempo en retos', trainGain != null ? '−' + Math.round(trainGain * 100) + '%' : '—', 'primer intento vs mejor marca') +
+    '</div>' +
+    '<div style="background:rgba(255,179,0,0.08); border:1px solid rgba(255,179,0,0.3); border-radius:10px; padding:10px 12px; margin-bottom:14px;"><div style="font-size:12px; font-weight:800; margin-bottom:4px;">💡 Lectura rápida</div><ul style="margin:0; padding-left:18px; font-size:12.5px; line-height:1.6;">' + ins.map(x => '<li>' + x + '</li>').join('') + '</ul></div>' +
+    '<div style="margin-bottom:10px;">' + stageCounts + '</div>' +
+    '<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:14px; margin-bottom:14px;">' +
+      card('Curva de aprendizaje', 'Calidad media y fallos según el día de práctica de cada jugador (día 1 = su primer día)', '<div style="height:230px;"><canvas id="chart-learn-curve"></canvas></div>') +
+      card('Qué falla y cuánto', 'Fallos por cada 100 intentos, por tipo y día de práctica', '<div style="height:230px;"><canvas id="chart-learn-errors"></canvas></div>') +
+      card('Embudo del Entrenamiento', 'Cuántas cuentas completaron cada reto (cada uno con su capítulo)', '<div style="height:230px;"><canvas id="chart-learn-funnel"></canvas></div>') +
+      card('Práctica vs mejora', 'Cada punto es un jugador: minutos en Libre/Entrenamiento (X) y mejora de calidad (Y)', '<div style="height:230px;"><canvas id="chart-learn-scatter"></canvas></div>') +
+    '</div>' +
+    '<div class="table-title" style="margin:6px 0;"><span>🏋️ ¿Practicar ayuda? Cruce por tipo de práctica</span></div>' +
+    '<div class="table-wrap"><table class="data-table"><thead><tr><th>Grupo</th><th>Jugadores</th><th>Calidad media</th><th>Mejora (pts)</th><th>Fallos recientes</th></tr></thead><tbody>' +
+      '<tr><td>🌿 Practican (≥30% en Libre/Entrenamiento)</td><td>' + gP.n + '</td><td>' + learnNum(gP.q) + '</td><td>' + learnSign(gP.d) + '</td><td>' + learnPct(gP.f) + '</td></tr>' +
+      '<tr><td>🏮 Solo Campaña / Rash</td><td>' + gN.n + '</td><td>' + learnNum(gN.q) + '</td><td>' + learnSign(gN.d) + '</td><td>' + learnPct(gN.f) + '</td></tr>' +
+    '</tbody></table></div>' +
+    '<div class="table-title" style="margin:14px 0 6px;"><span>🍽️ Aprendizaje por plato: primeros 5 intentos vs resto</span></div>' +
+    '<div class="table-wrap"><table class="data-table"><thead><tr><th>Plato</th><th>Jugadores</th><th>Primeros 5</th><th>Después</th><th>Mejora</th><th>Diagnóstico</th></tr></thead><tbody>' + dishTable + '</tbody></table></div>' +
+    '<div class="table-title" style="margin:14px 0 6px;"><span>🏋️ Retos del Entrenamiento: avance y mejora de tiempo</span></div>' +
+    '<div class="table-wrap"><table class="data-table"><thead><tr><th>Reto</th><th>Lo completaron</th><th>Intentos (media)</th><th>1er tiempo</th><th>Mejor tiempo</th><th>1er tiempo / oro</th><th>Mejora</th><th>Medallas</th></tr></thead><tbody>' + chalRows + '</tbody></table></div>' +
+    '<div class="table-title" style="margin:14px 0 6px;"><span>👥 Curva por jugador</span></div>' +
+    '<div class="table-wrap"><table class="data-table"><thead><tr><th>Jugador</th><th>Etapa</th><th>Días</th><th>Platos</th><th>Calidad inicial → actual</th><th>Fallos inicial → actual</th><th>Platos/hora</th><th>Retos</th><th>% práctica</th><th>Últimos días</th></tr></thead><tbody>' + playerTable + '</tbody></table></div>' +
+    '<div style="margin-top:14px; font-size:12px; color:var(--text-muted); line-height:1.6;">' +
+      '<b>Cómo leerlo.</b> <i>Calidad inicial → actual</i>: promedio de los primeros 3 días frente a los últimos 3 (o la mitad de los días si hay menos). <i>Fallos</i>: platos con desorden en el proceso, quemados o crudos sobre el total de intentos. ' +
+      '<i>1er tiempo / oro</i>: cuántas veces el tiempo de oro tardó el primer intento (1.0× = medalla de oro desde el inicio; un valor alto indica un reto difícil de entrada). <i>Etapas</i>: Nuevo (&lt;30 platos), Dominando (calidad ≥85), Mejorando (+5 pts), Retrocede (−5 pts), Estancado (100+ platos sin mejora).' +
+    '</div>';
+
+  if (typeof Chart === 'undefined') return;
+  Object.values(learnCharts).forEach(c => c && c.destroy());
+  learnCharts = {};
+  const labels = dayPts.map((_, i) => 'Día ' + (i + 1));
+  const tick = { ticks: { color: '#bcaaa4' }, grid: { color: 'rgba(255,255,255,0.06)' } };
+  const legend = { labels: { color: '#d7ccc8', boxWidth: 12 } };
+  const att = b => b.n + b.rj;
+  learnCharts.curve = new Chart(document.getElementById('chart-learn-curve'), {
+    type: 'line',
+    data: { labels, datasets: [
+      { label: 'Calidad media', data: dayPts.map(b => b.n ? +(b.s / b.n).toFixed(1) : null), borderColor: '#66bb6a', backgroundColor: '#66bb6a', tension: 0.3, yAxisID: 'y' },
+      { label: '% fallos', data: dayPts.map(b => att(b) ? +(100 * (b.er + b.bu + b.cr) / att(b)).toFixed(1) : null), borderColor: '#ef5350', backgroundColor: '#ef5350', tension: 0.3, yAxisID: 'y1' }
+    ] },
+    options: { maintainAspectRatio: false, plugins: { legend, tooltip: { callbacks: { afterBody: items => 'Jugadores: ' + (dayPts[items[0].dataIndex] || {}).players } } },
+      scales: { x: tick, y: { ...tick, min: 0, max: 100, title: { display: true, text: 'Calidad', color: '#bcaaa4' } }, y1: { ...tick, position: 'right', min: 0, grid: { display: false }, title: { display: true, text: '% fallos', color: '#bcaaa4' } } } }
+  });
+  const per100 = (b, f) => att(b) ? +(100 * b[f] / att(b)).toFixed(1) : 0;
+  learnCharts.errors = new Chart(document.getElementById('chart-learn-errors'), {
+    type: 'bar',
+    data: { labels, datasets: [
+      { label: 'Desorden', data: dayPts.map(b => per100(b, 'er')), backgroundColor: '#ffb300' },
+      { label: 'Quemado', data: dayPts.map(b => per100(b, 'bu')), backgroundColor: '#ef5350' },
+      { label: 'Crudo', data: dayPts.map(b => per100(b, 'cr')), backgroundColor: '#42a5f5' },
+      { label: 'Rechazados', data: dayPts.map(b => per100(b, 'rj')), backgroundColor: '#ab47bc' }
+    ] },
+    options: { maintainAspectRatio: false, plugins: { legend }, scales: { x: { ...tick, stacked: true }, y: { ...tick, stacked: true } } }
+  });
+  learnCharts.funnel = new Chart(document.getElementById('chart-learn-funnel'), {
+    type: 'bar',
+    data: { labels: chal.map(c => c.num), datasets: [{ label: 'Cuentas que lo completaron', data: chal.map(c => c.done), backgroundColor: chal.map(c => ({ ramen: '#ff9800', salteado: '#ef5350', makis: '#26a69a', frituras: '#ffb300', servicio: '#ab47bc', maestria: '#66bb6a' }[c.ch])) }] },
+    options: { maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { title: items => chal[items[0].dataIndex].num + '. ' + chal[items[0].dataIndex].title } } },
+      scales: { x: tick, y: { ...tick, beginAtZero: true, ticks: { color: '#bcaaa4', precision: 0 } } } }
+  });
+  learnCharts.scatter = new Chart(document.getElementById('chart-learn-scatter'), {
+    type: 'scatter',
+    data: { datasets: [{ label: 'Jugadores', data: curve.map(p => ({ x: +(p.practice / 60).toFixed(1), y: +p.delta.toFixed(1), alias: p.alias })), backgroundColor: '#ffb300', pointRadius: 5 }] },
+    options: { maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ' ' + (c.raw.alias || '') + ': ' + c.raw.x + ' min · ' + learnSign(c.raw.y) + ' pts' } } },
+      scales: { x: { ...tick, title: { display: true, text: 'Minutos de práctica', color: '#bcaaa4' } }, y: { ...tick, title: { display: true, text: 'Mejora de calidad (pts)', color: '#bcaaa4' } } } }
+  });
+}
+
 function switchTab(tabId) {
   document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -1078,6 +1352,7 @@ function switchTab(tabId) {
   if (activeBtn) activeBtn.classList.add('active');
 
   if (tabId === 'tab-stats') loadKitchenStats();
+  if (tabId === 'tab-learning') loadLearning();
   if (tabId === 'tab-overview') {
     renderCharts();
   }
@@ -1153,6 +1428,8 @@ function adminUnlockPrivateData() {
   fetchLiveMetrics(true);
   const sp = document.getElementById('tab-stats');
   if (sp && sp.classList.contains('active')) loadKitchenStats();
+  const lp = document.getElementById('tab-learning');
+  if (lp && lp.classList.contains('active')) loadLearning();
 }
 
 async function fetchLiveMetrics(showLoader = false) {
