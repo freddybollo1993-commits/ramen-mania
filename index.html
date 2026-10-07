@@ -11604,7 +11604,7 @@ function renderBowls() {
       cardEl.onclick = () => selectBowl(i);
     } else if (analysis.status === "READY") {
       bowl.matchedRamen = analysis.recipe;
-      const readyText = bowl.coldSoup ? `🥶 ${analysis.recipe.name} (fría)` : `¡Listo: ${analysis.recipe.name}!`;
+      const readyText = bowl.orderErrors ? `⚠ ${analysis.recipe.name} (desordenado)` : `¡Listo: ${analysis.recipe.name}!`;
       if (badgeEl && badgeEl._lastText !== readyText) {
         badgeEl.textContent = readyText;
         badgeEl._lastText = readyText;
@@ -11629,7 +11629,7 @@ function renderBowls() {
       };
     } else {
       bowl.matchedRamen = null;
-      const armandoText = `Armando (${bowl.ingredients.length})`;
+      const armandoText = `Armando (${bowl.ingredients.length})${bowl.orderErrors ? ' ⚠' : ''}`;
       if (badgeEl && badgeEl._lastText !== armandoText) {
         badgeEl.textContent = armandoText;
         badgeEl._lastText = armandoText;
@@ -12117,7 +12117,7 @@ function evalCooking(dish) {
 
 function evalProcess(dish) {
   const m = dish.meta || {};
-  if (dish.area === 'ramen') return m.coldSoup ? 0 : 30;
+  if (dish.area === 'ramen') return Math.max(0, 30 - 8 * (m.orderErrors || 0));
   if (dish.area === 'salteados' && m.orderTotal) return Math.round(30 * m.orderMatches / m.orderTotal);
   return 30; // Makis y Frituras ya exigen su orden para poder terminar
 }
@@ -12173,8 +12173,8 @@ function updateServeButtonsQuality() {
 function getReadyDishes() {
   const list = [];
   gameState.bowls.forEach((b, i) => {
-    if (b && b.matchedRamen) list.push({ area: 'ramen', index: i, recipe: b.matchedRamen, quality: b.coldSoup ? 'FRIO' : 'PERFECTO', label: `Tazón ${i + 1}`,
-      meta: { coldSoup: !!b.coldSoup, readyAt: b.readyAt } });
+    if (b && b.matchedRamen) list.push({ area: 'ramen', index: i, recipe: b.matchedRamen, quality: b.orderErrors ? 'ORDEN' : 'PERFECTO', label: `Tazón ${i + 1}`,
+      meta: { orderErrors: b.orderErrors || 0, readyAt: b.readyAt } });
   });
   gameState.woks.forEach((w, i) => {
     if (w && w.result && w.matchedRecipe) list.push({ area: 'salteados', index: i, recipe: w.matchedRecipe, quality: w.result, label: `Wok ${i + 1}`,
@@ -12368,13 +12368,26 @@ function selectBowl(index) {
   renderPantryGrid();
 }
 
-// Orden real del ramen: tare/caldo primero y los fideos después. Si los fideos entran antes del
-// caldo, la sopa queda fría: se puede servir, pero paga la mitad y no deja propina.
-const RAMEN_BROTH_IDS = [2, 3, 4];
-function isColdSoup(ings) {
-  const n = ings.indexOf(1);
-  const b = ings.findIndex(id => RAMEN_BROTH_IDS.includes(id));
-  return n !== -1 && b !== -1 && n < b;
+// Orden del ramen: fideo → caldo (Shio, Tonkotsu o agua, según la receta) → salsa → proteína →
+// complementos. Dentro de una misma etapa el orden es libre. Cada ingrediente puesto antes que otro de
+// una etapa anterior es un error de orden: baja el puntaje de proceso del plato (8 puntos por error).
+const RAMEN_STAGE_NAMES = ['fideo', 'caldo', 'salsa', 'proteína', 'complementos'];
+function ramenStage(id) {
+  if (id === 1) return 0;                 // fideo
+  if (id >= 2 && id <= 4) return 1;       // caldo Shio, Tonkotsu o agua
+  if (id >= 5 && id <= 10) return 2;      // salsas
+  if (id >= 11 && id <= 16) return 3;     // proteínas (chasu, brisket, chancho, langostinos, huevo, tofu)
+  return 4;                               // verduras, nori, ajonjolí…
+}
+// Cantidad de pares de ingredientes que quedaron al revés respecto al orden de etapas.
+function ramenOrderErrors(ings) {
+  let errors = 0;
+  for (let i = 0; i < ings.length; i++) {
+    for (let j = i + 1; j < ings.length; j++) {
+      if (ramenStage(ings[i]) > ramenStage(ings[j])) errors++;
+    }
+  }
+  return errors;
 }
 
 function toggleIngredientInBowl(ingId) {
@@ -12423,12 +12436,11 @@ function toggleIngredientInBowl(ingId) {
   if (ingId === 11) kitchenState.stocks.chasu--;
   updateKitchenStationsUI();
 
-  const noodlesBeforeBroth = ingId === 1 && !bowl.ingredients.some(id => RAMEN_BROTH_IDS.includes(id));
+  const outOfOrder = bowl.ingredients.some(id => ramenStage(id) > ramenStage(ingId));
   bowl.ingredients.push(ingId);
-  bowl.coldSoup = isColdSoup(bowl.ingredients);
+  bowl.orderErrors = ramenOrderErrors(bowl.ingredients);
   playSound('add');
-  if (noodlesBeforeBroth) showStationToast('🍜 Ojo: el caldo va primero y los fideos después. Si agregas el caldo ahora, la sopa saldrá fría.');
-  else if (bowl.coldSoup && RAMEN_BROTH_IDS.includes(ingId)) showStationToast('🥶 Los fideos entraron antes del caldo: sopa fría (paga la mitad).');
+  if (outOfOrder) showStationToast('🍜 Orden del ramen: fideo → caldo → salsa → proteína → complementos. Este ingrediente llegó tarde (−8 pts de proceso).');
 
   if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP') {
     MultiplayerManager.syncSharedBowl(gameState.activeBowlIndex, bowl);
@@ -12447,7 +12459,7 @@ function toggleIngredientInBowl(ingId) {
 function removeIngredientFromBowl(bowlIndex, ingId) {
   const bowl = gameState.bowls[bowlIndex];
   bowl.ingredients = bowl.ingredients.filter(id => id !== ingId);
-  bowl.coldSoup = isColdSoup(bowl.ingredients);
+  bowl.orderErrors = ramenOrderErrors(bowl.ingredients);
 
   // Restaurar stock si se retira un ingrediente preparado
   if (ingId === 1) kitchenState.stocks.noodles++;
