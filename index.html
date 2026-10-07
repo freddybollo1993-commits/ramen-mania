@@ -2271,6 +2271,19 @@
   .fry-counter .fz-raw { background-image: radial-gradient(rgba(255,255,255,0.6) 0.9px, transparent 1.3px); background-size: 4px 4px; }
   .fry-counter .fz-ready { width: calc(var(--rdy, 28.6) * 1%); background: #66bb6a; }
   .fry-counter .fz-burn { width: calc(var(--brn, 35.7) * 1%); background: repeating-linear-gradient(135deg, rgba(0,0,0,0.4) 0 2px, transparent 2px 5px), linear-gradient(90deg, #ef6c00, #7a0000); border-radius: 0 3px 3px 0; }
+  .fry-counter.has-thermo .fz-ready { position: relative; }
+  .fry-counter.has-thermo .fz-ready::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: -3px;
+    bottom: -3px;
+    width: 2px;
+    margin-left: -1px;
+    background: #fff;
+    border-radius: 1px;
+    box-shadow: 0 0 3px rgba(255, 255, 255, 0.9);
+  }
   .fry-marker {
     position: absolute;
     left: 0;
@@ -2804,6 +2817,28 @@
     padding: 18px;
   }
   .level-end-modal h2 { font-family: 'Fredoka One', cursive; font-size: 26px; margin-bottom: 6px; }
+  /* Tienda de mejoras */
+  .upgrades-card { max-width: min(94vw, 760px); max-height: 92vh; display: flex; flex-direction: column; }
+  .upgrades-card .modal-body { overflow-y: auto; }
+  .upg-wallet-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; font-weight: 900; color: #b71c1c; }
+  .upg-sync { font-size: 10px; font-weight: 700; color: #6d4c41; }
+  .upg-note { font-size: 10px; color: #5d4037; margin: 3px 0 8px; }
+  .upg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; }
+  .upg-card { background: #fff3e0; border: 1.5px solid #e0b98a; border-radius: 10px; padding: 8px; display: flex; flex-direction: column; gap: 4px; }
+  .upg-card.maxed { background: #e8f5e9; border-color: #81c784; }
+  .upg-head { display: flex; align-items: center; gap: 6px; }
+  .upg-ico { font-size: 22px; line-height: 1; }
+  .upg-name { font-size: 12px; font-weight: 900; color: #3e2723; line-height: 1.1; }
+  .upg-where { font-size: 9px; color: #8d6e63; font-weight: 700; }
+  .upg-pips { margin-left: auto; display: flex; gap: 3px; }
+  .upg-pip { width: 8px; height: 8px; border-radius: 50%; background: #d7ccc8; border: 1px solid #8d6e63; }
+  .upg-pip.on { background: #ef6c00; border-color: #bf360c; }
+  .upg-now { font-size: 10px; color: #2e7d32; font-weight: 800; }
+  .upg-next { font-size: 10px; color: #5d4037; min-height: 24px; }
+  .upg-buy { margin-top: auto; border: 0; border-radius: 8px; padding: 5px 8px; font-weight: 900; font-size: 11px; cursor: pointer; color: #fff; background: linear-gradient(180deg, #ff9800, #e65100); }
+  .upg-buy[data-poor] { background: linear-gradient(180deg, #9e9e9e, #616161); }
+  .upg-buy:disabled { background: #81c784; color: #1b5e20; cursor: default; }
+  .upg-start-badge { background: #e65100; color: #fff; border-radius: 9px; padding: 0 6px; margin-left: 3px; font-size: 10px; }
   .level-stats {
     background: #fff3e0;
     border-radius: 10px;
@@ -5519,6 +5554,10 @@
           <span class="btn-ico">✨</span>
           <span>Secretos del Chef</span>
         </button>
+        <button class="btn-start-sec btn-upgrades" onclick="openUpgradesModal()" title="Gasta tus propinas en mejoras para la cocina">
+          <span class="btn-ico">🧧</span>
+          <span>Mejoras <b class="upg-start-badge" id="start-upg-badge">0</b></span>
+        </button>
         <button class="btn-start-sec btn-recipe" onclick="openRecipeModal()" title="Consulta ingredientes y recetas de ramen">
           <span class="btn-ico">📖</span>
           <span>Recetario</span>
@@ -5594,7 +5633,7 @@
         <span class="stat-ico">♻️</span>
         <span class="stat-val-gold" id="hud-mottainai">0/3·🐟0</span>
       </div>
-      <div class="hud-capsule-stat stat-propinas" title="Propinas acumuladas: servirán para comprar mejoras">
+      <div class="hud-capsule-stat stat-propinas" title="Propinas disponibles. Se guardan en tu cuenta y se gastan en la tienda de mejoras del menú de inicio">
         <span class="stat-ico">🧧</span>
         <span class="stat-val-gold" id="hud-propinas">0</span>
       </div>
@@ -6286,6 +6325,21 @@
   </div>
 
   <!-- MODAL DE RECETAS -->
+  <!-- TIENDA DE MEJORAS (propinas) -->
+  <div class="modal-overlay" id="upgrades-modal" onclick="closeUpgradesModal()">
+    <div class="modal-card upgrades-card" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h2>🧧 Tienda de mejoras</h2>
+        <button class="btn btn-danger" style="padding: 3px 8px;" onclick="closeUpgradesModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="upg-wallet-row"><span>Propinas disponibles: <b id="upg-wallet">0</b> 🧧</span><span class="upg-sync" id="upg-sync"></span></div>
+        <p class="upg-note">Las mejoras ayudan, no juegan por ti. No cuentan en partidas multijugador.</p>
+        <div class="upg-grid" id="upg-grid"></div>
+      </div>
+    </div>
+  </div>
+
   <div class="modal-overlay" id="recipe-modal" onclick="closeRecipeModal()">
     <div class="modal-card" onclick="event.stopPropagation()">
       <div class="modal-header">
@@ -9079,7 +9133,7 @@ function renderMakiStation() {
     statusEl.textContent = `✅ Cortado: ${analysis.recipe.name}`;
     statusEl.classList.add('status-ready');
   } else if (cutting) {
-    statusEl.textContent = `✂️ Cortando… ${(MAKI_CUT_SECONDS * (1 - roll.cutProgress)).toFixed(1)}s`;
+    statusEl.textContent = `✂️ Cortando… ${(cutSeconds() * (1 - roll.cutProgress)).toFixed(1)}s`;
     statusEl.classList.add('status-ready');
   } else if (analysis.status === 'EMPTY') {
     statusEl.textContent = 'Esterilla lista — arrastra los ingredientes';
@@ -9176,7 +9230,7 @@ function updateMakiToolDrag() {
       roll.cutState = 'CUTTING';
       if (d.ghost) d.ghost.classList.add('is-cutting');
     }
-    roll.cutProgress = Math.min(1, (performance.now() - d.holdStart) / (MAKI_CUT_SECONDS * 1000));
+    roll.cutProgress = Math.min(1, (performance.now() - d.holdStart) / (cutSeconds() * 1000));
     if (roll.cutProgress >= 1) {
       completeMakiCut();
       return;
@@ -9503,7 +9557,8 @@ function renderWoks() {
         }
       } else {
         if (badgeEl) {
-          badgeEl.textContent = `Armando (${wok.ingredients.length})`;
+          const falta = (getUpgradeLevel('libro') > 0 && analysis.missing && analysis.missing[0]) ? ` · sigue: ${analysis.missing[0]}` : '';
+          badgeEl.textContent = `Armando (${wok.ingredients.length})${falta}`;
           badgeEl.style.display = 'block';
         }
         if (stirBtn) stirBtn.style.display = 'none';
@@ -9532,7 +9587,11 @@ const WOK_PROFILES = {
   'Yasaitame': { crudo: 1.0, perfecto: 2.0, quemado: 3.0 }
 };
 function wokProfile(recipe) {
-  return (recipe && WOK_PROFILES[recipe.name]) || WOK_PROFILE_DEFAULT;
+  const base = (recipe && WOK_PROFILES[recipe.name]) || WOK_PROFILE_DEFAULT;
+  const b = [0, 0.1, 0.2, 0.3][getUpgradeLevel('wok')];
+  if (!b) return base;
+  const perfecto = base.crudo + (base.perfecto - base.crudo) * (1 + b);
+  return { crudo: base.crudo, perfecto, quemado: base.quemado + (perfecto - base.perfecto) };
 }
 
 function finishStir(index, result) {
@@ -9650,7 +9709,11 @@ const FRY_PROFILES = {
   36: { ready: 3.4, burn: 6.0, black: 8.5 }  // alas de pollo (Alitas)
 };
 function fryProfile(proteinId) {
-  return FRY_PROFILES[proteinId] || FRY_PROFILE_DEFAULT;
+  const base = FRY_PROFILES[proteinId] || FRY_PROFILE_DEFAULT;
+  const b = [0, 0.1, 0.2, 0.3][getUpgradeLevel('freidora')];
+  if (!b) return base;
+  const burn = base.ready + (base.burn - base.ready) * (1 + b);
+  return { ready: base.ready, burn, black: base.black + (burn - base.burn) };
 }
 const BREAD_DWELL_MS = 450;      // tiempo sobre cada espacio para que cuente el paso
 const FRY_BREADING_IDS = [58, 15, 65]; // harina, huevo, panko
@@ -10050,7 +10113,7 @@ function updateFryKnifeDrag() {
       station.cutState = 'CUTTING';
       if (d.ghost) d.ghost.classList.add('is-cutting');
     }
-    station.cutProgress = Math.min(1, (performance.now() - d.holdStart) / (MAKI_CUT_SECONDS * 1000));
+    station.cutProgress = Math.min(1, (performance.now() - d.holdStart) / (cutSeconds() * 1000));
     if (station.cutProgress >= 1) { completeFryCut(); return; }
     renderFryStation();
   } else if (d.holdStart) {
@@ -10207,7 +10270,7 @@ function renderFryStation() {
     tableBadge.textContent = 'En la olla: retírala a tiempo';
   } else if (station.phase === 'FRIED') {
     if (cutting) {
-      tableBadge.textContent = `✂️ Cortando… ${(MAKI_CUT_SECONDS * (1 - station.cutProgress)).toFixed(1)}s`;
+      tableBadge.textContent = `✂️ Cortando… ${(cutSeconds() * (1 - station.cutProgress)).toFixed(1)}s`;
       tableBadge.classList.add('status-ready');
     } else if (complete) {
       tableBadge.textContent = `¡Listo: ${analysis.recipe.name}!`;
@@ -10256,7 +10319,10 @@ function renderFryStation() {
   }
 
   // Contador: cruda (azul) → lista (verde) → se quema (rojo)
-  if (counter) counter.style.display = frying ? 'flex' : 'none';
+  if (counter) {
+    counter.style.display = frying ? 'flex' : 'none';
+    counter.classList.toggle('has-thermo', getUpgradeLevel('freidora') > 0);
+  }
   if (counter) {
     // Tramos del contador según la proteína: cruda → lista → se quema
     counter.style.setProperty('--raw', (prof.ready / prof.black * 100).toFixed(1));
@@ -11028,9 +11094,9 @@ function updateKitchenStationsUI(skipSync = false, source = '', delta = '') {
   // 2. Actualizar los textos informativos en los 4 botones de cocina
   const chasuStatus = document.getElementById('chasu-status');
   if (chasuStatus && (!kitchenState.chasu || !kitchenState.chasu.isFlaming)) {
-    chasuStatus.textContent = kitchenState.stocks.chasu >= 4 
-      ? 'Listo (4/4)' 
-      : (kitchenState.stocks.chasu > 0 ? `Listo (${kitchenState.stocks.chasu}/4)` : 'Mantén (2s c/u)');
+    chasuStatus.textContent = kitchenState.stocks.chasu >= stockCap()
+      ? `Listo (${stockCap()}/${stockCap()})`
+      : (kitchenState.stocks.chasu > 0 ? `Listo (${kitchenState.stocks.chasu}/${stockCap()})` : 'Mantén (2s c/u)');
   }
 
   const shioStatus = document.getElementById('shio-status');
@@ -11170,16 +11236,16 @@ function handleNoodlesBtnClick() {
     startNoodlesInterval();
     updateCookingVisualOverlay();
   } else if (kitchenState.noodles.state === 'COOKING') {
-    // Añadir más fideos hasta un máximo de 4 (+1s cada uno)
-    if (kitchenState.noodles.portionsCooking < 4) {
+    // Añadir más fideos hasta el máximo de la olla (+1s cada uno)
+    if (kitchenState.noodles.portionsCooking < noodleCap()) {
       kitchenState.noodles.portionsCooking += 1;
       kitchenState.noodles.totalCookTime += 1.0;
       kitchenState.noodles.cookTimeRemaining += 1.0;
       playSound('bubble');
-      showStationToast(`🍜 +1 Fideo en olla (${kitchenState.noodles.portionsCooking}/4)`);
+      showStationToast(`🍜 +1 Fideo en olla (${kitchenState.noodles.portionsCooking}/${noodleCap()})`);
       updateCookingVisualOverlay();
     } else {
-      showStationToast('⚠️ Olla llena (máximo 4 fideos)');
+      showStationToast(`⚠️ Olla llena (máximo ${noodleCap()} fideos)`);
     }
   } else if (kitchenState.noodles.state === 'READY') {
     // Recoger los fideos antes de que se quemen
@@ -11244,6 +11310,11 @@ function noodleTick() {
     }
   } else if (kitchenState.noodles.state === 'READY') {
     kitchenState.noodles.burnTimeRemaining -= 0.1;
+    if (getUpgradeLevel('aprendiz') > 0 && kitchenState.noodles.burnTimeRemaining <= 3.5) {
+      showStationToast('🧑‍🍳 El aprendiz recogió los fideos.');
+      handleNoodlesBtnClick();
+      return;
+    }
     const fillPct = Math.max(0, (kitchenState.noodles.burnTimeRemaining / 5.0) * 100);
     if (fillEl) fillEl.style.width = `${fillPct}%`;
 
@@ -11334,12 +11405,12 @@ function setupShioButton() {
         clearInterval(heatInterval);
         heatInterval = null;
         kitchenState.shio.isHeating = false;
-        kitchenState.stocks.shio = 4;
+        kitchenState.stocks.shio = stockCap();
         btn.classList.remove('heating-active');
         if (fillEl) fillEl.style.width = '100%';
-        if (statusEl) statusEl.textContent = '🔥 ¡Caliente! (4)';
+        if (statusEl) statusEl.textContent = `🔥 ¡Caliente! (${stockCap()})`;
         playSound('ding');
-        showStationToast('🥣 ¡Caldo Shio caliente al punto! (4 porciones)');
+        showStationToast(`🥣 ¡Caldo Shio caliente al punto! (${stockCap()} porciones)`);
         updateKitchenStationsUI(false, 'shio', '¡Caldo Shio caliente! (4)');
         updateCookingVisualOverlay();
       }
@@ -11414,10 +11485,10 @@ function setupTonkotsuButton() {
         clearInterval(heatInterval);
         heatInterval = null;
         kitchenState.tonkotsu.isHeating = false;
-        kitchenState.stocks.tonkotsu = 4;
+        kitchenState.stocks.tonkotsu = stockCap();
         btn.classList.remove('heating-active');
         if (fillEl) fillEl.style.width = '100%';
-        if (statusEl) statusEl.textContent = '🔥 ¡Caliente! (4)';
+        if (statusEl) statusEl.textContent = `🔥 ¡Caliente! (${stockCap()})`;
         playSound('ding');
         showStationToast('🫕 ¡Caldo Tonkotsu hirviendo y listo! (4 porciones)');
         updateKitchenStationsUI(false, 'tonkotsu', '¡Caldo Tonkotsu listo! (4)');
@@ -11471,8 +11542,8 @@ function setupChasuButton() {
 
     if (kitchenState.chasu.isFlaming) return;
 
-    if (kitchenState.stocks.chasu >= 4) {
-      showStationToast('🥩 ¡Máximo stock de Chasu flameado (4/4)!');
+    if (kitchenState.stocks.chasu >= stockCap()) {
+      showStationToast(`🥩 ¡Máximo stock de Chasu flameado (${stockCap()}/${stockCap()})!`);
       return;
     }
 
@@ -11500,12 +11571,12 @@ function setupChasuButton() {
 
       if (kitchenState.chasu.flameSeconds >= 2.0) {
         kitchenState.chasu.flameSeconds = 0;
-        kitchenState.stocks.chasu = Math.min(4, kitchenState.stocks.chasu + 1);
+        kitchenState.stocks.chasu = Math.min(stockCap(), kitchenState.stocks.chasu + 1);
         playSound('ding');
-        showStationToast(`🥩 +1 Chasu flameado! (${kitchenState.stocks.chasu}/4)`);
-        updateKitchenStationsUI(false, 'chasu', `+1 Chasu flameado (${kitchenState.stocks.chasu}/4)`);
+        showStationToast(`🥩 +1 Chasu flameado! (${kitchenState.stocks.chasu}/${stockCap()})`);
+        updateKitchenStationsUI(false, 'chasu', `+1 Chasu flameado (${kitchenState.stocks.chasu}/${stockCap()})`);
 
-        if (kitchenState.stocks.chasu >= 4) {
+        if (kitchenState.stocks.chasu >= stockCap()) {
           clearInterval(flameInterval);
           flameInterval = null;
           kitchenState.chasu.isFlaming = false;
@@ -11530,7 +11601,7 @@ function setupChasuButton() {
       const fillEl = document.getElementById('chasu-fill');
       const statusEl = document.getElementById('chasu-status');
       if (fillEl) fillEl.style.width = '0%';
-      if (statusEl) statusEl.textContent = kitchenState.stocks.chasu >= 4 ? 'Listo (4/4)' : 'Mantén (2s c/u)';
+      if (statusEl) statusEl.textContent = kitchenState.stocks.chasu >= stockCap() ? `Listo (${stockCap()}/${stockCap()})` : 'Mantén (2s c/u)';
       updateCookingVisualOverlay();
       updateKitchenStationsUI();
     }
@@ -11673,7 +11744,11 @@ function renderBowls() {
       };
     } else {
       bowl.matchedRamen = null;
-      const armandoText = `Armando (${bowl.ingredients.length})${bowl.orderErrors ? ' ⚠' : ''}`;
+      let armandoText = `Armando (${bowl.ingredients.length})${bowl.orderErrors ? ' ⚠' : ''}`;
+      if (getUpgradeLevel('libro') > 0 && analysis.recipe) {
+        const nextId = analysis.recipe.ingredients.find(id => !bowl.ingredients.includes(id));
+        if (nextId) armandoText += ` · sigue: ${RAMEN_STAGE_NAMES[ramenStage(nextId)]}`;
+      }
       if (badgeEl && badgeEl._lastText !== armandoText) {
         badgeEl.textContent = armandoText;
         badgeEl._lastText = armandoText;
@@ -11950,25 +12025,255 @@ function applyRemoteStationServed(area, index) {
   renderCustomers();
 }
 
-// --- Propinas: moneda aparte de las ventas, se acumula entre partidas para comprar mejoras ---
-const PROPINAS_KEY = 'ramen_propinas_wallet';
+// --- Cuenta del jugador: propinas y mejoras ---
+// Las propinas son una moneda aparte de las ventas. Lo que se guarda es un total que solo crece
+// (tips_earned) y el nivel de cada mejora comprada; el saldo = ganado − costo de las mejoras. Así dos
+// dispositivos o un reintento se combinan con max() y nunca devuelven propinas ya gastadas.
+// Se guarda en el dispositivo y, además, en la nube (tabla player_progress, solo por funciones RPC).
 const TIP_RATE_HAPPY = 0.12; // % del pedido si el cliente aún tiene más de la mitad de su paciencia
 const TIP_RATE_OK = 0.06;    // entre 25 % y 50 % de paciencia
+const TIPS_EARNED_KEY = 'ramen_tips_earned';
+const UPGRADES_KEY = 'ramen_upgrades';
+const LEGACY_WALLET_KEY = 'ramen_propinas_wallet';
+
+const UPGRADES = [
+  { id: 'cuchillo', icon: '🔪', name: 'Cuchillo afilado', where: 'Makis y Frituras', costs: [40, 90, 160],
+    effect: ['Corte en 2.5 s (antes 3 s)', 'Corte en 2 s', 'Corte en 1.5 s'] },
+  { id: 'wok', icon: '🍳', name: 'Wok de hierro', where: 'Salteado', costs: [50, 110, 200],
+    effect: ['Punto del salteado +10 % más ancho', 'Punto +20 %', 'Punto +30 %'] },
+  { id: 'freidora', icon: '🍤', name: 'Freidora con termostato', where: 'Frituras', costs: [50, 110, 200],
+    effect: ['Punto de fritura +10 % y marca de "punto" en el contador', 'Punto +20 %', 'Punto +30 %'] },
+  { id: 'olla', icon: '🥢', name: 'Olla de fideos grande', where: 'Ramen', costs: [40, 90],
+    effect: ['5 porciones por tanda', '6 porciones por tanda'] },
+  { id: 'bandeja', icon: '♨️', name: 'Bandeja caliente', where: 'Todas', costs: [60, 120, 220],
+    effect: ['Los platos tardan 30 % más en enfriarse', '60 % más', 'El doble de tiempo'] },
+  { id: 'te', icon: '🍵', name: 'Té de bienvenida', where: 'Clientes', costs: [70, 140, 250],
+    effect: ['Clientes con +8 % de paciencia', '+15 %', '+25 %'] },
+  { id: 'mise', icon: '🧺', name: 'Mise en place', where: 'Ramen', costs: [40, 90],
+    effect: ['Empiezas con fideos, Shio y chasu ya listos', 'Más porciones y también Tonkotsu'] },
+  { id: 'estante', icon: '🗄️', name: 'Estante de despensa', where: 'Ramen', costs: [60, 120],
+    effect: ['Caldos y chasu guardan 5 porciones', 'Guardan 6 porciones'] },
+  { id: 'libro', icon: '📒', name: 'Libro de recetas', where: 'Ramen y Salteado', costs: [80],
+    effect: ['Te dice qué etapa o ingrediente sigue al armar'] },
+  { id: 'aprendiz', icon: '🧑‍🍳', name: 'Aprendiz', where: 'Ramen', costs: [300],
+    effect: ['Recoge los fideos cuando ya están listos'] }
+];
+const UPGRADE_BY_ID = Object.fromEntries(UPGRADES.map(u => [u.id, u]));
+
+const accountProgress = { earned: 0, levels: {}, loaded: false, sync: 'local', pushTimer: null };
+
+function loadAccountProgressLocal() {
+  if (accountProgress.loaded) return;
+  accountProgress.loaded = true;
+  try {
+    let earned = parseInt(safeStorage.getItem(TIPS_EARNED_KEY) || '', 10);
+    if (isNaN(earned)) earned = parseInt(safeStorage.getItem(LEGACY_WALLET_KEY) || '0', 10) || 0; // propinas de la versión anterior
+    accountProgress.earned = Math.max(0, earned);
+    const lv = JSON.parse(safeStorage.getItem(UPGRADES_KEY) || '{}');
+    accountProgress.levels = (lv && typeof lv === 'object') ? lv : {};
+  } catch (e) { accountProgress.levels = {}; }
+}
+
+function saveAccountProgressLocal() {
+  safeStorage.setItem(TIPS_EARNED_KEY, String(accountProgress.earned));
+  safeStorage.setItem(UPGRADES_KEY, JSON.stringify(accountProgress.levels));
+}
+
+function upgradesSpent() {
+  loadAccountProgressLocal();
+  let spent = 0;
+  UPGRADES.forEach(u => { for (let i = 0; i < (accountProgress.levels[u.id] || 0); i++) spent += u.costs[i] || 0; });
+  return spent;
+}
 
 function getPropinasWallet() {
-  return parseInt(safeStorage.getItem(PROPINAS_KEY) || '0', 10) || 0;
+  loadAccountProgressLocal();
+  return Math.max(0, accountProgress.earned - upgradesSpent());
+}
+
+// Nivel de una mejora (0 si no la tienes). En multijugador no cuentan, para que nadie parta con ventaja.
+function getUpgradeLevel(id) {
+  if (isMultiplayerSession()) return 0;
+  loadAccountProgressLocal();
+  return Math.max(0, Math.min((UPGRADE_BY_ID[id] || { costs: [] }).costs.length, accountProgress.levels[id] || 0));
 }
 
 function updatePropinasHUD() {
+  const w = getPropinasWallet();
   const el = document.getElementById('hud-propinas');
-  if (el) el.textContent = getPropinasWallet();
+  if (el) el.textContent = w;
+  const badge = document.getElementById('start-upg-badge');
+  if (badge) badge.textContent = w;
 }
 
 function addPropinas(n) {
   if (!(n > 0)) return;
+  loadAccountProgressLocal();
   gameState.propinasSession += n;
-  safeStorage.setItem(PROPINAS_KEY, String(getPropinasWallet() + n));
+  accountProgress.earned += n;
+  saveAccountProgressLocal();
   updatePropinasHUD();
+  accountPushSoon();
+}
+
+function accountDeviceId() {
+  return (typeof DeviceManager !== 'undefined' && DeviceManager.deviceId) ? DeviceManager.deviceId : null;
+}
+
+function mergeLevels(a, b) {
+  const out = {};
+  new Set([...Object.keys(a || {}), ...Object.keys(b || {})]).forEach(k => {
+    out[k] = Math.max((a && a[k]) || 0, (b && b[k]) || 0);
+  });
+  return out;
+}
+
+// Trae el progreso de la cuenta y lo combina con lo local (lo mayor gana); si lo local va por delante, lo sube.
+async function accountPull() {
+  const id = accountDeviceId();
+  if (!id) return;
+  try {
+    await ensureSupabaseLoaded();
+    const client = initSupabase() || supabaseClient;
+    if (!client) throw new Error('sin cliente');
+    accountProgress.sync = 'syncing';
+    refreshUpgradesShopIfOpen();
+    const { data, error } = await client.rpc('get_player_progress', { p_device_id: id });
+    if (error) throw error;
+    loadAccountProgressLocal();
+    const row = Array.isArray(data) ? data[0] : data;
+    const remoteEarned = row ? row.tips_earned || 0 : 0;
+    const remoteLevels = row ? row.upgrades || {} : {};
+    accountProgress.earned = Math.max(accountProgress.earned, remoteEarned);
+    accountProgress.levels = mergeLevels(accountProgress.levels, remoteLevels);
+    saveAccountProgressLocal();
+    updatePropinasHUD();
+    const localAhead = accountProgress.earned > remoteEarned ||
+      JSON.stringify(mergeLevels(remoteLevels, accountProgress.levels)) !== JSON.stringify(mergeLevels(remoteLevels, remoteLevels));
+    if (!row || localAhead) await accountPush();
+    accountProgress.sync = 'ok';
+  } catch (e) {
+    accountProgress.sync = 'error';
+  }
+  refreshUpgradesShopIfOpen();
+}
+
+async function accountPush() {
+  const id = accountDeviceId();
+  if (!id) return;
+  try {
+    await ensureSupabaseLoaded();
+    const client = initSupabase() || supabaseClient;
+    if (!client) throw new Error('sin cliente');
+    loadAccountProgressLocal();
+    const { data, error } = await client.rpc('save_player_progress', {
+      p_device_id: id, p_tips: accountProgress.earned, p_upgrades: accountProgress.levels
+    });
+    if (error) throw error;
+    const row = Array.isArray(data) ? data[0] : data;
+    if (row) {
+      accountProgress.earned = Math.max(accountProgress.earned, row.tips_earned || 0);
+      accountProgress.levels = mergeLevels(accountProgress.levels, row.upgrades || {});
+      saveAccountProgressLocal();
+      updatePropinasHUD();
+    }
+    accountProgress.sync = 'ok';
+  } catch (e) {
+    accountProgress.sync = 'error';
+  }
+  refreshUpgradesShopIfOpen();
+}
+
+// Las propinas llegan de a pocas: se agrupan para no llamar a la nube en cada una.
+function accountPushSoon(immediate) {
+  clearTimeout(accountProgress.pushTimer);
+  accountProgress.pushTimer = setTimeout(accountPush, immediate ? 0 : 2500);
+}
+
+// --- Tienda de mejoras (menú de inicio) ---
+function buyUpgrade(id) {
+  const u = UPGRADE_BY_ID[id];
+  if (!u) return;
+  loadAccountProgressLocal();
+  const lvl = accountProgress.levels[id] || 0;
+  if (lvl >= u.costs.length) return;
+  const cost = u.costs[lvl];
+  if (getPropinasWallet() < cost) {
+    showStationToast(`🧧 Te faltan ${cost - getPropinasWallet()} propinas para ${u.name}.`);
+    return;
+  }
+  accountProgress.levels[id] = lvl + 1;
+  saveAccountProgressLocal();
+  updatePropinasHUD();
+  try { playSound('serve'); } catch (e) {}
+  accountPushSoon(true);
+  renderUpgradesShop();
+}
+
+function renderUpgradesShop() {
+  const grid = document.getElementById('upg-grid');
+  if (!grid) return;
+  const wallet = getPropinasWallet();
+  const walletEl = document.getElementById('upg-wallet');
+  if (walletEl) walletEl.textContent = wallet;
+  const syncEl = document.getElementById('upg-sync');
+  if (syncEl) {
+    const registered = !!(typeof DeviceManager !== 'undefined' && DeviceManager.currentPlayer);
+    const labels = {
+      ok: '☁️ Guardado en tu cuenta',
+      syncing: '☁️ Sincronizando…',
+      error: '📱 Guardado en este dispositivo (se subirá a tu cuenta al reconectar)',
+      local: '📱 Guardado en este dispositivo'
+    };
+    syncEl.textContent = labels[accountProgress.sync] + (registered ? '' : ' · registra tu alias para no perderlo');
+  }
+  grid.innerHTML = UPGRADES.map(u => {
+    const lvl = getUpgradeLevel(u.id);
+    const max = u.costs.length;
+    const maxed = lvl >= max;
+    const cost = maxed ? 0 : u.costs[lvl];
+    const can = !maxed && wallet >= cost;
+    const pips = Array.from({ length: max }, (_, i) => `<i class="upg-pip ${i < lvl ? 'on' : ''}"></i>`).join('');
+    const now = lvl > 0 ? `<div class="upg-now">✔ ${u.effect[lvl - 1]}</div>` : '';
+    const next = maxed ? '<div class="upg-next">Nivel máximo</div>' : `<div class="upg-next">Siguiente: ${u.effect[lvl]}</div>`;
+    return `<div class="upg-card ${maxed ? 'maxed' : ''}">
+      <div class="upg-head"><span class="upg-ico">${u.icon}</span><div><div class="upg-name">${u.name}</div><div class="upg-where">${u.where}</div></div><div class="upg-pips">${pips}</div></div>
+      ${now}${next}
+      <button class="upg-buy" ${maxed ? 'disabled' : ''} ${can || maxed ? '' : 'data-poor="1"'} onclick="buyUpgrade('${u.id}')">${maxed ? '✔ Completa' : `🧧 ${cost} · Comprar`}</button>
+    </div>`;
+  }).join('');
+}
+
+function refreshUpgradesShopIfOpen() {
+  const m = document.getElementById('upgrades-modal');
+  if (m && m.classList.contains('active')) renderUpgradesShop();
+}
+
+function openUpgradesModal() {
+  renderUpgradesShop();
+  document.getElementById('upgrades-modal').classList.add('active');
+  accountPull();
+}
+
+function closeUpgradesModal() {
+  document.getElementById('upgrades-modal').classList.remove('active');
+}
+
+// --- Efectos de las mejoras en la partida ---
+const stockCap = () => [4, 5, 6][Math.min(2, getUpgradeLevel('estante'))];
+const noodleCap = () => [4, 5, 6][Math.min(2, getUpgradeLevel('olla'))];
+function cutSeconds() { return [MAKI_CUT_SECONDS, 2.5, 2, 1.5][getUpgradeLevel('cuchillo')]; }
+
+// "Mise en place": se empieza el nivel con parte de la cocina ya preparada.
+function applyMiseEnPlace() {
+  const l = getUpgradeLevel('mise');
+  if (!l) return;
+  const cap = stockCap(), st = kitchenState.stocks;
+  st.noodles = l === 1 ? 2 : 4;
+  st.shio = Math.min(cap, l === 1 ? 2 : 3);
+  st.tonkotsu = l === 1 ? 0 : Math.min(cap, 2);
+  st.chasu = Math.min(cap, l === 1 ? 2 : 3);
+  updateKitchenStationsUI(true);
 }
 
 // --- Mottainai (cero desperdicio): las mermas limpias no se tiran, se juntan ---
@@ -12190,7 +12495,8 @@ function evalProcess(dish) {
 function evalFreshness(dish) {
   if (!QUALITY_FRESHNESS_ON) return 20;
   const m = dish.meta || {};
-  const t = m.readyAt == null ? 0 : Math.max(0, gameState.gameClock - m.readyAt);
+  const warmth = 1 + [0, 0.3, 0.6, 1][getUpgradeLevel('bandeja')];
+  const t = m.readyAt == null ? 0 : Math.max(0, gameState.gameClock - m.readyAt) / warmth;
   const pts = FRESHNESS_CURVES[dish.area] || FRESHNESS_CURVES.ramen;
   for (let i = 1; i < pts.length; i++) {
     if (t <= pts[i][0]) {
@@ -12649,6 +12955,8 @@ function spawnCustomer() {
     totalPatience = (25 + totalIngredients * 2.5 + processSeconds) * (cfg.patience_mult || 1);
   }
 
+  totalPatience *= 1 + [0, 0.08, 0.15, 0.25][getUpgradeLevel('te')];
+
   gameState.customerSlots[emptyIndex] = {
     name: template.name,
     avatar: template.avatar,
@@ -13001,6 +13309,7 @@ function startLevel(lvlIndex) {
   document.getElementById("btn-pause").textContent = "⏸️";
 
   resetCookingStations();
+  applyMiseEnPlace();
   initRecipeTable();
   updateHUD();
   renderBowls();
@@ -13895,6 +14204,7 @@ function executeStartGame() {
 }
 
 function returnToStartMenu() {
+  updatePropinasHUD();
   if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isInMultiplayer) {
     MultiplayerManager.leaveRoom();
   }
@@ -17750,6 +18060,7 @@ function bootGameUI() {
   if (isGameUIBooted) return;
   isGameUIBooted = true;
   applyA11yLabels();
+  setTimeout(() => { updatePropinasHUD(); accountPull(); }, 2500);
 
   const startScr = document.getElementById("start-screen");
   if (startScr) {
