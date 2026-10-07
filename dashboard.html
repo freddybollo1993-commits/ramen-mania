@@ -1452,15 +1452,23 @@ async function fetchLiveMetrics(showLoader = false) {
     // 2. Cargar Jugadores Registrados
     let playersData = [];
     try {
-      const resPlayers = await supabaseClient.from('players').select('*').order('last_login', { ascending: false });
-      if (resPlayers.data) playersData = resPlayers.data;
+      let secret = null;
+      try { secret = sessionStorage.getItem('ramen_admin_secret'); } catch (e) {}
+      if (secret) {
+        const resPlayers = await supabaseClient.rpc('admin_players', { p_secret: secret });
+        if (resPlayers.data && resPlayers.data.ok) playersData = resPlayers.data.rows;
+      }
     } catch(e) {}
 
     // 3. Cargar Sesiones de Juego
     let sessionsData = [];
     try {
-      const resSessions = await supabaseClient.from('game_sessions').select('*').order('created_at', { ascending: false });
-      if (resSessions.data) sessionsData = resSessions.data;
+      let secret = null;
+      try { secret = sessionStorage.getItem('ramen_admin_secret'); } catch (e) {}
+      if (secret) {
+        const resSessions = await supabaseClient.rpc('admin_sessions', { p_secret: secret, p_limit: 2000 });
+        if (resSessions.data && resSessions.data.ok) sessionsData = resSessions.data.rows;
+      }
     } catch(e) {}
 
     // Síntesis inteligente: Si la tabla 'players' no ha sido creada en Supabase aún,

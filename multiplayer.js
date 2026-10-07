@@ -277,21 +277,11 @@
         DeviceManager.currentPlayer.highestMmr = highestMmr;
       }
 
-      // Sincronizar en tiempo real con Supabase en segundo plano
-      const sb = this.getSupabase();
-      const devId = (typeof DeviceManager !== 'undefined') ? DeviceManager.deviceId : this.myPlayerId;
-      if (sb && devId) {
-        try {
-          sb.from('players').update({
-            mmr: newMmr,
-            rank_tier: newRank.fullName,
-            pvp_wins: wins,
-            pvp_losses: losses,
-            pvp_streak: streak,
-            highest_mmr: highestMmr,
-            last_login: new Date().toISOString()
-          }).eq('device_id', devId).then(() => {}).catch(() => {});
-        } catch(e) {}
+      // Se guarda en la cuenta (el servidor acota cuánto puede cambiar el MMR por partida y devuelve el valor oficial)
+      if (typeof cloudCall === 'function') {
+        cloudCall('pvp_sync', { p_mmr: newMmr, p_rank_tier: newRank.fullName, p_wins: wins, p_losses: losses, p_streak: streak, p_highest: highestMmr })
+          .then(d => { if (d && d.ok && !d.ignored && d.account && typeof applyPvpFromAccount === 'function') applyPvpFromAccount(d.account, false); })
+          .catch(() => {});
       }
 
       if (typeof renderLinkedUserBadges === 'function') {

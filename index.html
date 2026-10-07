@@ -6950,13 +6950,8 @@
       </div>
       <div class="modal-body" style="padding: 16px; text-align: left;">
         <div style="background: #fff3e0; border-left: 3px solid #e65100; padding: 6px 10px; font-size: 11px; color: #4e342e; margin-bottom: 12px; border-radius: 4px;">
-          🔒 <strong>Área Restringida:</strong> Ingresa tus credenciales maestras para consultar métricas, tiempos de juego, niveles e índices de error.
+          🔒 <strong>Área Restringida:</strong> Ingresa la clave de administrador para consultar métricas, tiempos de juego, niveles e índices de error.
         </div>
-
-        <label style="font-size: 11px; font-weight: 800; color: #5d4037; display: block; margin-bottom: 3px;">
-          Usuario Administrador:
-        </label>
-        <input type="text" id="admin-user-input" class="input-record" placeholder="Usuario Master" autocomplete="off">
 
         <label style="font-size: 11px; font-weight: 800; color: #5d4037; display: block; margin-bottom: 3px;">
           Contraseña de Seguridad:
@@ -7882,51 +7877,7 @@ const DeviceManager = {
         }, 300);
       }
 
-      // 4. Sincronizar en segundo plano con Supabase tras arrancar la pantalla (0ms de bloqueo inicial)
-      setTimeout(() => {
-        ensureSupabaseLoaded().then(() => {
-          if (supabaseClient) {
-            supabaseClient
-              .from('players')
-              .select('*')
-              .eq('device_id', this.deviceId)
-              .maybeSingle()
-              .then(({ data, error }) => {
-                if (!error && data && data.player_name) {
-                  const remotePlayer = {
-                    playerName: data.player_name,
-                    contact: (data.contact !== undefined && data.contact !== null) ? data.contact : "",
-                    avatar: data.avatar || "🍜",
-                    deviceId: this.deviceId,
-                    deviceInfo: this.deviceInfoText,
-                    createdAt: data.created_at || new Date().toISOString(),
-                    mmr: data.mmr !== undefined && data.mmr !== null ? data.mmr : 1000,
-                    rankTier: data.rank_tier || 'Bronce IV',
-                    pvpWins: data.pvp_wins || 0,
-                    pvpLosses: data.pvp_losses || 0,
-                    pvpStreak: data.pvp_streak || 0,
-                    highestMmr: data.highest_mmr || 1000
-                  };
-                  this.currentPlayer = remotePlayer;
-                  safeStorage.setItem("ramen_profile_explicit_registered", "true");
-                  safeStorage.setItem("ramen_player_profile", JSON.stringify(remotePlayer));
-                  safeStorage.setItem("ramen_player_name", remotePlayer.playerName);
-                  safeStorage.setItem("ramen_player_contact", remotePlayer.contact);
-                  safeStorage.setItem("ramen_player_avatar", remotePlayer.avatar);
-                  safeStorage.setItem("ramen_player_mmr", String(remotePlayer.mmr));
-                  safeStorage.setItem("ramen_player_rank_tier", remotePlayer.rankTier);
-                  safeStorage.setItem("ramen_player_pvp_wins", String(remotePlayer.pvpWins));
-                  safeStorage.setItem("ramen_player_pvp_losses", String(remotePlayer.pvpLosses));
-                  safeStorage.setItem("ramen_player_pvp_streak", String(remotePlayer.pvpStreak));
-                  safeStorage.setItem("ramen_player_highest_mmr", String(remotePlayer.highestMmr));
-                  updateStartPlayerCard();
-                  renderLinkedUserBadges();
-                }
-              })
-              .catch(() => {});
-          }
-        });
-      }, 1500);
+      // 4. El perfil de la nube llega con la cuenta (cloudBoot / applyCloudAccount).
     } catch(err) {
       console.error("Error en DeviceManager.init:", err);
       this.isInitialized = true;
@@ -7943,23 +7894,15 @@ const DeviceManager = {
       return false;
     }
 
-    // 1. Consulta en la nube (Supabase) para evitar duplicados globales
+    // 1. Consulta en el servidor: el alias debe ser único entre todas las cuentas
     try {
-      const client = (typeof initSupabase === 'function' ? initSupabase() : null) || supabaseClient;
+      const client = await cloudClient();
       if (client) {
-        const { data, error } = await client
-          .from('players')
-          .select('id, device_id, player_name')
-          .ilike('player_name', cleanName)
-          .limit(10);
-
-        if (!error && Array.isArray(data) && data.length > 0) {
-          const takenByOther = data.some(p => p.device_id && p.device_id !== this.deviceId);
-          if (takenByOther) return true;
-        }
+        const { data, error } = await client.rpc('alias_available', { p_alias: cleanName, p_token: CloudAuth.token || null });
+        if (!error && data && data.ok && data.available === false) return true;
       }
     } catch(err) {
-      console.warn("Aviso al verificar alias en Supabase:", err);
+      console.warn("Aviso al verificar alias en el servidor:", err);
     }
 
     // 2. Consulta en registro local de cuentas en este navegador
@@ -8003,36 +7946,10 @@ const DeviceManager = {
       console.log(`Actualizando nombre de ${this.currentPlayer.playerName} a ${cleanName} en este dispositivo`);
     }
 
-    if (supabaseClient) {
-      try {
-        const payload = {
-          device_id: this.deviceId,
-          device_fingerprint: this.deviceFingerprint,
-          device_info: this.deviceInfoText,
-          player_name: cleanName,
-          contact: cleanContact || null,
-          avatar: cleanAvatar,
-          last_login: new Date().toISOString()
-        };
-
-        supabaseClient
-          .from('players')
-          .upsert(payload, { onConflict: 'device_id' })
-          .then(() => {})
-          .catch(() => {});
-      } catch(e) {}
-
-      try {
-        supabaseClient.from('leaderboard').insert([{
-          player_name: cleanName,
-          contact: cleanContact || null,
-          score_money: 0,
-          customers_served: 0,
-          level_reached: 1,
-          game_mode: 'REGISTRO',
-          created_at: new Date().toISOString()
-        }]).then(() => {}).catch(() => {});
-      } catch(e) {}
+    // El perfil se guarda en la cuenta; el servidor garantiza que el alias sea único
+    const saved = await cloudSaveProfileNow({ alias: cleanName, avatar: cleanAvatar, contact: cleanContact });
+    if (saved && saved.error === 'alias_ocupado') {
+      return { success: false, error: `El alias "${cleanName}" ya está ocupado por otro chef. Por favor elige otro nombre.` };
     }
 
     const newPlayer = {
@@ -8085,6 +8002,11 @@ const DeviceManager = {
       }
     }
 
+    const saved = await cloudSaveProfileNow({ alias: cleanName, avatar: cleanAvatar, contact: cleanContact });
+    if (saved && saved.error === 'alias_ocupado') {
+      return { success: false, error: `El alias "${cleanName}" ya está ocupado por otro chef. Por favor elige otro nombre.` };
+    }
+
     this.currentPlayer.playerName = cleanName;
     this.currentPlayer.contact = cleanContact;
     this.currentPlayer.avatar = cleanAvatar;
@@ -8101,16 +8023,6 @@ const DeviceManager = {
       else regList.unshift(this.currentPlayer);
       safeStorage.setItem("ramen_registered_users", JSON.stringify(regList));
     } catch(e) {}
-
-    if (supabaseClient) {
-      try {
-        await supabaseClient
-          .from('players')
-          .update({ player_name: cleanName, contact: cleanContact || null, avatar: cleanAvatar, last_login: new Date().toISOString() })
-          .eq('device_id', this.deviceId);
-      } catch(e) {}
-    }
-
 
     if (typeof cloudSaveProfile === 'function') cloudSaveProfile();
     updateStartPlayerCard();
@@ -8159,6 +8071,7 @@ const AnalyticsTracker = {
   async endSession(outcome) {
     if (!this.sessionStartTime) return;
     const durationSeconds = Math.max(1, Math.round((Date.now() - this.sessionStartTime) / 1000));
+    this.lastDuration = durationSeconds;
     this.sessionStartTime = null;
 
     const playerName = DeviceManager.currentPlayer ? DeviceManager.currentPlayer.playerName : (safeStorage.getItem('ramen_player_name') || "Chef Anónimo");
@@ -8180,13 +8093,10 @@ const AnalyticsTracker = {
     this.saveLocalSession(sessionData);
     this.accumulateUserStats(playerName, deviceId, durationSeconds, this.currentMode, this.currentLevelNumber, outcome);
 
-    ensureSupabaseLoaded().then(client => {
-      if (client) {
-        client.from('game_sessions').insert([sessionData]).catch(e => {
-          console.warn("Analytics insert error:", e);
-        });
-      }
-    });
+    // Se registra en el servidor con la sesión de la cuenta (no hay acceso directo a la tabla)
+    cloudCall('log_session', { p_mode: sessionData.game_mode, p_level: sessionData.level_number, p_duration: durationSeconds,
+      p_served: sessionData.customers_served, p_lost: sessionData.customers_lost, p_failed: sessionData.failed_recipes,
+      p_outcome: sessionData.outcome }).catch(e => { console.warn("Analytics error:", e); });
   },
 
   incrementLevelAttempt(mode, level) {
@@ -12539,6 +12449,7 @@ function applyCloudAccount(acc) {
     accountProgress.stats = mergeStats({}, acc.stats || {});
   }
   saveAccountProgressLocal();
+  applyPvpFromAccount(acc, mergeLocal);
   safeStorage.setItem(ACCOUNT_OWNER_KEY, acc.id);
   CloudAuth.accountId = acc.id;
   const hasCloudProfile = acc.alias && acc.alias !== 'Chef';
@@ -12631,6 +12542,39 @@ async function cloudCall(fn, args) {
     if (error) throw error;
   }
   return data;
+}
+
+// Guarda el perfil indicado en la cuenta y devuelve la respuesta del servidor (p. ej. error 'alias_ocupado').
+async function cloudSaveProfileNow(p) {
+  try {
+    return (await cloudCall('save_account', { p_alias: p.alias, p_avatar: p.avatar, p_contact: p.contact || '' })) || {};
+  } catch (e) { return { offline: true }; }
+}
+
+// Ranking competitivo (MMR): si la cuenta ya lo tiene en el servidor, ese valor manda; una cuenta distinta no hereda el local.
+function applyPvpFromAccount(acc, mergeLocal) {
+  const pv = acc && acc.pvp;
+  if (!pv) return;
+  const num = k => parseInt(safeStorage.getItem(k) || '0', 10) || 0;
+  const localGames = num('ramen_player_pvp_wins') + num('ramen_player_pvp_losses');
+  const serverGames = (pv.wins || 0) + (pv.losses || 0);
+  let v = null;
+  if (pv.synced && (!mergeLocal || serverGames >= localGames)) v = pv;
+  else if (!pv.synced && !mergeLocal) v = { mmr: 1000, rank_tier: 'Bronce IV', wins: 0, losses: 0, streak: 0, highest: 1000 };
+  if (v) {
+    safeStorage.setItem('ramen_player_mmr', String(v.mmr));
+    safeStorage.setItem('ramen_player_rank_tier', v.rank_tier);
+    safeStorage.setItem('ramen_player_pvp_wins', String(v.wins));
+    safeStorage.setItem('ramen_player_pvp_losses', String(v.losses));
+    safeStorage.setItem('ramen_player_pvp_streak', String(v.streak));
+    safeStorage.setItem('ramen_player_highest_mmr', String(v.highest));
+    const cp = DeviceManager.currentPlayer;
+    if (cp) { cp.mmr = v.mmr; cp.rankTier = v.rank_tier; cp.pvpWins = v.wins; cp.pvpLosses = v.losses; cp.pvpStreak = v.streak; cp.highestMmr = v.highest; }
+  } else if (!pv.synced && localGames > 0 && CloudAuth.kind === 'device') {
+    // el dispositivo ya tenía partidas competitivas: se suben una sola vez
+    cloudFire(cloudCall('pvp_sync', { p_mmr: num('ramen_player_mmr'), p_rank_tier: safeStorage.getItem('ramen_player_rank_tier') || 'Bronce IV',
+      p_wins: num('ramen_player_pvp_wins'), p_losses: num('ramen_player_pvp_losses'), p_streak: num('ramen_player_pvp_streak'), p_highest: num('ramen_player_highest_mmr') }));
+  }
 }
 
 async function cloudSaveProfile() {
@@ -14439,6 +14383,18 @@ function updateHUD() {
   }
 }
 
+// Los récords se envían con la sesión de la cuenta: el servidor toma el nombre de la cuenta y rechaza valores imposibles.
+async function submitRecordToServer(rec) {
+  if (rec.game_mode !== 'NORMAL' && rec.game_mode !== 'RASH') return { ok: false, error: 'modo_invalido' };
+  try {
+    const d = await cloudCall('submit_record', { p_mode: rec.game_mode, p_money: rec.score_money, p_served: rec.customers_served,
+      p_level: rec.level_reached, p_duration: AnalyticsTracker.lastDuration || null });
+    return d || { ok: false, error: 'sin_respuesta' };
+  } catch (e) {
+    return { ok: false, error: 'offline' };
+  }
+}
+
 // REGISTRO AUTOMÁTICO DE PUNTUACIÓN EN CADA PARTICIPACIÓN (SEA CUAL SEA EL RESULTADO)
 async function recordGameScoreAutomatically(outcome = 'COMPLETED') {
   const p = DeviceManager.currentPlayer;
@@ -14461,16 +14417,8 @@ async function recordGameScoreAutomatically(outcome = 'COMPLETED') {
   saveLocalScore(newRecord);
 
   // 2. Transmisión automática en tiempo real a Supabase
-  if (supabaseClient) {
-    try {
-      await supabaseClient
-        .from('leaderboard')
-        .insert([newRecord]);
-      console.log("Récord registrado automáticamente en Supabase:", newRecord);
-    } catch(err) {
-      console.warn("Auto-ranking Supabase error:", err);
-    }
-  }
+  const sent = await submitRecordToServer(newRecord);
+  if (!sent.ok) console.warn("Récord no enviado al ranking:", sent.error);
 
   // 3. Notificación visual en el modal de fin de nivel
   const noticeEl = document.getElementById("end-auto-ranking-notice");
@@ -16088,29 +16036,17 @@ async function submitScoreToSupabase() {
   saveLocalScore(newRecord);
 
   let success = false;
-  if (supabaseClient) {
-    try {
-      const { data, error } = await supabaseClient
-        .from('leaderboard')
-        .insert([newRecord]);
-
-      if (error) {
-        console.error("Error insertando en Supabase:", error);
-        statusEl.textContent = "Guardado localmente (Supabase reportó: " + error.message + ")";
-        statusEl.style.color = "#f57c00";
-      } else {
-        success = true;
-        statusEl.textContent = "🎉 ¡Récord registrado con éxito en el Ranking Oficial!";
-        statusEl.style.color = "#2e7d32";
-      }
-    } catch(err) {
-      console.warn("Excepción guardando en Supabase:", err);
-      statusEl.textContent = "Guardado en caché local. (Revisa tus llaves de Supabase)";
-      statusEl.style.color = "#f57c00";
-    }
-  } else {
-    statusEl.textContent = "🎉 ¡Récord guardado localmente! Conecta Supabase para sincronizar con todos los jugadores.";
+  const sent = await submitRecordToServer(newRecord);
+  if (sent.ok) {
+    success = true;
+    statusEl.textContent = "🎉 ¡Récord registrado con éxito en el Ranking Oficial!";
     statusEl.style.color = "#2e7d32";
+  } else if (sent.error === 'registro_invalido' || sent.error === 'demasiados_registros') {
+    statusEl.textContent = "⚠️ El ranking no aceptó este récord (valores fuera de lo normal).";
+    statusEl.style.color = "#c62828";
+  } else {
+    statusEl.textContent = "Guardado localmente (sin conexión con el ranking). Se mostrará en tu dispositivo.";
+    statusEl.style.color = "#f57c00";
   }
 
   setTimeout(() => {
@@ -16184,12 +16120,7 @@ async function loadLeaderboard() {
     await ensureSupabaseLoaded();
     if (supabaseClient) {
       try {
-        const { data, error } = await supabaseClient
-          .from('players')
-          .select('player_name, avatar, mmr, rank_tier, pvp_wins, pvp_losses, pvp_streak, device_id')
-          .order('mmr', { ascending: false })
-          .order('pvp_wins', { ascending: false })
-          .limit(50);
+        const { data, error } = await supabaseClient.rpc('pvp_ranking');
         if (!error && data && data.length > 0) {
           records = data;
           isFromSupabase = true;
@@ -18800,12 +18731,8 @@ window.addEventListener('orientationchange', () => {
 });
 
 /* ==========================================================================
-   PANEL DE MONITOREO MASTER & ADMINISTRACIÓN (usr-master / 9999)
+   PANEL DE MONITOREO MASTER & ADMINISTRACIÓN (acceso validado por el servidor)
    ========================================================================== */
-const ADMIN_AUTH = {
-  user: "usr-master",
-  pass: "9999"
-};
 let isAdminLoggedIn = false;
 let currentAdminTab = 'users';
 let cachedAdminData = {
@@ -18839,26 +18766,31 @@ function closeAdminLoginModal() {
   if (modal) modal.classList.remove("active");
 }
 
-function handleAdminLogin() {
-  const userInp = document.getElementById("admin-user-input");
+async function handleAdminLogin() {
   const passInp = document.getElementById("admin-pass-input");
   const statusEl = document.getElementById("admin-login-status");
-
-  const user = (userInp ? userInp.value : "").trim();
   const pass = (passInp ? passInp.value : "").trim();
-
-  if (user === ADMIN_AUTH.user && pass === ADMIN_AUTH.pass) {
+  if (!pass) return;
+  if (statusEl) { statusEl.textContent = "Verificando…"; statusEl.style.color = "#ff9800"; }
+  let ok = false, offline = false;
+  try {
+    const client = await cloudClient();
+    const { data, error } = client ? await client.rpc('admin_check', { p_secret: pass }) : { data: null, error: true };
+    ok = !!(data && data.ok);
+    offline = !!error;
+  } catch (e) { offline = true; }
+  if (ok) {
+    try { sessionStorage.setItem('ramen_admin_secret', pass); } catch (e) {}
     isAdminLoggedIn = true;
+    if (passInp) passInp.value = "";
     closeAdminLoginModal();
     openAdminDashboardModal();
   } else {
     if (statusEl) {
-      statusEl.textContent = "❌ Credenciales incorrectas. Acceso restringido.";
+      statusEl.textContent = offline ? "⚠️ Sin conexión con el servidor." : "❌ Contraseña incorrecta. Acceso restringido.";
       statusEl.style.color = "#c62828";
     }
-    if (passInp) {
-      passInp.value = "";
-    }
+    if (passInp) passInp.value = "";
   }
 }
 
@@ -18891,6 +18823,7 @@ function closeAdminDashboardModal() {
 
 function handleAdminLogout() {
   isAdminLoggedIn = false;
+  try { sessionStorage.removeItem('ramen_admin_secret'); } catch (e) {}
   closeAdminDashboardModal();
 }
 
@@ -19223,13 +19156,15 @@ async function refreshAdminDashboard() {
   await ensureSupabaseLoaded();
   if (supabaseClient) {
     try {
+      let secret = null;
+      try { secret = sessionStorage.getItem('ramen_admin_secret'); } catch (e) {}
       const [resSessions, resPlayers, resLb] = await Promise.all([
-        supabaseClient.from('game_sessions').select('*').order('created_at', { ascending: false }).limit(300),
-        supabaseClient.from('players').select('*').order('last_login', { ascending: false }),
+        secret ? supabaseClient.rpc('admin_sessions', { p_secret: secret, p_limit: 300 }) : Promise.resolve({ data: null }),
+        secret ? supabaseClient.rpc('admin_players', { p_secret: secret }) : Promise.resolve({ data: null }),
         supabaseClient.from('leaderboard').select('id,player_name,score_money,customers_served,level_reached,game_mode,created_at').order('created_at', { ascending: false })
       ]);
-      dbSessions = resSessions.data || [];
-      dbPlayers = resPlayers.data || [];
+      dbSessions = (resSessions.data && resSessions.data.ok) ? resSessions.data.rows : [];
+      dbPlayers = (resPlayers.data && resPlayers.data.ok) ? resPlayers.data.rows : [];
       dbLeaderboard = await mergePrivateLeaderboard(resLb.data || []);
     } catch(err) {
       console.warn("Error cargando analíticas de Supabase:", err);
@@ -19585,6 +19520,6 @@ if (document.readyState === 'loading') {
   bootGameUI();
 }
 </script>
-<script src="multiplayer.js?v=20"></script>
+<script src="multiplayer.js?v=21"></script>
 </body>
 </html>
