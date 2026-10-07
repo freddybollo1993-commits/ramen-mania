@@ -11,7 +11,7 @@
   </defs>
   <!-- Maki ya enrollado (rollo largo, antes de cortar) -->
   <g filter="url(#shadow)">
-    <rect x="6" y="5" width="288" height="38" rx="19" fill="url(#nori)" stroke="#0a110c" stroke-width="1.6"/>
+    <rect x="6" y="5" width="288" height="38" rx="19" fill="url(#nori)" stroke="#2b1810" stroke-width="1.6"/>
     <ellipse cx="10" cy="24" rx="5" ry="16" fill="#f6f2e4"/>
     <ellipse cx="290" cy="24" rx="5" ry="16" fill="#f6f2e4"/>
     <rect x="22" y="10" width="256" height="5" rx="2.5" fill="#ffffff" opacity="0.14"/>

@@ -14,13 +14,34 @@
 <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32x32.png">
 <link rel="shortcut icon" href="favicon.ico">
 <link rel="preload" as="image" type="image/webp" href="assets/ramen_bg.webp">
-<link rel="preload" as="image" href="assets/ramen_bg.jpg">
 <title>Ramen Mania - Edición Horizontal Arcade</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap"></noscript>
+<!-- Fuentes autoalojadas (OFL): funcionan sin red y la PWA las guarda en caché -->
+<link rel="preload" as="font" type="font/woff2" href="assets/fonts/fredoka-one-latin-400-normal.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="assets/fonts/nunito-latin-wght-normal.woff2" crossorigin>
 <style>
+  @font-face {
+    font-family: 'Fredoka One';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('assets/fonts/fredoka-one-latin-400-normal.woff2') format('woff2');
+  }
+  @font-face {
+    font-family: 'Nunito';
+    font-style: normal;
+    font-weight: 200 1000;
+    font-display: swap;
+    src: url('assets/fonts/nunito-latin-ext-wght-normal.woff2') format('woff2');
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  }
+  @font-face {
+    font-family: 'Nunito';
+    font-style: normal;
+    font-weight: 200 1000;
+    font-display: swap;
+    src: url('assets/fonts/nunito-latin-wght-normal.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
   :root {
     --bg-dark: #190e0c;
     --sat: env(safe-area-inset-top, 0px);
@@ -436,6 +457,7 @@
 
   /* TARJETA DE CLIENTE LIGERAMENTE MÁS GRANDE Y CÓMODA */
   .customer-circle-card {
+    position: relative;
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -456,6 +478,20 @@
     box-shadow: 0 5px 16px rgba(0,0,0,0.75);
     border-color: #ffb300;
   }
+  /* Signo de urgencia (16x16): aparece sobre el cliente que está por irse */
+  .customer-circle-card.urgent::before {
+    content: '';
+    position: absolute;
+    left: -5px;
+    top: -9px;
+    width: 16px;
+    height: 16px;
+    background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Ccircle%20cx%3D%228%22%20cy%3D%228%22%20r%3D%227%22%20fill%3D%22%23e53935%22%20stroke%3D%22%232b1810%22%20stroke-width%3D%221.6%22%2F%3E%3Crect%20x%3D%227%22%20y%3D%223.2%22%20width%3D%222%22%20height%3D%226%22%20rx%3D%221%22%20fill%3D%22%23fff%22%2F%3E%3Ccircle%20cx%3D%228%22%20cy%3D%2211.8%22%20r%3D%221.2%22%20fill%3D%22%23fff%22%2F%3E%3C%2Fsvg%3E") center / 100% 100% no-repeat;
+    animation: urgentBob 0.5s ease-in-out infinite alternate;
+    pointer-events: none;
+    z-index: 3;
+  }
+  @keyframes urgentBob { from { transform: translateY(0) rotate(-6deg); } to { transform: translateY(-3px) rotate(6deg); } }
   .customer-circle-card.urgent {
     border-color: #ef4444;
     animation: custUrgentPulse 0.8s infinite alternate ease-in-out;
@@ -497,6 +533,7 @@
     overflow: hidden;
   }
 
+  .cust-portrait-svg { width: 100%; height: 100%; display: block; }
   .cust-info-column {
     display: flex;
     flex-direction: column;
@@ -795,6 +832,15 @@
     filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5));
     transition: transform 0.1s ease;
     margin-bottom: 2px;
+  }
+  .ing-ico {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    vertical-align: middle;
+    pointer-events: none;
+    -webkit-user-drag: none;
+    user-select: none;
   }
   .ing-tile-name {
     font-size: var(--name-sz, 9.5px);
@@ -1902,7 +1948,7 @@
     position: relative;
     width: calc(var(--fry-h) * 2.9);
     height: calc(var(--fry-h) * 1.3775);
-    background: url('assets/fry_stove.svg') center / 100% 100% no-repeat;
+    background: url('assets/fry_stove_v2.svg') center / 100% 100% no-repeat;
     container-type: inline-size;
     flex-shrink: 0;
   }
@@ -1926,7 +1972,7 @@
     top: calc(var(--fry-h) * -0.107);
     width: calc(var(--fry-h) * 1.45);
     height: calc(var(--fry-h) * 0.9);
-    background-image: url('assets/fry_pot.svg');
+    background-image: url('assets/fry_pot_v2.svg');
   }
   /* Tres espacios junto a la tabla: la proteína se arrastra por harina → huevo → panko */
   .fry-breading {
@@ -2103,6 +2149,105 @@
   .fry-slices.spread .fry-slice { margin: 0 0.4cqw; }
   .fry-slices.spread .fry-slice:nth-child(odd) { transform: rotate(-3deg); }
   .fry-slices.spread .fry-slice:nth-child(even) { transform: rotate(3deg); }
+  /* Accesibilidad: con "reducir movimiento" los bucles se reproducen una sola vez */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-iteration-count: 1 !important;
+      scroll-behavior: auto !important;
+    }
+  }
+  /* --- VFX de feedback: estrellas, destellos, humo y textos flotantes --- */
+  .vfx-pop {
+    position: fixed;
+    z-index: 99998;
+    pointer-events: none;
+    width: var(--s, 24px);
+    height: var(--s, 24px);
+    margin: calc(var(--s, 24px) / -2) 0 0 calc(var(--s, 24px) / -2);
+    animation: vfxPop var(--d, 700ms) cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+  }
+  .vfx-pop svg { width: 100%; height: 100%; display: block; }
+  @keyframes vfxPop {
+    0% { transform: translate(0, 0) scale(0.3) rotate(0deg); opacity: 0; }
+    20% { opacity: 1; transform: translate(calc(var(--dx, 0px) * 0.4), calc(var(--dy, 0px) * 0.4)) scale(1.2) rotate(25deg); }
+    100% { transform: translate(var(--dx, 0px), var(--dy, 0px)) scale(0.6) rotate(100deg); opacity: 0; }
+  }
+  .vfx-pop.vfx-smoke { animation-name: vfxSmokeRise; }
+  @keyframes vfxSmokeRise {
+    0% { transform: translate(0, 0) scale(0.5); opacity: 0; }
+    25% { opacity: 0.95; }
+    100% { transform: translate(var(--dx, 0px), var(--dy, -28px)) scale(1.5); opacity: 0; }
+  }
+  .vfx-text {
+    position: fixed;
+    z-index: 99998;
+    pointer-events: none;
+    font-family: 'Fredoka One', cursive;
+    font-size: 15px;
+    color: var(--c, #ffd54f);
+    text-shadow: 0 0 3px #2b1810, 0 2px 0 #2b1810, 0 0 8px rgba(0,0,0,0.7);
+    transform: translateX(-50%);
+    animation: vfxTextRise 1.1s ease-out forwards;
+  }
+  @keyframes vfxTextRise {
+    0% { transform: translate(-50%, 6px) scale(0.7); opacity: 0; }
+    20% { transform: translate(-50%, 0) scale(1.15); opacity: 1; }
+    100% { transform: translate(-50%, -26px) scale(1); opacity: 0; }
+  }
+  /* Corte: squash & stretch en 4 pasos (anticipación 80 ms, impacto 60 ms, desplazamiento 80 ms, rebote 100 ms) */
+  @keyframes chopSquash {
+    0% { transform: scale(1, 1); }
+    25% { transform: scale(1.06, 0.92); }
+    44% { transform: scale(0.94, 1.1); }
+    69% { transform: scale(1.04, 0.97); }
+    100% { transform: scale(1, 1); }
+  }
+  .fry-slices { animation: chopSquash 0.32s ease-out; transform-origin: 50% 80%; }
+  .maki-pieces.chop-hit { animation: chopSquash 0.32s ease-out; }
+  /* Wok: vaho cuando el plato salió perfecto y chispas mientras se saltea */
+  .wok-dock-card::before, .wok-dock-card::after {
+    content: '';
+    position: absolute;
+    pointer-events: none;
+    opacity: 0;
+    z-index: 2;
+  }
+  .wok-dock-card.wok-result-perfecto::before {
+    left: 24%;
+    top: -14%;
+    width: 22%;
+    height: 40%;
+    background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2040%22%3E%3Cpath%20d%3D%22M12%2038%20C4%2030%2020%2024%2012%2016%20C6%2010%2014%206%2012%202%22%20fill%3D%22none%22%20stroke%3D%22%23fff8e1%22%20stroke-width%3D%223.2%22%20stroke-linecap%3D%22round%22%20opacity%3D%220.85%22%2F%3E%3C%2Fsvg%3E") center / 100% 100% no-repeat;
+    opacity: 0.9;
+    animation: wokSteamRise 1.6s ease-in-out infinite;
+  }
+  .wok-dock-card.wok-result-perfecto::after {
+    left: 42%;
+    top: -18%;
+    width: 22%;
+    height: 40%;
+    background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2040%22%3E%3Cpath%20d%3D%22M12%2038%20C4%2030%2020%2024%2012%2016%20C6%2010%2014%206%2012%202%22%20fill%3D%22none%22%20stroke%3D%22%23fff8e1%22%20stroke-width%3D%223.2%22%20stroke-linecap%3D%22round%22%20opacity%3D%220.85%22%2F%3E%3C%2Fsvg%3E") center / 100% 100% no-repeat;
+    opacity: 0.9;
+    animation: wokSteamRise 1.6s ease-in-out 0.5s infinite;
+  }
+  @keyframes wokSteamRise {
+    0% { transform: translateY(8px) scaleY(0.8); opacity: 0; }
+    35% { opacity: 0.9; }
+    100% { transform: translateY(-14px) scaleY(1.15); opacity: 0; }
+  }
+  .wok-dock-card.is-stirring::before {
+    left: 10%;
+    top: -6%;
+    width: 60%;
+    height: 34%;
+    background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2040%2024%22%3E%3Cg%20fill%3D%22%23ffd54f%22%20stroke%3D%22%23ff8f00%22%20stroke-width%3D%220.8%22%3E%3Cpath%20d%3D%22M6%2012%20L8%208%20L10%2012%20L8%2016%20Z%22%2F%3E%3Cpath%20d%3D%22M20%206%20L21.6%203%20L23.2%206%20L21.6%209%20Z%22%2F%3E%3Cpath%20d%3D%22M32%2014%20L34%2010%20L36%2014%20L34%2018%20Z%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E") center / 100% 100% no-repeat;
+    animation: wokSparkFly 0.45s steps(4) infinite;
+  }
+  @keyframes wokSparkFly {
+    0% { transform: translateY(6px) scale(0.8); opacity: 0; }
+    40% { opacity: 1; }
+    100% { transform: translateY(-10px) scale(1.15); opacity: 0; }
+  }
   /* Contador de la olla: cruda (azul) → lista (verde) → se quema (rojo) */
   .fry-counter {
     position: absolute;
@@ -2115,8 +2260,10 @@
   }
   .fry-counter i { display: block; height: 100%; }
   .fry-counter .fz-raw { width: calc(var(--raw, 35.7) * 1%); background: #6fa8d6; border-radius: 3px 0 0 3px; }
+  /* Además del color, cada tramo tiene su trama: puntos = cruda, liso = lista, rayas = se quema */
+  .fry-counter .fz-raw { background-image: radial-gradient(rgba(255,255,255,0.6) 0.9px, transparent 1.3px); background-size: 4px 4px; }
   .fry-counter .fz-ready { width: calc(var(--rdy, 28.6) * 1%); background: #66bb6a; }
-  .fry-counter .fz-burn { width: calc(var(--brn, 35.7) * 1%); background: linear-gradient(90deg, #ef6c00, #7a0000); border-radius: 0 3px 3px 0; }
+  .fry-counter .fz-burn { width: calc(var(--brn, 35.7) * 1%); background: repeating-linear-gradient(135deg, rgba(0,0,0,0.4) 0 2px, transparent 2px 5px), linear-gradient(90deg, #ef6c00, #7a0000); border-radius: 0 3px 3px 0; }
   .fry-marker {
     position: absolute;
     left: 0;
@@ -2352,7 +2499,7 @@
     position: relative;
     width: clamp(100px, min(21vw, 34vh), 180px);
     aspect-ratio: 300 / 186;
-    background: url('assets/wok.svg') center / 100% 100% no-repeat;
+    background: url('assets/wok_v2.svg') center / 100% 100% no-repeat;
     border-radius: 16px;
     cursor: pointer;
     user-select: none;
@@ -6004,7 +6151,7 @@
           </svg>
           <div class="maki-board-chips" id="maki-mat-strip"></div>
           <div class="maki-roll-wrap" id="maki-roll-wrap" style="display:none;">
-            <img class="maki-roll-log" src="assets/maki_roll.svg" alt="" draggable="false">
+            <img class="maki-roll-log" src="assets/maki_roll_v2.svg" alt="" draggable="false">
             <svg class="maki-log-toppings" viewBox="0 0 300 50" preserveAspectRatio="none" aria-hidden="true"><g id="mk-top-root" transform="translate(0 -5) scale(1 0.6)"></g></svg>
             <i class="maki-slice-mark" style="left:16.6%"></i>
             <i class="maki-slice-mark" style="left:33.3%"></i>
@@ -7874,10 +8021,18 @@ const INGREDIENTES = [
 ];
 // Nombre corto para las fichas del panel (en pantallas angostas el nombre completo se cortaba) y
 // iconos propios donde dos ingredientes de la misma área compartían el mismo.
+// Arte generado con tools/gen-ingredient-icons.mjs (id -> SVG 64x64). Los emoji quedan solo de respaldo.
+const ING_ART = {"31":"assets/ingredients/ing_31_aceite_ajonjoli.svg","32":"assets/ingredients/ing_32_ajo_chino.svg","33":"assets/ingredients/ing_33_ajonjoli.svg","34":"assets/ingredients/ing_34_ajonjoli_negro.svg","35":"assets/ingredients/ing_35_aji_limo.svg","36":"assets/ingredients/ing_36_alas_pollo.svg","37":"assets/ingredients/ing_37_arroz.svg","38":"assets/ingredients/ing_38_arroz_shari.svg","39":"assets/ingredients/ing_39_atun.svg","40":"assets/ingredients/ing_40_base_shimaya.svg","41":"assets/ingredients/ing_41_benishoga.svg","42":"assets/ingredients/ing_42_beterraga.svg","43":"assets/ingredients/ing_43_bife_cerdo.svg","44":"assets/ingredients/ing_44_bife_pollo.svg","45":"assets/ingredients/ing_45_brocoli.svg","46":"assets/ingredients/ing_46_cebolla.svg","47":"assets/ingredients/ing_47_cecina.svg","48":"assets/ingredients/ing_48_chancho_chaufa.svg","49":"assets/ingredients/ing_49_cobertura_atun.svg","50":"assets/ingredients/ing_50_cobertura_conchas.svg","51":"assets/ingredients/ing_51_cobertura_amazon.svg","52":"assets/ingredients/ing_52_col.svg","53":"assets/ingredients/ing_53_condimentos.svg","54":"assets/ingredients/ing_54_ebi.svg","55":"assets/ingredients/ing_55_ensalada.svg","56":"assets/ingredients/ing_56_ensalada_fria.svg","57":"assets/ingredients/ing_57_gohan.svg","58":"assets/ingredients/ing_58_harina.svg","59":"assets/ingredients/ing_59_hilos_wantan.svg","60":"assets/ingredients/ing_60_langostino_6.svg","61":"assets/ingredients/ing_61_lomo.svg","62":"assets/ingredients/ing_62_mayonesa_casa.svg","63":"assets/ingredients/ing_63_negi.svg","64":"assets/ingredients/ing_64_palta.svg","65":"assets/ingredients/ing_65_panko.svg","66":"assets/ingredients/ing_66_pasta_gyoza.svg","67":"assets/ingredients/ing_67_pimenton.svg","68":"assets/ingredients/ing_68_pimiento.svg","69":"assets/ingredients/ing_69_pollo.svg","70":"assets/ingredients/ing_70_pollo_7.svg","71":"assets/ingredients/ing_71_poro_especial.svg","72":"assets/ingredients/ing_72_queso_crema.svg","73":"assets/ingredients/ing_73_relleno_gyoza.svg","74":"assets/ingredients/ing_74_rulos_cebolla.svg","75":"assets/ingredients/ing_75_sal.svg","76":"assets/ingredients/ing_76_salsa.svg","77":"assets/ingredients/ing_77_salsa_acevichada.svg","78":"assets/ingredients/ing_78_salsa_batayaki.svg","79":"assets/ingredients/ing_79_salsa_chaufa.svg","80":"assets/ingredients/ing_80_salsa_digion.svg","81":"assets/ingredients/ing_81_salsa_guacamole.svg","82":"assets/ingredients/ing_82_salsa_hotate.svg","83":"assets/ingredients/ing_83_salsa_kare.svg","84":"assets/ingredients/ing_84_salsa_katsu.svg","85":"assets/ingredients/ing_85_salsa_nin_niku.svg","86":"assets/ingredients/ing_86_salsa_omuraisu.svg","87":"assets/ingredients/ing_87_salsa_teriyaki.svg","88":"assets/ingredients/ing_88_salsa_yakitori.svg","89":"assets/ingredients/ing_89_salsa_yama.svg","90":"assets/ingredients/ing_90_salsa_yasaitame.svg","91":"assets/ingredients/ing_91_togarashi.svg","92":"assets/ingredients/ing_92_toping.svg","93":"assets/ingredients/ing_93_tortilla.svg","94":"assets/ingredients/ing_94_wantan.svg","95":"assets/ingredients/ing_95_zucchini.svg"};
 const ING_SHORT = { 73: 'Relleno Gyoza', 60: 'Langostino ×6', 70: 'Pollo ×7', 62: 'Mayo Casa', 74: 'Rulos Cebolla',
   49: 'Cob. Atún', 54: 'Ebi Langost.', 77: 'Acevichada', 50: 'Cob. Conchas', 51: 'Cob. Amazon', 28: 'Shitake', 21: 'Alga Wanji' };
 const ING_ICON_FIX = { 62: '🍯', 76: '🍅', 53: '🌿', 44: '🐔', 70: '🍖', 49: '🍣' };
+// Icono del ingrediente en línea (SVG si existe, emoji si no).
+function ingIconHtml(ing) {
+  if (!ing) return '❓';
+  return ing.img ? `<img class="ing-ico" src="${ing.img}" alt="" draggable="false">` : ing.icon;
+}
 INGREDIENTES.forEach(i => {
+  if (!i.img && ING_ART[i.id]) i.img = ING_ART[i.id];
   if (ING_SHORT[i.id]) i.short = ING_SHORT[i.id];
   if (ING_ICON_FIX[i.id]) i.icon = ING_ICON_FIX[i.id];
 });
@@ -8618,6 +8773,7 @@ function completeMakiCut() {
   roll.cutProgress = 1;
   playSound('match');
   renderMakiStation();
+  vfxAtElement('maki-board-zone', 'cut');
   addTrimmings(2, 'puntas del maki');
 }
 
@@ -8863,6 +9019,9 @@ function renderMakiStation() {
         pieces.classList.remove('spread');
         const pieceHtml = makiPieceMarkup(ings);
         pieces.innerHTML = pieceHtml.repeat(6);
+        pieces.classList.remove('chop-hit');
+        void pieces.offsetWidth;
+        pieces.classList.add('chop-hit');
         setTimeout(() => { if (pieces._sig === 'cut') pieces.classList.add('spread'); }, 40);
       }
     } else if (pieces._sig) {
@@ -9265,7 +9424,7 @@ function renderWoks() {
             const x = 50 + Math.cos(angle) * radius * 42;
             const y = 50 + Math.sin(angle) * radius * 38;
             const rot = ((idx * 47) % 50) - 25;
-            return `<span class="wok-chip" title="${ing ? ing.display : ''}" style="left:${x.toFixed(1)}%;top:${y.toFixed(1)}%;z-index:${idx};transform:translate(-50%,-50%) rotate(${rot}deg)">${ing ? ing.icon : '❓'}</span>`;
+            return `<span class="wok-chip" title="${ing ? ing.display : ''}" style="left:${x.toFixed(1)}%;top:${y.toFixed(1)}%;z-index:${idx};transform:translate(-50%,-50%) rotate(${rot}deg)">${ingIconHtml(ing)}</span>`;
           }).join('');
     }
 
@@ -9352,6 +9511,8 @@ function finishStir(index, result) {
   wok.orderTotal = analysis.orderTotal;
   playSound(result === 'PERFECTO' ? 'match' : 'burn');
   renderWoks();
+  if (result === 'PERFECTO') vfxAtElement(`wok-card-${index}`, 'good');
+  else if (result === 'QUEMADO') vfxAtElement(`wok-card-${index}`, 'bad');
 }
 
 function setupWokStirButtons() {
@@ -9498,7 +9659,7 @@ function fryProteinNeedsBreading(id) {
 // Proteína con su empanizado: coat 0 = cruda sin empanizar, 1 = harina, 2 = huevo, 3 = panko.
 function fryItemMarkup(proteinId, coat) {
   const ing = INGREDIENTES.find(i => i.id === proteinId);
-  return `<span class="fry-item coat-${coat}"><span class="fry-item-base">${ing ? ing.icon : '❓'}</span><i class="fry-item-coat"></i></span>`;
+  return `<span class="fry-item coat-${coat}"><span class="fry-item-base">${ingIconHtml(ing)}</span><i class="fry-item-coat"></i></span>`;
 }
 
 // Color de la comida según el tiempo en el aceite: pálida (cruda) → dorada (lista) → muy oscura.
@@ -9688,6 +9849,8 @@ function handleFryActionClick() {
   station.phase = 'FRIED';
   playSound(station.fryResult === 'PERFECTO' ? 'match' : 'burn');
   renderFryStation();
+  if (station.fryResult === 'PERFECTO') vfxAtElement('fry-oil-card', 'good');
+  else if (station.fryResult === 'QUEMADO') vfxAtElement('fry-oil-card', 'bad');
 }
 
 function attemptServeFryStation() {
@@ -9829,6 +9992,7 @@ function completeFryCut() {
   station.cutProgress = 1;
   playSound('match');
   renderFryStation();
+  vfxAtElement('fry-table-card', 'cut');
   addTrimmings(1, 'recortes del katsu');
 }
 
@@ -9991,7 +10155,7 @@ function renderFryStation() {
     }
     html += extras.map(id => {
       const ing = INGREDIENTES.find(i => i.id === id);
-      return `<span class="maki-chip" title="${ing ? ing.display : ''}">${ing ? ing.icon : '❓'}</span>`;
+      return `<span class="maki-chip" title="${ing ? ing.display : ''}">${ingIconHtml(ing)}</span>`;
     }).join('');
     if (!html) html = `<span class="maki-strip-empty">Arrastra la proteína por harina → huevo → panko</span>`;
     else if (frying && !extras.length) html = `<span class="maki-strip-empty">La proteína está en la olla…</span>`;
@@ -10506,6 +10670,8 @@ function renderPantryGrid() {
       : currentBowl.ingredients.includes(ing.id);
 
     tile.className = `ing-station-tile ${isInBowl ? "in-active-bowl" : ""}`;
+    tile.setAttribute('role', 'button');
+    tile.setAttribute('aria-label', ing.display);
     tile.title = `${ing.display} (${isInBowl ? "En uso - Toca para retirar" : "Mantén y arrastra al plato"})`;
     attachIngredientDrag(tile, ing);
 
@@ -11539,7 +11705,7 @@ function renderCustomers() {
               style="filter: drop-shadow(0 0 3px ${glowColor}); transition: stroke-dashoffset 0.3s ease, stroke 0.3s ease;"
               transform="rotate(-90 19 19)" />
           </svg>
-          <div class="cust-face-circle">${c.avatar}</div>
+          <div class="cust-face-circle">${customerPortraitHtml(c, customerMood(pct / 100))}</div>
         </div>
         <div class="cust-info-column">
           <div class="cust-name-label">${c.name}</div>
@@ -11551,6 +11717,9 @@ function renderCustomers() {
       card.classList.toggle("urgent", isUrgent);
       const ringSvg = card.querySelector(".cust-patience-ring-svg");
       if (ringSvg) ringSvg.classList.toggle("urgent-ring", isUrgent);
+      const faceEl = card.querySelector('.cust-face-circle');
+      const moodNow = customerMood(pct / 100);
+      if (faceEl && card._mood !== moodNow) { card._mood = moodNow; faceEl.innerHTML = customerPortraitHtml(c, moodNow); }
       const circleEl = card.querySelector(".cust-patience-circle");
       if (circleEl) {
         circleEl.setAttribute("stroke-dashoffset", offset);
@@ -11752,6 +11921,132 @@ function addTrimmings(n, source) {
     : `♻️ +${n} recorte${n > 1 ? 's' : ''} (${source}) · ${gameState.recortes}/${MOTTAINAI_PER_DASHI} para el dashi`);
 }
 
+// --- Retratos chibi de clientes: 3 expresiones según la paciencia que les queda ---
+// Feliz (> 60 %), neutro (30-60 %) y molesto (< 30 %), con el mismo contorno #2b1810 del resto del arte.
+const CUSTOMER_LOOKS = {
+  Kenji:   { hair: '#2b1810', style: 'short',    skin: '#f6d3b3', shirt: '#165e83' },
+  Sakura:  { hair: '#3b2418', style: 'bob',      skin: '#f9dcc4', shirt: '#b7282e', pin: '#f48fb1' },
+  Hiroshi: { hair: '#e8e8e8', style: 'bald',     skin: '#f1c9a5', shirt: '#42602d', stache: true },
+  Akemi:   { hair: '#2b1810', style: 'pigtails', skin: '#f9dcc4', shirt: '#d9822b', pin: '#e53935' },
+  Takeshi: { hair: '#1a1a1a', style: 'spiky',    skin: '#f0c8a0', shirt: '#2b2f4a', band: true },
+  Yuki:    { hair: '#e9b94a', style: 'long',     skin: '#fbe0cc', shirt: '#7e57c2' },
+  Ren:     { hair: '#4a3a34', style: 'short',    skin: '#f6d3b3', shirt: '#2e7d6a' },
+  Aoi:     { hair: '#b9532a', style: 'long',     skin: '#f9dcc4', shirt: '#1e88c9' }
+};
+
+function customerMood(ratio) {
+  return ratio > 0.6 ? 'happy' : (ratio > 0.3 ? 'neutral' : 'angry');
+}
+
+function customerPortraitHtml(c, mood) {
+  const L = CUSTOMER_LOOKS[c.name];
+  if (!L) return c.avatar;
+  const O = '#2b1810', W = 2;
+  const hairBack = {
+    short: '',
+    bald: '',
+    spiky: '',
+    bob: `<path d="M12,52 Q7,16 32,11 Q57,16 52,52 Q46,42 46,34 L18,34 Q18,42 12,52 Z" fill="${L.hair}" stroke="${O}" stroke-width="${W}" stroke-linejoin="round"/>`,
+    long: `<path d="M11,60 Q6,16 32,11 Q58,16 53,60 Q47,48 47,34 L17,34 Q17,48 11,60 Z" fill="${L.hair}" stroke="${O}" stroke-width="${W}" stroke-linejoin="round"/>`,
+    pigtails: `<circle cx="10" cy="38" r="7" fill="${L.hair}" stroke="${O}" stroke-width="${W}"/><circle cx="54" cy="38" r="7" fill="${L.hair}" stroke="${O}" stroke-width="${W}"/><circle cx="14" cy="31" r="2.6" fill="${L.pin}" stroke="${O}" stroke-width="1.4"/><circle cx="50" cy="31" r="2.6" fill="${L.pin}" stroke="${O}" stroke-width="1.4"/>`
+  }[L.style] || '';
+  const hairFront = {
+    short: `<path d="M14,34 Q12,13 32,12 Q52,13 50,34 Q44,23 32,24 Q20,23 14,34 Z" fill="${L.hair}" stroke="${O}" stroke-width="${W}" stroke-linejoin="round"/>`,
+    bob: `<path d="M15,33 Q16,15 32,15 Q48,15 49,33 Q40,22 32,25 Q24,22 15,33 Z" fill="${L.hair}" stroke="${O}" stroke-width="${W}" stroke-linejoin="round"/>`,
+    long: `<path d="M15,33 Q16,15 32,15 Q48,15 49,33 Q40,22 32,25 Q24,22 15,33 Z" fill="${L.hair}" stroke="${O}" stroke-width="${W}" stroke-linejoin="round"/>`,
+    pigtails: `<path d="M15,33 Q16,14 32,14 Q48,14 49,33 Q40,22 32,25 Q24,22 15,33 Z" fill="${L.hair}" stroke="${O}" stroke-width="${W}" stroke-linejoin="round"/>`,
+    spiky: `<path d="M14,32 L15,13 L24,21 L28,8 L34,20 L42,8 L44,21 L51,13 L50,32 Q44,23 32,24 Q20,23 14,32 Z" fill="${L.hair}" stroke="${O}" stroke-width="${W}" stroke-linejoin="round"/>`,
+    bald: `<ellipse cx="14" cy="38" rx="3.5" ry="6" fill="${L.hair}" stroke="${O}" stroke-width="1.6"/><ellipse cx="50" cy="38" rx="3.5" ry="6" fill="${L.hair}" stroke="${O}" stroke-width="1.6"/>`
+  }[L.style] || '';
+  const band = L.band ? `<rect x="14" y="23" width="36" height="6" rx="1.5" fill="#fff8e1" stroke="${O}" stroke-width="1.6"/><circle cx="32" cy="26" r="2" fill="#d32f2f"/>` : '';
+  const pin = (L.pin && (L.style === 'bob')) ? `<circle cx="44" cy="22" r="3" fill="${L.pin}" stroke="${O}" stroke-width="1.4"/>` : '';
+  const brows = mood === 'angry'
+    ? `<path d="M20,29 L29,33 M44,29 L35,33" stroke="${O}" stroke-width="2.4" stroke-linecap="round"/>`
+    : (L.stache ? `<path d="M20,31 Q25,28 29,31 M35,31 Q39,28 44,31" stroke="#bdbdbd" stroke-width="2.4" stroke-linecap="round" fill="none"/>` : '');
+  const eyes = mood === 'happy'
+    ? `<path d="M20.5,38 Q25,32 29.5,38 M34.5,38 Q39,32 43.5,38" stroke="${O}" stroke-width="2.6" fill="none" stroke-linecap="round"/>`
+    : `<circle cx="25" cy="37" r="2.8" fill="${O}"/><circle cx="39" cy="37" r="2.8" fill="${O}"/><circle cx="26" cy="36" r="0.9" fill="#fff"/><circle cx="40" cy="36" r="0.9" fill="#fff"/>`;
+  const mouth = mood === 'happy'
+    ? `<path d="M26,45 Q32,53 38,45 Z" fill="#b03a3a" stroke="${O}" stroke-width="1.8" stroke-linejoin="round"/>`
+    : (mood === 'neutral'
+      ? `<path d="M28,47 L36,47" stroke="${O}" stroke-width="2.2" stroke-linecap="round"/>`
+      : `<path d="M26,50 Q32,43 38,50" stroke="${O}" stroke-width="2.4" fill="none" stroke-linecap="round"/>`);
+  const blush = mood === 'angry'
+    ? `<ellipse cx="20" cy="43" rx="3.6" ry="2.2" fill="#e53935" opacity="0.55"/><ellipse cx="44" cy="43" rx="3.6" ry="2.2" fill="#e53935" opacity="0.55"/>`
+    : `<ellipse cx="20" cy="43" rx="3.6" ry="2.2" fill="#f48fb1" opacity="0.55"/><ellipse cx="44" cy="43" rx="3.6" ry="2.2" fill="#f48fb1" opacity="0.55"/>`;
+  const stache = L.stache ? `<path d="M25,43 Q32,40 39,43 Q35,47 32,45 Q29,47 25,43 Z" fill="#e0e0e0" stroke="${O}" stroke-width="1.6" stroke-linejoin="round"/>` : '';
+  const anger = mood === 'angry' ? `<path d="M50,12 l5,5 m0,-5 l-5,5" stroke="#e53935" stroke-width="2.6" stroke-linecap="round"/>` : '';
+  return `<svg class="cust-portrait-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true">`
+    + hairBack
+    + `<path d="M10,66 Q12,53 32,53 Q52,53 54,66 Z" fill="${L.shirt}" stroke="${O}" stroke-width="${W}" stroke-linejoin="round"/><path d="M26,54 L32,61 L38,54" fill="#fff8e1" stroke="${O}" stroke-width="1.5" stroke-linejoin="round"/>`
+    + `<ellipse cx="32" cy="37" rx="18" ry="18.5" fill="${L.skin}" stroke="${O}" stroke-width="${W + 0.2}"/>`
+    + hairFront + band + pin + blush + brows + eyes + (L.stache ? stache : mouth) + (L.stache ? '' : '') + anger
+    + (L.stache ? `<path d="M28,49 Q32,${mood === 'angry' ? 47 : 51} 36,49" stroke="${O}" stroke-width="1.8" fill="none" stroke-linecap="round"/>` : '')
+    + `</svg>`;
+}
+
+// --- VFX de feedback (estrellas, destellos, humo, textos flotantes) ---
+const VFX_SVG = {
+  star: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2l2.9 6.6 7.1.7-5.4 4.7 1.6 7L12 17.4 5.8 21l1.6-7L2 9.3l7.1-.7z" fill="#ffd54f" stroke="#2b1810" stroke-width="1.7" stroke-linejoin="round"/><path d="M12 5.5l1.5 3.6" stroke="#fff8e1" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  spark: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M8 1l1.6 5.4L15 8l-5.4 1.6L8 15l-1.6-5.4L1 8l5.4-1.6z" fill="#fff8e1" stroke="#ffb300" stroke-width="1"/></svg>',
+  smoke: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7 19a4.2 4.2 0 0 1 0-8.4 5.4 5.4 0 0 1 10.2-1.4A4.4 4.4 0 0 1 17.6 19z" fill="#8d8d8d" stroke="#2b1810" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 13.5q3-2.2 6 0" stroke="#bdbdbd" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>'
+};
+
+function spawnVfx(type, x, y, opts = {}) {
+  if (!(x > 0 || y > 0)) return;
+  const el = document.createElement('div');
+  el.className = `vfx-pop vfx-${type}`;
+  el.style.left = `${x}px`;
+  el.style.top = `${y}px`;
+  el.style.setProperty('--s', `${opts.size || 24}px`);
+  el.style.setProperty('--dx', `${opts.dx || 0}px`);
+  el.style.setProperty('--dy', `${opts.dy || 0}px`);
+  el.style.setProperty('--d', `${opts.dur || 700}ms`);
+  el.innerHTML = VFX_SVG[type];
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), (opts.dur || 700) + 80);
+}
+
+function vfxBurst(x, y, type, n, size) {
+  for (let i = 0; i < n; i++) {
+    const a = (Math.PI * 2 * i) / n - Math.PI / 2 + (Math.random() - 0.5) * 0.5;
+    const r = 24 + Math.random() * 16;
+    spawnVfx(type, x, y, { dx: Math.cos(a) * r, dy: Math.sin(a) * r - 6, size, dur: 650 + Math.random() * 200 });
+  }
+}
+
+function vfxText(text, x, y, color) {
+  const el = document.createElement('div');
+  el.className = 'vfx-text';
+  el.textContent = text;
+  el.style.left = `${x}px`;
+  el.style.top = `${y}px`;
+  if (color) el.style.setProperty('--c', color);
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1200);
+}
+
+// Efecto centrado en un elemento visible: 'good' = estrellas y destellos, 'bad' = humo, 'cut' = destello del corte.
+function vfxAtElement(id, kind) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const r = el.getBoundingClientRect();
+  if (!r.width) return;
+  const x = r.left + r.width / 2, y = r.top + r.height * 0.4;
+  if (kind === 'good') { vfxBurst(x, y, 'star', 4, 22); vfxBurst(x, y, 'spark', 3, 16); }
+  else if (kind === 'bad') spawnVfx('smoke', x, y, { dy: -30, size: 26, dur: 950 });
+  else if (kind === 'cut') vfxBurst(x, y, 'spark', 3, 16);
+}
+
+function serveVfx(customerIndex, pay, perfect) {
+  const card = document.getElementById(`cust-slot-card-${customerIndex}`);
+  const r = card ? card.getBoundingClientRect() : null;
+  const x = r && r.width ? r.left + r.width / 2 : window.innerWidth / 2;
+  const y = r && r.width ? r.top + r.height / 2 : 70;
+  if (perfect) { vfxBurst(x, y, 'star', 5, 24); vfxBurst(x, y, 'spark', 4, 16); vfxText(`+S/ ${pay}`, x, y + 6, '#ffd54f'); }
+  else { spawnVfx('smoke', x, y, { dy: -26, size: 24, dur: 900 }); vfxText(`+S/ ${pay}`, x, y + 6, '#ffab91'); }
+}
+
 // --- Platos listos: cada estación ofrece el suyo y los clientes lo toman desde cualquier área ---
 // Un plato crudo, quemado o con la sopa fría se puede servir, pero paga la mitad y no deja propina
 // (provisional: el sistema de calidad definitivo se define después).
@@ -11858,6 +12153,7 @@ function serveOrder(customerIndex, itemIndex, dish) {
 
   const perfect = dish.quality === 'PERFECTO';
   const pay = perfect ? orderItem.recipe.price : Math.round(orderItem.recipe.price * IMPERFECT_PAY_RATIO);
+  serveVfx(customerIndex, pay, perfect);
   orderItem.served = true;
   orderItem.quality = dish.quality;
   if (!perfect) c.imperfect = true;
@@ -17184,9 +17480,17 @@ function renderAdminSessionsView() {
 }
 
 let isGameUIBooted = false;
+// Los botones que solo tienen un emoji o icono toman su nombre del title para lectores de pantalla.
+function applyA11yLabels(root) {
+  (root || document).querySelectorAll('button[title]:not([aria-label]), [role="button"][title]:not([aria-label])').forEach(el => {
+    el.setAttribute('aria-label', el.getAttribute('title'));
+  });
+}
+
 function bootGameUI() {
   if (isGameUIBooted) return;
   isGameUIBooted = true;
+  applyA11yLabels();
 
   const startScr = document.getElementById("start-screen");
   if (startScr) {

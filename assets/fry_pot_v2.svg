@@ -29,13 +29,13 @@
   <ellipse cx="150" cy="162" rx="112" ry="9" fill="#000" opacity="0.5" filter="url(#soft)"/>
 
   <!-- Asas laterales -->
-  <rect x="22" y="84" width="34" height="18" rx="9" fill="url(#ear)" stroke="#0a0a0b" stroke-width="1.4"/>
-  <rect x="244" y="84" width="34" height="18" rx="9" fill="url(#ear)" stroke="#0a0a0b" stroke-width="1.4"/>
+  <rect x="22" y="84" width="34" height="18" rx="9" fill="url(#ear)" stroke="#2b1810" stroke-width="1.4"/>
+  <rect x="244" y="84" width="34" height="18" rx="9" fill="url(#ear)" stroke="#2b1810" stroke-width="1.4"/>
   <rect x="28" y="87" width="22" height="3" rx="1.5" fill="#fff" opacity="0.18"/>
   <rect x="250" y="87" width="22" height="3" rx="1.5" fill="#fff" opacity="0.18"/>
 
   <!-- Cuerpo de la olla -->
-  <path d="M52,72 L52,140 Q52,154 68,154 L232,154 Q248,154 248,140 L248,72 Z" fill="url(#potBody)" stroke="#0a0b0d" stroke-width="2.2"/>
+  <path d="M52,72 L52,140 Q52,154 68,154 L232,154 Q248,154 248,140 L248,72 Z" fill="url(#potBody)" stroke="#2b1810" stroke-width="2.2"/>
   <rect x="70" y="82" width="8" height="60" rx="4" fill="#fff" opacity="0.14"/>
   <path d="M60,126 Q150,140 240,126" fill="none" stroke="#000" stroke-opacity="0.2" stroke-width="3"/>
 
