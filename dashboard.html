@@ -589,6 +589,7 @@
     <button class="tab-btn" onclick="switchTab('tab-players')">👥 Jugadores & Contactos (<span id="tab-count-players">0</span>)</button>
     <button class="tab-btn" onclick="switchTab('tab-leaderboard')">🏆 Ranking & Leaderboard (<span id="tab-count-lb">0</span>)</button>
     <button class="tab-btn" onclick="switchTab('tab-sessions')">📜 Historial de Partidas (<span id="tab-count-sessions">0</span>)</button>
+    <button class="tab-btn" onclick="switchTab('tab-stats')">📈 Estadísticas de cocina</button>
     <button class="tab-btn" onclick="switchTab('tab-recipes')">🍲 Análisis de Ramen & Dificultad</button>
     <button class="tab-btn" onclick="switchTab('tab-settings')">⚙️ Base de Datos & SQL</button>
   </div>
@@ -753,6 +754,19 @@
   </div>
 
   <!-- PESTAÑA 5: ANÁLISIS DE DIFICULTAD -->
+  <div class="tab-pane" id="tab-stats">
+    <div class="table-card">
+      <div class="table-title" style="margin-bottom:10px;">
+        <span>📈 Estadísticas de cocina: platos servidos, calidad por plato y tiempo de juego</span>
+      </div>
+      <p style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">
+        Datos acumulados por cuenta desde el juego (todos los modos). Muestran qué platos se cocinan más, con qué calidad
+        (puntaje 0-100: cocción, proceso y frescura) y cuánto tiempo se juega en cada modo. No incluyen contactos.
+      </p>
+      <div id="stats-content"><div style="color:var(--text-muted); font-size:13px;">Cargando…</div></div>
+    </div>
+  </div>
+
   <div class="tab-pane" id="tab-recipes">
     <div class="table-card">
       <div class="table-title" style="margin-bottom:14px;">
@@ -931,6 +945,125 @@ function initSupabase() {
 }
 
 // CAMBIO DE PESTAÑAS
+// ===== Estadísticas de cocina (requieren el secreto de administrador) =====
+const STATS_DISHES = [
+  ['ramen', 'Shio'], ['ramen', 'Shoyu'], ['ramen', 'Miso'], ['ramen', 'Chashu'], ['ramen', 'Tonkotsu'], ['ramen', 'Tan tan'], ['ramen', 'Ebi'], ['ramen', 'Bajiru'], ['ramen', 'Vegetariano'],
+  ['salteados', 'Yakimeshi'], ['salteados', 'Chicken Teriyaki'], ['salteados', 'Chaufa Shimaya'], ['salteados', 'Yakitori'], ['salteados', 'Yakiramen'], ['salteados', 'Yasaitame'], ['salteados', 'Batayaki Ramen'], ['salteados', 'Karameshi'], ['salteados', 'Omuraisu'],
+  ['makis', 'Maki California'], ['makis', 'Maki Guacamole'], ['makis', 'Maki Acevichado'], ['makis', 'Maki Hotate'], ['makis', 'Maki Amazon'], ['makis', 'Maki Yama'], ['makis', 'Maki Nin Niku'], ['makis', 'Maki Digion'],
+  ['frituras', 'Alitas'], ['frituras', 'Kaarage'], ['frituras', 'Tonkatsu'], ['frituras', 'Chicken Katsu'], ['frituras', 'Katsu Kare'], ['frituras', 'Ebi Furai'], ['frituras', 'Age Gyozas']
+];
+const STATS_AREA_ICON = { ramen: '🍜', salteados: '🍳', makis: '🍣', frituras: '🍤' };
+const STATS_MODE_LABEL = { free: '🌿 Cocina libre', training: '🏋️ Entrenamiento', normal: '🏮 Campaña', rash: '⚡ Rash', multi: '⚔️ Multijugador' };
+let statsCharts = { time: null, dishes: null };
+
+function statsSlug(area, name) {
+  return area + ':' + name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+}
+function statsStars(avg) { return avg >= 85 ? '⭐⭐⭐' : (avg >= 60 ? '⭐⭐' : '⭐'); }
+function statsDur(sec) {
+  sec = Math.max(0, Math.round(sec));
+  const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60);
+  return h > 0 ? h + ' h ' + m + ' min' : (m > 0 ? m + ' min' : sec + ' s');
+}
+
+function statsNotice(html) {
+  document.getElementById('stats-content').innerHTML = '<div style="padding:18px; text-align:center; color:var(--text-muted); font-size:13px;">' + html + '</div>';
+}
+
+async function loadKitchenStats() {
+  let secret = null;
+  try { secret = sessionStorage.getItem('ramen_admin_secret'); } catch (e) {}
+  if (!secret) {
+    statsNotice('🔒 Las estadísticas son privadas.<br><br><button class="btn-action btn-primary" onclick="adminUnlockPrivateData()">🔑 Ingresar secreto de administrador</button>');
+    return;
+  }
+  if (!supabaseClient) initSupabase();
+  statsNotice('Cargando estadísticas…');
+  try {
+    const { data, error } = await supabaseClient.rpc('admin_stats', { p_secret: secret });
+    if (error || !data || !data.ok) {
+      try { sessionStorage.removeItem('ramen_admin_secret'); } catch (e) {}
+      statsNotice('❌ Secreto incorrecto o sin conexión.<br><br><button class="btn-action btn-primary" onclick="adminUnlockPrivateData()">🔑 Volver a intentar</button>');
+      return;
+    }
+    renderKitchenStats(data.rows || []);
+  } catch (e) {
+    statsNotice('❌ No se pudieron cargar las estadísticas.');
+  }
+}
+
+function renderKitchenStats(rows) {
+  const dishes = {};
+  STATS_DISHES.forEach(([area, name]) => { dishes[statsSlug(area, name)] = { area, name, n: 0, s: 0, s1: 0, s2: 0, s3: 0, f: 0, b: 0, players: 0 }; });
+  const timeByMode = {};
+  const players = [];
+  rows.forEach(r => {
+    const st = r.stats || {};
+    let served = 0, score = 0;
+    Object.entries(st.d || {}).forEach(([k, v]) => {
+      const dd = dishes[k]; if (!dd || !v.n) return;
+      dd.n += v.n; dd.s += v.s; dd.s1 += v.s1 || 0; dd.s2 += v.s2 || 0; dd.s3 += v.s3 || 0; dd.f += v.f || 0; dd.b = Math.max(dd.b, v.b || 0); dd.players++;
+      served += v.n; score += v.s;
+    });
+    const t = st.t || {};
+    let total = 0;
+    Object.entries(t).forEach(([m, sec]) => { timeByMode[m] = (timeByMode[m] || 0) + sec; total += sec; });
+    if (served || total) players.push({ alias: r.alias, avatar: r.avatar, last: r.last_login, t, total, served, avg: served ? score / served : 0, trn: r.training_done, tips: r.tips_earned });
+  });
+  const list = Object.values(dishes);
+  const totalServed = list.reduce((a, x) => a + x.n, 0);
+  const totalScore = list.reduce((a, x) => a + x.s, 0);
+  const totalTime = Object.values(timeByMode).reduce((a, v) => a + v, 0);
+  const avgAll = totalServed ? totalScore / totalServed : 0;
+
+  const kpi = (icon, label, value, sub) => '<div class="kpi-card"><div class="kpi-icon">' + icon + '</div><div class="kpi-content"><span class="kpi-label">' + label + '</span><span class="kpi-value">' + value + '</span><span class="kpi-sub">' + sub + '</span></div></div>';
+  const top = list.filter(x => x.n > 0).sort((a, b) => b.n - a.n);
+  const unused = list.filter(x => !x.n).map(x => x.name);
+  const dishRows = top.map(x => {
+    const avg = x.s / x.n;
+    return '<tr><td>' + STATS_AREA_ICON[x.area] + ' <strong style="color:#ffb300;">' + escapeHtml(x.name) + '</strong></td><td>' + x.n + (x.f ? ' <small style="color:var(--text-muted);">(' + x.f + ' en libre)</small>' : '') + '</td><td>' + x.players + '</td><td><div style="display:inline-block;width:80px;height:7px;background:#3e2723;border-radius:4px;overflow:hidden;vertical-align:middle;margin-right:6px;"><i style="display:block;height:100%;width:' + Math.round(avg) + '%;background:linear-gradient(90deg,#ef6c00,#66bb6a);"></i></div>' + Math.round(avg) + ' ' + statsStars(avg) + '</td><td>' + Math.round(100 * x.s1 / x.n) + '% / ' + Math.round(100 * x.s2 / x.n) + '% / ' + Math.round(100 * x.s3 / x.n) + '%</td><td>' + Math.round(x.b) + '</td></tr>';
+  }).join('') || '<tr><td colspan="6" style="color:var(--text-muted);">Aún no hay platos servidos.</td></tr>';
+  const playerRows = players.sort((a, b) => b.total - a.total).map(p =>
+    '<tr><td>' + escapeHtml(p.avatar || '') + ' <strong>' + escapeHtml(p.alias || '') + '</strong></td><td>' + formatRelativeTime(p.last) + '</td><td>' + statsDur(p.total) + '</td><td>' +
+    Object.entries(STATS_MODE_LABEL).filter(([m]) => p.t[m]).map(([m, l]) => '<span class="badge-tag badge-normal" style="margin-right:3px;">' + l + ' ' + statsDur(p.t[m]) + '</span>').join('') +
+    '</td><td>' + p.served + '</td><td>' + (p.served ? Math.round(p.avg) + ' ' + statsStars(p.avg) : '—') + '</td><td>' + (p.trn || 0) + '/27</td><td>' + (p.tips || 0) + '</td></tr>').join('') ||
+    '<tr><td colspan="8" style="color:var(--text-muted);">Aún no hay jugadores con estadísticas.</td></tr>';
+
+  document.getElementById('stats-content').innerHTML =
+    '<div class="kpi-grid" style="margin-bottom:14px;">' +
+      kpi('👥', 'Cuentas con datos', players.length, 'de ' + rows.length + ' cuentas') +
+      kpi('⏱️', 'Tiempo jugado', statsDur(totalTime), 'todos los modos') +
+      kpi('🍽️', 'Platos servidos', totalServed, 'catálogo de ' + STATS_DISHES.length + ' platos') +
+      kpi('⭐', 'Calidad media', totalServed ? Math.round(avgAll) : '—', totalServed ? statsStars(avgAll) : 'sin datos') +
+    '</div>' +
+    '<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:14px; margin-bottom:14px;">' +
+      '<div style="background:rgba(0,0,0,0.25); border-radius:10px; padding:10px;"><div style="font-size:12px; font-weight:800; margin-bottom:6px;">Tiempo por modo</div><div style="height:210px;"><canvas id="chart-stats-time"></canvas></div></div>' +
+      '<div style="background:rgba(0,0,0,0.25); border-radius:10px; padding:10px;"><div style="font-size:12px; font-weight:800; margin-bottom:6px;">Platos más servidos</div><div style="height:210px;"><canvas id="chart-stats-dishes"></canvas></div></div>' +
+    '</div>' +
+    '<div class="table-title" style="margin:6px 0;"><span>🍽️ Calidad individual por plato</span></div>' +
+    '<div class="table-wrap"><table class="data-table"><thead><tr><th>Plato</th><th>Servidos</th><th>Cuentas</th><th>Calidad media</th><th>⭐1 / ⭐2 / ⭐3</th><th>Mejor</th></tr></thead><tbody>' + dishRows + '</tbody></table></div>' +
+    (unused.length ? '<p style="font-size:12px; color:var(--text-muted); margin-top:8px;">Sin servir aún: ' + unused.map(escapeHtml).join(', ') + '.</p>' : '') +
+    '<div class="table-title" style="margin:14px 0 6px;"><span>👥 Tiempo de juego y avance por jugador</span></div>' +
+    '<div class="table-wrap"><table class="data-table"><thead><tr><th>Jugador</th><th>Último acceso</th><th>Tiempo total</th><th>Por modo</th><th>Platos</th><th>Calidad</th><th>Retos</th><th>Propinas</th></tr></thead><tbody>' + playerRows + '</tbody></table></div>';
+
+  if (typeof Chart !== 'undefined') {
+    if (statsCharts.time) statsCharts.time.destroy();
+    if (statsCharts.dishes) statsCharts.dishes.destroy();
+    const modes = Object.keys(timeByMode).filter(m => timeByMode[m] > 0);
+    statsCharts.time = new Chart(document.getElementById('chart-stats-time'), {
+      type: 'doughnut',
+      data: { labels: modes.map(m => STATS_MODE_LABEL[m] || m), datasets: [{ data: modes.map(m => Math.round(timeByMode[m] / 60)), backgroundColor: ['#66bb6a', '#26a69a', '#ff9800', '#ef5350', '#ab47bc'] }] },
+      options: { maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: '#d7ccc8' } }, tooltip: { callbacks: { label: c => ' ' + c.raw + ' min' } } } }
+    });
+    const t10 = top.slice(0, 10);
+    statsCharts.dishes = new Chart(document.getElementById('chart-stats-dishes'), {
+      type: 'bar',
+      data: { labels: t10.map(x => x.name), datasets: [{ label: 'Servidos', data: t10.map(x => x.n), backgroundColor: '#ffb300' }] },
+      options: { indexAxis: 'y', maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: '#bcaaa4' } }, y: { ticks: { color: '#d7ccc8' } } } }
+    });
+  }
+}
+
 function switchTab(tabId) {
   document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -944,6 +1077,7 @@ function switchTab(tabId) {
   });
   if (activeBtn) activeBtn.classList.add('active');
 
+  if (tabId === 'tab-stats') loadKitchenStats();
   if (tabId === 'tab-overview') {
     renderCharts();
   }
@@ -1017,6 +1151,8 @@ function adminUnlockPrivateData() {
   if (!secret) return;
   try { sessionStorage.setItem('ramen_admin_secret', secret.trim()); } catch (e) {}
   fetchLiveMetrics(true);
+  const sp = document.getElementById('tab-stats');
+  if (sp && sp.classList.contains('active')) loadKitchenStats();
 }
 
 async function fetchLiveMetrics(showLoader = false) {

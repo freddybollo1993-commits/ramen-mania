@@ -2817,6 +2817,22 @@
     padding: 18px;
   }
   .level-end-modal h2 { font-family: 'Fredoka One', cursive; font-size: 26px; margin-bottom: 6px; }
+  /* Estadísticas */
+  .stt-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 6px; margin-bottom: 6px; }
+  .stt-kpi { background: #fff3e0; border: 1.5px solid #e0b98a; border-radius: 10px; padding: 6px 8px; display: flex; flex-direction: column; gap: 1px; }
+  .stt-kpi span { font-size: 10px; color: #6d4c41; font-weight: 700; }
+  .stt-kpi b { font-size: 15px; color: #3e2723; }
+  .stt-times { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
+  .stt-chip { font-size: 10px; background: #e8f5e9; color: #1b5e20; border-radius: 10px; padding: 2px 8px; font-weight: 700; }
+  .stt-filters { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
+  .stt-filter { border: 1.5px solid #e0b98a; background: #fff8e1; border-radius: 12px; font-size: 10.5px; font-weight: 800; padding: 3px 9px; cursor: pointer; color: #3e2723; }
+  .stt-filter.on { background: #ff9800; color: #fff; border-color: #e65100; }
+  .stt-table { width: 100%; border-collapse: collapse; font-size: 11px; color: #3e2723; }
+  .stt-table th { text-align: left; font-size: 9.5px; color: #6d4c41; padding: 3px 4px; border-bottom: 1.5px solid #e0b98a; }
+  .stt-table td { padding: 4px; border-bottom: 1px solid #f0e2cc; vertical-align: middle; }
+  .stt-table small { color: #8d6e63; font-size: 9px; }
+  .stt-bar { height: 6px; width: 70px; background: #e0d4c4; border-radius: 3px; overflow: hidden; display: inline-block; margin-right: 5px; vertical-align: middle; }
+  .stt-bar i { display: block; height: 100%; background: linear-gradient(90deg, #ef6c00, #43a047); }
   /* Cocina libre */
   .free-opts { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 6px; }
   .free-chip { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 800; color: #3e2723; background: #fff3e0; border: 1.5px solid #e0b98a; border-radius: 14px; padding: 3px 9px; cursor: pointer; }
@@ -5725,6 +5741,7 @@
             <span class="btn-ico">⋯</span><span>Más</span>
           </button>
           <div class="start-more-menu" id="start-more-menu">
+            <button onclick="openStatsModal(); toggleStartMoreMenu()">📊 Mis estadísticas</button>
             <button onclick="openSecretosModal(); toggleStartMoreMenu()">✨ Secretos del Chef</button>
             <button onclick="openIngredientOrderModal(); toggleStartMoreMenu()">🍱 Ordenar ingredientes</button>
             <button onclick="openShortcutsModal(); toggleStartMoreMenu()">⌨️ Atajos de teclado</button>
@@ -6483,6 +6500,17 @@
   </div>
 
   <!-- MODAL DE RECETAS -->
+  <!-- ESTADÍSTICAS DE COCINA -->
+  <div class="modal-overlay" id="stats-modal" onclick="closeStatsModal()">
+    <div class="modal-card upgrades-card training-card" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h2>📊 Mis estadísticas</h2>
+        <button class="btn btn-danger" style="padding: 3px 8px;" onclick="closeStatsModal()">✕</button>
+      </div>
+      <div class="modal-body" id="stats-body"></div>
+    </div>
+  </div>
+
   <!-- COCINA LIBRE: pedir platos y ajustes -->
   <div class="modal-overlay" id="free-modal" onclick="closeFreePracticeModal()">
     <div class="modal-card upgrades-card training-card" onclick="event.stopPropagation()">
@@ -12303,7 +12331,8 @@ const UPGRADES = [
 const UPGRADE_BY_ID = Object.fromEntries(UPGRADES.map(u => [u.id, u]));
 
 const TRAINING_KEY = 'ramen_training';
-const accountProgress = { earned: 0, levels: {}, training: {}, loaded: false, sync: 'local', pushTimer: null };
+const STATS_KEY = 'ramen_stats';
+const accountProgress = { earned: 0, levels: {}, training: {}, stats: { d: {}, t: {} }, statsDirty: false, loaded: false, sync: 'local', pushTimer: null };
 
 function loadAccountProgressLocal() {
   if (accountProgress.loaded) return;
@@ -12316,13 +12345,16 @@ function loadAccountProgressLocal() {
     accountProgress.levels = (lv && typeof lv === 'object') ? lv : {};
     const tr = JSON.parse(safeStorage.getItem(TRAINING_KEY) || '{}');
     accountProgress.training = (tr && typeof tr === 'object') ? tr : {};
-  } catch (e) { accountProgress.levels = {}; accountProgress.training = {}; }
+    const st = JSON.parse(safeStorage.getItem(STATS_KEY) || '{}');
+    accountProgress.stats = mergeStats({}, st);
+  } catch (e) { accountProgress.levels = {}; accountProgress.training = {}; accountProgress.stats = { d: {}, t: {} }; }
 }
 
 function saveAccountProgressLocal() {
   safeStorage.setItem(TIPS_EARNED_KEY, String(accountProgress.earned));
   safeStorage.setItem(UPGRADES_KEY, JSON.stringify(accountProgress.levels));
   safeStorage.setItem(TRAINING_KEY, JSON.stringify(accountProgress.training || {}));
+  safeStorage.setItem(STATS_KEY, JSON.stringify(accountProgress.stats || { d: {}, t: {} }));
 }
 
 function upgradesSpent() {
@@ -12377,6 +12409,19 @@ function mergeTraining(a, b) {
     out[k] = { t, l: (y.n || 0) > (x.n || 0) ? (y.l || 0) : (x.l || 0), m: Math.max(x.m || 0, y.m || 0),
       n: Math.max(x.n || 0, y.n || 0), paid: Math.max(x.paid || 0, y.paid || 0) };
   });
+  return out;
+}
+
+// Estadísticas: contadores acumulados; al combinar se queda el mayor de cada campo (igual que en el servidor).
+const STATS_DISH_FIELDS = ['n', 's', 's1', 's2', 's3', 'b', 'f'];
+function mergeStats(a, b) {
+  const out = { d: {}, t: {} };
+  const da = (a && a.d) || {}, db = (b && b.d) || {}, ta = (a && a.t) || {}, tb = (b && b.t) || {};
+  new Set([...Object.keys(da), ...Object.keys(db)]).forEach(k => {
+    out.d[k] = {};
+    STATS_DISH_FIELDS.forEach(f => { out.d[k][f] = Math.max(Number((da[k] || {})[f]) || 0, Number((db[k] || {})[f]) || 0); });
+  });
+  new Set([...Object.keys(ta), ...Object.keys(tb)]).forEach(k => { out.t[k] = Math.max(Number(ta[k]) || 0, Number(tb[k]) || 0); });
   return out;
 }
 
@@ -12466,16 +12511,19 @@ function applyCloudAccount(acc) {
   loadAccountProgressLocal();
   const owner = safeStorage.getItem(ACCOUNT_OWNER_KEY);
   const mergeLocal = !owner || owner === acc.id; // sin dueño = datos de antes de la nube: se adoptan
-  let trainingAhead = false;
+  let trainingAhead = false, statsAhead = false;
   if (mergeLocal) {
     accountProgress.earned = Math.max(accountProgress.earned, acc.tips_earned || 0);
     accountProgress.levels = mergeLevels(accountProgress.levels, acc.upgrades || {});
     accountProgress.training = mergeTraining(accountProgress.training || {}, acc.training || {});
     trainingAhead = JSON.stringify(accountProgress.training) !== JSON.stringify(mergeTraining({}, acc.training || {}));
+    accountProgress.stats = mergeStats(accountProgress.stats, acc.stats || {});
+    statsAhead = JSON.stringify(accountProgress.stats) !== JSON.stringify(mergeStats({}, acc.stats || {}));
   } else {
     accountProgress.earned = acc.tips_earned || 0;
     accountProgress.levels = mergeLevels({}, acc.upgrades || {});
     accountProgress.training = mergeTraining({}, acc.training || {});
+    accountProgress.stats = mergeStats({}, acc.stats || {});
   }
   saveAccountProgressLocal();
   safeStorage.setItem(ACCOUNT_OWNER_KEY, acc.id);
@@ -12484,7 +12532,7 @@ function applyCloudAccount(acc) {
   if (hasCloudProfile) setLocalProfileFromAccount(acc);
   updatePropinasHUD();
   return { mergeLocal, needsProfileUpload: mergeLocal && !hasCloudProfile && !!readLocalProfile().alias,
-    localAhead: mergeLocal && (trainingAhead || accountProgress.earned > (acc.tips_earned || 0)) };
+    localAhead: mergeLocal && (trainingAhead || statsAhead || accountProgress.earned > (acc.tips_earned || 0)) };
 }
 
 async function cloudLogin() {
@@ -12600,11 +12648,13 @@ async function accountPull() {
 async function accountPush() {
   try {
     loadAccountProgressLocal();
-    const d = await cloudCall('save_account', { p_tips: accountProgress.earned, p_upgrades: accountProgress.levels, p_training: accountProgress.training || {} });
+    const d = await cloudCall('save_account', { p_tips: accountProgress.earned, p_upgrades: accountProgress.levels, p_training: accountProgress.training || {}, p_stats: accountProgress.stats });
     if (d && d.ok) {
       accountProgress.earned = Math.max(accountProgress.earned, d.account.tips_earned || 0);
       accountProgress.levels = mergeLevels(accountProgress.levels, d.account.upgrades || {});
       accountProgress.training = mergeTraining(accountProgress.training || {}, d.account.training || {});
+      accountProgress.stats = mergeStats(accountProgress.stats, d.account.stats || {});
+      accountProgress.statsDirty = false;
       saveAccountProgressLocal();
       updatePropinasHUD();
       accountProgress.sync = 'ok';
@@ -12643,7 +12693,7 @@ async function cloudSwitchWithKey(rawKey) {
   if (CloudAuth.kind === 'device') {
     loadAccountProgressLocal();
     safeStorage.setItem(DEVICE_STASH_KEY, JSON.stringify({ id: CloudAuth.deviceAccountId, profile: readLocalProfile(),
-      earned: accountProgress.earned, levels: accountProgress.levels, training: accountProgress.training || {} }));
+      earned: accountProgress.earned, levels: accountProgress.levels, training: accountProgress.training || {}, stats: accountProgress.stats }));
   }
   const oldToken = CloudAuth.token;
   CloudAuth.token = data.token; CloudAuth.kind = 'key'; CloudAuth.status = 'key'; CloudAuth.lastActivity = Date.now();
@@ -12669,7 +12719,7 @@ async function cloudReturnToDevice(reason) {
     try { // sin conexión: se restaura la copia de la cuenta del dispositivo
       const st = JSON.parse(safeStorage.getItem(DEVICE_STASH_KEY) || 'null');
       if (st) {
-        accountProgress.earned = st.earned || 0; accountProgress.levels = st.levels || {}; accountProgress.training = st.training || {};
+        accountProgress.earned = st.earned || 0; accountProgress.levels = st.levels || {}; accountProgress.training = st.training || {}; accountProgress.stats = mergeStats({}, st.stats || {});
         saveAccountProgressLocal();
         safeStorage.setItem(ACCOUNT_OWNER_KEY, st.id);
         if (st.profile && st.profile.alias) setLocalProfileFromAccount({ alias: st.profile.alias, avatar: st.profile.avatar, contact: st.profile.contact });
@@ -13149,6 +13199,115 @@ function trainingResultToList() {
   openTrainingModal();
 }
 
+// ================= ESTADÍSTICAS DE COCINA =================
+// Por cuenta: cuántas veces sirves cada plato, su calidad (puntaje 0-100 y estrellas) y el tiempo jugado por modo.
+const STATS_MODES = { free: '🌿 Cocina libre', training: '🏋️ Entrenamiento', normal: '🏮 Campaña', rash: '⚡ Rash', multi: '⚔️ Multijugador' };
+let statsTickCount = 0;
+
+function statsDishKey(area, name) {
+  return area + ':' + name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+}
+function statsModeKey() {
+  if (isMultiplayerSession()) return 'multi';
+  return { NORMAL: 'normal', RASH: 'rash', TRAINING: 'training', FREE: 'free' }[gameState.gameMode] || 'normal';
+}
+
+function statsRecordDish(recipe, ev) {
+  loadAccountProgressLocal();
+  let tier = ev.score >= 85 ? 3 : (ev.score >= 60 ? 2 : 1);
+  if (ev.capped) tier = Math.min(tier, 1);
+  const k = statsDishKey(getRecipeArea(recipe), recipe.name);
+  const d = accountProgress.stats.d[k] || (accountProgress.stats.d[k] = { n: 0, s: 0, s1: 0, s2: 0, s3: 0, b: 0, f: 0 });
+  d.n++; d.s += ev.score; d['s' + tier]++;
+  d.b = Math.max(d.b, ev.score);
+  if (isFree()) d.f++;
+  accountProgress.statsDirty = true;
+  saveAccountProgressLocal();
+  accountPushSoon(false);
+}
+
+// Cada segundo de juego activo (no cuenta pausa ni pantallas de resultado).
+function statsAddTime() {
+  loadAccountProgressLocal();
+  const m = statsModeKey();
+  accountProgress.stats.t[m] = (accountProgress.stats.t[m] || 0) + 1;
+  accountProgress.statsDirty = true;
+  if (++statsTickCount % 10 === 0) saveAccountProgressLocal();
+}
+
+// Guarda en la nube lo pendiente (al salir al menú, al ocultar la pestaña y cada minuto).
+function statsFlush() {
+  if (!accountProgress.statsDirty) return;
+  saveAccountProgressLocal();
+  accountPush();
+}
+document.addEventListener('visibilitychange', () => { if (document.hidden) statsFlush(); });
+window.addEventListener('pagehide', () => {
+  if (!accountProgress.statsDirty) return;
+  saveAccountProgressLocal();
+  // al cerrar la pestaña el navegador cancela las llamadas normales: se usa keepalive
+  try {
+    if (CloudAuth.token) {
+      fetch(`${SUPABASE_CONFIG.url}/rest/v1/rpc/save_account`, { method: 'POST', keepalive: true,
+        headers: { apikey: SUPABASE_CONFIG.anonKey, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ p_token: CloudAuth.token, p_stats: accountProgress.stats }) });
+    }
+  } catch (e) {}
+});
+setInterval(statsFlush, 60000);
+
+// --- Pantalla "Mis estadísticas" ---
+let statsView = { area: 'all' };
+function formatPlayTime(sec) {
+  sec = Math.max(0, Math.round(sec));
+  const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60);
+  return h > 0 ? `${h} h ${m} min` : (m > 0 ? `${m} min` : `${sec} s`);
+}
+function statsStarsFor(avg) { return avg >= 85 ? '⭐⭐⭐' : (avg >= 60 ? '⭐⭐' : '⭐'); }
+
+function openStatsModal() {
+  statsView = { area: 'all' };
+  renderStatsModal();
+  const m = document.getElementById('stats-modal');
+  m.style.display = '';
+  m.classList.add('active');
+}
+function closeStatsModal() { const m = document.getElementById('stats-modal'); if (m) m.classList.remove('active'); }
+function setStatsArea(a) { statsView.area = a; renderStatsModal(); }
+
+function renderStatsModal() {
+  loadAccountProgressLocal();
+  const body = document.getElementById('stats-body');
+  if (!body) return;
+  const st = accountProgress.stats;
+  const index = {};
+  freeAllRecipes().forEach(r => { index[statsDishKey(getRecipeArea(r), r.name)] = r; });
+  const rows = Object.entries(st.d).filter(([k, d]) => d.n > 0 && index[k]).map(([k, d]) => ({ r: index[k], d }))
+    .filter(x => statsView.area === 'all' || getRecipeArea(x.r) === statsView.area)
+    .sort((a, b) => b.d.n - a.d.n);
+  const totalTime = Object.values(st.t).reduce((t, v) => t + v, 0);
+  const served = Object.values(st.d).reduce((t, d) => t + d.n, 0);
+  const score = Object.values(st.d).reduce((t, d) => t + d.s, 0);
+  const avgAll = served ? score / served : 0;
+  const times = Object.entries(STATS_MODES).filter(([m]) => st.t[m]).map(([m, label]) => `<span class="stt-chip">${label} <b>${formatPlayTime(st.t[m])}</b></span>`).join('');
+  const chips = [['all', 'Todos'], ['ramen', '🍜 Ramen'], ['salteados', '🍳 Salteado'], ['makis', '🍣 Makis'], ['frituras', '🍤 Frituras']]
+    .map(([a, l]) => `<button class="stt-filter ${statsView.area === a ? 'on' : ''}" onclick="setStatsArea('${a}')">${l}</button>`).join('');
+  const table = rows.length ? `<table class="stt-table"><thead><tr><th>Plato</th><th>Servidos</th><th>Calidad media</th><th>⭐⭐⭐</th><th>Mejor</th></tr></thead><tbody>` + rows.map(({ r, d }) => {
+    const avg = d.s / d.n;
+    return `<tr><td>${AREA_ICONS[getRecipeArea(r)]} ${r.name}</td><td>${d.n}${d.f ? ` <small>(${d.f} en libre)</small>` : ''}</td>
+      <td><div class="stt-bar"><i style="width:${Math.round(avg)}%"></i></div>${Math.round(avg)} ${statsStarsFor(avg)}</td><td>${Math.round(100 * d.s3 / d.n)}%</td><td>${Math.round(d.b)}</td></tr>`;
+  }).join('') + '</tbody></table>' : '<div class="free-note">Aún no hay platos servidos en este filtro. ¡Sirve algunos y vuelve!</div>';
+  body.innerHTML = `
+    <div class="stt-kpis">
+      <div class="stt-kpi"><span>⏱ Tiempo jugado</span><b>${formatPlayTime(totalTime)}</b></div>
+      <div class="stt-kpi"><span>🍽️ Platos servidos</span><b>${served}</b></div>
+      <div class="stt-kpi"><span>⭐ Calidad media</span><b>${served ? Math.round(avgAll) + ' ' + statsStarsFor(avgAll) : '—'}</b></div>
+    </div>
+    <div class="stt-times">${times || '<span class="free-note">Aún no hay tiempo registrado.</span>'}</div>
+    <div class="stt-filters">${chips}</div>
+    ${table}`;
+}
+
 // ================= COCINA LIBRE =================
 // Todo el catálogo desbloqueado, sin tiempo, sin perder clientes y sin final: para cocinar con calma
 // cualquier plato y aprender a tu ritmo. Los clientes esperan siempre; no hay rechazos, ni frescura,
@@ -13205,6 +13364,7 @@ function renderFreeModal() {
     <div class="free-opts">
       <label class="free-chip"><input type="checkbox" ${f.auto ? 'checked' : ''} onchange="freeSetAuto(this.checked)"> 👥 Clientes automáticos</label>
       <button class="acc-btn alt" onclick="freeClearCustomers()">🧹 Despejar clientes</button>
+      <button class="acc-btn" onclick="closeFreePracticeModal(); openStatsModal()">📊 Mis estadísticas</button>
     </div>
     <div class="free-note">Los pedidos al azar vienen de: <span class="free-chips">${chips}</span></div>
     <div class="free-note"><b>Toca un plato para que un cliente lo pida ahora.</b> Nadie se va ni hay tiempo: cocina con calma.</div>
@@ -13719,6 +13879,7 @@ function serveOrder(customerIndex, itemIndex, dish) {
   orderItem.stars = tier;
   orderItem.score = ev.score;
   trainingOnServe(orderItem.recipe.area || 'ramen', tier);
+  statsRecordDish(orderItem.recipe, ev);
   c.worstTier = Math.min(c.worstTier == null ? 3 : c.worstTier, tier);
   consumeReadyDish(dish);
   gameState.money += pay;
@@ -14045,6 +14206,7 @@ function spawnCustomer(forced) {
 function gameTick() {
   if (gameState.isPaused || gameState.isGameOver || (typeof TutorialManager !== 'undefined' && TutorialManager.isActive)) return;
   gameState.gameClock++;
+  statsAddTime();
 
   if (gameState.gameMode === 'NORMAL') {
     gameState.timeLeft--;
@@ -15379,6 +15541,7 @@ function executeStartGame() {
 
 function returnToStartMenu() {
   updatePropinasHUD();
+  statsFlush();
   if (gameState.gameMode === 'TRAINING') gameState.training = null;
   if (gameState.gameMode === 'FREE') gameState.free = null;
   const freeBtnMenu = document.getElementById('btn-free-menu');
