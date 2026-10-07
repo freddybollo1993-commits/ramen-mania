@@ -16,3 +16,9 @@
 - Un jugador sin clave ni dispositivo no puede recuperar su cuenta. Desde el panel de Supabase (service role) se puede generar una clave de recuperación:
   `update public.accounts set key_hash = encode(sha256(convert_to('CLAVENUEVA','utf8')),'hex'), key_hint = right('CLAVENUEVA',4) where alias = 'ALIAS';`
   (la clave se escribe sin el prefijo `RAMEN-` ni guiones, en mayúsculas).
+
+## Validación en el servidor (migración 20261012000000)
+- **Récords:** el ranking ya no admite inserciones directas. Se envían con `submit_record` (sesión de la cuenta): el nombre y el contacto salen de la cuenta, y se rechazan valores imposibles (dinero/clientes/nivel/duración), duplicados en 10 min y más de 30 envíos por hora. Un tramposo con una sesión válida aún puede enviar cifras *plausibles*; para evitarlo haría falta simular la partida en el servidor.
+- **Alias único** (sin distinguir mayúsculas) con índice en `accounts`; `alias_available` lo consulta y `save_account` devuelve `alias_ocupado`. Una cuenta nueva con un alias repetido recibe un sufijo numérico.
+- **PvP (MMR)** vive en la cuenta: `pvp_sync` acota el cambio por llamada (±60, +1 victoria/derrota, mínimo 15 s entre llamadas; la primera sincronización adopta lo que ya tenía el dispositivo) y `pvp_ranking` es público sin datos privados. Sigue siendo un MMR informado por el cliente: no hay árbitro del servidor.
+- **Analíticas:** `game_sessions` se escribe con `log_session` (≤120/h por cuenta); el panel lee `admin_players` y `admin_sessions`, igual que el dashboard, solo con el secreto de administrador. El panel dentro del juego valida con `admin_check` (ya no hay usuario/clave en el código).
