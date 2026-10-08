@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ramen-mania-v36';
+const CACHE_NAME = 'ramen-mania-v37';
 
 // Solo el shell esencial para instalación instantánea (< 50ms)
 const CORE_SHELL = [
@@ -78,7 +78,7 @@ self.addEventListener('fetch', event => {
       (async () => {
         try {
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 1200);
+          const timeoutId = setTimeout(() => controller.abort(), 4000);
           const networkRes = await fetch(req, { signal: controller.signal });
           clearTimeout(timeoutId);
           if (networkRes && networkRes.ok) {
@@ -94,6 +94,8 @@ self.addEventListener('fetch', event => {
         }
 
         const cache = await caches.open(CACHE_NAME);
+        // red lenta: se abre la copia guardada, pero se sigue bajando la versión nueva para la próxima vez
+        fetch(req).then(r => { if (r && r.ok) { cache.put('/', r.clone()); cache.put('./', r.clone()); cache.put('/index.html', r.clone()); cache.put('./index.html', r.clone()); } }).catch(() => {});
         const cached = (await cache.match(req, { ignoreSearch: true }))
           || (await cache.match('/', { ignoreSearch: true }))
           || (await cache.match('./', { ignoreSearch: true }))
