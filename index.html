@@ -716,6 +716,66 @@
   .kitchen-stage-btn:not(.active)[data-alert="ready"] .area-dot { display: block; background: #4caf50; }
   .kitchen-stage-btn:not(.active)[data-alert="warn"] .area-dot { display: block; background: #e53935; animation: areaDotPulse 0.5s ease-in-out infinite alternate; }
   .stage-panel { flex: 1; width: 100%; display: none; justify-content: center; align-items: center; box-sizing: border-box; padding: 4px 8px 8px; }
+  .stage-panel.fp-active { align-items: flex-start; padding: 2px 6px 6px; max-width: calc(100% - 50px); margin-right: auto; }
+  .fp-wrap { width: 100%; background: rgba(28, 14, 10, 0.93); border: 1.5px solid #4a241a; border-radius: 12px; padding: 5px 8px 7px; box-sizing: border-box; color: #ffe0b2; }
+  .fp-head { display: flex; align-items: center; gap: 8px; font-family: 'Fredoka One', cursive, sans-serif; font-size: 13px; color: #ffcc80; margin-bottom: 5px; }
+  .fp-head small { font-family: 'Nunito', sans-serif; font-size: 10.5px; color: #bcaaa4; font-weight: 700; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .fp-back { margin-left: auto; padding: 3px 9px; font-size: 11px; }
+  .fp-cards { display: flex; gap: 6px; justify-content: space-between; }
+  .fp-card { flex: 1; min-width: 0; background: rgba(60, 30, 22, 0.8); border: 1.5px solid #5a2e22; border-radius: 10px; padding: 5px 4px 6px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .fp-card.is-low { border-color: #e53935; }
+  .fp-card.is-busy { border-color: #26a69a; box-shadow: 0 0 8px rgba(38, 166, 154, 0.5); }
+  .fp-card-ico { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; font-size: 26px; }
+  .fp-card-ico img, .fp-comp img, .fp-pass-ico img, .fp-chip img, .fp-disc-main img { width: 100%; height: 100%; object-fit: contain; }
+  .fp-card-name { font-size: 10.5px; font-weight: 800; color: #ffe0b2; }
+  .fp-card-n { font-size: 10px; font-weight: 800; color: #efebe9; }
+  .fp-card-n small { display: block; font-size: 8.5px; color: #a1887f; font-weight: 700; }
+  .fp-bar { width: 88%; height: 5px; background: #2b1710; border-radius: 3px; overflow: hidden; }
+  .fp-bar i { display: block; height: 100%; background: linear-gradient(90deg, #ef6c00, #66bb6a); transition: width 0.4s linear; }
+  .fp-prep i { background: #26a69a; }
+  .fp-btn { cursor: pointer; background: linear-gradient(180deg, #4e261c 0%, #2f1712 100%); border: 1.5px solid #8d4a37; color: #ffd699; border-radius: 8px; font-family: 'Fredoka One', cursive, sans-serif; font-size: 10.5px; padding: 4px 6px; margin-top: 2px; }
+  .fp-btn:hover:not(:disabled) { color: #fff; border-color: #ffb300; }
+  .fp-btn:disabled { opacity: 0.45; cursor: default; }
+  .fp-serve { background: linear-gradient(180deg, #43a047 0%, #2e7d32 100%); border-color: #a5d6a7; color: #fff; }
+  .fp-cols { display: flex; gap: 8px; align-items: stretch; }
+  .fp-col { background: rgba(60, 30, 22, 0.6); border-radius: 10px; padding: 4px 6px 6px; min-width: 0; }
+  .fp-pass { width: 22%; display: flex; flex-direction: column; gap: 4px; }
+  .fp-plate-col { width: 34%; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .fp-tray { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+  .fp-h { font-family: 'Fredoka One', cursive, sans-serif; font-size: 10.5px; color: #ffcc80; align-self: flex-start; }
+  .fp-empty { font-size: 10.5px; color: #a1887f; text-align: center; padding: 8px 2px; line-height: 1.3; }
+  .fp-pass-card { position: relative; display: flex; align-items: center; gap: 5px; background: rgba(28, 14, 10, 0.9); border: 1.5px solid #5a2e22; border-radius: 9px; padding: 3px 5px; cursor: pointer; }
+  .fp-pass-card.is-sel { border-color: #26a69a; box-shadow: 0 0 7px rgba(38, 166, 154, 0.6); }
+  .fp-pass-ico { width: 28px; height: 28px; font-size: 22px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .fp-pass-res { font-size: 13px; }
+  .fp-fresh { flex: 1; width: auto; }
+  .fp-x { background: none; border: 0; cursor: pointer; font-size: 11px; padding: 0 2px; }
+  .fp-disc { width: 64px; height: 64px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fffdf6 0%, #e9e2d0 70%, #cfc6ad 100%); border: 3px solid #b9ae92; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 8px rgba(0,0,0,0.25); }
+  .fp-disc-main { width: 38px; height: 38px; font-size: 30px; display: flex; align-items: center; justify-content: center; }
+  .fp-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 3px; min-height: 26px; }
+  .fp-chips small { font-size: 10px; color: #a1887f; align-self: center; }
+  .fp-chip { width: 24px; height: 24px; font-size: 18px; background: #fff3e0; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .fp-status { font-size: 10px; text-align: center; color: #ffe0b2; min-height: 26px; line-height: 1.25; }
+  .fp-actions { display: flex; gap: 5px; }
+  .fp-grp { display: flex; flex-wrap: wrap; align-items: center; gap: 3px; }
+  .fp-grp-name { font-size: 9px; font-weight: 800; color: #a1887f; width: 54px; flex-shrink: 0; }
+  .fp-comp { position: relative; display: flex; align-items: center; gap: 3px; cursor: pointer; background: rgba(28, 14, 10, 0.9); border: 1.5px solid #5a2e22; color: #efebe9; border-radius: 8px; padding: 2px 5px; font-size: 10px; }
+  .fp-comp span { width: 18px; height: 18px; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; }
+  .fp-comp b { font-weight: 800; }
+  .fp-comp.on { border-color: #26a69a; background: rgba(38, 166, 154, 0.25); }
+  .fp-comp.out { opacity: 0.4; border-color: #e53935; }
+  .fp-stock { font-style: normal; font-size: 8.5px; font-weight: 900; background: #ffb300; color: #211202; border-radius: 6px; padding: 0 3px; }
+  @media (max-width: 800px) {
+    .fp-head { font-size: 11.5px; margin-bottom: 3px; }
+    .fp-card-ico { width: 26px; height: 26px; font-size: 20px; }
+    .fp-card-n small { display: none; }
+    .fp-disc { width: 48px; height: 48px; }
+    .fp-disc-main { width: 30px; height: 30px; font-size: 24px; }
+    .fp-grp-name { display: none; }
+    .fp-comp b { font-size: 9px; }
+    .fp-comp { padding: 2px 4px; gap: 2px; }
+    .fp-comp span { width: 20px; height: 20px; font-size: 16px; }
+  }
   .stage-panel-card {
     display: flex; align-items: center; gap: 14px; max-width: 560px; width: 100%;
     background: rgba(28, 14, 10, 0.9); border: 2px dashed #6d392b; border-radius: 14px; padding: 12px 16px; color: #ffe0b2;
@@ -8455,6 +8515,7 @@ let gameState = {
   currentCategory: 'todos',
   activeArea: 'ramen',
   stages: { ramen: 'cook', salteados: 'cook', makis: 'cook', frituras: 'cook' }, // etapa abierta en cada área
+  fryStock: {}, fryPrep: null, fryPass: [], fryPlate: { sel: null, items: [] },     // Frituras por etapas
   makiRoll: { ingredients: [], matPlaced: false, rollState: 'NONE', rollProgress: 0, cutState: 'NONE', cutProgress: 0 },
   woks: [
     { ingredients: [], result: null, matchedRecipe: null, stirring: false, stirSeconds: 0 },
@@ -8845,7 +8906,7 @@ function getUnlockedIngredients() {
     getUnlockedRecipes().filter(r => r.area === gameState.activeArea).forEach(r => r.ingredients.forEach(id => ids.add(id)));
     list = INGREDIENTES.filter(i => ids.has(i.id));
     // En Frituras la harina, el huevo y el panko son los tres espacios de empanizado, no fichas.
-    if (gameState.activeArea === 'frituras') list = list.filter(i => !FRY_BREADING_IDS.includes(i.id));
+    if (gameState.activeArea === 'frituras') list = list.filter(i => !FRY_BREADING_IDS.includes(i.id) && (!friturasStaged() || FRY_PROTEIN_IDS.includes(i.id)));
   } else if (isMultiplayerSession()) {
     list = INGREDIENTES.filter(i => i.areas && i.areas.includes('ramen'));
   } else {
@@ -8958,6 +9019,11 @@ function renderStagePanel() {
   const panel = document.getElementById('stage-panel');
   if (!panel) return;
   const area = gameState.activeArea, stage = getStage(area), info = STAGE_INFO[stage];
+  panel.classList.toggle('fp-active', area === 'frituras' && friturasStaged() && !!info);
+  if (area === 'frituras' && friturasStaged() && info) {
+    if (stage === 'prod') renderFryProduction(panel); else renderFryPlating(panel);
+    return;
+  }
   if (!info) { panel.innerHTML = ''; return; }
   const ck = AREA_COOK_STAGE[area] || AREA_COOK_STAGE.ramen;
   panel.innerHTML = `<div class="stage-panel-card">
@@ -9002,9 +9068,10 @@ function getAreaAlert(areaId) {
     if (gameState.woks.some(w => w.stirring || w.ingredients.length > 0)) return 'busy';
   } else if (areaId === 'frituras') {
     const st = gameState.fryStation;
+    if (friturasStaged() && analyzeFryPlate().status === 'MATCHED') return 'ready';
     if (st.phase === 'FRYING') return st.frySeconds >= fryProfile(st.proteinId).burn ? 'warn' : 'busy';
     if (st.phase === 'FRIED') return fryDishComplete() ? 'ready' : 'busy';
-    if (st.ingredients.length > 0) return 'busy';
+    if (st.ingredients.length > 0 || (friturasStaged() && (gameState.fryPass.length || gameState.fryPrep))) return 'busy';
   } else if (areaId === 'makis') {
     const roll = gameState.makiRoll;
     if (roll.cutState === 'CUT' || makiCanCut()) return 'ready';
@@ -10050,6 +10117,330 @@ function newFryStation() {
   return { ingredients: [], phase: 'BUILDING', proteinId: null, coat: 0, fryResult: null, frySeconds: 0, fryTone: '', matchedRecipe: null, cutState: 'NONE', cutProgress: 0 };
 }
 
+// ===== Frituras por etapas: Producción → Freír → Emplatar =====
+// Flujo (todo menos multijugador, que mantiene el flujo anterior):
+//  · PRODUCCIÓN: existencias de insumos (col, zanahoria, betarraga, ebi furai, gyozas). Se preparan con un tiempo,
+//    de a una tarea a la vez, y siguen corriendo mientras trabajas en otra etapa.
+//  · FREÍR: solo la proteína (empanizar → olla → cortar si hace falta). Al terminar pasa al "pase" (hasta 3 platos).
+//  · EMPLATAR: se elige un plato del pase y se arma con sus componentes (base, ensalada, salsa, decoración).
+//    Es obligatorio para servir y vale 25 de los 100 puntos de calidad. Mientras tanto el plato se sigue enfriando.
+const friturasStaged = () => !isMultiplayerSession();
+const FRY_PASS_MAX = 3;
+const FRY_STAGED_EXTRA_SECONDS = 14; // paciencia extra del cliente por pedido de Frituras (producción + emplatado)
+
+// Insumos de Producción. use: 'plate' = se gasta al servir un plato que lo lleva; 'fry' = se gasta al empezar a freír.
+const FRY_PROD = {
+  52: { label: 'Col rallada', time: 8,  batch: 6, max: 12, start: 6, use: 'plate' },
+  30: { label: 'Zanahoria',   time: 6,  batch: 6, max: 12, start: 6, use: 'plate' },
+  42: { label: 'Betarraga',   time: 7,  batch: 4, max: 8,  start: 4, use: 'plate' },
+  60: { label: 'Ebi furai',   time: 12, batch: 4, max: 8,  start: 4, use: 'fry' },
+  73: { label: 'Gyozas',      time: 14, batch: 4, max: 8,  start: 4, use: 'fry' }
+};
+const FRY_PROD_ORDER = [52, 30, 42, 60, 73];
+
+// Emplatado de cada plato: proteína que se fríe y componentes en el orden correcto (base → ensalada → salsa → decoración).
+const FRY_PLATING = {
+  'Chicken Katsu': { protein: 44, parts: [57, 52, 30, 84, 74, 91] },
+  'Katsu Kare':    { protein: 43, parts: [57, 52, 30, 83, 74, 91] },
+  'Tonkatsu':      { protein: 43, parts: [57, 52, 42, 84, 74, 91] },
+  'Ebi Furai':     { protein: 60, parts: [52, 42, 62, 74] },
+  'Kaarage':       { protein: 70, parts: [52, 30, 62, 91, 74] },
+  'Alitas':        { protein: 36, parts: [76, 92] },
+  'Age Gyozas':    { protein: 73, parts: [52, 74] }
+};
+const FRY_PLATE_GROUP = { 57: 'Base', 52: 'Ensalada', 30: 'Ensalada', 42: 'Ensalada', 84: 'Salsa', 83: 'Salsa', 62: 'Salsa', 76: 'Salsa', 74: 'Decoración', 91: 'Decoración', 92: 'Decoración' };
+const FRY_PLATE_GROUP_ORDER = ['Base', 'Ensalada', 'Salsa', 'Decoración'];
+const FRY_PLATE_POINTS = { base: 15, order: 10, orderPenalty: 4 }; // emplatado: 25 puntos en total
+
+function fryProdSpeed() { return isFree() ? 0.5 : 1; } // en Cocina libre se prepara el doble de rápido
+
+function friturasInitStaged() {
+  gameState.fryStock = {};
+  Object.entries(FRY_PROD).forEach(([id, p]) => { gameState.fryStock[id] = p.start; });
+  gameState.fryPrep = null;
+  gameState.fryPass = [];
+  gameState.fryPlate = { sel: null, items: [] };
+}
+
+const fryStockOf = id => (gameState.fryStock && gameState.fryStock[id]) || 0;
+const fryIngName = id => { const i = INGREDIENTES.find(x => x.id === id); return i ? (i.short || i.display) : String(id); };
+const fryIngIcon = id => ingIconHtml(INGREDIENTES.find(x => x.id === id));
+
+// ---- Producción ----
+function fryProdStart(id) {
+  if (!friturasStaged() || gameState.isPaused || gameState.isGameOver) return;
+  const p = FRY_PROD[id];
+  if (!p) return;
+  if (gameState.fryPrep) { showStationToast('🥬 Ya estás preparando algo: espera a que termine.'); return; }
+  if (fryStockOf(id) >= p.max) { showStationToast(`${p.label}: el depósito ya está lleno.`); return; }
+  const total = Math.max(2, Math.round(p.time * fryProdSpeed()));
+  gameState.fryPrep = { id, left: total, total };
+  try { playSound('add'); } catch (e) {}
+  renderFryStagePanelIfOpen();
+  updateAreaTabAlerts();
+}
+
+function fryProdTick() {
+  const pr = gameState.fryPrep;
+  if (!pr) return;
+  pr.left--;
+  if (pr.left <= 0) {
+    const p = FRY_PROD[pr.id];
+    gameState.fryStock[pr.id] = Math.min(p.max, fryStockOf(pr.id) + p.batch);
+    gameState.fryPrep = null;
+    try { playSound('match'); } catch (e) {}
+    showStationToast(`🥬 Listo: ${p.label} +${p.batch}.`);
+    renderFryStagePanelIfOpen();
+    renderStageTabs();
+  } else {
+    updateFryStagePanelTick();
+  }
+}
+
+// Proteínas con existencia (ebi furai, gyozas): se gastan al empezar a freír y se devuelven si se retiran antes de la olla.
+function fryProteinStockBlocked(ing) {
+  const p = FRY_PROD[ing.id];
+  if (!friturasStaged() || !p || p.use !== 'fry') return false;
+  if (fryStockOf(ing.id) >= 1) return false;
+  showStationToast(`🥬 Sin ${p.label.toLowerCase()} preparado: ve a Producción.`);
+  return true;
+}
+function fryProteinTake(id) {
+  const p = FRY_PROD[id];
+  if (friturasStaged() && p && p.use === 'fry') gameState.fryStock[id] = Math.max(0, fryStockOf(id) - 1);
+}
+function fryProteinRefund(id) {
+  const p = FRY_PROD[id];
+  if (friturasStaged() && p && p.use === 'fry') gameState.fryStock[id] = Math.min(p.max, fryStockOf(id) + 1);
+}
+
+// ---- Pase ----
+function moveFryToPass() {
+  const st = gameState.fryStation;
+  if (st.phase !== 'FRIED' || !fryCutDone(st)) return;
+  if (gameState.fryPass.length >= FRY_PASS_MAX) {
+    showStationToast('🍽️ El pase está lleno: emplata o descarta un plato.');
+    return;
+  }
+  gameState.fryPass.push({ proteinId: st.proteinId, result: st.fryResult || 'PERFECTO', secs: st.frySeconds, tone: st.fryTone,
+    cut: st.cutState === 'CUT', coat: st.coat, readyAt: st.readyAt != null ? st.readyAt : gameState.gameClock });
+  if (fryTimerInterval) { clearInterval(fryTimerInterval); fryTimerInterval = null; }
+  cleanupFryItemDrag();
+  cleanupFryKnifeDrag();
+  gameState.fryStation = newFryStation();
+  try { playSound('add'); } catch (e) {}
+  showStationToast('🍽️ Plato al pase: ve a Emplatar antes de que se enfríe.');
+  renderFryStation();
+  renderPantryGrid();
+  if (gameState.fryPlate.sel == null) gameState.fryPlate = { sel: gameState.fryPass.length - 1, items: [] };
+  renderFryStagePanelIfOpen();
+}
+
+function fryPassDiscard(i) {
+  const it = gameState.fryPass[i];
+  if (!it) return;
+  gameState.fryPass.splice(i, 1);
+  gameState.fryPlate = { sel: gameState.fryPass.length ? 0 : null, items: [] };
+  try { playSound('trash'); } catch (e) {}
+  renderFryStagePanelIfOpen();
+  updateAreaTabAlerts();
+}
+
+// ---- Emplatar ----
+function fryPlateSelect(i) {
+  if (!gameState.fryPass[i] || gameState.fryPlate.sel === i) return;
+  gameState.fryPlate = { sel: i, items: [] };
+  renderFryStagePanelIfOpen();
+}
+
+function fryPlateCandidates(proteinId) {
+  return RECETAS_FRITURAS.filter(r => FRY_PLATING[r.name] && FRY_PLATING[r.name].protein === proteinId);
+}
+
+function fryPlateTrayIds(proteinId) {
+  const ids = new Set();
+  fryPlateCandidates(proteinId).forEach(r => FRY_PLATING[r.name].parts.forEach(id => ids.add(id)));
+  return [...ids].sort((a, b) => FRY_PLATE_GROUP_ORDER.indexOf(FRY_PLATE_GROUP[a]) - FRY_PLATE_GROUP_ORDER.indexOf(FRY_PLATE_GROUP[b]) || a - b);
+}
+
+function fryPlateToggle(id) {
+  if (gameState.isPaused || gameState.isGameOver) return;
+  const pl = gameState.fryPlate;
+  if (pl.sel == null || !gameState.fryPass[pl.sel]) { showStationToast('🍽️ Primero elige un plato del pase.'); return; }
+  const at = pl.items.indexOf(id);
+  if (at !== -1) {
+    pl.items.splice(at, 1);
+  } else {
+    const p = FRY_PROD[id];
+    if (p && p.use === 'plate' && fryStockOf(id) < 1) { showStationToast(`🥬 Sin ${p.label.toLowerCase()}: prepárala en Producción.`); return; }
+    pl.items.push(id);
+    try { playSound('add'); } catch (e) {}
+  }
+  renderFryStagePanelIfOpen();
+  updateAreaTabAlerts();
+}
+
+function fryPlateClear() {
+  gameState.fryPlate.items = [];
+  renderFryStagePanelIfOpen();
+}
+
+function analyzeFryPlate() {
+  const pl = gameState.fryPlate, item = pl && gameState.fryPass[pl.sel];
+  if (!item) return { status: 'EMPTY' };
+  const cands = fryPlateCandidates(item.proteinId);
+  const have = new Set(pl.items);
+  const exact = cands.find(r => { const parts = FRY_PLATING[r.name].parts; return parts.length === have.size && parts.every(x => have.has(x)); });
+  if (exact) {
+    // desorden: pares de componentes que quedaron al revés respecto al orden correcto
+    const order = FRY_PLATING[exact.name].parts;
+    let inv = 0;
+    for (let i = 0; i < pl.items.length; i++) for (let j = i + 1; j < pl.items.length; j++) if (order.indexOf(pl.items[i]) > order.indexOf(pl.items[j])) inv++;
+    const pts = FRY_PLATE_POINTS.base + Math.max(0, FRY_PLATE_POINTS.order - FRY_PLATE_POINTS.orderPenalty * inv);
+    return { status: 'MATCHED', recipe: exact, errors: inv, pts, item };
+  }
+  let best = null, bestOv = -1;
+  cands.forEach(r => { const ov = FRY_PLATING[r.name].parts.filter(x => have.has(x)).length - [...have].filter(x => !FRY_PLATING[r.name].parts.includes(x)).length; if (ov > bestOv) { bestOv = ov; best = r; } });
+  const parts = best ? FRY_PLATING[best.name].parts : [];
+  return { status: have.size ? 'PROGRESS' : 'EMPTY', recipe: best, missing: parts.filter(x => !have.has(x)), extra: [...have].filter(x => !parts.includes(x)), item };
+}
+
+// Frescura (0-20) de un plato del pase, con la curva de los platos emplatados.
+function fryItemFreshPts(item) {
+  const pts = FRESHNESS_CURVES.frituras_plated;
+  const t = Math.max(0, gameState.gameClock - item.readyAt) / (1 + [0, 0.3, 0.6, 1][getUpgradeLevel('bandeja')]);
+  if (!QUALITY_FRESHNESS_ON || isFree() || (isTraining() && !trainingFeature('q_fresh'))) return 20;
+  for (let i = 1; i < pts.length; i++) {
+    if (t <= pts[i][0]) { const [t0, p0] = pts[i - 1], [t1, p1] = pts[i]; return Math.round(p0 + (p1 - p0) * (t - t0) / (t1 - t0)); }
+  }
+  return pts[pts.length - 1][1];
+}
+
+// Al servir (o si el cliente lo rechaza) el plato sale del pase y se gastan los insumos de la ensalada.
+function consumeFryPlated() {
+  const pl = gameState.fryPlate;
+  pl.items.forEach(id => { const p = FRY_PROD[id]; if (p && p.use === 'plate') gameState.fryStock[id] = Math.max(0, fryStockOf(id) - 1); });
+  if (pl.sel != null) gameState.fryPass.splice(pl.sel, 1);
+  gameState.fryPlate = { sel: gameState.fryPass.length ? 0 : null, items: [] };
+  renderFryStagePanelIfOpen();
+  renderStageTabs();
+  updateAreaTabAlerts();
+}
+
+function fryPlateServe() {
+  const a = analyzeFryPlate();
+  if (a.status !== 'MATCHED') { showStationToast('🍽️ El plato aún no está completo.'); return; }
+  serveReadyDish('frituras', 0);
+}
+
+// ---- Pantallas de Producción y Emplatar ----
+function fryStagePanelOpen() {
+  return gameState.activeArea === 'frituras' && friturasStaged() && ['prod', 'plate'].includes(getStage('frituras'));
+}
+function renderFryStagePanelIfOpen() { if (fryStagePanelOpen()) renderStagePanel(); }
+
+function fryStageBack() {
+  const ck = AREA_COOK_STAGE.frituras;
+  return `<button class="stage-panel-back fp-back" onclick="setKitchenStage('cook')">${ck.icon} ${ck.label}</button>`;
+}
+
+function renderFryProduction(panel) {
+  const pr = gameState.fryPrep;
+  const cards = FRY_PROD_ORDER.map(id => {
+    const p = FRY_PROD[id], n = fryStockOf(id), busy = pr && pr.id === id;
+    const low = n <= Math.ceil(p.max * 0.25);
+    const label = busy ? `⏳ <b data-fp-left>${pr.left}</b> s` : `Preparar +${p.batch} · ${Math.max(2, Math.round(p.time * fryProdSpeed()))} s`;
+    return `<div class="fp-card ${low ? 'is-low' : ''} ${busy ? 'is-busy' : ''}">
+      <div class="fp-card-ico">${fryIngIcon(id)}</div>
+      <div class="fp-card-name">${p.label}</div>
+      <div class="fp-bar"><i style="width:${Math.round(100 * n / p.max)}%"></i></div>
+      <div class="fp-card-n">${n}/${p.max} <small>${p.use === 'fry' ? 'para freír' : 'para emplatar'}</small></div>
+      <div class="fp-bar fp-prep" style="display:${busy ? 'block' : 'none'}"><i data-fp-prep style="width:${busy ? Math.round(100 * (1 - pr.left / pr.total)) : 0}%"></i></div>
+      <button class="fp-btn" ${pr || n >= p.max ? 'disabled' : ''} onclick="fryProdStart(${id})">${n >= p.max ? 'Lleno' : label}</button>
+    </div>`;
+  }).join('');
+  panel.innerHTML = `<div class="fp-wrap">
+    <div class="fp-head"><span>🥬 Producción · Frituras</span><small>${pr ? `Preparando ${FRY_PROD[pr.id].label}…` : 'Una tarea a la vez; sigue corriendo mientras fríes.'}</small>${fryStageBack()}</div>
+    <div class="fp-cards">${cards}</div></div>`;
+}
+
+function renderFryPlating(panel) {
+  const pl = gameState.fryPlate, pass = gameState.fryPass;
+  const a = analyzeFryPlate();
+  const item = pass[pl.sel];
+  const passHtml = pass.length ? pass.map((it, i) => {
+    const fr = fryItemFreshPts(it);
+    const res = { CRUDO: '🥶', PERFECTO: '🔥', QUEMADO: '💨' }[it.result] || '';
+    return `<div class="fp-pass-card ${pl.sel === i ? 'is-sel' : ''}" onclick="fryPlateSelect(${i})">
+      <span class="fp-pass-ico" style="filter:${it.tone || 'none'}">${fryIngIcon(it.proteinId)}</span><span class="fp-pass-res">${res}</span>
+      <div class="fp-bar fp-fresh"><i data-fp-ready="${it.readyAt}" style="width:${Math.round(100 * fr / 20)}%"></i></div>
+      <button class="fp-x" title="Descartar" onclick="event.stopPropagation(); fryPassDiscard(${i})">🗑️</button></div>`;
+  }).join('') : '<div class="fp-empty">El pase está vacío.<br>Fríe una proteína y pásala a emplatar.</div>';
+
+  let plateHtml, tray = '', status = '', serveDisabled = true, hint = '';
+  if (item) {
+    const ids = fryPlateTrayIds(item.proteinId);
+    const groups = FRY_PLATE_GROUP_ORDER.map(g => {
+      const inG = ids.filter(id => FRY_PLATE_GROUP[id] === g);
+      if (!inG.length) return '';
+      return `<div class="fp-grp"><span class="fp-grp-name">${g}</span>${inG.map(id => {
+        const on = pl.items.includes(id), p = FRY_PROD[id], out = p && p.use === 'plate' && fryStockOf(id) < 1 && !on;
+        return `<button class="fp-comp ${on ? 'on' : ''} ${out ? 'out' : ''}" onclick="fryPlateToggle(${id})" title="${fryIngName(id)}"><span>${fryIngIcon(id)}</span><b>${fryIngName(id)}</b>${p && p.use === 'plate' ? `<i class="fp-stock">${fryStockOf(id)}</i>` : ''}</button>`;
+      }).join('')}</div>`;
+    }).join('');
+    tray = groups;
+    const chips = pl.items.map(id => `<span class="fp-chip" onclick="fryPlateToggle(${id})" title="Quitar">${fryIngIcon(id)}</span>`).join('');
+    plateHtml = `<div class="fp-disc"><span class="fp-disc-main" style="filter:${item.tone || 'none'}">${fryIngIcon(item.proteinId)}</span></div><div class="fp-chips">${chips || '<small>Toca componentes →</small>'}</div>`;
+    if (a.status === 'MATCHED') {
+      serveDisabled = false;
+      status = `✅ ${a.recipe.name}${a.errors ? ` · orden: ${a.errors} al revés` : ' · ¡orden perfecto!'}`;
+    } else if (a.status === 'PROGRESS' && a.recipe) {
+      status = a.missing.length ? `Para ${a.recipe.name} falta: ${a.missing.slice(0, 3).map(fryIngName).join(', ')}${a.missing.length > 3 ? '…' : ''}` : '';
+      if (a.extra.length) status += `${status ? ' · ' : ''}sobra: ${a.extra.map(fryIngName).join(', ')}`;
+    } else {
+      status = 'Elige los componentes según el pedido.';
+    }
+    hint = fryPlateCandidates(item.proteinId).map(r => r.name).join(' / ');
+  } else {
+    plateHtml = '<div class="fp-empty">Elige un plato del pase.</div>';
+  }
+  const ready = getReadyDishes().find(d => d.area === 'frituras');
+  const stars = ready ? starsText(qualityTier(evaluateDish(ready))) : '';
+  panel.innerHTML = `<div class="fp-wrap fp-plating">
+    <div class="fp-head"><span>🍽️ Emplatar · Frituras</span><small>${hint ? `Con esta proteína: ${hint}` : 'Fase final antes de servir'}</small>${fryStageBack()}</div>
+    <div class="fp-cols">
+      <div class="fp-col fp-pass"><div class="fp-h">Pase (${pass.length}/${FRY_PASS_MAX})</div>${passHtml}</div>
+      <div class="fp-col fp-plate-col"><div class="fp-h">Plato</div>${plateHtml}
+        <div class="fp-status">${status}</div>
+        <div class="fp-actions"><button class="fp-btn" onclick="fryPlateClear()" ${item && pl.items.length ? '' : 'disabled'}>Vaciar</button>
+        <button class="fp-btn fp-serve" onclick="fryPlateServe()" ${serveDisabled ? 'disabled' : ''}>✅ Servir ${stars}</button></div></div>
+      <div class="fp-col fp-tray"><div class="fp-h">Componentes</div>${tray || '<div class="fp-empty">—</div>'}</div>
+    </div></div>`;
+}
+
+// Actualización ligera cada segundo (sin recrear los botones para no perder toques).
+function updateFryStagePanelTick() {
+  if (!fryStagePanelOpen()) return;
+  const panel = document.getElementById('stage-panel');
+  if (!panel) return;
+  const pr = gameState.fryPrep;
+  const left = panel.querySelector('[data-fp-left]');
+  if (left && pr) left.textContent = pr.left;
+  const bar = panel.querySelector('[data-fp-prep]');
+  if (bar && pr) bar.style.width = `${Math.round(100 * (1 - pr.left / pr.total))}%`;
+  panel.querySelectorAll('[data-fp-ready]').forEach(el => {
+    const it = gameState.fryPass.find(x => String(x.readyAt) === el.dataset.fpReady);
+    if (it) el.style.width = `${Math.round(100 * fryItemFreshPts(it) / 20)}%`;
+  });
+}
+
+// Cada segundo de juego.
+function friturasStagedTick() {
+  if (!friturasStaged()) return;
+  fryProdTick();
+  if (gameState.fryPass.length) updateFryStagePanelTick();
+}
+
 // Corte (como en Makis: cuchillo vertical sostenido 3 s sobre la proteína frita). Solo se cortan
 // los filetes empanizados (bife de pollo / de cerdo); el resto (alitas, kaarage, langostinos,
 // gyozas) se sirve entero.
@@ -10071,6 +10462,7 @@ function fryCanCut() {
 // Plato completo: receta completa, proteína frita y (si lleva) ya cortada.
 function fryDishComplete() {
   const station = gameState.fryStation;
+  if (friturasStaged()) return station.phase === 'FRIED' && fryCutDone(station);
   return station.phase === 'FRIED' && analyzeFryStation().status === 'MATCHED' && fryCutDone(station);
 }
 
@@ -10163,6 +10555,8 @@ function placeFryProtein(ing, coat) {
     showStationToast(`${ing.display} no lleva empanizado: arrástrala directo a la tabla.`);
     return;
   }
+  if (fryProteinStockBlocked(ing)) return;
+  fryProteinTake(ing.id);
   station.proteinId = ing.id;
   station.coat = needs ? 3 : 0;
   station.ingredients.push(ing.id);
@@ -10176,6 +10570,7 @@ function placeFryProtein(ing, coat) {
 function removeFryProtein() {
   const station = gameState.fryStation;
   if (!station.proteinId || station.phase !== 'BUILDING') return false;
+  fryProteinRefund(station.proteinId);
   station.ingredients = station.ingredients.filter(id => id !== station.proteinId && !FRY_BREADING_IDS.includes(id));
   station.proteinId = null;
   station.coat = 0;
@@ -10278,6 +10673,7 @@ function handleFryActionClick() {
 
 function attemptServeFryStation() {
   if (!fryDishComplete()) return;
+  if (friturasStaged()) { moveFryToPass(); return; }
   serveReadyDish('frituras', 0);
 }
 
@@ -10557,7 +10953,8 @@ function renderFryStation() {
   const cutting = station.cutState === 'CUTTING';
   const isCut = needsCut && station.cutState === 'CUT';
   const cutDone = fryCutDone(station);
-  const complete = station.phase === 'FRIED' && matched && cutDone;
+  const staged = friturasStaged();
+  const complete = station.phase === 'FRIED' && (staged || matched) && cutDone;
   if (complete && station.readyAt == null) station.readyAt = gameState.gameClock;
   else if (!complete) station.readyAt = null;
 
@@ -10597,7 +10994,7 @@ function renderFryStation() {
       tableBadge.textContent = `✂️ Cortando… ${(cutSeconds() * (1 - station.cutProgress)).toFixed(1)}s`;
       tableBadge.classList.add('status-ready');
     } else if (complete) {
-      tableBadge.textContent = `¡Listo: ${analysis.recipe.name}!`;
+      tableBadge.textContent = staged ? '¡Lista! Pásala a emplatar' : `¡Listo: ${analysis.recipe.name}!`;
       tableBadge.classList.add('status-ready');
     } else if (needsCut && !isCut) {
       tableBadge.textContent = '🔪 Frita — córtala con el cuchillo (3 s)';
@@ -10685,6 +11082,8 @@ function renderFryStation() {
     oilBadge.textContent = `${labelMap[station.fryResult]}`;
     oilBadge.classList.add(station.fryResult === 'PERFECTO' ? 'status-ready' : (station.fryResult === 'CRUDO' ? 'status-error' : 'status-warn'));
     if (resultActions && complete) resultActions.style.display = 'flex';
+    const passBtn = document.querySelector('.fry-btn-serve');
+    if (passBtn && staged) passBtn.textContent = '➡ A emplatar';
   }
 
   // Cuchillo: resaltado cuando hay algo que cortar; barra de avance mientras corta.
@@ -10726,7 +11125,8 @@ function renderAreaTabs() {
 function renderCategoryFilters() {
   const container = document.getElementById('pantry-tabs-bar');
   if (!container) return;
-  const areaIngredients = INGREDIENTES.filter(i => i.areas && i.areas.includes(gameState.activeArea));
+  const areaIngredients = INGREDIENTES.filter(i => i.areas && i.areas.includes(gameState.activeArea)
+    && !(gameState.activeArea === 'frituras' && friturasStaged() && !FRY_PROTEIN_IDS.includes(i.id)));
   const catsPresent = new Set(areaIngredients.map(i => i.cat));
   const orderedCats = ['bases', 'salsas', 'proteinas', 'vegetales', 'otros'].filter(c => catsPresent.has(c));
   let html = `<button class="mini-cat-btn ${gameState.currentCategory === 'todos' ? 'active' : ''}" onclick="filterCategory('todos')">Todos</button>`;
@@ -13031,7 +13431,7 @@ const TRAINING_CHALLENGES = [
   { id: 'c27', ch: 'maestria', title: 'Examen del maestro', r: { ramen: 8, salteados: 8, makis: 7, frituras: 7 }, minStars: 2, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 4, O: 3, spawn: 4, pm: 1.6, reward: 150, unlocks: [] }
 ].map((c, i) => ({ ...c, num: i + 1, index: i, reqs: Object.entries(c.r).map(([area, n]) => ({ area, n })) }));
 const TRAINING_BY_ID = Object.fromEntries(TRAINING_CHALLENGES.map(c => [c.id, c]));
-const TRAINING_SEC = { ramen: 13, salteados: 14, makis: 15, frituras: 24 };   // segundos por pedido (jugador que ya conoce el juego)
+const TRAINING_SEC = { ramen: 13, salteados: 14, makis: 15, frituras: 38 };   // segundos por pedido (jugador que ya conoce el juego)
 const TRAINING_MEDAL_SHARE = [0, 0.6, 0.85, 1];
 
 const isTraining = () => gameState.gameMode === 'TRAINING' && !!gameState.training && !gameState.isGameOver;
@@ -13337,7 +13737,7 @@ function statsBump(field, n = 1) {
 // Tipo de error del plato: desorden (proceso), quemado o crudo.
 function statsMistakes(ev) {
   const day = statsDay();
-  if (ev.proc < 30) day.er++;
+  if (ev.plate != null ? ev.plateErrors > 0 : ev.proc < 30) day.er++;
   if (ev.cook.state === 'QUEMADO' || ev.cook.state === 'CARBONIZADO') day.bu++;
   else if (ev.cook.state === 'CRUDO') day.cr++;
 }
@@ -13839,6 +14239,7 @@ const FRESHNESS_CURVES = {
   ramen: [[0, 20], [8, 20], [20, 10], [40, 0]],
   salteados: [[0, 20], [8, 20], [20, 10], [40, 0]],
   frituras: [[0, 20], [6, 20], [18, 0]],
+  frituras_plated: [[0, 20], [12, 20], [36, 0]], // el plato emplatado aguanta más: emplatar toma tiempo
   makis: [[0, 20], [30, 20], [90, 10]]
 };
 
@@ -13890,7 +14291,7 @@ function evalFreshness(dish) {
   const m = dish.meta || {};
   const warmth = 1 + [0, 0.3, 0.6, 1][getUpgradeLevel('bandeja')];
   const t = m.readyAt == null ? 0 : Math.max(0, gameState.gameClock - m.readyAt) / warmth;
-  const pts = FRESHNESS_CURVES[dish.area] || FRESHNESS_CURVES.ramen;
+  const pts = (dish.meta && dish.meta.plate && FRESHNESS_CURVES.frituras_plated) || FRESHNESS_CURVES[dish.area] || FRESHNESS_CURVES.ramen;
   for (let i = 1; i < pts.length; i++) {
     if (t <= pts[i][0]) {
       const [t0, p0] = pts[i - 1], [t1, p1] = pts[i];
@@ -13901,6 +14302,13 @@ function evalFreshness(dish) {
 }
 
 function evaluateDish(dish) {
+  const plate = dish.meta && dish.meta.plate;
+  if (dish.area === 'frituras' && plate) {
+    // cocción 40 + proceso 20 (empanizado) + emplatado 25 + frescura 15
+    const c = evalCooking(dish), f = evalFreshness(dish);
+    return { score: Math.round(c.pts * 0.8 + 20 + plate.pts + f * 0.75), cook: c, proc: 20, fresh: f, plate: plate.pts, plateErrors: plate.errors,
+      gate: c.gate || null, capped: c.state === 'CRUDO' || c.state === 'QUEMADO' };
+  }
   const cook = evalCooking(dish), proc = evalProcess(dish), fresh = evalFreshness(dish);
   return { score: Math.round(cook.pts + proc + fresh), cook, proc, fresh, gate: cook.gate || null,
     capped: cook.state === 'CRUDO' || cook.state === 'QUEMADO' };
@@ -13936,7 +14344,7 @@ function updateServeButtonsQuality() {
   };
   [0, 1].forEach(i => setLabel(document.getElementById(`wok-serve-btn-${i}`), 'salteados', i));
   setLabel(document.getElementById('maki-serve-btn'), 'makis', 0);
-  setLabel(document.querySelector('.fry-btn-serve'), 'frituras', 0);
+  if (!friturasStaged()) setLabel(document.querySelector('.fry-btn-serve'), 'frituras', 0);
 }
 
 function getReadyDishes() {
@@ -13955,7 +14363,13 @@ function getReadyDishes() {
     if (a.status === 'READY') list.push({ area: 'makis', index: 0, recipe: a.recipe, quality: 'PERFECTO', label: 'Tabla de makis', meta: { readyAt: roll.readyAt } });
   }
   const fry = gameState.fryStation;
-  if (fry && fry.phase === 'FRIED' && fryDishComplete()) {
+  if (friturasStaged()) {
+    const pa = analyzeFryPlate();
+    if (pa.status === 'MATCHED') {
+      list.push({ area: 'frituras', index: 0, recipe: pa.recipe, quality: pa.item.result, label: 'Plato de frituras',
+        meta: { result: pa.item.result, secs: pa.item.secs, proteinId: pa.item.proteinId, readyAt: pa.item.readyAt, plate: { pts: pa.pts, errors: pa.errors } } });
+    }
+  } else if (fry && fry.phase === 'FRIED' && fryDishComplete()) {
     const a = analyzeFryStation();
     if (a.status === 'MATCHED') list.push({ area: 'frituras', index: 0, recipe: a.recipe, quality: fry.fryResult || 'PERFECTO', label: 'Tabla de frituras',
       meta: { result: fry.fryResult || 'PERFECTO', secs: fry.frySeconds, proteinId: fry.proteinId, readyAt: fry.readyAt } });
@@ -13978,6 +14392,8 @@ function consumeReadyDish(d) {
     cleanupMakiToolDrag();
     gameState.makiRoll = newMakiRoll();
     renderMakiStation();
+  } else if (d.area === 'frituras' && friturasStaged()) {
+    consumeFryPlated();
   } else if (d.area === 'frituras') {
     if (fryTimerInterval) { clearInterval(fryTimerInterval); fryTimerInterval = null; }
     cleanupFryItemDrag();
@@ -14316,6 +14732,7 @@ function getOrdersProcessSeconds(orders) {
   orders.forEach(o => {
     const area = getRecipeArea(o.recipe);
     total += AREA_PROCESS_SECONDS[area] || 0;
+    if (area === 'frituras' && friturasStaged()) total += FRY_STAGED_EXTRA_SECONDS; // producción + emplatado
     perArea[area] = (perArea[area] || 0) + 1;
     if (SINGLE_STATION_AREAS.includes(area) && perArea[area] > 1) total += SINGLE_STATION_EXTRA_SECONDS;
   });
@@ -14396,6 +14813,7 @@ function gameTick() {
   if (gameState.isPaused || gameState.isGameOver || (typeof TutorialManager !== 'undefined' && TutorialManager.isActive)) return;
   gameState.gameClock++;
   statsAddTime();
+  friturasStagedTick();
 
   if (gameState.gameMode === 'NORMAL') {
     gameState.timeLeft--;
@@ -14775,6 +15193,7 @@ function startLevel(lvlIndex) {
   cleanupFryItemDrag();
   cleanupFryKnifeDrag();
   gameState.fryStation = newFryStation();
+  friturasInitStaged();
   updateStationVisibilityForArea();
   renderPantryGrid();
 

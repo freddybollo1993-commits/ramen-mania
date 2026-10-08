@@ -10,7 +10,7 @@ const NIVELES = grab('NIVELES');
 const UNLOCKS = eval('(' + src.match(/const AREA_DISH_UNLOCKS = (\{[\s\S]*?\n\});/)[1] + ')');
 
 // Segundos de trabajo estimados por pedido para un jugador que ya conoce el juego.
-const SEC = { ramen: 13, salteados: 14, makis: 15, frituras: 24 };
+const SEC = { ramen: 13, salteados: 14, makis: 15, frituras: 38 };
 // Cuánto más lento es un jugador que está aprendiendo (1.8 = casi el doble) en cada nivel.
 const NOVICE = [1.8, 1.6, 1.5, 1.35, 1.25, 1.15, 1.05, 1.0];
 
