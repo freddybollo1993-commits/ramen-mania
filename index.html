@@ -2170,33 +2170,55 @@
     justify-content: center;
     line-height: 1;
   }
-  .fry-item-base { position: relative; z-index: 1; transition: opacity 0.2s ease; }
+  /* El empanizado es una capa con la MISMA silueta que la proteína (máscara del propio SVG): solo cambian
+     el color y la textura. 1 = harina, 2 = huevo, 3 = panko. */
+  .fry-item-base { position: relative; display: inline-block; line-height: 0; z-index: 1; }
   .fry-item-coat {
     position: absolute;
-    inset: -14% -10%;
-    border-radius: 48% 52% 50% 46%;
+    inset: 0;
     opacity: 0;
     z-index: 2;
+    pointer-events: none;
+    -webkit-mask: var(--shape) center / contain no-repeat;
+    mask: var(--shape) center / contain no-repeat;
     transition: opacity 0.25s ease;
   }
+  .fry-item.coat-1 .fry-item-base, .fry-item.coat-2 .fry-item-base, .fry-item.coat-3 .fry-item-base {
+    filter: drop-shadow(0.8px 0 0 #2b1810) drop-shadow(-0.8px 0 0 #2b1810) drop-shadow(0 0.8px 0 #2b1810) drop-shadow(0 -0.8px 0 #2b1810);
+  }
+  .fry-item-coat::after {   /* contornos internos de la proteína sobre el empanizado */
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--shape) center / contain no-repeat;
+    filter: grayscale(1) brightness(1.9) contrast(2.2);
+    mix-blend-mode: multiply;
+    opacity: 0.8;
+  }
   .fry-item.coat-1 .fry-item-coat {
-    opacity: 0.88;
-    background: radial-gradient(circle at 38% 32%, #ffffff 0 38%, #e9e6dc 78%);
+    opacity: 0.96;
+    background:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' seed='5'/%3E%3CfeColorMatrix values='0 0 0 0 .55 0 0 0 0 .52 0 0 0 0 .45 0 0 0 1.3 -.5'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E") 0 0 / 40px 40px,
+      radial-gradient(circle at 28% 24%, rgba(255,255,255,0.95) 0 24%, transparent 58%),
+      linear-gradient(160deg, #fdfcf6 0%, #ebe7d8 62%, #cfc9b4 100%);
   }
   .fry-item.coat-2 .fry-item-coat {
-    opacity: 0.92;
-    background: radial-gradient(circle at 38% 32%, #ffe680 0 38%, #f2c33f 78%);
+    opacity: 0.96;
+    background:
+      radial-gradient(circle at 28% 24%, rgba(255,251,206,0.95) 0 18%, transparent 46%),
+      linear-gradient(160deg, #ffe793 0%, #f3c640 55%, #c9902a 100%);
   }
   .fry-item.coat-3 .fry-item-coat {
     opacity: 1;
     background:
-      radial-gradient(circle, #b5791f 0 1.1px, transparent 1.6px) 0 0 / 5px 5px,
-      radial-gradient(circle at 36% 30%, #ecc067 0 40%, #cf9a3f 85%);
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 .98 0 0 0 0 .9 0 0 0 0 .55 0 0 0 1.9 -.95'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E") 0 0 / 38px 38px,
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='2' seed='11'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .28 0 0 0 0 .05 0 0 0 2.4 -1.15'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E") 0 0 / 52px 52px,
+      linear-gradient(165deg, #f2c869 0%, #dca447 55%, #b07a26 100%);
   }
-  .fry-item.coat-3 .fry-item-base { opacity: 0; }
+  .fry-item.coat-3 .fry-item-base .ing-ico { opacity: 0; }
   .fry-board-item {
-    font-size: 28px;
-    font-size: 15cqw;
+    font-size: 34px;
+    font-size: 24cqw;
     margin-right: 4px;
     touch-action: none;
     cursor: grab;
@@ -2478,8 +2500,8 @@
     left: 50%;
     top: 46%;
     translate: -50% -50%;
-    font-size: 18px;
-    font-size: 12cqw;
+    font-size: 22px;
+    font-size: 17cqw;
     line-height: 1;
     filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5));
   }
@@ -5881,7 +5903,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v37</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v38</span></button></div>
     </div>
   </div>
 
@@ -8380,7 +8402,7 @@ const INGREDIENTES = [
 // Nombre corto para las fichas del panel (en pantallas angostas el nombre completo se cortaba) y
 // iconos propios donde dos ingredientes de la misma área compartían el mismo.
 // Arte generado con tools/gen-ingredient-icons.mjs (id -> SVG 64x64). Los emoji quedan solo de respaldo.
-const ING_ART = {"31":"assets/ingredients/ing_31_aceite_ajonjoli.svg","32":"assets/ingredients/ing_32_ajo_chino.svg","33":"assets/ingredients/ing_33_ajonjoli.svg","34":"assets/ingredients/ing_34_ajonjoli_negro.svg","35":"assets/ingredients/ing_35_aji_limo.svg","36":"assets/ingredients/ing_36_alas_pollo.svg","37":"assets/ingredients/ing_37_arroz.svg","38":"assets/ingredients/ing_38_arroz_shari.svg","39":"assets/ingredients/ing_39_atun.svg","40":"assets/ingredients/ing_40_base_shimaya.svg","41":"assets/ingredients/ing_41_benishoga.svg","42":"assets/ingredients/ing_42_beterraga.svg","43":"assets/ingredients/ing_43_bife_cerdo.svg","44":"assets/ingredients/ing_44_bife_pollo.svg","45":"assets/ingredients/ing_45_brocoli.svg","46":"assets/ingredients/ing_46_cebolla.svg","47":"assets/ingredients/ing_47_cecina.svg","48":"assets/ingredients/ing_48_chancho_chaufa.svg","49":"assets/ingredients/ing_49_cobertura_atun.svg","50":"assets/ingredients/ing_50_cobertura_conchas.svg","51":"assets/ingredients/ing_51_cobertura_amazon.svg","52":"assets/ingredients/ing_52_col.svg","53":"assets/ingredients/ing_53_condimentos.svg","54":"assets/ingredients/ing_54_ebi.svg","55":"assets/ingredients/ing_55_ensalada.svg","56":"assets/ingredients/ing_56_ensalada_fria.svg","57":"assets/ingredients/ing_57_gohan.svg","58":"assets/ingredients/ing_58_harina.svg","59":"assets/ingredients/ing_59_hilos_wantan.svg","60":"assets/ingredients/ing_60_langostino_6.svg","61":"assets/ingredients/ing_61_lomo.svg","62":"assets/ingredients/ing_62_mayonesa_casa.svg","63":"assets/ingredients/ing_63_negi.svg","64":"assets/ingredients/ing_64_palta.svg","65":"assets/ingredients/ing_65_panko.svg","66":"assets/ingredients/ing_66_pasta_gyoza.svg","67":"assets/ingredients/ing_67_pimenton.svg","68":"assets/ingredients/ing_68_pimiento.svg","69":"assets/ingredients/ing_69_pollo.svg","70":"assets/ingredients/ing_70_pollo_7.svg","71":"assets/ingredients/ing_71_poro_especial.svg","72":"assets/ingredients/ing_72_queso_crema.svg","73":"assets/ingredients/ing_73_relleno_gyoza.svg","74":"assets/ingredients/ing_74_rulos_cebolla.svg","75":"assets/ingredients/ing_75_sal.svg","76":"assets/ingredients/ing_76_salsa.svg","77":"assets/ingredients/ing_77_salsa_acevichada.svg","78":"assets/ingredients/ing_78_salsa_batayaki.svg","79":"assets/ingredients/ing_79_salsa_chaufa.svg","80":"assets/ingredients/ing_80_salsa_digion.svg","81":"assets/ingredients/ing_81_salsa_guacamole.svg","82":"assets/ingredients/ing_82_salsa_hotate.svg","83":"assets/ingredients/ing_83_salsa_kare.svg","84":"assets/ingredients/ing_84_salsa_katsu.svg","85":"assets/ingredients/ing_85_salsa_nin_niku.svg","86":"assets/ingredients/ing_86_salsa_omuraisu.svg","87":"assets/ingredients/ing_87_salsa_teriyaki.svg","88":"assets/ingredients/ing_88_salsa_yakitori.svg","89":"assets/ingredients/ing_89_salsa_yama.svg","90":"assets/ingredients/ing_90_salsa_yasaitame.svg","91":"assets/ingredients/ing_91_togarashi.svg","92":"assets/ingredients/ing_92_toping.svg","93":"assets/ingredients/ing_93_tortilla.svg","94":"assets/ingredients/ing_94_wantan.svg","95":"assets/ingredients/ing_95_zucchini.svg"};
+const ING_ART = {"31":"assets/ingredients/ing_31_aceite_ajonjoli.svg","32":"assets/ingredients/ing_32_ajo_chino.svg","33":"assets/ingredients/ing_33_ajonjoli.svg","34":"assets/ingredients/ing_34_ajonjoli_negro.svg","35":"assets/ingredients/ing_35_aji_limo.svg","36":"assets/fry/fry_36_alitas.svg","37":"assets/ingredients/ing_37_arroz.svg","38":"assets/ingredients/ing_38_arroz_shari.svg","39":"assets/ingredients/ing_39_atun.svg","40":"assets/ingredients/ing_40_base_shimaya.svg","41":"assets/ingredients/ing_41_benishoga.svg","42":"assets/ingredients/ing_42_beterraga.svg","43":"assets/fry/fry_43_bife_cerdo.svg","44":"assets/fry/fry_44_bife_pollo.svg","45":"assets/ingredients/ing_45_brocoli.svg","46":"assets/ingredients/ing_46_cebolla.svg","47":"assets/ingredients/ing_47_cecina.svg","48":"assets/ingredients/ing_48_chancho_chaufa.svg","49":"assets/ingredients/ing_49_cobertura_atun.svg","50":"assets/ingredients/ing_50_cobertura_conchas.svg","51":"assets/ingredients/ing_51_cobertura_amazon.svg","52":"assets/ingredients/ing_52_col.svg","53":"assets/ingredients/ing_53_condimentos.svg","54":"assets/ingredients/ing_54_ebi.svg","55":"assets/ingredients/ing_55_ensalada.svg","56":"assets/ingredients/ing_56_ensalada_fria.svg","57":"assets/ingredients/ing_57_gohan.svg","58":"assets/ingredients/ing_58_harina.svg","59":"assets/ingredients/ing_59_hilos_wantan.svg","60":"assets/fry/fry_60_langostinos.svg","61":"assets/ingredients/ing_61_lomo.svg","62":"assets/ingredients/ing_62_mayonesa_casa.svg","63":"assets/ingredients/ing_63_negi.svg","64":"assets/ingredients/ing_64_palta.svg","65":"assets/ingredients/ing_65_panko.svg","66":"assets/ingredients/ing_66_pasta_gyoza.svg","67":"assets/ingredients/ing_67_pimenton.svg","68":"assets/ingredients/ing_68_pimiento.svg","69":"assets/ingredients/ing_69_pollo.svg","70":"assets/fry/fry_70_pollo.svg","71":"assets/ingredients/ing_71_poro_especial.svg","72":"assets/ingredients/ing_72_queso_crema.svg","73":"assets/fry/fry_73_gyoza.svg","74":"assets/ingredients/ing_74_rulos_cebolla.svg","75":"assets/ingredients/ing_75_sal.svg","76":"assets/ingredients/ing_76_salsa.svg","77":"assets/ingredients/ing_77_salsa_acevichada.svg","78":"assets/ingredients/ing_78_salsa_batayaki.svg","79":"assets/ingredients/ing_79_salsa_chaufa.svg","80":"assets/ingredients/ing_80_salsa_digion.svg","81":"assets/ingredients/ing_81_salsa_guacamole.svg","82":"assets/ingredients/ing_82_salsa_hotate.svg","83":"assets/ingredients/ing_83_salsa_kare.svg","84":"assets/ingredients/ing_84_salsa_katsu.svg","85":"assets/ingredients/ing_85_salsa_nin_niku.svg","86":"assets/ingredients/ing_86_salsa_omuraisu.svg","87":"assets/ingredients/ing_87_salsa_teriyaki.svg","88":"assets/ingredients/ing_88_salsa_yakitori.svg","89":"assets/ingredients/ing_89_salsa_yama.svg","90":"assets/ingredients/ing_90_salsa_yasaitame.svg","91":"assets/ingredients/ing_91_togarashi.svg","92":"assets/ingredients/ing_92_toping.svg","93":"assets/ingredients/ing_93_tortilla.svg","94":"assets/ingredients/ing_94_wantan.svg","95":"assets/ingredients/ing_95_zucchini.svg"};
 const ING_SHORT = { 73: 'Relleno Gyoza', 60: 'Langostino ×6', 70: 'Pollo ×7', 62: 'Mayo Casa', 74: 'Rulos Cebolla',
   49: 'Cob. Atún', 54: 'Ebi Langost.', 77: 'Acevichada', 50: 'Cob. Conchas', 51: 'Cob. Amazon', 28: 'Shitake', 21: 'Alga Wanji' };
 const ING_ICON_FIX = { 62: '🍯', 76: '🍅', 53: '🌿', 44: '🐔', 70: '🍖', 49: '🍣' };
@@ -8606,12 +8628,71 @@ function updateAudioToggleUI() {
   }
 }
 
+// Sonidos de los procesos de cocina: síntesis procedural (sin archivos). Los más frecuentes se limitan en el tiempo.
+const _sfxLast = {};
+function sfxEvery(type, ms) {
+  const t = performance.now();
+  if (t - (_sfxLast[type] || 0) < ms) return;
+  _sfxLast[type] = t;
+  playSound(type);
+}
+function sfxNoise(ctx, now, o) {
+  const buf = getWhiteNoiseBuffer();
+  if (!buf) return;
+  const dur = o.dur || 0.1, t0 = now + (o.delay || 0);
+  const src = ctx.createBufferSource(); src.buffer = buf; src.loop = dur > 0.24;
+  const filt = ctx.createBiquadFilter(); filt.type = o.type || 'bandpass'; filt.Q.value = o.q || 1;
+  filt.frequency.setValueAtTime(o.f0 || 1000, t0);
+  if (o.f1) filt.frequency.exponentialRampToValueAtTime(o.f1, t0 + dur);
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.linearRampToValueAtTime((o.vol || 0.1) * 4, t0 + 0.004);   // el ruido base es muy suave: se compensa
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  src.connect(filt); filt.connect(g); g.connect(ctx.destination);
+  src.start(t0); src.stop(t0 + dur + 0.02);
+}
+function sfxTone(ctx, now, o) {
+  const dur = o.dur || 0.1, t0 = now + (o.delay || 0);
+  const osc = ctx.createOscillator(), g = ctx.createGain();
+  osc.type = o.type || 'sine';
+  osc.frequency.setValueAtTime(o.f || 440, t0);
+  if (o.to) osc.frequency.exponentialRampToValueAtTime(o.to, t0 + dur);
+  g.gain.setValueAtTime(o.vol || 0.1, t0);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(g); g.connect(ctx.destination);
+  osc.start(t0); osc.stop(t0 + dur + 0.02);
+}
+const SFX_EXTRA = {
+  win: (c, t) => [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => sfxTone(c, t, { f, dur: 0.26, type: 'triangle', vol: 0.13, delay: i * 0.09 })),
+  fail: (c, t) => [392, 329.63, 261.63].forEach((f, i) => sfxTone(c, t, { f, dur: 0.22, type: 'sawtooth', vol: 0.09, delay: i * 0.13 })),
+  wrong: (c, t) => { sfxTone(c, t, { f: 210, to: 150, dur: 0.1, type: 'square', vol: 0.07 }); sfxTone(c, t, { f: 210, to: 150, dur: 0.1, type: 'square', vol: 0.07, delay: 0.12 }); },
+  error: (c, t) => { sfxTone(c, t, { f: 240, to: 170, dur: 0.12, type: 'square', vol: 0.06 }); },
+  bell: (c, t) => { sfxTone(c, t, { f: 1568, dur: 0.5, vol: 0.09 }); sfxTone(c, t, { f: 2093, dur: 0.38, vol: 0.05, delay: 0.02 }); },
+  pat: (c, t) => { sfxNoise(c, t, { dur: 0.09, type: 'lowpass', f0: 1300, f1: 500, vol: 0.13 }); sfxTone(c, t, { f: 150, to: 90, dur: 0.07, vol: 0.06 }); },
+  splat: (c, t) => { sfxNoise(c, t, { dur: 0.17, f0: 900, f1: 350, q: 2, vol: 0.14 }); sfxTone(c, t, { f: 320, to: 110, dur: 0.12, vol: 0.07 }); },
+  crunch: (c, t) => [0, 0.045, 0.09].forEach(d => sfxNoise(c, t, { dur: 0.04, type: 'highpass', f0: 2600, vol: 0.14, delay: d })),
+  splash: (c, t) => {
+    sfxNoise(c, t, { dur: 0.38, f0: 2200, f1: 600, q: 0.9, vol: 0.17 });
+    sfxTone(c, t, { f: 180, to: 70, dur: 0.18, vol: 0.09 });
+    [0.12, 0.2, 0.3].forEach(d => sfxNoise(c, t, { dur: 0.03, type: 'highpass', f0: 3000, vol: 0.1, delay: d }));
+  },
+  crackle: (c, t) => [0, 0.05 + Math.random() * 0.05, 0.12 + Math.random() * 0.06].forEach(d => sfxNoise(c, t, { dur: 0.025, type: 'highpass', f0: 2800 + Math.random() * 1500, vol: 0.06, delay: d })),
+  chop: (c, t) => { sfxNoise(c, t, { dur: 0.05, f0: 1800, q: 1.2, vol: 0.15 }); sfxTone(c, t, { f: 170, to: 100, dur: 0.06, vol: 0.1 }); },
+  swish: (c, t) => sfxNoise(c, t, { dur: 0.2, f0: 350, f1: 1500, q: 1, vol: 0.11 }),
+  sizzle: (c, t) => sfxNoise(c, t, { dur: 0.14, type: 'highpass', f0: 3200, vol: 0.07 }),
+  stir: (c, t) => { sfxNoise(c, t, { dur: 0.12, f0: 800, f1: 1100, q: 1.5, vol: 0.08 }); sfxTone(c, t, { f: 1200, dur: 0.05, type: 'triangle', vol: 0.03 }); },
+  clink: (c, t) => { sfxTone(c, t, { f: 2300, dur: 0.14, vol: 0.07 }); sfxTone(c, t, { f: 3100, dur: 0.1, vol: 0.05, delay: 0.015 }); },
+  prep: (c, t) => [0, 0.11, 0.22].forEach(d => { sfxNoise(c, t, { dur: 0.05, f0: 1500, q: 1.2, vol: 0.1, delay: d }); sfxTone(c, t, { f: 160, to: 100, dur: 0.05, vol: 0.06, delay: d }); }),
+  pour: (c, t) => sfxNoise(c, t, { dur: 0.35, type: 'lowpass', f0: 900, f1: 350, vol: 0.1 })
+};
+
 function playSound(type) {
   if (isSoundMuted) return;
   try {
     initAudio();
     if (!audioCtx || audioCtx.state !== 'running') return;
     const now = audioCtx.currentTime;
+    if (SFX_EXTRA[type]) { SFX_EXTRA[type](audioCtx, now); return; }
 
     if (type === 'add') {
       const osc = audioCtx.createOscillator();
@@ -8669,7 +8750,7 @@ function playSound(type) {
       gain.connect(audioCtx.destination);
       osc.type = 'sine';
       osc.frequency.setValueAtTime(587.33, now);
-      osc.exponentialRampToValueAtTime(880, now + 0.12);
+      osc.frequency.exponentialRampToValueAtTime(880, now + 0.12);
       gain.gain.setValueAtTime(0.15, now);
       gain.gain.linearRampToValueAtTime(0, now + 0.12);
       osc.start(now);
@@ -8961,6 +9042,7 @@ function switchKitchenArea(areaId) {
   }
   gameState.activeArea = areaId;
   gameState.currentCategory = 'todos';
+  try { playSound('click'); } catch (e) {}
   // Cada estación conserva su estado al cambiar de pestaña, como en una cocina real: los
   // cuencos de Ramen, los woks, la tabla de Makis y la mesa/olla de Frituras siguen como los
   // dejaste. La olla incluso sigue friendo (y quemando) mientras trabajas en otra área; las
@@ -9249,7 +9331,7 @@ function placeMakiMat() {
   if (roll.matPlaced) return;
   if (!coopLock('maki-scene')) return;
   roll.matPlaced = true;
-  playSound('add');
+  playSound('swish');
   renderMakiStation();
 }
 
@@ -9259,6 +9341,7 @@ function completeMakiCut() {
   roll.cutState = 'CUT';
   roll.cutProgress = 1;
   roll.readyAt = gameState.gameClock;
+  playSound('chop');
   playSound('match');
   renderMakiStation();
   vfxAtElement('maki-board-zone', 'cut');
@@ -9632,6 +9715,7 @@ function updateMakiToolDrag() {
       if (d.ghost) d.ghost.classList.add('is-cutting');
     }
     roll.cutProgress = Math.min(1, (performance.now() - d.holdStart) / (cutSeconds() * 1000));
+    sfxEvery('chop', 330);
     if (roll.cutProgress >= 1) {
       completeMakiCut();
       return;
@@ -9761,6 +9845,7 @@ function setMakiRollProgress(value) {
   const p = Math.max(0, Math.min(1, value));
   if (p === roll.rollProgress) return;
   if (roll.rollState === 'NONE' && p > 0) roll.baseLen = roll.ingredients.length; // la base queda enrollada
+  sfxEvery('swish', 170);
   roll.rollProgress = p;
   roll.rollState = p >= 1 ? 'ROLLED' : (p > 0 ? 'ROLLING' : 'NONE');
   if (roll.rollState === 'NONE') roll.baseLen = 0;
@@ -10047,6 +10132,8 @@ function setupWokStirButtons() {
       stirInterval = setInterval(() => {
         if (gameState.isPaused || gameState.isGameOver) return;
         wok.stirSeconds += 0.05;
+        sfxEvery('sizzle', 260);
+        sfxEvery('stir', 520);
         const prof = wok.profile || WOK_PROFILE_DEFAULT;
         const pct = Math.min(100, (wok.stirSeconds / prof.quemado) * 100);
         if (fillEl) fillEl.style.width = `${pct}%`;
@@ -10184,11 +10271,11 @@ function fryProdStart(id) {
   if (!friturasStaged() || gameState.isPaused || gameState.isGameOver) return;
   const p = FRY_PROD[id];
   if (!p) return;
-  if (gameState.fryPrep) { showStationToast('🥬 Ya estás preparando algo: espera a que termine.'); return; }
-  if (fryStockOf(id) >= p.max) { showStationToast(`${p.label}: el depósito ya está lleno.`); return; }
+  if (gameState.fryPrep) { showStationToast('🥬 Ya estás preparando algo: espera a que termine.'); playSound('error'); return; }
+  if (fryStockOf(id) >= p.max) { showStationToast(`${p.label}: el depósito ya está lleno.`); playSound('error'); return; }
   const total = Math.max(2, Math.round(p.time * fryProdSpeed()));
   gameState.fryPrep = { id, left: total, total };
-  try { playSound('add'); } catch (e) {}
+  try { playSound('prep'); } catch (e) {}
   renderFryStagePanelIfOpen();
   updateAreaTabAlerts();
 }
@@ -10201,7 +10288,7 @@ function fryProdTick() {
     const p = FRY_PROD[pr.id];
     gameState.fryStock[pr.id] = Math.min(p.max, fryStockOf(pr.id) + p.batch);
     gameState.fryPrep = null;
-    try { playSound('match'); } catch (e) {}
+    try { playSound('stock_add'); } catch (e) {}
     showStationToast(`🥬 Listo: ${p.label} +${p.batch}.`);
     renderFryStagePanelIfOpen();
     renderStageTabs();
@@ -10216,6 +10303,7 @@ function fryProteinStockBlocked(ing) {
   if (!friturasStaged() || !p || p.use !== 'fry') return false;
   if (fryStockOf(ing.id) >= 1) return false;
   showStationToast(`🥬 Sin ${p.label.toLowerCase()} preparado: ve a Producción.`);
+  playSound('error');
   return true;
 }
 function fryProteinTake(id) {
@@ -10233,6 +10321,7 @@ function moveFryToPass() {
   if (st.phase !== 'FRIED' || !fryCutDone(st)) return;
   if (gameState.fryPass.length >= FRY_PASS_MAX) {
     showStationToast('🍽️ El pase está lleno: emplata o descarta un plato.');
+    playSound('error');
     return;
   }
   gameState.fryPass.push({ proteinId: st.proteinId, result: st.fryResult || 'PERFECTO', secs: st.frySeconds, tone: st.fryTone,
@@ -10241,7 +10330,7 @@ function moveFryToPass() {
   cleanupFryItemDrag();
   cleanupFryKnifeDrag();
   gameState.fryStation = newFryStation();
-  try { playSound('add'); } catch (e) {}
+  try { playSound('clink'); } catch (e) {}
   showStationToast('🍽️ Plato al pase: ve a Emplatar antes de que se enfríe.');
   renderFryStation();
   renderPantryGrid();
@@ -10279,15 +10368,16 @@ function fryPlateTrayIds(proteinId) {
 function fryPlateToggle(id) {
   if (gameState.isPaused || gameState.isGameOver) return;
   const pl = gameState.fryPlate;
-  if (pl.sel == null || !gameState.fryPass[pl.sel]) { showStationToast('🍽️ Primero elige un plato del pase.'); return; }
+  if (pl.sel == null || !gameState.fryPass[pl.sel]) { showStationToast('🍽️ Primero elige un plato del pase.'); playSound('error'); return; }
   const at = pl.items.indexOf(id);
   if (at !== -1) {
     pl.items.splice(at, 1);
+    try { playSound('click'); } catch (e) {}
   } else {
     const p = FRY_PROD[id];
-    if (p && p.use === 'plate' && fryStockOf(id) < 1) { showStationToast(`🥬 Sin ${p.label.toLowerCase()}: prepárala en Producción.`); return; }
+    if (p && p.use === 'plate' && fryStockOf(id) < 1) { showStationToast(`🥬 Sin ${p.label.toLowerCase()}: prepárala en Producción.`); playSound('error'); return; }
     pl.items.push(id);
-    try { playSound('add'); } catch (e) {}
+    try { playSound('clink'); } catch (e) {}
   }
   renderFryStagePanelIfOpen();
   updateAreaTabAlerts();
@@ -10342,7 +10432,7 @@ function consumeFryPlated() {
 
 function fryPlateServe() {
   const a = analyzeFryPlate();
-  if (a.status !== 'MATCHED') { showStationToast('🍽️ El plato aún no está completo.'); return; }
+  if (a.status !== 'MATCHED') { showStationToast('🍽️ El plato aún no está completo.'); playSound('error'); return; }
   serveReadyDish('frituras', 0);
 }
 
@@ -10487,7 +10577,8 @@ function fryProteinNeedsBreading(id) {
 // Proteína con su empanizado: coat 0 = cruda sin empanizar, 1 = harina, 2 = huevo, 3 = panko.
 function fryItemMarkup(proteinId, coat) {
   const ing = INGREDIENTES.find(i => i.id === proteinId);
-  return `<span class="fry-item coat-${coat}"><span class="fry-item-base">${ingIconHtml(ing)}</span><i class="fry-item-coat"></i></span>`;
+  const shape = ing && ing.img ? ` style="--shape:url('${ing.img}')"` : '';
+  return `<span class="fry-item coat-${coat}"><span class="fry-item-base">${ingIconHtml(ing)}<i class="fry-item-coat"${shape}></i></span></span>`;
 }
 
 // Color de la comida según el tiempo en el aceite: pálida (cruda) → dorada (lista) → muy oscura.
@@ -10650,7 +10741,7 @@ function startFryingFromBoard() {
   station.phase = 'FRYING';
   station.frySeconds = 0;
   station.fryTone = '';
-  playSound('flame');
+  playSound('splash');
   if (fryTimerInterval) { clearInterval(fryTimerInterval); fryTimerInterval = null; }
   ensureFryTimer();
   renderFryStation();
@@ -10664,6 +10755,10 @@ function ensureFryTimer() {
     if (st.phase !== 'FRYING') { clearInterval(fryTimerInterval); fryTimerInterval = null; return; }
     if (gameState.isPaused || gameState.isGameOver) return;
     st.frySeconds += 0.05;
+    sfxEvery('crackle', 340);
+    const pf = fryProfile(st.proteinId);
+    if (!st._sndReady && st.frySeconds >= pf.ready) { st._sndReady = true; playSound('ding'); }   // punto justo
+    if (!st._sndBurn && st.frySeconds >= pf.burn) { st._sndBurn = true; playSound('burn'); }       // se está quemando
     renderFryStation();
   }, 50);
 }
@@ -10822,6 +10917,7 @@ function completeFryCut() {
   cleanupFryKnifeDrag();
   station.cutState = 'CUT';
   station.cutProgress = 1;
+  playSound('chop');
   playSound('match');
   renderFryStation();
   vfxAtElement('fry-table-card', 'cut');
@@ -10847,6 +10943,7 @@ function updateFryKnifeDrag() {
       if (d.ghost) d.ghost.classList.add('is-cutting');
     }
     station.cutProgress = Math.min(1, (performance.now() - d.holdStart) / (cutSeconds() * 1000));
+    sfxEvery('chop', 330);
     if (station.cutProgress >= 1) { completeFryCut(); return; }
     renderFryStation();
   } else if (d.holdStart) {
@@ -11314,7 +11411,7 @@ function updateBreadingDwell() {
       slots[slotIdx].classList.remove('is-dwelling');
       if (d.ghost) d.ghost.innerHTML = fryItemMarkup(d.ing.id, d.coat);
       setFryBreadingUi(true, d.coat);
-      playSound('add');
+      playSound(['pat', 'splat', 'crunch'][d.coat - 1] || 'add'); // harina, huevo, panko
     }
   } else {
     if (d.dwellIdx !== undefined && d.dwellIdx !== -1 && slots[d.dwellIdx]) slots[d.dwellIdx].classList.remove('is-dwelling');
@@ -11363,6 +11460,7 @@ function activateIngredientDrag() {
     d.breadTimer = setInterval(updateBreadingDwell, 50);
   }
 
+  try { playSound('tap'); } catch (e) {}
   d.tile.classList.add('dragging-source');
   document.body.classList.add('is-dragging-ingredient');
   getIngredientDropTargets().forEach(el => el.classList.add('drop-target-ready'));
@@ -14811,6 +14909,7 @@ function spawnCustomer(forced) {
 
   renderCustomers();
   renderBowls();
+  try { playSound('bell'); } catch (e) {}
   if (gameState.gameMode === 'RASH') {
     updateHUD();
   }

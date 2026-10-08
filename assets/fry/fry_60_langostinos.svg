@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs><linearGradient id="g0" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6c7b9"/><stop offset="0.55" stop-color="#f0a58e"/><stop offset="1" stop-color="#a87463"/></linearGradient><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f8d0c3"/><stop offset="0.55" stop-color="#f4b39e"/><stop offset="1" stop-color="#ab7d6f"/></linearGradient><linearGradient id="g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3c0b2"/><stop offset="0.55" stop-color="#eb9a82"/><stop offset="1" stop-color="#a56c5b"/></linearGradient></defs>
+  <g transform="translate(14 -6) scale(0.7)">
+    <path d="M52,16 Q60,6 63,9" fill="none" stroke="#2b1810" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><path d="M54,21 Q62,15 64,19" fill="none" stroke="#2b1810" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity="1"/>
+    <path d="M11,38 L3,47 L9,51 L12,45 L15,51 L20,46 Z" fill="#d97c64" stroke="#2b1810" stroke-width="2.1" stroke-linejoin="round" stroke-linecap="round" />
+    <path d="M9,36 C6,19 22,8 39,12 C51,15 57,27 52,39 C49,46 43,49 39,47 C43,41 43,33 36,27 C28,23 18,27 18,37 C18,45 14,49 9,36 Z" fill="url(#g2)" stroke="#2b1810" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round" />
+    <path d="M24,12 Q20,20 22,30 M31,10.5 Q28,18 31,27 M38,12 Q36,19 40,26 M45,16 Q44,21 48,27" fill="none" stroke="#b96a52" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
+    <circle cx="47" cy="22" r="2.4" fill="#2b1810"/><circle cx="46.3" cy="21.2" r="0.8" fill="#fff"/>
+    <path d="M16,22 Q22,14 33,13" fill="none" stroke="#ffffff" stroke-opacity="0.55" stroke-width="1.8" stroke-linecap="round"/>
+  </g><g transform="translate(-3 14) scale(0.72)">
+    <path d="M52,16 Q60,6 63,9" fill="none" stroke="#2b1810" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><path d="M54,21 Q62,15 64,19" fill="none" stroke="#2b1810" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity="1"/>
+    <path d="M11,38 L3,47 L9,51 L12,45 L15,51 L20,46 Z" fill="#d97c64" stroke="#2b1810" stroke-width="2.1" stroke-linejoin="round" stroke-linecap="round" />
+    <path d="M9,36 C6,19 22,8 39,12 C51,15 57,27 52,39 C49,46 43,49 39,47 C43,41 43,33 36,27 C28,23 18,27 18,37 C18,45 14,49 9,36 Z" fill="url(#g1)" stroke="#2b1810" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round" />
+    <path d="M24,12 Q20,20 22,30 M31,10.5 Q28,18 31,27 M38,12 Q36,19 40,26 M45,16 Q44,21 48,27" fill="none" stroke="#b96a52" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
+    <circle cx="47" cy="22" r="2.4" fill="#2b1810"/><circle cx="46.3" cy="21.2" r="0.8" fill="#fff"/>
+    <path d="M16,22 Q22,14 33,13" fill="none" stroke="#ffffff" stroke-opacity="0.55" stroke-width="1.8" stroke-linecap="round"/>
+  </g><g transform="translate(12 24) scale(0.74)">
+    <path d="M52,16 Q60,6 63,9" fill="none" stroke="#2b1810" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" opacity="1"/><path d="M54,21 Q62,15 64,19" fill="none" stroke="#2b1810" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" opacity="1"/>
+    <path d="M11,38 L3,47 L9,51 L12,45 L15,51 L20,46 Z" fill="#d97c64" stroke="#2b1810" stroke-width="2.1" stroke-linejoin="round" stroke-linecap="round" />
+    <path d="M9,36 C6,19 22,8 39,12 C51,15 57,27 52,39 C49,46 43,49 39,47 C43,41 43,33 36,27 C28,23 18,27 18,37 C18,45 14,49 9,36 Z" fill="url(#g0)" stroke="#2b1810" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round" />
+    <path d="M24,12 Q20,20 22,30 M31,10.5 Q28,18 31,27 M38,12 Q36,19 40,26 M45,16 Q44,21 48,27" fill="none" stroke="#b96a52" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
+    <circle cx="47" cy="22" r="2.4" fill="#2b1810"/><circle cx="46.3" cy="21.2" r="0.8" fill="#fff"/>
+    <path d="M16,22 Q22,14 33,13" fill="none" stroke="#ffffff" stroke-opacity="0.55" stroke-width="1.8" stroke-linecap="round"/>
+  </g>
+</svg>
