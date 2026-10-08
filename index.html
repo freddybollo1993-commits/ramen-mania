@@ -739,9 +739,11 @@
   .fp-cards { display: flex; gap: 6px; justify-content: space-between; }
   .fp-cards.many { flex-wrap: wrap; justify-content: flex-start; gap: 5px; }
   .fp-cards.many .fp-card { flex: 0 0 calc((100% - (var(--cols, 6) - 1) * 5px) / var(--cols, 6)); min-width: 0; padding: 3px 2px 4px; gap: 1px; }
-  .fp-cards.many .fp-card-ico { width: 24px; height: 24px; font-size: 18px; }
+  .fp-cards.many .fp-card-ico { width: 27px; height: 27px; font-size: 20px; }
   .fp-cards.many .fp-card-name { font-size: 9.5px; line-height: 1.1; }
   .fp-cards.many .fp-card-n { font-size: 9px; }
+  .fp-arrow { opacity: 0.9; white-space: nowrap; }
+  .fp-arrow .ing-ico { width: 13px; height: 13px; vertical-align: -2px; }
   .fp-cards.many .fp-card-n small { display: none; }
   .fp-cards.many .fp-btn { font-size: 9px; padding: 2px 3px; margin-top: 1px; }
   .fp-card { flex: 1; min-width: 0; background: rgba(60, 30, 22, 0.8); border: 1.5px solid #5a2e22; border-radius: 10px; padding: 5px 4px 6px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 2px; }
@@ -5925,7 +5927,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v42</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v43</span></button></div>
     </div>
   </div>
 
@@ -8440,6 +8442,25 @@ INGREDIENTES.forEach(i => {
   if (ING_SHORT[i.id]) i.short = ING_SHORT[i.id];
   if (ING_ICON_FIX[i.id]) i.icon = ING_ICON_FIX[i.id];
 });
+// Insumos de Producción: dos estados. CRUDO (fresco, como llega) se ve en Producción; PROCESADO (cortado / cocido,
+// listo para usar) es el icono normal y se ve al emplatar. Arte generado con tools/gen-production-icons.mjs.
+const ING_RAW_ART = {
+  15: 'assets/ingredients/ing_raw_15_huevo.svg', 17: 'assets/ingredients/ing_raw_17_poro.svg', 18: 'assets/ingredients/ing_raw_18_cebolla_china.svg',
+  20: 'assets/ingredients/ing_20_nori.svg', 21: 'assets/ingredients/ing_21_alga_wanji.svg', 22: 'assets/ingredients/ing_raw_22_bambu.svg',
+  23: 'assets/ingredients/ing_23_holantao.svg', 24: 'assets/ingredients/ing_raw_24_col.svg', 25: 'assets/ingredients/ing_raw_25_moyashi.svg',
+  27: 'assets/ingredients/ing_27_champinones.svg', 28: 'assets/ingredients/ing_28_shitake.svg', 29: 'assets/ingredients/ing_29_esparrago.svg',
+  30: 'assets/ingredients/ing_raw_30_zanahoria.svg'
+};
+const ING_PROC_ART = {
+  17: 'assets/ingredients/ing_proc_17_poro.svg', 18: 'assets/ingredients/ing_proc_18_cebolla_china.svg', 20: 'assets/ingredients/ing_proc_20_nori.svg',
+  21: 'assets/ingredients/ing_proc_21_alga_wanji.svg', 23: 'assets/ingredients/ing_proc_23_holantao.svg', 27: 'assets/ingredients/ing_proc_27_champinones.svg',
+  28: 'assets/ingredients/ing_proc_28_shitake.svg', 29: 'assets/ingredients/ing_proc_29_esparrago.svg'
+};
+INGREDIENTES.forEach(i => {
+  if (ING_PROC_ART[i.id]) i.img = ING_PROC_ART[i.id];
+  if (ING_RAW_ART[i.id]) i.rawImg = ING_RAW_ART[i.id];
+});
+
 
 const RECETAS_RAMEN = [
   {"id": 1, "name": "Shio", "price": 38, "desc": "Caldo Shio ligero, Chasu Asado, moyashi, nori y Ajonjolí Blanco", "ingredients": [1, 2, 11, 15, 17, 18, 19, 20, 25]},
@@ -10529,6 +10550,9 @@ function stParts(area, recipe) {
 const stRecipe = (area, name) => getRecetasByArea(area).find(r => r.name === name);
 const stIngName = id => { const i = INGREDIENTES.find(x => x.id === id); return i ? (i.short || i.display) : String(id); };
 const stIngIcon = id => ingIconHtml(INGREDIENTES.find(x => x.id === id));
+// Icono CRUDO (como llega a Producción); si el insumo no tiene versión cruda se usa el normal.
+const stIngIconRaw = id => { const i = INGREDIENTES.find(x => x.id === id); return i && i.rawImg ? `<img class="ing-ico" src="${i.rawImg}" alt="" draggable="false">` : ingIconHtml(i); };
+const stHasRaw = id => { const i = INGREDIENTES.find(x => x.id === id); return !!(i && i.rawImg); };
 
 // Vista de cocción: con las etapas activas el cuenco / wok / tabla de makis solo piden la parte de COCCIÓN
 // de cada receta (sin las piezas de emplatado). Recetas con la misma parte de cocción se agrupan: se distinguen
@@ -10757,10 +10781,10 @@ function stRenderProd(area, panel) {
     const many = ST_PROD[area].length > 6;
     const label = busy ? `⏳ <b data-fp-left>${pr.left}</b> s` : (many ? `+${p.batch} · ${stProdTime(p)} s` : `Preparar +${p.batch} · ${stProdTime(p)} s`);
     return `<div class="fp-card ${low ? 'is-low' : ''} ${busy ? 'is-busy' : ''}">
-      <div class="fp-card-ico">${stIngIcon(p.icon)}</div>
+      <div class="fp-card-ico">${stIngIconRaw(p.icon)}</div>
       <div class="fp-card-name">${p.label}</div>
       <div class="fp-bar"><i style="width:${Math.round(100 * n / p.max)}%"></i></div>
-      <div class="fp-card-n">${n}/${p.max} <small>${p.use === 'cook' ? 'para cocinar' : 'para emplatar'}</small></div>
+      <div class="fp-card-n">${n}/${p.max}${stHasRaw(p.icon) ? ` <span class="fp-arrow">→${stIngIcon(p.icon)}</span>` : ''} <small>${p.use === 'cook' ? 'para cocinar' : 'para emplatar'}</small></div>
       <div class="fp-bar fp-prep" style="display:${busy ? 'block' : 'none'}"><i data-fp-prep style="width:${busy ? Math.round(100 * (1 - pr.left / pr.total)) : 0}%"></i></div>
       <button class="fp-btn" ${pr || n >= p.max ? 'disabled' : ''} onclick="stProdStart('${area}','${p.key}')">${n >= p.max ? 'Lleno' : label}</button>
     </div>`;
