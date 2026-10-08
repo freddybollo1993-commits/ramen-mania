@@ -6000,7 +6000,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v47</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v48</span></button></div>
     </div>
   </div>
 
@@ -7363,10 +7363,11 @@
 
         <!-- TABS DE CATEGORÍAS DE SECRETOS -->
         <div class="secretos-tabs-bar" id="secretos-tabs-container">
-          <button class="secret-tab-btn active" onclick="filterSecretosCategory('todos', this)">⭐ Todos (22)</button>
+          <button class="secret-tab-btn active" onclick="filterSecretosCategory('todos', this)">⭐ Todos (23)</button>
           <button class="secret-tab-btn" onclick="filterSecretosCategory('ramen', this)">🍜 Tazones Ramen (9)</button>
           <button class="secret-tab-btn" onclick="filterSecretosCategory('ingredientes', this)">🥚 Ingredientes (8)</button>
           <button class="secret-tab-btn" onclick="filterSecretosCategory('cuchillos', this)">🔪 Cuchillos (5)</button>
+          <button class="secret-tab-btn" onclick="filterSecretosCategory('herramientas', this)">🛠️ Herramientas (1)</button>
         </div>
 
         <div class="secretos-grid" id="secretos-cards-container">
@@ -18856,6 +18857,35 @@ const CHEF_SECRETS = [
       "⏳ +5s de paciencia global",
       "🏆 +250 Puntos supremos"
     ]
+  },
+
+  // --- HERRAMIENTAS DEL MAESTRO (1) ---
+  {
+    id: "herramienta_benriner",
+    category: "herramientas",
+    name: "Benriner Turning Slicer",
+    kanji: "桂剥き器 ベンリナー",
+    subtitle: "El Torno de las Láminas Continuas (Katsuramuki)",
+    icon: "⚙️",
+    lore: "El katsuramuki (桂剥き) es una de las pruebas de cuchillo más exigentes de la cocina japonesa: pelar un cilindro de daikon, zanahoria o pepino en una sola lámina continua, translúcida y de grosor uniforme, que luego se enrolla y se corta en hilos finísimos para guarniciones. A mano exige años de práctica. El torno Benriner (ベンリナー, de benri 便利, 'práctico') mecaniza ese gesto: la verdura se clava en un disco de púas, una manivela la hace girar contra una hoja de acero ajustable y la lámina sale larga, pareja y sin romperse.\n\nEn las barras de ramen se usa para la mise en place de toppings de contraste: hebras de daikon, zanahoria y pepino que aportan frescor, color y textura crujiente sobre el tazón caliente. Su cuerpo de aluminio fundido lacado en verde menta, sus cuatro patas antideslizantes y sus mangos verdes lo han vuelto un clásico reconocible de las cocinas profesionales de Japón.",
+    tareTitle: "⚙️ Anatomía de la Máquina",
+    tare: [
+      { icon: "🔩", name: "Cuerpo de Aluminio Fundido", desc: "Carcasa lacada verde menta, ligera y rígida, sobre cuatro patas antideslizantes." },
+      { icon: "📌", name: "Soporte de Púas (Prong Holder)", desc: "Disco con púas que clava la verdura por el centro para que gire sin resbalar." },
+      { icon: "🔪", name: "Hoja de Corte Ajustable", desc: "Acero inoxidable afilado; se acerca o aleja para elegir el grosor de la lámina." },
+      { icon: "🔄", name: "Manivela de Mango Verde", desc: "Brazo de acero con empuñadura ergonómica que gira la verdura a velocidad constante." }
+    ],
+    stats: [
+      { label: "Función:", val: "Pelar en Lámina Continua" },
+      { label: "Grosor de Lámina:", val: "0.3 – 3 mm (ajustable)" },
+      { label: "Precisión:", val: "★★★★★" },
+      { label: "Ideal para:", val: "Daikon, Zanahoria & Pepino" }
+    ],
+    buffs: [
+      "🥕 Los toppings de verdura (Poro, Cebolla China, Zanahoria) rinden una porción con menos esfuerzo",
+      "💰 +15% de propina en pedidos con verduras en lámina",
+      "✨ +160 Puntos de precisión milimétrica"
+    ]
   }
 ];
 
@@ -19215,6 +19245,8 @@ function loadSecret3DModel(item) {
     buildShiitake3D(tamagoEggGroup);
   } else if (item.id === "tofu") {
     buildTofu3D(tamagoEggGroup);
+  } else if (item.id === "herramienta_benriner") {
+    buildBenriner3D(tamagoEggGroup);
   } else if (item.category === "cuchillos") {
     buildKnife3D(tamagoEggGroup, item.id);
   } else if (item.category === "ramen") {
@@ -19780,6 +19812,113 @@ function buildTofu3D(group) {
   }
 
   renderVoxelBuckets(group, buckets, mats, vs, 0);
+}
+
+// 11. BENRINER TURNING SLICER (TORNO CORTADOR DE VERDURAS) EN MICRO-VOXELS
+// Máquina de pelar en lámina continua (katsuramuki): cuerpo de aluminio lacado en verde menta, manivela con
+// brazo de acero y mango verde, disco de púas que sujeta la verdura, hoja de acero ajustable sobre su soporte,
+// ventana calada en el montante, nervio de refuerzo, cuatro patas, "BENRINER" grabado en la base y una zanahoria
+// montada pelándose en una lámina continua.
+function buildBenriner3D(group) {
+  const vs = 0.105;
+  const M = (c, r = 0.45, m = 0.05) => new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: m });
+  const mats = {
+    body: M(0x7fd6a6, 0.42, 0.08), bodyHi: M(0xa9ecc8, 0.33, 0.08), bodyLo: M(0x4aa97a, 0.5, 0.05),
+    green: M(0x1dc233, 0.3, 0.05), greenLo: M(0x0e8f1f, 0.4, 0.05), greenHi: M(0x5ff06f, 0.28, 0.05),
+    steel: M(0xeef2f4, 0.14, 0.95), steelLo: M(0x90a4ae, 0.25, 0.85), screw: M(0x455a64, 0.3, 0.8),
+    carrot: M(0xe8590c, 0.55, 0), carrotLo: M(0xb23f06, 0.6, 0), carrotHi: M(0xff8a3d, 0.5, 0), ribbon: M(0xffb067, 0.45, 0)
+  };
+  const B = {};
+  Object.keys(mats).forEach(k => { B[k] = []; });
+  const CX = -2;                                            // recentra: los mangos sobresalen a ambos lados
+  const put = (k, x, y, z) => B[k].push({ x: (x - CX) * vs, y: y * vs, z: z * vs });
+  const box = (k, x0, x1, y0, y1, z0, z1, opt = {}) => {
+    for (let x = x0; x <= x1; x++) for (let y = y0; y <= y1; y++) for (let z = z0; z <= z1; z++) {
+      if (opt.skip && opt.skip(x, y, z)) continue;
+      put(opt.hiTop && y === y1 ? 'bodyHi' : k, x, y, z);
+    }
+  };
+  // cilindro a lo largo de X con sombreado (mitad inferior más oscura, lomo superior más claro)
+  const cylX = (k, kLo, kHi, cy, cz, rFn, x0, x1) => {
+    for (let x = x0; x <= x1; x++) {
+      const r = typeof rFn === 'function' ? rFn(x) : rFn;
+      for (let y = Math.floor(cy - r); y <= Math.ceil(cy + r); y++) for (let z = Math.floor(cz - r); z <= Math.ceil(cz + r); z++) {
+        const dy = y - cy, dz = z - cz;
+        if (dy * dy + dz * dz > r * r + 0.4) continue;
+        put(dy < -r * 0.4 ? kLo : (dy > r * 0.55 && dz >= 0 && kHi ? kHi : k), x, y, z);
+      }
+    }
+  };
+
+  // --- Base: carril largo con canal central, cantos claros y 4 patas ---
+  box('body', -46, 46, 2, 10, -8, 8, { hiTop: true, skip: (x, y, z) => (Math.abs(x) >= 45 && Math.abs(z) >= 7) || (y === 10 && Math.abs(z) <= 3 && x >= -26 && x <= 30) });
+  box('bodyLo', -26, 30, 9, 9, -3, 3);
+  for (const fx of [-41, 41]) for (const fz of [-5, 5]) box('green', fx - 2, fx + 2, 0, 1, fz - 2, fz + 2);
+
+  // --- "BENRINER" grabado en el frente de la base (letras 5×7) ---
+  const FONT = {
+    B: ['11110', '10001', '10001', '11110', '10001', '10001', '11110'],
+    E: ['11111', '10000', '10000', '11110', '10000', '10000', '11111'],
+    N: ['10001', '11001', '10101', '10101', '10011', '10001', '10001'],
+    R: ['11110', '10001', '10001', '11110', '10100', '10010', '10001'],
+    I: ['11111', '00100', '00100', '00100', '00100', '00100', '11111']
+  };
+  'BENRINER'.split('').forEach((ch, i) => {
+    FONT[ch].forEach((row, ry) => row.split('').forEach((c, rx) => { if (c === '1') put('bodyLo', -24 + i * 6 + rx, 9 - ry, 9); }));
+  });
+
+  // --- Montante izquierdo (caja de la manivela): placa alta con ventana calada y nervio de refuerzo ---
+  const inTopCorner = (x, y) => y >= 59 && ((x <= -38 && y - 59 + (-38 - x) > 3) || (x >= -32 && y - 59 + (x + 32) > 3));
+  const inWindow = (x, y) => { const dx = (x + 35) / 3.6, dy = (y - 33) / 12; return dx * dx + dy * dy <= 1; };
+  box('body', -40, -30, 10, 62, -8, 8, { hiTop: true, skip: (x, y, z) => inTopCorner(x, y) || inWindow(x, y) || ((y - 54) * (y - 54) + z * z <= 9.4) });   // (el eje de la manivela pasa por aquí)
+  // marco de la ventana (borde más oscuro)
+  for (let x = -40; x <= -30; x++) for (let y = 10; y <= 62; y++) {
+    const dx = (x + 35) / 3.6, dy = (y - 33) / 12, d = dx * dx + dy * dy;
+    if (d > 1 && d <= 1.5) { put('bodyLo', x, y, 8); put('bodyLo', x, y, -8); }
+  }
+  // nervio diagonal de refuerzo (lado izquierdo)
+  for (let x = -47; x <= -41; x++) {
+    const h = Math.round(10 + (x + 47) * 5.6 + 6);
+    for (let y = 10; y <= h; y++) for (let z = -4; z <= 4; z++) put(y === h ? 'bodyHi' : 'body', x, y, z);
+  }
+  // tornillos
+  for (const [sx, sy] of [[-35, 14], [-35, 58], [-32, 24], [-38, 24]]) { put('screw', sx, sy, 9); put('screw', sx, sy, -9); }
+
+  // --- Manivela izquierda: eje verde, brazo de acero y mango ergonómico ---
+  cylX('green', 'greenLo', 'greenHi', 54, 0, 3, -50, -26);
+  box('steelLo', -53, -50, 31, 58, -2, 2, { skip: (x, y, z) => (y >= 57 && Math.abs(z) === 2) || (y <= 32 && Math.abs(z) === 2) });
+  for (let y = 31; y <= 58; y++) put('steel', -53, y, 0);                      // brillo del brazo
+  cylX('green', 'greenLo', 'greenHi', 31, 0, x => (x < -58 ? 3.8 : 3.0), -70, -52);
+
+  // --- Disco de púas (prong holder) con púas verdes ---
+  cylX('green', 'greenLo', 'greenHi', 44, 0, 10, -29, -27);
+  const prongs = [[0, 0]];
+  for (let i = 0; i < 6; i++) { const a = i * Math.PI / 3; prongs.push([Math.round(5.5 * Math.cos(a)), Math.round(5.5 * Math.sin(a))]); }
+  for (let i = 0; i < 6; i++) { const a = i * Math.PI / 3 + Math.PI / 6; prongs.push([Math.round(8 * Math.cos(a)), Math.round(8 * Math.sin(a))]); }
+  prongs.forEach(([dy, dz]) => cylX('green', 'greenLo', 'greenHi', 44 + dy, dz, 0.9, -26, -19));
+
+  // --- Zanahoria montada en las púas (se está pelando) ---
+  cylX('carrot', 'carrotLo', 'carrotHi', 44, 0, x => Math.max(2, 6.4 - (x + 18) * 0.045), -18, 8);
+  for (let x = -18; x <= 8; x += 3) for (const z of [-5, 5]) put('carrotLo', x, 44, z);   // anillos de la zanahoria
+
+  // --- Bloque derecho con soporte y hoja de acero ---
+  box('body', 30, 44, 10, 30, -7, 7, { hiTop: true, skip: (x, y, z) => (Math.abs(x - 37) >= 7 && Math.abs(z) >= 6) });
+  box('body', 31, 35, 31, 54, -7, 7, { hiTop: true, skip: (x, y, z) => y >= 52 && Math.abs(z) >= 6 });
+  box('steel', 29, 30, 30, 52, -5, 5);                                          // hoja
+  for (let y = 30; y <= 52; y++) { put('steelLo', 29, y, 5); put('steel', 28, y, -5); }   // lomo y filo
+  for (const sy of [34, 42, 50]) put('screw', 28, sy, 3);
+  // manivela derecha (ajuste de la hoja)
+  box('green', 44, 46, 14, 40, -2, 2);
+  box('steelLo', 47, 49, 18, 38, -2, 2);
+  cylX('green', 'greenLo', 'greenHi', 22, 0, 3, 50, 64);
+
+  // --- Lámina continua de zanahoria cayendo desde la hoja ---
+  for (let t = 0; t <= 1.0001; t += 0.015) {
+    const x = Math.round(27 - t * 20 + Math.sin(t * 5) * 1.5), y = Math.round(42 - 30 * Math.pow(t, 1.4));
+    for (let z = -4; z <= 4; z++) put(t > 0.5 ? 'carrotHi' : 'ribbon', x, y, z);
+  }
+
+  renderVoxelBuckets(group, B, mats, vs, 0);
 }
 
 // 9. CUCHILLOS JAPONESES EN MICRO-VOXELS
