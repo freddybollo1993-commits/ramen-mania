@@ -5929,7 +5929,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v44</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v45</span></button></div>
     </div>
   </div>
 
@@ -9093,7 +9093,7 @@ function switchKitchenArea(areaId) {
   try { // pista única para quien juega con el dedo
     if ((navigator.maxTouchPoints > 0) && !isMultiplayerSession() && safeStorage.getItem('ramen_swipe_hint') !== '1') {
       safeStorage.setItem('ramen_swipe_hint', '1');
-      setTimeout(() => showStationToast('👆 Desliza desde el borde de la pantalla: ← Producción · Emplatar →'), 600);
+      setTimeout(() => showStationToast('👆 Desde el borde izquierdo → Producción · desde el borde derecho ← Emplatar'), 600);
     }
   } catch (e) {}
   // Cada estación conserva su estado al cambiar de pestaña, como en una cocina real: los
@@ -9200,7 +9200,7 @@ function renderStageTabs() {
   updateStageEdgeHints();
   if (isMultiplayerSession()) { box.innerHTML = ''; return; }
   const area = gameState.activeArea, cur = getStage(area), ck = AREA_COOK_STAGE[area] || AREA_COOK_STAGE.ramen;
-  const defs = [['cook', ck.icon, ck.label], ['prod', STAGE_INFO.prod.icon, STAGE_INFO.prod.label], ['plate', STAGE_INFO.plate.icon, STAGE_INFO.plate.label]];
+  const defs = [['prod', STAGE_INFO.prod.icon, STAGE_INFO.prod.label], ['cook', ck.icon, ck.label], ['plate', STAGE_INFO.plate.icon, STAGE_INFO.plate.label]];   // orden fijo: izquierda · centro · derecha
   const on = stagedOn(area);
   box.innerHTML = defs.map(([id, icon, label]) => {
     const locked = id !== 'cook' && !on;
@@ -9257,10 +9257,10 @@ function setKitchenStage(stage) {
 }
 
 // --- Deslizar entre etapas ---
-// Orden: Producción (izquierda) · Cocinar (centro) · Emplatar (derecha). Se cambia deslizando el dedo hacia
-// el lado de la etapa, pero el gesto debe EMPEZAR cerca del borde de la pantalla (así no se cambia por error
-// al tocar o arrastrar cosas en la cocina): desde el borde derecho hacia la izquierda va a la etapa de la
-// izquierda; desde el borde izquierdo hacia la derecha, a la de la derecha.
+// Estructura fija: Producción (izquierda) · Cocinar (centro) · Emplatar (derecha), como tres pantallas puestas
+// una al lado de otra. El contenido sigue al dedo: desde el borde IZQUIERDO hacia la derecha se ve la pantalla
+// de la izquierda; desde el borde DERECHO hacia la izquierda, la de la derecha. El gesto debe EMPEZAR cerca del
+// borde (así no se cambia por error al tocar o arrastrar cosas en la cocina).
 const STAGE_ORDER = ['prod', 'cook', 'plate'];
 const SWIPE_EDGE_PX = 72;        // zona del borde donde puede empezar el gesto
 const SWIPE_MIN_PX = 80;         // recorrido horizontal mínimo
@@ -9326,7 +9326,7 @@ document.addEventListener('pointermove', (e) => {
     if (performance.now() - sw.t > SWIPE_MAX_MS) { stageSwipe = null; return; }
     sw.done = true;
     swipeNoClickUntil = performance.now() + 400;                 // el toque que termina el gesto no debe activar botones
-    swipeToStage(dx > 0 ? 1 : -1);
+    swipeToStage(dx > 0 ? -1 : 1);       // dedo a la derecha (desde el borde izquierdo) → etapa de la izquierda
   }
 }, { passive: true });
 
@@ -9349,12 +9349,12 @@ function updateStageEdgeHints() {
   const on = !isMultiplayerSession() && stagedOn(gameState.activeArea) && start && getComputedStyle(start).display === 'none';
   const cur = STAGE_ORDER.indexOf(getStage(gameState.activeArea));
   const icon = id => id === 'cook' ? (AREA_COOK_STAGE[gameState.activeArea] || AREA_COOK_STAGE.ramen).icon : STAGE_INFO[id].icon;
-  // borde izquierdo → etapa de la derecha; borde derecho → etapa de la izquierda
+  // estructura fija: el borde izquierdo lleva a la etapa de su izquierda (Producción) y el derecho a la de su derecha (Emplatar)
   const toRight = STAGE_ORDER[cur + 1], toLeft = STAGE_ORDER[cur - 1];
-  left.style.display = on && toRight ? 'flex' : 'none';
-  right.style.display = on && toLeft ? 'flex' : 'none';
-  if (toRight) left.innerHTML = `<span>${icon(toRight)}</span><b>›</b>`;
-  if (toLeft) right.innerHTML = `<b>‹</b><span>${icon(toLeft)}</span>`;
+  left.style.display = on && toLeft ? 'flex' : 'none';
+  right.style.display = on && toRight ? 'flex' : 'none';
+  if (toLeft) left.innerHTML = `<span>${icon(toLeft)}</span><b>›</b>`;
+  if (toRight) right.innerHTML = `<b>‹</b><span>${icon(toRight)}</span>`;
 }
 
 // Indicador en cada pestaña (menos la activa): en curso, listo o a punto de quemarse.
