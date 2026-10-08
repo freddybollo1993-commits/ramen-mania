@@ -10,7 +10,10 @@ const NIVELES = grab('NIVELES');
 const UNLOCKS = eval('(' + src.match(/const AREA_DISH_UNLOCKS = (\{[\s\S]*?\n\});/)[1] + ')');
 
 // Segundos de trabajo estimados por pedido para un jugador que ya conoce el juego.
-const SEC = { ramen: 13, salteados: 14, makis: 15, frituras: 38 };
+const SEC = { ramen: 13, salteados: 14, makis: 15, frituras: 24 };
+// Con las etapas de Producción y Emplatar activas (desde el nivel indicado) cada pedido lleva más trabajo.
+const STAGED_EXTRA = { ramen: 7, salteados: 8, makis: 9, frituras: 14 };
+const STAGE_GATE_LEVEL = { ramen: 4, salteados: 5, makis: 7, frituras: 7 };
 // Cuánto más lento es un jugador que está aprendiendo (1.8 = casi el doble) en cada nivel.
 const NOVICE = [1.8, 1.6, 1.5, 1.35, 1.25, 1.15, 1.05, 1.0];
 
@@ -25,7 +28,7 @@ const rows = NIVELES.map((L, i) => {
   if (areas.length === 1) w[areas[0]] = 1;
   else { const others = areas.filter(a => a !== 'ramen'); w.ramen = 0.4; others.forEach(a => (w[a] = 0.6 / others.length)); }
   const price = areas.reduce((t, a) => t + w[a] * pool[a].reduce((x, r) => x + r.price, 0) / pool[a].length, 0);
-  const secs = areas.reduce((t, a) => t + w[a] * SEC[a], 0);
+  const secs = areas.reduce((t, a) => t + w[a] * (SEC[a] + (L.level >= STAGE_GATE_LEVEL[a] ? STAGED_EXTRA[a] : 0)), 0);
   const orders = L.goal / price;
   const work = orders * secs * NOVICE[i];
   return {

@@ -716,6 +716,10 @@
   .kitchen-stage-btn:not(.active)[data-alert="ready"] .area-dot { display: block; background: #4caf50; }
   .kitchen-stage-btn:not(.active)[data-alert="warn"] .area-dot { display: block; background: #e53935; animation: areaDotPulse 0.5s ease-in-out infinite alternate; }
   .stage-panel { flex: 1; width: 100%; display: none; justify-content: center; align-items: center; box-sizing: border-box; padding: 4px 8px 8px; }
+  .kitchen-stage-btn.locked { opacity: 0.45; }
+  .fp-bowl { display: flex; align-items: center; justify-content: center; min-height: 64px; }
+  .fp-bowl svg { width: 96px; height: auto; }
+  .fp-disc-img { width: 78%; height: 78%; object-fit: contain; }
   .stage-edge-hint {
     position: fixed; top: 58%; transform: translateY(-50%); z-index: 95; pointer-events: none;
     display: none; align-items: center; gap: 1px; padding: 6px 3px;
@@ -5914,7 +5918,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v39</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v40</span></button></div>
     </div>
   </div>
 
@@ -6504,7 +6508,7 @@
     <div class="maki-station-box" id="maki-station-box">
       <div class="maki-mat-card" id="maki-scene">
         <div class="maki-mat-header">
-          <button class="station-serve-btn" id="maki-serve-btn" onclick="serveReadyDish('makis', 0)">✅ Servir</button>
+          <button class="station-serve-btn" id="maki-serve-btn" onclick="makiServeClick()">✅ Servir</button>
           <button class="btn-bowl-trash" onclick="clearMakiRoll()" title="Vaciar tabla">🗑️</button>
         </div>
 
@@ -6560,7 +6564,7 @@
           <span class="wok-stir-label" id="wok-stir-label-0">Saltear (mantén)</span>
           <div class="wok-stir-bar"><div class="wok-stir-fill" id="wok-stir-fill-0"></div></div>
         </button>
-        <button class="station-serve-btn wok-serve-btn" id="wok-serve-btn-0" onclick="event.stopPropagation(); serveReadyDish('salteados', 0)">✅ Servir</button>
+        <button class="station-serve-btn wok-serve-btn" id="wok-serve-btn-0" onclick="event.stopPropagation(); wokServeClick(0)">✅ Servir</button>
         <div class="wok-dock-footer">
           <span class="wok-dock-name">Wok 1</span>
           <button class="btn-bowl-trash" onclick="event.stopPropagation(); clearWok(0)" title="Vaciar Wok 1">🗑️</button>
@@ -6576,7 +6580,7 @@
           <span class="wok-stir-label" id="wok-stir-label-1">Saltear (mantén)</span>
           <div class="wok-stir-bar"><div class="wok-stir-fill" id="wok-stir-fill-1"></div></div>
         </button>
-        <button class="station-serve-btn wok-serve-btn" id="wok-serve-btn-1" onclick="event.stopPropagation(); serveReadyDish('salteados', 1)">✅ Servir</button>
+        <button class="station-serve-btn wok-serve-btn" id="wok-serve-btn-1" onclick="event.stopPropagation(); wokServeClick(1)">✅ Servir</button>
         <div class="wok-dock-footer">
           <span class="wok-dock-name">Wok 2</span>
           <button class="btn-bowl-trash" onclick="event.stopPropagation(); clearWok(1)" title="Vaciar Wok 2">🗑️</button>
@@ -8408,12 +8412,14 @@ const INGREDIENTES = [
   {"id": 92, "name": "toping", "cat": "otros", "areas": ["frituras"], "icon": "✨", "display": "Toping", "img": null},
   {"id": 93, "name": "tortilla", "cat": "otros", "areas": ["salteados"], "icon": "🍳", "display": "Tortilla", "img": null},
   {"id": 94, "name": "wantán", "cat": "otros", "areas": ["salteados"], "icon": "🥟", "display": "Wantán", "img": null},
-  {"id": 95, "name": "zucchini", "cat": "vegetales", "areas": ["salteados"], "icon": "🥒", "display": "Zucchini", "img": null}
+  {"id": 95, "name": "zucchini", "cat": "vegetales", "areas": ["salteados"], "icon": "🥒", "display": "Zucchini", "img": null},
+  {"id": 96, "name": "wasabi", "cat": "otros", "areas": [], "icon": "🌿", "display": "Wasabi", "img": null},
+  {"id": 97, "name": "jengibre", "cat": "otros", "areas": [], "icon": "🌸", "display": "Jengibre (gari)", "img": null}
 ];
 // Nombre corto para las fichas del panel (en pantallas angostas el nombre completo se cortaba) y
 // iconos propios donde dos ingredientes de la misma área compartían el mismo.
 // Arte generado con tools/gen-ingredient-icons.mjs (id -> SVG 64x64). Los emoji quedan solo de respaldo.
-const ING_ART = {"31":"assets/ingredients/ing_31_aceite_ajonjoli.svg","32":"assets/ingredients/ing_32_ajo_chino.svg","33":"assets/ingredients/ing_33_ajonjoli.svg","34":"assets/ingredients/ing_34_ajonjoli_negro.svg","35":"assets/ingredients/ing_35_aji_limo.svg","36":"assets/fry/fry_36_alitas.svg","37":"assets/ingredients/ing_37_arroz.svg","38":"assets/ingredients/ing_38_arroz_shari.svg","39":"assets/ingredients/ing_39_atun.svg","40":"assets/ingredients/ing_40_base_shimaya.svg","41":"assets/ingredients/ing_41_benishoga.svg","42":"assets/ingredients/ing_42_beterraga.svg","43":"assets/fry/fry_43_bife_cerdo.svg","44":"assets/fry/fry_44_bife_pollo.svg","45":"assets/ingredients/ing_45_brocoli.svg","46":"assets/ingredients/ing_46_cebolla.svg","47":"assets/ingredients/ing_47_cecina.svg","48":"assets/ingredients/ing_48_chancho_chaufa.svg","49":"assets/ingredients/ing_49_cobertura_atun.svg","50":"assets/ingredients/ing_50_cobertura_conchas.svg","51":"assets/ingredients/ing_51_cobertura_amazon.svg","52":"assets/ingredients/ing_52_col.svg","53":"assets/ingredients/ing_53_condimentos.svg","54":"assets/ingredients/ing_54_ebi.svg","55":"assets/ingredients/ing_55_ensalada.svg","56":"assets/ingredients/ing_56_ensalada_fria.svg","57":"assets/ingredients/ing_57_gohan.svg","58":"assets/ingredients/ing_58_harina.svg","59":"assets/ingredients/ing_59_hilos_wantan.svg","60":"assets/fry/fry_60_langostinos.svg","61":"assets/ingredients/ing_61_lomo.svg","62":"assets/ingredients/ing_62_mayonesa_casa.svg","63":"assets/ingredients/ing_63_negi.svg","64":"assets/ingredients/ing_64_palta.svg","65":"assets/ingredients/ing_65_panko.svg","66":"assets/ingredients/ing_66_pasta_gyoza.svg","67":"assets/ingredients/ing_67_pimenton.svg","68":"assets/ingredients/ing_68_pimiento.svg","69":"assets/ingredients/ing_69_pollo.svg","70":"assets/fry/fry_70_pollo.svg","71":"assets/ingredients/ing_71_poro_especial.svg","72":"assets/ingredients/ing_72_queso_crema.svg","73":"assets/fry/fry_73_gyoza.svg","74":"assets/ingredients/ing_74_rulos_cebolla.svg","75":"assets/ingredients/ing_75_sal.svg","76":"assets/ingredients/ing_76_salsa.svg","77":"assets/ingredients/ing_77_salsa_acevichada.svg","78":"assets/ingredients/ing_78_salsa_batayaki.svg","79":"assets/ingredients/ing_79_salsa_chaufa.svg","80":"assets/ingredients/ing_80_salsa_digion.svg","81":"assets/ingredients/ing_81_salsa_guacamole.svg","82":"assets/ingredients/ing_82_salsa_hotate.svg","83":"assets/ingredients/ing_83_salsa_kare.svg","84":"assets/ingredients/ing_84_salsa_katsu.svg","85":"assets/ingredients/ing_85_salsa_nin_niku.svg","86":"assets/ingredients/ing_86_salsa_omuraisu.svg","87":"assets/ingredients/ing_87_salsa_teriyaki.svg","88":"assets/ingredients/ing_88_salsa_yakitori.svg","89":"assets/ingredients/ing_89_salsa_yama.svg","90":"assets/ingredients/ing_90_salsa_yasaitame.svg","91":"assets/ingredients/ing_91_togarashi.svg","92":"assets/ingredients/ing_92_toping.svg","93":"assets/ingredients/ing_93_tortilla.svg","94":"assets/ingredients/ing_94_wantan.svg","95":"assets/ingredients/ing_95_zucchini.svg"};
+const ING_ART = {"31":"assets/ingredients/ing_31_aceite_ajonjoli.svg","32":"assets/ingredients/ing_32_ajo_chino.svg","33":"assets/ingredients/ing_33_ajonjoli.svg","34":"assets/ingredients/ing_34_ajonjoli_negro.svg","35":"assets/ingredients/ing_35_aji_limo.svg","36":"assets/fry/fry_36_alitas.svg","37":"assets/ingredients/ing_37_arroz.svg","38":"assets/ingredients/ing_38_arroz_shari.svg","39":"assets/ingredients/ing_39_atun.svg","40":"assets/ingredients/ing_40_base_shimaya.svg","41":"assets/ingredients/ing_41_benishoga.svg","42":"assets/ingredients/ing_42_beterraga.svg","43":"assets/fry/fry_43_bife_cerdo.svg","44":"assets/fry/fry_44_bife_pollo.svg","45":"assets/ingredients/ing_45_brocoli.svg","46":"assets/ingredients/ing_46_cebolla.svg","47":"assets/ingredients/ing_47_cecina.svg","48":"assets/ingredients/ing_48_chancho_chaufa.svg","49":"assets/ingredients/ing_49_cobertura_atun.svg","50":"assets/ingredients/ing_50_cobertura_conchas.svg","51":"assets/ingredients/ing_51_cobertura_amazon.svg","52":"assets/ingredients/ing_52_col.svg","53":"assets/ingredients/ing_53_condimentos.svg","54":"assets/ingredients/ing_54_ebi.svg","55":"assets/ingredients/ing_55_ensalada.svg","56":"assets/ingredients/ing_56_ensalada_fria.svg","57":"assets/ingredients/ing_57_gohan.svg","58":"assets/ingredients/ing_58_harina.svg","59":"assets/ingredients/ing_59_hilos_wantan.svg","60":"assets/fry/fry_60_langostinos.svg","61":"assets/ingredients/ing_61_lomo.svg","62":"assets/ingredients/ing_62_mayonesa_casa.svg","63":"assets/ingredients/ing_63_negi.svg","64":"assets/ingredients/ing_64_palta.svg","65":"assets/ingredients/ing_65_panko.svg","66":"assets/ingredients/ing_66_pasta_gyoza.svg","67":"assets/ingredients/ing_67_pimenton.svg","68":"assets/ingredients/ing_68_pimiento.svg","69":"assets/ingredients/ing_69_pollo.svg","70":"assets/fry/fry_70_pollo.svg","71":"assets/ingredients/ing_71_poro_especial.svg","72":"assets/ingredients/ing_72_queso_crema.svg","73":"assets/fry/fry_73_gyoza.svg","74":"assets/ingredients/ing_74_rulos_cebolla.svg","75":"assets/ingredients/ing_75_sal.svg","76":"assets/ingredients/ing_76_salsa.svg","77":"assets/ingredients/ing_77_salsa_acevichada.svg","78":"assets/ingredients/ing_78_salsa_batayaki.svg","79":"assets/ingredients/ing_79_salsa_chaufa.svg","80":"assets/ingredients/ing_80_salsa_digion.svg","81":"assets/ingredients/ing_81_salsa_guacamole.svg","82":"assets/ingredients/ing_82_salsa_hotate.svg","83":"assets/ingredients/ing_83_salsa_kare.svg","84":"assets/ingredients/ing_84_salsa_katsu.svg","85":"assets/ingredients/ing_85_salsa_nin_niku.svg","86":"assets/ingredients/ing_86_salsa_omuraisu.svg","87":"assets/ingredients/ing_87_salsa_teriyaki.svg","88":"assets/ingredients/ing_88_salsa_yakitori.svg","89":"assets/ingredients/ing_89_salsa_yama.svg","90":"assets/ingredients/ing_90_salsa_yasaitame.svg","91":"assets/ingredients/ing_91_togarashi.svg","92":"assets/ingredients/ing_92_toping.svg","93":"assets/ingredients/ing_93_tortilla.svg","94":"assets/ingredients/ing_94_wantan.svg","95":"assets/ingredients/ing_95_zucchini.svg","96":"assets/ingredients/ing_96_wasabi.svg","97":"assets/ingredients/ing_97_jengibre.svg"};
 const ING_SHORT = { 73: 'Relleno Gyoza', 60: 'Langostino ×6', 70: 'Pollo ×7', 62: 'Mayo Casa', 74: 'Rulos Cebolla',
   49: 'Cob. Atún', 54: 'Ebi Langost.', 77: 'Acevichada', 50: 'Cob. Conchas', 51: 'Cob. Amazon', 28: 'Shitake', 21: 'Alga Wanji' };
 const ING_ICON_FIX = { 62: '🍯', 76: '🍅', 53: '🌿', 44: '🐔', 70: '🍖', 49: '🍣' };
@@ -8514,11 +8520,11 @@ const NIVELES = [
   { level: 1, name: "Nivel 1: Aprendiz de Barra", ramen_names: ["Shio","Shoyu"], max_orders: 1, max_customers: 2, goal: 160, time: 150, spawn_time: 9, patience_mult: 1.6, intro: "Solo ramen Shio y Shoyu. Sin prisa: arma el cuenco en orden y sirve." },
   { level: 2, name: "Nivel 2: Cocinero de Turno", ramen_names: ["Shio","Shoyu","Miso","Chashu"], max_orders: 1, max_customers: 2, goal: 210, time: 170, spawn_time: 8, patience_mult: 1.4, intro: "Llegan Miso y Chashu." },
   { level: 3, name: "Nivel 3: El Primer Wok", ramen_names: ["Shio","Shoyu","Miso","Chashu"], max_orders: 1, max_customers: 3, goal: 240, time: 190, spawn_time: 8, patience_mult: 1.3, intro: "Nueva área: SALTEADO. Tres clientes a la vez." },
-  { level: 4, name: "Nivel 4: Chef de Partida", ramen_names: ["Shio","Shoyu","Miso","Chashu","Tonkotsu","Tan tan"], max_orders: 2, max_customers: 3, goal: 280, time: 200, spawn_time: 7, patience_mult: 1.2, intro: "Tonkotsu y Tan tan; los clientes ya pueden pedir dos platos." },
-  { level: 5, name: "Nivel 5: Mesa de Makis", ramen_names: ["Shio","Shoyu","Miso","Chashu","Tonkotsu","Tan tan"], max_orders: 2, max_customers: 3, goal: 330, time: 210, spawn_time: 7, patience_mult: 1.15, intro: "Nueva área: MAKIS. Primero la base, luego enrolla y corta." },
-  { level: 6, name: "Nivel 6: La Freidora", ramen_names: ["Shio","Shoyu","Miso","Chashu","Tonkotsu","Tan tan","Ebi","Bajiru"], max_orders: 2, max_customers: 4, goal: 370, time: 240, spawn_time: 6, patience_mult: 1.1, intro: "Nueva área: FRITURAS. Empanizado, olla y corte." },
-  { level: 7, name: "Nivel 7: Sous Chef", ramen_names: ["Shio","Shoyu","Miso","Chashu","Tonkotsu","Tan tan","Ebi","Bajiru"], max_orders: 3, max_customers: 4, goal: 470, time: 260, spawn_time: 5, patience_mult: 1.05, intro: "Más platos de cada área y pedidos de hasta tres platos." },
-  { level: 8, name: "Nivel 8: Maestro del Ramen", ramen_names: ["Shio","Shoyu","Miso","Chashu","Tonkotsu","Tan tan","Ebi","Bajiru","Vegetariano"], max_orders: 3, max_customers: 4, goal: 560, time: 280, spawn_time: 4, patience_mult: 1, intro: "La carta completa. ¡A todo ritmo!" }
+  { level: 4, name: "Nivel 4: Chef de Partida", ramen_names: ["Shio","Shoyu","Miso","Chashu","Tonkotsu","Tan tan"], max_orders: 2, max_customers: 3, goal: 280, time: 240, spawn_time: 7, patience_mult: 1.2, intro: "Tonkotsu y Tan tan; los clientes ya pueden pedir dos platos." },
+  { level: 5, name: "Nivel 5: Mesa de Makis", ramen_names: ["Shio","Shoyu","Miso","Chashu","Tonkotsu","Tan tan"], max_orders: 2, max_customers: 3, goal: 330, time: 290, spawn_time: 7, patience_mult: 1.15, intro: "Nueva área: MAKIS. Primero la base, luego enrolla y corta." },
+  { level: 6, name: "Nivel 6: La Freidora", ramen_names: ["Shio","Shoyu","Miso","Chashu","Tonkotsu","Tan tan","Ebi","Bajiru"], max_orders: 2, max_customers: 4, goal: 370, time: 260, spawn_time: 6, patience_mult: 1.1, intro: "Nueva área: FRITURAS. Empanizado, olla y corte." },
+  { level: 7, name: "Nivel 7: Sous Chef", ramen_names: ["Shio","Shoyu","Miso","Chashu","Tonkotsu","Tan tan","Ebi","Bajiru"], max_orders: 3, max_customers: 4, goal: 470, time: 350, spawn_time: 5, patience_mult: 1.05, intro: "Más platos de cada área y pedidos de hasta tres platos." },
+  { level: 8, name: "Nivel 8: Maestro del Ramen", ramen_names: ["Shio","Shoyu","Miso","Chashu","Tonkotsu","Tan tan","Ebi","Bajiru","Vegetariano"], max_orders: 3, max_customers: 4, goal: 560, time: 370, spawn_time: 4, patience_mult: 1, intro: "La carta completa. ¡A todo ritmo!" }
 ];
 
 const CUSTOMER_TEMPLATES = [
@@ -8551,7 +8557,7 @@ let gameState = {
   currentCategory: 'todos',
   activeArea: 'ramen',
   stages: { ramen: 'cook', salteados: 'cook', makis: 'cook', frituras: 'cook' }, // etapa abierta en cada área
-  fryStock: {}, fryPrep: null, fryPass: [], fryPlate: { sel: null, items: [] },     // Frituras por etapas
+  st: null, // etapas por área: existencias, preparación, pase y plato (ver stInit)
   makiRoll: { ingredients: [], matPlaced: false, rollState: 'NONE', rollProgress: 0, cutState: 'NONE', cutProgress: 0 },
   woks: [
     { ingredients: [], result: null, matchedRecipe: null, stirring: false, stirSeconds: 0 },
@@ -8998,16 +9004,16 @@ function getUnlockedIngredients() {
   if (gameState.activeArea && gameState.activeArea !== 'ramen') {
     // Áreas nuevas (Salteados/Frituras/Makis): solo los ingredientes de los platos ya desbloqueados.
     const ids = new Set();
-    getUnlockedRecipes().filter(r => r.area === gameState.activeArea).forEach(r => r.ingredients.forEach(id => ids.add(id)));
+    stView(gameState.activeArea, getUnlockedRecipes().filter(r => r.area === gameState.activeArea)).forEach(r => r.ingredients.forEach(id => ids.add(id)));
     list = INGREDIENTES.filter(i => ids.has(i.id));
     // En Frituras la harina, el huevo y el panko son los tres espacios de empanizado, no fichas.
-    if (gameState.activeArea === 'frituras') list = list.filter(i => !FRY_BREADING_IDS.includes(i.id) && (!friturasStaged() || FRY_PROTEIN_IDS.includes(i.id)));
+    if (gameState.activeArea === 'frituras') list = list.filter(i => !FRY_BREADING_IDS.includes(i.id) && (!stagedOn('frituras') || FRY_PROTEIN_IDS.includes(i.id)));
   } else if (isMultiplayerSession()) {
     list = INGREDIENTES.filter(i => i.areas && i.areas.includes('ramen'));
   } else {
     const unlockedRecs = getUnlockedRamenRecipes();
     const ingIds = new Set();
-    unlockedRecs.forEach(r => r.ingredients.forEach(id => ingIds.add(id)));
+    stView('ramen', unlockedRecs).forEach(r => r.ingredients.forEach(id => ingIds.add(id)));
     list = INGREDIENTES.filter(i => ingIds.has(i.id));
   }
   return sortIngredientsByCustomOrder(list);
@@ -9078,6 +9084,46 @@ function switchKitchenArea(areaId) {
   if (areaId === 'frituras') renderFryStation();
 }
 
+// --- De la estación al pase (Emplatar) ---
+function stPassFromBowl(i) {
+  const bowl = gameState.bowls[i], a = analyzeBowl(i);
+  if (!bowl || a.status !== 'READY') return;
+  const ok = stPassAdd('ramen', { recipes: (a.recipe.candidates || [a.recipe]).map(r => r.name), result: 'PERFECTO',
+    readyAt: bowl.readyAt != null ? bowl.readyAt : gameState.gameClock, vis: { kind: 'bowl', ings: [...bowl.ingredients] },
+    meta: { orderErrors: bowl.orderErrors || 0, dashiBase: !!bowl.dashiBase } });
+  if (!ok) return;
+  gameState.bowls[i] = { ingredients: [], matchedRamen: null };
+  renderBowls();
+  renderCustomers();
+  renderPantryGrid();
+}
+function wokServeClick(i) {
+  if (!stagedOn('salteados')) { serveReadyDish('salteados', i); return; }
+  const w = gameState.woks[i];
+  if (!w || !w.result || !w.matchedRecipe) return;
+  const rc = w.matchedRecipe;
+  const main = rc.ingredients.find(id => [69, 61, 48].includes(id)) || rc.ingredients[0];
+  const ok = stPassAdd('salteados', { recipes: (rc.candidates || [rc]).map(r => r.name), result: w.result,
+    readyAt: w.readyAt != null ? w.readyAt : gameState.gameClock, vis: { kind: 'ing', id: main },
+    meta: { result: w.result, secs: w.stirSeconds, profile: w.profile, orderMatches: w.orderMatches, orderTotal: w.orderTotal } });
+  if (!ok) return;
+  gameState.woks[i] = { ingredients: [], result: null, matchedRecipe: null, stirring: false, stirSeconds: 0 };
+  renderWoks();
+  renderPantryGrid();
+}
+function makiServeClick() {
+  if (!stagedOn('makis')) { serveReadyDish('makis', 0); return; }
+  const roll = gameState.makiRoll, a = analyzeMakiSequence(roll.ingredients);
+  if (roll.cutState !== 'CUT' || a.status !== 'READY') return;
+  const ok = stPassAdd('makis', { recipes: (a.recipe.candidates || [a.recipe]).map(r => r.name), result: 'PERFECTO',
+    readyAt: roll.readyAt != null ? roll.readyAt : gameState.gameClock, vis: { kind: 'img', src: 'assets/maki_roll_v2.svg', id: 38 }, meta: {} });
+  if (!ok) return;
+  cleanupMakiToolDrag();
+  gameState.makiRoll = newMakiRoll();
+  renderMakiStation();
+  renderPantryGrid();
+}
+
 // Descarga la última versión: borra la caché de la app y el service worker (NO toca la cuenta ni el progreso).
 async function forceAppUpdate() {
   try {
@@ -9113,8 +9159,9 @@ const STAGE_INFO = {
 };
 
 function getStage(area) {
-  if (isMultiplayerSession()) return 'cook';
-  return (gameState.stages && gameState.stages[area || gameState.activeArea]) || 'cook';
+  const a = area || gameState.activeArea;
+  if (!stagedOn(a)) return 'cook';          // sin etapas (aún no se activan, tutorial o multijugador)
+  return (gameState.stages && gameState.stages[a]) || 'cook';
 }
 
 function renderStageTabs() {
@@ -9124,17 +9171,20 @@ function renderStageTabs() {
   if (isMultiplayerSession()) { box.innerHTML = ''; return; }
   const area = gameState.activeArea, cur = getStage(area), ck = AREA_COOK_STAGE[area] || AREA_COOK_STAGE.ramen;
   const defs = [['cook', ck.icon, ck.label], ['prod', STAGE_INFO.prod.icon, STAGE_INFO.prod.label], ['plate', STAGE_INFO.plate.icon, STAGE_INFO.plate.label]];
-  box.innerHTML = defs.map(([id, icon, label]) =>
-    `<button class="kitchen-stage-btn ${cur === id ? 'active' : ''}" data-stage="${id}" data-alert="${id === 'cook' ? getAreaAlert(area) : ''}" title="${label}" onclick="setKitchenStage('${id}')"><span>${icon}</span><span class="ks-label">${label}</span><i class="area-dot"></i></button>`).join('');
+  const on = stagedOn(area);
+  box.innerHTML = defs.map(([id, icon, label]) => {
+    const locked = id !== 'cook' && !on;
+    return `<button class="kitchen-stage-btn ${cur === id ? 'active' : ''} ${locked ? 'locked' : ''}" data-stage="${id}" data-alert="${id === 'cook' ? getAreaAlert(area) : ''}" title="${locked ? label + ' · se desbloquea en ' + stGateHint(area) : label}" onclick="setKitchenStage('${id}')"><span>${locked ? '🔒' : icon}</span><span class="ks-label">${label}</span><i class="area-dot"></i></button>`;
+  }).join('');
 }
 
 function renderStagePanel() {
   const panel = document.getElementById('stage-panel');
   if (!panel) return;
   const area = gameState.activeArea, stage = getStage(area), info = STAGE_INFO[stage];
-  panel.classList.toggle('fp-active', area === 'frituras' && friturasStaged() && !!info);
-  if (area === 'frituras' && friturasStaged() && info) {
-    if (stage === 'prod') renderFryProduction(panel); else renderFryPlating(panel);
+  panel.classList.toggle('fp-active', stagedOn(area) && !!info);
+  if (stagedOn(area) && info) {
+    if (stage === 'prod') stRenderProd(area, panel); else stRenderPlate(area, panel);
     return;
   }
   if (!info) { panel.innerHTML = ''; return; }
@@ -9151,6 +9201,11 @@ function renderStagePanel() {
 function setKitchenStage(stage) {
   if (isMultiplayerSession() || !['cook', 'prod', 'plate'].includes(stage)) return;
   const area = gameState.activeArea;
+  if (stage !== 'cook' && !stagedOn(area)) {
+    showStationToast(`🔒 ${STAGE_INFO[stage].label} de ${AREA_LABELS[area]} se desbloquea en ${stGateHint(area)}.`);
+    try { playSound('error'); } catch (e) {}
+    return;
+  }
   if (getStage(area) === stage) return;
   gameState.stages[area] = stage;
   // un gesto a medias (cuchillo, esterilla, arrastre) no tiene sentido al cambiar de pantalla
@@ -9202,6 +9257,7 @@ function stageSwipeBusyWithDrag() {
 }
 
 function swipeToStage(dir) {
+  if (!stagedOn(gameState.activeArea)) return false;
   const cur = STAGE_ORDER.indexOf(getStage(gameState.activeArea));
   const next = Math.max(0, Math.min(STAGE_ORDER.length - 1, cur + dir));
   if (next === cur) return false;
@@ -9252,7 +9308,7 @@ function updateStageEdgeHints() {
     document.body.appendChild(left); document.body.appendChild(right);
   }
   const start = document.getElementById('start-screen');
-  const on = !isMultiplayerSession() && start && getComputedStyle(start).display === 'none';
+  const on = !isMultiplayerSession() && stagedOn(gameState.activeArea) && start && getComputedStyle(start).display === 'none';
   const cur = STAGE_ORDER.indexOf(getStage(gameState.activeArea));
   const icon = id => id === 'cook' ? (AREA_COOK_STAGE[gameState.activeArea] || AREA_COOK_STAGE.ramen).icon : STAGE_INFO[id].icon;
   // borde izquierdo → etapa de la derecha; borde derecho → etapa de la izquierda
@@ -9265,6 +9321,14 @@ function updateStageEdgeHints() {
 
 // Indicador en cada pestaña (menos la activa): en curso, listo o a punto de quemarse.
 function getAreaAlert(areaId) {
+  const base = getAreaAlertBase(areaId);
+  if (base === 'warn' || !stagedOn(areaId)) return base;
+  if (stAnalyze(areaId).status === 'MATCHED') return 'ready';      // plato emplatado listo para servir
+  if (base) return base;
+  const s = stGet(areaId);
+  return (s.pass.length || s.prep) ? 'busy' : '';                  // platos en el pase o una preparación en curso
+}
+function getAreaAlertBase(areaId) {
   if (areaId === 'ramen') {
     if (gameState.bowls.some(b => b.matchedRamen)) return 'ready';
     if (gameState.bowls.some(b => b.ingredients.length > 0)) return 'busy';
@@ -9273,10 +9337,9 @@ function getAreaAlert(areaId) {
     if (gameState.woks.some(w => w.stirring || w.ingredients.length > 0)) return 'busy';
   } else if (areaId === 'frituras') {
     const st = gameState.fryStation;
-    if (friturasStaged() && analyzeFryPlate().status === 'MATCHED') return 'ready';
     if (st.phase === 'FRYING') return st.frySeconds >= fryProfile(st.proteinId).burn ? 'warn' : 'busy';
     if (st.phase === 'FRIED') return fryDishComplete() ? 'ready' : 'busy';
-    if (st.ingredients.length > 0 || (friturasStaged() && (gameState.fryPass.length || gameState.fryPrep))) return 'busy';
+    if (st.ingredients.length > 0) return 'busy';
   } else if (areaId === 'makis') {
     const roll = gameState.makiRoll;
     if (roll.cutState === 'CUT' || makiCanCut()) return 'ready';
@@ -9335,7 +9398,7 @@ function newMakiRoll() {
 
 // Estructuras base de todas las recetas (los primeros baseCount ingredientes).
 function makiBases() {
-  return RECETAS_MAKIS.map(r => r.ingredients.slice(0, r.baseCount));
+  return makiCatalog().map(r => r.ingredients.slice(0, r.baseCount));
 }
 
 // ¿Esta secuencia es exactamente la estructura base de alguna receta? (ya se puede enrollar)
@@ -9355,13 +9418,16 @@ function makiPreRollAllows(seq, ingId) {
 // Con baseLen (maki ya enrollado) solo cuentan las recetas cuya base tiene ese largo.
 function makiNextOptions(seq, preRoll, baseLen) {
   const ids = new Set();
-  RECETAS_MAKIS.forEach(r => {
+  makiCatalog().forEach(r => {
     if (baseLen && r.baseCount !== baseLen) return;
     const limit = preRoll ? r.baseCount : r.ingredients.length;
     if (seq.length < limit && seq.every((id, i) => id === r.ingredients[i])) ids.add(r.ingredients[seq.length]);
   });
   return [...ids].map(id => { const ing = INGREDIENTES.find(i => i.id === id); return ing ? ing.display : ''; }).filter(Boolean);
 }
+
+// Makis: la vista de cocción (con etapas) solo pide la base y las coberturas; las salsas y guarniciones se emplatan.
+const makiCatalog = () => stView('makis', RECETAS_MAKIS);
 
 function makiIsComplete() {
   const roll = gameState.makiRoll;
@@ -9405,6 +9471,7 @@ function toggleIngredientInMaki(ingId) {
       return;
     }
     roll.ingredients = roll.ingredients.filter(id => id !== ingId);
+    stCookRefund('makis', ingId);
   } else {
     if (roll.rollState === 'NONE' && !makiPreRollAllows(roll.ingredients, ingId)) {
       showStationToast('🎍 Ese ingrediente va encima: primero enrolla el maki (desliza hacia arriba sobre la esterilla).');
@@ -9413,13 +9480,14 @@ function toggleIngredientInMaki(ingId) {
     if (roll.rollState === 'ROLLED') {
       // Encima del maki enrollado solo entra lo que continúa alguna receta con esta misma base.
       const next = [...roll.ingredients, ingId];
-      const fits = RECETAS_MAKIS.some(r => r.baseCount === roll.baseLen && next.length <= r.ingredients.length &&
+      const fits = makiCatalog().some(r => r.baseCount === roll.baseLen && next.length <= r.ingredients.length &&
         next.every((id, i) => id === r.ingredients[i]));
       if (!fits) {
         showStationToast('Ese ingrediente no va encima de este maki, o lleva otro orden.');
         return;
       }
     }
+    if (!stCookTake('makis', ingId)) return;
     roll.ingredients.push(ingId);
   }
   playSound('add');
@@ -10021,7 +10089,7 @@ function analyzeWok(index) {
   if (!wok || wok.ingredients.length === 0) return { status: "EMPTY" };
 
   const wokSet = new Set(wok.ingredients);
-  for (const r of RECETAS_SALTEADOS) {
+  for (const r of stView('salteados', RECETAS_SALTEADOS)) {
     const rSet = new Set(r.ingredients);
     if (rSet.size === wokSet.size && [...rSet].every(x => wokSet.has(x))) {
       let orderMatches = 0;
@@ -10034,7 +10102,7 @@ function analyzeWok(index) {
   }
 
   let bestRecipe = null, bestOverlap = -1, bestMissing = [], bestExtra = [];
-  for (const r of RECETAS_SALTEADOS) {
+  for (const r of stView('salteados', RECETAS_SALTEADOS)) {
     const rSet = new Set(r.ingredients);
     const missing = [...rSet].filter(x => !wokSet.has(x));
     const extra = [...wokSet].filter(x => !rSet.has(x));
@@ -10064,7 +10132,9 @@ function toggleIngredientInWok(ingId) {
   if (wok.result) return; // ya salteado: hay que vaciar el wok para volver a armar
   if (wok.ingredients.includes(ingId)) {
     wok.ingredients = wok.ingredients.filter(id => id !== ingId);
+    stCookRefund('salteados', ingId);
   } else {
+    if (!stCookTake('salteados', ingId)) return;
     wok.ingredients.push(ingId);
   }
   playSound('add');
@@ -10327,28 +10397,72 @@ function newFryStation() {
   return { ingredients: [], phase: 'BUILDING', proteinId: null, coat: 0, fryResult: null, frySeconds: 0, fryTone: '', matchedRecipe: null, cutState: 'NONE', cutProgress: 0 };
 }
 
-// ===== Frituras por etapas: Producción → Freír → Emplatar =====
-// Flujo (todo menos multijugador, que mantiene el flujo anterior):
-//  · PRODUCCIÓN: existencias de insumos (col, zanahoria, betarraga, ebi furai, gyozas). Se preparan con un tiempo,
-//    de a una tarea a la vez, y siguen corriendo mientras trabajas en otra etapa.
-//  · FREÍR: solo la proteína (empanizar → olla → cortar si hace falta). Al terminar pasa al "pase" (hasta 3 platos).
-//  · EMPLATAR: se elige un plato del pase y se arma con sus componentes (base, ensalada, salsa, decoración).
-//    Es obligatorio para servir y vale 25 de los 100 puntos de calidad. Mientras tanto el plato se sigue enfriando.
-const friturasStaged = () => !isMultiplayerSession();
-const FRY_PASS_MAX = 3;
-const FRY_STAGED_EXTRA_SECONDS = 14; // paciencia extra del cliente por pedido de Frituras (producción + emplatado)
+// ===== Etapas por área: Producción → Cocinar → Emplatar =====
+// Cada área trabaja en tres pantallas:
+//  · PRODUCCIÓN: existencias de insumos que se preparan con un tiempo (de a una tarea por área, en segundo plano).
+//    'cook' = se gasta al agregarlo a la estación; 'plate' = se gasta al servir un plato que lo lleva.
+//  · COCINAR: la estación de siempre (cuenco, wok, tabla de makis, olla). Al terminar el plato pasa al "pase".
+//  · EMPLATAR: se elige un plato del pase y se arma con sus componentes. Es obligatorio y vale 25 de 100 puntos.
+// Las etapas se activan poco a poco (ver STAGE_GATE_*): no tienen sentido en el nivel 1, y no existen en el
+// tutorial ni en multijugador.
+const STAGE_AREAS = ['ramen', 'salteados', 'makis', 'frituras'];
+const STAGE_GATE_LEVEL = { ramen: 4, salteados: 5, makis: 7, frituras: 7 };     // Campaña: nivel desde el que se activan
+const STAGE_GATE_ROUND = { ramen: 3, salteados: 9, makis: 16, frituras: 27 };   // Rash: ronda
+const ST_PASS_MAX = 3;
+const ST_EXTRA_SECONDS = { ramen: 8, salteados: 10, makis: 10, frituras: 14 };  // paciencia extra por pedido
+const ST_PLATE_POINTS = { base: 15, order: 10, orderPenalty: 4 };               // emplatado: 25 puntos
 
-// Insumos de Producción. use: 'plate' = se gasta al servir un plato que lo lleva; 'fry' = se gasta al empezar a freír.
-const FRY_PROD = {
-  52: { label: 'Col rallada', time: 8,  batch: 6, max: 12, start: 6, use: 'plate' },
-  30: { label: 'Zanahoria',   time: 6,  batch: 6, max: 12, start: 6, use: 'plate' },
-  42: { label: 'Betarraga',   time: 7,  batch: 4, max: 8,  start: 4, use: 'plate' },
-  60: { label: 'Ebi furai',   time: 12, batch: 4, max: 8,  start: 4, use: 'fry' },
-  73: { label: 'Gyozas',      time: 14, batch: 4, max: 8,  start: 4, use: 'fry' }
+function stagedOn(area) {
+  if (isMultiplayerSession()) return false;
+  if (typeof TutorialManager !== 'undefined' && TutorialManager.isActive) return false;
+  if (isFree()) return true;
+  if (isTraining()) return trainingFeature('st_' + area);
+  if (gameState.gameMode === 'NORMAL') return (currentLevelIndex + 1) >= (STAGE_GATE_LEVEL[area] || 99);
+  if (gameState.gameMode === 'RASH') return (gameState.rashLevel || 1) >= (STAGE_GATE_ROUND[area] || 999);
+  return false;
+}
+function stGateHint(area) {
+  if (isTraining()) return 'el entrenamiento (completa más retos)';
+  if (gameState.gameMode === 'RASH') return `la ronda ${STAGE_GATE_ROUND[area]}`;
+  return `el nivel ${STAGE_GATE_LEVEL[area]}`;
+}
+
+// ---- Insumos de Producción por área ----
+// key, label, icon (id de ingrediente para el dibujo), covers (ingredientes que cubre), use, time (s), batch, max, start
+const ST_PROD = {
+  ramen: [
+    { key: 'verdeos',  label: 'Poro y cebolla china',     icon: 17, covers: [17, 18],         use: 'plate', time: 6, batch: 6, max: 12, start: 6 },
+    { key: 'semillas', label: 'Nori y ajonjolí',          icon: 20, covers: [19, 20],         use: 'plate', time: 5, batch: 8, max: 16, start: 8 },
+    { key: 'bambu',    label: 'Bambú y holantao',         icon: 22, covers: [22, 23],         use: 'plate', time: 7, batch: 6, max: 12, start: 6 },
+    { key: 'col',      label: 'Col, moyashi y zanahoria', icon: 25, covers: [24, 25, 30],     use: 'plate', time: 8, batch: 6, max: 12, start: 6 },
+    { key: 'hongos',   label: 'Hongos y espárrago',       icon: 28, covers: [27, 28, 29, 21], use: 'plate', time: 9, batch: 4, max: 8,  start: 4 }
+  ],
+  salteados: [
+    { key: 'arroz',    label: 'Arroz cocido',    icon: 37, covers: [37],                       use: 'cook',  time: 10, batch: 6, max: 12, start: 6 },
+    { key: 'pollo',    label: 'Pollo marinado',  icon: 69, covers: [69],                       use: 'cook',  time: 9,  batch: 6, max: 12, start: 6 },
+    { key: 'lomo',     label: 'Lomo cortado',    icon: 61, covers: [61],                       use: 'cook',  time: 8,  batch: 4, max: 8,  start: 4 },
+    { key: 'ensalada', label: 'Ensaladas',       icon: 55, covers: [55, 56],                   use: 'plate', time: 6,  batch: 6, max: 12, start: 6 },
+    { key: 'finos',    label: 'Vegetales finos', icon: 68, covers: [63, 68, 42, 23, 67, 71],   use: 'plate', time: 7,  batch: 6, max: 12, start: 6 }
+  ],
+  makis: [
+    { key: 'shari',    label: 'Arroz shari',        icon: 38, covers: [38],     use: 'cook',  time: 10, batch: 6, max: 12, start: 6 },
+    { key: 'ebi',      label: 'Ebi cocido',         icon: 54, covers: [54],     use: 'cook',  time: 12, batch: 4, max: 8,  start: 4 },
+    { key: 'palta',    label: 'Palta en láminas',   icon: 64, covers: [64],     use: 'cook',  time: 6,  batch: 6, max: 12, start: 6 },
+    { key: 'pescado',  label: 'Atún y cecina',      icon: 39, covers: [39, 47], use: 'cook',  time: 8,  batch: 4, max: 8,  start: 4 },
+    { key: 'gari',     label: 'Jengibre y wasabi',  icon: 97, covers: [96, 97], use: 'plate', time: 6,  batch: 8, max: 16, start: 8 }
+  ],
+  frituras: [
+    { key: 'col',      label: 'Col rallada',  icon: 52, covers: [52], use: 'plate', time: 8,  batch: 6, max: 12, start: 6 },
+    { key: 'zanahoria', label: 'Zanahoria',   icon: 30, covers: [30], use: 'plate', time: 6,  batch: 6, max: 12, start: 6 },
+    { key: 'betarraga', label: 'Betarraga',   icon: 42, covers: [42], use: 'plate', time: 7,  batch: 4, max: 8,  start: 4 },
+    { key: 'ebi',      label: 'Ebi furai',    icon: 60, covers: [60], use: 'cook',  time: 12, batch: 4, max: 8,  start: 4 },
+    { key: 'gyozas',   label: 'Gyozas',       icon: 73, covers: [73], use: 'cook',  time: 14, batch: 4, max: 8,  start: 4 }
+  ]
 };
-const FRY_PROD_ORDER = [52, 30, 42, 60, 73];
 
-// Emplatado de cada plato: proteína que se fríe y componentes en el orden correcto (base → ensalada → salsa → decoración).
+// ---- Piezas de emplatado por plato (en el orden correcto) ----
+// Frituras: proteína que se fríe + componentes. Ramen: los complementos (verduras, nori, ajonjolí) de la receta.
+// Salteado y Makis: la salsa, la guarnición o el acompañamiento final.
 const FRY_PLATING = {
   'Chicken Katsu': { protein: 44, parts: [57, 52, 30, 84, 74, 91] },
   'Katsu Kare':    { protein: 43, parts: [57, 52, 30, 83, 74, 91] },
@@ -10358,300 +10472,383 @@ const FRY_PLATING = {
   'Alitas':        { protein: 36, parts: [76, 92] },
   'Age Gyozas':    { protein: 73, parts: [52, 74] }
 };
+const ST_RAMEN_PLATE = new Set([17, 18, 19, 20, 21, 22, 23, 24, 25, 27, 28, 29, 30]);
+const ST_PLATE_SAL = {
+  'Chaufa Shimaya':   [94, 41, 63],
+  'Chicken Teriyaki': [56, 87],
+  'Batayaki Ramen':   [78, 71],
+  'Yakimeshi':        [23, 67],
+  'Yakiramen':        [68, 42],
+  'Yasaitame':        [90, 33],
+  'Yakitori':         [55, 88],
+  'Karameshi':        [35, 33, 63],
+  'Omuraisu':         [84, 86]
+};
+const ST_PLATE_MAKI = {
+  'Maki Acevichado': [77, 97, 96], 'Maki Hotate': [82, 97, 96], 'Maki California': [34, 97, 96],
+  'Maki Guacamole': [81, 97, 96], 'Maki Yama': [89, 97, 96], 'Maki Nin Niku': [85, 97, 96],
+  'Maki Amazon': [97, 96], 'Maki Digion': [80, 97, 96], 'Maki Furai': [97, 96]
+};
 const FRY_PLATE_GROUP = { 57: 'Base', 52: 'Ensalada', 30: 'Ensalada', 42: 'Ensalada', 84: 'Salsa', 83: 'Salsa', 62: 'Salsa', 76: 'Salsa', 74: 'Decoración', 91: 'Decoración', 92: 'Decoración' };
-const FRY_PLATE_GROUP_ORDER = ['Base', 'Ensalada', 'Salsa', 'Decoración'];
-const FRY_PLATE_POINTS = { base: 15, order: 10, orderPenalty: 4 }; // emplatado: 25 puntos en total
+const ST_GROUPS = {
+  ramen: ['Verdeos', 'Toppings', 'Verduras', 'Hongos'],
+  salteados: ['Ensalada', 'Salsa', 'Decoración'],
+  makis: ['Salsa', 'Guarnición'],
+  frituras: ['Base', 'Ensalada', 'Salsa', 'Decoración']
+};
+function stGroupOf(area, id) {
+  if (area === 'frituras') return FRY_PLATE_GROUP[id] || 'Decoración';
+  if (area === 'ramen') return [17, 18].includes(id) ? 'Verdeos' : ([19, 20, 21].includes(id) ? 'Toppings' : ([27, 28, 29].includes(id) ? 'Hongos' : 'Verduras'));
+  if (area === 'salteados') { const i = INGREDIENTES.find(x => x.id === id); return [55, 56].includes(id) ? 'Ensalada' : (i && i.cat === 'salsas' ? 'Salsa' : 'Decoración'); }
+  const i = INGREDIENTES.find(x => x.id === id);
+  return i && i.cat === 'salsas' ? 'Salsa' : 'Guarnición';
+}
+function stParts(area, recipe) {
+  if (!recipe) return [];
+  if (area === 'ramen') return recipe.ingredients.filter(id => ST_RAMEN_PLATE.has(id));
+  if (area === 'salteados') return ST_PLATE_SAL[recipe.name] || [];
+  if (area === 'makis') return ST_PLATE_MAKI[recipe.name] || [];
+  const f = FRY_PLATING[recipe.name];
+  return f ? f.parts : [];
+}
+const stRecipe = (area, name) => getRecetasByArea(area).find(r => r.name === name);
+const stIngName = id => { const i = INGREDIENTES.find(x => x.id === id); return i ? (i.short || i.display) : String(id); };
+const stIngIcon = id => ingIconHtml(INGREDIENTES.find(x => x.id === id));
 
-function fryProdSpeed() { return isFree() ? 0.5 : 1; } // en Cocina libre se prepara el doble de rápido
-
-function friturasInitStaged() {
-  gameState.fryStock = {};
-  Object.entries(FRY_PROD).forEach(([id, p]) => { gameState.fryStock[id] = p.start; });
-  gameState.fryPrep = null;
-  gameState.fryPass = [];
-  gameState.fryPlate = { sel: null, items: [] };
+// Vista de cocción: con las etapas activas el cuenco / wok / tabla de makis solo piden la parte de COCCIÓN
+// de cada receta (sin las piezas de emplatado). Recetas con la misma parte de cocción se agrupan: se distinguen
+// al emplatar (p. ej. Tonkotsu / Chashu, Maki Yama / Nin Niku).
+function stView(area, list) {
+  if (area === 'frituras' || !stagedOn(area)) return list;
+  if (area === 'makis') list = list.filter(r => AREA_DISH_UNLOCKS.makis.some(d => d[0] === r.name));
+  const groups = new Map();
+  list.forEach(r => {
+    const parts = new Set(stParts(area, r));
+    const cook = r.ingredients.filter(id => !parts.has(id));
+    const key = area === 'makis' ? cook.join(',') : [...cook].sort((a, b) => a - b).join(',');
+    if (!groups.has(key)) groups.set(key, { ...r, ingredients: cook, candidates: [] });
+    groups.get(key).candidates.push(r);
+  });
+  return [...groups.values()].map(g => ({ ...g, name: g.candidates.map(r => r.name).join(' / ') }));
 }
 
-const fryStockOf = id => (gameState.fryStock && gameState.fryStock[id]) || 0;
-const fryIngName = id => { const i = INGREDIENTES.find(x => x.id === id); return i ? (i.short || i.display) : String(id); };
-const fryIngIcon = id => ingIconHtml(INGREDIENTES.find(x => x.id === id));
+// ---- Estado ----
+function stInit() {
+  gameState.st = {};
+  STAGE_AREAS.forEach(a => {
+    const st = { stock: {}, prep: null, pass: [], plate: { sel: null, items: [] } };
+    ST_PROD[a].forEach(p => { st.stock[p.key] = p.start; });
+    gameState.st[a] = st;
+  });
+}
+function stGet(area) {
+  if (!gameState.st) stInit();
+  return gameState.st[area];
+}
+const stProdSpeed = () => (isFree() ? 0.5 : 1);
+const stProdTime = p => Math.max(2, Math.round(p.time * stProdSpeed()));
+const stProdFor = (area, ingId, use) => ST_PROD[area].find(p => p.covers.includes(ingId) && (!use || p.use === use));
 
-// ---- Producción ----
-function fryProdStart(id) {
-  if (!friturasStaged() || gameState.isPaused || gameState.isGameOver) return;
-  const p = FRY_PROD[id];
+// ---- Existencias ----
+function stCookTake(area, ingId) {
+  if (!stagedOn(area)) return true;
+  const p = stProdFor(area, ingId, 'cook');
+  if (!p) return true;
+  const st = stGet(area);
+  if (st.stock[p.key] < 1) {
+    showStationToast(`🥬 Sin ${p.label.toLowerCase()}: prepáralo en Producción.`);
+    try { playSound('error'); } catch (e) {}
+    return false;
+  }
+  st.stock[p.key]--;
+  return true;
+}
+function stCookRefund(area, ingId) {
+  if (!stagedOn(area)) return;
+  const p = stProdFor(area, ingId, 'cook');
+  if (p) { const st = stGet(area); st.stock[p.key] = Math.min(p.max, st.stock[p.key] + 1); }
+}
+
+function stProdStart(area, key) {
+  if (!stagedOn(area) || gameState.isPaused || gameState.isGameOver) return;
+  const st = stGet(area), p = ST_PROD[area].find(x => x.key === key);
   if (!p) return;
-  if (gameState.fryPrep) { showStationToast('🥬 Ya estás preparando algo: espera a que termine.'); playSound('error'); return; }
-  if (fryStockOf(id) >= p.max) { showStationToast(`${p.label}: el depósito ya está lleno.`); playSound('error'); return; }
-  const total = Math.max(2, Math.round(p.time * fryProdSpeed()));
-  gameState.fryPrep = { id, left: total, total };
+  if (st.prep) { showStationToast('🥬 Ya estás preparando algo: espera a que termine.'); playSound('error'); return; }
+  if (st.stock[key] >= p.max) { showStationToast(`${p.label}: el depósito ya está lleno.`); playSound('error'); return; }
+  const total = stProdTime(p);
+  st.prep = { key, left: total, total };
   try { playSound('prep'); } catch (e) {}
-  renderFryStagePanelIfOpen();
+  stRenderIfOpen(area);
   updateAreaTabAlerts();
 }
 
-function fryProdTick() {
-  const pr = gameState.fryPrep;
-  if (!pr) return;
-  pr.left--;
-  if (pr.left <= 0) {
-    const p = FRY_PROD[pr.id];
-    gameState.fryStock[pr.id] = Math.min(p.max, fryStockOf(pr.id) + p.batch);
-    gameState.fryPrep = null;
-    try { playSound('stock_add'); } catch (e) {}
-    showStationToast(`🥬 Listo: ${p.label} +${p.batch}.`);
-    renderFryStagePanelIfOpen();
-    renderStageTabs();
-  } else {
-    updateFryStagePanelTick();
-  }
-}
-
-// Proteínas con existencia (ebi furai, gyozas): se gastan al empezar a freír y se devuelven si se retiran antes de la olla.
-function fryProteinStockBlocked(ing) {
-  const p = FRY_PROD[ing.id];
-  if (!friturasStaged() || !p || p.use !== 'fry') return false;
-  if (fryStockOf(ing.id) >= 1) return false;
-  showStationToast(`🥬 Sin ${p.label.toLowerCase()} preparado: ve a Producción.`);
-  playSound('error');
-  return true;
-}
-function fryProteinTake(id) {
-  const p = FRY_PROD[id];
-  if (friturasStaged() && p && p.use === 'fry') gameState.fryStock[id] = Math.max(0, fryStockOf(id) - 1);
-}
-function fryProteinRefund(id) {
-  const p = FRY_PROD[id];
-  if (friturasStaged() && p && p.use === 'fry') gameState.fryStock[id] = Math.min(p.max, fryStockOf(id) + 1);
+function stTick() {
+  STAGE_AREAS.forEach(area => {
+    const st = gameState.st && gameState.st[area];
+    if (!st || !st.prep) return;
+    st.prep.left--;
+    if (st.prep.left <= 0) {
+      const p = ST_PROD[area].find(x => x.key === st.prep.key);
+      st.stock[p.key] = Math.min(p.max, st.stock[p.key] + p.batch);
+      st.prep = null;
+      try { playSound('stock_add'); } catch (e) {}
+      showStationToast(`🥬 ${AREA_LABELS[area]}: listo ${p.label} +${p.batch}.`);
+      stRenderIfOpen(area);
+      renderStageTabs();
+    }
+  });
+  stTickUi();
 }
 
 // ---- Pase ----
-function moveFryToPass() {
-  const st = gameState.fryStation;
-  if (st.phase !== 'FRIED' || !fryCutDone(st)) return;
-  if (gameState.fryPass.length >= FRY_PASS_MAX) {
+function stPassAdd(area, item) {
+  const st = stGet(area);
+  if (st.pass.length >= ST_PASS_MAX) {
     showStationToast('🍽️ El pase está lleno: emplata o descarta un plato.');
-    playSound('error');
-    return;
+    try { playSound('error'); } catch (e) {}
+    return false;
   }
-  gameState.fryPass.push({ proteinId: st.proteinId, result: st.fryResult || 'PERFECTO', secs: st.frySeconds, tone: st.fryTone,
-    cut: st.cutState === 'CUT', coat: st.coat, readyAt: st.readyAt != null ? st.readyAt : gameState.gameClock });
-  if (fryTimerInterval) { clearInterval(fryTimerInterval); fryTimerInterval = null; }
-  cleanupFryItemDrag();
-  cleanupFryKnifeDrag();
-  gameState.fryStation = newFryStation();
+  st.pass.push(item);
+  if (st.plate.sel == null) st.plate = { sel: st.pass.length - 1, items: [] };
   try { playSound('clink'); } catch (e) {}
   showStationToast('🍽️ Plato al pase: ve a Emplatar antes de que se enfríe.');
-  renderFryStation();
-  renderPantryGrid();
-  if (gameState.fryPlate.sel == null) gameState.fryPlate = { sel: gameState.fryPass.length - 1, items: [] };
-  renderFryStagePanelIfOpen();
+  stRenderIfOpen(area);
+  updateAreaTabAlerts();
+  return true;
 }
-
-function fryPassDiscard(i) {
-  const it = gameState.fryPass[i];
-  if (!it) return;
-  gameState.fryPass.splice(i, 1);
-  gameState.fryPlate = { sel: gameState.fryPass.length ? 0 : null, items: [] };
+function stPassDiscard(area, i) {
+  const st = stGet(area);
+  if (!st.pass[i]) return;
+  st.pass.splice(i, 1);
+  st.plate = { sel: st.pass.length ? 0 : null, items: [] };
   try { playSound('trash'); } catch (e) {}
-  renderFryStagePanelIfOpen();
+  stRenderIfOpen(area);
   updateAreaTabAlerts();
 }
 
 // ---- Emplatar ----
-function fryPlateSelect(i) {
-  if (!gameState.fryPass[i] || gameState.fryPlate.sel === i) return;
-  gameState.fryPlate = { sel: i, items: [] };
-  renderFryStagePanelIfOpen();
+function stPlateSelect(area, i) {
+  const st = stGet(area);
+  if (!st.pass[i] || st.plate.sel === i) return;
+  st.plate = { sel: i, items: [] };
+  stRenderIfOpen(area);
 }
-
-function fryPlateCandidates(proteinId) {
-  return RECETAS_FRITURAS.filter(r => FRY_PLATING[r.name] && FRY_PLATING[r.name].protein === proteinId);
-}
-
-function fryPlateTrayIds(proteinId) {
+function stCandidates(area, item) { return item.recipes.map(n => stRecipe(area, n)).filter(Boolean); }
+function stTrayIds(area, item) {
   const ids = new Set();
-  fryPlateCandidates(proteinId).forEach(r => FRY_PLATING[r.name].parts.forEach(id => ids.add(id)));
-  return [...ids].sort((a, b) => FRY_PLATE_GROUP_ORDER.indexOf(FRY_PLATE_GROUP[a]) - FRY_PLATE_GROUP_ORDER.indexOf(FRY_PLATE_GROUP[b]) || a - b);
+  stCandidates(area, item).forEach(r => stParts(area, r).forEach(id => ids.add(id)));
+  const order = ST_GROUPS[area];
+  return [...ids].sort((a, b) => order.indexOf(stGroupOf(area, a)) - order.indexOf(stGroupOf(area, b)) || a - b);
 }
-
-function fryPlateToggle(id) {
+// ¿hay existencia para sumar este componente al plato? (los de un mismo insumo gastan una sola porción)
+function stPlateStockOk(area, id, items) {
+  const p = stProdFor(area, id, 'plate');
+  if (!p) return true;
+  if (items.some(x => p.covers.includes(x))) return true;
+  return stGet(area).stock[p.key] >= 1;
+}
+function stPlateToggle(area, id) {
   if (gameState.isPaused || gameState.isGameOver) return;
-  const pl = gameState.fryPlate;
-  if (pl.sel == null || !gameState.fryPass[pl.sel]) { showStationToast('🍽️ Primero elige un plato del pase.'); playSound('error'); return; }
+  const st = stGet(area), pl = st.plate;
+  if (pl.sel == null || !st.pass[pl.sel]) { showStationToast('🍽️ Primero elige un plato del pase.'); playSound('error'); return; }
   const at = pl.items.indexOf(id);
   if (at !== -1) {
     pl.items.splice(at, 1);
     try { playSound('click'); } catch (e) {}
   } else {
-    const p = FRY_PROD[id];
-    if (p && p.use === 'plate' && fryStockOf(id) < 1) { showStationToast(`🥬 Sin ${p.label.toLowerCase()}: prepárala en Producción.`); playSound('error'); return; }
+    if (!stPlateStockOk(area, id, pl.items)) {
+      const p = stProdFor(area, id, 'plate');
+      showStationToast(`🥬 Sin ${p.label.toLowerCase()}: prepáralo en Producción.`);
+      playSound('error');
+      return;
+    }
     pl.items.push(id);
     try { playSound('clink'); } catch (e) {}
   }
-  renderFryStagePanelIfOpen();
+  stRenderIfOpen(area);
   updateAreaTabAlerts();
 }
+function stPlateClear(area) { stGet(area).plate.items = []; stRenderIfOpen(area); }
 
-function fryPlateClear() {
-  gameState.fryPlate.items = [];
-  renderFryStagePanelIfOpen();
-}
-
-function analyzeFryPlate() {
-  const pl = gameState.fryPlate, item = pl && gameState.fryPass[pl.sel];
+function stAnalyze(area) {
+  const st = gameState.st && gameState.st[area];
+  const item = st && st.pass[st.plate.sel];
   if (!item) return { status: 'EMPTY' };
-  const cands = fryPlateCandidates(item.proteinId);
-  const have = new Set(pl.items);
-  const exact = cands.find(r => { const parts = FRY_PLATING[r.name].parts; return parts.length === have.size && parts.every(x => have.has(x)); });
+  const cands = stCandidates(area, item), items = st.plate.items, have = new Set(items);
+  const exact = cands.find(r => { const p = stParts(area, r); return p.length === have.size && p.every(x => have.has(x)); });
   if (exact) {
-    // desorden: pares de componentes que quedaron al revés respecto al orden correcto
-    const order = FRY_PLATING[exact.name].parts;
+    const order = stParts(area, exact);
     let inv = 0;
-    for (let i = 0; i < pl.items.length; i++) for (let j = i + 1; j < pl.items.length; j++) if (order.indexOf(pl.items[i]) > order.indexOf(pl.items[j])) inv++;
-    const pts = FRY_PLATE_POINTS.base + Math.max(0, FRY_PLATE_POINTS.order - FRY_PLATE_POINTS.orderPenalty * inv);
-    return { status: 'MATCHED', recipe: exact, errors: inv, pts, item };
+    for (let i = 0; i < items.length; i++) for (let j = i + 1; j < items.length; j++) if (order.indexOf(items[i]) > order.indexOf(items[j])) inv++;
+    return { status: 'MATCHED', recipe: exact, errors: inv, item, pts: ST_PLATE_POINTS.base + Math.max(0, ST_PLATE_POINTS.order - ST_PLATE_POINTS.orderPenalty * inv) };
   }
   let best = null, bestOv = -1;
-  cands.forEach(r => { const ov = FRY_PLATING[r.name].parts.filter(x => have.has(x)).length - [...have].filter(x => !FRY_PLATING[r.name].parts.includes(x)).length; if (ov > bestOv) { bestOv = ov; best = r; } });
-  const parts = best ? FRY_PLATING[best.name].parts : [];
+  cands.forEach(r => { const p = stParts(area, r); const ov = p.filter(x => have.has(x)).length - [...have].filter(x => !p.includes(x)).length; if (ov > bestOv) { bestOv = ov; best = r; } });
+  const parts = best ? stParts(area, best) : [];
   return { status: have.size ? 'PROGRESS' : 'EMPTY', recipe: best, missing: parts.filter(x => !have.has(x)), extra: [...have].filter(x => !parts.includes(x)), item };
 }
 
+function stReadyDish(area) {
+  const a = stAnalyze(area);
+  if (a.status !== 'MATCHED') return null;
+  const it = a.item;
+  return { area, index: 0, staged: true, recipe: a.recipe, quality: it.result || 'PERFECTO', label: `Plato de ${AREA_LABELS[area]}`,
+    meta: { ...(it.meta || {}), readyAt: it.readyAt, plate: { pts: a.pts, errors: a.errors } } };
+}
+
 // Frescura (0-20) de un plato del pase, con la curva de los platos emplatados.
-function fryItemFreshPts(item) {
-  const pts = FRESHNESS_CURVES.frituras_plated;
-  const t = Math.max(0, gameState.gameClock - item.readyAt) / (1 + [0, 0.3, 0.6, 1][getUpgradeLevel('bandeja')]);
+function stFreshPts(area, item) {
   if (!QUALITY_FRESHNESS_ON || isFree() || (isTraining() && !trainingFeature('q_fresh'))) return 20;
+  const pts = FRESHNESS_CURVES[area + '_plated'] || FRESHNESS_CURVES[area];
+  const t = Math.max(0, gameState.gameClock - item.readyAt) / (1 + [0, 0.3, 0.6, 1][getUpgradeLevel('bandeja')]);
   for (let i = 1; i < pts.length; i++) {
     if (t <= pts[i][0]) { const [t0, p0] = pts[i - 1], [t1, p1] = pts[i]; return Math.round(p0 + (p1 - p0) * (t - t0) / (t1 - t0)); }
   }
   return pts[pts.length - 1][1];
 }
 
-// Al servir (o si el cliente lo rechaza) el plato sale del pase y se gastan los insumos de la ensalada.
-function consumeFryPlated() {
-  const pl = gameState.fryPlate;
-  pl.items.forEach(id => { const p = FRY_PROD[id]; if (p && p.use === 'plate') gameState.fryStock[id] = Math.max(0, fryStockOf(id) - 1); });
-  if (pl.sel != null) gameState.fryPass.splice(pl.sel, 1);
-  gameState.fryPlate = { sel: gameState.fryPass.length ? 0 : null, items: [] };
-  renderFryStagePanelIfOpen();
+// Al servir (o si el cliente lo rechaza) el plato sale del pase y se gastan los insumos de emplatado.
+function stConsumePlated(area) {
+  const st = stGet(area), pl = st.plate;
+  const used = new Set();
+  pl.items.forEach(id => { const p = stProdFor(area, id, 'plate'); if (p) used.add(p.key); });
+  used.forEach(k => { st.stock[k] = Math.max(0, st.stock[k] - 1); });
+  if (pl.sel != null) st.pass.splice(pl.sel, 1);
+  st.plate = { sel: st.pass.length ? 0 : null, items: [] };
+  stRenderIfOpen(area);
   renderStageTabs();
   updateAreaTabAlerts();
 }
-
-function fryPlateServe() {
-  const a = analyzeFryPlate();
+function stPlateServe(area) {
+  const a = stAnalyze(area);
   if (a.status !== 'MATCHED') { showStationToast('🍽️ El plato aún no está completo.'); playSound('error'); return; }
-  serveReadyDish('frituras', 0);
+  serveReadyDish(area, 0);
 }
 
 // ---- Pantallas de Producción y Emplatar ----
-function fryStagePanelOpen() {
-  return gameState.activeArea === 'frituras' && friturasStaged() && ['prod', 'plate'].includes(getStage('frituras'));
+function stPanelOpen(area) {
+  return gameState.activeArea === area && stagedOn(area) && ['prod', 'plate'].includes(getStage(area));
 }
-function renderFryStagePanelIfOpen() { if (fryStagePanelOpen()) renderStagePanel(); }
-
-function fryStageBack() {
-  const ck = AREA_COOK_STAGE.frituras;
+function stRenderIfOpen(area) { if (stPanelOpen(area)) renderStagePanel(); }
+function stBackBtn(area) {
+  const ck = AREA_COOK_STAGE[area];
   return `<button class="stage-panel-back fp-back" onclick="setKitchenStage('cook')">${ck.icon} ${ck.label}</button>`;
 }
 
-function renderFryProduction(panel) {
-  const pr = gameState.fryPrep;
-  const cards = FRY_PROD_ORDER.map(id => {
-    const p = FRY_PROD[id], n = fryStockOf(id), busy = pr && pr.id === id;
-    const low = n <= Math.ceil(p.max * 0.25);
-    const label = busy ? `⏳ <b data-fp-left>${pr.left}</b> s` : `Preparar +${p.batch} · ${Math.max(2, Math.round(p.time * fryProdSpeed()))} s`;
+function stRenderProd(area, panel) {
+  const st = stGet(area), pr = st.prep;
+  const cards = ST_PROD[area].map(p => {
+    const n = st.stock[p.key], busy = pr && pr.key === p.key, low = n <= Math.ceil(p.max * 0.25);
+    const label = busy ? `⏳ <b data-fp-left>${pr.left}</b> s` : `Preparar +${p.batch} · ${stProdTime(p)} s`;
     return `<div class="fp-card ${low ? 'is-low' : ''} ${busy ? 'is-busy' : ''}">
-      <div class="fp-card-ico">${fryIngIcon(id)}</div>
+      <div class="fp-card-ico">${stIngIcon(p.icon)}</div>
       <div class="fp-card-name">${p.label}</div>
       <div class="fp-bar"><i style="width:${Math.round(100 * n / p.max)}%"></i></div>
-      <div class="fp-card-n">${n}/${p.max} <small>${p.use === 'fry' ? 'para freír' : 'para emplatar'}</small></div>
+      <div class="fp-card-n">${n}/${p.max} <small>${p.use === 'cook' ? 'para cocinar' : 'para emplatar'}</small></div>
       <div class="fp-bar fp-prep" style="display:${busy ? 'block' : 'none'}"><i data-fp-prep style="width:${busy ? Math.round(100 * (1 - pr.left / pr.total)) : 0}%"></i></div>
-      <button class="fp-btn" ${pr || n >= p.max ? 'disabled' : ''} onclick="fryProdStart(${id})">${n >= p.max ? 'Lleno' : label}</button>
+      <button class="fp-btn" ${pr || n >= p.max ? 'disabled' : ''} onclick="stProdStart('${area}','${p.key}')">${n >= p.max ? 'Lleno' : label}</button>
     </div>`;
   }).join('');
+  const cur = pr ? ST_PROD[area].find(x => x.key === pr.key) : null;
   panel.innerHTML = `<div class="fp-wrap">
-    <div class="fp-head"><span>🥬 Producción · Frituras</span><small>${pr ? `Preparando ${FRY_PROD[pr.id].label}…` : 'Una tarea a la vez; sigue corriendo mientras fríes.'}</small>${fryStageBack()}</div>
+    <div class="fp-head"><span>🥬 Producción · ${AREA_LABELS[area]}</span><small>${cur ? `Preparando ${cur.label}…` : 'Una tarea a la vez; sigue corriendo mientras cocinas.'}</small>${stBackBtn(area)}</div>
     <div class="fp-cards">${cards}</div></div>`;
 }
 
-function renderFryPlating(panel) {
-  const pl = gameState.fryPlate, pass = gameState.fryPass;
-  const a = analyzeFryPlate();
-  const item = pass[pl.sel];
+function stPassIcon(item) {
+  const v = item.vis || {}, id = v.id != null ? v.id : 1;   // el cuenco usa el icono del fideo
+  return `<span class="fp-pass-ico" style="filter:${(v.kind === 'ing' && v.tone) || 'none'}">${stIngIcon(id)}</span>`;
+}
+function stDiscHtml(area, item, plateItems) {
+  const v = item.vis || {};
+  if (v.kind === 'bowl') return `<div class="fp-bowl">${generateBowlSVG({ ingredients: [...(v.ings || []), ...plateItems] }, null)}</div>`;
+  if (v.kind === 'img') return `<div class="fp-disc"><img class="fp-disc-img" src="${v.src}" alt=""></div>`;
+  return `<div class="fp-disc"><span class="fp-disc-main" style="filter:${v.tone || 'none'}">${stIngIcon(v.id)}</span></div>`;
+}
+
+function stRenderPlate(area, panel) {
+  const st = stGet(area), pl = st.plate, pass = st.pass;
+  const a = stAnalyze(area), item = pass[pl.sel];
   const passHtml = pass.length ? pass.map((it, i) => {
-    const fr = fryItemFreshPts(it);
+    const fr = stFreshPts(area, it);
     const res = { CRUDO: '🥶', PERFECTO: '🔥', QUEMADO: '💨' }[it.result] || '';
-    return `<div class="fp-pass-card ${pl.sel === i ? 'is-sel' : ''}" onclick="fryPlateSelect(${i})">
-      <span class="fp-pass-ico" style="filter:${it.tone || 'none'}">${fryIngIcon(it.proteinId)}</span><span class="fp-pass-res">${res}</span>
+    return `<div class="fp-pass-card ${pl.sel === i ? 'is-sel' : ''}" onclick="stPlateSelect('${area}',${i})">
+      ${stPassIcon(it)}<span class="fp-pass-res">${res}</span>
       <div class="fp-bar fp-fresh"><i data-fp-ready="${it.readyAt}" style="width:${Math.round(100 * fr / 20)}%"></i></div>
-      <button class="fp-x" title="Descartar" onclick="event.stopPropagation(); fryPassDiscard(${i})">🗑️</button></div>`;
-  }).join('') : '<div class="fp-empty">El pase está vacío.<br>Fríe una proteína y pásala a emplatar.</div>';
+      <button class="fp-x" title="Descartar" onclick="event.stopPropagation(); stPassDiscard('${area}',${i})">🗑️</button></div>`;
+  }).join('') : '<div class="fp-empty">El pase está vacío.<br>Termina un plato en la cocina y pásalo a emplatar.</div>';
 
   let plateHtml, tray = '', status = '', serveDisabled = true, hint = '';
   if (item) {
-    const ids = fryPlateTrayIds(item.proteinId);
-    const groups = FRY_PLATE_GROUP_ORDER.map(g => {
-      const inG = ids.filter(id => FRY_PLATE_GROUP[id] === g);
+    const ids = stTrayIds(area, item);
+    tray = ST_GROUPS[area].map(g => {
+      const inG = ids.filter(id => stGroupOf(area, id) === g);
       if (!inG.length) return '';
       return `<div class="fp-grp"><span class="fp-grp-name">${g}</span>${inG.map(id => {
-        const on = pl.items.includes(id), p = FRY_PROD[id], out = p && p.use === 'plate' && fryStockOf(id) < 1 && !on;
-        return `<button class="fp-comp ${on ? 'on' : ''} ${out ? 'out' : ''}" onclick="fryPlateToggle(${id})" title="${fryIngName(id)}"><span>${fryIngIcon(id)}</span><b>${fryIngName(id)}</b>${p && p.use === 'plate' ? `<i class="fp-stock">${fryStockOf(id)}</i>` : ''}</button>`;
+        const on = pl.items.includes(id), p = stProdFor(area, id, 'plate'), out = p && !on && !stPlateStockOk(area, id, pl.items);
+        return `<button class="fp-comp ${on ? 'on' : ''} ${out ? 'out' : ''}" onclick="stPlateToggle('${area}',${id})" title="${stIngName(id)}"><span>${stIngIcon(id)}</span><b>${stIngName(id)}</b>${p ? `<i class="fp-stock">${st.stock[p.key]}</i>` : ''}</button>`;
       }).join('')}</div>`;
     }).join('');
-    tray = groups;
-    const chips = pl.items.map(id => `<span class="fp-chip" onclick="fryPlateToggle(${id})" title="Quitar">${fryIngIcon(id)}</span>`).join('');
-    plateHtml = `<div class="fp-disc"><span class="fp-disc-main" style="filter:${item.tone || 'none'}">${fryIngIcon(item.proteinId)}</span></div><div class="fp-chips">${chips || '<small>Toca componentes →</small>'}</div>`;
+    const chips = pl.items.map(id => `<span class="fp-chip" onclick="stPlateToggle('${area}',${id})" title="Quitar">${stIngIcon(id)}</span>`).join('');
+    plateHtml = `${stDiscHtml(area, item, pl.items)}<div class="fp-chips">${chips || '<small>Toca componentes →</small>'}</div>`;
     if (a.status === 'MATCHED') {
       serveDisabled = false;
       status = `✅ ${a.recipe.name}${a.errors ? ` · orden: ${a.errors} al revés` : ' · ¡orden perfecto!'}`;
     } else if (a.status === 'PROGRESS' && a.recipe) {
-      status = a.missing.length ? `Para ${a.recipe.name} falta: ${a.missing.slice(0, 3).map(fryIngName).join(', ')}${a.missing.length > 3 ? '…' : ''}` : '';
-      if (a.extra.length) status += `${status ? ' · ' : ''}sobra: ${a.extra.map(fryIngName).join(', ')}`;
+      status = a.missing.length ? `Para ${a.recipe.name} falta: ${a.missing.slice(0, 3).map(stIngName).join(', ')}${a.missing.length > 3 ? '…' : ''}` : '';
+      if (a.extra.length) status += `${status ? ' · ' : ''}sobra: ${a.extra.map(stIngName).join(', ')}`;
     } else {
       status = 'Elige los componentes según el pedido.';
     }
-    hint = fryPlateCandidates(item.proteinId).map(r => r.name).join(' / ');
+    hint = item.recipes.length > 1 ? `Esta base puede ser: ${item.recipes.join(' / ')}` : item.recipes[0];
   } else {
     plateHtml = '<div class="fp-empty">Elige un plato del pase.</div>';
   }
-  const ready = getReadyDishes().find(d => d.area === 'frituras');
+  const ready = getReadyDishes().find(d => d.area === area);
   const stars = ready ? starsText(qualityTier(evaluateDish(ready))) : '';
   panel.innerHTML = `<div class="fp-wrap fp-plating">
-    <div class="fp-head"><span>🍽️ Emplatar · Frituras</span><small>${hint ? `Con esta proteína: ${hint}` : 'Fase final antes de servir'}</small>${fryStageBack()}</div>
+    <div class="fp-head"><span>🍽️ Emplatar · ${AREA_LABELS[area]}</span><small>${hint || 'Fase final antes de servir'}</small>${stBackBtn(area)}</div>
     <div class="fp-cols">
-      <div class="fp-col fp-pass"><div class="fp-h">Pase (${pass.length}/${FRY_PASS_MAX})</div>${passHtml}</div>
+      <div class="fp-col fp-pass"><div class="fp-h">Pase (${pass.length}/${ST_PASS_MAX})</div>${passHtml}</div>
       <div class="fp-col fp-plate-col"><div class="fp-h">Plato</div>${plateHtml}
         <div class="fp-status">${status}</div>
-        <div class="fp-actions"><button class="fp-btn" onclick="fryPlateClear()" ${item && pl.items.length ? '' : 'disabled'}>Vaciar</button>
-        <button class="fp-btn fp-serve" onclick="fryPlateServe()" ${serveDisabled ? 'disabled' : ''}>✅ Servir ${stars}</button></div></div>
+        <div class="fp-actions"><button class="fp-btn" onclick="stPlateClear('${area}')" ${item && pl.items.length ? '' : 'disabled'}>Vaciar</button>
+        <button class="fp-btn fp-serve" onclick="stPlateServe('${area}')" ${serveDisabled ? 'disabled' : ''}>✅ Servir ${stars}</button></div></div>
       <div class="fp-col fp-tray"><div class="fp-h">Componentes</div>${tray || '<div class="fp-empty">—</div>'}</div>
     </div></div>`;
 }
 
 // Actualización ligera cada segundo (sin recrear los botones para no perder toques).
-function updateFryStagePanelTick() {
-  if (!fryStagePanelOpen()) return;
+function stTickUi() {
+  const area = gameState.activeArea;
+  if (!stPanelOpen(area)) return;
   const panel = document.getElementById('stage-panel');
   if (!panel) return;
-  const pr = gameState.fryPrep;
+  const st = stGet(area), pr = st.prep;
   const left = panel.querySelector('[data-fp-left]');
   if (left && pr) left.textContent = pr.left;
   const bar = panel.querySelector('[data-fp-prep]');
   if (bar && pr) bar.style.width = `${Math.round(100 * (1 - pr.left / pr.total))}%`;
   panel.querySelectorAll('[data-fp-ready]').forEach(el => {
-    const it = gameState.fryPass.find(x => String(x.readyAt) === el.dataset.fpReady);
-    if (it) el.style.width = `${Math.round(100 * fryItemFreshPts(it) / 20)}%`;
+    const it = st.pass.find(x => String(x.readyAt) === el.dataset.fpReady);
+    if (it) el.style.width = `${Math.round(100 * stFreshPts(area, it) / 20)}%`;
   });
 }
 
-// Cada segundo de juego.
-function friturasStagedTick() {
-  if (!friturasStaged()) return;
-  fryProdTick();
-  if (gameState.fryPass.length) updateFryStagePanelTick();
+// Frituras → pase: la proteína frita (y cortada si hace falta) se va a emplatar; la olla queda libre.
+function moveFryToPass() {
+  const st = gameState.fryStation;
+  if (st.phase !== 'FRIED' || !fryCutDone(st)) return;
+  const recipes = Object.entries(FRY_PLATING).filter(([n, p]) => p.protein === st.proteinId).map(([n]) => n);
+  const ok = stPassAdd('frituras', { recipes, result: st.fryResult || 'PERFECTO', readyAt: st.readyAt != null ? st.readyAt : gameState.gameClock,
+    vis: { kind: 'ing', id: st.proteinId, tone: st.fryTone }, meta: { result: st.fryResult || 'PERFECTO', secs: st.frySeconds, proteinId: st.proteinId } });
+  if (!ok) return;
+  if (fryTimerInterval) { clearInterval(fryTimerInterval); fryTimerInterval = null; }
+  cleanupFryItemDrag();
+  cleanupFryKnifeDrag();
+  gameState.fryStation = newFryStation();
+  renderFryStation();
+  renderPantryGrid();
 }
 
 // Corte (como en Makis: cuchillo vertical sostenido 3 s sobre la proteína frita). Solo se cortan
@@ -10675,7 +10872,7 @@ function fryCanCut() {
 // Plato completo: receta completa, proteína frita y (si lleva) ya cortada.
 function fryDishComplete() {
   const station = gameState.fryStation;
-  if (friturasStaged()) return station.phase === 'FRIED' && fryCutDone(station);
+  if (stagedOn('frituras')) return station.phase === 'FRIED' && fryCutDone(station);
   return station.phase === 'FRIED' && analyzeFryStation().status === 'MATCHED' && fryCutDone(station);
 }
 
@@ -10769,8 +10966,7 @@ function placeFryProtein(ing, coat) {
     showStationToast(`${ing.display} no lleva empanizado: arrástrala directo a la tabla.`);
     return;
   }
-  if (fryProteinStockBlocked(ing)) return;
-  fryProteinTake(ing.id);
+  if (!stCookTake('frituras', ing.id)) return;
   station.proteinId = ing.id;
   station.coat = needs ? 3 : 0;
   station.ingredients.push(ing.id);
@@ -10784,7 +10980,7 @@ function placeFryProtein(ing, coat) {
 function removeFryProtein() {
   const station = gameState.fryStation;
   if (!station.proteinId || station.phase !== 'BUILDING') return false;
-  fryProteinRefund(station.proteinId);
+  stCookRefund('frituras', station.proteinId);
   station.ingredients = station.ingredients.filter(id => id !== station.proteinId && !FRY_BREADING_IDS.includes(id));
   station.proteinId = null;
   station.coat = 0;
@@ -10891,7 +11087,7 @@ function handleFryActionClick() {
 
 function attemptServeFryStation() {
   if (!fryDishComplete()) return;
-  if (friturasStaged()) { moveFryToPass(); return; }
+  if (stagedOn('frituras')) { moveFryToPass(); return; }
   serveReadyDish('frituras', 0);
 }
 
@@ -11173,7 +11369,7 @@ function renderFryStation() {
   const cutting = station.cutState === 'CUTTING';
   const isCut = needsCut && station.cutState === 'CUT';
   const cutDone = fryCutDone(station);
-  const staged = friturasStaged();
+  const staged = stagedOn('frituras');
   const complete = station.phase === 'FRIED' && (staged || matched) && cutDone;
   if (complete && station.readyAt == null) station.readyAt = gameState.gameClock;
   else if (!complete) station.readyAt = null;
@@ -11345,8 +11541,7 @@ function renderAreaTabs() {
 function renderCategoryFilters() {
   const container = document.getElementById('pantry-tabs-bar');
   if (!container) return;
-  const areaIngredients = INGREDIENTES.filter(i => i.areas && i.areas.includes(gameState.activeArea)
-    && !(gameState.activeArea === 'frituras' && friturasStaged() && !FRY_PROTEIN_IDS.includes(i.id)));
+  const areaIngredients = stagedOn(gameState.activeArea) ? getUnlockedIngredients() : INGREDIENTES.filter(i => i.areas && i.areas.includes(gameState.activeArea));
   const catsPresent = new Set(areaIngredients.map(i => i.cat));
   const orderedCats = ['bases', 'salsas', 'proteinas', 'vegetales', 'otros'].filter(c => catsPresent.has(c));
   let html = `<button class="mini-cat-btn ${gameState.currentCategory === 'todos' ? 'active' : ''}" onclick="filterCategory('todos')">Todos</button>`;
@@ -11774,7 +11969,7 @@ function getRecetasByArea(area) {
 function analyzeMakiSequence(sequence) {
   if (!sequence || sequence.length === 0) return { status: "EMPTY" };
 
-  for (const r of RECETAS_MAKIS) {
+  for (const r of makiCatalog()) {
     if (r.ingredients.length === sequence.length && r.ingredients.every((id, idx) => id === sequence[idx])) {
       return { status: "READY", recipe: r };
     }
@@ -11783,7 +11978,7 @@ function analyzeMakiSequence(sequence) {
   // ¿La secuencia actual es, en orden, el inicio válido de alguna receta?
   let bestRecipe = null;
   let bestMatchLen = -1;
-  for (const r of RECETAS_MAKIS) {
+  for (const r of makiCatalog()) {
     let matchLen = 0;
     while (matchLen < sequence.length && matchLen < r.ingredients.length && r.ingredients[matchLen] === sequence[matchLen]) {
       matchLen++;
@@ -11816,7 +12011,7 @@ function analyzeBowl(bowlIndex) {
   // estación de trabajo (ver renderMakiStation para Makis) y no pasan por esta función.
   const bowl = gameState.bowls[bowlIndex];
   const area = 'ramen'; // los cuencos son de Ramen aunque el jugador esté trabajando en otra área
-  const catalog = getRecetasByArea(area);
+  const catalog = stView('ramen', getRecetasByArea(area));   // con etapas activas, solo la parte de cocción de cada receta
   const bowlSet = new Set(bowl.ingredients);
 
   for (const r of catalog) {
@@ -11828,7 +12023,7 @@ function analyzeBowl(bowlIndex) {
 
   if (bowl.ingredients.length === 0) return { status: "EMPTY" };
 
-  const unlocked = area === 'ramen' ? getUnlockedRamenRecipes() : catalog;
+  const unlocked = area === 'ramen' ? stView('ramen', getUnlockedRamenRecipes()) : catalog;
   const candidateRecipes = unlocked.length > 0 ? unlocked : catalog;
   let bestRecipe = null;
   let bestOverlap = -1;
@@ -12669,14 +12864,17 @@ function renderBowls() {
       }
       cardEl.onclick = () => selectBowl(i);
     } else if (analysis.status === "READY") {
-      bowl.matchedRamen = analysis.recipe;
-      const readyText = bowl.orderErrors ? `⚠ ${analysis.recipe.name} (desordenado)` : `¡Listo: ${analysis.recipe.name}!`;
+      const staged = stagedOn('ramen');
+      bowl.matchedRamen = staged ? null : analysis.recipe;   // con etapas el plato solo se sirve ya emplatado
+      const readyText = staged ? (bowl.orderErrors ? '⚠ Base lista (desordenada): toca para emplatar' : '¡Base lista! Toca para emplatar')
+        : (bowl.orderErrors ? `⚠ ${analysis.recipe.name} (desordenado)` : `¡Listo: ${analysis.recipe.name}!`);
       if (badgeEl && badgeEl._lastText !== readyText) {
         badgeEl.textContent = readyText;
         badgeEl._lastText = readyText;
       }
 
       cardEl.onclick = () => {
+        if (staged) { stPassFromBowl(i); return; }
         if (gameState.activeBowlIndex !== i) {
           selectBowl(i);
         } else {
@@ -13606,7 +13804,11 @@ const TRAINING_FEATURES = {
   area_makis: { icon: '🍣', name: 'Área Makis' },
   mottainai: { icon: '♻️', name: 'Mottainai: recortes y dashi' },
   area_frituras: { icon: '🍤', name: 'Área Frituras' },
-  q_fresh: { icon: '♨️', name: 'Frescura: los platos se enfrían' }
+  q_fresh: { icon: '♨️', name: 'Frescura: los platos se enfrían' },
+  st_ramen: { icon: '🥬', name: 'Ramen: Producción y Emplatar' },
+  st_salteados: { icon: '🥬', name: 'Salteado: Producción y Emplatar' },
+  st_makis: { icon: '🥬', name: 'Makis: Producción y Emplatar' },
+  st_frituras: { icon: '🥬', name: 'Frituras: Producción y Emplatar' }
 };
 const TRAINING_CHAPTERS = [
   { id: 'ramen', icon: '🍜', name: 'Ramen: los fundamentos' },
@@ -13627,20 +13829,20 @@ const TRAINING_CHALLENGES = [
   { id: 'c02', ch: 'ramen', title: 'Dos pedidos', r: { ramen: 2 }, pool: { ramen: ['Shio', 'Shoyu'] }, M: 1, O: 1, spawn: 6, pm: 3, reward: 10, unlocks: ['bowls2'] },
   { id: 'c03', ch: 'ramen', title: 'Dos cuencos a la vez', r: { ramen: 3 }, pool: { ramen: ['Shio', 'Shoyu', 'Miso'] }, M: 2, O: 1, spawn: 6, pm: 2.5, reward: 12, unlocks: ['q_stars'] },
   { id: 'c04', ch: 'ramen', title: 'Cuida el punto', r: { ramen: 4 }, minStars: 2, pool: { ramen: ['Shio', 'Shoyu', 'Miso', 'Chashu'] }, M: 2, O: 1, spawn: 6, pm: 2.5, reward: 15, unlocks: ['bowls3'] },
-  { id: 'c05', ch: 'ramen', title: 'Caldos espesos', r: { ramen: 6 }, pool: { ramen: ['Shio', 'Miso', 'Chashu', 'Tonkotsu', 'Tan tan'] }, M: 3, O: 2, spawn: 6, pm: 2.5, reward: 22, unlocks: ['area_salteados'] },
+  { id: 'c05', ch: 'ramen', title: 'Caldos espesos', r: { ramen: 6 }, pool: { ramen: ['Shio', 'Miso', 'Chashu', 'Tonkotsu', 'Tan tan'] }, M: 3, O: 2, spawn: 6, pm: 2.5, reward: 22, unlocks: ['area_salteados', 'st_ramen'] },
   { id: 'c06', ch: 'salteado', title: 'Tu primer wok', r: { salteados: 1 }, pool: { salteados: ['Yakimeshi'] }, M: 1, O: 1, spawn: 6, pm: 3, reward: 12, unlocks: [] },
   { id: 'c07', ch: 'salteado', title: 'El punto del wok', r: { salteados: 2 }, minStars: 2, pool: { salteados: ['Yakimeshi', 'Chicken Teriyaki'] }, M: 1, O: 1, spawn: 6, pm: 3, reward: 15, unlocks: ['wok2'] },
-  { id: 'c08', ch: 'salteado', title: 'Dos woks en paralelo', r: { salteados: 4 }, pool: { salteados: ['Yakimeshi', 'Chicken Teriyaki', 'Chaufa Shimaya', 'Yakitori'] }, M: 2, O: 2, spawn: 6, pm: 2.5, reward: 22, unlocks: [] },
+  { id: 'c08', ch: 'salteado', title: 'Dos woks en paralelo', r: { salteados: 4 }, pool: { salteados: ['Yakimeshi', 'Chicken Teriyaki', 'Chaufa Shimaya', 'Yakitori'] }, M: 2, O: 2, spawn: 6, pm: 2.5, reward: 22, unlocks: ['st_salteados'] },
   { id: 'c09', ch: 'salteado', title: 'Ramen y wok', r: { ramen: 3, salteados: 3 }, pool: { ramen: ['Shio', 'Shoyu', 'Miso', 'Chashu'], salteados: ['Yakimeshi', 'Chicken Teriyaki', 'Chaufa Shimaya', 'Yakitori'] }, M: 3, O: 2, spawn: 6, pm: 2.5, reward: 30, unlocks: ['q_reject'] },
   { id: 'c10', ch: 'salteado', title: 'Salteados de carta', r: { salteados: 5 }, minStars: 2, pool: { salteados: TRN_SAL }, M: 2, O: 2, spawn: 6, pm: 2.5, reward: 30, unlocks: ['area_makis'] },
   { id: 'c11', ch: 'makis', title: 'Tu primer maki', r: { makis: 1 }, pool: { makis: ['Maki California'] }, M: 1, O: 1, spawn: 6, pm: 3, reward: 15, unlocks: [] },
   { id: 'c12', ch: 'makis', title: 'Dos makis', r: { makis: 2 }, pool: { makis: ['Maki California', 'Maki Guacamole'] }, M: 1, O: 2, spawn: 6, pm: 3, reward: 20, unlocks: [] },
-  { id: 'c13', ch: 'makis', title: 'Con coberturas', r: { makis: 3 }, minStars: 2, pool: { makis: ['Maki Acevichado', 'Maki Hotate', 'Maki Amazon'] }, M: 2, O: 2, spawn: 6, pm: 2.5, reward: 28, unlocks: [] },
+  { id: 'c13', ch: 'makis', title: 'Con coberturas', r: { makis: 3 }, minStars: 2, pool: { makis: ['Maki Acevichado', 'Maki Hotate', 'Maki Amazon'] }, M: 2, O: 2, spawn: 6, pm: 2.5, reward: 28, unlocks: ['st_makis'] },
   { id: 'c14', ch: 'makis', title: 'La barra completa', r: { ramen: 2, salteados: 2, makis: 3 }, pool: { ramen: ['Shio', 'Shoyu', 'Miso', 'Chashu'], salteados: ['Yakimeshi', 'Chicken Teriyaki', 'Chaufa Shimaya', 'Yakitori'], makis: ['Maki California', 'Maki Guacamole', 'Maki Acevichado'] }, M: 3, O: 2, spawn: 6, pm: 2.5, reward: 40, unlocks: ['mottainai'] },
   { id: 'c15', ch: 'makis', title: 'Makis finos', r: { makis: 4 }, minStars: 2, pool: { makis: TRN_MAKI }, M: 2, O: 2, spawn: 6, pm: 2.5, reward: 40, unlocks: ['area_frituras'] },
   { id: 'c16', ch: 'frituras', title: 'Tu primera fritura', r: { frituras: 1 }, pool: { frituras: ['Alitas'] }, M: 1, O: 1, spawn: 6, pm: 3, reward: 15, unlocks: [] },
   { id: 'c17', ch: 'frituras', title: 'El punto de la olla', r: { frituras: 2 }, pool: { frituras: ['Alitas', 'Kaarage'] }, M: 1, O: 2, spawn: 6, pm: 3, reward: 20, unlocks: [] },
-  { id: 'c18', ch: 'frituras', title: 'Empanizado y corte', r: { frituras: 2 }, minStars: 2, pool: { frituras: ['Tonkatsu', 'Chicken Katsu'] }, M: 1, O: 2, spawn: 6, pm: 3, reward: 30, unlocks: [] },
+  { id: 'c18', ch: 'frituras', title: 'Empanizado y corte', r: { frituras: 2 }, minStars: 2, pool: { frituras: ['Tonkatsu', 'Chicken Katsu'] }, M: 1, O: 2, spawn: 6, pm: 3, reward: 30, unlocks: ['st_frituras'] },
   { id: 'c19', ch: 'frituras', title: 'Fritura surtida', r: { frituras: 4 }, pool: { frituras: ['Katsu Kare', 'Ebi Furai', 'Age Gyozas', 'Tonkatsu'] }, M: 2, O: 2, spawn: 6, pm: 2.5, reward: 40, unlocks: ['q_fresh'] },
   { id: 'c20', ch: 'frituras', title: 'Cocina caliente', r: { frituras: 3, salteados: 3 }, minStars: 2, pool: { frituras: TRN_FRY, salteados: TRN_SAL }, M: 3, O: 2, spawn: 6, pm: 2.5, reward: 45, unlocks: [] },
   { id: 'c21', ch: 'servicio', title: 'El almuerzo', r: { ramen: 2, salteados: 2, makis: 2, frituras: 2 }, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 3, O: 2, spawn: 6, pm: 2, reward: 55, unlocks: [] },
@@ -13652,7 +13854,7 @@ const TRAINING_CHALLENGES = [
   { id: 'c27', ch: 'maestria', title: 'Examen del maestro', r: { ramen: 8, salteados: 8, makis: 7, frituras: 7 }, minStars: 2, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 4, O: 3, spawn: 4, pm: 1.6, reward: 150, unlocks: [] }
 ].map((c, i) => ({ ...c, num: i + 1, index: i, reqs: Object.entries(c.r).map(([area, n]) => ({ area, n })) }));
 const TRAINING_BY_ID = Object.fromEntries(TRAINING_CHALLENGES.map(c => [c.id, c]));
-const TRAINING_SEC = { ramen: 13, salteados: 14, makis: 15, frituras: 38 };   // segundos por pedido (jugador que ya conoce el juego)
+const TRAINING_SEC = { ramen: 20, salteados: 22, makis: 24, frituras: 38 };   // segundos por pedido (jugador que ya conoce el juego)
 const TRAINING_MEDAL_SHARE = [0, 0.6, 0.85, 1];
 
 const isTraining = () => gameState.gameMode === 'TRAINING' && !!gameState.training && !gameState.isGameOver;
@@ -13958,7 +14160,7 @@ function statsBump(field, n = 1) {
 // Tipo de error del plato: desorden (proceso), quemado o crudo.
 function statsMistakes(ev) {
   const day = statsDay();
-  if (ev.plate != null ? ev.plateErrors > 0 : ev.proc < 30) day.er++;
+  if (ev.plate != null ? (ev.plateErrors > 0 || ev.procRaw < 30) : ev.proc < 30) day.er++;
   if (ev.cook.state === 'QUEMADO' || ev.cook.state === 'CARBONIZADO') day.bu++;
   else if (ev.cook.state === 'CRUDO') day.cr++;
 }
@@ -14461,6 +14663,9 @@ const FRESHNESS_CURVES = {
   salteados: [[0, 20], [8, 20], [20, 10], [40, 0]],
   frituras: [[0, 20], [6, 20], [18, 0]],
   frituras_plated: [[0, 20], [12, 20], [36, 0]], // el plato emplatado aguanta más: emplatar toma tiempo
+  ramen_plated: [[0, 20], [14, 20], [30, 10], [55, 0]],
+  salteados_plated: [[0, 20], [14, 20], [30, 10], [55, 0]],
+  makis_plated: [[0, 20], [40, 20], [100, 10]],
   makis: [[0, 20], [30, 20], [90, 10]]
 };
 
@@ -14512,7 +14717,7 @@ function evalFreshness(dish) {
   const m = dish.meta || {};
   const warmth = 1 + [0, 0.3, 0.6, 1][getUpgradeLevel('bandeja')];
   const t = m.readyAt == null ? 0 : Math.max(0, gameState.gameClock - m.readyAt) / warmth;
-  const pts = (dish.meta && dish.meta.plate && FRESHNESS_CURVES.frituras_plated) || FRESHNESS_CURVES[dish.area] || FRESHNESS_CURVES.ramen;
+  const pts = (dish.meta && dish.meta.plate && FRESHNESS_CURVES[dish.area + '_plated']) || FRESHNESS_CURVES[dish.area] || FRESHNESS_CURVES.ramen;
   for (let i = 1; i < pts.length; i++) {
     if (t <= pts[i][0]) {
       const [t0, p0] = pts[i - 1], [t1, p1] = pts[i];
@@ -14524,15 +14729,14 @@ function evalFreshness(dish) {
 
 function evaluateDish(dish) {
   const plate = dish.meta && dish.meta.plate;
-  if (dish.area === 'frituras' && plate) {
-    // cocción 40 + proceso 20 (empanizado) + emplatado 25 + frescura 15
-    const c = evalCooking(dish), f = evalFreshness(dish);
-    return { score: Math.round(c.pts * 0.8 + 20 + plate.pts + f * 0.75), cook: c, proc: 20, fresh: f, plate: plate.pts, plateErrors: plate.errors,
-      gate: c.gate || null, capped: c.state === 'CRUDO' || c.state === 'QUEMADO' };
-  }
   const cook = evalCooking(dish), proc = evalProcess(dish), fresh = evalFreshness(dish);
-  return { score: Math.round(cook.pts + proc + fresh), cook, proc, fresh, gate: cook.gate || null,
-    capped: cook.state === 'CRUDO' || cook.state === 'QUEMADO' };
+  const capped = cook.state === 'CRUDO' || cook.state === 'QUEMADO';
+  if (plate) {
+    // con emplatado: cocción 40 + proceso 20 + emplatado 25 + frescura 15
+    return { score: Math.round(cook.pts * 0.8 + proc * (2 / 3) + plate.pts + fresh * 0.75), cook, proc: Math.round(proc * 2 / 3), procRaw: proc, fresh,
+      plate: plate.pts, plateErrors: plate.errors, gate: cook.gate || null, capped };
+  }
+  return { score: Math.round(cook.pts + proc + fresh), cook, proc, fresh, gate: cook.gate || null, capped };
 }
 
 function qualityTier(ev, minScore = 35) {
@@ -14563,38 +14767,36 @@ function updateServeButtonsQuality() {
     const d = ready.find(x => x.area === area && (index === undefined || x.index === index));
     if (d) btn.textContent = `✅ Servir ${starsText(qualityTier(evaluateDish(d)))}`;
   };
-  [0, 1].forEach(i => setLabel(document.getElementById(`wok-serve-btn-${i}`), 'salteados', i));
-  setLabel(document.getElementById('maki-serve-btn'), 'makis', 0);
-  if (!friturasStaged()) setLabel(document.querySelector('.fry-btn-serve'), 'frituras', 0);
+  const toPlate = btn => { if (btn) btn.textContent = '➡ A emplatar'; };
+  [0, 1].forEach(i => { const b = document.getElementById(`wok-serve-btn-${i}`); if (stagedOn('salteados')) toPlate(b); else setLabel(b, 'salteados', i); });
+  const mb = document.getElementById('maki-serve-btn');
+  if (stagedOn('makis')) toPlate(mb); else setLabel(mb, 'makis', 0);
+  if (!stagedOn('frituras')) setLabel(document.querySelector('.fry-btn-serve'), 'frituras', 0);
 }
 
 function getReadyDishes() {
   const list = [];
   gameState.bowls.forEach((b, i) => {
-    if (b && b.matchedRamen) list.push({ area: 'ramen', index: i, recipe: b.matchedRamen, quality: b.orderErrors ? 'ORDEN' : 'PERFECTO', label: `Tazón ${i + 1}`,
+    if (b && b.matchedRamen && !stagedOn('ramen')) list.push({ area: 'ramen', index: i, recipe: b.matchedRamen, quality: b.orderErrors ? 'ORDEN' : 'PERFECTO', label: `Tazón ${i + 1}`,
       meta: { orderErrors: b.orderErrors || 0, dashiBase: !!b.dashiBase, readyAt: b.readyAt } });
   });
   gameState.woks.forEach((w, i) => {
-    if (w && w.result && w.matchedRecipe) list.push({ area: 'salteados', index: i, recipe: w.matchedRecipe, quality: w.result, label: `Wok ${i + 1}`,
+    if (w && w.result && w.matchedRecipe && !stagedOn('salteados')) list.push({ area: 'salteados', index: i, recipe: w.matchedRecipe, quality: w.result, label: `Wok ${i + 1}`,
       meta: { result: w.result, secs: w.stirSeconds, profile: w.profile, orderMatches: w.orderMatches, orderTotal: w.orderTotal, readyAt: w.readyAt } });
   });
   const roll = gameState.makiRoll;
-  if (roll && roll.cutState === 'CUT') {
+  if (roll && roll.cutState === 'CUT' && !stagedOn('makis')) {
     const a = analyzeMakiSequence(roll.ingredients);
     if (a.status === 'READY') list.push({ area: 'makis', index: 0, recipe: a.recipe, quality: 'PERFECTO', label: 'Tabla de makis', meta: { readyAt: roll.readyAt } });
   }
   const fry = gameState.fryStation;
-  if (friturasStaged()) {
-    const pa = analyzeFryPlate();
-    if (pa.status === 'MATCHED') {
-      list.push({ area: 'frituras', index: 0, recipe: pa.recipe, quality: pa.item.result, label: 'Plato de frituras',
-        meta: { result: pa.item.result, secs: pa.item.secs, proteinId: pa.item.proteinId, readyAt: pa.item.readyAt, plate: { pts: pa.pts, errors: pa.errors } } });
-    }
-  } else if (fry && fry.phase === 'FRIED' && fryDishComplete()) {
+  if (!stagedOn('frituras') && fry && fry.phase === 'FRIED' && fryDishComplete()) {
     const a = analyzeFryStation();
     if (a.status === 'MATCHED') list.push({ area: 'frituras', index: 0, recipe: a.recipe, quality: fry.fryResult || 'PERFECTO', label: 'Tabla de frituras',
       meta: { result: fry.fryResult || 'PERFECTO', secs: fry.frySeconds, proteinId: fry.proteinId, readyAt: fry.readyAt } });
   }
+  // áreas con etapas: el plato listo es el que ya está emplatado
+  STAGE_AREAS.forEach(a => { if (stagedOn(a)) { const d = stReadyDish(a); if (d) list.push(d); } });
   return list;
 }
 
@@ -14604,6 +14806,7 @@ function findReadyDishFor(recipe, ready) {
 
 // Vacía la estación de la que salió el plato servido.
 function consumeReadyDish(d) {
+  if (d.staged) { stConsumePlated(d.area); renderPantryGrid(); return; }
   if (d.area === 'ramen') {
     gameState.bowls[d.index] = { ingredients: [], matchedRamen: null };
   } else if (d.area === 'salteados') {
@@ -14613,8 +14816,6 @@ function consumeReadyDish(d) {
     cleanupMakiToolDrag();
     gameState.makiRoll = newMakiRoll();
     renderMakiStation();
-  } else if (d.area === 'frituras' && friturasStaged()) {
-    consumeFryPlated();
   } else if (d.area === 'frituras') {
     if (fryTimerInterval) { clearInterval(fryTimerInterval); fryTimerInterval = null; }
     cleanupFryItemDrag();
@@ -14953,7 +15154,7 @@ function getOrdersProcessSeconds(orders) {
   orders.forEach(o => {
     const area = getRecipeArea(o.recipe);
     total += AREA_PROCESS_SECONDS[area] || 0;
-    if (area === 'frituras' && friturasStaged()) total += FRY_STAGED_EXTRA_SECONDS; // producción + emplatado
+    if (stagedOn(area)) total += ST_EXTRA_SECONDS[area] || 0; // producción + emplatado
     perArea[area] = (perArea[area] || 0) + 1;
     if (SINGLE_STATION_AREAS.includes(area) && perArea[area] > 1) total += SINGLE_STATION_EXTRA_SECONDS;
   });
@@ -15035,7 +15236,7 @@ function gameTick() {
   if (gameState.isPaused || gameState.isGameOver || (typeof TutorialManager !== 'undefined' && TutorialManager.isActive)) return;
   gameState.gameClock++;
   statsAddTime();
-  friturasStagedTick();
+  stTick();
 
   if (gameState.gameMode === 'NORMAL') {
     gameState.timeLeft--;
@@ -15415,7 +15616,7 @@ function startLevel(lvlIndex) {
   cleanupFryItemDrag();
   cleanupFryKnifeDrag();
   gameState.fryStation = newFryStation();
-  friturasInitStaged();
+  stInit();
   updateStationVisibilityForArea();
   renderPantryGrid();
 
