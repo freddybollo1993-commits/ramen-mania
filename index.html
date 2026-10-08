@@ -800,6 +800,56 @@
   @keyframes cutBit { 0% { transform: translate(0, 0) scale(0.6); opacity: 0.9; } 100% { transform: translate(var(--dx), var(--dy)) scale(1) rotate(var(--rot)); opacity: 0; } }
   .cut-plus { position: absolute; left: 42%; top: 6%; font-size: 15px; font-weight: 900; color: #ffd54f; text-shadow: 0 1px 3px #000; pointer-events: none; animation: cutPlus 0.85s ease-out forwards; z-index: 7; }
   @keyframes cutPlus { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-30px); opacity: 0; } }
+  /* modo corte: con el cuchillo en posición la tabla se expande y la cocina queda a la vista a la derecha */
+  .shop-cutlayout { --sh: clamp(48px, 19vh, 100px); display: flex; gap: 6px; align-items: stretch; height: calc(var(--sh) * 2.5 + 6px); padding-top: 2px; }
+  .shop-bigboard { position: relative; flex: 1; min-width: 0; overflow: hidden; border-radius: 16px; border: 3px solid #97672f; box-sizing: border-box; box-shadow: 0 4px 8px rgba(0,0,0,0.5), inset 0 0 0 5px rgba(255,255,255,0.28), inset 0 0 0 9px rgba(181,128,63,0.4); background: repeating-linear-gradient(176deg, rgba(185,132,70,0) 0 22px, rgba(185,132,70,0.32) 22px 24px), linear-gradient(180deg, #ebc687, #d09f5d); }
+  .shop-bigboard.drop-hover { filter: drop-shadow(0 0 8px rgba(255, 213, 79, 0.95)); }
+  .shop-bigboard .shop-label { top: 3%; font-size: 11px; }
+  .shop-bigboard .shop-pips { position: absolute; bottom: 5%; left: 0; right: 0; display: flex; justify-content: center; gap: 8px; }
+  .shop-bigboard .shop-pips i { width: 12px; height: 12px; }
+  .cb-chips { position: absolute; left: 3%; right: 3%; top: 10%; display: flex; gap: 3px; justify-content: center; flex-wrap: wrap; z-index: 4; }
+  .cb-chip { cursor: pointer; display: flex; align-items: center; gap: 1px; padding: 0 3px 0 1px; border-radius: 10px; border: 1.5px solid rgba(93, 64, 55, 0.7); background: rgba(255, 243, 224, 0.55); color: #5d4037; font-size: 10px; font-weight: 900; }
+  .cb-chip .ing-ico, .cb-chip span { width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; }
+  .cb-chip i { font-style: normal; }
+  .cb-chip.on { background: #ffd54f; border-color: #e65100; }
+  .cb-chip:disabled { opacity: 0.4; cursor: default; }
+  .cb-item { position: absolute; left: 44%; top: 64%; height: 48%; aspect-ratio: 1; transform: translate(-50%, -50%); }
+  .cb-item.pop { animation: cbPop 0.3s ease-out; }
+  @keyframes cbPop { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
+  .cb-item .q { position: absolute; inset: 0; transition: transform 0.2s ease-out, opacity 0.26s ease-in; filter: drop-shadow(0 3px 3px rgba(0,0,0,0.35)); }
+  .cb-item .q .ing-ico, .cb-item .q img { width: 100%; height: 100%; object-fit: contain; }
+  .cb-item .q > span { display: flex; width: 100%; height: 100%; align-items: center; justify-content: center; font-size: 80px; }
+  .cb-item .q1 { clip-path: inset(0 50% 50% 0); } .cb-item .q2 { clip-path: inset(0 0 50% 50%); }
+  .cb-item .q3 { clip-path: inset(50% 50% 0 0); } .cb-item .q4 { clip-path: inset(50% 0 0 50%); }
+  .cb-item.s1 .q1, .cb-item.s1 .q3 { transform: translateX(-9%) rotate(-3deg); } .cb-item.s1 .q2, .cb-item.s1 .q4 { transform: translateX(9%) rotate(3deg); }
+  .cb-item.s2 .q1 { transform: translate(-12%, -9%) rotate(-6deg); } .cb-item.s2 .q2 { transform: translate(12%, -9%) rotate(6deg); }
+  .cb-item.s2 .q3 { transform: translate(-12%, 9%) rotate(5deg); } .cb-item.s2 .q4 { transform: translate(12%, 9%) rotate(-5deg); }
+  .cb-item.s3 .q { transform: translateY(70%) scale(0.35); opacity: 0; transition: transform 0.28s ease-in, opacity 0.28s ease-in; }
+  .cb-pile { position: absolute; right: 4%; bottom: 8%; width: 30%; height: 38%; pointer-events: none; }
+  .cb-pile .cb-pc { position: absolute; width: 22px; height: 22px; filter: drop-shadow(0 1px 1.5px rgba(0,0,0,0.45)); }
+  .cb-pile .cb-pc .ing-ico, .cb-pile .cb-pc img { width: 100%; height: 100%; object-fit: contain; }
+  .cb-pile .cb-pc > span { font-size: 16px; }
+  .cb-pile-n { position: absolute; right: 0; top: -4px; font-size: 12px; color: #fff; background: rgba(0,0,0,0.6); border-radius: 8px; padding: 0 5px; }
+  .cb-drop { position: fixed; z-index: 30; width: 22px; height: 22px; pointer-events: none; animation: cbDrop 0.42s ease-in forwards; }
+  .cb-drop .ing-ico, .cb-drop img { width: 100%; height: 100%; object-fit: contain; }
+  @keyframes cbDrop { 0% { transform: translate(0, 0) scale(1.1) rotate(0); opacity: 1; } 100% { transform: translate(var(--dx), var(--dy)) scale(0.8) rotate(var(--rot)); opacity: 0.9; } }
+  .fp-shop .shop-bigboard .shop-knife {
+    position: absolute; left: 56%; top: 26%; height: 56%; width: auto; aspect-ratio: 40 / 120; z-index: 5;
+    transform-origin: 50% 85%; transform: rotate(-38deg);
+    filter: drop-shadow(0 7px 5px rgba(0,0,0,0.45)) drop-shadow(0 0 9px rgba(255, 213, 79, 0.85));
+    animation: knifeFloat 1.1s ease-in-out infinite alternate;
+  }
+  .fp-shop .shop-bigboard .shop-knife.chop { animation: knifeChop 0.18s ease-out; }
+  .shop-bigboard .cut-fx .k { height: 70%; top: -30%; left: 38%; }
+  .shop-side { width: calc(var(--sh) * 2.9); flex-shrink: 0; display: flex; flex-direction: column; justify-content: flex-end; gap: 4px; }
+  .shop-side .shop-stove { margin-right: 0; margin-top: calc(var(--sh) * 0.12); }
+  .bl-list { background: rgba(28, 14, 10, 0.6); border: 1.5px solid #5a2e22; border-radius: 8px; padding: 2px 4px; display: flex; flex-direction: column; gap: 1px; }
+  .bl-title { font-size: 9px; font-weight: 900; color: #ffcc80; }
+  .bl-row { display: flex; align-items: center; gap: 3px; font-size: 9px; font-weight: 800; color: #efebe9; }
+  .bl-row b { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bl-row .bl-ico { width: 15px; height: 15px; display: inline-flex; font-size: 12px; }
+  .bl-row .bl-ico .ing-ico, .bl-row .bl-ico img { width: 100%; height: 100%; object-fit: contain; }
+  .bl-row .fp-btn { margin: 0; padding: 0 6px; font-size: 10px; }
   .shop-stove {
     position: relative; width: calc(var(--sh) * 2.9); height: calc(var(--sh) * 1.3775); flex-shrink: 0;
     background: url('assets/fry_stove_v2.svg') center / 100% 100% no-repeat; margin-right: 4px;
@@ -6004,7 +6054,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v50</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v51</span></button></div>
     </div>
   </div>
 
@@ -10975,8 +11025,54 @@ function shopUpdateCount(p) {
   const st = stGet('ramen'), n = st.stock[p.key], c = stBin(st, p)[p.key];
   document.querySelectorAll(`[data-stock-of="${p.key}"]`).forEach(el => { el.textContent = `${n}/${p.max}`; });
   document.querySelectorAll(`[data-cut-of="${p.key}"]`).forEach(el => { el.textContent = `🔪${st.cut[p.key]}`; });
+  document.querySelectorAll(`[data-cut-chip="${p.key}"]`).forEach(el => { el.textContent = c; });
+  document.querySelectorAll(`[data-bl-btn="${p.key}"]`).forEach(el => { el.disabled = !(st.cut[p.key] >= 1) || n >= p.max || st.stove.findIndex(x => !x) === -1; });
   const lab = document.getElementById('shop-board-label');
   if (lab && st.board && st.board.key === p.key) lab.textContent = p.then ? `${p.label} cortado · ${c}/${p.max}` : `${p.label} · ${n}/${p.max}`;
+}
+// ---- Tabla expandida: el producto se va dividiendo con cada corte y suelta porciones pequeñas ----
+function shopItemHtml(p, stg) {
+  const ico = stIngIconRaw(p.icon);
+  return `<div class="cb-item s${stg}" id="shop-cb-item">${['q1', 'q2', 'q3', 'q4'].map(q => `<span class="q ${q}">${ico}</span>`).join('')}</div>`;
+}
+function shopPileHtml(p, count) {
+  const n = Math.min(count, 14);
+  let h = '';
+  for (let i = 0; i < n; i++) h += `<span class="cb-pc" style="left:${(i % 7) * 12}%;bottom:${Math.floor(i / 7) * 20 + (i % 2) * 5}px;transform:rotate(${(i * 53) % 70 - 35}deg)">${stIngIcon(p.icon)}</span>`;
+  return h + `<b class="cb-pile-n">×${count}</b>`;
+}
+function shopSplitFx(p, stg, done) {
+  const item = document.getElementById('shop-cb-item');
+  if (!item) return;
+  if (!done) { item.className = 'cb-item s' + stg; return; }
+  const pile = document.getElementById('shop-pile');
+  const a = item.getBoundingClientRect(), b = pile ? pile.getBoundingClientRect() : a;
+  for (let k = 0; k < 6; k++) {
+    const d = document.createElement('div');
+    d.className = 'cb-drop';
+    d.style.left = (a.left + a.width / 2 - 11 + (k - 2.5) * 6) + 'px';
+    d.style.top = (a.top + a.height / 2 - 11) + 'px';
+    d.style.setProperty('--dx', (b.left + b.width / 2 - (a.left + a.width / 2) + (k % 3 - 1) * 12) + 'px');
+    d.style.setProperty('--dy', (b.top + b.height * 0.55 - (a.top + a.height / 2)) + 'px');
+    d.style.setProperty('--rot', ((k - 2.5) * 50) + 'deg');
+    d.style.animationDelay = (k * 0.025) + 's';
+    d.innerHTML = stIngIcon(p.icon);
+    document.body.appendChild(d);
+    setTimeout(() => d.remove(), 560);
+  }
+  item.className = 'cb-item s3';
+  setTimeout(() => {
+    const it = document.getElementById('shop-cb-item');
+    if (it) { it.className = 'cb-item s0'; void it.offsetWidth; it.className = 'cb-item s0 pop'; }
+    const pl = document.getElementById('shop-pile'), st = stGet('ramen');
+    if (pl && st.board && st.board.key === p.key) pl.innerHTML = shopPileHtml(p, stBin(st, p)[p.key]);
+  }, 300);
+}
+function shopStowKnife() {
+  const st = stGet('ramen');
+  st.knifeArmed = false;
+  try { playSound('click'); } catch (e) {}
+  stRenderIfOpen('ramen');
 }
 function shopPips() {
   const st = stGet('ramen'), pips = document.querySelectorAll('#shop-board .shop-pips i');
@@ -11004,7 +11100,9 @@ function shopChop() {
   try { playSound('chop'); } catch (e) {}
   shopChopFx(p);
   st.board.taps++;
-  if (st.board.taps % SHOP_TAPS_PER_PORTION === 0) {
+  const stg = st.board.taps % SHOP_TAPS_PER_PORTION;
+  shopSplitFx(p, stg, stg === 0);
+  if (stg === 0) {
     const bin = stBin(st, p);
     bin[p.key] = Math.min(p.max, bin[p.key] + 1);
     try { playSound('stock_add'); } catch (e) {}
@@ -11014,7 +11112,7 @@ function shopChop() {
     if (bin[p.key] >= p.max) {
       st.board = null; st.knifeArmed = false;
       showStationToast(p.then ? `🔪 ${p.label}: todo cortado, ahora blanquéalo en la cocina.` : `🥬 ${p.label}: depósito lleno.`);
-      stRenderIfOpen('ramen'); renderStageTabs();
+      setTimeout(() => { stRenderIfOpen('ramen'); renderStageTabs(); }, 450);   // deja ver caer la última porción
       return;
     }
   }
@@ -11126,6 +11224,34 @@ function stRenderShop(area, panel) {
       ${sl && sl.state === 'cooking' ? `<div class="shop-bar pot-bar"><i data-slot-bar="${i}" style="width:${Math.round(100 * (1 - sl.left / sl.total))}%"></i></div>` : ''}
     </div>`;
   }).join('');
+  if (st.knifeArmed && st.board) {                  // modo corte: tabla grande + cocina visible
+    const pb = bp, bin = stBin(st, pb)[pb.key];
+    const chips = list.filter(q => q.how === 'cut').map(q => {
+      const c = stBin(st, q)[q.key];
+      return `<button class="cb-chip ${st.board.key === q.key ? 'on' : ''}" ${c >= q.max ? 'disabled' : ''} title="Cortar ${q.label}" onclick="stProdStart('${area}','${q.key}','cut')">${stIngIconRaw(q.icon)}<i data-cut-chip="${q.key}">${c}</i></button>`;
+    }).join('');
+    const rows = list.filter(q => q.then).map(q => {
+      const c = st.cut[q.key], n2 = st.stock[q.key], off = c < 1 || n2 >= q.max || freeSlot === -1;
+      return `<div class="bl-row"><span class="bl-ico">${stIngIconRaw(q.icon)}</span><b>${q.short || q.label}</b><span class="fp-cut" data-cut-of="${q.key}">🔪${c}</span><span data-stock-of="${q.key}">${n2}/${q.max}</span><button class="fp-btn" data-bl-btn="${q.key}" ${off ? 'disabled' : ''} title="Blanquear ${q.label} cortado (${stProdTime(q)} s)" onclick="stProdStart('${area}','${q.key}','blanch')">💧</button></div>`;
+    }).join('');
+    panel.innerHTML = `<div class="fp-wrap fp-shop is-cutting">
+    <div class="fp-head"><span>🥬 Producción · ${AREA_LABELS[area]}</span><small>Toca la pantalla para cortar: 3 cortes = 1 porción.</small><button class="stage-panel-back fp-back" onclick="shopStowKnife()">🔪 Guardar cuchillo</button>${stBackBtn(area)}</div>
+    <div class="shop-cutlayout">
+      <div class="shop-bigboard has-item" id="shop-board">
+        <div class="cb-chips">${chips}</div>
+        <div class="shop-label" id="shop-board-label">${pb.then ? `${pb.label} cortado · ${bin}/${pb.max}` : `${pb.label} · ${bin}/${pb.max}`}</div>
+        ${shopItemHtml(pb, on)}
+        <div class="cb-pile" id="shop-pile">${shopPileHtml(pb, bin)}</div>
+        <div class="shop-pips">${[0, 1, 2].map(i => `<i class="${i < on ? 'on' : ''}"></i>`).join('')}</div>
+        <img class="fry-knife-tool shop-knife armed" id="shop-knife" src="assets/maki_knife.svg" alt="Cuchillo" draggable="false">
+      </div>
+      <div class="shop-side">
+        ${rows ? `<div class="bl-list"><div class="bl-title">💧 Blanquear lo cortado</div>${rows}</div>` : ''}
+        <div class="shop-stove">${pots}</div>
+      </div>
+    </div></div>`;
+    return;
+  }
   const hint = !st.knifeArmed ? 'Cortar: toca 🔪 y arrastra el cuchillo a la tabla. Holantao, espárrago y col: corta y luego 💧 blanquea.' : (st.board ? 'Toca la pantalla para cortar: 3 cortes = 1 porción.' : 'Cuchillo listo: toca la ficha de un producto para cortar.');
   panel.innerHTML = `<div class="fp-wrap fp-shop">
     <div class="fp-head"><span>🥬 Producción · ${AREA_LABELS[area]}</span><small>${hint}</small>${stBackBtn(area)}</div>
