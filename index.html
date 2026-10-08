@@ -746,6 +746,49 @@
   .fp-arrow { opacity: 0.9; white-space: nowrap; }
   .fp-arrow .ing-ico { width: 13px; height: 13px; vertical-align: -2px; }
   .fp-cards.many .fp-card-n small { display: none; }
+  .fp-shop { display: flex; flex-direction: column; gap: 3px; }
+  /* tarjetas del taller: compactas para que quepan la tabla y la cocina debajo */
+  .shop-cards .fp-card { padding: 2px 2px 3px; gap: 0; }
+  .shop-cards .fp-card-ico { width: 20px; height: 20px; font-size: 15px; }
+  .shop-cards .fp-card-name { font-size: 8.5px; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+  .shop-cards .fp-bar { display: none; }
+  .shop-cards .fp-card-n { font-size: 8.5px; line-height: 1.2; }
+  .shop-cards .fp-arrow .ing-ico { width: 11px; height: 11px; }
+  .shop-cards .fp-btn { font-size: 8.5px; line-height: 1.15; padding: 1px 3px; margin-top: 1px; border-radius: 6px; }
+  .shop-bottom { --sh: clamp(42px, 13vh, 70px); display: flex; justify-content: space-between; align-items: flex-end; padding: 6px 2px 0; }
+  .fp-shop.fp-wrap { padding: 4px 8px 3px; }
+  .fp-shop .fp-head { margin-bottom: 2px; }
+  .shop-left { display: flex; align-items: flex-end; gap: 8px; }
+  .shop-board {
+    position: relative; width: calc(var(--sh) * 1.7); height: calc(var(--sh) * 1.05); flex-shrink: 0;
+    background: url('assets/fry_board_rect.svg') center / 100% 100% no-repeat;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .shop-board.drop-hover { filter: drop-shadow(0 0 8px rgba(255, 213, 79, 0.95)); }
+  .shop-board-empty { font-size: 10px; font-weight: 800; color: #8d6e63; }
+  .shop-board-ico { width: 46%; height: 62%; display: flex; align-items: center; justify-content: center; font-size: 26px; }
+  .shop-board-ico img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.4)); }
+  .shop-label { position: absolute; left: 4%; right: 4%; top: 4%; text-align: center; font-size: 9px; font-weight: 800; color: #ffe0b2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .shop-bar { position: absolute; left: 14%; right: 14%; bottom: 12%; height: 6px; border-radius: 3px; background: rgba(0,0,0,0.55); overflow: hidden; }
+  .shop-bar i { display: block; height: 100%; background: linear-gradient(90deg, #ef6c00, #ffd54f); }
+  .shop-bottom .shop-knife { height: calc(var(--sh) * 1.05); width: auto; aspect-ratio: 40 / 120; flex-shrink: 0; }
+  .shop-stove {
+    position: relative; width: calc(var(--sh) * 2.9); height: calc(var(--sh) * 1.3775); flex-shrink: 0;
+    background: url('assets/fry_stove_v2.svg') center / 100% 100% no-repeat; margin-right: 4px;
+  }
+  .shop-pot {
+    position: absolute; top: calc(var(--sh) * -0.107); width: calc(var(--sh) * 1.45); height: calc(var(--sh) * 0.9);
+    background: url('assets/fry_pot_v2.svg') center / 100% 100% no-repeat; cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+  }
+  .shop-pot.p0 { left: 2%; } .shop-pot.p1 { left: 49%; }
+  .shop-pot-ico { width: 30%; height: 30%; display: flex; align-items: center; justify-content: center; font-size: 16px; margin-top: 8%; }
+  .shop-pot-ico img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5)); }
+  .shop-pot-state { font-size: 8.5px; font-weight: 900; color: #fff; text-shadow: 0 1px 2px #000; background: rgba(0,0,0,0.5); border-radius: 6px; padding: 0 4px; margin-top: 4%; white-space: nowrap; }
+  .shop-pot .pot-bar { position: static; width: 56%; height: 4px; margin-top: 2px; }
+  .shop-pot.is-ready { animation: shopReady 0.7s ease-in-out infinite alternate; }
+  .shop-pot.is-over { filter: grayscale(0.7) brightness(0.8); }
+  @keyframes shopReady { from { filter: drop-shadow(0 0 2px rgba(102,187,106,0.4)); } to { filter: drop-shadow(0 0 9px rgba(102,187,106,1)); } }
   .fp-cards.many .fp-btn { font-size: 9px; padding: 2px 3px; margin-top: 1px; }
   .fp-card { flex: 1; min-width: 0; background: rgba(60, 30, 22, 0.8); border: 1.5px solid #5a2e22; border-radius: 10px; padding: 5px 4px 6px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 2px; }
   .fp-card.is-low { border-color: #e53935; }
@@ -5929,7 +5972,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v45</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v46</span></button></div>
     </div>
   </div>
 
@@ -9106,6 +9149,7 @@ function switchKitchenArea(areaId) {
   cleanupFryItemDrag();
   abortFryCut();
   cleanupFryKnifeDrag();
+  cleanupShopKnife();
   updateStationVisibilityForArea();
   renderPantryGrid();
   renderBowls();
@@ -9244,6 +9288,7 @@ function setKitchenStage(stage) {
   cleanupFryItemDrag();
   abortFryCut();
   cleanupFryKnifeDrag();
+  cleanupShopKnife();
   try { playSound('click'); } catch (e) {}
   updateStationVisibilityForArea();
   renderStageTabs();
@@ -9362,9 +9407,10 @@ function getAreaAlert(areaId) {
   const base = getAreaAlertBase(areaId);
   if (base === 'warn' || !stagedOn(areaId)) return base;
   if (stAnalyze(areaId).status === 'MATCHED') return 'ready';      // plato emplatado listo para servir
+  if (stShopReady(areaId)) return 'ready';                         // algo listo en una hornilla de Producción
   if (base) return base;
   const s = stGet(areaId);
-  return (s.pass.length || s.prep) ? 'busy' : '';                  // platos en el pase o una preparación en curso
+  return (s.pass.length || s.prep || stShopBusy(areaId)) ? 'busy' : '';   // platos en el pase o una preparación en curso
 }
 function getAreaAlertBase(areaId) {
   if (areaId === 'ramen') {
@@ -9414,6 +9460,8 @@ function updateStationVisibilityForArea() {
   const grid = document.getElementById('ingredients-grid');
   const filters = document.getElementById('pantry-tabs-bar');
   const stagePanel = document.getElementById('stage-panel');
+  const custHub = document.getElementById('customers-container');
+  if (custHub) custHub.style.display = (stagedOn(area) && getStage(area) === 'prod') ? 'none' : '';   // más espacio en Producción
   if (grid) grid.style.display = cook ? '' : 'none';
   if (filters) filters.style.display = cook ? '' : 'none';
   if (stagePanel) { stagePanel.style.display = cook ? 'none' : 'flex'; if (!cook) renderStagePanel(); }
@@ -10469,19 +10517,19 @@ function stGateHint(area) {
 // key, label, icon (id de ingrediente para el dibujo), covers (ingredientes que cubre), use, time (s), batch, max, start
 const ST_PROD = {
   ramen: [
-    { key: 'poro',     label: 'Poro',           icon: 17, covers: [17], use: 'plate', time: 5,  batch: 6, max: 12, start: 6 },
-    { key: 'cebolla',  label: 'Cebolla china',  icon: 18, covers: [18], use: 'plate', time: 5,  batch: 6, max: 12, start: 6 },
-    { key: 'nori',     label: 'Nori',           icon: 20, covers: [20], use: 'plate', time: 4,  batch: 8, max: 16, start: 8 },
-    { key: 'bambu',    label: 'Bambú',          icon: 22, covers: [22], use: 'plate', time: 6,  batch: 6, max: 12, start: 6 },
-    { key: 'holantao', label: 'Holantao',       icon: 23, covers: [23], use: 'plate', time: 6,  batch: 6, max: 12, start: 6 },
-    { key: 'col',      label: 'Col cocida',     icon: 24, covers: [24], use: 'plate', time: 9,  batch: 6, max: 12, start: 6 },
-    { key: 'moyashi',  label: 'Moyashi',        icon: 25, covers: [25], use: 'plate', time: 6,  batch: 6, max: 12, start: 6 },
-    { key: 'zanahoria', label: 'Zanahoria',     icon: 30, covers: [30], use: 'plate', time: 6,  batch: 6, max: 12, start: 6 },
-    { key: 'champi',   label: 'Champiñones',    icon: 27, covers: [27], use: 'plate', time: 7,  batch: 4, max: 8,  start: 4 },
-    { key: 'shitake',  label: 'Shitake',        icon: 28, covers: [28], use: 'plate', time: 8,  batch: 4, max: 8,  start: 4 },
-    { key: 'esparrago', label: 'Espárrago',     icon: 29, covers: [29], use: 'plate', time: 8,  batch: 4, max: 8,  start: 4 },
-    { key: 'wanji',    label: 'Alga wanji',     icon: 21, covers: [21], use: 'plate', time: 5,  batch: 4, max: 8,  start: 4 },
-    { key: 'huevo',    label: 'Huevo marinado', icon: 15, covers: [15], use: 'cook',  time: 12, batch: 6, max: 12, start: 6 }
+    { key: 'poro',     label: 'Poro',           icon: 17, covers: [17], use: 'plate', how: 'cut',    time: 4,  batch: 6, max: 12, start: 6 },
+    { key: 'cebolla',  label: 'Cebolla china',  icon: 18, covers: [18], use: 'plate', how: 'cut',    time: 4,  batch: 6, max: 12, start: 6 },
+    { key: 'nori',     label: 'Nori',           icon: 20, covers: [20], use: 'plate', how: 'cut',    time: 3,  batch: 8, max: 16, start: 8 },
+    { key: 'bambu',    label: 'Bambú',          icon: 22, covers: [22], use: 'plate', how: 'cook',   time: 10, batch: 6, max: 12, start: 6 },
+    { key: 'holantao', label: 'Holantao',       icon: 23, covers: [23], use: 'plate', how: 'blanch', time: 5,  batch: 6, max: 12, start: 6 },
+    { key: 'col',      label: 'Col cocida',     icon: 24, covers: [24], use: 'plate', how: 'cook',   time: 9,  batch: 6, max: 12, start: 6 },
+    { key: 'moyashi',  label: 'Moyashi',        icon: 25, covers: [25], use: 'plate', how: 'blanch', time: 4,  batch: 6, max: 12, start: 6 },
+    { key: 'zanahoria', label: 'Zanahoria',     icon: 30, covers: [30], use: 'plate', how: 'cut',    time: 5,  batch: 6, max: 12, start: 6 },
+    { key: 'champi',   label: 'Champiñones',    icon: 27, covers: [27], use: 'plate', how: 'cut',    time: 4,  batch: 4, max: 8,  start: 4 },
+    { key: 'shitake',  label: 'Shitake',        icon: 28, covers: [28], use: 'plate', how: 'cut',    time: 5,  batch: 4, max: 8,  start: 4 },
+    { key: 'esparrago', label: 'Espárrago',     icon: 29, covers: [29], use: 'plate', how: 'blanch', time: 6,  batch: 4, max: 8,  start: 4 },
+    { key: 'wanji',    label: 'Alga wanji',     icon: 21, covers: [21], use: 'plate', how: 'cut',    time: 4,  batch: 4, max: 8,  start: 4 },
+    { key: 'huevo',    label: 'Huevo marinado', short: 'Huevo', icon: 15, covers: [15], use: 'cook',  how: 'cook',   time: 12, batch: 6, max: 12, start: 6 }
   ],
   salteados: [
     { key: 'arroz',    label: 'Arroz cocido',    icon: 37, covers: [37],                       use: 'cook',  time: 10, batch: 6, max: 12, start: 6 },
@@ -10585,7 +10633,7 @@ function stView(area, list) {
 function stInit() {
   gameState.st = {};
   STAGE_AREAS.forEach(a => {
-    const st = { stock: {}, prep: null, pass: [], plate: { sel: null, items: [] } };
+    const st = { stock: {}, prep: null, board: null, stove: [null, null], pass: [], plate: { sel: null, items: [] } };
     ST_PROD[a].forEach(p => { st.stock[p.key] = p.start; });
     gameState.st[a] = st;
   });
@@ -10622,6 +10670,7 @@ function stProdStart(area, key) {
   if (!stagedOn(area) || gameState.isPaused || gameState.isGameOver) return;
   const st = stGet(area), p = ST_PROD[area].find(x => x.key === key);
   if (!p) return;
+  if (p.how) { stShopStart(area, p); return; }   // taller: tabla + cuchillo / hornillas
   if (st.prep) { showStationToast('🥬 Ya estás preparando algo: espera a que termine.'); playSound('error'); return; }
   if (st.stock[key] >= p.max) { showStationToast(`${p.label}: el depósito ya está lleno.`); playSound('error'); return; }
   const total = stProdTime(p);
@@ -10634,6 +10683,7 @@ function stProdStart(area, key) {
 function stTick() {
   STAGE_AREAS.forEach(area => {
     const st = gameState.st && gameState.st[area];
+    if (st) stShopTick(area, st);
     if (!st || !st.prep) return;
     st.prep.left--;
     if (st.prep.left <= 0) {
@@ -10784,7 +10834,224 @@ function stBackBtn(area) {
   return `<button class="stage-panel-back fp-back" onclick="setKitchenStage('cook')">${ck.icon} ${ck.label}</button>`;
 }
 
+// ---- Taller de Producción (Ramen): tabla + cuchillo para cortar, cocina de 2 hornillas para cocer / blanquear ----
+// Cada producto indica cómo se procesa (how): 'cut' = se corta con el cuchillo sobre la tabla (hay que mantenerlo
+// sobre ella el tiempo indicado); 'cook' = se cuece y 'blanch' = se blanquea en una hornilla (corre solo, hay que
+// retirarlo; si se olvida demasiado se pasa y solo se salva la mitad).
+const ST_HOW = {
+  cut:    { icon: '🔪', verb: 'Cortar' },
+  cook:   { icon: '♨️', verb: 'Cocer' },
+  blanch: { icon: '💧', verb: 'Blanquear' }
+};
+const ST_SHOP_LATE_SECONDS = 15;   // tiempo que aguanta un producto listo en la hornilla antes de pasarse
+
+function stIsShop(area) { return ST_PROD[area].some(p => p.how); }
+const stProdOf = (area, key) => ST_PROD[area].find(x => x.key === key);
+
+function stShopStart(area, p) {
+  const st = stGet(area);
+  if (st.stock[p.key] >= p.max) { showStationToast(`${p.label}: el depósito ya está lleno.`); playSound('error'); return; }
+  if (st.board && st.board.key === p.key && p.how === 'cut') { showStationToast('🔪 Ya lo tienes en la tabla: usa el cuchillo.'); return; }
+  const total = stProdTime(p);
+  if (p.how === 'cut') {
+    if (st.board) { showStationToast('🔪 La tabla está ocupada: termina de cortar lo que tienes.'); playSound('error'); return; }
+    st.board = { key: p.key, prog: 0, total };
+    showStationToast(`🔪 ${p.label} en la tabla: arrastra el cuchillo y mantenlo sobre ella.`);
+    try { playSound('add'); } catch (e) {}
+  } else {
+    const slot = st.stove.findIndex(x => !x);
+    if (slot === -1) { showStationToast('♨️ Las dos hornillas están ocupadas: retira algo cuando esté listo.'); playSound('error'); return; }
+    st.stove[slot] = { key: p.key, how: p.how, left: total, total, state: 'cooking', late: 0 };
+    try { playSound('splash'); } catch (e) {}
+  }
+  stRenderIfOpen(area);
+  updateAreaTabAlerts();
+}
+
+// Cada segundo: las hornillas avanzan; lo listo espera a ser retirado y, si se olvida, se pasa.
+function stShopTick(area, st) {
+  let changed = false;
+  st.stove.forEach((sl, i) => {
+    if (!sl) return;
+    if (sl.state === 'cooking') {
+      sl.left--;
+      if (sl.left <= 0) {
+        sl.state = 'ready'; sl.late = 0; changed = true;
+        const p = stProdOf(area, sl.key);
+        try { playSound('ding'); } catch (e) {}
+        showStationToast(`♨️ ${p.label} listo: retíralo de la hornilla ${i + 1}.`);
+      }
+    } else if (sl.state === 'ready') {
+      if (++sl.late >= ST_SHOP_LATE_SECONDS) { sl.state = 'over'; changed = true; try { playSound('burn'); } catch (e) {} showStationToast(`⚠ ${stProdOf(area, sl.key).label} se pasó en la hornilla ${i + 1}.`); }
+    }
+  });
+  if (changed) { stRenderIfOpen(area); renderStageTabs(); updateAreaTabAlerts(); }
+}
+
+function stShopCollect(area, i) {
+  const st = stGet(area), sl = st.stove[i];
+  if (!sl) return;
+  const p = stProdOf(area, sl.key);
+  if (sl.state === 'cooking') { showStationToast(`⏳ ${p.label} sigue en la hornilla (${sl.left} s).`); return; }
+  const gain = sl.state === 'over' ? Math.max(1, Math.ceil(p.batch / 2)) : p.batch;
+  const before = st.stock[p.key];
+  st.stock[p.key] = Math.min(p.max, before + gain);
+  st.stove[i] = null;
+  try { playSound(sl.state === 'over' ? 'trash' : 'stock_add'); } catch (e) {}
+  showStationToast(sl.state === 'over' ? `⚠ Se pasó: solo se salvó la mitad de ${p.label} (+${st.stock[p.key] - before}).` : `🥬 ${p.label} +${st.stock[p.key] - before}.`);
+  stRenderIfOpen(area);
+  renderStageTabs();
+  updateAreaTabAlerts();
+}
+
+function stShopReady(area) { return stIsShop(area) && stGet(area).stove.some(sl => sl && sl.state !== 'cooking'); }
+function stShopBusy(area) { const st = stGet(area); return stIsShop(area) && (!!st.board || st.stove.some(Boolean)); }
+
+// ---- Cuchillo: se arrastra a la tabla y se mantiene sobre ella; el avance se conserva si se suelta ----
+let shopKnifeDrag = null;
+function shopKnifePoint(d) { return { x: d.x, y: d.pointerType === 'mouse' ? d.y : d.y - DRAG_TOUCH_GHOST_OFFSET_Y }; }
+function cleanupShopKnife() {
+  const d = shopKnifeDrag;
+  document.removeEventListener('pointermove', onShopKnifeMove);
+  document.removeEventListener('pointerup', onShopKnifeUp);
+  document.removeEventListener('pointercancel', onShopKnifeUp);
+  if (d) {
+    if (d.timer) clearInterval(d.timer);
+    if (d.ghost) d.ghost.remove();
+    const k = document.getElementById('shop-knife'); if (k) k.classList.remove('is-lifted');
+  }
+  const b = document.getElementById('shop-board'); if (b) b.classList.remove('drop-hover');
+  shopKnifeDrag = null;
+}
+function shopBoardUi() {
+  const st = stGet('ramen'), fill = document.getElementById('shop-board-fill'), lab = document.getElementById('shop-board-label');
+  if (st.board) {
+    const pct = Math.min(100, Math.round(100 * st.board.prog / st.board.total));
+    if (fill) fill.style.width = pct + '%';
+    if (lab) lab.textContent = `${stProdOf('ramen', st.board.key).label} · ${pct}%`;
+  }
+}
+function shopKnifeTick() {
+  const d = shopKnifeDrag;
+  if (!d || !d.active || gameState.isPaused || gameState.isGameOver) return;
+  const area = 'ramen', st = stGet(area), board = document.getElementById('shop-board');
+  if (!board) return;
+  const p = shopKnifePoint(d), r = board.getBoundingClientRect();
+  const inside = p.x >= r.left && p.x <= r.right && p.y >= r.top && p.y <= r.bottom;
+  board.classList.toggle('drop-hover', inside && !!st.board);
+  if (d.ghost) d.ghost.classList.toggle('is-cutting', inside && !!st.board);
+  if (!inside || !st.board) return;
+  st.board.prog += 0.05;
+  sfxEvery('chop', 330);
+  shopBoardUi();
+  if (st.board.prog >= st.board.total) shopCutDone();
+}
+function shopCutDone() {
+  const area = 'ramen', st = stGet(area), b = st.board;
+  if (!b) return;
+  const p = stProdOf(area, b.key), before = st.stock[p.key];
+  st.stock[p.key] = Math.min(p.max, before + p.batch);
+  st.board = null;
+  cleanupShopKnife();
+  try { playSound('chop'); playSound('stock_add'); } catch (e) {}
+  showStationToast(`🔪 ${p.label} cortado: +${st.stock[p.key] - before}.`);
+  stRenderIfOpen(area);
+  renderStageTabs();
+}
+function onShopKnifeMove(e) {
+  const d = shopKnifeDrag;
+  if (!d || e.pointerId !== d.pointerId) return;
+  d.x = e.clientX; d.y = e.clientY;
+  if (!d.active) {
+    if (Math.hypot(d.x - d.startX, d.y - d.startY) <= 4) return;
+    d.active = true;
+    const k = document.getElementById('shop-knife');
+    const rect = k ? k.getBoundingClientRect() : { height: 60 };
+    const ghost = document.createElement('div');
+    ghost.className = 'maki-tool-ghost';
+    ghost.style.height = `${rect.height * 1.15}px`;
+    ghost.innerHTML = `<img src="assets/maki_knife.svg" alt="" draggable="false">`;
+    document.body.appendChild(ghost);
+    d.ghost = ghost;
+    if (k) k.classList.add('is-lifted');
+    d.timer = setInterval(shopKnifeTick, 50);
+    try { if (navigator.vibrate) navigator.vibrate(12); } catch (err) {}
+  }
+  if (d.ghost) { const p = shopKnifePoint(d); d.ghost.style.transform = `translate(${p.x}px, ${p.y}px) translate(-50%, -50%)`; }
+}
+function onShopKnifeUp(e) {
+  const d = shopKnifeDrag;
+  if (!d || e.pointerId !== d.pointerId) return;
+  const wasActive = d.active;
+  cleanupShopKnife();
+  if (!wasActive) showStationToast(stGet('ramen').board ? '🔪 Arrastra el cuchillo hasta la tabla y mantenlo ahí.' : '🔪 Primero pon un producto en la tabla (toca su ficha).');
+}
+document.addEventListener('pointerdown', (e) => {
+  const k = e.target.closest && e.target.closest('#shop-knife');
+  if (!k) return;
+  if (e.pointerType === 'mouse' && e.button !== 0) return;
+  if (gameState.isPaused || gameState.isGameOver) return;
+  cleanupShopKnife();
+  e.preventDefault();
+  shopKnifeDrag = { pointerId: e.pointerId, pointerType: e.pointerType, startX: e.clientX, startY: e.clientY, x: e.clientX, y: e.clientY, active: false, ghost: null, timer: null };
+  document.addEventListener('pointermove', onShopKnifeMove);
+  document.addEventListener('pointerup', onShopKnifeUp);
+  document.addEventListener('pointercancel', onShopKnifeUp);
+});
+
+// ---- Pantalla del taller ----
+function stRenderShop(area, panel) {
+  const st = stGet(area), list = ST_PROD[area];
+  const freeSlot = st.stove.findIndex(x => !x);
+  const cards = list.map(p => {
+    const n = st.stock[p.key], how = ST_HOW[p.how], low = n <= Math.ceil(p.max * 0.25);
+    const onBoard = st.board && st.board.key === p.key, onStove = st.stove.some(sl => sl && sl.key === p.key);
+    const blocked = n >= p.max || (p.how === 'cut' ? !!st.board : freeSlot === -1);
+    return `<div class="fp-card ${low ? 'is-low' : ''} ${(onBoard || onStove) ? 'is-busy' : ''}">
+      <div class="fp-card-ico">${stIngIconRaw(p.icon)}</div>
+      <div class="fp-card-name">${p.short || p.label}</div>
+      <div class="fp-bar"><i style="width:${Math.round(100 * n / p.max)}%"></i></div>
+      <div class="fp-card-n">${n}/${p.max}${stHasRaw(p.icon) ? ` <span class="fp-arrow">→${stIngIcon(p.icon)}</span>` : ''}</div>
+      <button class="fp-btn" ${blocked ? 'disabled' : ''} title="${how.verb} ${p.label}" onclick="stProdStart('${area}','${p.key}')">${n >= p.max ? 'Lleno' : `${how.icon} +${p.batch} · ${stProdTime(p)} s`}</button>
+    </div>`;
+  }).join('');
+  const b = st.board, bp = b ? stProdOf(area, b.key) : null, bpct = b ? Math.min(100, Math.round(100 * b.prog / b.total)) : 0;
+  const board = `<div class="shop-board ${b ? 'has-item' : ''}" id="shop-board">
+      ${b ? `<span class="shop-board-ico">${stIngIconRaw(bp.icon)}</span>` : '<span class="shop-board-empty">Tabla libre</span>'}
+      <div class="shop-bar" style="display:${b ? 'block' : 'none'}"><i id="shop-board-fill" style="width:${bpct}%"></i></div>
+      <div class="shop-label" id="shop-board-label">${b ? `${bp.label} · ${bpct}%` : ''}</div>
+    </div>`;
+  const pots = st.stove.map((sl, i) => {
+    const p = sl ? stProdOf(area, sl.key) : null;
+    const st2 = sl ? (sl.state === 'cooking' ? `${ST_HOW[sl.how].icon} <b data-slot-left="${i}">${sl.left}</b> s` : (sl.state === 'ready' ? '✅ ¡Retirar!' : '⚠ Pasado')) : 'Libre';
+    return `<div class="shop-pot p${i} ${sl ? 'is-' + sl.state : ''}" onclick="stShopCollect('${area}',${i})" title="Hornilla ${i + 1}">
+      ${sl ? `<span class="shop-pot-ico">${stIngIconRaw(p.icon)}</span>` : ''}
+      <span class="shop-pot-state" data-slot-state="${i}">${st2}</span>
+      ${sl && sl.state === 'cooking' ? `<div class="shop-bar pot-bar"><i data-slot-bar="${i}" style="width:${Math.round(100 * (1 - sl.left / sl.total))}%"></i></div>` : ''}
+    </div>`;
+  }).join('');
+  const hint = st.board ? 'Arrastra el cuchillo a la tabla y mantenlo hasta terminar.' : (st.stove.some(Boolean) ? 'Las hornillas siguen mientras trabajas.' : 'Toca una ficha: se corta en la tabla o va a una hornilla.');
+  panel.innerHTML = `<div class="fp-wrap fp-shop">
+    <div class="fp-head"><span>🥬 Producción · ${AREA_LABELS[area]}</span><small>${hint}</small>${stBackBtn(area)}</div>
+    <div class="fp-cards many shop-cards" style="--cols:${Math.max(6, Math.ceil(list.length / 2))}">${cards}</div>
+    <div class="shop-bottom">
+      <div class="shop-left">${board}<img class="fry-knife-tool shop-knife ${b ? 'is-ready' : ''}" id="shop-knife" src="assets/maki_knife.svg" alt="Cuchillo" draggable="false"></div>
+      <div class="shop-stove">${pots}</div>
+    </div></div>`;
+}
+
+// Actualización ligera cada segundo de las hornillas (sin recrear botones)
+function stShopUi(area, panel) {
+  const st = stGet(area);
+  st.stove.forEach((sl, i) => {
+    if (!sl || sl.state !== 'cooking') return;
+    const l = panel.querySelector(`[data-slot-left="${i}"]`); if (l) l.textContent = sl.left;
+    const bar = panel.querySelector(`[data-slot-bar="${i}"]`); if (bar) bar.style.width = `${Math.round(100 * (1 - sl.left / sl.total))}%`;
+  });
+}
+
 function stRenderProd(area, panel) {
+  if (stIsShop(area)) { stRenderShop(area, panel); return; }
   const st = stGet(area), pr = st.prep;
   const cards = ST_PROD[area].map(p => {
     const n = st.stock[p.key], busy = pr && pr.key === p.key, low = n <= Math.ceil(p.max * 0.25);
@@ -10875,6 +11142,7 @@ function stTickUi() {
   const panel = document.getElementById('stage-panel');
   if (!panel) return;
   const st = stGet(area), pr = st.prep;
+  if (stIsShop(area)) stShopUi(area, panel);
   const left = panel.querySelector('[data-fp-left]');
   if (left && pr) left.textContent = pr.left;
   const bar = panel.querySelector('[data-fp-prep]');
