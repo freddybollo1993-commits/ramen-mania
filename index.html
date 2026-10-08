@@ -1752,6 +1752,7 @@
   }
 
   .bowl-dock-visual {
+    touch-action: none;
     flex: 1;
     display: flex;
     align-items: center;
@@ -6078,7 +6079,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v52</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v53</span></button></div>
     </div>
   </div>
 
@@ -9270,8 +9271,8 @@ function stPassFromBowl(i) {
   const bowl = gameState.bowls[i], a = analyzeBowl(i);
   if (!bowl || a.status !== 'READY') return;
   const ok = stPassAdd('ramen', { recipes: (a.recipe.candidates || [a.recipe]).map(r => r.name), result: 'PERFECTO',
-    readyAt: bowl.readyAt != null ? bowl.readyAt : gameState.gameClock, vis: { kind: 'bowl', ings: [...bowl.ingredients] },
-    meta: { orderErrors: bowl.orderErrors || 0, dashiBase: !!bowl.dashiBase } });
+    readyAt: bowl.readyAt != null ? bowl.readyAt : gameState.gameClock, vis: { kind: 'bowl', ings: [...bowl.ingredients], spread: bowl.spread || 0 },
+    meta: { orderErrors: bowl.orderErrors || 0, dashiBase: !!bowl.dashiBase, spread: bowl.spread || 0 } });
   if (!ok) return;
   gameState.bowls[i] = { ingredients: [], matchedRamen: null };
   renderBowls();
@@ -10638,7 +10639,9 @@ const ST_PROD = {
     { key: 'shitake',  label: 'Shitake',        icon: 28, covers: [28], use: 'plate', how: 'cut',    time: 5,  batch: 4, max: 8,  start: 4 },
     { key: 'esparrago', label: 'Espárrago',     icon: 29, covers: [29], use: 'plate', how: 'cut', then: 'blanch', time: 6,  batch: 4, max: 8,  start: 4 },
     { key: 'wanji',    label: 'Alga wanji',     icon: 21, covers: [21], use: 'plate', how: 'cut',    time: 4,  batch: 4, max: 8,  start: 4 },
-    { key: 'huevo',    label: 'Huevo marinado', short: 'Huevo', icon: 15, covers: [15], use: 'cook',  how: 'cook',   time: 12, batch: 6, max: 12, start: 6 }
+    { key: 'huevo',    label: 'Huevo marinado', short: 'Huevo', icon: 15, covers: [15], use: 'plate', how: 'cook',   time: 12, batch: 6, max: 12, start: 6 },
+    // Chasu flameado: se flamea en Cocina (estación "Flamear Chasu"); sus existencias son las de esa estación y se gastan al emplatar
+    { key: 'chasu', label: 'Chasu flameado', short: 'Chasu', icon: 11, covers: [11], use: 'plate', virtual: true, time: 0, batch: 0, max: 4, start: 0 }
   ],
   salteados: [
     { key: 'arroz',    label: 'Arroz cocido',    icon: 37, covers: [37],                       use: 'cook',  time: 10, batch: 6, max: 12, start: 6 },
@@ -10675,7 +10678,7 @@ const FRY_PLATING = {
   'Alitas':        { protein: 36, parts: [76, 92] },
   'Age Gyozas':    { protein: 73, parts: [52, 74] }
 };
-const ST_RAMEN_PLATE = new Set([17, 18, 19, 20, 21, 22, 23, 24, 25, 27, 28, 29, 30]);
+const ST_RAMEN_PLATE = new Set([11, 15, 17, 18, 19, 20, 21, 22, 23, 24, 25, 27, 28, 29, 30]);
 const ST_PLATE_SAL = {
   'Chaufa Shimaya':   [94, 41, 63],
   'Chicken Teriyaki': [56, 87],
@@ -10694,14 +10697,14 @@ const ST_PLATE_MAKI = {
 };
 const FRY_PLATE_GROUP = { 57: 'Base', 52: 'Ensalada', 30: 'Ensalada', 42: 'Ensalada', 84: 'Salsa', 83: 'Salsa', 62: 'Salsa', 76: 'Salsa', 74: 'Decoración', 91: 'Decoración', 92: 'Decoración' };
 const ST_GROUPS = {
-  ramen: ['Verdeos', 'Toppings', 'Verduras', 'Hongos'],
+  ramen: ['Proteína', 'Verdeos', 'Toppings', 'Verduras', 'Hongos'],
   salteados: ['Ensalada', 'Salsa', 'Decoración'],
   makis: ['Salsa', 'Guarnición'],
   frituras: ['Base', 'Ensalada', 'Salsa', 'Decoración']
 };
 function stGroupOf(area, id) {
   if (area === 'frituras') return FRY_PLATE_GROUP[id] || 'Decoración';
-  if (area === 'ramen') return [17, 18].includes(id) ? 'Verdeos' : ([19, 20, 21].includes(id) ? 'Toppings' : ([27, 28, 29].includes(id) ? 'Hongos' : 'Verduras'));
+  if (area === 'ramen') return [11, 15].includes(id) ? 'Proteína' : ([17, 18].includes(id) ? 'Verdeos' : ([19, 20, 21].includes(id) ? 'Toppings' : ([27, 28, 29].includes(id) ? 'Hongos' : 'Verduras')));
   if (area === 'salteados') { const i = INGREDIENTES.find(x => x.id === id); return [55, 56].includes(id) ? 'Ensalada' : (i && i.cat === 'salsas' ? 'Salsa' : 'Decoración'); }
   const i = INGREDIENTES.find(x => x.id === id);
   return i && i.cat === 'salsas' ? 'Salsa' : 'Guarnición';
@@ -10744,6 +10747,8 @@ function stInit() {
   STAGE_AREAS.forEach(a => {
     const st = { stock: {}, cut: {}, prep: null, board: null, knifeArmed: false, stove: [null, null], pass: [], plate: { sel: null, items: [] } };
     ST_PROD[a].forEach(p => { st.stock[p.key] = p.start; if (p.then) st.cut[p.key] = 0; });
+    // el chasu flameado vive en la estación de Cocina: las existencias de emplatado leen y gastan esas mismas
+    if (a === 'ramen') Object.defineProperty(st.stock, 'chasu', { enumerable: true, configurable: true, get: () => kitchenState.stocks.chasu, set: v => { kitchenState.stocks.chasu = v; } });
     gameState.st[a] = st;
   });
 }
@@ -10866,7 +10871,7 @@ function stPlateToggle(area, id) {
   } else {
     if (!stPlateStockOk(area, id, pl.items)) {
       const p = stProdFor(area, id, 'plate');
-      showStationToast(`🥬 Sin ${p.label.toLowerCase()}: prepáralo en Producción.`);
+      showStationToast(p.virtual ? '🔥 Sin chasu flameado: flaméalo en Cocina.' : `🥬 Sin ${p.label.toLowerCase()}: prepáralo en Producción.`);
       playSound('error');
       return;
     }
@@ -10921,6 +10926,7 @@ function stConsumePlated(area) {
   const used = new Set();
   pl.items.forEach(id => { const p = stProdFor(area, id, 'plate'); if (p) used.add(p.key); });
   used.forEach(k => { st.stock[k] = Math.max(0, st.stock[k] - 1); });
+  try { updateKitchenStationsUI(); } catch (e) {}
   if (pl.sel != null) st.pass.splice(pl.sel, 1);
   st.plate = { sel: st.pass.length ? 0 : null, items: [] };
   stRenderIfOpen(area);
@@ -11251,7 +11257,7 @@ document.addEventListener('pointerup', (e) => {
 
 // ---- Pantalla del taller ----
 function stRenderShop(area, panel) {
-  const st = stGet(area), list = ST_PROD[area];
+  const st = stGet(area), list = ST_PROD[area].filter(p => !p.virtual);
   const freeSlot = st.stove.findIndex(x => !x);
   const cards = list.map(p => {
     const n = st.stock[p.key], how = ST_HOW[p.how], low = n <= Math.ceil(p.max * 0.25);
@@ -11367,7 +11373,7 @@ function stPassIcon(item) {
 }
 function stDiscHtml(area, item, plateItems) {
   const v = item.vis || {};
-  if (v.kind === 'bowl') return `<div class="fp-bowl">${generateBowlSVG({ ingredients: [...(v.ings || []), ...plateItems] }, null)}</div>`;
+  if (v.kind === 'bowl') return `<div class="fp-bowl">${generateBowlSVG({ ingredients: [...(v.ings || []), ...plateItems], spread: v.spread, hideBar: true }, null)}</div>`;
   if (v.kind === 'img') return `<div class="fp-disc"><img class="fp-disc-img" src="${v.src}" alt=""></div>`;
   return `<div class="fp-disc"><span class="fp-disc-main" style="filter:${v.tone || 'none'}">${stIngIcon(v.id)}</span></div>`;
 }
@@ -11400,6 +11406,7 @@ function stRenderPlate(area, panel) {
     if (a.status === 'MATCHED') {
       serveDisabled = false;
       status = `✅ ${a.recipe.name}${a.errors ? ` · orden: ${a.errors} al revés` : ' · ¡orden perfecto!'}`;
+      if (area === 'ramen' && item.meta && typeof item.meta.spread === 'number') status += ` · 🥢 fideos ${Math.round(item.meta.spread * 100)}%`;
     } else if (a.status === 'PROGRESS' && a.recipe) {
       status = a.missing.length ? `Para ${a.recipe.name} falta: ${a.missing.slice(0, 3).map(stIngName).join(', ')}${a.missing.length > 3 ? '…' : ''}` : '';
       if (a.extra.length) status += `${status ? ' · ' : ''}sobra: ${a.extra.map(stIngName).join(', ')}`;
@@ -12662,9 +12669,20 @@ function analyzeBowl(bowlIndex) {
 
 
 
+// Fideos del cuenco con las etapas activas: apelmazados en el centro (sp = 0) hasta cubriendo el caldo (sp = 1).
+function bowlNoodlesSvg(sp) {
+  let g = '';
+  for (let k = 0; k < 7; k++) {
+    const d = k - 3, w = 7 + sp * (23 - Math.abs(d) * 3.2);
+    const y = 21 + d * (0.55 + 1.15 * sp) - (1 - sp) * 1.5, a = 3.2 - 1.6 * sp, x0 = 50 - w + d * (1 - sp) * 0.8;
+    g += `<path d="M ${x0.toFixed(1)},${y.toFixed(1)} q ${(w / 2).toFixed(1)},${(-a).toFixed(1)} ${w.toFixed(1)},0 t ${w.toFixed(1)},0"/>`;
+  }
+  return `<g fill="none" stroke-linecap="round"><g stroke="#c8941a" stroke-width="2.7">${g}</g><g stroke="#f7c948" stroke-width="1.6">${g}</g></g>`;
+}
 function generateBowlSVG(bowl, analysis) {
   if (!bowl) return '';
   const ings = bowl.ingredients || [];
+  const sp = typeof bowl.spread === 'number' ? Math.max(0, Math.min(1, bowl.spread)) : null;   // null = sin etapas: dibujo de siempre
   const hasShio = ings.includes(2);
   const hasTonkotsu = ings.includes(3);
   const hasAgua = ings.includes(4);
@@ -12723,13 +12741,12 @@ function generateBowlSVG(bowl, analysis) {
         <ellipse cx="50" cy="18" rx="26" ry="5" fill="rgba(255,255,255,0.18)" />
       ` : ''}
 
-      <!-- Fideos Ramen Ondulados -->
-      ${hasFideo ? `
+      <!-- Fideos Ramen -->
+      ${hasFideo ? (sp !== null ? bowlNoodlesSvg(sp) : `
         <g stroke="#f5c242" stroke-width="2" stroke-linecap="round" fill="none">
           <path d="M 26,22 Q 36,17 46,23 Q 56,28 66,21 Q 74,18 78,21" />
           <path d="M 30,25 Q 42,28 54,23 Q 64,19 72,24" />
-        </g>
-      ` : ''}
+        </g>`) : ''}
 
       <!-- Alga Nori -->
       ${hasNori ? `
@@ -12765,6 +12782,17 @@ function generateBowlSVG(bowl, analysis) {
         <circle cx="50" cy="26" r="1.4" fill="#86efac" />
         <circle cx="54" cy="24" r="1.5" fill="#22c55e" />
       ` : ''}
+
+      <!-- Barra de reparto de los fideos y palillos (mientras se mueven) -->
+      ${(sp !== null && hasFideo && !bowl.hideBar) ? `
+        <text x="9" y="63.6" font-size="7">🥢</text>
+        <rect x="20" y="60.6" width="64" height="3" rx="1.5" fill="rgba(0,0,0,0.6)" />
+        <rect x="20" y="60.6" width="${(64 * sp).toFixed(1)}" height="3" rx="1.5" fill="${sp >= 0.85 ? '#66bb6a' : (sp >= 0.4 ? '#ffca28' : '#ef5350')}" />` : ''}
+      ${(sp !== null && typeof bowl.stirX === 'number') ? `
+        <g stroke="#8d5a2b" stroke-width="1.7" stroke-linecap="round">
+          <line x1="${(bowl.stirX - 7).toFixed(1)}" y1="1" x2="${(bowl.stirX + 1).toFixed(1)}" y2="23" />
+          <line x1="${(bowl.stirX - 3).toFixed(1)}" y1="0" x2="${(bowl.stirX + 4).toFixed(1)}" y2="22" />
+        </g>` : ''}
 
       <!-- Brillo / Vapor si está listo -->
       ${isReady ? `
@@ -13456,7 +13484,8 @@ function renderBowls() {
     const analysis = analyzeBowl(i);
     if (analysis.status !== 'READY') bowl.readyAt = null;
     else if (bowl.readyAt == null) bowl.readyAt = gameState.gameClock;
-    const bowlSig = `${i}_${bowl.ingredients.join(',')}_${analysis.status}_${analysis.recipe ? analysis.recipe.id : ''}_${isActive}`;
+    const bowlSig = `${i}_${bowl.ingredients.join(',')}_${analysis.status}_${analysis.recipe ? analysis.recipe.id : ''}_${isActive}_${Math.round((bowl.spread || 0) * 20)}`;
+    const looseNoodles = stagedOn('ramen') && bowl.ingredients.includes(1) && (bowl.spread || 0) < 0.8;
 
     if (artEl && artEl._lastRenderedSig !== bowlSig) {
       artEl.innerHTML = generateBowlSVG(bowl, analysis);
@@ -13473,7 +13502,7 @@ function renderBowls() {
     } else if (analysis.status === "READY") {
       const staged = stagedOn('ramen');
       bowl.matchedRamen = staged ? null : analysis.recipe;   // con etapas el plato solo se sirve ya emplatado
-      const readyText = staged ? (bowl.orderErrors ? '⚠ Base lista (desordenada): toca para emplatar' : '¡Base lista! Toca para emplatar')
+      const readyText = staged ? (looseNoodles ? '🥢 ¡Mueve los fideos!' : (bowl.orderErrors ? '⚠ Base lista (desordenada): toca para emplatar' : '¡Base lista! Toca para emplatar'))
         : (bowl.orderErrors ? `⚠ ${analysis.recipe.name} (desordenado)` : `¡Listo: ${analysis.recipe.name}!`);
       if (badgeEl && badgeEl._lastText !== readyText) {
         badgeEl.textContent = readyText;
@@ -13500,7 +13529,7 @@ function renderBowls() {
       };
     } else {
       bowl.matchedRamen = null;
-      let armandoText = `Armando (${bowl.ingredients.length})${bowl.orderErrors ? ' ⚠' : ''}`;
+      let armandoText = `Armando (${bowl.ingredients.length})${bowl.orderErrors ? ' ⚠' : ''}${looseNoodles ? ' 🥢' : ''}`;
       if (getUpgradeLevel('libro') > 0 && analysis.recipe) {
         const nextId = analysis.recipe.ingredients.find(id => !bowl.ingredients.includes(id));
         if (nextId) armandoText += ` · sigue: ${RAMEN_STAGE_NAMES[ramenStage(nextId)]}`;
@@ -15314,7 +15343,11 @@ function evalCooking(dish) {
 
 function evalProcess(dish) {
   const m = dish.meta || {};
-  if (dish.area === 'ramen') return Math.max(0, 30 - 8 * (m.orderErrors || 0));
+  if (dish.area === 'ramen') {
+    // con etapas: 10 pts de orden de armado + 20 pts de fideos bien repartidos (sin etapas, 30 pts de orden como siempre)
+    if (typeof m.spread === 'number') return Math.max(0, 10 - 8 * (m.orderErrors || 0)) + Math.round(20 * Math.max(0, Math.min(1, m.spread)));
+    return Math.max(0, 30 - 8 * (m.orderErrors || 0));
+  }
   if (dish.area === 'salteados' && m.orderTotal) return Math.round(30 * m.orderMatches / m.orderTotal);
   return 30; // Makis y Frituras ya exigen su orden para poder terminar
 }
@@ -15670,6 +15703,7 @@ function toggleIngredientInBowl(ingId) {
 
   const outOfOrder = bowl.ingredients.some(id => ramenStage(id) > ramenStage(ingId));
   bowl.ingredients.push(ingId);
+  if (ingId === 1 && stagedOn('ramen')) { bowl.spread = 0; bowl.stirX = null; noodleTip(); }   // los fideos caen apelmazados
   bowl.orderErrors = ramenOrderErrors(bowl.ingredients);
   playSound('add');
   if (outOfOrder) showStationToast('🍜 Orden del ramen: fideo → caldo → salsa → proteína → complementos. Este ingrediente llegó tarde (−8 pts de proceso).');
@@ -15697,6 +15731,7 @@ function toggleIngredientInBowl(ingId) {
 function removeIngredientFromBowl(bowlIndex, ingId) {
   const bowl = gameState.bowls[bowlIndex];
   bowl.ingredients = bowl.ingredients.filter(id => id !== ingId);
+  if (ingId === 1) { delete bowl.spread; bowl.stirX = null; }
   bowl.orderErrors = ramenOrderErrors(bowl.ingredients);
 
   // Restaurar stock si se retira un ingrediente preparado
@@ -15719,6 +15754,65 @@ function removeIngredientFromBowl(bowlIndex, ingId) {
   renderBowls();
   renderCustomers();
 }
+
+// Mover los fideos (Ramen con etapas): se arrastra el dedo / ratón sobre el cuenco; cada tramo de recorrido los reparte un poco más.
+// Un toque suelto no cuenta (sigue siendo seleccionar el cuenco o pasarlo a emplatar). El reparto pesa en la calidad (evalProcess).
+const NOODLE_SPREAD_PX = 220;      // recorrido total para repartir los fideos del todo
+let noodleDrag = null, noodleNoClickUntil = 0, noodleTipShown = false;
+function noodleTip() {
+  if (noodleTipShown) return;
+  noodleTipShown = true;
+  showStationToast('🥢 Los fideos caen apelmazados: arrástralos sobre el cuenco para repartirlos (cuenta en la calidad).');
+}
+function noodleRedraw(i) {
+  const bowl = gameState.bowls[i], art = document.getElementById('bowl-art-' + i);
+  if (!bowl || !art) return;
+  art.innerHTML = generateBowlSVG(bowl, analyzeBowl(i));
+  art._lastRenderedSig = null;
+}
+function onNoodleMove(e) {
+  const d = noodleDrag;
+  if (!d || e.pointerId !== d.id) return;
+  const bowl = gameState.bowls[d.i];
+  if (!bowl || !bowl.ingredients.includes(1)) { endNoodleDrag(); return; }
+  const step = Math.hypot(e.clientX - d.x, e.clientY - d.y);
+  d.x = e.clientX; d.y = e.clientY; d.dist += step;
+  if (d.dist < 6) return;
+  const before = bowl.spread || 0;
+  bowl.spread = Math.min(1, before + step / NOODLE_SPREAD_PX);
+  const art = document.getElementById('bowl-art-' + d.i), r = art ? art.getBoundingClientRect() : null;
+  bowl.stirX = r && r.width ? Math.max(24, Math.min(76, (e.clientX - r.left) / r.width * 100)) : 50;
+  noodleRedraw(d.i);
+  if (Math.floor(before * 5) < Math.floor(bowl.spread * 5)) { try { playSound('click'); } catch (err) {} }
+  if (before < 1 && bowl.spread >= 1) { try { playSound('ding'); } catch (err) {} showStationToast('🥢 ¡Fideos bien repartidos!'); }
+}
+function endNoodleDrag(e) {
+  const d = noodleDrag;
+  if (!d || (e && e.pointerId !== d.id)) return;
+  document.removeEventListener('pointermove', onNoodleMove);
+  document.removeEventListener('pointerup', endNoodleDrag);
+  document.removeEventListener('pointercancel', endNoodleDrag);
+  const bowl = gameState.bowls[d.i];
+  if (d.dist >= 6) noodleNoClickUntil = performance.now() + 350;   // el arrastre no cuenta como toque en el cuenco
+  noodleDrag = null;
+  if (bowl) { bowl.stirX = null; noodleRedraw(d.i); }
+  renderBowls();
+}
+document.addEventListener('pointerdown', (e) => {
+  const vis = e.target.closest && e.target.closest('.bowl-dock-visual');
+  if (!vis || !/^bowl-art-\d$/.test(vis.id) || !stagedOn('ramen') || gameState.isPaused || gameState.isGameOver) return;
+  const i = parseInt(vis.id.replace('bowl-art-', ''), 10), bowl = gameState.bowls[i];
+  if (!bowl || !bowl.ingredients.includes(1) || i >= bowlLimit()) return;
+  if (e.pointerType === 'mouse' && e.button !== 0) return;
+  if (noodleDrag) endNoodleDrag();
+  noodleDrag = { id: e.pointerId, i, x: e.clientX, y: e.clientY, dist: 0 };
+  document.addEventListener('pointermove', onNoodleMove);
+  document.addEventListener('pointerup', endNoodleDrag);
+  document.addEventListener('pointercancel', endNoodleDrag);
+});
+document.addEventListener('click', (e) => {
+  if (performance.now() < noodleNoClickUntil && e.target.closest && e.target.closest('.bowl-dock-visual')) { e.stopPropagation(); e.preventDefault(); }
+}, true);
 
 function clearBowl(index) {
   if (gameState.bowls[index] && gameState.bowls[index].ingredients.length >= MOTTAINAI_MIN_DISCARD) addTrimmings(1, 'tazón descartado');
