@@ -747,31 +747,59 @@
   .fp-arrow .ing-ico { width: 13px; height: 13px; vertical-align: -2px; }
   .fp-cards.many .fp-card-n small { display: none; }
   .fp-shop { display: flex; flex-direction: column; gap: 3px; }
-  /* tarjetas del taller: compactas para que quepan la tabla y la cocina debajo */
-  .shop-cards .fp-card { padding: 2px 2px 3px; gap: 0; }
-  .shop-cards .fp-card-ico { width: 20px; height: 20px; font-size: 15px; }
-  .shop-cards .fp-card-name { font-size: 8.5px; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
-  .shop-cards .fp-bar { display: none; }
-  .shop-cards .fp-card-n { font-size: 8.5px; line-height: 1.2; }
-  .shop-cards .fp-arrow .ing-ico { width: 11px; height: 11px; }
-  .shop-cards .fp-btn { font-size: 8.5px; line-height: 1.15; padding: 1px 3px; margin-top: 1px; border-radius: 6px; }
-  .shop-bottom { --sh: clamp(42px, 13vh, 70px); display: flex; justify-content: space-between; align-items: flex-end; padding: 6px 2px 0; }
   .fp-shop.fp-wrap { padding: 4px 8px 3px; }
   .fp-shop .fp-head { margin-bottom: 2px; }
-  .shop-left { display: flex; align-items: flex-end; gap: 8px; }
+  /* fichas de los productos sin procesar: pequeñas, para dejar sitio a la tabla y la cocina */
+  .fp-cards.many.shop-cards .fp-card { padding: 1px 2px 2px; gap: 0; }
+  .fp-cards.many.shop-cards .fp-card-ico { width: 16px; height: 16px; font-size: 12px; }
+  .fp-cards.many.shop-cards .fp-card-name { font-size: 8px; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+  .fp-cards.many.shop-cards .fp-bar { display: none; }
+  .fp-cards.many.shop-cards .fp-card-n { font-size: 8px; line-height: 1.15; }
+  .fp-cards.many.shop-cards .fp-arrow .ing-ico { width: 9px; height: 9px; }
+  .fp-cards.many.shop-cards .fp-btn { font-size: 8px; line-height: 1.1; padding: 1px 3px; margin-top: 1px; border-radius: 6px; }
+  .shop-bottom { --sh: clamp(48px, 19vh, 100px); display: flex; justify-content: space-between; align-items: flex-end; padding: 4px 2px 0; }
+  .shop-left { position: relative; width: calc(var(--sh) * 2.05 + 10px); height: calc(var(--sh) * 1.2); flex-shrink: 0; }
   .shop-board {
-    position: relative; width: calc(var(--sh) * 1.7); height: calc(var(--sh) * 1.05); flex-shrink: 0;
+    position: absolute; left: 0; bottom: 0; width: calc(var(--sh) * 1.7); height: calc(var(--sh) * 1.05);
     background: url('assets/fry_board_rect.svg') center / 100% 100% no-repeat;
     display: flex; align-items: center; justify-content: center;
   }
   .shop-board.drop-hover { filter: drop-shadow(0 0 8px rgba(255, 213, 79, 0.95)); }
-  .shop-board-empty { font-size: 10px; font-weight: 800; color: #8d6e63; }
-  .shop-board-ico { width: 46%; height: 62%; display: flex; align-items: center; justify-content: center; font-size: 26px; }
+  .shop-board.hit .shop-board-ico { animation: boardHit 0.2s ease-out; }
+  @keyframes boardHit { 0% { transform: scale(1); } 40% { transform: scale(0.9, 0.82); } 100% { transform: scale(1); } }
+  .shop-board-empty { font-size: 11px; font-weight: 800; color: #8d6e63; }
+  .shop-board-ico { width: 46%; height: 62%; display: flex; align-items: center; justify-content: center; font-size: 30px; }
   .shop-board-ico img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.4)); }
-  .shop-label { position: absolute; left: 4%; right: 4%; top: 4%; text-align: center; font-size: 9px; font-weight: 800; color: #ffe0b2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .shop-label { position: absolute; left: 4%; right: 4%; top: 4%; text-align: center; font-size: 9px; font-weight: 800; color: #5d4037; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .shop-pips { position: absolute; bottom: 9%; left: 0; right: 0; justify-content: center; gap: 6px; }
+  .shop-pips i { width: 9px; height: 9px; border-radius: 50%; background: rgba(0,0,0,0.28); border: 1.5px solid #8d6e63; }
+  .shop-pips i.on { background: #ffb300; border-color: #e65100; }
   .shop-bar { position: absolute; left: 14%; right: 14%; bottom: 12%; height: 6px; border-radius: 3px; background: rgba(0,0,0,0.55); overflow: hidden; }
   .shop-bar i { display: block; height: 100%; background: linear-gradient(90deg, #ef6c00, #ffd54f); }
-  .shop-bottom .shop-knife { height: calc(var(--sh) * 1.05); width: auto; aspect-ratio: 40 / 120; flex-shrink: 0; }
+  /* cuchillo: en su sitio a la derecha de la tabla; armado, flota sobre la tabla */
+  .shop-bottom .shop-knife {
+    position: absolute; bottom: 0; left: calc(var(--sh) * 1.7 + 10px); height: calc(var(--sh) * 1.05); width: auto; aspect-ratio: 40 / 120;
+    transform-origin: 50% 85%; z-index: 5; transition: left 0.25s ease, bottom 0.25s ease, transform 0.25s ease;
+  }
+  .shop-bottom .shop-knife.armed {
+    left: calc(var(--sh) * 0.78); bottom: calc(var(--sh) * 0.42); transform: rotate(-38deg);
+    filter: drop-shadow(0 7px 5px rgba(0,0,0,0.45)) drop-shadow(0 0 9px rgba(255, 213, 79, 0.85));
+    animation: knifeFloat 1.1s ease-in-out infinite alternate;
+  }
+  @keyframes knifeFloat { from { translate: 0 0; } to { translate: 0 -5px; } }
+  .shop-bottom .shop-knife.armed.chop { animation: knifeChop 0.18s ease-out; }
+  @keyframes knifeChop { 0% { transform: rotate(-38deg); } 45% { transform: rotate(-10deg) translateY(10px); } 100% { transform: rotate(-38deg); } }
+  /* animación translúcida de cada corte */
+  .cut-fx { position: absolute; inset: 0; pointer-events: none; z-index: 6; }
+  .cut-fx .k { position: absolute; left: 40%; top: -45%; height: 100%; opacity: 0; filter: drop-shadow(0 0 6px rgba(255,255,255,0.9)); transform-origin: 50% 100%; animation: cutSwing 0.4s ease-in forwards; }
+  @keyframes cutSwing { 0% { transform: translate(20px, -16px) rotate(28deg); opacity: 0; } 25% { opacity: 0.62; } 55% { transform: translate(-2px, 20px) rotate(-8deg); opacity: 0.62; } 100% { transform: translate(-14px, 26px) rotate(-14deg); opacity: 0; } }
+  .cut-fx .slash { position: absolute; left: 18%; right: 18%; top: 50%; height: 3px; border-radius: 2px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.95), transparent); transform: rotate(-12deg) scaleX(0); animation: cutSlash 0.32s 0.12s ease-out forwards; }
+  @keyframes cutSlash { 0% { transform: rotate(-12deg) scaleX(0); opacity: 1; } 60% { transform: rotate(-12deg) scaleX(1); opacity: 1; } 100% { transform: rotate(-12deg) scaleX(1); opacity: 0; } }
+  .cut-fx .bit { position: absolute; left: 46%; top: 46%; width: 14%; height: 14%; opacity: 0; animation: cutBit 0.5s 0.14s ease-out forwards; }
+  .cut-fx .bit img { width: 100%; height: 100%; object-fit: contain; }
+  @keyframes cutBit { 0% { transform: translate(0, 0) scale(0.6); opacity: 0.9; } 100% { transform: translate(var(--dx), var(--dy)) scale(1) rotate(var(--rot)); opacity: 0; } }
+  .cut-plus { position: absolute; left: 42%; top: 6%; font-size: 15px; font-weight: 900; color: #ffd54f; text-shadow: 0 1px 3px #000; pointer-events: none; animation: cutPlus 0.85s ease-out forwards; z-index: 7; }
+  @keyframes cutPlus { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-30px); opacity: 0; } }
   .shop-stove {
     position: relative; width: calc(var(--sh) * 2.9); height: calc(var(--sh) * 1.3775); flex-shrink: 0;
     background: url('assets/fry_stove_v2.svg') center / 100% 100% no-repeat; margin-right: 4px;
@@ -782,9 +810,9 @@
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
   }
   .shop-pot.p0 { left: 2%; } .shop-pot.p1 { left: 49%; }
-  .shop-pot-ico { width: 30%; height: 30%; display: flex; align-items: center; justify-content: center; font-size: 16px; margin-top: 8%; }
+  .shop-pot-ico { width: 30%; height: 30%; display: flex; align-items: center; justify-content: center; font-size: 18px; margin-top: 8%; }
   .shop-pot-ico img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5)); }
-  .shop-pot-state { font-size: 8.5px; font-weight: 900; color: #fff; text-shadow: 0 1px 2px #000; background: rgba(0,0,0,0.5); border-radius: 6px; padding: 0 4px; margin-top: 4%; white-space: nowrap; }
+  .shop-pot-state { font-size: 9.5px; font-weight: 900; color: #fff; text-shadow: 0 1px 2px #000; background: rgba(0,0,0,0.5); border-radius: 6px; padding: 0 5px; margin-top: 4%; white-space: nowrap; }
   .shop-pot .pot-bar { position: static; width: 56%; height: 4px; margin-top: 2px; }
   .shop-pot.is-ready { animation: shopReady 0.7s ease-in-out infinite alternate; }
   .shop-pot.is-over { filter: grayscale(0.7) brightness(0.8); }
@@ -5972,7 +6000,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v46</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v47</span></button></div>
     </div>
   </div>
 
@@ -10633,7 +10661,7 @@ function stView(area, list) {
 function stInit() {
   gameState.st = {};
   STAGE_AREAS.forEach(a => {
-    const st = { stock: {}, prep: null, board: null, stove: [null, null], pass: [], plate: { sel: null, items: [] } };
+    const st = { stock: {}, prep: null, board: null, knifeArmed: false, stove: [null, null], pass: [], plate: { sel: null, items: [] } };
     ST_PROD[a].forEach(p => { st.stock[p.key] = p.start; });
     gameState.st[a] = st;
   });
@@ -10851,12 +10879,11 @@ const stProdOf = (area, key) => ST_PROD[area].find(x => x.key === key);
 function stShopStart(area, p) {
   const st = stGet(area);
   if (st.stock[p.key] >= p.max) { showStationToast(`${p.label}: el depósito ya está lleno.`); playSound('error'); return; }
-  if (st.board && st.board.key === p.key && p.how === 'cut') { showStationToast('🔪 Ya lo tienes en la tabla: usa el cuchillo.'); return; }
+  if (st.board && st.board.key === p.key && p.how === 'cut') { showStationToast(st.knifeArmed ? '🔪 Ya está en la tabla: toca la pantalla para cortar.' : '🔪 Ya está en la tabla: arrastra el cuchillo sobre ella.'); return; }
   const total = stProdTime(p);
   if (p.how === 'cut') {
-    if (st.board) { showStationToast('🔪 La tabla está ocupada: termina de cortar lo que tienes.'); playSound('error'); return; }
-    st.board = { key: p.key, prog: 0, total };
-    showStationToast(`🔪 ${p.label} en la tabla: arrastra el cuchillo y mantenlo sobre ella.`);
+    st.board = { key: p.key, taps: 0 };            // la tabla admite un producto a la vez; elegir otro lo reemplaza
+    showStationToast(st.knifeArmed ? `🔪 ${p.label} en la tabla: toca la pantalla para cortar.` : `🔪 ${p.label} en la tabla: arrastra el cuchillo sobre ella.`);
     try { playSound('add'); } catch (e) {}
   } else {
     const slot = st.stove.findIndex(x => !x);
@@ -10907,63 +10934,81 @@ function stShopCollect(area, i) {
 function stShopReady(area) { return stIsShop(area) && stGet(area).stove.some(sl => sl && sl.state !== 'cooking'); }
 function stShopBusy(area) { const st = stGet(area); return stIsShop(area) && (!!st.board || st.stove.some(Boolean)); }
 
-// ---- Cuchillo: se arrastra a la tabla y se mantiene sobre ella; el avance se conserva si se suelta ----
+// ---- Cuchillo ----
+// Se arrastra hasta la tabla y queda "flotando" sobre ella (armado). Con el cuchillo armado, cada TOQUE en la pantalla
+// es un corte: suena el cuchillo, sale una animación translúcida y cada 3 cortes se suma 1 porción del producto.
+const SHOP_TAPS_PER_PORTION = 3;
 let shopKnifeDrag = null;
+let shopTap = null;
+let shopHintAt = 0;
 function shopKnifePoint(d) { return { x: d.x, y: d.pointerType === 'mouse' ? d.y : d.y - DRAG_TOUCH_GHOST_OFFSET_Y }; }
 function cleanupShopKnife() {
   const d = shopKnifeDrag;
   document.removeEventListener('pointermove', onShopKnifeMove);
   document.removeEventListener('pointerup', onShopKnifeUp);
   document.removeEventListener('pointercancel', onShopKnifeUp);
-  if (d) {
-    if (d.timer) clearInterval(d.timer);
-    if (d.ghost) d.ghost.remove();
-    const k = document.getElementById('shop-knife'); if (k) k.classList.remove('is-lifted');
-  }
+  if (d && d.ghost) d.ghost.remove();
+  const k = document.getElementById('shop-knife'); if (k) k.classList.remove('is-lifted');
   const b = document.getElementById('shop-board'); if (b) b.classList.remove('drop-hover');
   shopKnifeDrag = null;
 }
-function shopBoardUi() {
-  const st = stGet('ramen'), fill = document.getElementById('shop-board-fill'), lab = document.getElementById('shop-board-label');
-  if (st.board) {
-    const pct = Math.min(100, Math.round(100 * st.board.prog / st.board.total));
-    if (fill) fill.style.width = pct + '%';
-    if (lab) lab.textContent = `${stProdOf('ramen', st.board.key).label} · ${pct}%`;
-  }
+const shopArmedActive = () => stagedOn('ramen') && gameState.activeArea === 'ramen' && getStage('ramen') === 'prod'
+  && stGet('ramen').knifeArmed && !gameState.isPaused && !gameState.isGameOver;
+function shopHint(msg) { if (performance.now() - shopHintAt > 2500) { shopHintAt = performance.now(); showStationToast(msg); } }
+
+function shopUpdateCount(p) {
+  const st = stGet('ramen'), n = st.stock[p.key];
+  document.querySelectorAll(`[data-stock-of="${p.key}"]`).forEach(el => { el.textContent = `${n}/${p.max}`; });
+  const lab = document.getElementById('shop-board-label');
+  if (lab && st.board && st.board.key === p.key) lab.textContent = `${p.label} · ${n}/${p.max}`;
 }
-function shopKnifeTick() {
-  const d = shopKnifeDrag;
-  if (!d || !d.active || gameState.isPaused || gameState.isGameOver) return;
-  const area = 'ramen', st = stGet(area), board = document.getElementById('shop-board');
+function shopPips() {
+  const st = stGet('ramen'), pips = document.querySelectorAll('#shop-board .shop-pips i');
+  const on = st.board ? st.board.taps % SHOP_TAPS_PER_PORTION : 0;
+  pips.forEach((el, i) => el.classList.toggle('on', i < on));
+}
+function shopChopFx(p) {
+  const board = document.getElementById('shop-board'), knife = document.getElementById('shop-knife');
   if (!board) return;
-  const p = shopKnifePoint(d), r = board.getBoundingClientRect();
-  const inside = p.x >= r.left && p.x <= r.right && p.y >= r.top && p.y <= r.bottom;
-  board.classList.toggle('drop-hover', inside && !!st.board);
-  if (d.ghost) d.ghost.classList.toggle('is-cutting', inside && !!st.board);
-  if (!inside || !st.board) return;
-  st.board.prog += 0.05;
-  sfxEvery('chop', 330);
-  shopBoardUi();
-  if (st.board.prog >= st.board.total) shopCutDone();
+  board.classList.remove('hit'); void board.offsetWidth; board.classList.add('hit');
+  if (knife) { knife.classList.remove('chop'); void knife.offsetWidth; knife.classList.add('chop'); }
+  const proc = INGREDIENTES.find(i => i.id === p.icon);
+  const bits = [0, 1, 2, 3].map(k => `<span class="bit" style="--dx:${(k - 1.5) * 16}px;--dy:${-10 - (k % 2) * 12}px;--rot:${(k - 1.5) * 40}deg">${proc && proc.img ? `<img src="${proc.img}" alt="">` : ''}</span>`).join('');
+  const fx = document.createElement('div');
+  fx.className = 'cut-fx';
+  fx.innerHTML = `<img class="k" src="assets/maki_knife.svg" alt=""><i class="slash"></i>${bits}`;
+  board.appendChild(fx);
+  setTimeout(() => fx.remove(), 520);
 }
-function shopCutDone() {
-  const area = 'ramen', st = stGet(area), b = st.board;
-  if (!b) return;
-  const p = stProdOf(area, b.key), before = st.stock[p.key];
-  st.stock[p.key] = Math.min(p.max, before + p.batch);
-  st.board = null;
-  cleanupShopKnife();
-  try { playSound('chop'); playSound('stock_add'); } catch (e) {}
-  showStationToast(`🔪 ${p.label} cortado: +${st.stock[p.key] - before}.`);
-  stRenderIfOpen(area);
-  renderStageTabs();
+function shopChop() {
+  const st = stGet('ramen');
+  if (!st.knifeArmed) return;
+  if (!st.board) { shopHint('🔪 Primero pon un producto en la tabla (toca su ficha).'); return; }
+  const p = stProdOf('ramen', st.board.key);
+  try { playSound('chop'); } catch (e) {}
+  shopChopFx(p);
+  st.board.taps++;
+  if (st.board.taps % SHOP_TAPS_PER_PORTION === 0) {
+    st.stock[p.key] = Math.min(p.max, st.stock[p.key] + 1);
+    try { playSound('stock_add'); } catch (e) {}
+    const board = document.getElementById('shop-board');
+    if (board) { const plus = document.createElement('b'); plus.className = 'cut-plus'; plus.textContent = '+1'; board.appendChild(plus); setTimeout(() => plus.remove(), 850); }
+    shopUpdateCount(p);
+    if (st.stock[p.key] >= p.max) {
+      st.board = null; st.knifeArmed = false;
+      showStationToast(`🥬 ${p.label}: depósito lleno.`);
+      stRenderIfOpen('ramen'); renderStageTabs();
+      return;
+    }
+  }
+  shopPips();
 }
 function onShopKnifeMove(e) {
   const d = shopKnifeDrag;
   if (!d || e.pointerId !== d.pointerId) return;
   d.x = e.clientX; d.y = e.clientY;
   if (!d.active) {
-    if (Math.hypot(d.x - d.startX, d.y - d.startY) <= 4) return;
+    if (Math.hypot(d.x - d.startX, d.y - d.startY) <= 6) return;
     d.active = true;
     const k = document.getElementById('shop-knife');
     const rect = k ? k.getBoundingClientRect() : { height: 60 };
@@ -10974,30 +11019,53 @@ function onShopKnifeMove(e) {
     document.body.appendChild(ghost);
     d.ghost = ghost;
     if (k) k.classList.add('is-lifted');
-    d.timer = setInterval(shopKnifeTick, 50);
     try { if (navigator.vibrate) navigator.vibrate(12); } catch (err) {}
   }
-  if (d.ghost) { const p = shopKnifePoint(d); d.ghost.style.transform = `translate(${p.x}px, ${p.y}px) translate(-50%, -50%)`; }
+  const p = shopKnifePoint(d);
+  if (d.ghost) d.ghost.style.transform = `translate(${p.x}px, ${p.y}px) translate(-50%, -50%)`;
+  const board = document.getElementById('shop-board');
+  if (board) { const r = board.getBoundingClientRect(); board.classList.toggle('drop-hover', p.x >= r.left && p.x <= r.right && p.y >= r.top && p.y <= r.bottom); }
 }
 function onShopKnifeUp(e) {
   const d = shopKnifeDrag;
   if (!d || e.pointerId !== d.pointerId) return;
-  const wasActive = d.active;
+  const wasActive = d.active, p = shopKnifePoint(d);
+  const board = document.getElementById('shop-board'), r = board ? board.getBoundingClientRect() : null;
+  const inside = !!r && p.x >= r.left - 6 && p.x <= r.right + 6 && p.y >= r.top - 6 && p.y <= r.bottom + 6;
   cleanupShopKnife();
-  if (!wasActive) showStationToast(stGet('ramen').board ? '🔪 Arrastra el cuchillo hasta la tabla y mantenlo ahí.' : '🔪 Primero pon un producto en la tabla (toca su ficha).');
+  const st = stGet('ramen');
+  if (!wasActive) {                                  // un toque sobre el propio cuchillo
+    if (st.knifeArmed) shopChop(); else shopHint('🔪 Arrastra el cuchillo hasta la tabla.');
+    return;
+  }
+  st.knifeArmed = inside;                            // soltado sobre la tabla = armado; en otro lado = vuelve a su sitio
+  try { playSound(inside ? 'add' : 'click'); } catch (e) {}
+  if (inside) showStationToast(st.board ? '🔪 Toca la pantalla para cortar (3 cortes = 1 porción).' : '🔪 Ahora pon un producto en la tabla (toca su ficha).');
+  stRenderIfOpen('ramen');
 }
 document.addEventListener('pointerdown', (e) => {
   const k = e.target.closest && e.target.closest('#shop-knife');
-  if (!k) return;
-  if (e.pointerType === 'mouse' && e.button !== 0) return;
-  if (gameState.isPaused || gameState.isGameOver) return;
-  cleanupShopKnife();
-  e.preventDefault();
-  shopKnifeDrag = { pointerId: e.pointerId, pointerType: e.pointerType, startX: e.clientX, startY: e.clientY, x: e.clientX, y: e.clientY, active: false, ghost: null, timer: null };
-  document.addEventListener('pointermove', onShopKnifeMove);
-  document.addEventListener('pointerup', onShopKnifeUp);
-  document.addEventListener('pointercancel', onShopKnifeUp);
-});
+  if (k) {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    if (gameState.isPaused || gameState.isGameOver) return;
+    cleanupShopKnife();
+    e.preventDefault();
+    shopKnifeDrag = { pointerId: e.pointerId, pointerType: e.pointerType, startX: e.clientX, startY: e.clientY, x: e.clientX, y: e.clientY, active: false, ghost: null };
+    document.addEventListener('pointermove', onShopKnifeMove);
+    document.addEventListener('pointerup', onShopKnifeUp);
+    document.addEventListener('pointercancel', onShopKnifeUp);
+    return;
+  }
+  // toque normal: solo cuenta como corte si el cuchillo está armado y no se tocó un control
+  if (!shopArmedActive() || (e.target.closest && e.target.closest('button, .fp-card, .shop-pot, .kitchen-stage-btn, .kitchen-area-tab-btn, .hud-side-btn, .modal-overlay, a, input'))) { shopTap = null; return; }
+  shopTap = { id: e.pointerId, x: e.clientX, y: e.clientY, t: performance.now() };
+}, { passive: false });
+document.addEventListener('pointerup', (e) => {
+  const t = shopTap; shopTap = null;
+  if (!t || t.id !== e.pointerId) return;
+  if (Math.hypot(e.clientX - t.x, e.clientY - t.y) > 12 || performance.now() - t.t > 450) return;   // un deslizamiento no es un corte
+  if (shopArmedActive()) shopChop();
+}, { passive: true });
 
 // ---- Pantalla del taller ----
 function stRenderShop(area, panel) {
@@ -11006,20 +11074,19 @@ function stRenderShop(area, panel) {
   const cards = list.map(p => {
     const n = st.stock[p.key], how = ST_HOW[p.how], low = n <= Math.ceil(p.max * 0.25);
     const onBoard = st.board && st.board.key === p.key, onStove = st.stove.some(sl => sl && sl.key === p.key);
-    const blocked = n >= p.max || (p.how === 'cut' ? !!st.board : freeSlot === -1);
+    const blocked = n >= p.max || (p.how !== 'cut' && freeSlot === -1);
     return `<div class="fp-card ${low ? 'is-low' : ''} ${(onBoard || onStove) ? 'is-busy' : ''}">
       <div class="fp-card-ico">${stIngIconRaw(p.icon)}</div>
       <div class="fp-card-name">${p.short || p.label}</div>
-      <div class="fp-bar"><i style="width:${Math.round(100 * n / p.max)}%"></i></div>
-      <div class="fp-card-n">${n}/${p.max}${stHasRaw(p.icon) ? ` <span class="fp-arrow">→${stIngIcon(p.icon)}</span>` : ''}</div>
-      <button class="fp-btn" ${blocked ? 'disabled' : ''} title="${how.verb} ${p.label}" onclick="stProdStart('${area}','${p.key}')">${n >= p.max ? 'Lleno' : `${how.icon} +${p.batch} · ${stProdTime(p)} s`}</button>
+      <div class="fp-card-n"><span data-stock-of="${p.key}">${n}/${p.max}</span>${stHasRaw(p.icon) ? ` <span class="fp-arrow">→${stIngIcon(p.icon)}</span>` : ''}</div>
+      <button class="fp-btn" ${blocked ? 'disabled' : ''} title="${how.verb} ${p.label}" onclick="stProdStart('${area}','${p.key}')">${n >= p.max ? 'Lleno' : `${how.icon} ${how.verb}`}</button>
     </div>`;
   }).join('');
-  const b = st.board, bp = b ? stProdOf(area, b.key) : null, bpct = b ? Math.min(100, Math.round(100 * b.prog / b.total)) : 0;
+  const b = st.board, bp = b ? stProdOf(area, b.key) : null, on = b ? b.taps % SHOP_TAPS_PER_PORTION : 0;
   const board = `<div class="shop-board ${b ? 'has-item' : ''}" id="shop-board">
       ${b ? `<span class="shop-board-ico">${stIngIconRaw(bp.icon)}</span>` : '<span class="shop-board-empty">Tabla libre</span>'}
-      <div class="shop-bar" style="display:${b ? 'block' : 'none'}"><i id="shop-board-fill" style="width:${bpct}%"></i></div>
-      <div class="shop-label" id="shop-board-label">${b ? `${bp.label} · ${bpct}%` : ''}</div>
+      <div class="shop-pips" style="display:${b ? 'flex' : 'none'}">${[0, 1, 2].map(i => `<i class="${i < on ? 'on' : ''}"></i>`).join('')}</div>
+      <div class="shop-label" id="shop-board-label">${b ? `${bp.label} · ${st.stock[bp.key]}/${bp.max}` : ''}</div>
     </div>`;
   const pots = st.stove.map((sl, i) => {
     const p = sl ? stProdOf(area, sl.key) : null;
@@ -11030,12 +11097,12 @@ function stRenderShop(area, panel) {
       ${sl && sl.state === 'cooking' ? `<div class="shop-bar pot-bar"><i data-slot-bar="${i}" style="width:${Math.round(100 * (1 - sl.left / sl.total))}%"></i></div>` : ''}
     </div>`;
   }).join('');
-  const hint = st.board ? 'Arrastra el cuchillo a la tabla y mantenlo hasta terminar.' : (st.stove.some(Boolean) ? 'Las hornillas siguen mientras trabajas.' : 'Toca una ficha: se corta en la tabla o va a una hornilla.');
+  const hint = !st.knifeArmed ? 'Cortar: toca la ficha y arrastra el cuchillo a la tabla.' : (st.board ? 'Toca la pantalla para cortar: 3 cortes = 1 porción.' : 'Cuchillo listo: toca la ficha de un producto para cortar.');
   panel.innerHTML = `<div class="fp-wrap fp-shop">
     <div class="fp-head"><span>🥬 Producción · ${AREA_LABELS[area]}</span><small>${hint}</small>${stBackBtn(area)}</div>
     <div class="fp-cards many shop-cards" style="--cols:${Math.max(6, Math.ceil(list.length / 2))}">${cards}</div>
     <div class="shop-bottom">
-      <div class="shop-left">${board}<img class="fry-knife-tool shop-knife ${b ? 'is-ready' : ''}" id="shop-knife" src="assets/maki_knife.svg" alt="Cuchillo" draggable="false"></div>
+      <div class="shop-left">${board}<img class="fry-knife-tool shop-knife ${st.knifeArmed ? 'armed' : ''}" id="shop-knife" src="assets/maki_knife.svg" alt="Cuchillo" draggable="false"></div>
       <div class="shop-stove">${pots}</div>
     </div></div>`;
 }
