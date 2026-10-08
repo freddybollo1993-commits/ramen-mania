@@ -716,6 +716,17 @@
   .kitchen-stage-btn:not(.active)[data-alert="ready"] .area-dot { display: block; background: #4caf50; }
   .kitchen-stage-btn:not(.active)[data-alert="warn"] .area-dot { display: block; background: #e53935; animation: areaDotPulse 0.5s ease-in-out infinite alternate; }
   .stage-panel { flex: 1; width: 100%; display: none; justify-content: center; align-items: center; box-sizing: border-box; padding: 4px 8px 8px; }
+  .stage-edge-hint {
+    position: fixed; top: 58%; transform: translateY(-50%); z-index: 95; pointer-events: none;
+    display: none; align-items: center; gap: 1px; padding: 6px 3px;
+    background: rgba(20, 10, 6, 0.55); color: #ffd699; font-size: 15px; line-height: 1; opacity: 0.6;
+    border: 1px solid rgba(255, 214, 153, 0.25);
+  }
+  .stage-edge-hint.left { left: 0; border-radius: 0 12px 12px 0; border-left: 0; }
+  .stage-edge-hint.right { right: 0; border-radius: 12px 0 0 12px; border-right: 0; }
+  .stage-edge-hint b { font-size: 16px; color: #26a69a; }
+  .stage-edge-hint span { display: inline-block; width: 18px; text-align: center; }
+  .stage-edge-hint img { width: 16px; height: 16px; }
   .stage-panel.fp-active { align-items: flex-start; padding: 2px 6px 6px; max-width: calc(100% - 50px); margin-right: auto; }
   .fp-wrap { width: 100%; background: rgba(28, 14, 10, 0.93); border: 1.5px solid #4a241a; border-radius: 12px; padding: 5px 8px 7px; box-sizing: border-box; color: #ffe0b2; }
   .fp-head { display: flex; align-items: center; gap: 8px; font-family: 'Fredoka One', cursive, sans-serif; font-size: 13px; color: #ffcc80; margin-bottom: 5px; }
@@ -5903,7 +5914,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v38</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v39</span></button></div>
     </div>
   </div>
 
@@ -9043,6 +9054,12 @@ function switchKitchenArea(areaId) {
   gameState.activeArea = areaId;
   gameState.currentCategory = 'todos';
   try { playSound('click'); } catch (e) {}
+  try { // pista única para quien juega con el dedo
+    if ((navigator.maxTouchPoints > 0) && !isMultiplayerSession() && safeStorage.getItem('ramen_swipe_hint') !== '1') {
+      safeStorage.setItem('ramen_swipe_hint', '1');
+      setTimeout(() => showStationToast('👆 Desliza desde el borde de la pantalla: ← Producción · Emplatar →'), 600);
+    }
+  } catch (e) {}
   // Cada estación conserva su estado al cambiar de pestaña, como en una cocina real: los
   // cuencos de Ramen, los woks, la tabla de Makis y la mesa/olla de Frituras siguen como los
   // dejaste. La olla incluso sigue friendo (y quemando) mientras trabajas en otra área; las
@@ -9103,6 +9120,7 @@ function getStage(area) {
 function renderStageTabs() {
   const box = document.getElementById('kitchen-stage-tabs');
   if (!box) return;
+  updateStageEdgeHints();
   if (isMultiplayerSession()) { box.innerHTML = ''; return; }
   const area = gameState.activeArea, cur = getStage(area), ck = AREA_COOK_STAGE[area] || AREA_COOK_STAGE.ramen;
   const defs = [['cook', ck.icon, ck.label], ['prod', STAGE_INFO.prod.icon, STAGE_INFO.prod.label], ['plate', STAGE_INFO.plate.icon, STAGE_INFO.plate.label]];
@@ -9151,6 +9169,98 @@ function setKitchenStage(stage) {
     if (area === 'salteados') renderWoks();
     if (area === 'frituras') renderFryStation();
   }
+}
+
+// --- Deslizar entre etapas ---
+// Orden: Producción (izquierda) · Cocinar (centro) · Emplatar (derecha). Se cambia deslizando el dedo hacia
+// el lado de la etapa, pero el gesto debe EMPEZAR cerca del borde de la pantalla (así no se cambia por error
+// al tocar o arrastrar cosas en la cocina): desde el borde derecho hacia la izquierda va a la etapa de la
+// izquierda; desde el borde izquierdo hacia la derecha, a la de la derecha.
+const STAGE_ORDER = ['prod', 'cook', 'plate'];
+const SWIPE_EDGE_PX = 52;        // zona del borde donde puede empezar el gesto
+const SWIPE_MIN_PX = 80;         // recorrido horizontal mínimo
+const SWIPE_MAX_MS = 700;        // el gesto debe ser ágil
+const SWIPE_NO_START = '.fry-knife-tool, .maki-tool, .fry-board-item, .wok-stir-btn, input, textarea, select';
+let stageSwipe = null;
+let swipeNoClickUntil = 0;
+
+function stageSwipeAllowed(target) {
+  const start = document.getElementById('start-screen');
+  if (!start || getComputedStyle(start).display !== 'none') return false;       // en el menú no
+  if (gameState.isPaused || gameState.isGameOver || isMultiplayerSession()) return false;
+  if (typeof TutorialManager !== 'undefined' && TutorialManager.isActive) return false;
+  if (document.querySelector('.modal-overlay.active, .order-detail-modal.active')) return false;
+  if (target && target.closest && target.closest(SWIPE_NO_START)) return false;
+  return true;
+}
+
+function stageSwipeBusyWithDrag() {
+  return !!((typeof ingredientDrag !== 'undefined' && ingredientDrag && ingredientDrag.active)
+    || (typeof fryItemDrag !== 'undefined' && fryItemDrag && fryItemDrag.active)
+    || (typeof fryKnifeDrag !== 'undefined' && fryKnifeDrag && fryKnifeDrag.active)
+    || (typeof makiToolDrag !== 'undefined' && makiToolDrag && makiToolDrag.active));
+}
+
+function swipeToStage(dir) {
+  const cur = STAGE_ORDER.indexOf(getStage(gameState.activeArea));
+  const next = Math.max(0, Math.min(STAGE_ORDER.length - 1, cur + dir));
+  if (next === cur) return false;
+  if (typeof cleanupIngredientDrag === 'function') cleanupIngredientDrag();
+  setKitchenStage(STAGE_ORDER[next]);
+  try { playSound('swish'); } catch (e) {}
+  try { if (navigator.vibrate) navigator.vibrate(10); } catch (e) {}
+  return true;
+}
+
+document.addEventListener('pointerdown', (e) => {
+  if (e.pointerType === 'mouse') return;                         // solo dedo / lápiz
+  const w = window.innerWidth, edge = Math.min(SWIPE_EDGE_PX, w * 0.09);
+  if (e.clientX > edge && e.clientX < w - edge) { stageSwipe = null; return; }
+  if (!stageSwipeAllowed(e.target)) { stageSwipe = null; return; }
+  stageSwipe = { id: e.pointerId, x: e.clientX, y: e.clientY, t: performance.now(), side: e.clientX <= edge ? 'left' : 'right', done: false };
+}, { passive: true });
+
+document.addEventListener('pointermove', (e) => {
+  const sw = stageSwipe;
+  if (!sw || e.pointerId !== sw.id || sw.done) return;
+  if (stageSwipeBusyWithDrag()) { stageSwipe = null; return; }   // arrastrando un ingrediente o una herramienta
+  const dx = e.clientX - sw.x, dy = e.clientY - sw.y;
+  if (Math.abs(dy) > 24 && Math.abs(dy) > Math.abs(dx) * 0.8) { stageSwipe = null; return; }   // gesto vertical
+  const inward = sw.side === 'left' ? dx : -dx;                  // desde el borde hacia adentro
+  if (inward < -20) { stageSwipe = null; return; }
+  if (inward >= SWIPE_MIN_PX) {
+    if (performance.now() - sw.t > SWIPE_MAX_MS) { stageSwipe = null; return; }
+    sw.done = true;
+    swipeNoClickUntil = performance.now() + 400;                 // el toque que termina el gesto no debe activar botones
+    swipeToStage(dx > 0 ? 1 : -1);
+  }
+}, { passive: true });
+
+['pointerup', 'pointercancel'].forEach(t => document.addEventListener(t, (e) => {
+  if (stageSwipe && e.pointerId === stageSwipe.id) stageSwipe = null;
+}, { passive: true }));
+document.addEventListener('click', (e) => {
+  if (performance.now() < swipeNoClickUntil) { e.stopPropagation(); e.preventDefault(); }
+}, true);
+
+// Pistas en los bordes: muestran a qué etapa lleva el gesto desde cada borde.
+function updateStageEdgeHints() {
+  let left = document.getElementById('stage-edge-left'), right = document.getElementById('stage-edge-right');
+  if (!left) {
+    left = document.createElement('div'); left.id = 'stage-edge-left'; left.className = 'stage-edge-hint left';
+    right = document.createElement('div'); right.id = 'stage-edge-right'; right.className = 'stage-edge-hint right';
+    document.body.appendChild(left); document.body.appendChild(right);
+  }
+  const start = document.getElementById('start-screen');
+  const on = !isMultiplayerSession() && start && getComputedStyle(start).display === 'none';
+  const cur = STAGE_ORDER.indexOf(getStage(gameState.activeArea));
+  const icon = id => id === 'cook' ? (AREA_COOK_STAGE[gameState.activeArea] || AREA_COOK_STAGE.ramen).icon : STAGE_INFO[id].icon;
+  // borde izquierdo → etapa de la derecha; borde derecho → etapa de la izquierda
+  const toRight = STAGE_ORDER[cur + 1], toLeft = STAGE_ORDER[cur - 1];
+  left.style.display = on && toRight ? 'flex' : 'none';
+  right.style.display = on && toLeft ? 'flex' : 'none';
+  if (toRight) left.innerHTML = `<span>${icon(toRight)}</span><b>›</b>`;
+  if (toLeft) right.innerHTML = `<b>‹</b><span>${icon(toLeft)}</span>`;
 }
 
 // Indicador en cada pestaña (menos la activa): en curso, listo o a punto de quemarse.
