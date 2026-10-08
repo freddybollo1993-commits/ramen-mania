@@ -693,11 +693,62 @@
     box-shadow: 0 0 12px rgba(255, 179, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.4);
   }
 
+  /* Etapas de cada área: Cocinar (la estación de siempre) / Producción / Emplatar */
+  .kitchen-stage-tabs { display: flex; gap: 3px; align-items: center; margin: 0 6px; }
+  .kitchen-stage-btn {
+    position: relative;
+    display: inline-flex; align-items: center; gap: 4px;
+    background: rgba(45, 23, 17, 0.85);
+    border: 1.5px solid #5a2e22;
+    color: #d7ccc8;
+    font-family: 'Fredoka One', cursive, sans-serif;
+    font-size: 10.5px;
+    padding: 3px 9px;
+    border-radius: 14px;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+  }
+  .kitchen-stage-btn:hover { color: #fff; border-color: #8d4a37; }
+  .kitchen-stage-btn.active { background: linear-gradient(180deg, #26a69a 0%, #00796b 100%); border-color: #80cbc4; color: #fff; box-shadow: 0 0 9px rgba(38, 166, 154, 0.6); }
+  .kitchen-stage-btn .area-dot { display: none; position: absolute; top: -3px; right: -3px; width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid #1a0f0a; }
+  .kitchen-stage-btn:not(.active)[data-alert="busy"] .area-dot { display: block; background: #ffb300; }
+  .kitchen-stage-btn:not(.active)[data-alert="ready"] .area-dot { display: block; background: #4caf50; }
+  .kitchen-stage-btn:not(.active)[data-alert="warn"] .area-dot { display: block; background: #e53935; animation: areaDotPulse 0.5s ease-in-out infinite alternate; }
+  .stage-panel { flex: 1; width: 100%; display: none; justify-content: center; align-items: center; box-sizing: border-box; padding: 4px 8px 8px; }
+  .stage-panel-card {
+    display: flex; align-items: center; gap: 14px; max-width: 560px; width: 100%;
+    background: rgba(28, 14, 10, 0.9); border: 2px dashed #6d392b; border-radius: 14px; padding: 12px 16px; color: #ffe0b2;
+  }
+  .stage-panel-icon { font-size: 40px; line-height: 1; }
+  .stage-panel-title { font-family: 'Fredoka One', cursive, sans-serif; font-size: 16px; color: #ffcc80; }
+  .stage-panel-text { font-size: 12px; line-height: 1.4; margin-top: 3px; color: #efebe9; }
+  .stage-panel-soon { font-size: 11px; margin-top: 5px; color: #80cbc4; font-weight: 800; }
+  .stage-panel-back {
+    margin-left: auto; flex-shrink: 0; cursor: pointer;
+    background: linear-gradient(180deg, #ffb300 0%, #ff8f00 100%); color: #211202; border: 1.5px solid #ffe082;
+    border-radius: 10px; font-family: 'Fredoka One', cursive, sans-serif; font-size: 12px; padding: 7px 12px;
+  }
+  @media (max-width: 1100px) {
+    .kitchen-stage-btn .ks-label { display: none; }
+    .kitchen-stage-btn { padding: 2px 6px; font-size: 12px; }
+    .kitchen-stage-tabs { margin: 0 3px; gap: 2px; flex-shrink: 0; }
+    .stage-panel-card { gap: 9px; padding: 8px 10px; }
+    .stage-panel-icon { font-size: 28px; }
+    .stage-panel-text { font-size: 11px; }
+  }
+
   .pantry-mini-filter {
     display: flex;
     gap: 4px;
     align-items: center;
+    min-width: 0;
+    overflow-x: auto;        /* en pantallas pequeñas las categorías se deslizan en vez de salirse */
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
   }
+  .pantry-mini-filter::-webkit-scrollbar { display: none; }
+  .pantry-mini-filter .mini-cat-btn { flex-shrink: 0; }
 
   .mini-cat-btn {
     background: rgba(45, 23, 17, 0.85);
@@ -5845,6 +5896,7 @@
     <div class="prep-station-board" id="prep-board-box">
       <div class="prep-station-tab-row">
         <div class="kitchen-area-tabs" id="kitchen-area-tabs"></div>
+        <div class="kitchen-stage-tabs" id="kitchen-stage-tabs"></div>
         <div class="pantry-mini-filter" id="pantry-tabs-bar"></div>
       </div>
       <div class="prep-ingredients-grid" id="ingredients-grid"></div>
@@ -6436,6 +6488,9 @@
         <div class="wok-badge" id="wok-badge-1" style="display:none;">Vacío</div>
       </div>
     </div>
+
+    <!-- Etapas Producción y Emplatar de cada área (provisional hasta definir su contenido) -->
+    <div class="stage-panel" id="stage-panel" style="display:none;"></div>
 
     <!-- Estación de Frituras: mesa de preparación (empanizado) + freidora -->
     <div class="frituras-station-box" id="frituras-station-box">
@@ -8399,6 +8454,7 @@ let gameState = {
   activeBowlIndex: 0,
   currentCategory: 'todos',
   activeArea: 'ramen',
+  stages: { ramen: 'cook', salteados: 'cook', makis: 'cook', frituras: 'cook' }, // etapa abierta en cada área
   makiRoll: { ingredients: [], matPlaced: false, rollState: 'NONE', rollProgress: 0, cutState: 'NONE', cutProgress: 0 },
   woks: [
     { ingredients: [], result: null, matchedRecipe: null, stirring: false, stirSeconds: 0 },
@@ -8859,6 +8915,83 @@ function switchKitchenArea(areaId) {
   if (areaId === 'frituras') renderFryStation();
 }
 
+// --- Etapas de cada área ---
+// Cada área tiene tres pantallas: la estación de siempre ("cook"), Producción ("prod": reponer insumos) y
+// Emplatar ("plate": organizar el plato final antes de entregarlo). Producción y Emplatar son provisionales:
+// de momento muestran un aviso y devuelven a la estación.
+const AREA_COOK_STAGE = {
+  ramen: { icon: '🍜', label: 'Cocinar' },
+  salteados: { icon: '🍳', label: 'Saltear' },
+  makis: { icon: '🍣', label: 'Armar' },
+  frituras: { icon: '🍤', label: 'Freír' }
+};
+const STAGE_INFO = {
+  prod: {
+    icon: '🥬', label: 'Producción',
+    text: {
+      frituras: 'Aquí repones los insumos de la fritura: col, zanahoria, betarraga, gyozas y ebi furai.',
+      _: 'Aquí prepararás y repondrás los insumos de esta área antes del servicio.'
+    }
+  },
+  plate: {
+    icon: '🍽️', label: 'Emplatar',
+    text: { _: 'Fase final antes de entregar al cliente: organiza el plato con su proteína, salsa, ensalada y decoración, según corresponda.' }
+  }
+};
+
+function getStage(area) {
+  if (isMultiplayerSession()) return 'cook';
+  return (gameState.stages && gameState.stages[area || gameState.activeArea]) || 'cook';
+}
+
+function renderStageTabs() {
+  const box = document.getElementById('kitchen-stage-tabs');
+  if (!box) return;
+  if (isMultiplayerSession()) { box.innerHTML = ''; return; }
+  const area = gameState.activeArea, cur = getStage(area), ck = AREA_COOK_STAGE[area] || AREA_COOK_STAGE.ramen;
+  const defs = [['cook', ck.icon, ck.label], ['prod', STAGE_INFO.prod.icon, STAGE_INFO.prod.label], ['plate', STAGE_INFO.plate.icon, STAGE_INFO.plate.label]];
+  box.innerHTML = defs.map(([id, icon, label]) =>
+    `<button class="kitchen-stage-btn ${cur === id ? 'active' : ''}" data-stage="${id}" data-alert="${id === 'cook' ? getAreaAlert(area) : ''}" title="${label}" onclick="setKitchenStage('${id}')"><span>${icon}</span><span class="ks-label">${label}</span><i class="area-dot"></i></button>`).join('');
+}
+
+function renderStagePanel() {
+  const panel = document.getElementById('stage-panel');
+  if (!panel) return;
+  const area = gameState.activeArea, stage = getStage(area), info = STAGE_INFO[stage];
+  if (!info) { panel.innerHTML = ''; return; }
+  const ck = AREA_COOK_STAGE[area] || AREA_COOK_STAGE.ramen;
+  panel.innerHTML = `<div class="stage-panel-card">
+      <div class="stage-panel-icon">${info.icon}</div>
+      <div><div class="stage-panel-title">${info.label} · ${AREA_LABELS[area]}</div>
+        <div class="stage-panel-text">${info.text[area] || info.text._}</div>
+        <div class="stage-panel-soon">🚧 En construcción: pronto podrás trabajar aquí.</div></div>
+      <button class="stage-panel-back" onclick="setKitchenStage('cook')">${ck.icon} Volver a ${ck.label}</button>
+    </div>`;
+}
+
+function setKitchenStage(stage) {
+  if (isMultiplayerSession() || !['cook', 'prod', 'plate'].includes(stage)) return;
+  const area = gameState.activeArea;
+  if (getStage(area) === stage) return;
+  gameState.stages[area] = stage;
+  // un gesto a medias (cuchillo, esterilla, arrastre) no tiene sentido al cambiar de pantalla
+  abortMakiCut();
+  cleanupMakiToolDrag();
+  cleanupFryItemDrag();
+  abortFryCut();
+  cleanupFryKnifeDrag();
+  try { playSound('click'); } catch (e) {}
+  updateStationVisibilityForArea();
+  renderStageTabs();
+  if (stage === 'cook') {
+    renderPantryGrid();
+    renderBowls();
+    if (area === 'makis') renderMakiStation();
+    if (area === 'salteados') renderWoks();
+    if (area === 'frituras') renderFryStation();
+  }
+}
+
 // Indicador en cada pestaña (menos la activa): en curso, listo o a punto de quemarse.
 function getAreaAlert(areaId) {
   if (areaId === 'ramen') {
@@ -8885,6 +9018,9 @@ function updateAreaTabAlerts() {
     const alert = getAreaAlert(btn.dataset.area);
     if (btn.dataset.alert !== alert) btn.dataset.alert = alert;
   });
+  // la estación de esta área sigue trabajando mientras estás en Producción o Emplatar
+  const ck = document.querySelector('.kitchen-stage-btn[data-stage="cook"]');
+  if (ck) { const a = getAreaAlert(gameState.activeArea); if (ck.dataset.alert !== a) ck.dataset.alert = a; }
 }
 
 // Muestra la estación de trabajo que corresponde al área activa (cuenco de Ramen,
@@ -8896,11 +9032,18 @@ function updateStationVisibilityForArea() {
   const wokBox = document.getElementById('salteado-station-box');
   const fryBox = document.getElementById('frituras-station-box');
   const area = gameState.activeArea;
-  if (cookPanel) cookPanel.style.display = area === 'ramen' ? '' : 'none';
-  if (bowlsBox) bowlsBox.style.display = area === 'ramen' ? '' : 'none';
-  if (makiBox) makiBox.style.display = area === 'makis' ? 'flex' : 'none';
-  if (wokBox) wokBox.style.display = area === 'salteados' ? 'flex' : 'none';
-  if (fryBox) fryBox.style.display = area === 'frituras' ? 'flex' : 'none';
+  const cook = getStage(area) === 'cook'; // en Producción y Emplatar no se ve la estación ni la despensa
+  if (cookPanel) cookPanel.style.display = (area === 'ramen' && cook) ? '' : 'none';
+  if (bowlsBox) bowlsBox.style.display = (area === 'ramen' && cook) ? '' : 'none';
+  if (makiBox) makiBox.style.display = (area === 'makis' && cook) ? 'flex' : 'none';
+  if (wokBox) wokBox.style.display = (area === 'salteados' && cook) ? 'flex' : 'none';
+  if (fryBox) fryBox.style.display = (area === 'frituras' && cook) ? 'flex' : 'none';
+  const grid = document.getElementById('ingredients-grid');
+  const filters = document.getElementById('pantry-tabs-bar');
+  const stagePanel = document.getElementById('stage-panel');
+  if (grid) grid.style.display = cook ? '' : 'none';
+  if (filters) filters.style.display = cook ? '' : 'none';
+  if (stagePanel) { stagePanel.style.display = cook ? 'none' : 'flex'; if (!cook) renderStagePanel(); }
 }
 
 // --- Makis: cada maki empieza moviendo la esterilla de bambú (enrollada) hasta la tabla; al
@@ -10625,6 +10768,7 @@ document.addEventListener('touchmove', (e) => {
 
 function getIngredientDropTargets() {
   const area = gameState.activeArea;
+  if (getStage(area) !== 'cook') return [];
   const sel = area === 'ramen' ? '.bowl-dock-card'
     : area === 'salteados' ? '.wok-dock-card'
     : area === 'makis' ? '#maki-board-zone'
@@ -10907,6 +11051,7 @@ function attachIngredientDrag(tile, ing) {
 
 function renderPantryGrid() {
   renderAreaTabs();
+  renderStageTabs();
   renderCategoryFilters();
   const container = document.getElementById("ingredients-grid");
   if (!container) return;
@@ -14619,6 +14764,7 @@ function startLevel(lvlIndex) {
   renderBowls();
   renderCustomers();
   gameState.activeArea = 'ramen';
+  gameState.stages = { ramen: 'cook', salteados: 'cook', makis: 'cook', frituras: 'cook' };
   cleanupMakiToolDrag();
   gameState.makiRoll = newMakiRoll();
   gameState.woks = [
