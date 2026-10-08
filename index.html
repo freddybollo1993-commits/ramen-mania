@@ -737,6 +737,13 @@
   .fp-head small { font-family: 'Nunito', sans-serif; font-size: 10.5px; color: #bcaaa4; font-weight: 700; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .fp-back { margin-left: auto; padding: 3px 9px; font-size: 11px; }
   .fp-cards { display: flex; gap: 6px; justify-content: space-between; }
+  .fp-cards.many { flex-wrap: wrap; justify-content: flex-start; gap: 5px; }
+  .fp-cards.many .fp-card { flex: 0 0 calc(16.66% - 5px); padding: 3px 3px 4px; gap: 1px; }
+  .fp-cards.many .fp-card-ico { width: 24px; height: 24px; font-size: 18px; }
+  .fp-cards.many .fp-card-name { font-size: 9.5px; line-height: 1.1; }
+  .fp-cards.many .fp-card-n { font-size: 9px; }
+  .fp-cards.many .fp-card-n small { display: none; }
+  .fp-cards.many .fp-btn { font-size: 9px; padding: 2px 3px; margin-top: 1px; }
   .fp-card { flex: 1; min-width: 0; background: rgba(60, 30, 22, 0.8); border: 1.5px solid #5a2e22; border-radius: 10px; padding: 5px 4px 6px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 2px; }
   .fp-card.is-low { border-color: #e53935; }
   .fp-card.is-busy { border-color: #26a69a; box-shadow: 0 0 8px rgba(38, 166, 154, 0.5); }
@@ -5918,7 +5925,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v40</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v41</span></button></div>
     </div>
   </div>
 
@@ -10431,11 +10438,17 @@ function stGateHint(area) {
 // key, label, icon (id de ingrediente para el dibujo), covers (ingredientes que cubre), use, time (s), batch, max, start
 const ST_PROD = {
   ramen: [
-    { key: 'verdeos',  label: 'Poro y cebolla china',     icon: 17, covers: [17, 18],         use: 'plate', time: 6, batch: 6, max: 12, start: 6 },
-    { key: 'semillas', label: 'Nori y ajonjolí',          icon: 20, covers: [19, 20],         use: 'plate', time: 5, batch: 8, max: 16, start: 8 },
-    { key: 'bambu',    label: 'Bambú y holantao',         icon: 22, covers: [22, 23],         use: 'plate', time: 7, batch: 6, max: 12, start: 6 },
-    { key: 'col',      label: 'Col, moyashi y zanahoria', icon: 25, covers: [24, 25, 30],     use: 'plate', time: 8, batch: 6, max: 12, start: 6 },
-    { key: 'hongos',   label: 'Hongos y espárrago',       icon: 28, covers: [27, 28, 29, 21], use: 'plate', time: 9, batch: 4, max: 8,  start: 4 }
+    { key: 'poro',     label: 'Poro',           icon: 17, covers: [17], use: 'plate', time: 5,  batch: 6, max: 12, start: 6 },
+    { key: 'cebolla',  label: 'Cebolla china',  icon: 18, covers: [18], use: 'plate', time: 5,  batch: 6, max: 12, start: 6 },
+    { key: 'nori',     label: 'Nori',           icon: 20, covers: [20], use: 'plate', time: 4,  batch: 8, max: 16, start: 8 },
+    { key: 'bambu',    label: 'Bambú',          icon: 22, covers: [22], use: 'plate', time: 6,  batch: 6, max: 12, start: 6 },
+    { key: 'holantao', label: 'Holantao',       icon: 23, covers: [23], use: 'plate', time: 6,  batch: 6, max: 12, start: 6 },
+    { key: 'col',      label: 'Col cocida',     icon: 24, covers: [24], use: 'plate', time: 9,  batch: 6, max: 12, start: 6 },
+    { key: 'moyashi',  label: 'Moyashi',        icon: 25, covers: [25], use: 'plate', time: 6,  batch: 6, max: 12, start: 6 },
+    { key: 'shitake',  label: 'Shitake',        icon: 28, covers: [28], use: 'plate', time: 8,  batch: 4, max: 8,  start: 4 },
+    { key: 'esparrago', label: 'Espárrago',     icon: 29, covers: [29], use: 'plate', time: 8,  batch: 4, max: 8,  start: 4 },
+    { key: 'wanji',    label: 'Alga wanji',     icon: 21, covers: [21], use: 'plate', time: 5,  batch: 4, max: 8,  start: 4 },
+    { key: 'huevo',    label: 'Huevo marinado', icon: 15, covers: [15], use: 'cook',  time: 12, batch: 6, max: 12, start: 6 }
   ],
   salteados: [
     { key: 'arroz',    label: 'Arroz cocido',    icon: 37, covers: [37],                       use: 'cook',  time: 10, batch: 6, max: 12, start: 6 },
@@ -10752,7 +10765,7 @@ function stRenderProd(area, panel) {
   const cur = pr ? ST_PROD[area].find(x => x.key === pr.key) : null;
   panel.innerHTML = `<div class="fp-wrap">
     <div class="fp-head"><span>🥬 Producción · ${AREA_LABELS[area]}</span><small>${cur ? `Preparando ${cur.label}…` : 'Una tarea a la vez; sigue corriendo mientras cocinas.'}</small>${stBackBtn(area)}</div>
-    <div class="fp-cards">${cards}</div></div>`;
+    <div class="fp-cards ${ST_PROD[area].length > 6 ? 'many' : ''}">${cards}</div></div>`;
 }
 
 function stPassIcon(item) {
@@ -15048,6 +15061,9 @@ function toggleIngredientInBowl(ingId) {
     return;
   }
 
+  // Producción: el huevo marinado se gasta al ponerlo en el cuenco
+  if (!stCookTake('ramen', ingId)) return;
+
   // Descontar del stock preparado si corresponde
   if (ingId === 1) kitchenState.stocks.noodles--;
   if (ingId === 2) {
@@ -15098,6 +15114,7 @@ function removeIngredientFromBowl(bowlIndex, ingId) {
   }
   if (ingId === 3) kitchenState.stocks.tonkotsu++;
   if (ingId === 11) kitchenState.stocks.chasu++;
+  stCookRefund('ramen', ingId);
   updateKitchenStationsUI();
 
   if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP') {
