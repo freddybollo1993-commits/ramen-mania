@@ -830,6 +830,10 @@
   .fp-bar i { display: block; height: 100%; background: linear-gradient(90deg, #ef6c00, #66bb6a); transition: width 0.4s linear; }
   .fp-prep i { background: #26a69a; }
   .fp-btn { cursor: pointer; background: linear-gradient(180deg, #4e261c 0%, #2f1712 100%); border: 1.5px solid #8d4a37; color: #ffd699; border-radius: 8px; font-family: 'Fredoka One', cursive, sans-serif; font-size: 10.5px; padding: 4px 6px; margin-top: 2px; }
+  .fp-btn-row { display: flex; gap: 2px; width: 100%; }
+  .fp-btn-row .fp-btn { flex: 1; min-width: 0; padding-left: 1px; padding-right: 1px; white-space: nowrap; }
+  .fp-cut { color: #ffd699; font-weight: 900; }
+  .fp-card.two-step { border-color: #7a5a2a; }
   .fp-btn:hover:not(:disabled) { color: #fff; border-color: #ffb300; }
   .fp-btn:disabled { opacity: 0.45; cursor: default; }
   .fp-serve { background: linear-gradient(180deg, #43a047 0%, #2e7d32 100%); border-color: #a5d6a7; color: #fff; }
@@ -6000,7 +6004,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v49</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v50</span></button></div>
     </div>
   </div>
 
@@ -10544,19 +10548,21 @@ function stGateHint(area) {
 
 // ---- Insumos de Producción por área ----
 // key, label, icon (id de ingrediente para el dibujo), covers (ingredientes que cubre), use, time (s), batch, max, start
+// how: cómo se procesa en el taller; then: 'blanch' = proceso en dos pasos (primero se CORTA en la tabla -> queda "cortado"
+// en st.cut, y luego se BLANQUEA en una hornilla gastando lo cortado -> pasa a las existencias de emplatar). time = blanqueado.
 const ST_PROD = {
   ramen: [
     { key: 'poro',     label: 'Poro',           icon: 17, covers: [17], use: 'plate', how: 'cut',    time: 4,  batch: 6, max: 12, start: 6 },
     { key: 'cebolla',  label: 'Cebolla china',  icon: 18, covers: [18], use: 'plate', how: 'cut',    time: 4,  batch: 6, max: 12, start: 6 },
     { key: 'nori',     label: 'Nori',           icon: 20, covers: [20], use: 'plate', how: 'cut',    time: 3,  batch: 8, max: 16, start: 8 },
     { key: 'bambu',    label: 'Bambú',          icon: 22, covers: [22], use: 'plate', how: 'cook',   time: 10, batch: 6, max: 12, start: 6 },
-    { key: 'holantao', label: 'Holantao',       icon: 23, covers: [23], use: 'plate', how: 'blanch', time: 5,  batch: 6, max: 12, start: 6 },
-    { key: 'col',      label: 'Col cocida',     icon: 24, covers: [24], use: 'plate', how: 'cook',   time: 9,  batch: 6, max: 12, start: 6 },
+    { key: 'holantao', label: 'Holantao',       icon: 23, covers: [23], use: 'plate', how: 'cut', then: 'blanch', time: 5,  batch: 6, max: 12, start: 6 },
+    { key: 'col',      label: 'Col cocida',     icon: 24, covers: [24], use: 'plate', how: 'cut', then: 'blanch', time: 7,  batch: 6, max: 12, start: 6 },
     { key: 'moyashi',  label: 'Moyashi',        icon: 25, covers: [25], use: 'plate', how: 'blanch', time: 4,  batch: 6, max: 12, start: 6 },
     { key: 'zanahoria', label: 'Zanahoria',     icon: 30, covers: [30], use: 'plate', how: 'cut',    time: 5,  batch: 6, max: 12, start: 6 },
     { key: 'champi',   label: 'Champiñones',    icon: 27, covers: [27], use: 'plate', how: 'cut',    time: 4,  batch: 4, max: 8,  start: 4 },
     { key: 'shitake',  label: 'Shitake',        icon: 28, covers: [28], use: 'plate', how: 'cut',    time: 5,  batch: 4, max: 8,  start: 4 },
-    { key: 'esparrago', label: 'Espárrago',     icon: 29, covers: [29], use: 'plate', how: 'blanch', time: 6,  batch: 4, max: 8,  start: 4 },
+    { key: 'esparrago', label: 'Espárrago',     icon: 29, covers: [29], use: 'plate', how: 'cut', then: 'blanch', time: 6,  batch: 4, max: 8,  start: 4 },
     { key: 'wanji',    label: 'Alga wanji',     icon: 21, covers: [21], use: 'plate', how: 'cut',    time: 4,  batch: 4, max: 8,  start: 4 },
     { key: 'huevo',    label: 'Huevo marinado', short: 'Huevo', icon: 15, covers: [15], use: 'cook',  how: 'cook',   time: 12, batch: 6, max: 12, start: 6 }
   ],
@@ -10662,8 +10668,8 @@ function stView(area, list) {
 function stInit() {
   gameState.st = {};
   STAGE_AREAS.forEach(a => {
-    const st = { stock: {}, prep: null, board: null, knifeArmed: false, stove: [null, null], pass: [], plate: { sel: null, items: [] } };
-    ST_PROD[a].forEach(p => { st.stock[p.key] = p.start; });
+    const st = { stock: {}, cut: {}, prep: null, board: null, knifeArmed: false, stove: [null, null], pass: [], plate: { sel: null, items: [] } };
+    ST_PROD[a].forEach(p => { st.stock[p.key] = p.start; if (p.then) st.cut[p.key] = 0; });
     gameState.st[a] = st;
   });
 }
@@ -10695,11 +10701,11 @@ function stCookRefund(area, ingId) {
   if (p) { const st = stGet(area); st.stock[p.key] = Math.min(p.max, st.stock[p.key] + 1); }
 }
 
-function stProdStart(area, key) {
+function stProdStart(area, key, mode) {
   if (!stagedOn(area) || gameState.isPaused || gameState.isGameOver) return;
   const st = stGet(area), p = ST_PROD[area].find(x => x.key === key);
   if (!p) return;
-  if (p.how) { stShopStart(area, p); return; }   // taller: tabla + cuchillo / hornillas
+  if (p.how) { stShopStart(area, p, mode); return; }   // taller: tabla + cuchillo / hornillas
   if (st.prep) { showStationToast('🥬 Ya estás preparando algo: espera a que termine.'); playSound('error'); return; }
   if (st.stock[key] >= p.max) { showStationToast(`${p.label}: el depósito ya está lleno.`); playSound('error'); return; }
   const total = stProdTime(p);
@@ -10877,20 +10883,28 @@ const ST_SHOP_LATE_SECONDS = 15;   // tiempo que aguanta un producto listo en la
 function stIsShop(area) { return ST_PROD[area].some(p => p.how); }
 const stProdOf = (area, key) => ST_PROD[area].find(x => x.key === key);
 
-function stShopStart(area, p) {
+function stBin(st, p) { return p.then ? st.cut : st.stock; }   // dónde cae lo que sale de la tabla
+
+function stShopStart(area, p, mode) {
   const st = stGet(area);
-  if (st.stock[p.key] >= p.max) { showStationToast(`${p.label}: el depósito ya está lleno.`); playSound('error'); return; }
-  if (st.board && st.board.key === p.key && p.how === 'cut') { showStationToast(st.knifeArmed ? '🔪 Ya está en la tabla: toca la pantalla para cortar.' : '🔪 Ya está en la tabla: arrastra el cuchillo sobre ella.'); return; }
-  const total = stProdTime(p);
-  if (p.how === 'cut') {
+  const how = p.then ? (mode || 'cut') : p.how;
+  if (how === 'cut') {
+    if (stBin(st, p)[p.key] >= p.max) { showStationToast(p.then ? `🔪 ${p.label}: ya hay suficiente cortado, blanquéalo.` : `${p.label}: el depósito ya está lleno.`); playSound('error'); return; }
+    if (st.board && st.board.key === p.key) { showStationToast(st.knifeArmed ? '🔪 Ya está en la tabla: toca la pantalla para cortar.' : '🔪 Ya está en la tabla: arrastra el cuchillo sobre ella.'); return; }
     st.board = { key: p.key, taps: 0 };            // la tabla admite un producto a la vez; elegir otro lo reemplaza
     showStationToast(st.knifeArmed ? `🔪 ${p.label} en la tabla: toca la pantalla para cortar.` : `🔪 ${p.label} en la tabla: arrastra el cuchillo sobre ella.`);
     try { playSound('add'); } catch (e) {}
   } else {
+    if (st.stock[p.key] >= p.max) { showStationToast(`${p.label}: el depósito ya está lleno.`); playSound('error'); return; }
+    if (p.then && !(st.cut[p.key] >= 1)) { showStationToast(`🔪 Primero corta ${p.label.toLowerCase()}: no hay nada cortado para blanquear.`); playSound('error'); return; }
     const slot = st.stove.findIndex(x => !x);
     if (slot === -1) { showStationToast('♨️ Las dos hornillas están ocupadas: retira algo cuando esté listo.'); playSound('error'); return; }
-    st.stove[slot] = { key: p.key, how: p.how, left: total, total, state: 'cooking', late: 0 };
+    const n = p.then ? Math.min(p.batch, st.cut[p.key], p.max - st.stock[p.key]) : p.batch;
+    if (p.then) st.cut[p.key] -= n;                // lo cortado entra a la olla
+    const total = stProdTime(p);
+    st.stove[slot] = { key: p.key, how, n, left: total, total, state: 'cooking', late: 0 };
     try { playSound('splash'); } catch (e) {}
+    if (p.then) showStationToast(`💧 ${n} ${p.label.toLowerCase()} cortado a blanquear en la hornilla ${slot + 1}.`);
   }
   stRenderIfOpen(area);
   updateAreaTabAlerts();
@@ -10921,7 +10935,7 @@ function stShopCollect(area, i) {
   if (!sl) return;
   const p = stProdOf(area, sl.key);
   if (sl.state === 'cooking') { showStationToast(`⏳ ${p.label} sigue en la hornilla (${sl.left} s).`); return; }
-  const gain = sl.state === 'over' ? Math.max(1, Math.ceil(p.batch / 2)) : p.batch;
+  const base = sl.n || p.batch, gain = sl.state === 'over' ? Math.max(1, Math.ceil(base / 2)) : base;
   const before = st.stock[p.key];
   st.stock[p.key] = Math.min(p.max, before + gain);
   st.stove[i] = null;
@@ -10958,10 +10972,11 @@ const shopArmedActive = () => stagedOn('ramen') && gameState.activeArea === 'ram
 function shopHint(msg) { if (performance.now() - shopHintAt > 2500) { shopHintAt = performance.now(); showStationToast(msg); } }
 
 function shopUpdateCount(p) {
-  const st = stGet('ramen'), n = st.stock[p.key];
+  const st = stGet('ramen'), n = st.stock[p.key], c = stBin(st, p)[p.key];
   document.querySelectorAll(`[data-stock-of="${p.key}"]`).forEach(el => { el.textContent = `${n}/${p.max}`; });
+  document.querySelectorAll(`[data-cut-of="${p.key}"]`).forEach(el => { el.textContent = `🔪${st.cut[p.key]}`; });
   const lab = document.getElementById('shop-board-label');
-  if (lab && st.board && st.board.key === p.key) lab.textContent = `${p.label} · ${n}/${p.max}`;
+  if (lab && st.board && st.board.key === p.key) lab.textContent = p.then ? `${p.label} cortado · ${c}/${p.max}` : `${p.label} · ${n}/${p.max}`;
 }
 function shopPips() {
   const st = stGet('ramen'), pips = document.querySelectorAll('#shop-board .shop-pips i');
@@ -10990,14 +11005,15 @@ function shopChop() {
   shopChopFx(p);
   st.board.taps++;
   if (st.board.taps % SHOP_TAPS_PER_PORTION === 0) {
-    st.stock[p.key] = Math.min(p.max, st.stock[p.key] + 1);
+    const bin = stBin(st, p);
+    bin[p.key] = Math.min(p.max, bin[p.key] + 1);
     try { playSound('stock_add'); } catch (e) {}
     const board = document.getElementById('shop-board');
     if (board) { const plus = document.createElement('b'); plus.className = 'cut-plus'; plus.textContent = '+1'; board.appendChild(plus); setTimeout(() => plus.remove(), 850); }
     shopUpdateCount(p);
-    if (st.stock[p.key] >= p.max) {
+    if (bin[p.key] >= p.max) {
       st.board = null; st.knifeArmed = false;
-      showStationToast(`🥬 ${p.label}: depósito lleno.`);
+      showStationToast(p.then ? `🔪 ${p.label}: todo cortado, ahora blanquéalo en la cocina.` : `🥬 ${p.label}: depósito lleno.`);
       stRenderIfOpen('ramen'); renderStageTabs();
       return;
     }
@@ -11076,6 +11092,18 @@ function stRenderShop(area, panel) {
     const n = st.stock[p.key], how = ST_HOW[p.how], low = n <= Math.ceil(p.max * 0.25);
     const onBoard = st.board && st.board.key === p.key, onStove = st.stove.some(sl => sl && sl.key === p.key);
     const blocked = n >= p.max || (p.how !== 'cut' && freeSlot === -1);
+    if (p.then) {                                   // dos pasos: 🔪 cortar -> queda "cortado" -> 💧 blanquear
+      const c = st.cut[p.key], cutOff = c >= p.max, blOff = c < 1 || n >= p.max || freeSlot === -1;
+      return `<div class="fp-card two-step ${low ? 'is-low' : ''} ${(onBoard || onStove) ? 'is-busy' : ''}">
+      <div class="fp-card-ico">${stIngIconRaw(p.icon)}</div>
+      <div class="fp-card-name">${p.short || p.label}</div>
+      <div class="fp-card-n"><span data-stock-of="${p.key}">${n}/${p.max}</span> <span class="fp-cut" data-cut-of="${p.key}" title="Cortado, listo para blanquear">🔪${c}</span></div>
+      <div class="fp-btn-row">
+        <button class="fp-btn" ${cutOff ? 'disabled' : ''} title="Cortar ${p.label}" onclick="stProdStart('${area}','${p.key}','cut')">🔪 Cortar</button>
+        <button class="fp-btn" ${blOff ? 'disabled' : ''} title="Blanquear ${p.label} cortado (${stProdTime(p)} s)" onclick="stProdStart('${area}','${p.key}','blanch')">💧 Blanq.</button>
+      </div>
+    </div>`;
+    }
     return `<div class="fp-card ${low ? 'is-low' : ''} ${(onBoard || onStove) ? 'is-busy' : ''}">
       <div class="fp-card-ico">${stIngIconRaw(p.icon)}</div>
       <div class="fp-card-name">${p.short || p.label}</div>
@@ -11087,7 +11115,7 @@ function stRenderShop(area, panel) {
   const board = `<div class="shop-board ${b ? 'has-item' : ''}" id="shop-board">
       ${b ? `<span class="shop-board-ico">${stIngIconRaw(bp.icon)}</span>` : '<span class="shop-board-empty">Tabla libre</span>'}
       <div class="shop-pips" style="display:${b ? 'flex' : 'none'}">${[0, 1, 2].map(i => `<i class="${i < on ? 'on' : ''}"></i>`).join('')}</div>
-      <div class="shop-label" id="shop-board-label">${b ? `${bp.label} · ${st.stock[bp.key]}/${bp.max}` : ''}</div>
+      <div class="shop-label" id="shop-board-label">${b ? (bp.then ? `${bp.label} cortado · ${st.cut[bp.key]}/${bp.max}` : `${bp.label} · ${st.stock[bp.key]}/${bp.max}`) : ''}</div>
     </div>`;
   const pots = st.stove.map((sl, i) => {
     const p = sl ? stProdOf(area, sl.key) : null;
@@ -11098,7 +11126,7 @@ function stRenderShop(area, panel) {
       ${sl && sl.state === 'cooking' ? `<div class="shop-bar pot-bar"><i data-slot-bar="${i}" style="width:${Math.round(100 * (1 - sl.left / sl.total))}%"></i></div>` : ''}
     </div>`;
   }).join('');
-  const hint = !st.knifeArmed ? 'Cortar: toca la ficha y arrastra el cuchillo a la tabla.' : (st.board ? 'Toca la pantalla para cortar: 3 cortes = 1 porción.' : 'Cuchillo listo: toca la ficha de un producto para cortar.');
+  const hint = !st.knifeArmed ? 'Cortar: toca 🔪 y arrastra el cuchillo a la tabla. Holantao, espárrago y col: corta y luego 💧 blanquea.' : (st.board ? 'Toca la pantalla para cortar: 3 cortes = 1 porción.' : 'Cuchillo listo: toca la ficha de un producto para cortar.');
   panel.innerHTML = `<div class="fp-wrap fp-shop">
     <div class="fp-head"><span>🥬 Producción · ${AREA_LABELS[area]}</span><small>${hint}</small>${stBackBtn(area)}</div>
     <div class="fp-cards many shop-cards" style="--cols:${Math.max(6, Math.ceil(list.length / 2))}">${cards}</div>
