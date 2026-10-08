@@ -70,7 +70,8 @@
   }
 
   html, body {
-    touch-action: manipulation;
+    touch-action: pan-y;               /* el deslizamiento horizontal es del juego (cambio de etapa), no del navegador */
+    overscroll-behavior: none;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     user-select: none;
@@ -78,7 +79,7 @@
   }
 
   button, .btn, .ing-card-btn, .customer-card, .bowl-card, .pantry-tab, .order-pill-summary, .btn-play-hero, .start-mode-card, .avatar-opt-btn, .btn-start-sec {
-    touch-action: manipulation;
+    touch-action: pan-y;
     -webkit-tap-highlight-color: transparent;
     cursor: pointer;
   }
@@ -835,6 +836,7 @@
     -webkit-overflow-scrolling: touch;
   }
   .pantry-mini-filter::-webkit-scrollbar { display: none; }
+  .pantry-mini-filter, .pantry-mini-filter .mini-cat-btn { touch-action: pan-x pan-y; }   /* las categorías sí se deslizan */
   .pantry-mini-filter .mini-cat-btn { flex-shrink: 0; }
 
   .mini-cat-btn {
@@ -5927,7 +5929,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v43</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v44</span></button></div>
     </div>
   </div>
 
@@ -9260,7 +9262,7 @@ function setKitchenStage(stage) {
 // al tocar o arrastrar cosas en la cocina): desde el borde derecho hacia la izquierda va a la etapa de la
 // izquierda; desde el borde izquierdo hacia la derecha, a la de la derecha.
 const STAGE_ORDER = ['prod', 'cook', 'plate'];
-const SWIPE_EDGE_PX = 52;        // zona del borde donde puede empezar el gesto
+const SWIPE_EDGE_PX = 72;        // zona del borde donde puede empezar el gesto
 const SWIPE_MIN_PX = 80;         // recorrido horizontal mínimo
 const SWIPE_MAX_MS = 700;        // el gesto debe ser ágil
 const SWIPE_NO_START = '.fry-knife-tool, .maki-tool, .fry-board-item, .wok-stir-btn, input, textarea, select';
@@ -9284,8 +9286,16 @@ function stageSwipeBusyWithDrag() {
     || (typeof makiToolDrag !== 'undefined' && makiToolDrag && makiToolDrag.active));
 }
 
+let lastSwipeLockToast = 0;
 function swipeToStage(dir) {
-  if (!stagedOn(gameState.activeArea)) return false;
+  if (!stagedOn(gameState.activeArea)) {
+    // el gesto funciona, pero esta área aún no tiene etapas: se avisa cuándo se abren
+    if (performance.now() - lastSwipeLockToast > 3000) {
+      lastSwipeLockToast = performance.now();
+      showStationToast(`🔒 Producción y Emplatar de ${AREA_LABELS[gameState.activeArea]} se desbloquean en ${stGateHint(gameState.activeArea)}.`);
+    }
+    return false;
+  }
   const cur = STAGE_ORDER.indexOf(getStage(gameState.activeArea));
   const next = Math.max(0, Math.min(STAGE_ORDER.length - 1, cur + dir));
   if (next === cur) return false;
@@ -9298,7 +9308,7 @@ function swipeToStage(dir) {
 
 document.addEventListener('pointerdown', (e) => {
   if (e.pointerType === 'mouse') return;                         // solo dedo / lápiz
-  const w = window.innerWidth, edge = Math.min(SWIPE_EDGE_PX, w * 0.09);
+  const w = window.innerWidth, edge = Math.min(SWIPE_EDGE_PX, w * 0.12);
   if (e.clientX > edge && e.clientX < w - edge) { stageSwipe = null; return; }
   if (!stageSwipeAllowed(e.target)) { stageSwipe = null; return; }
   stageSwipe = { id: e.pointerId, x: e.clientX, y: e.clientY, t: performance.now(), side: e.clientX <= edge ? 'left' : 'right', done: false };
