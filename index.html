@@ -841,6 +841,30 @@
   }
   .fp-shop .shop-bigboard .shop-knife.chop { animation: knifeChop 0.18s ease-out; }
   .shop-bigboard .cut-fx .k { height: 70%; top: -30%; left: 38%; }
+  /* moyashi: montón abundante con impurezas que se limpian con un par de manos */
+  .cb-item.cb-heap { height: 64%; aspect-ratio: 1.45; left: 46%; top: 62%; cursor: pointer; touch-action: manipulation; }
+  .cb-heap .sp { position: absolute; aspect-ratio: 1; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3)); transition: transform 0.28s ease-in, opacity 0.28s ease-in; }
+  .cb-heap .sp .ing-ico, .cb-heap .sp img { width: 100%; height: 100%; object-fit: contain; }
+  .cb-heap .imp { position: absolute; width: 12px; height: 6px; border-radius: 50%; background: #5d4037; transition: opacity 0.2s; pointer-events: none; }
+  .cb-heap .imp.k1 { background: #2e2a25; width: 8px; height: 8px; } .cb-heap .imp.k2 { background: #7d8b3a; width: 14px; height: 5px; }
+  .cb-heap.s1 .imp.l0 { opacity: 0; } .cb-heap.s2 .imp.l0, .cb-heap.s2 .imp.l1 { opacity: 0; } .cb-heap.s3 .imp { opacity: 0; }
+  .cb-heap.s3 .sp { transform: translateY(60%) scale(0.35); opacity: 0; }
+  .cb-heap .cb-tip { position: absolute; left: 50%; top: -6%; font-size: 20px; font-style: normal; animation: cbTip 0.8s ease-in-out infinite alternate; pointer-events: none; opacity: 0; }
+  .cb-heap.s0 .cb-tip { opacity: 0.95; }
+  @keyframes cbTip { from { transform: translateY(0); } to { transform: translateY(-5px); } }
+  .cb-washfx { position: absolute; inset: 0; pointer-events: none; z-index: 6; overflow: hidden; }
+  .cb-hand { position: absolute; top: 34%; width: 26%; opacity: 0; }
+  .cb-hand .hand-svg { width: 100%; display: block; filter: drop-shadow(0 3px 3px rgba(0,0,0,0.4)); }
+  .cb-hand.l { left: 8%; animation: handL 0.9s ease-in-out forwards; }
+  .cb-hand.r { right: 8%; animation: handR 0.9s ease-in-out forwards; }
+  .cb-hand.r .hand-svg { transform: scaleX(-1); }
+  @keyframes handL { 0% { transform: translateX(-130%) rotate(-8deg); opacity: 0; } 22% { transform: translateX(0) rotate(0); opacity: 1; } 38% { transform: translate(14%, -6%) rotate(5deg); } 54% { transform: translate(2%, 5%) rotate(-5deg); } 70% { transform: translate(14%, -4%) rotate(4deg); opacity: 1; } 100% { transform: translateX(-130%) rotate(-6deg); opacity: 0; } }
+  @keyframes handR { 0% { transform: translateX(130%) rotate(8deg); opacity: 0; } 22% { transform: translateX(0) rotate(0); opacity: 1; } 38% { transform: translate(-14%, 5%) rotate(-5deg); } 54% { transform: translate(-2%, -6%) rotate(5deg); } 70% { transform: translate(-14%, 4%) rotate(-4deg); opacity: 1; } 100% { transform: translateX(130%) rotate(6deg); opacity: 0; } }
+  .cb-trash { position: absolute; left: 50%; top: 52%; width: 9px; height: 5px; border-radius: 50%; background: #5d4037; opacity: 0; animation: cbTrash 0.55s ease-out forwards; }
+  .cb-trash.k1 { background: #2e2a25; width: 6px; height: 6px; } .cb-trash.k2 { background: #7d8b3a; width: 11px; height: 4px; }
+  @keyframes cbTrash { 0% { transform: translate(0, 0) rotate(0); opacity: 1; } 100% { transform: translate(var(--dx), var(--dy)) rotate(var(--rot)); opacity: 0; } }
+  .cb-drip { position: absolute; top: 30%; font-size: 14px; opacity: 0; animation: cbDrip 0.6s ease-in forwards; }
+  @keyframes cbDrip { 0% { transform: translateY(0); opacity: 0.9; } 100% { transform: translateY(46px); opacity: 0; } }
   .shop-side { width: calc(var(--sh) * 2.9); flex-shrink: 0; display: flex; flex-direction: column; justify-content: flex-end; gap: 4px; }
   .shop-side .shop-stove { margin-right: 0; margin-top: calc(var(--sh) * 0.12); }
   .bl-list { background: rgba(28, 14, 10, 0.6); border: 1.5px solid #5a2e22; border-radius: 8px; padding: 2px 4px; display: flex; flex-direction: column; gap: 1px; }
@@ -6054,7 +6078,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v51</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v52</span></button></div>
     </div>
   </div>
 
@@ -10598,7 +10622,7 @@ function stGateHint(area) {
 
 // ---- Insumos de Producción por área ----
 // key, label, icon (id de ingrediente para el dibujo), covers (ingredientes que cubre), use, time (s), batch, max, start
-// how: cómo se procesa en el taller; then: 'blanch' = proceso en dos pasos (primero se CORTA en la tabla -> queda "cortado"
+// how: cómo se procesa en el taller ('clean' = se limpia en la tabla tocándolo, sin cuchillo); then: 'blanch' = proceso en dos pasos (primero se CORTA en la tabla -> queda "cortado"
 // en st.cut, y luego se BLANQUEA en una hornilla gastando lo cortado -> pasa a las existencias de emplatar). time = blanqueado.
 const ST_PROD = {
   ramen: [
@@ -10608,7 +10632,7 @@ const ST_PROD = {
     { key: 'bambu',    label: 'Bambú',          icon: 22, covers: [22], use: 'plate', how: 'cook',   time: 10, batch: 6, max: 12, start: 6 },
     { key: 'holantao', label: 'Holantao',       icon: 23, covers: [23], use: 'plate', how: 'cut', then: 'blanch', time: 5,  batch: 6, max: 12, start: 6 },
     { key: 'col',      label: 'Col cocida',     icon: 24, covers: [24], use: 'plate', how: 'cut', then: 'blanch', time: 7,  batch: 6, max: 12, start: 6 },
-    { key: 'moyashi',  label: 'Moyashi',        icon: 25, covers: [25], use: 'plate', how: 'blanch', time: 4,  batch: 6, max: 12, start: 6 },
+    { key: 'moyashi',  label: 'Moyashi',        icon: 25, covers: [25], use: 'plate', how: 'clean', then: 'blanch', time: 4,  batch: 6, max: 12, start: 6 },
     { key: 'zanahoria', label: 'Zanahoria',     icon: 30, covers: [30], use: 'plate', how: 'cut',    time: 5,  batch: 6, max: 12, start: 6 },
     { key: 'champi',   label: 'Champiñones',    icon: 27, covers: [27], use: 'plate', how: 'cut',    time: 4,  batch: 4, max: 8,  start: 4 },
     { key: 'shitake',  label: 'Shitake',        icon: 28, covers: [28], use: 'plate', how: 'cut',    time: 5,  batch: 4, max: 8,  start: 4 },
@@ -10925,6 +10949,7 @@ function stBackBtn(area) {
 // retirarlo; si se olvida demasiado se pasa y solo se salva la mitad).
 const ST_HOW = {
   cut:    { icon: '🔪', verb: 'Cortar' },
+  clean:  { icon: '🧺', verb: 'Limpiar' },
   cook:   { icon: '♨️', verb: 'Cocer' },
   blanch: { icon: '💧', verb: 'Blanquear' }
 };
@@ -10933,20 +10958,22 @@ const ST_SHOP_LATE_SECONDS = 15;   // tiempo que aguanta un producto listo en la
 function stIsShop(area) { return ST_PROD[area].some(p => p.how); }
 const stProdOf = (area, key) => ST_PROD[area].find(x => x.key === key);
 
-function stBin(st, p) { return p.then ? st.cut : st.stock; }   // dónde cae lo que sale de la tabla
+function stBin(st, p) { return p.then ? st.cut : st.stock; }
+const stBinWord = p => (p.how === 'clean' ? 'limpio' : 'cortado');
+const stBinTag = p => (p.how === 'clean' ? '🧺' : '🔪');   // dónde cae lo que sale de la tabla
 
 function stShopStart(area, p, mode) {
   const st = stGet(area);
-  const how = p.then ? (mode || 'cut') : p.how;
-  if (how === 'cut') {
-    if (stBin(st, p)[p.key] >= p.max) { showStationToast(p.then ? `🔪 ${p.label}: ya hay suficiente cortado, blanquéalo.` : `${p.label}: el depósito ya está lleno.`); playSound('error'); return; }
-    if (st.board && st.board.key === p.key) { showStationToast(st.knifeArmed ? '🔪 Ya está en la tabla: toca la pantalla para cortar.' : '🔪 Ya está en la tabla: arrastra el cuchillo sobre ella.'); return; }
-    st.board = { key: p.key, taps: 0 };            // la tabla admite un producto a la vez; elegir otro lo reemplaza
-    showStationToast(st.knifeArmed ? `🔪 ${p.label} en la tabla: toca la pantalla para cortar.` : `🔪 ${p.label} en la tabla: arrastra el cuchillo sobre ella.`);
+  const how = p.then ? (mode || p.how) : p.how;
+  if (how === 'cut' || how === 'clean') {
+    if (stBin(st, p)[p.key] >= p.max) { showStationToast(p.then ? `${ST_HOW[how].icon} ${p.label}: ya hay suficiente ${stBinWord(p)}, blanquéalo.` : `${p.label}: el depósito ya está lleno.`); playSound('error'); return; }
+    if (st.board && st.board.key === p.key) { showStationToast(how === 'clean' ? '🧺 Ya está en la tabla: toca el moyashi para limpiarlo.' : (st.knifeArmed ? '🔪 Ya está en la tabla: toca la pantalla para cortar.' : '🔪 Ya está en la tabla: arrastra el cuchillo sobre ella.')); return; }
+    st.board = { key: p.key, taps: 0, mode: how };   // la tabla admite un producto a la vez; elegir otro lo reemplaza
+    showStationToast(how === 'clean' ? `🧺 ${p.label} en la tabla: tócalo para limpiarlo.` : (st.knifeArmed ? `🔪 ${p.label} en la tabla: toca la pantalla para cortar.` : `🔪 ${p.label} en la tabla: arrastra el cuchillo sobre ella.`));
     try { playSound('add'); } catch (e) {}
   } else {
     if (st.stock[p.key] >= p.max) { showStationToast(`${p.label}: el depósito ya está lleno.`); playSound('error'); return; }
-    if (p.then && !(st.cut[p.key] >= 1)) { showStationToast(`🔪 Primero corta ${p.label.toLowerCase()}: no hay nada cortado para blanquear.`); playSound('error'); return; }
+    if (p.then && !(st.cut[p.key] >= 1)) { showStationToast(`${stBinTag(p)} Primero ${p.how === 'clean' ? 'limpia' : 'corta'} ${p.label.toLowerCase()}: no hay nada ${stBinWord(p)} para blanquear.`); playSound('error'); return; }
     const slot = st.stove.findIndex(x => !x);
     if (slot === -1) { showStationToast('♨️ Las dos hornillas están ocupadas: retira algo cuando esté listo.'); playSound('error'); return; }
     const n = p.then ? Math.min(p.batch, st.cut[p.key], p.max - st.stock[p.key]) : p.batch;
@@ -10954,7 +10981,7 @@ function stShopStart(area, p, mode) {
     const total = stProdTime(p);
     st.stove[slot] = { key: p.key, how, n, left: total, total, state: 'cooking', late: 0 };
     try { playSound('splash'); } catch (e) {}
-    if (p.then) showStationToast(`💧 ${n} ${p.label.toLowerCase()} cortado a blanquear en la hornilla ${slot + 1}.`);
+    if (p.then) showStationToast(`💧 ${n} ${p.label.toLowerCase()} ${stBinWord(p)} a blanquear en la hornilla ${slot + 1}.`);
   }
   stRenderIfOpen(area);
   updateAreaTabAlerts();
@@ -11018,17 +11045,17 @@ function cleanupShopKnife() {
   shopKnifeDrag = null;
 }
 const shopArmedActive = () => stagedOn('ramen') && gameState.activeArea === 'ramen' && getStage('ramen') === 'prod'
-  && stGet('ramen').knifeArmed && !gameState.isPaused && !gameState.isGameOver;
+  && stGet('ramen').knifeArmed && !(stGet('ramen').board && stGet('ramen').board.mode === 'clean') && !gameState.isPaused && !gameState.isGameOver;
 function shopHint(msg) { if (performance.now() - shopHintAt > 2500) { shopHintAt = performance.now(); showStationToast(msg); } }
 
 function shopUpdateCount(p) {
   const st = stGet('ramen'), n = st.stock[p.key], c = stBin(st, p)[p.key];
   document.querySelectorAll(`[data-stock-of="${p.key}"]`).forEach(el => { el.textContent = `${n}/${p.max}`; });
-  document.querySelectorAll(`[data-cut-of="${p.key}"]`).forEach(el => { el.textContent = `🔪${st.cut[p.key]}`; });
+  document.querySelectorAll(`[data-cut-of="${p.key}"]`).forEach(el => { el.textContent = `${stBinTag(p)}${st.cut[p.key]}`; });
   document.querySelectorAll(`[data-cut-chip="${p.key}"]`).forEach(el => { el.textContent = c; });
   document.querySelectorAll(`[data-bl-btn="${p.key}"]`).forEach(el => { el.disabled = !(st.cut[p.key] >= 1) || n >= p.max || st.stove.findIndex(x => !x) === -1; });
   const lab = document.getElementById('shop-board-label');
-  if (lab && st.board && st.board.key === p.key) lab.textContent = p.then ? `${p.label} cortado · ${c}/${p.max}` : `${p.label} · ${n}/${p.max}`;
+  if (lab && st.board && st.board.key === p.key) lab.textContent = p.then ? `${p.label} ${stBinWord(p)} · ${c}/${p.max}` : `${p.label} · ${n}/${p.max}`;
 }
 // ---- Tabla expandida: el producto se va dividiendo con cada corte y suelta porciones pequeñas ----
 function shopItemHtml(p, stg) {
@@ -11044,7 +11071,8 @@ function shopPileHtml(p, count) {
 function shopSplitFx(p, stg, done) {
   const item = document.getElementById('shop-cb-item');
   if (!item) return;
-  if (!done) { item.className = 'cb-item s' + stg; return; }
+  const base = item.dataset.base || 'cb-item';
+  if (!done) { item.className = base + ' s' + stg; return; }
   const pile = document.getElementById('shop-pile');
   const a = item.getBoundingClientRect(), b = pile ? pile.getBoundingClientRect() : a;
   for (let k = 0; k < 6; k++) {
@@ -11060,17 +11088,46 @@ function shopSplitFx(p, stg, done) {
     document.body.appendChild(d);
     setTimeout(() => d.remove(), 560);
   }
-  item.className = 'cb-item s3';
+  item.className = base + ' s3';
   setTimeout(() => {
-    const it = document.getElementById('shop-cb-item');
-    if (it) { it.className = 'cb-item s0'; void it.offsetWidth; it.className = 'cb-item s0 pop'; }
-    const pl = document.getElementById('shop-pile'), st = stGet('ramen');
+    const it = document.getElementById('shop-cb-item'), st = stGet('ramen');
+    const cur = st.board && st.board.key === p.key ? st.board.taps % SHOP_TAPS_PER_PORTION : 0;
+    if (it) { it.className = base + ' s' + cur; void it.offsetWidth; it.className = base + ' s' + cur + ' pop'; }
+    const pl = document.getElementById('shop-pile');
     if (pl && st.board && st.board.key === p.key) pl.innerHTML = shopPileHtml(p, stBin(st, p)[p.key]);
   }, 300);
 }
+
+// ---- Moyashi: montón abundante con impurezas; cada toque lo limpian dos manos ----
+const SHOP_HEAP = [[6, 38, -20, 0.42], [24, 24, 15, 0.46], [42, 34, -8, 0.46], [60, 22, 25, 0.42], [12, 56, 10, 0.46], [32, 50, -25, 0.48], [52, 54, 5, 0.46], [70, 44, -15, 0.42], [22, 70, 22, 0.4], [44, 72, -10, 0.42], [62, 68, 18, 0.4], [78, 62, -5, 0.36], [36, 12, 8, 0.38], [56, 8, -12, 0.36]];
+const SHOP_IMPS = [[16, 30, 0], [38, 20, 1], [56, 40, 0], [72, 26, 2], [10, 62, 1], [34, 60, 0], [58, 62, 2], [76, 52, 0], [26, 44, 1], [48, 46, 0], [66, 18, 1], [20, 76, 2], [50, 78, 0], [82, 68, 1], [40, 30, 2], [64, 50, 1]];
+const SHOP_HAND_SVG = `<svg viewBox="0 0 100 56" class="hand-svg"><g stroke="#b5764a" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"><rect x="1" y="8" width="17" height="40" rx="4" fill="#ffffff" stroke="#bdbdbd"/><rect x="16" y="10" width="38" height="36" rx="11" fill="#f6cba3"/><rect x="44" y="10" width="46" height="8" rx="4" fill="#f6cba3"/><rect x="44" y="19" width="50" height="8" rx="4" fill="#f6cba3"/><rect x="44" y="28" width="47" height="8" rx="4" fill="#f6cba3"/><rect x="44" y="37" width="38" height="8" rx="4" fill="#f6cba3"/><rect x="24" y="1" width="30" height="10" rx="5" fill="#f6cba3" transform="rotate(-16 24 6)"/></g></svg>`;
+function shopHeapHtml(p, stg) {
+  const ico = stIngIconRaw(p.icon);
+  const sp = SHOP_HEAP.map(([l, t, r, w]) => `<span class="sp" style="left:${l}%;top:${t}%;width:${w * 100}%;transform:rotate(${r}deg)">${ico}</span>`).join('');
+  const im = SHOP_IMPS.map(([l, t, lv], i) => `<i class="imp k${i % 3} l${lv}" style="left:${l}%;top:${t}%;transform:rotate(${(i * 37) % 90}deg)"></i>`).join('');
+  return `<div class="cb-item cb-heap s${stg}" id="shop-cb-item" data-base="cb-item cb-heap" onpointerdown="shopCleanTap(event)">${sp}${im}<em class="cb-tip">👆</em></div>`;
+}
+function shopCleanTap(e) {
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  if (gameState.isPaused || gameState.isGameOver) return;
+  shopClean();
+}
+function shopCleanFx(p) {
+  const board = document.getElementById('shop-board'), heap = document.getElementById('shop-cb-item');
+  if (!board) return;
+  if (heap && heap.animate) heap.animate([{ transform: 'translate(-50%, -50%) scale(1)' }, { transform: 'translate(-50%, -50%) scale(1.05, 0.95)' }, { transform: 'translate(-50%, -50%) scale(1)' }], { duration: 240, easing: 'ease-out' });
+  const fx = document.createElement('div');
+  fx.className = 'cb-washfx';
+  const bits = [0, 1, 2, 3, 4, 5, 6, 7].map(k => `<i class="cb-trash k${k % 3}" style="--dx:${(k % 2 ? 1 : -1) * (40 + k * 9)}px;--dy:${-14 + (k % 3) * 16}px;--rot:${k * 70}deg;animation-delay:${0.12 + k * 0.05}s"></i>`).join('');
+  const drops = [0, 1, 2, 3, 4].map(k => `<span class="cb-drip" style="left:${24 + k * 12}%;animation-delay:${0.1 + k * 0.07}s">💧</span>`).join('');
+  fx.innerHTML = `<div class="cb-hand l">${SHOP_HAND_SVG}</div><div class="cb-hand r">${SHOP_HAND_SVG}</div>${bits}${drops}`;
+  board.appendChild(fx);
+  setTimeout(() => fx.remove(), 1000);
+}
 function shopStowKnife() {
   const st = stGet('ramen');
-  st.knifeArmed = false;
+  if (st.board && st.board.mode === 'clean') st.board = null; else st.knifeArmed = false;
   try { playSound('click'); } catch (e) {}
   stRenderIfOpen('ramen');
 }
@@ -11096,9 +11153,18 @@ function shopChop() {
   const st = stGet('ramen');
   if (!st.knifeArmed) return;
   if (!st.board) { shopHint('🔪 Primero pon un producto en la tabla (toca su ficha).'); return; }
+  if (st.board.mode === 'clean') { shopHint('🧺 El moyashi se limpia tocándolo.'); return; }
+  shopTapCore(st, 'cut');
+}
+function shopClean() {
+  const st = stGet('ramen');
+  if (!st.board || st.board.mode !== 'clean') return;
+  shopTapCore(st, 'clean');
+}
+function shopTapCore(st, kind) {
   const p = stProdOf('ramen', st.board.key);
-  try { playSound('chop'); } catch (e) {}
-  shopChopFx(p);
+  try { playSound(kind === 'clean' ? 'splash' : 'chop'); } catch (e) {}
+  if (kind === 'clean') shopCleanFx(p); else shopChopFx(p);
   st.board.taps++;
   const stg = st.board.taps % SHOP_TAPS_PER_PORTION;
   shopSplitFx(p, stg, stg === 0);
@@ -11110,8 +11176,9 @@ function shopChop() {
     if (board) { const plus = document.createElement('b'); plus.className = 'cut-plus'; plus.textContent = '+1'; board.appendChild(plus); setTimeout(() => plus.remove(), 850); }
     shopUpdateCount(p);
     if (bin[p.key] >= p.max) {
-      st.board = null; st.knifeArmed = false;
-      showStationToast(p.then ? `🔪 ${p.label}: todo cortado, ahora blanquéalo en la cocina.` : `🥬 ${p.label}: depósito lleno.`);
+      if (kind === 'cut') st.knifeArmed = false;
+      st.board = null;
+      showStationToast(p.then ? `${stBinTag(p)} ${p.label}: todo ${stBinWord(p)}, ahora blanquéalo en la cocina.` : `🥬 ${p.label}: depósito lleno.`);
       setTimeout(() => { stRenderIfOpen('ramen'); renderStageTabs(); }, 450);   // deja ver caer la última porción
       return;
     }
@@ -11195,10 +11262,10 @@ function stRenderShop(area, panel) {
       return `<div class="fp-card two-step ${low ? 'is-low' : ''} ${(onBoard || onStove) ? 'is-busy' : ''}">
       <div class="fp-card-ico">${stIngIconRaw(p.icon)}</div>
       <div class="fp-card-name">${p.short || p.label}</div>
-      <div class="fp-card-n"><span data-stock-of="${p.key}">${n}/${p.max}</span> <span class="fp-cut" data-cut-of="${p.key}" title="Cortado, listo para blanquear">🔪${c}</span></div>
+      <div class="fp-card-n"><span data-stock-of="${p.key}">${n}/${p.max}</span> <span class="fp-cut" data-cut-of="${p.key}" title="${stBinWord(p)[0].toUpperCase() + stBinWord(p).slice(1)}, listo para blanquear">${stBinTag(p)}${c}</span></div>
       <div class="fp-btn-row">
-        <button class="fp-btn" ${cutOff ? 'disabled' : ''} title="Cortar ${p.label}" onclick="stProdStart('${area}','${p.key}','cut')">🔪 Cortar</button>
-        <button class="fp-btn" ${blOff ? 'disabled' : ''} title="Blanquear ${p.label} cortado (${stProdTime(p)} s)" onclick="stProdStart('${area}','${p.key}','blanch')">💧 Blanq.</button>
+        <button class="fp-btn" ${cutOff ? 'disabled' : ''} title="${how.verb} ${p.label}" onclick="stProdStart('${area}','${p.key}','${p.how}')">${how.icon} ${how.verb}</button>
+        <button class="fp-btn" ${blOff ? 'disabled' : ''} title="Blanquear ${p.label} ${stBinWord(p)} (${stProdTime(p)} s)" onclick="stProdStart('${area}','${p.key}','blanch')">💧 Blanq.</button>
       </div>
     </div>`;
     }
@@ -11213,7 +11280,7 @@ function stRenderShop(area, panel) {
   const board = `<div class="shop-board ${b ? 'has-item' : ''}" id="shop-board">
       ${b ? `<span class="shop-board-ico">${stIngIconRaw(bp.icon)}</span>` : '<span class="shop-board-empty">Tabla libre</span>'}
       <div class="shop-pips" style="display:${b ? 'flex' : 'none'}">${[0, 1, 2].map(i => `<i class="${i < on ? 'on' : ''}"></i>`).join('')}</div>
-      <div class="shop-label" id="shop-board-label">${b ? (bp.then ? `${bp.label} cortado · ${st.cut[bp.key]}/${bp.max}` : `${bp.label} · ${st.stock[bp.key]}/${bp.max}`) : ''}</div>
+      <div class="shop-label" id="shop-board-label">${b ? (bp.then ? `${bp.label} ${stBinWord(bp)} · ${st.cut[bp.key]}/${bp.max}` : `${bp.label} · ${st.stock[bp.key]}/${bp.max}`) : ''}</div>
     </div>`;
   const pots = st.stove.map((sl, i) => {
     const p = sl ? stProdOf(area, sl.key) : null;
@@ -11224,35 +11291,35 @@ function stRenderShop(area, panel) {
       ${sl && sl.state === 'cooking' ? `<div class="shop-bar pot-bar"><i data-slot-bar="${i}" style="width:${Math.round(100 * (1 - sl.left / sl.total))}%"></i></div>` : ''}
     </div>`;
   }).join('');
-  if (st.knifeArmed && st.board) {                  // modo corte: tabla grande + cocina visible
-    const pb = bp, bin = stBin(st, pb)[pb.key];
-    const chips = list.filter(q => q.how === 'cut').map(q => {
+  if (st.board && (st.board.mode === 'clean' || st.knifeArmed)) {   // modo corte / limpieza: tabla grande + cocina visible
+    const pb = bp, bin = stBin(st, pb)[pb.key], isClean = st.board.mode === 'clean';
+    const chips = list.filter(q => q.how === 'cut' || q.how === 'clean').map(q => {
       const c = stBin(st, q)[q.key];
-      return `<button class="cb-chip ${st.board.key === q.key ? 'on' : ''}" ${c >= q.max ? 'disabled' : ''} title="Cortar ${q.label}" onclick="stProdStart('${area}','${q.key}','cut')">${stIngIconRaw(q.icon)}<i data-cut-chip="${q.key}">${c}</i></button>`;
+      return `<button class="cb-chip ${st.board.key === q.key ? 'on' : ''}" ${c >= q.max ? 'disabled' : ''} title="${ST_HOW[q.how].verb} ${q.label}" onclick="stProdStart('${area}','${q.key}','${q.how}')">${stIngIconRaw(q.icon)}<i data-cut-chip="${q.key}">${c}</i></button>`;
     }).join('');
     const rows = list.filter(q => q.then).map(q => {
       const c = st.cut[q.key], n2 = st.stock[q.key], off = c < 1 || n2 >= q.max || freeSlot === -1;
-      return `<div class="bl-row"><span class="bl-ico">${stIngIconRaw(q.icon)}</span><b>${q.short || q.label}</b><span class="fp-cut" data-cut-of="${q.key}">🔪${c}</span><span data-stock-of="${q.key}">${n2}/${q.max}</span><button class="fp-btn" data-bl-btn="${q.key}" ${off ? 'disabled' : ''} title="Blanquear ${q.label} cortado (${stProdTime(q)} s)" onclick="stProdStart('${area}','${q.key}','blanch')">💧</button></div>`;
+      return `<div class="bl-row"><span class="bl-ico">${stIngIconRaw(q.icon)}</span><b>${q.short || q.label}</b><span class="fp-cut" data-cut-of="${q.key}">${stBinTag(q)}${c}</span><span data-stock-of="${q.key}">${n2}/${q.max}</span><button class="fp-btn" data-bl-btn="${q.key}" ${off ? 'disabled' : ''} title="Blanquear ${q.label} ${stBinWord(q)} (${stProdTime(q)} s)" onclick="stProdStart('${area}','${q.key}','blanch')">💧</button></div>`;
     }).join('');
     panel.innerHTML = `<div class="fp-wrap fp-shop is-cutting">
-    <div class="fp-head"><span>🥬 Producción · ${AREA_LABELS[area]}</span><small>Toca la pantalla para cortar: 3 cortes = 1 porción.</small><button class="stage-panel-back fp-back" onclick="shopStowKnife()">🔪 Guardar cuchillo</button>${stBackBtn(area)}</div>
+    <div class="fp-head"><span>🥬 Producción · ${AREA_LABELS[area]}</span><small>${isClean ? 'Toca el moyashi para limpiarlo: 3 toques = 1 porción limpia.' : 'Toca la pantalla para cortar: 3 cortes = 1 porción.'}</small><button class="stage-panel-back fp-back" onclick="shopStowKnife()">${isClean ? '✔ Terminar' : '🔪 Guardar cuchillo'}</button>${stBackBtn(area)}</div>
     <div class="shop-cutlayout">
       <div class="shop-bigboard has-item" id="shop-board">
         <div class="cb-chips">${chips}</div>
-        <div class="shop-label" id="shop-board-label">${pb.then ? `${pb.label} cortado · ${bin}/${pb.max}` : `${pb.label} · ${bin}/${pb.max}`}</div>
-        ${shopItemHtml(pb, on)}
+        <div class="shop-label" id="shop-board-label">${pb.then ? `${pb.label} ${stBinWord(pb)} · ${bin}/${pb.max}` : `${pb.label} · ${bin}/${pb.max}`}</div>
+        ${isClean ? shopHeapHtml(pb, on) : shopItemHtml(pb, on)}
         <div class="cb-pile" id="shop-pile">${shopPileHtml(pb, bin)}</div>
         <div class="shop-pips">${[0, 1, 2].map(i => `<i class="${i < on ? 'on' : ''}"></i>`).join('')}</div>
-        <img class="fry-knife-tool shop-knife armed" id="shop-knife" src="assets/maki_knife.svg" alt="Cuchillo" draggable="false">
+        ${isClean ? '' : '<img class="fry-knife-tool shop-knife armed" id="shop-knife" src="assets/maki_knife.svg" alt="Cuchillo" draggable="false">'}
       </div>
       <div class="shop-side">
-        ${rows ? `<div class="bl-list"><div class="bl-title">💧 Blanquear lo cortado</div>${rows}</div>` : ''}
+        ${rows ? `<div class="bl-list"><div class="bl-title">💧 Blanquear lo preparado</div>${rows}</div>` : ''}
         <div class="shop-stove">${pots}</div>
       </div>
     </div></div>`;
     return;
   }
-  const hint = !st.knifeArmed ? 'Cortar: toca 🔪 y arrastra el cuchillo a la tabla. Holantao, espárrago y col: corta y luego 💧 blanquea.' : (st.board ? 'Toca la pantalla para cortar: 3 cortes = 1 porción.' : 'Cuchillo listo: toca la ficha de un producto para cortar.');
+  const hint = !st.knifeArmed ? 'Cortar: toca 🔪 y arrastra el cuchillo a la tabla. Holantao, espárrago y col: corta y 💧 blanquea. Moyashi: 🧺 límpialo y 💧 blanquea.' : (st.board ? 'Toca la pantalla para cortar: 3 cortes = 1 porción.' : 'Cuchillo listo: toca la ficha de un producto para cortar.');
   panel.innerHTML = `<div class="fp-wrap fp-shop">
     <div class="fp-head"><span>🥬 Producción · ${AREA_LABELS[area]}</span><small>${hint}</small>${stBackBtn(area)}</div>
     <div class="fp-cards many shop-cards" style="--cols:${Math.max(6, Math.ceil(list.length / 2))}">${cards}</div>
