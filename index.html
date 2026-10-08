@@ -6000,7 +6000,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v48</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v49</span></button></div>
     </div>
   </div>
 
@@ -19814,111 +19814,170 @@ function buildTofu3D(group) {
   renderVoxelBuckets(group, buckets, mats, vs, 0);
 }
 
-// 11. BENRINER TURNING SLICER (TORNO CORTADOR DE VERDURAS) EN MICRO-VOXELS
-// Máquina de pelar en lámina continua (katsuramuki): cuerpo de aluminio lacado en verde menta, manivela con
-// brazo de acero y mango verde, disco de púas que sujeta la verdura, hoja de acero ajustable sobre su soporte,
-// ventana calada en el montante, nervio de refuerzo, cuatro patas, "BENRINER" grabado en la base y una zanahoria
-// montada pelándose en una lámina continua.
-function buildBenriner3D(group) {
-  const vs = 0.105;
-  const M = (c, r = 0.45, m = 0.05) => new THREE.MeshStandardMaterial({ color: c, roughness: r, metalness: m });
-  const mats = {
-    body: M(0x7fd6a6, 0.42, 0.08), bodyHi: M(0xa9ecc8, 0.33, 0.08), bodyLo: M(0x4aa97a, 0.5, 0.05),
-    green: M(0x1dc233, 0.3, 0.05), greenLo: M(0x0e8f1f, 0.4, 0.05), greenHi: M(0x5ff06f, 0.28, 0.05),
-    steel: M(0xeef2f4, 0.14, 0.95), steelLo: M(0x90a4ae, 0.25, 0.85), screw: M(0x455a64, 0.3, 0.8),
-    carrot: M(0xe8590c, 0.55, 0), carrotLo: M(0xb23f06, 0.6, 0), carrotHi: M(0xff8a3d, 0.5, 0), ribbon: M(0xffb067, 0.45, 0)
-  };
-  const B = {};
-  Object.keys(mats).forEach(k => { B[k] = []; });
-  const CX = -2;                                            // recentra: los mangos sobresalen a ambos lados
-  const put = (k, x, y, z) => B[k].push({ x: (x - CX) * vs, y: y * vs, z: z * vs });
-  const box = (k, x0, x1, y0, y1, z0, z1, opt = {}) => {
-    for (let x = x0; x <= x1; x++) for (let y = y0; y <= y1; y++) for (let z = z0; z <= z1; z++) {
-      if (opt.skip && opt.skip(x, y, z)) continue;
-      put(opt.hiTop && y === y1 ? 'bodyHi' : k, x, y, z);
-    }
-  };
-  // cilindro a lo largo de X con sombreado (mitad inferior más oscura, lomo superior más claro)
-  const cylX = (k, kLo, kHi, cy, cz, rFn, x0, x1) => {
-    for (let x = x0; x <= x1; x++) {
-      const r = typeof rFn === 'function' ? rFn(x) : rFn;
-      for (let y = Math.floor(cy - r); y <= Math.ceil(cy + r); y++) for (let z = Math.floor(cz - r); z <= Math.ceil(cz + r); z++) {
-        const dy = y - cy, dz = z - cz;
-        if (dy * dy + dz * dz > r * r + 0.4) continue;
-        put(dy < -r * 0.4 ? kLo : (dy > r * 0.55 && dz >= 0 && kHi ? kHi : k), x, y, z);
-      }
-    }
-  };
+// 11. BENRINER TURNING SLICER EN MICRO-VOXELS DE ALTA RESOLUCIÓN
+// Se "hornea" una vez en una rejilla 3D al doble de densidad que el resto de modelos (cada unidad = 2×2×2 voxels),
+// se descartan los voxels interiores (solo se dibuja la superficie) y cada voxel se sombrea según cuántos vecinos lo
+// rodean (oclusión ambiental): los cantos salen claros y las rendijas oscuras. Todo está medido en "unidades" de
+// 0.105 de mundo para que el tamaño sea el mismo que el de los otros modelos.
+let _benrinerBake = null;
+function bakeBenriner() {
+  const S = 2;                                                  // voxels por unidad
+  const X0 = -80, X1 = 72, Y0 = 0, Y1 = 66, Z0 = -13, Z1 = 13;
+  const NX = (X1 - X0) * S, NY = (Y1 - Y0) * S, NZ = (Z1 - Z0) * S;
+  const grid = new Uint8Array(NX * NY * NZ);
+  const ID = { body: 1, bodyInk: 2, green: 3, greenRidge: 4, steel: 5, steelDark: 6, screw: 7, carrot: 8, carrotRing: 9, carrotCrown: 10, ribbon: 11, edge: 12, knob: 13 };
+  const at = (i, j, k) => (i * NY + j) * NZ + k;
+  const cx = i => X0 + (i + 0.5) / S, cy = j => Y0 + (j + 0.5) / S, cz = k => Z0 + (k + 0.5) / S;
 
-  // --- Base: carril largo con canal central, cantos claros y 4 patas ---
-  box('body', -46, 46, 2, 10, -8, 8, { hiTop: true, skip: (x, y, z) => (Math.abs(x) >= 45 && Math.abs(z) >= 7) || (y === 10 && Math.abs(z) <= 3 && x >= -26 && x <= 30) });
-  box('bodyLo', -26, 30, 9, 9, -3, 3);
-  for (const fx of [-41, 41]) for (const fz of [-5, 5]) box('green', fx - 2, fx + 2, 0, 1, fz - 2, fz + 2);
+  // pinta `id` en todas las celdas cuyo centro cumple test(x,y,z) dentro de la caja [x0,x1]×[y0,y1]×[z0,z1] (id 0 = vaciar)
+  const paint = (id, x0, x1, y0, y1, z0, z1, test) => {
+    const i0 = Math.max(0, Math.floor((x0 - X0) * S)), i1 = Math.min(NX - 1, Math.ceil((x1 - X0) * S));
+    const j0 = Math.max(0, Math.floor((y0 - Y0) * S)), j1 = Math.min(NY - 1, Math.ceil((y1 - Y0) * S));
+    const k0 = Math.max(0, Math.floor((z0 - Z0) * S)), k1 = Math.min(NZ - 1, Math.ceil((z1 - Z0) * S));
+    for (let i = i0; i <= i1; i++) { const x = cx(i); if (x < x0 || x > x1) continue;
+      for (let j = j0; j <= j1; j++) { const y = cy(j); if (y < y0 || y > y1) continue;
+        for (let k = k0; k <= k1; k++) { const z = cz(k); if (z < z0 || z > z1) continue;
+          if (!test || test(x, y, z)) grid[at(i, j, k)] = id; } } }
+  };
+  // caja con cantos redondeados (radio r)
+  const rbox = (id, x0, x1, y0, y1, z0, z1, r, extra) => paint(id, x0, x1, y0, y1, z0, z1, (x, y, z) => {
+    const dx = Math.max(x0 + r - x, 0, x - (x1 - r)), dy = Math.max(y0 + r - y, 0, y - (y1 - r)), dz = Math.max(z0 + r - z, 0, z - (z1 - r));
+    return dx * dx + dy * dy + dz * dz <= r * r && (!extra || extra(x, y, z));
+  });
+  // cilindros: radio constante o función de x; eje X, Y o Z
+  const cylX = (id, ay, az, rf, x0, x1, extra) => { const rm = typeof rf === 'function' ? 9 : rf; paint(id, x0, x1, ay - rm, ay + rm, az - rm, az + rm, (x, y, z) => { const r = typeof rf === 'function' ? rf(x) : rf; const dy = y - ay, dz = z - az; return dy * dy + dz * dz <= r * r && (!extra || extra(x, y, z)); }); };
+  const cylY = (id, ax, az, r, y0, y1) => paint(id, ax - r, ax + r, y0, y1, az - r, az + r, (x, y, z) => (x - ax) * (x - ax) + (z - az) * (z - az) <= r * r);
+  const cylZ = (id, ax, ay, r, z0, z1, extra) => paint(id, ax - r, ax + r, ay - r, ay + r, z0, z1, (x, y, z) => (x - ax) * (x - ax) + (y - ay) * (y - ay) <= r * r && (!extra || extra(x, y, z)));
+  const hexX = (id, ay, az, r, x0, x1) => paint(id, x0, x1, ay - r, ay + r, az - r, az + r, (x, y, z) => { const dy = Math.abs(y - ay), dz = Math.abs(z - az); return Math.max(dz, dy * 0.866 + dz * 0.5) <= r * 0.88; });
 
-  // --- "BENRINER" grabado en el frente de la base (letras 5×7) ---
+  // ---------- BASE ----------
+  for (const fx of [-41, 41]) for (const fz of [-5, 5]) cylY(ID.green, fx, fz, 2.7, 0, 2.4);                  // patas
+  rbox(ID.body, -46, 46, 2, 10.5, -8, 8, 1.5);
+  paint(0, -26, 30, 8.8, 11, -3.3, 3.3);                                                                       // canal central
+  paint(0, 2, 14, 8.2, 11, -4.2, 4.2, (x, y, z) => Math.hypot(Math.max(Math.abs(x - 8) - 4, 0), Math.max(Math.abs(z) - 1, 0)) <= 2.2);   // hueco cuadrado redondeado
+  for (let tx = -22; tx <= 28; tx += 4) for (const tz of [-6, 6]) paint(ID.bodyInk, tx - 0.4, tx + 0.4, 10.3, 10.6, tz - 1, tz + 1);   // marcas de la regla
+  // "BENRINER" grabado en el frente
   const FONT = {
-    B: ['11110', '10001', '10001', '11110', '10001', '10001', '11110'],
-    E: ['11111', '10000', '10000', '11110', '10000', '10000', '11111'],
-    N: ['10001', '11001', '10101', '10101', '10011', '10001', '10001'],
-    R: ['11110', '10001', '10001', '11110', '10100', '10010', '10001'],
+    B: ['11110', '10001', '10001', '11110', '10001', '10001', '11110'], E: ['11111', '10000', '10000', '11110', '10000', '10000', '11111'],
+    N: ['10001', '11001', '10101', '10101', '10011', '10001', '10001'], R: ['11110', '10001', '10001', '11110', '10100', '10010', '10001'],
     I: ['11111', '00100', '00100', '00100', '00100', '00100', '11111']
   };
-  'BENRINER'.split('').forEach((ch, i) => {
-    FONT[ch].forEach((row, ry) => row.split('').forEach((c, rx) => { if (c === '1') put('bodyLo', -24 + i * 6 + rx, 9 - ry, 9); }));
+  const TX0 = -25, word = 'BENRINER';
+  paint(ID.bodyInk, TX0, TX0 + 8 * 6, 3, 10, 7.9, 8.9, (x, y, z) => {
+    const ci = Math.floor((x - TX0) / 6), rx = Math.floor(x - TX0 - ci * 6), ry = Math.floor(10 - y);
+    if (ci < 0 || ci > 7 || rx > 4 || ry < 0 || ry > 6) return false;
+    return FONT[word[ci]][ry][rx] === '1';
   });
-
-  // --- Montante izquierdo (caja de la manivela): placa alta con ventana calada y nervio de refuerzo ---
-  const inTopCorner = (x, y) => y >= 59 && ((x <= -38 && y - 59 + (-38 - x) > 3) || (x >= -32 && y - 59 + (x + 32) > 3));
-  const inWindow = (x, y) => { const dx = (x + 35) / 3.6, dy = (y - 33) / 12; return dx * dx + dy * dy <= 1; };
-  box('body', -40, -30, 10, 62, -8, 8, { hiTop: true, skip: (x, y, z) => inTopCorner(x, y) || inWindow(x, y) || ((y - 54) * (y - 54) + z * z <= 9.4) });   // (el eje de la manivela pasa por aquí)
-  // marco de la ventana (borde más oscuro)
-  for (let x = -40; x <= -30; x++) for (let y = 10; y <= 62; y++) {
-    const dx = (x + 35) / 3.6, dy = (y - 33) / 12, d = dx * dx + dy * dy;
-    if (d > 1 && d <= 1.5) { put('bodyLo', x, y, 8); put('bodyLo', x, y, -8); }
+  // ---------- MONTANTE IZQUIERDO ----------
+  const topRound = (x, y) => y <= 57 || (x + 35) * (x + 35) + (y - 57) * (y - 57) <= 25;
+  rbox(ID.body, -40, -30, 10, 62, -8, 8, 1.6, (x, y) => topRound(x, y));
+  paint(0, -40, -30, 18, 50, -9, 9, (x, y) => ((x + 35) / 3.5) ** 2 + ((y - 33) / 12.6) ** 2 <= 1);           // ventana calada
+  // borde de la ventana: marco más oscuro grabado
+  paint(ID.bodyInk, -40, -30, 18, 50, 7.7, 8.2, (x, y) => { const d = ((x + 35) / 3.9) ** 2 + ((y - 33) / 13) ** 2; return d > 1 && d <= 1.18; });
+  paint(ID.bodyInk, -40, -30, 18, 50, -8.2, -7.7, (x, y) => { const d = ((x + 35) / 3.9) ** 2 + ((y - 33) / 13) ** 2; return d > 1 && d <= 1.18; });
+  // nervio de refuerzo curvo
+  paint(ID.body, -49, -40, 10, 56, -4.6, 4.6, (x, y, z) => y <= 10 + 40 * Math.pow((x + 49) / 9, 0.9) && Math.abs(z) <= 4.6 - 0.15 * (y - 10) * 0.05);
+  // buje de la manivela, eje, tuerca hexagonal y arandela
+  cylX(ID.body, 54, 0, 5.4, -43.5, -40);
+  cylX(ID.green, 54, 0, 2.9, -53, -26);
+  cylX(ID.steel, 54, 0, 3.9, -45.2, -44.2);
+  hexX(ID.steelDark, 54, 0, 4.6, -56.4, -54.2);
+  for (const [sx, sy] of [[-35, 14.5], [-35, 58.5], [-38, 24], [-32, 24], [-38, 44], [-32, 44]]) for (const sz of [8, -8]) {
+    cylZ(ID.screw, sx, sy, 1.35, sz > 0 ? 7.9 : -8.9, sz > 0 ? 8.9 : -7.9);
+    cylZ(ID.steelDark, sx, sy, 1.35, sz > 0 ? 8.6 : -8.9, sz > 0 ? 8.9 : -8.6, (x, y) => Math.abs(x - sx) < 0.3 || Math.abs(y - sy) < 0.3);
   }
-  // nervio diagonal de refuerzo (lado izquierdo)
-  for (let x = -47; x <= -41; x++) {
-    const h = Math.round(10 + (x + 47) * 5.6 + 6);
-    for (let y = 10; y <= h; y++) for (let z = -4; z <= 4; z++) put(y === h ? 'bodyHi' : 'body', x, y, z);
+  // ---------- MANIVELA IZQUIERDA ----------
+  rbox(ID.steel, -54, -50.5, 29, 59, -2.3, 2.3, 1.1);
+  cylX(ID.steel, 54, 0, 4.6, -54, -50.5);
+  cylX(ID.steelDark, 31, 0, 3.7, -55, -53);                                                                   // collarín
+  cylX(ID.green, 31, 0, x => (x < -70.4 ? Math.sqrt(Math.max(0, 1 - ((x + 70.4) / 1.6) ** 2)) * 3.2 : 3.1 + 1.2 * Math.sin(Math.min(1, (-x - 55) / 14) * Math.PI)), -72, -54.8,
+    (x, y, z) => !(x > -68 && x < -57 && Math.abs(((-x - 57) % 3) - 1.5) < 0.45 && false));
+  for (let rx = -67; rx <= -58; rx += 3) cylX(ID.greenRidge, 31, 0, 4.2, rx, rx + 0.7, (x, y, z) => ((y - 31) ** 2 + z * z) > 2.6 * 2.6);   // estrías del mango
+  // ---------- DISCO DE PÚAS ----------
+  cylX(ID.green, 44, 0, 10.6, -29.8, -27.2, (x, y, z) => Math.hypot(y - 44, z) <= 10.6 - (x > -28 ? 0.6 : 0));
+  cylX(ID.greenRidge, 44, 0, 8.4, -27.4, -26.9, (x, y, z) => Math.hypot(y - 44, z) > 7.7);                  // anillo grabado
+  cylX(ID.green, 44, 0, 3.4, -31, -26.2);
+  const prongs = [[0, 0, 11]];
+  for (let n = 0; n < 6; n++) { const a = n * Math.PI / 3; prongs.push([5.4 * Math.cos(a), 5.4 * Math.sin(a), 9.5]); }
+  for (let n = 0; n < 6; n++) { const a = n * Math.PI / 3 + Math.PI / 6; prongs.push([8.2 * Math.cos(a), 8.2 * Math.sin(a), 8]); }
+  prongs.forEach(([dy, dz, len]) => cylX(ID.green, 44 + dy, dz, x => 1.05 - 0.78 * Math.max(0, (x + 27) / len), -27, -27 + len));
+  // ---------- ZANAHORIA ----------
+  const cr = x => { const r = 6.2 - (x + 18) * 0.02; return x > 21 ? r * Math.sqrt(Math.max(0, 1 - ((x - 21) / 3) ** 2)) : r; };
+  cylX(ID.carrot, 44, 0, cr, -18, 24);
+  cylX(ID.carrotCrown, 44, 0, 4.2, -18.4, -17.2);                                                              // corona de la zanahoria
+  for (let rx = -14; rx <= 18; rx += 4.5) cylX(ID.carrotRing, 44, 0, x => cr(x) + 0.05, rx, rx + 0.6, (x, y, z) => ((y - 44) ** 2 + z * z) > (cr(x) - 0.35) ** 2);
+  // ---------- CARRO DE LA HOJA (parte trasera) ----------
+  rbox(ID.body, 2, 40, 10, 50, -9.2, -7.4, 1.6);                                                                // placa vertical
+  rbox(ID.body, 30, 44, 10, 28, -9.2, 7, 1.6);                                                                  // bloque derecho
+  paint(0, 6, 36, 14, 24, -10, -7.2, (x, y) => Math.abs(y - 19) <= 2.6 || Math.abs(y - 19) <= 3.6 && false);   // ranura guía
+  rbox(ID.steel, 6, 28, 28, 49, -7.4, -6.5, 0.4);                                                               // hoja
+  paint(ID.edge, 6, 7.2, 28, 49, -7.4, -6.3);                                                                  // filo biselado
+  paint(ID.steelDark, 26.8, 28, 28, 49, -7.4, -6.5);
+  for (const [sx, sy] of [[11, 32], [22, 32], [11, 45], [22, 45]]) cylZ(ID.screw, sx, sy, 1.15, -6.6, -5.8);   // tornillos de la hoja
+  // perilla moleteada de ajuste (ruleta)
+  cylZ(ID.knob, 37, 19, 3.6, 7, 9.6, (x, y) => { const a = Math.atan2(y - 19, x - 37); return Math.hypot(x - 37, y - 19) <= 3.6 - (Math.sin(a * 9) > 0.55 ? 0.5 : 0); });
+  cylZ(ID.screw, 37, 19, 1.2, 9.6, 10.2);
+  // soporte curvo verde y manivela de ajuste (derecha)
+  rbox(ID.green, 44, 46.5, 12, 42, -2.4, 2.4, 1.0, (x, y) => y <= 42 - Math.max(0, y - 34) * 0.0 && Math.abs(x - 45.2) <= 1.3 - Math.max(0, (y - 30) * 0.03));
+  rbox(ID.steel, 46.5, 49.5, 17, 39, -2.3, 2.3, 1.0);
+  cylX(ID.steelDark, 22, 0, 3.4, 49.2, 50.4);
+  cylX(ID.green, 22, 0, x => (x > 63 ? Math.sqrt(Math.max(0, 1 - ((x - 63) / 1.6) ** 2)) * 3.1 : 3.0 + 1.0 * Math.sin(Math.min(1, (x - 50) / 14) * Math.PI)), 50.4, 64.6);
+  for (let rx = 53; rx <= 61; rx += 3) cylX(ID.greenRidge, 22, 0, 4.0, rx, rx + 0.7, (x, y, z) => ((y - 22) ** 2 + z * z) > 2.5 * 2.5);
+  // ---------- LÁMINA CONTINUA DE ZANAHORIA (cinta que se desenrolla desde la hoja) ----------
+  for (let t = 0; t <= 1.0001; t += 0.004) {
+    const y = 43.6 - 28 * Math.pow(t, 1.25), z = -6.1 + 12.5 * Math.sin(t * Math.PI * 1.15) * (1 - t * 0.25) + t * 2;
+    const x0 = 7.6 + Math.sin(t * 6) * 0.8, x1 = x0 + 12 - t * 3;
+    paint(t > 0.55 ? ID.carrot : ID.ribbon, x0, x1, y - 0.28, y + 0.28, z - 0.28, z + 0.28);
   }
-  // tornillos
-  for (const [sx, sy] of [[-35, 14], [-35, 58], [-32, 24], [-38, 24]]) { put('screw', sx, sy, 9); put('screw', sx, sy, -9); }
 
-  // --- Manivela izquierda: eje verde, brazo de acero y mango ergonómico ---
-  cylX('green', 'greenLo', 'greenHi', 54, 0, 3, -50, -26);
-  box('steelLo', -53, -50, 31, 58, -2, 2, { skip: (x, y, z) => (y >= 57 && Math.abs(z) === 2) || (y <= 32 && Math.abs(z) === 2) });
-  for (let y = 31; y <= 58; y++) put('steel', -53, y, 0);                      // brillo del brazo
-  cylX('green', 'greenLo', 'greenHi', 31, 0, x => (x < -58 ? 3.8 : 3.0), -70, -52);
-
-  // --- Disco de púas (prong holder) con púas verdes ---
-  cylX('green', 'greenLo', 'greenHi', 44, 0, 10, -29, -27);
-  const prongs = [[0, 0]];
-  for (let i = 0; i < 6; i++) { const a = i * Math.PI / 3; prongs.push([Math.round(5.5 * Math.cos(a)), Math.round(5.5 * Math.sin(a))]); }
-  for (let i = 0; i < 6; i++) { const a = i * Math.PI / 3 + Math.PI / 6; prongs.push([Math.round(8 * Math.cos(a)), Math.round(8 * Math.sin(a))]); }
-  prongs.forEach(([dy, dz]) => cylX('green', 'greenLo', 'greenHi', 44 + dy, dz, 0.9, -26, -19));
-
-  // --- Zanahoria montada en las púas (se está pelando) ---
-  cylX('carrot', 'carrotLo', 'carrotHi', 44, 0, x => Math.max(2, 6.4 - (x + 18) * 0.045), -18, 8);
-  for (let x = -18; x <= 8; x += 3) for (const z of [-5, 5]) put('carrotLo', x, 44, z);   // anillos de la zanahoria
-
-  // --- Bloque derecho con soporte y hoja de acero ---
-  box('body', 30, 44, 10, 30, -7, 7, { hiTop: true, skip: (x, y, z) => (Math.abs(x - 37) >= 7 && Math.abs(z) >= 6) });
-  box('body', 31, 35, 31, 54, -7, 7, { hiTop: true, skip: (x, y, z) => y >= 52 && Math.abs(z) >= 6 });
-  box('steel', 29, 30, 30, 52, -5, 5);                                          // hoja
-  for (let y = 30; y <= 52; y++) { put('steelLo', 29, y, 5); put('steel', 28, y, -5); }   // lomo y filo
-  for (const sy of [34, 42, 50]) put('screw', 28, sy, 3);
-  // manivela derecha (ajuste de la hoja)
-  box('green', 44, 46, 14, 40, -2, 2);
-  box('steelLo', 47, 49, 18, 38, -2, 2);
-  cylX('green', 'greenLo', 'greenHi', 22, 0, 3, 50, 64);
-
-  // --- Lámina continua de zanahoria cayendo desde la hoja ---
-  for (let t = 0; t <= 1.0001; t += 0.015) {
-    const x = Math.round(27 - t * 20 + Math.sin(t * 5) * 1.5), y = Math.round(42 - 30 * Math.pow(t, 1.4));
-    for (let z = -4; z <= 4; z++) put(t > 0.5 ? 'carrotHi' : 'ribbon', x, y, z);
+  // ---------- Extracción de superficie con sombreado por oclusión ----------
+  const buckets = {};
+  const occ = (i, j, k) => (i < 0 || j < 0 || k < 0 || i >= NX || j >= NY || k >= NZ) ? 0 : (grid[at(i, j, k)] ? 1 : 0);
+  let total = 0;
+  for (let i = 0; i < NX; i++) for (let j = 0; j < NY; j++) for (let k = 0; k < NZ; k++) {
+    const id = grid[at(i, j, k)];
+    if (!id) continue;
+    if (occ(i - 1, j, k) && occ(i + 1, j, k) && occ(i, j - 1, k) && occ(i, j + 1, k) && occ(i, j, k - 1) && occ(i, j, k + 1)) continue;   // interior
+    let n = 0;
+    for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) for (let c = -1; c <= 1; c++) if ((a || b || c) && occ(i + a, j + b, k + c)) n++;
+    const shade = n <= 14 ? 0 : (n <= 18 ? 1 : 2);                                                              // 0 claro (canto) · 1 medio · 2 oscuro (rendija)
+    const key = id * 3 + shade;
+    (buckets[key] || (buckets[key] = [])).push(i, j, k);
+    total++;
   }
+  return { buckets, total, S, X0, Y0, Z0, ID };
+}
 
-  renderVoxelBuckets(group, B, mats, vs, 0);
+function buildBenriner3D(group) {
+  if (!_benrinerBake) _benrinerBake = bakeBenriner();
+  const { buckets, S, X0, Y0, Z0, ID } = _benrinerBake;
+  const U = 0.105, CXu = -4, vs = U / S;
+  const PAL = {
+    [ID.body]: [0x7fd6a6, 0.42, 0.08], [ID.bodyInk]: [0x3f9b6d, 0.55, 0.05], [ID.green]: [0x1dc233, 0.3, 0.05], [ID.greenRidge]: [0x0f8f21, 0.45, 0.05],
+    [ID.steel]: [0xe6ecef, 0.16, 0.95], [ID.steelDark]: [0x8a9ca6, 0.28, 0.85], [ID.screw]: [0x4d626c, 0.3, 0.85], [ID.carrot]: [0xe8590c, 0.55, 0],
+    [ID.carrotRing]: [0xb23f06, 0.6, 0], [ID.carrotCrown]: [0x5a8f2a, 0.6, 0], [ID.ribbon]: [0xffb067, 0.45, 0], [ID.edge]: [0xffffff, 0.08, 1.0], [ID.knob]: [0x19b02d, 0.35, 0.05]
+  };
+  const boxGeo = new THREE.BoxGeometry(vs * 0.99, vs * 0.99, vs * 0.99);
+  const dummy = new THREE.Object3D();
+  Object.entries(buckets).forEach(([key, cells]) => {
+    const id = Math.floor(key / 3), shade = key % 3;
+    const [hex, rough, metal] = PAL[id];
+    const col = new THREE.Color(hex);
+    if (shade === 0) col.lerp(new THREE.Color(0xffffff), 0.16); else if (shade === 2) col.lerp(new THREE.Color(0x000000), 0.3);
+    const mat = new THREE.MeshStandardMaterial({ color: col, roughness: rough, metalness: metal });
+    const n = cells.length / 3;
+    const mesh = new THREE.InstancedMesh(boxGeo, mat, n);
+    for (let m = 0; m < n; m++) {
+      const i = cells[m * 3], j = cells[m * 3 + 1], k = cells[m * 3 + 2];
+      dummy.position.set(((X0 + (i + 0.5) / S) - CXu) * U, (Y0 + (j + 0.5) / S) * U, (Z0 + (k + 0.5) / S) * U);
+      dummy.updateMatrix();
+      mesh.setMatrixAt(m, dummy.matrix);
+    }
+    mesh.instanceMatrix.needsUpdate = true;
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    group.add(mesh);
+  });
 }
 
 // 9. CUCHILLOS JAPONESES EN MICRO-VOXELS
