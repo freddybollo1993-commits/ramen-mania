@@ -6329,7 +6329,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v83</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v84</span></button></div>
     </div>
   </div>
 
@@ -8957,7 +8957,7 @@ const RECETAS_MAKIS = [
 const RECETAS_SALTEADOS = [
   {"id": 1, "name": "Chaufa Shimaya", "price": 40, "desc": "Arroz chaufa con huevo, chancho, champiñones y wantán", "ingredients": [15, 37, 63, 25, 79, 48, 27, 94, 41]},
   {"id": 2, "name": "Chicken Teriyaki", "price": 38, "desc": "Pollo con salsa teriyaki, arroz y ensalada fría", "ingredients": [69, 87, 37, 56]},
-  {"id": 3, "name": "Batayaki Ramen", "price": 44, "desc": "Lomo salteado con champiñones, fideo ramen y salsa batayaki", "ingredients": [61, 27, 78, 1, 71]},
+  {"id": 3, "name": "Batayaki Ramen", "price": 44, "desc": "Lomo, champiñones y holantao salteados en wok; fideos en sartén al centro; poro frito con salsa ponzu al otro lado", "ingredients": [61, 27, 23, 1, 78, 71]},
   {"id": 4, "name": "Yakimeshi", "price": 39, "desc": "Arroz salteado con huevo, pollo, zanahoria y holantao", "ingredients": [15, 69, 37, 30, 67, 23, 40]},
   {"id": 5, "name": "Yakiramen", "price": 43, "desc": "Fideo ramen salteado con pollo y vegetales variados", "ingredients": [69, 46, 52, 95, 45, 68, 1, 25, 42]},
   {"id": 6, "name": "Yasaitame", "price": 37, "desc": "Salteado de vegetales con lomo y salsa yasaitame", "ingredients": [61, 46, 95, 52, 25, 45, 68, 90, 33]},
@@ -10969,7 +10969,7 @@ const WOK_VIRTUAL = { crudo: 1, perfecto: 3, quemado: 4.5 };   // ventana "virtu
 const PAN_DISHES = ['Chicken Teriyaki', 'Yakitori'];
 const MIXED_DISHES = {
   'Omuraisu':       { wok: { ids: [69, 37, 46, 30, 29], label: 'arroz con pollo' }, pan: { ids: [93], label: 'tortilla' },                 how: 'El arroz con pollo va envuelto en la tortilla.' },
-  'Batayaki Ramen': { wok: { ids: [1], label: 'fideos' },                            pan: { ids: [61, 27], label: 'lomo y champiñones' },  how: 'Los fideos se mezclan con el lomo y los champiñones.' }
+  'Batayaki Ramen': { wok: { ids: [61, 27, 23], label: 'lomo, champiñones y holantao' }, pan: { ids: [1], label: 'fideos' },    how: 'Fideos al centro, estirados de punta a punta, y a un lado el lomo con champiñones y holantao.' }
 };
 const WOK_WRONG_TOOL_PTS = 15;    // puntos de cocción que resta cocinar el plato en el utensilio equivocado
 const WOK_SAUCE_IDS = [79, 40, 8];   // salsas de cocción de Salteados que son botellas (las demás se ponen al emplatar)
@@ -12259,8 +12259,25 @@ function stPassIcon(item) {
   const v = item.vis || {}, id = v.id != null ? v.id : 1;   // el cuenco usa el icono del fideo
   return `<span class="fp-pass-ico" style="filter:${(v.kind === 'ing' && v.tone) || 'none'}">${stIngIcon(id)}</span>`;
 }
+// Plato del Batayaki Ramen: franja de fideos de punta a punta en el centro; arriba el lomo con champiñones y holantao; abajo el poro frito bañado en salsa ponzu
+function batayakiPlateSvg(plateItems) {
+  const poro = plateItems.includes(71), ponzu = plateItems.includes(78), ink = '#3a2b20';
+  let noodles = '';
+  for (let k = 0; k < 7; k++) { const y = 33 + k * 2.6; noodles += `<path d="M 7,${y} q 8,-3 16,0 t 16,0 t 16,0 t 16,0 t 16,0 t 16,0" fill="none" stroke="${k % 2 ? '#f3d27a' : '#e9bf55'}" stroke-width="2.2" stroke-linecap="round"/>`; }
+  const lomo = [[26, 18], [44, 15], [62, 18]].map(([x, y], k) => `<g transform="rotate(${k * 9 - 9} ${x} ${y})"><rect x="${x - 8}" y="${y - 4.5}" width="16" height="9" rx="3.5" fill="#8c3b2c" stroke="${ink}" stroke-width="1"/><path d="M ${x - 5},${y - 1} h 10" stroke="#d98a73" stroke-width="1.2" opacity="0.8"/></g>`).join('');
+  const champi = [[80, 17], [92, 20]].map(([x, y]) => `<g><path d="M ${x - 6},${y} a 6,5 0 0 1 12,0 z" fill="#c9a77a" stroke="${ink}" stroke-width="1"/><rect x="${x - 2}" y="${y}" width="4" height="4.5" rx="1" fill="#efe3cd" stroke="${ink}" stroke-width="0.8"/></g>`).join('');
+  const holantao = [[38, 25], [58, 26], [74, 24]].map(([x, y], k) => `<g transform="rotate(${k * 20 - 25} ${x} ${y})"><rect x="${x - 7}" y="${y - 2}" width="14" height="4" rx="2" fill="#5fae4a" stroke="${ink}" stroke-width="0.9"/><circle cx="${x - 3}" cy="${y}" r="0.8" fill="#2e6b25"/><circle cx="${x}" cy="${y}" r="0.8" fill="#2e6b25"/><circle cx="${x + 3}" cy="${y}" r="0.8" fill="#2e6b25"/></g>`).join('');
+  const poroSvg = poro ? [[28, 58], [46, 61], [64, 58], [82, 61]].map(([x, y], k) => `<g transform="rotate(${k % 2 ? 8 : -8} ${x} ${y})"><rect x="${x - 8}" y="${y - 3.4}" width="16" height="6.8" rx="3.4" fill="#d9a441" stroke="${ink}" stroke-width="1"/><path d="M ${x - 4},${y - 1} h 8 M ${x - 4},${y + 1.4} h 8" stroke="#8a5a14" stroke-width="0.8" opacity="0.7"/></g>`).join('') : '<text x="55" y="62" font-size="7" text-anchor="middle" fill="#9a8f7c">poro frito</text>';
+  const ponzuSvg = ponzu ? '<path d="M 18,66 Q 26,54 36,66 T 54,66 T 72,66 T 90,66" fill="none" stroke="#4a2a14" stroke-width="3.2" stroke-linecap="round" opacity="0.9"/><path d="M 18,66 Q 26,54 36,66 T 54,66 T 72,66 T 90,66" fill="none" stroke="#a8642b" stroke-width="1" stroke-linecap="round" opacity="0.8"/>' : '';
+  return `<svg viewBox="0 0 110 80" aria-hidden="true">
+    <ellipse cx="55" cy="42" rx="53" ry="36" fill="#f7f2e6" stroke="#b9ae92" stroke-width="3"/>
+    <ellipse cx="55" cy="42" rx="44" ry="29" fill="none" stroke="#e1d9c2" stroke-width="1.5"/>
+    ${noodles}${lomo}${champi}${holantao}${poroSvg}${ponzuSvg}
+  </svg>`;
+}
 function stDiscHtml(area, item, plateItems) {
   const v = item.vis || {};
+  if (area === 'salteados' && item.recipes && item.recipes.length === 1 && item.recipes[0] === 'Batayaki Ramen') return `<div class="fp-bowl">${batayakiPlateSvg(plateItems)}</div>`;
   if (v.kind === 'bowl') return `<div class="fp-bowl">${generateBowlSVG({ ingredients: [...(v.ings || []), ...plateItems], spread: v.spread, hideBar: true }, null)}</div>`;
   if (v.kind === 'img') return `<div class="fp-disc"><img class="fp-disc-img" src="${v.src}" alt=""></div>`;
   return `<div class="fp-disc"><span class="fp-disc-main" style="filter:${v.tone || 'none'}">${stIngIcon(v.id)}</span></div>`;

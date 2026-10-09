@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ramen-mania-v83';
+const CACHE_NAME = 'ramen-mania-v84';
 
 // Solo el shell esencial para instalación instantánea (< 50ms)
 const CORE_SHELL = [
