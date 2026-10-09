@@ -3148,7 +3148,30 @@
   }
   /* --- Salteados con etapas: hornilla de gas, perilla de fuego, calor, aceite y volteo --- */
   .wok-burner, .wok-fire-btn, .wok-heat, .wok-toss-pips { display: none; }
-  .salteado-station-box.wok-staged .wok-dock-card { touch-action: none; overflow: visible; }
+  .wok-body { position: absolute; inset: 0; pointer-events: none; transform-origin: 84% 56%; }
+  .salteado-station-box.wok-staged .wok-dock-card { touch-action: none; overflow: visible; background: none; }
+  .salteado-station-box.wok-staged .wok-body { background: url('assets/wok_v2.svg') center / 100% 100% no-repeat; }
+  .wok-fx { display: none; }
+  .salteado-station-box.wok-staged .wok-fx { display: block; position: absolute; inset: 0; z-index: 5; pointer-events: none; overflow: visible; }
+  .wok-spark { position: absolute; left: 34%; top: 34%; width: 3.2cqw; height: 3.2cqw; border-radius: 50%; background: var(--c, #ffb300); box-shadow: 0 0 6px var(--c, #ffb300); opacity: 0; animation: wokSpark 0.62s ease-out forwards; }
+  @keyframes wokSpark { 0% { translate: 0 0; opacity: 0; scale: 0.6; } 15% { opacity: 1; } 100% { translate: var(--dx) var(--dy); opacity: 0; scale: 1.1; } }
+  .wok-spatula { display: none; }
+  .salteado-station-box.wok-staged .wok-spatula { display: block; position: absolute; left: 36%; top: 3%; width: 34%; height: 56%; transform-origin: 30% 86%; rotate: 8deg; opacity: 0; transition: opacity 0.25s; z-index: 2; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); }
+  .wok-spatula svg { width: 100%; height: 100%; display: block; overflow: visible; }
+  .wok-dock-card.has-food .wok-spatula { opacity: 1; }
+  .wok-dock-card.tossing .wok-spatula { animation: spatulaSweep 0.55s ease-in-out; }
+  @keyframes spatulaSweep { 0% { rotate: 8deg; translate: 0 0; } 30% { rotate: -26deg; translate: -9cqw 3cqw; } 68% { rotate: 20deg; translate: 8cqw -1cqw; } 100% { rotate: 8deg; translate: 0 0; } }
+  .wok-dock-card.tossing .wok-body { animation: wokTilt 0.55s ease-in-out; }
+  @keyframes wokTilt { 0% { transform: translateY(0) rotate(0); } 28% { transform: translateY(-5%) rotate(-12deg); } 60% { transform: translateY(1%) rotate(5deg); } 100% { transform: translateY(0) rotate(0); } }
+  .wok-dock-card.tossing .wok-chip { animation: chipFly 0.55s ease-in-out var(--kd, 0ms) both; }
+  @keyframes chipFly { 0% { translate: 0 0; rotate: 0deg; } 42% { translate: var(--fx) var(--fy); rotate: var(--fr); } 100% { translate: 0 0; rotate: 0deg; } }
+  .wok-burner .wb-flare { opacity: 0; transform-box: fill-box; transform-origin: 50% 100%; }
+  .wok-dock-card.tossing .wb-flare { animation: wokFlare 0.55s ease-out; }
+  @keyframes wokFlare { 0% { opacity: 0; transform: scaleY(0.4); } 30% { opacity: 0.85; transform: scaleY(1.05); } 100% { opacity: 0; transform: scaleY(0.7); } }
+  .wok-dock-card.tossing .wb-flames { transform-box: fill-box; transform-origin: 50% 100%; animation: wokFlamesUp 0.55s ease-out; }
+  @keyframes wokFlamesUp { 0% { transform: scaleY(1); } 30% { transform: scaleY(1.7); } 100% { transform: scaleY(1); } }
+  .wok-dock-card.overheat .wok-body { filter: drop-shadow(0 0 7px rgba(255, 60, 30, 0.85)); }
+  .salteado-station-box.wok-staged .wok-stir-btn { top: -44%; left: 2%; width: 74%; }
   .wok-row { display: flex; justify-content: center; align-items: center; gap: min(6vw, 48px); position: relative; }
   .wok-stove { display: none; }
   .salteado-station-box.wok-staged { --cw: clamp(100px, min(21vw, 34vh), 180px); align-items: flex-end; padding-bottom: 6px; }
@@ -3165,7 +3188,8 @@
   .wok-burner .wb-flames path { transform-box: fill-box; transform-origin: 50% 100%; animation: panFlame 0.3s ease-in-out infinite alternate; }
   .wok-burner .wb-flames path:nth-child(even) { animation-duration: 0.37s; }
   .salteado-station-box.wok-staged .wok-heat { display: block; position: absolute; left: 51%; top: 118%; translate: 0 -50%; width: 30%; height: 5px; background: rgba(0,0,0,0.55); border-radius: 3px; overflow: hidden; z-index: 3; pointer-events: none; }
-  .wok-heat i { display: block; width: 0%; height: 100%; background: linear-gradient(90deg, #4fc3f7, #ffb300, #ff3d00); background-size: 40cqw 100%; transition: width 0.1s linear; }
+  .wok-heat i { display: block; width: 0%; height: 100%; background: linear-gradient(90deg, #4fc3f7 0%, #ffb300 50%, #ff8f00 71.4%, #e53935 71.5%, #b71c1c 100%); background-size: 30cqw 100%; transition: width 0.1s linear; }
+  .wok-heat::after { content: ''; position: absolute; left: 71.4%; top: -1px; bottom: -1px; width: 2px; background: #ffffff; opacity: 0.85; }
   .salteado-station-box.wok-staged .wok-toss-pips { display: flex; align-items: center; gap: 2px; position: absolute; right: 4%; top: 2%; z-index: 3; pointer-events: none; }
   .wok-toss-pips span { font-size: 9px; font-weight: 900; color: #ffe0b2; text-shadow: 0 1px 2px #000; margin-right: 1px; }
   .wok-toss-pips i { width: 6px; height: 6px; border-radius: 50%; background: rgba(0,0,0,0.55); border: 1px solid #ffb74d; }
@@ -3173,9 +3197,6 @@
   .salteado-station-box.wok-staged .wok-fire-btn { display: flex; align-items: center; justify-content: center; position: absolute; left: 40%; top: 118%; translate: -50% -50%; width: 24px; height: 24px; border-radius: 50%; z-index: 4; font-size: 13px; line-height: 1; padding: 0; cursor: pointer; background: radial-gradient(circle at 35% 30%, #cfd8df, #6b7681 70%); border: 2px solid #23262b; filter: grayscale(1) brightness(0.8); box-shadow: 0 2px 4px rgba(0,0,0,0.6); }
   .wok-dock-card.fire-on .wok-fire-btn { filter: none; box-shadow: 0 0 10px 2px rgba(255, 145, 0, 0.9); }
   .wok-dock-card.is-hot .wok-dock-visual { filter: drop-shadow(0 0 5px rgba(255, 120, 0, 0.55)); }
-  .wok-dock-card.tossing .wok-dock-visual { animation: wokTossUp 0.42s ease-out; }
-  @keyframes wokTossUp { 0% { transform: translateY(0) rotate(0); } 35% { transform: translateY(-14%) rotate(-5deg); } 70% { transform: translateY(2%) rotate(3deg); } 100% { transform: translateY(0) rotate(0); } }
-  .wok-dock-card.tossing .wok-chip { transition: transform 0.2s; transform: translate(-50%, -140%) rotate(40deg) !important; }
   .wok-oil-sheen { position: absolute; left: 14%; top: 22%; width: 72%; height: 56%; border-radius: 50%; background: radial-gradient(ellipse, rgba(255, 213, 79, 0.55), rgba(255, 213, 79, 0) 70%); pointer-events: none; }
   .wok-dock-card.tool-target { box-shadow: 0 0 14px 3px rgba(255, 213, 79, 0.95) !important; }
   .salteado-station-box.wok-staged .wok-badge { bottom: auto; top: -17%; }
@@ -6267,7 +6288,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v76</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v77</span></button></div>
     </div>
   </div>
 
@@ -6937,10 +6958,11 @@
       <!-- Wok 1 -->
       <div class="wok-dock-card active" id="wok-card-0" onclick="selectWok(0)">
         <div class="wok-dock-tag" id="wok-tag-0">● ACTIVO</div>
-        <div class="wok-dock-visual" id="wok-art-0"></div>
+        <div class="wok-body"><div class="wok-dock-visual" id="wok-art-0"></div><div class="wok-spatula" aria-hidden="true"></div></div>
+        <div class="wok-fx" id="wok-fx-0" aria-hidden="true"></div>
         <div class="wok-burner" aria-hidden="true"></div>
         <div class="wok-heat" title="Calor del wok"><i id="wok-heat-fill-0"></i></div>
-        <div class="wok-toss-pips" title="Volteos: desliza el dedo hacia arriba sobre el wok"><span>↑</span><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="wok-toss-pips" title="Toques del salteado: 3 toques = 1 ronda"><span id="wok-round-0">R1</span><i></i><i></i><i></i></div>
         <button class="wok-fire-btn" id="wok-fire-0" onclick="event.stopPropagation(); wokFireToggle(0)" title="Fuego del wok 1">🔥</button>
         <button class="wok-stir-btn" id="wok-stir-btn-0" style="display:none;">
           <span class="wok-stir-label" id="wok-stir-label-0">Saltear (mantén)</span>
@@ -6957,10 +6979,11 @@
       <!-- Wok 2 -->
       <div class="wok-dock-card" id="wok-card-1" onclick="selectWok(1)">
         <div class="wok-dock-tag" id="wok-tag-1" style="display:none;">● ACTIVO</div>
-        <div class="wok-dock-visual" id="wok-art-1"></div>
+        <div class="wok-body"><div class="wok-dock-visual" id="wok-art-1"></div><div class="wok-spatula" aria-hidden="true"></div></div>
+        <div class="wok-fx" id="wok-fx-1" aria-hidden="true"></div>
         <div class="wok-burner" aria-hidden="true"></div>
         <div class="wok-heat" title="Calor del wok"><i id="wok-heat-fill-1"></i></div>
-        <div class="wok-toss-pips" title="Volteos: desliza el dedo hacia arriba sobre el wok"><span>↑</span><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="wok-toss-pips" title="Toques del salteado: 3 toques = 1 ronda"><span id="wok-round-1">R1</span><i></i><i></i><i></i></div>
         <button class="wok-fire-btn" id="wok-fire-1" onclick="event.stopPropagation(); wokFireToggle(1)" title="Fuego del wok 2">🔥</button>
         <button class="wok-stir-btn" id="wok-stir-btn-1" style="display:none;">
           <span class="wok-stir-label" id="wok-stir-label-1">Saltear (mantén)</span>
@@ -10683,10 +10706,12 @@ function toggleIngredientInWok(ingId) {
   if (wok.result) return; // ya salteado: hay que vaciar el wok para volver a armar
   if (wok.ingredients.includes(ingId)) {
     wok.ingredients = wok.ingredients.filter(id => id !== ingId);
+    if (wok.addRound) delete wok.addRound[ingId];
     stCookRefund('salteados', ingId);
   } else {
     if (!stCookTake('salteados', ingId)) return;
     wok.ingredients.push(ingId);
+    if (wokStaged()) wokNoteAdded(wok, ingId);
   }
   playSound('add');
   renderWoks();
@@ -10732,7 +10757,8 @@ function renderWoks() {
             const x = 50 + Math.cos(angle) * radius * 42;
             const y = 50 + Math.sin(angle) * radius * 38;
             const rot = ((idx * 47) % 50) - 25;
-            return `<span class="wok-chip" title="${ing ? ing.display : ''}" style="left:${x.toFixed(1)}%;top:${y.toFixed(1)}%;z-index:${idx};transform:translate(-50%,-50%) rotate(${rot}deg)">${ingIconHtml(ing)}</span>`;
+            const rnd = ((idx * 37 + 11) % 100) / 100, rnd2 = ((idx * 53 + 7) % 100) / 100;
+            return `<span class="wok-chip" title="${ing ? ing.display : ''}" style="left:${x.toFixed(1)}%;top:${y.toFixed(1)}%;z-index:${idx};transform:translate(-50%,-50%) rotate(${rot}deg);--fx:${((rnd - 0.5) * 36).toFixed(1)}cqw;--fy:${(-(14 + rnd2 * 16)).toFixed(1)}cqw;--fr:${Math.round(rnd * 220 - 110)}deg;--kd:${idx * 22}ms">${ingIconHtml(ing)}</span>`;
           }).join(''));
     }
 
@@ -10818,14 +10844,21 @@ function wokProfile(recipe) {
   return { crudo: base.crudo, perfecto, quemado: base.quemado + (perfecto - base.perfecto) };
 }
 
-// ---- Salteados con etapas: wok sobre fuego, aceite en botella y volteo ----
-// El fuego es un interruptor y el wok tarda en calentar. Con el plato armado (y el wok caliente) se cocina solo: hay que VOLTEAR
-// (deslizar el dedo hacia arriba sobre el wok) y RETIRAR en su punto (tocar el botón). Si se olvida, se quema. Apagar el fuego pausa la cocción.
-const WOK_HEAT_SECS = 3;          // segundos del wok frío a caliente
-const WOK_STAGED_SCALE = 2.4;     // la ventana de cocción (crudo / perfecto / quemado) es esta vez más larga que la de mantener pulsado
-const WOK_TOSS_STEP = 0.2;        // 5 volteos = mezclado completo
-const WOK_TOSS_MIN_PX = 26;       // recorrido hacia arriba para contar un volteo
-const WOK_TOSS_LOCK_MS = 260;
+// ---- Salteados con etapas: wok sobre fuego, aceite en botella y salteado por toques ----
+// Cada TOQUE sobre el wok es un salteado y 3 toques = 1 RONDA. En cada ronda se van integrando los ingredientes del plato (se agregan arrastrándolos
+// y cuentan como integrados cuando pasa una ronda completa; hacen falta tantas rondas como ingredientes de cocción, entre 2 y 5).
+// El fuego es un interruptor y la barra de temperatura sube hasta el punto ideal (1): mientras se saltea se mantiene ahí; si se deja de saltear
+// demasiado rato la temperatura pasa de ese punto y la comida empieza a quemarse. Apagar el fuego a mitad de una ronda (con 1 o 2 toques) resta calidad.
+// Con el plato listo se RETIRA tocando el botón de arriba: antes de tiempo sale crudo y si se sigue salteando de más se seca y se quema.
+const WOK_TAPS_PER_ROUND = 3;
+const WOK_TOSS_LOCK_MS = 480;     // cada salteado dura lo que dura su animación; los toques de más se ignoran
+const WOK_HEAT_SECS = 3;          // segundos del wok frío al punto ideal
+const WOK_HEAT_BURN = 1.4;        // a esta temperatura la comida se quema (1 = ideal)
+const WOK_IDLE_GRACE = 2.5;       // segundos sin saltear antes de que la temperatura se pase del punto ideal
+const WOK_OVERHEAT_SECS = 5;      // de 1,0 a 1,4 sin saltear
+const WOK_TOSS_COOL = 0.25;       // cada salteado baja la temperatura que se pasó del punto ideal
+const WOK_OVER_ROUNDS = 2;        // rondas de más (sobre las necesarias) antes de que se seque y se queme
+const WOK_VIRTUAL = { crudo: 1, perfecto: 3, quemado: 4.5 };   // ventana "virtual" para reutilizar los puntos de cocción de siempre
 const WOK_SAUCE_IDS = [79, 40, 8];   // salsas de cocción de Salteados que son botellas (las demás se ponen al emplatar)
 // Cocina de acero de salteado (referencia del usuario): pared trasera, plano de trabajo, borde y frente. Se estira al ancho de los dos woks
 // (los trazos no cambian de grosor: vector-effect). Las hornillas, llamas y vapor son de cada wok (WOK_BURNER_SVG); los utensilios van a la derecha.
@@ -10857,33 +10890,66 @@ const WOK_STOVE_SVG = (() => {
     </g>
   </svg>`;
 })();
+// Espátula (referencia del usuario, viñeta 5): descansa dentro del wok y barre los ingredientes con cada salteado
+const WOK_SPATULA_SVG = (() => {
+  const ink = '#23262b';
+  return `<svg viewBox="0 0 60 84" overflow="visible">
+    <g stroke-linecap="round" stroke-linejoin="round">
+      <path d="M 54,2 L 27,52" stroke="${ink}" stroke-width="7.4" fill="none"/><path d="M 54,2 L 27,52" stroke="#8a5a2b" stroke-width="4.6" fill="none"/><path d="M 51,6 L 31,43" stroke="#c28a52" stroke-opacity="0.7" stroke-width="1.4" fill="none"/>
+      <path d="M 21,50 L 36,56 L 32,74 L 15,68 Z" fill="#cdd6de" stroke="${ink}" stroke-width="2.2"/>
+      <path d="M 24,55 L 31,58" stroke="#ffffff" stroke-opacity="0.7" stroke-width="1.6"/>
+    </g>
+  </svg>`;
+})();
 const WOK_BURNER_SVG = (() => {
-  let fl = '';
+  let fl = '', big = '';
   for (let k = 0; k < 9; k++) { const fx = 16 + k * 8.5; fl += `<path d="M ${fx - 3.4},24 Q ${fx - 4.4},10 ${fx},-8 Q ${fx + 4.4},10 ${fx + 3.4},24 Z" fill="#4aa3ff" stroke="#1f5fa8" stroke-width="0.5"/><path d="M ${fx - 1.6},22 Q ${fx},12 ${fx + 1.6},22 Z" fill="#ff9a3d"/>`; }
+  for (let k = 0; k < 7; k++) { const fx = 12 + k * 12.7, h = 38 + (k % 3) * 14; big += `<path d="M ${fx - 5},24 Q ${fx - 8},0 ${fx - 1},-${h} Q ${fx + 2},-${h * 0.5} ${fx + 8},-${h * 0.9} Q ${fx + 9},4 ${fx + 5},24 Z" fill="#ff8a1f" stroke="#e65100" stroke-width="0.6"/><path d="M ${fx - 2.4},22 Q ${fx},-4 ${fx + 1},-${h * 0.45} Q ${fx + 3},0 ${fx + 3},22 Z" fill="#ffe082"/>`; }
   const steam = '<g class="wb-steam" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" fill="none"><path d="M 34,-52 q -6,-12 0,-22 q 6,-10 0,-20"/><path d="M 52,-56 q 6,-12 0,-24 q -6,-10 0,-20"/><path d="M 68,-50 q -6,-11 0,-21 q 6,-9 0,-18"/></g>';
   return `<svg viewBox="0 0 100 40" preserveAspectRatio="none">
     <ellipse cx="50" cy="23" rx="47" ry="7.5" fill="#15181c" stroke="#59626c" stroke-width="1"/>
     <ellipse cx="50" cy="22.5" rx="34" ry="4.6" fill="#262a31"/>
     <path d="M 10,25 L 18,19 M 90,25 L 82,19 M 34,28 L 36,20 M 66,28 L 64,20" stroke="#4a515b" stroke-width="2.2" fill="none"/>
     <g class="wb-flames">${fl}</g>
+    <g class="wb-flare">${big}</g>
     ${steam}
   </svg>`;
 })();
 function newWok(prev) {
   return { ingredients: [], result: null, matchedRecipe: null, stirring: false, stirSeconds: 0,
-    fire: !!(prev && prev.fire), heat: prev ? (prev.heat || 0) : 0, oil: false, toss: 0 };   // el fuego y el calor se quedan al vaciar el wok
+    fire: !!(prev && prev.fire), heat: prev ? (prev.heat || 0) : 0,     // el fuego y la temperatura se quedan al vaciar el wok
+    oil: false, toss: 0, taps: 0, rounds: 0, addRound: {}, interrupts: 0, burnPeak: 0, lastAct: 0 };
 }
 const wokStaged = () => !!gameState.woks && stagedOn('salteados');
-function wokStagedProfile(recipe) {
-  const p = wokProfile(recipe), k = WOK_STAGED_SCALE;
-  return { crudo: p.crudo * k, perfecto: p.perfecto * k, quemado: p.quemado * k };
+const wokTossLock = [0, 0];
+function wokRoundsNeeded(i) {
+  const a = analyzeWok(i);
+  return Math.max(2, Math.min(5, a.recipe ? a.recipe.ingredients.length : 2));
+}
+const wokIntegrated = w => w.ingredients.every(id => (w.rounds || 0) > ((w.addRound && w.addRound[id] != null) ? w.addRound[id] : -1));
+function wokReady(i) {
+  const w = gameState.woks[i];
+  return !!w && !w.result && analyzeWok(i).status === 'MATCHED' && wokIntegrated(w) && (w.rounds || 0) >= wokRoundsNeeded(i);
+}
+// Anota en qué ronda entró cada ingrediente (cuenta como integrado cuando pasa una ronda completa)
+function wokNoteAdded(w, id) {
+  if (!w.addRound) w.addRound = {};
+  w.addRound[id] = w.rounds || 0;
+  w.lastAct = performance.now();
 }
 function wokFireToggle(i) {
   if (!wokStaged() || gameState.isPaused || gameState.isGameOver) return;
   if (i >= wokLimit()) { showStationToast('🔒 Este wok se abre completando más retos del entrenamiento.'); return; }
   const w = gameState.woks[i];
   if (!w) return;
+  if (w.fire && (w.taps || 0) > 0 && w.ingredients.length && !w.result) {     // apagar a mitad de una ronda: la comida pierde calidad
+    w.interrupts = (w.interrupts || 0) + 1;
+    w.taps = 0;
+    showStationToast('⚠ Apagaste a mitad de un salteado (3 toques): la comida pierde calidad.');
+    try { playSound('error'); } catch (e) {}
+  }
   w.fire = !w.fire;
+  w.lastAct = performance.now();
   try { playSound(w.fire ? 'flame' : 'click'); } catch (e) {}
   showStationToast(w.fire ? `🔥 Wok ${i + 1} encendido: tarda ${WOK_HEAT_SECS} s en calentar.` : `🔥 Wok ${i + 1} apagado.`);
   renderWoks();
@@ -10896,118 +10962,159 @@ function wokPour(i, id) {
   if (id === OIL_ID) {
     if (w.oil) { showStationToast(`🛢️ El wok ${i + 1} ya tiene aceite.`); return false; }
     w.oil = true;
+    w.lastAct = performance.now();
   } else {
     if (w.ingredients.includes(id)) { showStationToast(`💧 El wok ${i + 1} ya tiene esa salsa.`); return false; }
     if (!stCookTake('salteados', id)) return false;
     w.ingredients.push(id);
+    wokNoteAdded(w, id);
   }
   try { playSound('add'); } catch (e) {}
   renderWoks();
   renderPantryGrid();
   return true;
 }
+// Resultado "virtual" para reutilizar la evaluación de cocción: PERFECTO en el centro de la ventana (algo menos si se apagó a mitad de una ronda)
+function wokSetResult(i, result) {
+  const w = gameState.woks[i], p = WOK_VIRTUAL;
+  const progress = Math.min(1, ((w.rounds || 0) + (w.taps || 0) / WOK_TAPS_PER_ROUND) / wokRoundsNeeded(i));
+  w.profile = { ...p };
+  if (result === 'PERFECTO') w.stirSeconds = (w.interrupts || 0) ? p.crudo + 0.85 * (p.perfecto - p.crudo) : (p.crudo + p.perfecto) / 2;
+  else if (result === 'CRUDO') w.stirSeconds = p.crudo * Math.max(0.05, progress) * 0.95;
+  else w.stirSeconds = (p.perfecto + p.quemado) / 2;
+  w.toss = Math.max(0, Math.min(1, progress - 0.3 * (w.interrupts || 0) - 0.5 * (w.burnPeak || 0)));
+}
+function wokBurn(i, why) {
+  const w = gameState.woks[i];
+  if (!w || w.result) return;
+  if (analyzeWok(i).status !== 'MATCHED') {                                    // lo que había aún no era un plato: se echa a perder
+    showStationToast('💨 Se quemó lo que había en el wok: vacíalo.');
+    try { playSound('burn'); } catch (e) {}
+    w.heat = 1; w.burnPeak = 1; w.lastAct = performance.now();
+    return;
+  }
+  showStationToast(why === 'over' ? '💨 Te pasaste de salteado: se secó y se quemó.' : '💨 Dejaste de saltear: se quemó.');
+  wokSetResult(i, 'QUEMADO');
+  finishStir(i, 'QUEMADO');
+}
+// El botón de arriba RETIRA el plato: en su punto sale perfecto; si aún no estaba, crudo.
 function wokStagedTap(i) {
   const w = gameState.woks[i];
   if (!w || w.result || gameState.isPaused || gameState.isGameOver) return;
   if (i >= wokLimit()) return;
-  if (!w.fire) { wokFireToggle(i); return; }
-  const a = analyzeWok(i);
-  if (a.status !== 'MATCHED') return;
-  if ((w.heat || 0) < 1 || w.stirSeconds <= 0) { showStationToast('🔥 El wok aún se calienta: espera a que cueza.'); return; }
-  const prof = w.profile || wokStagedProfile(a.recipe);
-  finishStir(i, w.stirSeconds < prof.crudo ? 'CRUDO' : (w.stirSeconds < prof.perfecto ? 'PERFECTO' : 'QUEMADO'));
+  if (!w.fire && !((w.rounds || 0) > 0 || (w.taps || 0) > 0)) { wokFireToggle(i); return; }
+  if (analyzeWok(i).status !== 'MATCHED') return;
+  if (!((w.rounds || 0) > 0 || (w.taps || 0) > 0)) { showStationToast('👆 Toca el wok para saltear (3 toques = 1 ronda).'); return; }
+  const result = wokReady(i) ? 'PERFECTO' : 'CRUDO';
+  wokSetResult(i, result);
+  finishStir(i, result);
 }
 function wokStagedBtnUi(w, i, btn) {
   const label = document.getElementById(`wok-stir-label-${i}`), fill = document.getElementById(`wok-stir-fill-${i}`);
-  let zone = '', text = '', pct = 0;
-  if (!w.fire) text = '🔥 Enciende el fuego';
-  else if ((w.heat || 0) < 1) text = 'Calentando…';
-  else {
-    const a = analyzeWok(i), prof = w.profile || wokStagedProfile(a.recipe);
-    pct = Math.min(100, w.stirSeconds / prof.quemado * 100);
-    zone = w.stirSeconds < prof.crudo ? 'crudo' : (w.stirSeconds < prof.perfecto ? 'perfecto' : 'quemado');
-    text = zone === 'crudo' ? 'Voltea ↑ y espera…' : (zone === 'perfecto' ? '¡Retira ahora! (toca)' : '¡Se quema! (toca)');
-  }
+  const needed = wokRoundsNeeded(i), started = (w.rounds || 0) > 0 || (w.taps || 0) > 0;
+  let zone = '', text = '';
+  if (!w.fire && !started) text = '🔥 Enciende el fuego';
+  else if ((w.heat || 0) < 0.9 && !started) text = 'Calentando…';
+  else if (!started) text = '👆 Toca el wok: 3 toques = 1 ronda';
+  else if ((w.heat || 0) > 1.05) { zone = 'quemado'; text = '¡Se quema! Sigue salteando'; }
+  else if (wokReady(i)) { zone = 'perfecto'; text = '✅ ¡Listo! Toca para retirar'; }
+  else { zone = 'crudo'; text = `Ronda ${Math.min(needed, (w.rounds || 0) + 1)}/${needed} · retirar (crudo)`; }
   if (label && label.textContent !== text) label.textContent = text;
-  if (fill) fill.style.width = `${pct}%`;
+  if (fill) fill.style.width = `${Math.round(Math.min(1, ((w.rounds || 0) + (w.taps || 0) / WOK_TAPS_PER_ROUND) / needed) * 100)}%`;
   ['crudo', 'perfecto', 'quemado'].forEach(z => btn.classList.toggle('zone-' + z, z === zone));
-  btn.classList.toggle('stirring-active', !!w.stirring);
+  btn.classList.toggle('stirring-active', zone === 'perfecto');
 }
-// Estado visual de cada wok (llamas, calor, volteos, botón): se actualiza cada décima de segundo sin recrear los botones.
+// Estado visual de cada wok (llamas, temperatura, toques de la ronda, botón): se actualiza cada décima de segundo sin recrear los botones.
 function wokUpdateFireUi() {
   const on = wokStaged();
   const box = document.getElementById('salteado-station-box');
   if (box) box.classList.toggle('wok-staged', on);
   if (!on) return;
   document.querySelectorAll('.wok-burner').forEach(b => { if (!b.firstChild) b.innerHTML = WOK_BURNER_SVG; });
+  document.querySelectorAll('.wok-spatula').forEach(b => { if (!b.firstChild) b.innerHTML = WOK_SPATULA_SVG; });
   const stoveEl = document.getElementById('wok-stove');
   if (stoveEl && !stoveEl.firstChild) stoveEl.innerHTML = WOK_STOVE_SVG;
   gameState.woks.forEach((w, i) => {
     const card = document.getElementById(`wok-card-${i}`);
     if (!card || !w) return;
+    const heat = w.heat || 0;
     card.classList.toggle('fire-on', !!w.fire);
-    card.classList.toggle('is-hot', (w.heat || 0) >= 1);
+    card.classList.toggle('is-hot', heat >= 1);
+    card.classList.toggle('overheat', heat > 1.05);
+    card.classList.toggle('has-food', w.ingredients.length > 0 && !w.result);
     const fill = document.getElementById(`wok-heat-fill-${i}`);
-    if (fill) fill.style.width = `${Math.round((w.heat || 0) * 100)}%`;
-    const n = Math.round((w.toss || 0) / WOK_TOSS_STEP);
-    card.querySelectorAll('.wok-toss-pips i').forEach((p, k) => p.classList.toggle('on', k < n));
+    if (fill) fill.style.width = `${Math.round(Math.min(1, heat / WOK_HEAT_BURN) * 100)}%`;
+    card.querySelectorAll('.wok-toss-pips i').forEach((p, k) => p.classList.toggle('on', k < (w.taps || 0)));
+    const rl = document.getElementById(`wok-round-${i}`);
+    if (rl) { const t = w.result ? '' : `R${(w.rounds || 0) + 1}/${wokRoundsNeeded(i)}`; if (rl.textContent !== t) rl.textContent = t; }
     const btn = document.getElementById(`wok-stir-btn-${i}`);
     if (btn && btn.style.display !== 'none' && !w.result) wokStagedBtnUi(w, i, btn);
   });
 }
 function wokStagedTick() {
   if (!gameState.woks || !wokStaged() || gameState.isPaused || gameState.isGameOver) return;
-  const dt = 0.1;
-  let changed = false;
+  const dt = 0.1, now = performance.now(), lvl = getUpgradeLevel('wok');
   gameState.woks.forEach((w, i) => {
     if (!w) return;
     const h = w.heat || 0;
-    w.heat = w.fire ? Math.min(1, h + dt / WOK_HEAT_SECS) : Math.max(0, h - dt / (WOK_HEAT_SECS * 2));
-    if (w.result || i >= wokLimit()) return;
-    const a = w.fire && w.heat >= 1 && w.ingredients.length ? analyzeWok(i) : null;
-    if (a && a.status === 'MATCHED') {
-      if (!w.profile || !w.profileStaged) { w.profile = wokStagedProfile(a.recipe); w.profileStaged = true; }
-      if (!w.stirring) { w.stirring = true; changed = true; try { playSound('flame'); } catch (e) {} }
-      w.stirSeconds += dt;
-      sfxEvery('sizzle', 260);
-      if (w.stirSeconds >= w.profile.quemado && !isFree()) finishStir(i, 'QUEMADO');
-    } else if (w.stirring) { w.stirring = false; changed = true; }
+    if (!w.fire) w.heat = Math.max(0, h - dt / (WOK_HEAT_SECS * 2));
+    else if (h < 1) w.heat = Math.min(1, h + dt / WOK_HEAT_SECS);
+    else if (w.ingredients.length && !w.result && !isFree() && i < wokLimit() && now - (w.lastAct || now) > (WOK_IDLE_GRACE + 0.5 * lvl) * 1000) {
+      w.heat = Math.min(WOK_HEAT_BURN, h + dt * (WOK_HEAT_BURN - 1) / WOK_OVERHEAT_SECS);   // sin saltear, la temperatura se pasa del punto ideal
+      w.burnPeak = Math.max(w.burnPeak || 0, (w.heat - 1) / (WOK_HEAT_BURN - 1));
+      sfxEvery('sizzle', 500);
+      if (w.heat >= WOK_HEAT_BURN) wokBurn(i, 'idle');
+    }
   });
-  if (changed) renderWoks();
   wokUpdateFireUi();
 }
 setInterval(wokStagedTick, 100);
-// Volteo: deslizar el dedo hacia arriba sobre el wok (con el wok sobre el fuego)
-const wokSwipes = new Map();
-let wokTossLock = 0;
+// Cada toque sobre el wok es un salteado; 3 toques = 1 ronda
+function wokTossFx(i) {
+  const card = document.getElementById(`wok-card-${i}`);
+  if (!card) return;
+  card.classList.remove('tossing'); void card.offsetWidth; card.classList.add('tossing');
+  clearTimeout(card._tossTimer);
+  card._tossTimer = setTimeout(() => card.classList.remove('tossing'), 580);
+  const fx = document.getElementById(`wok-fx-${i}`);
+  if (!fx) return;
+  const cols = ['#ff7043', '#ffb300', '#ffee58', '#e53935', '#66bb6a', '#ab47bc'];
+  let h = '';
+  for (let k = 0; k < 12; k++) h += `<i class="wok-spark" style="--dx:${((Math.random() - 0.5) * 62).toFixed(1)}cqw;--dy:${(-(20 + Math.random() * 42)).toFixed(1)}cqw;--c:${cols[k % cols.length]};animation-delay:${k * 16}ms" onanimationend="this.remove()"></i>`;
+  fx.insertAdjacentHTML('beforeend', h);
+}
 function wokToss(i) {
   const w = gameState.woks[i];
   if (!w || w.result || gameState.isPaused || gameState.isGameOver || i >= wokLimit()) return;
   const now = performance.now();
-  if (now < wokTossLock) return;
-  wokTossLock = now + WOK_TOSS_LOCK_MS;
-  if (!w.ingredients.length) { showStationToast('🍳 No hay nada que voltear todavía.'); return; }
-  const card = document.getElementById(`wok-card-${i}`);
-  if (card) { card.classList.remove('tossing'); void card.offsetWidth; card.classList.add('tossing'); setTimeout(() => card.classList.remove('tossing'), 440); }
+  if (now < wokTossLock[i]) return;                          // el salteado anterior aún no termina su animación
+  if (!w.ingredients.length) { wokTossLock[i] = now + 600; showStationToast('🍳 Aún no hay nada en el wok: arrastra los ingredientes.'); return; }
+  if (!w.fire) { wokTossLock[i] = now + 600; showStationToast('🔥 Enciende el fuego del wok (la perilla de abajo) para saltear.'); return; }
+  if ((w.heat || 0) < 0.9) { wokTossLock[i] = now + 600; showStationToast('🔥 El wok aún se calienta…'); return; }
+  wokTossLock[i] = now + WOK_TOSS_LOCK_MS;
+  wokTossFx(i);
   try { playSound('stir'); } catch (e) {}
-  if (!w.fire || (w.heat || 0) < 0.5) { showStationToast('🔥 Voltea con el wok sobre el fuego: enciéndelo primero.'); return; }
-  w.toss = Math.min(1, (w.toss || 0) + WOK_TOSS_STEP);
+  sfxEvery('sizzle', 200);
+  w.lastAct = now;
+  if ((w.heat || 0) > 1) w.heat = Math.max(1, w.heat - WOK_TOSS_COOL);   // saltear baja la temperatura que se pasó
+  w.taps = (w.taps || 0) + 1;
+  if (w.taps >= WOK_TAPS_PER_ROUND) {
+    w.taps = 0;
+    w.rounds = (w.rounds || 0) + 1;
+    try { playSound('match'); } catch (e) {}
+    const needed = wokRoundsNeeded(i);
+    if (wokReady(i)) showStationToast('✅ ¡Listo! Retira el plato (botón de arriba) antes de que se seque.');
+    else showStationToast(`🍳 Ronda ${w.rounds} completa${w.rounds < needed ? ': integra el siguiente ingrediente' : ''}.`);
+    if (!isFree() && w.rounds >= needed + WOK_OVER_ROUNDS + (getUpgradeLevel('wok') >= 2 ? 1 : 0) && analyzeWok(i).status === 'MATCHED') wokBurn(i, 'over');
+  }
   wokUpdateFireUi();
 }
 document.addEventListener('pointerdown', (e) => {
-  if (!wokStaged() || !e.target.closest) return;
+  if (!wokStaged() || !e.target.closest || gameState.isPaused || gameState.isGameOver) return;
   const c = e.target.closest('.wok-dock-card');
   if (!c || e.target.closest('button')) return;
-  wokSwipes.set(e.pointerId, { i: parseInt(c.id.replace('wok-card-', ''), 10), x: e.clientX, y: e.clientY, t: performance.now() });
+  wokToss(parseInt(c.id.replace('wok-card-', ''), 10));
 }, { passive: true });
-document.addEventListener('pointermove', (e) => {
-  const sw = wokSwipes.get(e.pointerId);
-  if (!sw) return;
-  const dx = e.clientX - sw.x, dy = e.clientY - sw.y, age = performance.now() - sw.t;
-  if (dy <= -WOK_TOSS_MIN_PX && Math.abs(dx) <= Math.abs(dy) * 1.4 && age < 800) { wokSwipes.delete(e.pointerId); wokToss(sw.i); }
-  else if (age > 800 || dy > 40) wokSwipes.delete(e.pointerId);
-}, { passive: true });
-['pointerup', 'pointercancel'].forEach(t => document.addEventListener(t, (e) => { wokSwipes.delete(e.pointerId); }, { passive: true }));
 
 function finishStir(index, result) {
   const wok = gameState.woks[index];
