@@ -1823,18 +1823,18 @@
 
   /* --- Cocina profesional de 4 hornillas del ramen (con etapas): fideos · olla grande de Shio · 2 sartenes hondas; soplete del chasu al costado --- */
   .ramen-stove-bg, .stove-art, .stove-pan { display: none; }
-  .cook-stations-panel.stove-on { display: block; position: relative; width: 400px; aspect-ratio: 400 / 96; height: auto; padding: 0; gap: 0; background: none; border: none; box-shadow: none; flex-shrink: 0; }
-  .stove-on .ramen-stove-bg { display: block; position: absolute; left: 0; top: 0; width: 87.5%; height: 100%; pointer-events: none; filter: drop-shadow(0 4px 5px rgba(0,0,0,0.55)); }
+  .cook-stations-panel.stove-on { display: block; position: relative; width: 470px; aspect-ratio: 470 / 96; height: auto; padding: 0; gap: 0; background: none; border: none; box-shadow: none; flex-shrink: 0; }
+  .stove-on .ramen-stove-bg { display: block; position: absolute; left: 0; top: 0; width: 74.5%; height: 100%; pointer-events: none; filter: drop-shadow(0 4px 5px rgba(0,0,0,0.55)); }
   .stove-on .ramen-stove-bg svg, .stove-on .stove-art svg, .stove-on .stove-pan-art svg { width: 100%; height: 100%; display: block; }
   .stove-on #btn-heat-tonkotsu { display: none; }
   .stove-on #btn-cook-noodles, .stove-on #btn-heat-shio, .stove-on .stove-pan {
     position: absolute; top: 0; height: 100%; display: block; padding: 0; overflow: visible; cursor: pointer; user-select: none;
     background: transparent !important; border: 2px solid transparent; border-radius: 14px; box-shadow: none; transition: border-color 0.15s, box-shadow 0.15s;
   }
-  .stove-on #btn-cook-noodles { left: 0.8%; width: 24.5%; }
-  .stove-on #btn-heat-shio { left: 26%; width: 24.5%; }
-  .stove-on #pan-cell-0 { left: 51.6%; width: 17.5%; }
-  .stove-on #pan-cell-1 { left: 70%; width: 16.8%; }
+  .stove-on #btn-cook-noodles { left: 0.7%; width: 20.9%; }
+  .stove-on #btn-heat-shio { left: 22.1%; width: 20.9%; }
+  .stove-on #pan-cell-0 { left: 43.8%; width: 14.9%; }
+  .stove-on #pan-cell-1 { left: 59.6%; width: 14.3%; }
   .stove-on #btn-cook-noodles .station-icon-wrap, .stove-on #btn-heat-shio .station-icon-wrap { display: none; }
   .stove-on .stove-art, .stove-on .stove-pan .stove-pan-art { display: block; position: absolute; left: 0; right: 0; top: 0; height: 57.4%; pointer-events: none; }
   .stove-on .stove-pan .stove-pan-art { top: 2%; height: 56%; }
@@ -1858,13 +1858,20 @@
   .stove-pan-trash { right: 2px; border: 1px solid #ef5350; background: #c62828; color: #fff; }
   .stove-pan-fire { left: 2px; border: 1px solid #5a4a44; background: #2c2420; color: #fff; opacity: 0.7; }
   .stove-pan.fire .stove-pan-fire { opacity: 1; background: #e64a19; border-color: #ff9800; box-shadow: 0 0 6px #ff6d00; }
-  .stove-on #btn-flame-chasu { position: absolute; left: 88%; top: 6%; width: 12%; height: 88%; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 2px; background: linear-gradient(180deg, #59626a, #363d44); border: 2px solid #1f252a; border-radius: 10px; box-shadow: inset 0 2px 0 rgba(255,255,255,0.18), 0 3px 8px rgba(0,0,0,0.5); }
-  .stove-on #btn-flame-chasu .station-icon-wrap { margin: 0 0 2px; }
-  .stove-on #btn-flame-chasu .station-title { white-space: normal; font-size: 8.5px; }
-  .stove-on #btn-flame-chasu .station-status { white-space: normal; font-size: 7.5px; text-align: center; }
+  /* bandeja de chasu: llega hasta el borde del primer cuenco */
+  .stove-on #btn-flame-chasu { position: absolute; left: 75.6%; top: 0; width: 24.4%; height: 100%; display: block; padding: 0; overflow: visible; cursor: pointer; background: transparent !important; border: 2px solid transparent; border-radius: 14px; box-shadow: none; }
+  .stove-on #btn-flame-chasu .station-icon-wrap { display: none; }
+  .stove-on #btn-flame-chasu #chasu-art { height: 74%; top: 0; }
+  .stove-on #btn-flame-chasu .station-info { position: absolute; left: 50%; transform: translateX(-50%); bottom: 11%; width: 94%; flex: none; text-align: center; padding: 1px 3px; background: rgba(22, 16, 14, 0.88); border: 1px solid #3d4650; border-radius: 6px; z-index: 2; pointer-events: none; }
+  .stove-on #btn-flame-chasu .station-title { font-size: 8.5px; line-height: 1.15; white-space: nowrap; }
+  .stove-on #btn-flame-chasu .station-status { font-size: 7.5px; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
+  .stove-on #btn-flame-chasu .station-progress-bar { left: 8%; width: 84%; bottom: 7%; height: 3px; border-radius: 2px; }
+  .stove-on #btn-flame-chasu.flaming-active { border-color: #ff7043; box-shadow: 0 0 12px rgba(255, 87, 34, 0.55); }
+  .kitchen-bottom-dock.stove-on { justify-content: flex-start; gap: 8px; }
+  .kitchen-bottom-dock.stove-on #bowls-dock-box { flex: 0 0 auto; }
   #bowls-dock-box.stove-on #bowl-card-2 { display: none; }
   @media (max-width: 750px) {
-    .cook-stations-panel.stove-on { width: 330px; }
+    .cook-stations-panel.stove-on { width: 392px; }
     .stove-on #btn-cook-noodles .station-title, .stove-on #btn-heat-shio .station-title, .stove-on .stove-pan .station-title { font-size: 7.5px; }
     .stove-on #btn-cook-noodles .station-status, .stove-on #btn-heat-shio .station-status, .stove-on .stove-pan .station-status { font-size: 6.8px; }
   }
@@ -6174,7 +6181,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v62</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v63</span></button></div>
     </div>
   </div>
 
@@ -6718,6 +6725,7 @@
 
       <!-- 4. Flamear Chasu -->
       <button class="cook-station-btn" id="btn-flame-chasu" title="Flamear Chasu: Mantén presionado para encender el soplete y flamear Chasu (1 porción cada 2s hasta 4).">
+        <div class="stove-art" id="chasu-art"></div>
         <div class="station-icon-wrap">
           <span class="station-icon" id="chasu-icon">🥩</span>
         </div>
@@ -13019,7 +13027,7 @@ function updateKitchenStationsUI(skipSync = false, source = '', delta = '') {
   if (chasuStatus && (!kitchenState.chasu || !kitchenState.chasu.isFlaming)) {
     chasuStatus.textContent = kitchenState.stocks.chasu >= stockCap()
       ? `Listo (${stockCap()}/${stockCap()})`
-      : (kitchenState.stocks.chasu > 0 ? `Listo (${kitchenState.stocks.chasu}/${stockCap()})` : 'Mantén (2s c/u)');
+      : (kitchenState.stocks.chasu > 0 ? `Listo (${kitchenState.stocks.chasu}/${stockCap()})` : (stagedOn('ramen') ? 'Usa el flameador' : 'Mantén (2s c/u)'));
   }
 
   const shioStatus = document.getElementById('shio-status');
@@ -16317,8 +16325,8 @@ function toolPlaceArmed(a) {
     const b = document.getElementById('btn-flame-chasu');
     if (!b) return;
     const r = b.getBoundingClientRect();
-    // la boquilla (punta izquierda del flameador, de donde sale el fuego) queda arriba a la derecha del botón y apunta hacia él
-    a.el.style.left = (r.left + r.width / 2 + 24 - 42.8) + 'px';
+    // la boquilla (punta izquierda del flameador, de donde sale el fuego) queda arriba a la derecha de la bandeja y apunta hacia las láminas
+    a.el.style.left = (r.left + r.width * 0.72 - 42.8) + 'px';
     a.el.style.top = (r.top - 22 - 25.9) + 'px';
   }
 }
@@ -16484,6 +16492,41 @@ function stovePotSvg(o) {
     ${steam}
   </svg>`;
 }
+// Bandeja de acero con láminas de chasu: crudas hasta que se flamean (se doran las porciones que ya hay en stock)
+function chasuTraySvg(stock, cap, flaming, prog) {
+  const ink = STOVE_INK, N = 8;
+  const flamed = Math.max(0, Math.min(N, (stock / Math.max(1, cap)) * N));       // láminas ya flameadas (puede ser fraccionario: la que se está dorando)
+  const cur = flaming ? Math.min(1, prog / 2) : 0;                              // avance de la porción que se está flameando (0..1)
+  const partial = flaming ? flamed + cur * (N / Math.max(1, cap)) : flamed;
+  const pos = [[34, 33, -4], [56, 31, 3], [78, 33, -3], [100, 31, 4], [30, 47, 3], [53, 48, -4], [77, 47, 3], [100, 48, -3]];
+  const slice = (x, y, rot, k) => {
+    const f = Math.max(0, Math.min(1, partial - k));          // 0 cruda · 1 flameada
+    const raw = '#e6a392', fat = '#f8e6d8', brown = '#a85b2c', char = '#3d1d0c';
+    const mix = (c1, c2, t) => { const a = parseInt(c1.slice(1), 16), b = parseInt(c2.slice(1), 16); const m = (sh) => Math.round(((a >> sh) & 255) * (1 - t) + ((b >> sh) & 255) * t); return '#' + [16, 8, 0].map(sh => m(sh).toString(16).padStart(2, '0')).join(''); };
+    const body = mix(raw, brown, f);
+    let g = `<g transform="translate(${x} ${y}) rotate(${rot})"><ellipse cx="0" cy="0" rx="11.5" ry="6.6" fill="${body}" stroke="${ink}" stroke-width="1.1"/>`;
+    g += `<path d="M -10,-2.2 Q 0,-7.2 10,-2.2" fill="none" stroke="${mix(fat, '#d9a05a', f)}" stroke-width="2.2" stroke-linecap="round"/>`;
+    g += `<path d="M -7,1 Q -2,-1 3,1.4 M -4,3.2 Q 1,1.8 7,3.4" stroke="${mix('#f4c8bc', '#7a3a18', f)}" stroke-width="0.8" fill="none"/>`;
+    if (f > 0.15) g += `<g fill="${char}" opacity="${(0.35 + 0.6 * f).toFixed(2)}"><ellipse cx="-5" cy="0.5" rx="1.6" ry="1"/><ellipse cx="2" cy="-1.5" rx="2" ry="1.1"/><ellipse cx="6" cy="2" rx="1.4" ry="0.9"/><ellipse cx="-1" cy="3" rx="1.3" ry="0.8"/></g><ellipse cx="-3" cy="-2" rx="5" ry="1.6" fill="#ffd28a" opacity="${(0.45 * f).toFixed(2)}"/>`;
+    return g + '</g>';
+  };
+  const slices = pos.map(([x, y, r], k) => slice(x, y, r, k)).join('');
+  const glow = flaming ? '<ellipse cx="66" cy="40" rx="50" ry="14" fill="#ff7a1a" opacity="0.18"/>' : '';
+  return `<svg class="pan-svg" viewBox="0 0 130 80" preserveAspectRatio="xMidYMax meet">
+    <defs>
+      <linearGradient id="trayFront" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8d98a5"/><stop offset="1" stop-color="#4f5863"/></linearGradient>
+      <linearGradient id="trayTop" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9aa5b1"/><stop offset="0.5" stop-color="#cfd8e0"/><stop offset="1" stop-color="#8a95a2"/></linearGradient>
+    </defs>
+    <ellipse cx="65" cy="72" rx="58" ry="5" fill="rgba(0,0,0,0.4)"/>
+    <path d="M 3,60 H 127 L 125,70 H 5 Z" fill="url(#trayFront)" stroke="${ink}" stroke-width="1.5" stroke-linejoin="round"/>
+    <path d="M 16,20 H 114 L 127,60 H 3 Z" fill="url(#trayTop)" stroke="${ink}" stroke-width="1.7" stroke-linejoin="round"/>
+    <path d="M 22,25 H 108 L 119,56 H 11 Z" fill="#6f7a86" stroke="#3f4650" stroke-width="1"/>
+    <path d="M 22,25 H 108" stroke="#ffffff" stroke-opacity="0.3" stroke-width="1.2"/>
+    <rect x="-1" y="38" width="7" height="6" rx="2.5" fill="#aab4be" stroke="${ink}" stroke-width="1.2"/><rect x="124" y="38" width="7" height="6" rx="2.5" fill="#aab4be" stroke="${ink}" stroke-width="1.2"/>
+    ${glow}${slices}
+    ${flaming ? '<g class="pan-steam" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.7"><path d="M 44,22 q -3,-6 1,-11"/><path d="M 70,20 q 3,-6 -1,-12"/><path d="M 94,22 q -3,-6 1,-11"/></g>' : ''}
+  </svg>`;
+}
 let stoveArtSig = {};
 function stoveArtSet(id, html) {
   const el = document.getElementById(id);
@@ -16498,6 +16541,7 @@ function renderStoveArt() {
   const sh = kitchenState.shio, stock = kitchenState.stocks.shio, cap = Math.max(1, stockCap());
   const warm = sh.hot || stock > 0;
   stoveArtSet('shio-art', stovePotSvg({ id: 'sh', rx: 52, liquid: warm ? '#d9b24a' : '#cfc28c', level: warm ? Math.min(1, stock / cap) : 0.72, fire: !!sh.fire, bubbles: !!sh.fire && (warm || (sh.heat || 0) > 0), steam: !!sh.fire && !!sh.hot, meat: false }));
+  stoveArtSet('chasu-art', chasuTraySvg(kitchenState.stocks.chasu, stockCap(), !!kitchenState.chasu.isFlaming, kitchenState.chasu.flameSeconds || 0));
   const nd = kitchenState.noodles.state;
   stoveArtSet('noodles-art', stovePotSvg({ id: 'nd', rx: 52, liquid: nd === 'BURNING' ? '#6b5a3c' : '#cfe6ea', level: 0.85, fire: nd !== 'IDLE', bubbles: nd === 'COOKING', steam: nd === 'COOKING' || nd === 'READY', noodles: nd === 'COOKING' ? 'cook' : (nd === 'READY' ? 'ready' : (nd === 'BURNING' ? 'burnt' : 'none')) }));
 }
@@ -16507,6 +16551,10 @@ function renderPans() {
   const panel = document.getElementById('cook-stations-panel'), dock = document.getElementById('bowls-dock-box');
   if (panel) panel.classList.toggle('stove-on', staged);
   if (dock) dock.classList.toggle('stove-on', staged);
+  const dockEl = document.querySelector('.kitchen-bottom-dock');
+  if (dockEl) dockEl.classList.toggle('stove-on', staged);
+  const ct = document.querySelector('#btn-flame-chasu .station-title');
+  if (ct) ct.textContent = staged ? 'Chasu a flamear' : 'Flamear Chasu';
   const nt = document.querySelector('#btn-cook-noodles .station-title'), st2 = document.querySelector('#btn-heat-shio .station-title');
   if (nt) nt.textContent = staged ? 'Fideos' : 'Cocinar Fideos';
   if (st2) st2.textContent = staged ? 'Caldo Shio' : 'Calentar Shio';
