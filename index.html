@@ -3205,7 +3205,7 @@
   .wok-row { display: flex; justify-content: center; align-items: center; gap: min(6vw, 48px); position: relative; }
   .wok-stove { display: none; }
   .salteado-station-box.wok-staged { --cw: clamp(100px, min(21vw, 34vh), 180px); align-items: flex-end; justify-content: flex-end; padding-bottom: 6px; padding-right: calc(var(--cw) * 0.3 + 6vw); }
-  .salteado-station-box.wok-staged .wok-row { margin-bottom: calc(var(--cw) * 0.27 + 54px); }   /* la cocina sobresale por debajo de los woks */
+  .salteado-station-box.wok-staged .wok-row { translate: 0 calc(var(--cw) * -0.3 - 14px); }   /* se sube con translate (no con margen): un margen agrandaría el panel y lo empujaría fuera de la pantalla */   /* la cocina sobresale por debajo de los woks */
   .salteado-station-box.wok-staged .wok-stove { display: block; position: absolute; left: calc(var(--cw) * -0.3); right: calc(var(--cw) * -0.3); top: 22%; height: 118%; pointer-events: none; z-index: 0; }
   .wok-stove .ws-body { position: absolute; inset: 0; width: 100%; height: 100%; display: block; filter: drop-shadow(0 4px 5px rgba(0,0,0,0.5)); }
   .wok-stove .ws-utensils { position: absolute; right: 1.2%; top: 33%; width: 16%; height: 34%; display: block; overflow: visible; }
@@ -6316,7 +6316,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v79</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v80</span></button></div>
     </div>
   </div>
 
