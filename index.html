@@ -6174,7 +6174,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v61</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v62</span></button></div>
     </div>
   </div>
 
@@ -9538,7 +9538,7 @@ const STAGE_ORDER = ['prod', 'cook', 'plate'];
 const SWIPE_EDGE_PX = 72;        // zona del borde donde puede empezar el gesto
 const SWIPE_MIN_PX = 80;         // recorrido horizontal mínimo
 const SWIPE_MAX_MS = 700;        // el gesto debe ser ágil
-const SWIPE_NO_START = '.fry-knife-tool, .maki-tool, .fry-board-item, .wok-stir-btn, input, textarea, select';
+const SWIPE_NO_START = '.fry-knife-tool, .maki-tool, .fry-board-item, .wok-stir-btn, .tool-item, .tool-armed, input, textarea, select';   // las herramientas del ramen (ohashi junto al borde derecho) no deben iniciar el deslizamiento entre etapas
 let stageSwipe = null;
 let swipeNoClickUntil = 0;
 
@@ -9553,7 +9553,7 @@ function stageSwipeAllowed(target) {
 }
 
 function stageSwipeBusyWithDrag() {
-  return !!((typeof ingredientDrag !== 'undefined' && ingredientDrag && ingredientDrag.active)
+  return !!((typeof ingredientDragActive === 'function' && ingredientDragActive())
     || (typeof fryItemDrag !== 'undefined' && fryItemDrag && fryItemDrag.active)
     || (typeof fryKnifeDrag !== 'undefined' && fryKnifeDrag && fryKnifeDrag.active)
     || (typeof makiToolDrag !== 'undefined' && makiToolDrag && makiToolDrag.active));
@@ -12314,11 +12314,13 @@ const DRAG_TOUCH_HOLD_MS = 160;
 const DRAG_MOUSE_START_PX = 5;
 const DRAG_TOUCH_CANCEL_PX = 9;
 const DRAG_TOUCH_GHOST_OFFSET_Y = 34; // el fantasma se muestra sobre el dedo para no taparlo
-let ingredientDrag = null;
+let ingredientDrag = null;                  // arrastre "principal" (el último); la Frituras solo usa este
+const ingredientDrags = new Map();         // pointerId -> arrastre: cada dedo / mano lleva el suyo, así se pueden mover varios ingredientes a la vez
 let lastDragHintAt = 0;
+function ingredientDragActive() { for (const d of ingredientDrags.values()) if (d.active) return true; return false; }
 
 document.addEventListener('touchmove', (e) => {
-  if (ingredientDrag && ingredientDrag.active && e.cancelable) e.preventDefault();
+  if (ingredientDragActive() && e.cancelable) e.preventDefault();
 }, { passive: false });
 
 function getIngredientDropTargets() {
@@ -12470,15 +12472,13 @@ function updateBreadingDwell() {
   }
 }
 
-function moveIngredientGhost() {
-  const d = ingredientDrag;
+function moveIngredientGhost(d) {
   if (!d || !d.ghost) return;
   const p = getIngredientDragPoint(d);
   d.ghost.style.transform = `translate(${p.x}px, ${p.y}px) translate(-50%, -50%) scale(1.15)`;
 }
 
-function updateIngredientDropHover() {
-  const d = ingredientDrag;
+function updateIngredientDropHover(d) {
   if (!d) return;
   const target = findIngredientDropTarget(d);
   if (d.hoverEl && d.hoverEl !== target) d.hoverEl.classList.remove('drop-hover');
@@ -12486,11 +12486,11 @@ function updateIngredientDropHover() {
   d.hoverEl = target;
 }
 
-function activateIngredientDrag() {
-  const d = ingredientDrag;
+function activateIngredientDrag(d) {
   if (!d || d.active) return;
   if (d.holdTimer) { clearTimeout(d.holdTimer); d.holdTimer = null; }
   d.active = true;
+  ingredientDrag = d;
 
   const ghost = document.createElement('div');
   ghost.className = 'drag-ghost';
@@ -12511,49 +12511,53 @@ function activateIngredientDrag() {
   d.tile.classList.add('dragging-source');
   document.body.classList.add('is-dragging-ingredient');
   getIngredientDropTargets().forEach(el => el.classList.add('drop-target-ready'));
-  moveIngredientGhost();
-  updateIngredientDropHover();
+  moveIngredientGhost(d);
+  updateIngredientDropHover(d);
   try { if (navigator.vibrate) navigator.vibrate(12); } catch (err) {}
 }
 
-function cleanupIngredientDrag() {
-  const d = ingredientDrag;
-  document.removeEventListener('pointermove', onIngredientPointerMove);
-  document.removeEventListener('pointerup', onIngredientPointerUp);
-  document.removeEventListener('pointercancel', onIngredientPointerCancel);
-  if (d) {
-    if (d.holdTimer) clearTimeout(d.holdTimer);
-    if (d.breadTimer) clearInterval(d.breadTimer);
-    if (d.ghost) d.ghost.remove();
-    if (d.tile) d.tile.classList.remove('dragging-source');
+// Sin argumento cancela todos los arrastres; con un arrastre, solo ese
+function cleanupIngredientDrag(d) {
+  if (!d) { [...ingredientDrags.values()].forEach(x => cleanupIngredientDrag(x)); return; }
+  if (d.holdTimer) clearTimeout(d.holdTimer);
+  if (d.breadTimer) { clearInterval(d.breadTimer); setFryBreadingUi(false, 0); }
+  if (d.ghost) d.ghost.remove();
+  if (d.tile) d.tile.classList.remove('dragging-source');
+  if (d.hoverEl) d.hoverEl.classList.remove('drop-hover');
+  ingredientDrags.delete(d.pointerId);
+  if (ingredientDrag === d) ingredientDrag = [...ingredientDrags.values()].pop() || null;
+  if (!ingredientDrags.size) {
+    document.removeEventListener('pointermove', onIngredientPointerMove);
+    document.removeEventListener('pointerup', onIngredientPointerUp);
+    document.removeEventListener('pointercancel', onIngredientPointerCancel);
   }
-  setFryBreadingUi(false, 0);
-  document.querySelectorAll('.drop-target-ready').forEach(el => el.classList.remove('drop-target-ready', 'drop-hover'));
-  document.body.classList.remove('is-dragging-ingredient');
-  ingredientDrag = null;
+  if (!ingredientDragActive()) {
+    document.querySelectorAll('.drop-target-ready').forEach(el => el.classList.remove('drop-target-ready', 'drop-hover'));
+    document.body.classList.remove('is-dragging-ingredient');
+  }
 }
 
 function onIngredientPointerMove(e) {
-  const d = ingredientDrag;
-  if (!d || e.pointerId !== d.pointerId) return;
+  const d = ingredientDrags.get(e.pointerId);
+  if (!d) return;
   d.x = e.clientX;
   d.y = e.clientY;
   if (!d.active) {
     const dist = Math.hypot(d.x - d.startX, d.y - d.startY);
     if (d.pointerType === 'mouse') {
-      if (dist > DRAG_MOUSE_START_PX) activateIngredientDrag();
+      if (dist > DRAG_MOUSE_START_PX) activateIngredientDrag(d);
     } else if (dist > DRAG_TOUCH_CANCEL_PX) {
-      cleanupIngredientDrag(); // el dedo se movió antes de mantener: es un scroll del panel
+      cleanupIngredientDrag(d); // el dedo se movió antes de mantener: es un scroll del panel
     }
     return;
   }
-  moveIngredientGhost();
-  updateIngredientDropHover();
+  moveIngredientGhost(d);
+  updateIngredientDropHover(d);
 }
 
 function onIngredientPointerUp(e) {
-  const d = ingredientDrag;
-  if (!d || e.pointerId !== d.pointerId) return;
+  const d = ingredientDrags.get(e.pointerId);
+  if (!d) return;
   d.x = e.clientX;
   d.y = e.clientY;
   const ing = d.ing;
@@ -12561,10 +12565,11 @@ function onIngredientPointerUp(e) {
   const target = d.active ? findIngredientDropTarget(d) : null;
   const coat = d.coat || 0;
   const fryProteinDrag = d.coat !== undefined;
-  cleanupIngredientDrag();
+  const wasActive = d.active;
+  cleanupIngredientDrag(d);
   if (target) {
     applyIngredientDrop(target, ing, coat);
-  } else if (fryProteinDrag && d.active && moved >= 12) {
+  } else if (fryProteinDrag && wasActive && moved >= 12) {
     showStationToast(coat > 0
       ? '🥖 Suelta la proteína sobre la tabla de cocina para dejarla lista.'
       : 'Pasa la proteína por la harina, el huevo y el panko y suéltala en la tabla.');
@@ -12574,15 +12579,16 @@ function onIngredientPointerUp(e) {
 }
 
 function onIngredientPointerCancel(e) {
-  const d = ingredientDrag;
-  if (!d || e.pointerId !== d.pointerId) return;
-  cleanupIngredientDrag();
+  const d = ingredientDrags.get(e.pointerId);
+  if (d) cleanupIngredientDrag(d);
 }
 
 function beginIngredientPress(e, tile, ing) {
   if (e.pointerType === 'mouse' && e.button !== 0) return;
   if (gameState.isPaused || gameState.isGameOver) return;
-  cleanupIngredientDrag();
+  if (tile.classList.contains('dragging-source')) return;      // ese ingrediente ya lo lleva otra mano
+  const old = ingredientDrags.get(e.pointerId);
+  if (old) cleanupIngredientDrag(old);
   const d = {
     ing, tile,
     pointerId: e.pointerId,
@@ -12591,10 +12597,11 @@ function beginIngredientPress(e, tile, ing) {
     x: e.clientX, y: e.clientY,
     active: false, ghost: null, hoverEl: null, holdTimer: null
   };
+  ingredientDrags.set(e.pointerId, d);
   ingredientDrag = d;
   if (e.pointerType !== 'mouse') {
     d.holdTimer = setTimeout(() => {
-      if (ingredientDrag === d && !d.active) activateIngredientDrag();
+      if (ingredientDrags.get(d.pointerId) === d && !d.active) activateIngredientDrag(d);
     }, DRAG_TOUCH_HOLD_MS);
   }
   document.addEventListener('pointermove', onIngredientPointerMove);
@@ -16132,8 +16139,13 @@ function torchSvg(on) {
   </svg>`;
 }
 
-let toolDrag = null, toolArmed = null, toolArmedEl = null, toolTorchSince = 0, toolPouring = false;
-const toolStripSig = () => (toolArmed ? toolArmed.kind + toolArmed.id : '');
+// Varias manos a la vez: cada dedo lleva su propia herramienta (toolDrags) y varias pueden quedar colocadas a la vez (toolArmedMap):
+// p. ej. el flameador echando fuego sobre el chasu mientras otra mano vierte una salsa, mueve los fideos o arrastra un ingrediente.
+const toolDrags = new Map();       // pointerId -> arrastre en curso
+const toolArmedMap = new Map();    // clave -> herramienta ya colocada ('sauce5', 'sauce31', 'torch', 'ohashi')
+let toolHold = null, toolTorchSince = 0;
+const toolKey = (kind, id) => (kind === 'sauce' ? 'sauce' + id : kind);
+const toolStripSig = () => [...toolArmedMap.keys()].sort().join('+');
 function ramenSauceIdsAvailable() {
   const ids = new Set();
   stView('ramen', getUnlockedRamenRecipes()).forEach(r => r.ingredients.forEach(id => ids.add(id)));
@@ -16147,12 +16159,12 @@ function renderToolStrip() {
   if (!strip) return;
   const show = stagedOn('ramen') && gameState.activeArea === 'ramen' && getStage('ramen') === 'cook';
   strip.classList.toggle('on', show);
-  if (!show) { if (toolArmed) toolDisarm(true); strip._sig = ''; return; }
+  if (!show) { toolDisarmAll(true); strip._sig = ''; return; }
   const ids = ramenSauceIdsAvailable();
   const sig = ids.join(',') + '|' + toolStripSig();
   if (strip._sig === sig) return;
   strip._sig = sig;
-  const away = (kind, id) => (toolArmed && toolArmed.kind === kind && (kind !== 'sauce' || toolArmed.id === id)) ? 'is-away' : '';
+  const away = (kind, id) => toolArmedMap.has(toolKey(kind, id)) ? 'is-away' : '';
   strip.innerHTML = ids.map(id => `<div class="tool-item tool-bottle ${away('sauce', id)}" data-kind="sauce" data-id="${id}" title="${id === OIL_ID ? 'Aceite de ajonjolí: al sofreír (Tan tan, Ebi) y al caldo cuando hierve (Tonkotsu, Vegetariano, Shoyu, Miso)' : 'Salsa ' + TOOL_SAUCES[id].name}: arrástrala sobre una sartén y toca para verter">${sauceBottleSvg(id)}<span class="tool-name">${TOOL_SAUCES[id].name}</span></div>`).join('')
     + `<div class="tool-item tool-torch ${away('torch')}" data-kind="torch" title="Flameador: arrástralo hasta Flamear Chasu">${torchSvg(false)}<span class="tool-name">Flameador</span></div>`
     + `<div class="tool-item tool-ohashi ${away('ohashi')}" data-kind="ohashi" title="Ohashi: arrástralos sobre un cuenco con fideos y mantén pulsado para repartirlos">${ohashiSvg()}<span class="tool-name">Ohashi</span></div>`;
@@ -16183,20 +16195,25 @@ function toolTargetAt(kind, p) {
   }
   return null;
 }
-function toolClearTargets() { document.querySelectorAll('.tool-target').forEach(el => el.classList.remove('tool-target')); }
-function toolCleanupDrag() {
-  const d = toolDrag;
-  document.removeEventListener('pointermove', onToolMove);
-  document.removeEventListener('pointerup', onToolUp);
-  document.removeEventListener('pointercancel', onToolUp);
-  if (d && d.ghost) d.ghost.remove();
-  if (d && d.el) d.el.classList.remove('is-lifted');
-  toolClearTargets();
-  toolDrag = null;
+function toolRefreshTargets() {
+  document.querySelectorAll('.tool-target').forEach(el => el.classList.remove('tool-target'));
+  toolDrags.forEach(d => { if (d.active && d.target) d.target.el.classList.add('tool-target'); });
+}
+function toolCleanupDrag(d) {
+  if (!d) { [...toolDrags.values()].forEach(toolCleanupDrag); return; }
+  if (d.ghost) d.ghost.remove();
+  if (d.el) d.el.classList.remove('is-lifted');
+  toolDrags.delete(d.pointerId);
+  if (!toolDrags.size) {
+    document.removeEventListener('pointermove', onToolMove);
+    document.removeEventListener('pointerup', onToolUp);
+    document.removeEventListener('pointercancel', onToolUp);
+  }
+  toolRefreshTargets();
 }
 function onToolMove(e) {
-  const d = toolDrag;
-  if (!d || e.pointerId !== d.pointerId) return;
+  const d = toolDrags.get(e.pointerId);
+  if (!d) return;
   d.x = e.clientX; d.y = e.clientY;
   if (!d.active) {
     if (Math.hypot(d.x - d.startX, d.y - d.startY) <= 6) return;
@@ -16211,55 +16228,63 @@ function onToolMove(e) {
   }
   const p = toolPoint(d);
   if (d.ghost) d.ghost.style.transform = `translate(${p.x}px, ${p.y}px) translate(-50%, -50%)`;
-  const t = toolTargetAt(d.kind, p);
-  toolClearTargets();
-  if (t) t.el.classList.add('tool-target');
+  d.target = toolTargetAt(d.kind, p);
+  toolRefreshTargets();
 }
 function onToolUp(e) {
-  const d = toolDrag;
-  if (!d || e.pointerId !== d.pointerId) return;
+  const d = toolDrags.get(e.pointerId);
+  if (!d) return;
   const p = toolPoint(d), wasActive = d.active, t = wasActive ? toolTargetAt(d.kind, p) : null, kind = d.kind, id = d.id;
-  toolCleanupDrag();
+  toolCleanupDrag(d);
   if (!wasActive) { showStationToast(kind === 'torch' ? '🔥 Arrastra el flameador hasta "Flamear Chasu".' : (kind === 'ohashi' ? '🥢 Arrastra los ohashi hasta la parte de arriba de un cuenco con fideos.' : '💧 Arrastra la botella hasta la parte de arriba de una sartén.')); return; }
   try { playSound(t ? 'add' : 'click'); } catch (err) {}
   if (t) toolArm(kind, id, t.pan);
 }
 document.addEventListener('pointerdown', (e) => {
-  const armedHit = e.target.closest && e.target.closest('#tool-armed');
-  if (armedHit && toolArmed) {
-    e.preventDefault();
-    if (toolArmed.kind === 'sauce') toolPour();                      // botella: apretar
-    else if (toolArmed.kind === 'ohashi') toolHoldStart(e);          // ohashi: mantener pulsado para mover los fideos
-    else toolDisarm();                                               // flameador: retirar
-    return;
+  const armedEl = e.target.closest && e.target.closest('.tool-armed');
+  if (armedEl) {
+    const a = toolArmedMap.get(armedEl.dataset.akey);
+    if (a) {
+      e.preventDefault();
+      if (a.kind === 'sauce') toolPour(a);                       // botella: apretar
+      else if (a.kind === 'ohashi') toolHoldStart(a, e);         // ohashi: mantener pulsado para mover los fideos
+      else toolDisarm(a.key);                                    // flameador: retirar
+      return;
+    }
   }
   const item = e.target.closest && e.target.closest('.tool-item');
   if (!item || !stagedOn('ramen') || gameState.isPaused || gameState.isGameOver) return;
   if (e.pointerType === 'mouse' && e.button !== 0) return;
-  if (item.classList.contains('is-away')) { toolDisarm(); return; }       // tocar el hueco vacío la devuelve
+  const kind = item.dataset.kind, id = parseInt(item.dataset.id || '0', 10);
+  if (item.classList.contains('is-away')) { toolDisarm(toolKey(kind, id)); return; }       // tocar el hueco vacío la devuelve
+  if (item.classList.contains('is-lifted')) return;                                        // ya lo lleva otra mano
   e.preventDefault();
-  toolCleanupDrag();
-  toolDrag = { kind: item.dataset.kind, id: parseInt(item.dataset.id || '0', 10), el: item, pointerId: e.pointerId, pointerType: e.pointerType, startX: e.clientX, startY: e.clientY, x: e.clientX, y: e.clientY, active: false, ghost: null };
+  const old = toolDrags.get(e.pointerId);
+  if (old) toolCleanupDrag(old);
+  toolDrags.set(e.pointerId, { kind, id, el: item, pointerId: e.pointerId, pointerType: e.pointerType, startX: e.clientX, startY: e.clientY, x: e.clientX, y: e.clientY, active: false, ghost: null, target: null });
   document.addEventListener('pointermove', onToolMove);
   document.addEventListener('pointerup', onToolUp);
   document.addEventListener('pointercancel', onToolUp);
 }, { passive: false });
 
 function toolArm(kind, id, pan) {
-  toolDisarm(true);
+  const key = toolKey(kind, id);
+  if (toolArmedMap.has(key)) toolDisarm(key, true);
+  if (kind === 'sauce') toolArmedMap.forEach(o => { if (o.kind === 'sauce' && o.pan === pan) toolDisarm(o.key, true); });   // una sola botella sobre cada sartén
   if (kind === 'torch' && kitchenState.stocks.chasu >= stockCap()) { showStationToast(`🥩 Ya hay el máximo de chasu flameado (${stockCap()}/${stockCap()}).`); return; }
   if (kind === 'ohashi') {
     const b = gameState.bowls[pan];
     if (!b || !b.ingredients.includes(1)) { showStationToast('🥢 Ese cuenco aún no tiene fideos.'); try { playSound('error'); } catch (e) {} return; }
   }
-  toolArmed = { kind, id, pan, bowl: kind === 'ohashi' ? pan : undefined };
+  const a = { key, kind, id, pan, bowl: kind === 'ohashi' ? pan : undefined, el: null, pouring: false };
   const el = document.createElement('div');
-  el.id = 'tool-armed';
   el.className = 'tool-armed ' + kind;
+  el.dataset.akey = key;
   el.innerHTML = kind === 'torch' ? torchSvg(true) : (kind === 'ohashi' ? ohashiSvg() : sauceBottleSvg(id));
   document.body.appendChild(el);
-  toolArmedEl = el;
-  toolPlaceArmed();
+  a.el = el;
+  toolArmedMap.set(key, a);
+  toolPlaceArmed(a);
   if (kind === 'torch') {
     toolTorchSince = performance.now();
     const btn = document.getElementById('btn-flame-chasu');
@@ -16274,50 +16299,52 @@ function toolArm(kind, id, pan) {
   if (strip) strip._sig = '';
   renderToolStrip();
 }
-function toolPlaceArmed() {
-  if (!toolArmed || !toolArmedEl) return;
-  if (toolArmed.kind === 'sauce') {
-    const c = document.getElementById('pan-cell-' + toolArmed.pan);
+function toolPlaceArmed(a) {
+  if (!a || !a.el) return;
+  if (a.kind === 'sauce') {
+    const c = document.getElementById('pan-cell-' + a.pan);
     if (!c) return;
     const r = c.getBoundingClientRect();
-    toolArmedEl.style.left = (r.left + r.width / 2 - 31) + 'px';
-    toolArmedEl.style.top = (r.top - 114 * 0.62) + 'px';
-  } else if (toolArmed.kind === 'ohashi') {
-    const c = document.getElementById('bowl-card-' + toolArmed.bowl);
+    a.el.style.left = (r.left + r.width / 2 - 31) + 'px';
+    a.el.style.top = (r.top - 114 * 0.62) + 'px';
+  } else if (a.kind === 'ohashi') {
+    const c = document.getElementById('bowl-card-' + a.bowl);
     if (!c) return;
     const r = c.getBoundingClientRect();
-    toolArmedEl.style.left = (r.left + r.width / 2 - 20) + 'px';
-    toolArmedEl.style.top = (r.top - 86 * 0.6) + 'px';
+    a.el.style.left = (r.left + r.width / 2 - 20) + 'px';
+    a.el.style.top = (r.top - 86 * 0.6) + 'px';
   } else {
     const b = document.getElementById('btn-flame-chasu');
     if (!b) return;
     const r = b.getBoundingClientRect();
     // la boquilla (punta izquierda del flameador, de donde sale el fuego) queda arriba a la derecha del botón y apunta hacia él
-    toolArmedEl.style.left = (r.left + r.width / 2 + 24 - 42.8) + 'px';
-    toolArmedEl.style.top = (r.top - 22 - 25.9) + 'px';
+    a.el.style.left = (r.left + r.width / 2 + 24 - 42.8) + 'px';
+    a.el.style.top = (r.top - 22 - 25.9) + 'px';
   }
 }
-window.addEventListener('resize', toolPlaceArmed);
+function toolPlaceAll() { toolArmedMap.forEach(toolPlaceArmed); }
+window.addEventListener('resize', toolPlaceAll);
 
-// Ohashi: con ellos sobre el cuenco, mantener pulsado reparte los fideos (≈ 2,5 s para repartirlos del todo)
+// Ohashi: con ellos sobre el cuenco, mantener pulsado reparte los fideos (≈ 2,5 s para repartirlos del todo). Solo se detiene al soltar el dedo que los sostiene.
 const NOODLE_HOLD_RATE = 0.4;      // porción de reparto por segundo de pulsación
-let toolHold = null;
-function toolHoldStart(e) {
-  const a = toolArmed;
+function toolHoldStart(a, e) {
   if (!a || a.kind !== 'ohashi' || toolHold) return;
   const bowl = gameState.bowls[a.bowl];
-  if (!bowl || !bowl.ingredients.includes(1)) { toolDisarm(); return; }
+  if (!bowl || !bowl.ingredients.includes(1)) { toolDisarm(a.key); return; }
   if ((bowl.spread || 0) >= 1) { showStationToast('🥢 Los fideos ya están bien repartidos.'); return; }
-  toolHold = { id: e ? e.pointerId : 0, timer: setInterval(toolHoldTick, 50) };
-  if (toolArmedEl) toolArmedEl.classList.add('holding');
-  document.addEventListener('pointerup', toolHoldEnd);
-  document.addEventListener('pointercancel', toolHoldEnd);
+  toolHold = { id: e ? e.pointerId : 0, a, timer: setInterval(toolHoldTick, 50) };
+  a.el.classList.add('holding');
+  document.addEventListener('pointerup', toolHoldUp);
+  document.addEventListener('pointercancel', toolHoldUp);
 }
+function toolHoldUp(e) { if (toolHold && e.pointerId === toolHold.id) toolHoldEnd(); }
 function toolHoldTick() {
-  const a = toolArmed;
-  if (!a || a.kind !== 'ohashi' || gameState.isPaused || gameState.isGameOver) { toolHoldEnd(); return; }
+  const h = toolHold;
+  if (!h) return;
+  const a = h.a;
+  if (!toolArmedMap.has(a.key) || gameState.isPaused || gameState.isGameOver) { toolHoldEnd(); return; }
   const bowl = gameState.bowls[a.bowl];
-  if (!bowl || !bowl.ingredients.includes(1)) { toolDisarm(); return; }
+  if (!bowl || !bowl.ingredients.includes(1)) { toolDisarm(a.key); return; }
   const before = bowl.spread || 0;
   bowl.spread = Math.min(1, before + NOODLE_HOLD_RATE * 0.05);
   bowl.stirX = 50 + 20 * Math.sin(performance.now() / 110);
@@ -16327,46 +16354,46 @@ function toolHoldTick() {
     try { playSound('ding'); } catch (err) {}
     showStationToast('🥢 ¡Fideos bien repartidos!');
     toolHoldEnd();
-    setTimeout(() => { if (toolArmed && toolArmed.kind === 'ohashi') toolDisarm(); }, 500);
+    setTimeout(() => toolDisarm(a.key), 500);
   }
 }
 function toolHoldEnd() {
-  if (toolHold) { clearInterval(toolHold.timer); toolHold = null; }
-  document.removeEventListener('pointerup', toolHoldEnd);
-  document.removeEventListener('pointercancel', toolHoldEnd);
-  if (toolArmedEl) toolArmedEl.classList.remove('holding');
-  if (toolArmed && toolArmed.kind === 'ohashi') {
-    const bowl = gameState.bowls[toolArmed.bowl];
-    if (bowl) { bowl.stirX = null; noodleRedraw(toolArmed.bowl); }
-    renderBowls();
-  }
+  const h = toolHold;
+  if (!h) return;
+  clearInterval(h.timer);
+  toolHold = null;
+  document.removeEventListener('pointerup', toolHoldUp);
+  document.removeEventListener('pointercancel', toolHoldUp);
+  if (h.a.el) h.a.el.classList.remove('holding');
+  const bowl = gameState.bowls[h.a.bowl];
+  if (bowl) { bowl.stirX = null; noodleRedraw(h.a.bowl); }
+  renderBowls();
 }
 
-function toolDisarm(silent) {
-  const a = toolArmed;
+function toolDisarm(key, silent) {
+  const a = toolArmedMap.get(key);
   if (!a) return;
   if (a.kind === 'torch') {
     const btn = document.getElementById('btn-flame-chasu');
     if (btn) btn.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, cancelable: true, pointerId: 7771 }));
   }
-  if (a.kind === 'ohashi') toolHoldEnd();
-  toolArmed = null;
-  if (toolArmedEl) { toolArmedEl.remove(); toolArmedEl = null; }
-  toolPouring = false;
+  if (a.kind === 'ohashi' && toolHold && toolHold.a === a) toolHoldEnd();
+  toolArmedMap.delete(key);
+  if (a.el) a.el.remove();
   const strip = document.getElementById('ramen-tool-strip');
   if (strip) strip._sig = '';
   if (!silent) renderToolStrip();
 }
-function toolPour() {
-  const a = toolArmed;
-  if (!a || a.kind !== 'sauce' || toolPouring || gameState.isPaused) return;
+function toolDisarmAll(silent) { [...toolArmedMap.keys()].forEach(k => toolDisarm(k, true)); if (!silent) renderToolStrip(); }
+function toolPour(a) {
+  if (!a || a.kind !== 'sauce' || a.pouring || gameState.isPaused) return;
   const pan = panGet(a.pan), before = pan.items.length, beforeOil = pan.oil;
   panAdd(a.pan, a.id);
-  if (pan.items.length <= before && pan.oil === beforeOil) { setTimeout(() => toolDisarm(), 250); return; }      // no entró (panAdd ya avisó el motivo)
-  toolPouring = true;
-  toolArmedEl.classList.add('squeeze');
+  if (pan.items.length <= before && pan.oil === beforeOil) { setTimeout(() => toolDisarm(a.key), 250); return; }      // no entró (panAdd ya avisó el motivo)
+  a.pouring = true;
+  a.el.classList.add('squeeze');
   try { playSound('splash'); } catch (e) {}
-  const nz = toolArmedEl.getBoundingClientRect(), art = document.getElementById('pan-art-' + a.pan), ar = art ? art.getBoundingClientRect() : nz;
+  const nz = a.el.getBoundingClientRect(), art = document.getElementById('pan-art-' + a.pan), ar = art ? art.getBoundingClientRect() : nz;
   const sx = nz.left + nz.width / 2, sy = nz.bottom - 4, ty = ar.top + ar.height * 0.55;
   for (let k = 0; k < 8; k++) {
     const d = document.createElement('i');
@@ -16379,16 +16406,17 @@ function toolPour() {
     document.body.appendChild(d);
     setTimeout(() => d.remove(), 900);
   }
-  setTimeout(() => toolDisarm(), 700);
+  setTimeout(() => toolDisarm(a.key), 700);
 }
 function toolTick() {
-  if (!toolArmed) return;
-  if (toolArmed.kind === 'torch') {
-    if (!kitchenState.chasu.isFlaming && performance.now() - toolTorchSince > 900) toolDisarm();   // llegó al máximo
-  } else if (toolArmed.kind === 'ohashi') {
-    const b = gameState.bowls[toolArmed.bowl];
-    if (!b || !b.ingredients.includes(1)) toolDisarm();                                          // el cuenco se vació o pasó a emplatar
-  }
+  toolArmedMap.forEach(a => {
+    if (a.kind === 'torch') {
+      if (!kitchenState.chasu.isFlaming && performance.now() - toolTorchSince > 900) toolDisarm(a.key);   // llegó al máximo
+    } else if (a.kind === 'ohashi') {
+      const b = gameState.bowls[a.bowl];
+      if (!b || !b.ingredients.includes(1)) toolDisarm(a.key);                                          // el cuenco se vació o pasó a emplatar
+    }
+  });
 }
 
 // ---- Dibujo de la cocina profesional (estilo ilustrado: acero con contorno de tinta) ----
