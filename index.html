@@ -6200,7 +6200,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v65</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v66</span></button></div>
     </div>
   </div>
 
@@ -11229,6 +11229,9 @@ function stShopBusy(area) { const st = stGet(area); return stIsShop(area) && (!!
 // Se arrastra hasta la tabla y queda "flotando" sobre ella (armado). Con el cuchillo armado, cada TOQUE en la pantalla
 // es un corte: suena el cuchillo, sale una animación translúcida y cada 3 cortes se suma 1 porción del producto.
 const SHOP_TAPS_PER_PORTION = 3;
+const SHOP_CUT_LOCK_MS = 650;      // cada corte tarda lo que dura su animación completa; los toques de más se ignoran (no hace falta tocar desesperadamente)
+const SHOP_CLEAN_LOCK_MS = 900;    // igual para cada pasada de las manos al limpiar el moyashi
+let shopTapLockUntil = 0;
 let shopKnifeDrag = null;
 let shopTap = null;
 let shopHintAt = 0;
@@ -11361,6 +11364,9 @@ function shopClean() {
   shopTapCore(st, 'clean');
 }
 function shopTapCore(st, kind) {
+  const now = performance.now();
+  if (now < shopTapLockUntil) return;               // la animación anterior aún no termina
+  shopTapLockUntil = now + (kind === 'clean' ? SHOP_CLEAN_LOCK_MS : SHOP_CUT_LOCK_MS);
   const p = stProdOf('ramen', st.board.key);
   try { playSound(kind === 'clean' ? 'splash' : 'chop'); } catch (e) {}
   if (kind === 'clean') shopCleanFx(p); else shopChopFx(p);
@@ -12355,9 +12361,9 @@ function filterCategory(cat) {
 // Con el mouse el arrastre empieza al mover; con el dedo, al mantener ~160ms quieto (si el dedo se
 // mueve antes, se interpreta como scroll del panel). Un toque simple solo sirve para retirar un
 // ingrediente que ya está en el plato activo.
-const DRAG_TOUCH_HOLD_MS = 160;
+const DRAG_TOUCH_HOLD_MS = 60;     // con el dedo el arrastre empieza casi al instante (antes 160 ms)
 const DRAG_MOUSE_START_PX = 5;
-const DRAG_TOUCH_CANCEL_PX = 9;
+const DRAG_TOUCH_CANCEL_PX = 14;
 const DRAG_TOUCH_GHOST_OFFSET_Y = 34; // el fantasma se muestra sobre el dedo para no taparlo
 let ingredientDrag = null;                  // arrastre "principal" (el último); la Frituras solo usa este
 const ingredientDrags = new Map();         // pointerId -> arrastre: cada dedo / mano lleva el suyo, así se pueden mover varios ingredientes a la vez
