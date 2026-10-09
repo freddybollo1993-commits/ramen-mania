@@ -3149,20 +3149,28 @@
   /* --- Salteados con etapas: hornilla de gas, perilla de fuego, calor, aceite y volteo --- */
   .wok-burner, .wok-fire-btn, .wok-heat, .wok-toss-pips { display: none; }
   .salteado-station-box.wok-staged .wok-dock-card { touch-action: none; overflow: visible; }
-  .salteado-station-box.wok-staged { padding-bottom: 36px; }
-  .salteado-station-box.wok-staged .wok-burner { display: block; position: absolute; left: -8%; top: 77%; width: 96%; height: 44%; pointer-events: none; z-index: 1; }
+  .wok-row { display: flex; justify-content: center; align-items: center; gap: min(6vw, 48px); position: relative; }
+  .wok-stove { display: none; }
+  .salteado-station-box.wok-staged { --cw: clamp(100px, min(21vw, 34vh), 180px); align-items: flex-end; padding-bottom: 6px; }
+  .salteado-station-box.wok-staged .wok-row { margin-bottom: calc(var(--cw) * 0.27); }   /* la cocina sobresale por debajo de los woks */
+  .salteado-station-box.wok-staged .wok-stove { display: block; position: absolute; left: calc(var(--cw) * -0.3); right: calc(var(--cw) * -0.3); top: 22%; height: 118%; pointer-events: none; z-index: 0; }
+  .wok-stove .ws-body { position: absolute; inset: 0; width: 100%; height: 100%; display: block; filter: drop-shadow(0 4px 5px rgba(0,0,0,0.5)); }
+  .wok-stove .ws-utensils { position: absolute; right: 1.2%; top: 33%; width: 16%; height: 34%; display: block; overflow: visible; }
+  .salteado-station-box.wok-staged .wok-burner { display: block; position: absolute; left: 2%; top: 74%; width: 76%; height: 28%; pointer-events: none; z-index: 1; }
+  .wok-burner .wb-steam { opacity: 0; transition: opacity 0.4s; animation: panSteam 1.4s ease-in-out infinite alternate; }
+  .wok-dock-card.is-hot .wb-steam { opacity: 0.75; }
   .wok-burner svg { width: 100%; height: 100%; display: block; overflow: visible; }
   .wok-burner .wb-flames { opacity: 0; transition: opacity 0.2s; }
   .wok-dock-card.fire-on .wb-flames { opacity: 1; }
   .wok-burner .wb-flames path { transform-box: fill-box; transform-origin: 50% 100%; animation: panFlame 0.3s ease-in-out infinite alternate; }
   .wok-burner .wb-flames path:nth-child(even) { animation-duration: 0.37s; }
-  .salteado-station-box.wok-staged .wok-heat { display: block; position: absolute; left: 22%; top: 106%; width: 40%; height: 5px; background: rgba(0,0,0,0.55); border-radius: 3px; overflow: hidden; z-index: 3; pointer-events: none; }
+  .salteado-station-box.wok-staged .wok-heat { display: block; position: absolute; left: 51%; top: 118%; translate: 0 -50%; width: 30%; height: 5px; background: rgba(0,0,0,0.55); border-radius: 3px; overflow: hidden; z-index: 3; pointer-events: none; }
   .wok-heat i { display: block; width: 0%; height: 100%; background: linear-gradient(90deg, #4fc3f7, #ffb300, #ff3d00); background-size: 40cqw 100%; transition: width 0.1s linear; }
   .salteado-station-box.wok-staged .wok-toss-pips { display: flex; align-items: center; gap: 2px; position: absolute; right: 4%; top: 2%; z-index: 3; pointer-events: none; }
   .wok-toss-pips span { font-size: 9px; font-weight: 900; color: #ffe0b2; text-shadow: 0 1px 2px #000; margin-right: 1px; }
   .wok-toss-pips i { width: 6px; height: 6px; border-radius: 50%; background: rgba(0,0,0,0.55); border: 1px solid #ffb74d; }
   .wok-toss-pips i.on { background: #ffb300; box-shadow: 0 0 5px #ffb300; }
-  .salteado-station-box.wok-staged .wok-fire-btn { display: flex; align-items: center; justify-content: center; position: absolute; left: 9%; top: 106.5%; translate: 0 -50%; width: 24px; height: 24px; border-radius: 50%; z-index: 4; font-size: 13px; line-height: 1; padding: 0; cursor: pointer; background: radial-gradient(circle at 35% 30%, #cfd8df, #6b7681 70%); border: 2px solid #23262b; filter: grayscale(1) brightness(0.8); box-shadow: 0 2px 4px rgba(0,0,0,0.6); }
+  .salteado-station-box.wok-staged .wok-fire-btn { display: flex; align-items: center; justify-content: center; position: absolute; left: 40%; top: 118%; translate: -50% -50%; width: 24px; height: 24px; border-radius: 50%; z-index: 4; font-size: 13px; line-height: 1; padding: 0; cursor: pointer; background: radial-gradient(circle at 35% 30%, #cfd8df, #6b7681 70%); border: 2px solid #23262b; filter: grayscale(1) brightness(0.8); box-shadow: 0 2px 4px rgba(0,0,0,0.6); }
   .wok-dock-card.fire-on .wok-fire-btn { filter: none; box-shadow: 0 0 10px 2px rgba(255, 145, 0, 0.9); }
   .wok-dock-card.is-hot .wok-dock-visual { filter: drop-shadow(0 0 5px rgba(255, 120, 0, 0.55)); }
   .wok-dock-card.tossing .wok-dock-visual { animation: wokTossUp 0.42s ease-out; }
@@ -6259,7 +6267,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v75</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v76</span></button></div>
     </div>
   </div>
 
@@ -6924,6 +6932,8 @@
 
     <!-- Estación de Salteados: 2 woks en paralelo, ingredientes + salteado con tiempo -->
     <div class="salteado-station-box" id="salteado-station-box">
+      <div class="wok-row" id="wok-row">
+      <div class="wok-stove" id="wok-stove" aria-hidden="true"></div>
       <!-- Wok 1 -->
       <div class="wok-dock-card active" id="wok-card-0" onclick="selectWok(0)">
         <div class="wok-dock-tag" id="wok-tag-0">● ACTIVO</div>
@@ -6962,6 +6972,7 @@
           <button class="btn-bowl-trash" onclick="event.stopPropagation(); clearWok(1)" title="Vaciar Wok 2">🗑️</button>
         </div>
         <div class="wok-badge" id="wok-badge-1" style="display:none;">Vacío</div>
+      </div>
       </div>
     </div>
 
@@ -10816,19 +10827,46 @@ const WOK_TOSS_STEP = 0.2;        // 5 volteos = mezclado completo
 const WOK_TOSS_MIN_PX = 26;       // recorrido hacia arriba para contar un volteo
 const WOK_TOSS_LOCK_MS = 260;
 const WOK_SAUCE_IDS = [79, 40, 8];   // salsas de cocción de Salteados que son botellas (las demás se ponen al emplatar)
+// Cocina de acero de salteado (referencia del usuario): pared trasera, plano de trabajo, borde y frente. Se estira al ancho de los dos woks
+// (los trazos no cambian de grosor: vector-effect). Las hornillas, llamas y vapor son de cada wok (WOK_BURNER_SVG); los utensilios van a la derecha.
+const WOK_STOVE_SVG = (() => {
+  const ink = '#23262b', ne = 'vector-effect="non-scaling-stroke"';
+  return `<svg class="ws-body" viewBox="0 0 100 100" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="wsBack" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c3ccd5"/><stop offset="0.55" stop-color="#8f9ba8"/><stop offset="1" stop-color="#6f7b88"/></linearGradient>
+      <linearGradient id="wsTop" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a96a3"/><stop offset="0.5" stop-color="#a7b1bc"/><stop offset="1" stop-color="#7d8996"/></linearGradient>
+      <linearGradient id="wsFront" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8794a3"/><stop offset="0.45" stop-color="#6a7583"/><stop offset="1" stop-color="#454d57"/></linearGradient>
+    </defs>
+    <path d="M 2,0 H 98 L 99,33 H 1 Z" fill="url(#wsBack)" stroke="${ink}" stroke-width="1.8" ${ne} stroke-linejoin="round"/>
+    <path d="M 5,3 H 95" stroke="#eef3f7" stroke-opacity="0.6" stroke-width="1.4" ${ne}/>
+    <path d="M 70,4 L 62,31 M 76,4 L 70,31" stroke="#ffffff" stroke-opacity="0.22" stroke-width="3" ${ne}/>
+    <path d="M 1,33 H 99 L 100,66 H 0 Z" fill="url(#wsTop)" stroke="${ink}" stroke-width="1.8" ${ne} stroke-linejoin="round"/>
+    <path d="M 14,60 L 34,40 M 40,62 L 52,46 M 66,60 L 80,44" stroke="#ffffff" stroke-opacity="0.2" stroke-width="2.4" ${ne}/>
+    <ellipse cx="12" cy="52" rx="7" ry="3" fill="#b28a62" opacity="0.26"/><ellipse cx="55" cy="40" rx="9" ry="2.6" fill="#c9a37a" opacity="0.2"/><ellipse cx="88" cy="55" rx="6" ry="3" fill="#b28a62" opacity="0.28"/>
+    <path d="M 0,66 H 100 V 71 H 0 Z" fill="#c9d3dc" stroke="${ink}" stroke-width="1.6" ${ne}/>
+    <path d="M 0,71 H 100 V 100 H 0 Z" fill="url(#wsFront)" stroke="${ink}" stroke-width="1.8" ${ne}/>
+    <path d="M 2,76 H 98" stroke="#d6dee6" stroke-opacity="0.4" stroke-width="1.2" ${ne}/>
+  </svg>
+  <svg class="ws-utensils" viewBox="0 0 80 64">
+    <g stroke-linecap="round" stroke-linejoin="round">
+      <path d="M 76,6 L 36,46" stroke="${ink}" stroke-width="6" fill="none"/><path d="M 76,6 L 36,46" stroke="#b9c3cd" stroke-width="3.2" fill="none"/>
+      <ellipse cx="26" cy="50" rx="17" ry="9" transform="rotate(-38 26 50)" fill="#d2dae2" stroke="${ink}" stroke-width="2"/>
+      <g fill="#59626c"><circle cx="19" cy="52" r="1.5"/><circle cx="24" cy="48" r="1.5"/><circle cx="29" cy="45" r="1.5"/><circle cx="25" cy="54" r="1.5"/><circle cx="31" cy="51" r="1.5"/><circle cx="34" cy="46" r="1.5"/></g>
+      <path d="M 66,2 L 52,30" stroke="${ink}" stroke-width="6" fill="none"/><path d="M 66,2 L 52,30" stroke="#8a5a2b" stroke-width="3.2" fill="none"/>
+      <path d="M 50,30 L 57,33 L 49,46 L 41,43 Z" fill="#c6cfd8" stroke="${ink}" stroke-width="1.8"/>
+    </g>
+  </svg>`;
+})();
 const WOK_BURNER_SVG = (() => {
-  const ink = '#23262b';
   let fl = '';
-  for (let k = 0; k < 9; k++) { const fx = 16 + k * 8.5; fl += `<path d="M ${fx - 3.4},12 Q ${fx - 4.4},0 ${fx},-14 Q ${fx + 4.4},0 ${fx + 3.4},12 Z" fill="#4aa3ff" stroke="#1f5fa8" stroke-width="0.5"/><path d="M ${fx - 1.6},10 Q ${fx},1 ${fx + 1.6},10 Z" fill="#ff9a3d"/>`; }
-  return `<svg viewBox="0 0 100 60" preserveAspectRatio="none">
-    <defs><linearGradient id="wbTop" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a7b0bb"/><stop offset="1" stop-color="#7d8895"/></linearGradient>
-    <linearGradient id="wbFront" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8794a3"/><stop offset="0.5" stop-color="#6c7785"/><stop offset="1" stop-color="#4a525c"/></linearGradient></defs>
-    <path d="M 0,26 H 100 V 58 H 0 Z" fill="url(#wbFront)" stroke="${ink}" stroke-width="1.6"/>
-    <path d="M 3,30 H 97" stroke="#d6dee6" stroke-opacity="0.45" stroke-width="1.2"/>
-    <path d="M 7,8 H 93 L 100,26 H 0 Z" fill="url(#wbTop)" stroke="${ink}" stroke-width="1.6" stroke-linejoin="round"/>
-    <ellipse cx="50" cy="17" rx="30" ry="5" fill="#15181c" stroke="#59626c" stroke-width="1"/>
-    <path d="M 14,22 L 22,12 M 86,22 L 78,12 M 38,22 L 40,12 M 62,22 L 60,12" stroke="#4a515b" stroke-width="2" fill="none"/>
+  for (let k = 0; k < 9; k++) { const fx = 16 + k * 8.5; fl += `<path d="M ${fx - 3.4},24 Q ${fx - 4.4},10 ${fx},-8 Q ${fx + 4.4},10 ${fx + 3.4},24 Z" fill="#4aa3ff" stroke="#1f5fa8" stroke-width="0.5"/><path d="M ${fx - 1.6},22 Q ${fx},12 ${fx + 1.6},22 Z" fill="#ff9a3d"/>`; }
+  const steam = '<g class="wb-steam" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" fill="none"><path d="M 34,-52 q -6,-12 0,-22 q 6,-10 0,-20"/><path d="M 52,-56 q 6,-12 0,-24 q -6,-10 0,-20"/><path d="M 68,-50 q -6,-11 0,-21 q 6,-9 0,-18"/></g>';
+  return `<svg viewBox="0 0 100 40" preserveAspectRatio="none">
+    <ellipse cx="50" cy="23" rx="47" ry="7.5" fill="#15181c" stroke="#59626c" stroke-width="1"/>
+    <ellipse cx="50" cy="22.5" rx="34" ry="4.6" fill="#262a31"/>
+    <path d="M 10,25 L 18,19 M 90,25 L 82,19 M 34,28 L 36,20 M 66,28 L 64,20" stroke="#4a515b" stroke-width="2.2" fill="none"/>
     <g class="wb-flames">${fl}</g>
+    ${steam}
   </svg>`;
 })();
 function newWok(prev) {
@@ -10902,6 +10940,8 @@ function wokUpdateFireUi() {
   if (box) box.classList.toggle('wok-staged', on);
   if (!on) return;
   document.querySelectorAll('.wok-burner').forEach(b => { if (!b.firstChild) b.innerHTML = WOK_BURNER_SVG; });
+  const stoveEl = document.getElementById('wok-stove');
+  if (stoveEl && !stoveEl.firstChild) stoveEl.innerHTML = WOK_STOVE_SVG;
   gameState.woks.forEach((w, i) => {
     const card = document.getElementById(`wok-card-${i}`);
     if (!card || !w) return;
