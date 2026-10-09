@@ -3118,6 +3118,32 @@
   .wok-stir-btn.stirring-active {
     box-shadow: 0 0 10px rgba(255, 145, 0, 0.7);
   }
+  /* --- Salteados con etapas: hornilla de gas, perilla de fuego, calor, aceite y volteo --- */
+  .wok-burner, .wok-fire-btn, .wok-heat, .wok-toss-pips { display: none; }
+  .salteado-station-box.wok-staged .wok-dock-card { touch-action: none; overflow: visible; }
+  .salteado-station-box.wok-staged { padding-bottom: 36px; }
+  .salteado-station-box.wok-staged .wok-burner { display: block; position: absolute; left: -8%; top: 77%; width: 96%; height: 44%; pointer-events: none; z-index: 1; }
+  .wok-burner svg { width: 100%; height: 100%; display: block; overflow: visible; }
+  .wok-burner .wb-flames { opacity: 0; transition: opacity 0.2s; }
+  .wok-dock-card.fire-on .wb-flames { opacity: 1; }
+  .wok-burner .wb-flames path { transform-box: fill-box; transform-origin: 50% 100%; animation: panFlame 0.3s ease-in-out infinite alternate; }
+  .wok-burner .wb-flames path:nth-child(even) { animation-duration: 0.37s; }
+  .salteado-station-box.wok-staged .wok-heat { display: block; position: absolute; left: 22%; top: 106%; width: 40%; height: 5px; background: rgba(0,0,0,0.55); border-radius: 3px; overflow: hidden; z-index: 3; pointer-events: none; }
+  .wok-heat i { display: block; width: 0%; height: 100%; background: linear-gradient(90deg, #4fc3f7, #ffb300, #ff3d00); background-size: 40cqw 100%; transition: width 0.1s linear; }
+  .salteado-station-box.wok-staged .wok-toss-pips { display: flex; align-items: center; gap: 2px; position: absolute; right: 4%; top: 2%; z-index: 3; pointer-events: none; }
+  .wok-toss-pips span { font-size: 9px; font-weight: 900; color: #ffe0b2; text-shadow: 0 1px 2px #000; margin-right: 1px; }
+  .wok-toss-pips i { width: 6px; height: 6px; border-radius: 50%; background: rgba(0,0,0,0.55); border: 1px solid #ffb74d; }
+  .wok-toss-pips i.on { background: #ffb300; box-shadow: 0 0 5px #ffb300; }
+  .salteado-station-box.wok-staged .wok-fire-btn { display: flex; align-items: center; justify-content: center; position: absolute; left: 9%; top: 106.5%; translate: 0 -50%; width: 24px; height: 24px; border-radius: 50%; z-index: 4; font-size: 13px; line-height: 1; padding: 0; cursor: pointer; background: radial-gradient(circle at 35% 30%, #cfd8df, #6b7681 70%); border: 2px solid #23262b; filter: grayscale(1) brightness(0.8); box-shadow: 0 2px 4px rgba(0,0,0,0.6); }
+  .wok-dock-card.fire-on .wok-fire-btn { filter: none; box-shadow: 0 0 10px 2px rgba(255, 145, 0, 0.9); }
+  .wok-dock-card.is-hot .wok-dock-visual { filter: drop-shadow(0 0 5px rgba(255, 120, 0, 0.55)); }
+  .wok-dock-card.tossing .wok-dock-visual { animation: wokTossUp 0.42s ease-out; }
+  @keyframes wokTossUp { 0% { transform: translateY(0) rotate(0); } 35% { transform: translateY(-14%) rotate(-5deg); } 70% { transform: translateY(2%) rotate(3deg); } 100% { transform: translateY(0) rotate(0); } }
+  .wok-dock-card.tossing .wok-chip { transition: transform 0.2s; transform: translate(-50%, -140%) rotate(40deg) !important; }
+  .wok-oil-sheen { position: absolute; left: 14%; top: 22%; width: 72%; height: 56%; border-radius: 50%; background: radial-gradient(ellipse, rgba(255, 213, 79, 0.55), rgba(255, 213, 79, 0) 70%); pointer-events: none; }
+  .wok-dock-card.tool-target { box-shadow: 0 0 14px 3px rgba(255, 213, 79, 0.95) !important; }
+  .salteado-station-box.wok-staged .wok-badge { bottom: auto; top: -17%; }
+  .salteado-station-box.wok-staged .wok-dock-name { visibility: hidden; }
   .bowl-status-hint.status-warn {
     background: rgba(239, 108, 0, 0.92);
     color: #fff5f0;
@@ -6205,7 +6231,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v72</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v73</span></button></div>
     </div>
   </div>
 
@@ -6872,6 +6898,10 @@
       <div class="wok-dock-card active" id="wok-card-0" onclick="selectWok(0)">
         <div class="wok-dock-tag" id="wok-tag-0">● ACTIVO</div>
         <div class="wok-dock-visual" id="wok-art-0"></div>
+        <div class="wok-burner" aria-hidden="true"></div>
+        <div class="wok-heat" title="Calor del wok"><i id="wok-heat-fill-0"></i></div>
+        <div class="wok-toss-pips" title="Volteos: desliza el dedo hacia arriba sobre el wok"><span>↑</span><i></i><i></i><i></i><i></i><i></i></div>
+        <button class="wok-fire-btn" id="wok-fire-0" onclick="event.stopPropagation(); wokFireToggle(0)" title="Fuego del wok 1">🔥</button>
         <button class="wok-stir-btn" id="wok-stir-btn-0" style="display:none;">
           <span class="wok-stir-label" id="wok-stir-label-0">Saltear (mantén)</span>
           <div class="wok-stir-bar"><div class="wok-stir-fill" id="wok-stir-fill-0"></div></div>
@@ -6888,6 +6918,10 @@
       <div class="wok-dock-card" id="wok-card-1" onclick="selectWok(1)">
         <div class="wok-dock-tag" id="wok-tag-1" style="display:none;">● ACTIVO</div>
         <div class="wok-dock-visual" id="wok-art-1"></div>
+        <div class="wok-burner" aria-hidden="true"></div>
+        <div class="wok-heat" title="Calor del wok"><i id="wok-heat-fill-1"></i></div>
+        <div class="wok-toss-pips" title="Volteos: desliza el dedo hacia arriba sobre el wok"><span>↑</span><i></i><i></i><i></i><i></i><i></i></div>
+        <button class="wok-fire-btn" id="wok-fire-1" onclick="event.stopPropagation(); wokFireToggle(1)" title="Fuego del wok 2">🔥</button>
         <button class="wok-stir-btn" id="wok-stir-btn-1" style="display:none;">
           <span class="wok-stir-label" id="wok-stir-label-1">Saltear (mantén)</span>
           <div class="wok-stir-bar"><div class="wok-stir-fill" id="wok-stir-fill-1"></div></div>
@@ -8891,10 +8925,7 @@ let gameState = {
   stages: { ramen: 'cook', salteados: 'cook', makis: 'cook', frituras: 'cook' }, // etapa abierta en cada área
   st: null, // etapas por área: existencias, preparación, pase y plato (ver stInit)
   makiRoll: { ingredients: [], matPlaced: false, rollState: 'NONE', rollProgress: 0, cutState: 'NONE', cutProgress: 0 },
-  woks: [
-    { ingredients: [], result: null, matchedRecipe: null, stirring: false, stirSeconds: 0 },
-    { ingredients: [], result: null, matchedRecipe: null, stirring: false, stirSeconds: 0 }
-  ],
+  woks: [newWok(), newWok()],
   activeWokIndex: 0,
   fryStation: { ingredients: [], phase: 'BUILDING', proteinId: null, coat: 0, fryResult: null, frySeconds: 0, fryTone: '', matchedRecipe: null, cutState: 'NONE', cutProgress: 0 },
   selectedCustomerModalIndex: null,
@@ -9350,6 +9381,7 @@ function getUnlockedIngredients() {
     list = INGREDIENTES.filter(i => ingIds.has(i.id));
     if (stagedOn('ramen')) list = list.filter(i => !TOOL_SAUCE_IDS.includes(i.id));   // con etapas las salsas son botellas de la franja de herramientas
   }
+  if (gameState.activeArea === 'salteados' && stagedOn('salteados')) list = list.filter(i => !WOK_SAUCE_IDS.includes(i.id));   // lo mismo en Salteados
   return sortIngredientsByCustomOrder(list);
 }
 
@@ -9440,9 +9472,9 @@ function wokServeClick(i) {
   const main = rc.ingredients.find(id => [69, 61, 48].includes(id)) || rc.ingredients[0];
   const ok = stPassAdd('salteados', { recipes: (rc.candidates || [rc]).map(r => r.name), result: w.result,
     readyAt: w.readyAt != null ? w.readyAt : gameState.gameClock, vis: { kind: 'ing', id: main },
-    meta: { result: w.result, secs: w.stirSeconds, profile: w.profile, orderMatches: w.orderMatches, orderTotal: w.orderTotal } });
+    meta: { result: w.result, secs: w.stirSeconds, profile: w.profile, orderMatches: w.orderMatches, orderTotal: w.orderTotal, toss: w.toss || 0, oilMissing: !w.oil } });
   if (!ok) return;
-  gameState.woks[i] = { ingredients: [], result: null, matchedRecipe: null, stirring: false, stirSeconds: 0 };
+  gameState.woks[i] = newWok(w);
   renderWoks();
   renderPantryGrid();
 }
@@ -10498,7 +10530,7 @@ function clearWok(index) {
     if (w.result === 'QUEMADO') showStationToast('💨 Lo quemado no se aprovecha: a la basura.');
     else addTrimmings(1, 'salteado descartado');
   }
-  gameState.woks[index] = { ingredients: [], result: null, matchedRecipe: null, stirring: false, stirSeconds: 0 };
+  gameState.woks[index] = newWok(w);
   playSound('trash');
   renderWoks();
   renderPantryGrid();
@@ -10522,8 +10554,8 @@ function renderWoks() {
     // Los ingredientes se amontonan dentro de la cavidad del wok (espiral estable: cada
     // ingrediente conserva su posición al agregar más).
     if (artEl) {
-      artEl.innerHTML = wok.ingredients.length === 0
-        ? `<div class="wok-empty-hint">Arrastra aquí los ingredientes</div>`
+      artEl.innerHTML = (wok.oil ? '<i class="wok-oil-sheen"></i>' : '') + (wok.ingredients.length === 0
+        ? `<div class="wok-empty-hint">${wokStaged() ? (wok.oil ? 'Ahora los ingredientes' : '🛢️ Aceite y luego ingredientes') : 'Arrastra aquí los ingredientes'}</div>`
         : wok.ingredients.map((id, idx) => {
             const ing = INGREDIENTES.find(x => x.id === id);
             const radius = 0.27 * Math.sqrt(idx + 0.6);
@@ -10532,7 +10564,7 @@ function renderWoks() {
             const y = 50 + Math.sin(angle) * radius * 38;
             const rot = ((idx * 47) % 50) - 25;
             return `<span class="wok-chip" title="${ing ? ing.display : ''}" style="left:${x.toFixed(1)}%;top:${y.toFixed(1)}%;z-index:${idx};transform:translate(-50%,-50%) rotate(${rot}deg)">${ingIconHtml(ing)}</span>`;
-          }).join('');
+          }).join(''));
     }
 
     const serveBtn = document.getElementById(`wok-serve-btn-${i}`);
@@ -10566,7 +10598,10 @@ function renderWoks() {
           badgeEl.classList.add('status-ready');
           badgeEl.style.display = 'block';
         }
-        if (stirBtn && !wok.stirring) {
+        if (stirBtn && wokStaged()) {
+          stirBtn.style.display = 'flex';
+          wokStagedBtnUi(wok, i, stirBtn);
+        } else if (stirBtn && !wok.stirring) {
           stirBtn.style.display = 'flex';
           stirBtn.classList.remove('stirring-active', 'zone-crudo', 'zone-perfecto', 'zone-quemado');
           const fillEl = document.getElementById(`wok-stir-fill-${i}`);
@@ -10585,6 +10620,7 @@ function renderWoks() {
       cardEl.onclick = () => selectWok(i);
     }
   }
+  wokUpdateFireUi();
   updateAreaTabAlerts();
 }
 
@@ -10613,6 +10649,168 @@ function wokProfile(recipe) {
   return { crudo: base.crudo, perfecto, quemado: base.quemado + (perfecto - base.perfecto) };
 }
 
+// ---- Salteados con etapas: wok sobre fuego, aceite en botella y volteo ----
+// El fuego es un interruptor y el wok tarda en calentar. Con el plato armado (y el wok caliente) se cocina solo: hay que VOLTEAR
+// (deslizar el dedo hacia arriba sobre el wok) y RETIRAR en su punto (tocar el botón). Si se olvida, se quema. Apagar el fuego pausa la cocción.
+const WOK_HEAT_SECS = 3;          // segundos del wok frío a caliente
+const WOK_STAGED_SCALE = 2.4;     // la ventana de cocción (crudo / perfecto / quemado) es esta vez más larga que la de mantener pulsado
+const WOK_TOSS_STEP = 0.2;        // 5 volteos = mezclado completo
+const WOK_TOSS_MIN_PX = 26;       // recorrido hacia arriba para contar un volteo
+const WOK_TOSS_LOCK_MS = 260;
+const WOK_SAUCE_IDS = [79, 40, 8];   // salsas de cocción de Salteados que son botellas (las demás se ponen al emplatar)
+const WOK_BURNER_SVG = (() => {
+  const ink = '#23262b';
+  let fl = '';
+  for (let k = 0; k < 9; k++) { const fx = 16 + k * 8.5; fl += `<path d="M ${fx - 3.4},12 Q ${fx - 4.4},0 ${fx},-14 Q ${fx + 4.4},0 ${fx + 3.4},12 Z" fill="#4aa3ff" stroke="#1f5fa8" stroke-width="0.5"/><path d="M ${fx - 1.6},10 Q ${fx},1 ${fx + 1.6},10 Z" fill="#ff9a3d"/>`; }
+  return `<svg viewBox="0 0 100 60" preserveAspectRatio="none">
+    <defs><linearGradient id="wbTop" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a7b0bb"/><stop offset="1" stop-color="#7d8895"/></linearGradient>
+    <linearGradient id="wbFront" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8794a3"/><stop offset="0.5" stop-color="#6c7785"/><stop offset="1" stop-color="#4a525c"/></linearGradient></defs>
+    <path d="M 0,26 H 100 V 58 H 0 Z" fill="url(#wbFront)" stroke="${ink}" stroke-width="1.6"/>
+    <path d="M 3,30 H 97" stroke="#d6dee6" stroke-opacity="0.45" stroke-width="1.2"/>
+    <path d="M 7,8 H 93 L 100,26 H 0 Z" fill="url(#wbTop)" stroke="${ink}" stroke-width="1.6" stroke-linejoin="round"/>
+    <ellipse cx="50" cy="17" rx="30" ry="5" fill="#15181c" stroke="#59626c" stroke-width="1"/>
+    <path d="M 14,22 L 22,12 M 86,22 L 78,12 M 38,22 L 40,12 M 62,22 L 60,12" stroke="#4a515b" stroke-width="2" fill="none"/>
+    <g class="wb-flames">${fl}</g>
+  </svg>`;
+})();
+function newWok(prev) {
+  return { ingredients: [], result: null, matchedRecipe: null, stirring: false, stirSeconds: 0,
+    fire: !!(prev && prev.fire), heat: prev ? (prev.heat || 0) : 0, oil: false, toss: 0 };   // el fuego y el calor se quedan al vaciar el wok
+}
+const wokStaged = () => !!gameState.woks && stagedOn('salteados');
+function wokStagedProfile(recipe) {
+  const p = wokProfile(recipe), k = WOK_STAGED_SCALE;
+  return { crudo: p.crudo * k, perfecto: p.perfecto * k, quemado: p.quemado * k };
+}
+function wokFireToggle(i) {
+  if (!wokStaged() || gameState.isPaused || gameState.isGameOver) return;
+  if (i >= wokLimit()) { showStationToast('🔒 Este wok se abre completando más retos del entrenamiento.'); return; }
+  const w = gameState.woks[i];
+  if (!w) return;
+  w.fire = !w.fire;
+  try { playSound(w.fire ? 'flame' : 'click'); } catch (e) {}
+  showStationToast(w.fire ? `🔥 Wok ${i + 1} encendido: tarda ${WOK_HEAT_SECS} s en calentar.` : `🔥 Wok ${i + 1} apagado.`);
+  renderWoks();
+}
+// Botella sobre el wok: aceite (sin él el plato pierde puntos) o salsa de cocción (entra como ingrediente). Devuelve false si no entró.
+function wokPour(i, id) {
+  const w = gameState.woks[i];
+  if (!w || i >= wokLimit()) return false;
+  if (w.result) { showStationToast('🍳 Ese wok ya está listo: pásalo a emplatar o vacíalo.'); try { playSound('error'); } catch (e) {} return false; }
+  if (id === OIL_ID) {
+    if (w.oil) { showStationToast(`🛢️ El wok ${i + 1} ya tiene aceite.`); return false; }
+    w.oil = true;
+  } else {
+    if (w.ingredients.includes(id)) { showStationToast(`💧 El wok ${i + 1} ya tiene esa salsa.`); return false; }
+    if (!stCookTake('salteados', id)) return false;
+    w.ingredients.push(id);
+  }
+  try { playSound('add'); } catch (e) {}
+  renderWoks();
+  renderPantryGrid();
+  return true;
+}
+function wokStagedTap(i) {
+  const w = gameState.woks[i];
+  if (!w || w.result || gameState.isPaused || gameState.isGameOver) return;
+  if (i >= wokLimit()) return;
+  if (!w.fire) { wokFireToggle(i); return; }
+  const a = analyzeWok(i);
+  if (a.status !== 'MATCHED') return;
+  if ((w.heat || 0) < 1 || w.stirSeconds <= 0) { showStationToast('🔥 El wok aún se calienta: espera a que cueza.'); return; }
+  const prof = w.profile || wokStagedProfile(a.recipe);
+  finishStir(i, w.stirSeconds < prof.crudo ? 'CRUDO' : (w.stirSeconds < prof.perfecto ? 'PERFECTO' : 'QUEMADO'));
+}
+function wokStagedBtnUi(w, i, btn) {
+  const label = document.getElementById(`wok-stir-label-${i}`), fill = document.getElementById(`wok-stir-fill-${i}`);
+  let zone = '', text = '', pct = 0;
+  if (!w.fire) text = '🔥 Enciende el fuego';
+  else if ((w.heat || 0) < 1) text = 'Calentando…';
+  else {
+    const a = analyzeWok(i), prof = w.profile || wokStagedProfile(a.recipe);
+    pct = Math.min(100, w.stirSeconds / prof.quemado * 100);
+    zone = w.stirSeconds < prof.crudo ? 'crudo' : (w.stirSeconds < prof.perfecto ? 'perfecto' : 'quemado');
+    text = zone === 'crudo' ? 'Voltea ↑ y espera…' : (zone === 'perfecto' ? '¡Retira ahora! (toca)' : '¡Se quema! (toca)');
+  }
+  if (label && label.textContent !== text) label.textContent = text;
+  if (fill) fill.style.width = `${pct}%`;
+  ['crudo', 'perfecto', 'quemado'].forEach(z => btn.classList.toggle('zone-' + z, z === zone));
+  btn.classList.toggle('stirring-active', !!w.stirring);
+}
+// Estado visual de cada wok (llamas, calor, volteos, botón): se actualiza cada décima de segundo sin recrear los botones.
+function wokUpdateFireUi() {
+  const on = wokStaged();
+  const box = document.getElementById('salteado-station-box');
+  if (box) box.classList.toggle('wok-staged', on);
+  if (!on) return;
+  document.querySelectorAll('.wok-burner').forEach(b => { if (!b.firstChild) b.innerHTML = WOK_BURNER_SVG; });
+  gameState.woks.forEach((w, i) => {
+    const card = document.getElementById(`wok-card-${i}`);
+    if (!card || !w) return;
+    card.classList.toggle('fire-on', !!w.fire);
+    card.classList.toggle('is-hot', (w.heat || 0) >= 1);
+    const fill = document.getElementById(`wok-heat-fill-${i}`);
+    if (fill) fill.style.width = `${Math.round((w.heat || 0) * 100)}%`;
+    const n = Math.round((w.toss || 0) / WOK_TOSS_STEP);
+    card.querySelectorAll('.wok-toss-pips i').forEach((p, k) => p.classList.toggle('on', k < n));
+    const btn = document.getElementById(`wok-stir-btn-${i}`);
+    if (btn && btn.style.display !== 'none' && !w.result) wokStagedBtnUi(w, i, btn);
+  });
+}
+function wokStagedTick() {
+  if (!gameState.woks || !wokStaged() || gameState.isPaused || gameState.isGameOver) return;
+  const dt = 0.1;
+  let changed = false;
+  gameState.woks.forEach((w, i) => {
+    if (!w) return;
+    const h = w.heat || 0;
+    w.heat = w.fire ? Math.min(1, h + dt / WOK_HEAT_SECS) : Math.max(0, h - dt / (WOK_HEAT_SECS * 2));
+    if (w.result || i >= wokLimit()) return;
+    const a = w.fire && w.heat >= 1 && w.ingredients.length ? analyzeWok(i) : null;
+    if (a && a.status === 'MATCHED') {
+      if (!w.profile || !w.profileStaged) { w.profile = wokStagedProfile(a.recipe); w.profileStaged = true; }
+      if (!w.stirring) { w.stirring = true; changed = true; try { playSound('flame'); } catch (e) {} }
+      w.stirSeconds += dt;
+      sfxEvery('sizzle', 260);
+      if (w.stirSeconds >= w.profile.quemado && !isFree()) finishStir(i, 'QUEMADO');
+    } else if (w.stirring) { w.stirring = false; changed = true; }
+  });
+  if (changed) renderWoks();
+  wokUpdateFireUi();
+}
+setInterval(wokStagedTick, 100);
+// Volteo: deslizar el dedo hacia arriba sobre el wok (con el wok sobre el fuego)
+const wokSwipes = new Map();
+let wokTossLock = 0;
+function wokToss(i) {
+  const w = gameState.woks[i];
+  if (!w || w.result || gameState.isPaused || gameState.isGameOver || i >= wokLimit()) return;
+  const now = performance.now();
+  if (now < wokTossLock) return;
+  wokTossLock = now + WOK_TOSS_LOCK_MS;
+  if (!w.ingredients.length) { showStationToast('🍳 No hay nada que voltear todavía.'); return; }
+  const card = document.getElementById(`wok-card-${i}`);
+  if (card) { card.classList.remove('tossing'); void card.offsetWidth; card.classList.add('tossing'); setTimeout(() => card.classList.remove('tossing'), 440); }
+  try { playSound('stir'); } catch (e) {}
+  if (!w.fire || (w.heat || 0) < 0.5) { showStationToast('🔥 Voltea con el wok sobre el fuego: enciéndelo primero.'); return; }
+  w.toss = Math.min(1, (w.toss || 0) + WOK_TOSS_STEP);
+  wokUpdateFireUi();
+}
+document.addEventListener('pointerdown', (e) => {
+  if (!wokStaged() || !e.target.closest) return;
+  const c = e.target.closest('.wok-dock-card');
+  if (!c || e.target.closest('button')) return;
+  wokSwipes.set(e.pointerId, { i: parseInt(c.id.replace('wok-card-', ''), 10), x: e.clientX, y: e.clientY, t: performance.now() });
+}, { passive: true });
+document.addEventListener('pointermove', (e) => {
+  const sw = wokSwipes.get(e.pointerId);
+  if (!sw) return;
+  const dx = e.clientX - sw.x, dy = e.clientY - sw.y, age = performance.now() - sw.t;
+  if (dy <= -WOK_TOSS_MIN_PX && Math.abs(dx) <= Math.abs(dy) * 1.4 && age < 800) { wokSwipes.delete(e.pointerId); wokToss(sw.i); }
+  else if (age > 800 || dy > 40) wokSwipes.delete(e.pointerId);
+}, { passive: true });
+['pointerup', 'pointercancel'].forEach(t => document.addEventListener(t, (e) => { wokSwipes.delete(e.pointerId); }, { passive: true }));
+
 function finishStir(index, result) {
   const wok = gameState.woks[index];
   if (!wok || wok.result) return;
@@ -10624,6 +10822,7 @@ function finishStir(index, result) {
   wok.orderMatches = analysis.orderMatches;
   wok.orderTotal = analysis.orderTotal;
   playSound(result === 'PERFECTO' ? 'match' : 'burn');
+  if (wokStaged() && !wok.oil) showStationToast('🛢️ Sin aceite: el plato saldrá de menor calidad.');
   renderWoks();
   if (result === 'PERFECTO') vfxAtElement(`wok-card-${index}`, 'good');
   else if (result === 'QUEMADO') vfxAtElement(`wok-card-${index}`, 'bad');
@@ -10640,6 +10839,7 @@ function setupWokStirButtons() {
     const startStir = (e) => {
       if (e && e.cancelable) e.preventDefault();
       if (gameState.isPaused || gameState.isGameOver) return;
+      if (wokStaged()) { wokStagedTap(index); return; }   // con etapas: el wok se cocina solo sobre el fuego y aquí se RETIRA
       const wok = gameState.woks[index];
       if (wok.result || wok.stirring) return;
       const analysis = analyzeWok(index);
@@ -10685,6 +10885,7 @@ function setupWokStirButtons() {
     };
 
     const stopStir = (e) => {
+      if (wokStaged()) return;
       try { if (e && e.pointerId && btn.hasPointerCapture && btn.hasPointerCapture(e.pointerId)) btn.releasePointerCapture(e.pointerId); } catch(err) {}
       const wok = gameState.woks[index];
       if (!wok.stirring) return;
@@ -15579,6 +15780,8 @@ function evalProcess(dish) {
     if (typeof m.spread === 'number') return Math.max(0, 6 - 8 * (m.orderErrors || 0)) + Math.round(14 * Math.max(0, Math.min(1, m.spread))) + (m.oilMissing ? 0 : 10);
     return Math.max(0, 30 - 8 * (m.orderErrors || 0));
   }
+  // con etapas: 10 pts de orden de armado + 14 de volteo (5 volteos = mezclado completo) + 6 de aceite; sin etapas, 30 de orden como siempre
+  if (dish.area === 'salteados' && typeof m.toss === 'number' && m.orderTotal) return Math.round(10 * m.orderMatches / m.orderTotal) + Math.round(14 * Math.max(0, Math.min(1, m.toss))) + (m.oilMissing ? 0 : 6);
   if (dish.area === 'salteados' && m.orderTotal) return Math.round(30 * m.orderMatches / m.orderTotal);
   return 30; // Makis y Frituras ya exigen su orden para poder terminar
 }
@@ -15687,7 +15890,7 @@ function consumeReadyDish(d) {
   if (d.area === 'ramen') {
     gameState.bowls[d.index] = { ingredients: [], matchedRamen: null };
   } else if (d.area === 'salteados') {
-    gameState.woks[d.index] = { ingredients: [], result: null, matchedRecipe: null, stirring: false, stirSeconds: 0 };
+    gameState.woks[d.index] = newWok(gameState.woks[d.index]);
     renderWoks();
   } else if (d.area === 'makis') {
     cleanupMakiToolDrag();
@@ -16152,7 +16355,9 @@ const TOOL_SAUCES = {
   8:  { name: 'Tan tan', c: '#d12f14', d: '#8f1a08' },
   9:  { name: 'Vegetal', c: '#8fc44a', d: '#5f8f2a' },
   10: { name: 'Bajiru',  c: '#3f8a35', d: '#25601f' },
-  31: { name: 'Aceite',  c: '#d9a23a', d: '#8f5f12' }                 // aceite de ajonjolí
+  31: { name: 'Aceite',  c: '#d9a23a', d: '#8f5f12' },                // aceite de ajonjolí (Ramen) / aceite del wok (Salteados)
+  79: { name: 'Chaufa',  c: '#6b3a1d', d: '#3a1d0a' },                // Salteados
+  40: { name: 'Base',    c: '#b8452a', d: '#7a2a14' }                 // Base Shimaya (Salteados)
 };
 const TOOL_SAUCE_IDS = Object.keys(TOOL_SAUCES).map(Number);
 function sauceBottleSvg(id) {
@@ -16234,18 +16439,35 @@ function ramenSauceIdsAvailable() {
   if (getUnlockedRamenRecipes().some(r => oilNames.includes(r.name))) list.push(OIL_ID);   // el aceite de ajonjolí va tras las salsas
   return list;
 }
+// Área cuya franja de herramientas se ve ahora: Ramen o Salteados con etapas, en la pantalla de cocina
+function toolStripArea() {
+  const a = gameState.activeArea;
+  return (a === 'ramen' || a === 'salteados') && stagedOn(a) && getStage(a) === 'cook' ? a : null;
+}
+function wokSauceIdsAvailable() {
+  const ids = new Set();
+  stView('salteados', getUnlockedRecipes().filter(r => r.area === 'salteados')).forEach(r => r.ingredients.forEach(id => ids.add(id)));
+  const list = WOK_SAUCE_IDS.filter(id => ids.has(id));
+  list.push(OIL_ID);   // el aceite va siempre (todo salteado empieza con aceite)
+  return list;
+}
 function renderToolStrip() {
   const strip = document.getElementById('ramen-tool-strip');
   if (!strip) return;
-  const show = stagedOn('ramen') && gameState.activeArea === 'ramen' && getStage('ramen') === 'cook';
+  const area = toolStripArea(), show = !!area;
   strip.classList.toggle('on', show);
-  if (!show) { toolDisarmAll(true); strip._sig = ''; return; }
-  const ids = ramenSauceIdsAvailable();
-  const sig = ids.join(',') + '|' + toolStripSig();
+  if (!show) { toolDisarmAll(true); strip._sig = ''; strip._area = null; return; }
+  if (strip._area !== area) { toolDisarmAll(true); strip._area = area; strip._sig = ''; }   // al cambiar de área se guardan las herramientas
+  const ids = area === 'salteados' ? wokSauceIdsAvailable() : ramenSauceIdsAvailable();
+  const sig = area + ':' + ids.join(',') + '|' + toolStripSig();
   if (strip._sig === sig) return;
   strip._sig = sig;
   const away = (kind, id) => toolArmedMap.has(toolKey(kind, id)) ? 'is-away' : '';
-  strip.innerHTML = ids.map(id => `<div class="tool-item tool-bottle ${away('sauce', id)}" data-kind="sauce" data-id="${id}" title="${id === OIL_ID ? 'Aceite de ajonjolí: al sofreír (Tan tan, Ebi) y al caldo cuando hierve (Tonkotsu, Vegetariano, Shoyu, Miso)' : 'Salsa ' + TOOL_SAUCES[id].name}: arrástrala sobre una sartén y toca para verter (si te equivocas, desliza desde la tapa blanca hacia arriba para devolverla)">${sauceBottleSvg(id)}<span class="tool-name">${TOOL_SAUCES[id].name}</span></div>`).join('')
+  const target = area === 'salteados' ? 'un wok' : 'una sartén';
+  const oilTip = area === 'salteados' ? 'Aceite: échalo al wok antes de los ingredientes (sin aceite el plato pierde puntos)' : 'Aceite de ajonjolí: al sofreír (Tan tan, Ebi) y al caldo cuando hierve (Tonkotsu, Vegetariano, Shoyu, Miso)';
+  const bottles = ids.map(id => `<div class="tool-item tool-bottle ${away('sauce', id)}" data-kind="sauce" data-id="${id}" title="${id === OIL_ID ? oilTip : 'Salsa ' + TOOL_SAUCES[id].name}: arrástrala sobre ${target} y toca para verter (si te equivocas, desliza desde la tapa blanca hacia arriba para devolverla)">${sauceBottleSvg(id)}<span class="tool-name">${TOOL_SAUCES[id].name}</span></div>`).join('');
+  if (area === 'salteados') { strip.innerHTML = bottles; return; }
+  strip.innerHTML = bottles
     + `<div class="tool-item tool-torch ${away('torch')}" data-kind="torch" title="Flameador: arrástralo hasta Flamear Chasu">${torchSvg(false)}<span class="tool-name">Flameador</span></div>`
     + `<div class="tool-item tool-ohashi ${away('ohashi')}" data-kind="ohashi" title="Ohashi: arrástralos sobre un cuenco con fideos y mantén pulsado para repartirlos">${ohashiSvg()}<span class="tool-name">Ohashi</span></div>`;
 }
@@ -16267,8 +16489,9 @@ function toolTargetAt(kind, p) {
     }
     return null;
   }
+  const wokTarget = toolStripArea() === 'salteados';
   for (const i of [0, 1]) {
-    const c = document.getElementById('pan-cell-' + i);
+    const c = document.getElementById((wokTarget ? 'wok-card-' : 'pan-cell-') + i);
     if (!c) continue;
     const r = c.getBoundingClientRect();
     if (p.x >= r.left - 4 && p.x <= r.right + 4 && p.y >= r.top - 36 && p.y <= r.top + r.height * 0.62) return { el: c, pan: i };
@@ -16316,7 +16539,7 @@ function onToolUp(e) {
   if (!d) return;
   const p = toolPoint(d), wasActive = d.active, t = wasActive ? toolTargetAt(d.kind, p) : null, kind = d.kind, id = d.id;
   toolCleanupDrag(d);
-  if (!wasActive) { showStationToast(kind === 'torch' ? '🔥 Arrastra el flameador hasta "Flamear Chasu".' : (kind === 'ohashi' ? '🥢 Arrastra los ohashi hasta la parte de arriba de un cuenco con fideos.' : '💧 Arrastra la botella hasta la parte de arriba de una sartén.')); return; }
+  if (!wasActive) { showStationToast(kind === 'torch' ? '🔥 Arrastra el flameador hasta "Flamear Chasu".' : (kind === 'ohashi' ? '🥢 Arrastra los ohashi hasta la parte de arriba de un cuenco con fideos.' : (toolStripArea() === 'salteados' ? '💧 Arrastra la botella hasta la parte de arriba de un wok.' : '💧 Arrastra la botella hasta la parte de arriba de una sartén.'))); return; }
   try { playSound(t ? 'add' : 'click'); } catch (err) {}
   if (t) toolArm(kind, id, t.pan);
 }
@@ -16333,7 +16556,7 @@ document.addEventListener('pointerdown', (e) => {
     }
   }
   const item = e.target.closest && e.target.closest('.tool-item');
-  if (!item || !stagedOn('ramen') || gameState.isPaused || gameState.isGameOver) return;
+  if (!item || !toolStripArea() || gameState.isPaused || gameState.isGameOver) return;
   if (e.pointerType === 'mouse' && e.button !== 0) return;
   const kind = item.dataset.kind, id = parseInt(item.dataset.id || '0', 10);
   if (item.classList.contains('is-away')) { toolDisarm(toolKey(kind, id)); return; }       // tocar el hueco vacío la devuelve
@@ -16412,7 +16635,7 @@ function toolArm(kind, id, pan) {
     const b = gameState.bowls[pan];
     if (!b || !b.ingredients.includes(1)) { showStationToast('🥢 Ese cuenco aún no tiene fideos.'); try { playSound('error'); } catch (e) {} return; }
   }
-  const a = { key, kind, id, pan, bowl: kind === 'ohashi' ? pan : undefined, el: null, pouring: false };
+  const a = { key, kind, id, pan, bowl: kind === 'ohashi' ? pan : undefined, el: null, pouring: false, area: toolStripArea() || 'ramen' };
   const el = document.createElement('div');
   el.className = 'tool-armed ' + kind;
   el.dataset.akey = key;
@@ -16429,7 +16652,8 @@ function toolArm(kind, id, pan) {
   } else if (kind === 'ohashi') {
     showStationToast(`🥢 Ohashi sobre el cuenco ${pan + 1}: mantén pulsado para mover los fideos.`);
   } else {
-    showStationToast((id === OIL_ID ? `🛢️ Aceite sobre la sartén ${pan + 1}` : `💧 Salsa ${TOOL_SAUCES[id].name} sobre la sartén ${pan + 1}`) + ': toca la botella para apretar. ¿Te equivocaste? Desliza desde la tapa blanca hacia arriba para devolverla.');
+    const holder = a.area === 'salteados' ? 'el wok' : 'la sartén';
+    showStationToast((id === OIL_ID ? `🛢️ Aceite sobre ${holder} ${pan + 1}` : `💧 Salsa ${TOOL_SAUCES[id].name} sobre ${holder} ${pan + 1}`) + ': toca la botella para apretar. ¿Te equivocaste? Desliza desde la tapa blanca hacia arriba para devolverla.');
   }
   const strip = document.getElementById('ramen-tool-strip');
   if (strip) strip._sig = '';
@@ -16438,7 +16662,7 @@ function toolArm(kind, id, pan) {
 function toolPlaceArmed(a) {
   if (!a || !a.el) return;
   if (a.kind === 'sauce') {
-    const c = document.getElementById('pan-cell-' + a.pan);
+    const c = document.getElementById((a.area === 'salteados' ? 'wok-card-' : 'pan-cell-') + a.pan);
     if (!c) return;
     const r = c.getBoundingClientRect();
     a.el.style.left = (r.left + r.width / 2 - 31) + 'px';
@@ -16525,13 +16749,17 @@ function toolDisarm(key, silent) {
 function toolDisarmAll(silent) { [...toolArmedMap.keys()].forEach(k => toolDisarm(k, true)); if (!silent) renderToolStrip(); }
 function toolPour(a) {
   if (!a || a.kind !== 'sauce' || a.pouring || gameState.isPaused) return;
-  const pan = panGet(a.pan), before = pan.items.length, beforeOil = pan.oil;
-  panAdd(a.pan, a.id);
-  if (pan.items.length <= before && pan.oil === beforeOil) { setTimeout(() => toolDisarm(a.key), 250); return; }      // no entró (panAdd ya avisó el motivo)
+  if (a.area === 'salteados') {
+    if (!wokPour(a.pan, a.id)) { setTimeout(() => toolDisarm(a.key), 250); return; }    // no entró (wokPour ya avisó el motivo)
+  } else {
+    const pan = panGet(a.pan), before = pan.items.length, beforeOil = pan.oil;
+    panAdd(a.pan, a.id);
+    if (pan.items.length <= before && pan.oil === beforeOil) { setTimeout(() => toolDisarm(a.key), 250); return; }      // no entró (panAdd ya avisó el motivo)
+  }
   a.pouring = true;
   a.el.classList.add('squeeze');
   try { playSound('splash'); } catch (e) {}
-  const nz = a.el.getBoundingClientRect(), art = document.getElementById('pan-art-' + a.pan), ar = art ? art.getBoundingClientRect() : nz;
+  const nz = a.el.getBoundingClientRect(), art = document.getElementById((a.area === 'salteados' ? 'wok-art-' : 'pan-art-') + a.pan), ar = art ? art.getBoundingClientRect() : nz;
   const sx = nz.left + nz.width / 2, sy = nz.bottom - 4, ty = ar.top + ar.height * 0.55;
   for (let k = 0; k < 8; k++) {
     const d = document.createElement('i');
@@ -17503,10 +17731,7 @@ function startLevel(lvlIndex) {
   gameState.stages = { ramen: 'cook', salteados: 'cook', makis: 'cook', frituras: 'cook' };
   cleanupMakiToolDrag();
   gameState.makiRoll = newMakiRoll();
-  gameState.woks = [
-    { ingredients: [], result: null, matchedRecipe: null, stirring: false, stirSeconds: 0 },
-    { ingredients: [], result: null, matchedRecipe: null, stirring: false, stirSeconds: 0 }
-  ];
+  gameState.woks = [newWok(), newWok()];
   if (fryTimerInterval) { clearInterval(fryTimerInterval); fryTimerInterval = null; }
   cleanupFryItemDrag();
   cleanupFryKnifeDrag();
