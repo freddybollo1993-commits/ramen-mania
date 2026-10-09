@@ -2171,6 +2171,15 @@
   .maki-pieces { z-index: 4; }
   .maki-roll-wrap { z-index: 3; }
   .maki-cut-progress { z-index: 5; }
+  /* Flameado (Yama, Nin Niku, Digión): barra con zona verde y efecto sobre el maki */
+  .maki-flame-bar { display: none; position: absolute; left: 20%; right: 20%; top: 4%; height: 9px; border-radius: 5px; z-index: 6; overflow: hidden; border: 1px solid rgba(0,0,0,0.7); background: linear-gradient(90deg, #b77b25 0 62.5%, #43a047 62.5% 93.75%, #c62828 93.75% 100%); pointer-events: none; }
+  .maki-flame-bar i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: rgba(255,255,255,0.4); border-right: 2px solid #fff; transition: width 0.1s linear; }
+  .maki-flame-bar span { position: absolute; left: 3px; top: -3px; font-size: 9px; line-height: 12px; }
+  .maki-roll-wrap.flaming { filter: drop-shadow(0 0 7px #ff9a3d) drop-shadow(0 0 3px #ffd54f); }
+  .maki-roll-wrap.seared { filter: sepia(0.35) saturate(1.3) brightness(0.94); }
+  .maki-roll-wrap.flaming.seared { filter: sepia(0.35) saturate(1.3) brightness(0.94) drop-shadow(0 0 7px #ff9a3d); }
+  .maki-roll-wrap.burnt { filter: brightness(0.5) saturate(0.6); }
+  .maki-board-zone.tool-target { outline: 3px solid rgba(255, 213, 79, 0.95); outline-offset: -3px; }
   .maki-piece {
     display: block;
     width: 14.5%;
@@ -6231,7 +6240,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v73</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v74</span></button></div>
     </div>
   </div>
 
@@ -6881,6 +6890,8 @@
           </div>
           <div class="maki-pieces" id="maki-pieces"></div>
           <div class="maki-roll-hint" id="maki-roll-hint" style="display:none;">⬆ Desliza para enrollar</div>
+          <div class="maki-roll-hint" id="maki-spread-hint" style="display:none;">↔ Extiende el arroz con el dedo</div>
+          <div class="maki-flame-bar" id="maki-flame-bar" title="Flameado: retira el flameador en la zona verde"><i id="maki-flame-fill"></i><span>🔥</span></div>
           <div class="maki-cut-progress" id="maki-cut-progress"><i id="maki-cut-fill"></i></div>
         </div>
 
@@ -9482,8 +9493,9 @@ function makiServeClick() {
   if (!stagedOn('makis')) { serveReadyDish('makis', 0); return; }
   const roll = gameState.makiRoll, a = analyzeMakiSequence(roll.ingredients);
   if (roll.cutState !== 'CUT' || a.status !== 'READY') return;
+  const flameNeeded = makiNeedsFlame();
   const ok = stPassAdd('makis', { recipes: (a.recipe.candidates || [a.recipe]).map(r => r.name), result: 'PERFECTO',
-    readyAt: roll.readyAt != null ? roll.readyAt : gameState.gameClock, vis: { kind: 'img', src: 'assets/maki_roll_v2.svg', id: 38 }, meta: {} });
+    readyAt: roll.readyAt != null ? roll.readyAt : gameState.gameClock, vis: { kind: 'img', src: 'assets/maki_roll_v2.svg', id: 38 }, meta: { spread: roll.spread || 0, flamePts: makiFlamePts(roll, flameNeeded) } });
   if (!ok) return;
   cleanupMakiToolDrag();
   gameState.makiRoll = newMakiRoll();
@@ -9775,7 +9787,7 @@ let makiToolDrag = null;
 // rollState: NONE (armando la base) → ROLLING (el jugador desliza) → ROLLED (maki enrollado).
 // baseLen: cuántos ingredientes quedaron enrollados (los de la base). Lo que se agrega después va encima.
 function newMakiRoll() {
-  return { ingredients: [], matPlaced: false, rollState: 'NONE', rollProgress: 0, baseLen: 0, cutState: 'NONE', cutProgress: 0 };
+  return { ingredients: [], matPlaced: false, rollState: 'NONE', rollProgress: 0, baseLen: 0, cutState: 'NONE', cutProgress: 0, spread: 0, flame: 0 };
 }
 
 // Estructuras base de todas las recetas (los primeros baseCount ingredientes).
@@ -10136,8 +10148,11 @@ function renderMakiStation() {
   }
   const zone = document.getElementById('maki-board-zone');
   if (zone) zone.classList.toggle('can-roll', makiCanRoll());
+  const spreadHintOn = makiSpreadAllowed() && (roll.spread || 0) < 0.3;
+  const spreadHint = document.getElementById('maki-spread-hint');
+  if (spreadHint) spreadHint.style.display = spreadHintOn ? 'block' : 'none';
   const rollHint = document.getElementById('maki-roll-hint');
-  if (rollHint) rollHint.style.display = (makiCanRoll() && roll.rollProgress === 0) ? 'block' : 'none';
+  if (rollHint) rollHint.style.display = (makiCanRoll() && roll.rollProgress === 0 && !spreadHintOn) ? 'block' : 'none';
 
   // Maki cortado: 6 rodajas que se separan sobre la hoja, con soya, wasabi y jengibre.
   const plating = document.getElementById('maki-plating');
@@ -10209,6 +10224,8 @@ function renderMakiStation() {
     const options = makiNextOptions(ings, true);
     statusEl.textContent = options.length ? `Sigue: ${options.join(' / ')}` : `Armando (${ings.length})`;
   }
+  makiApplySpread();
+  makiFlameUi();
   syncStationIfChanged('makis');
   updateServeButtonsQuality();
   updateAreaTabAlerts();
@@ -10419,6 +10436,7 @@ function setMakiRollProgress(value) {
 function onMakiRollMove(e) {
   const d = makiRollDrag;
   if (!d || e.pointerId !== d.pointerId) return;
+  if (makiSpreadDrag && makiSpreadDrag.pointerId === e.pointerId && makiSpreadDrag.mode === 'spread') return;
   const range = d.height * 0.8;
   setMakiRollProgress(d.startProgress + (d.startY - e.clientY) / range);
 }
@@ -10428,6 +10446,123 @@ function onMakiRollUp(e) {
   if (!d || e.pointerId !== d.pointerId) return;
   endMakiRollDrag();
   renderMakiStation();
+}
+
+// ---- Makis con etapas: extender el arroz y flamear ----
+// Extender: con el arroz sobre la esterilla, deslizar el dedo de lado a lado (≈ 240 px de recorrido) lo extiende sobre el alga.
+// Flamear (Yama, Nin Niku, Digión): con el maki enrollado, el flameador de la franja se arrastra a la tabla y se retira en la zona verde de la barra.
+// Puntos de proceso (30): 10 de orden de armado + 14 de arroz extendido + 6 de flameado (los makis que no se flamean ganan esos 6).
+const MAKI_SPREAD_PX = 240;
+const MAKI_FLAME_RATE = 0.4;                 // la barra de flameado sube 0,4 por segundo: 2,5 s hasta la zona verde
+const MAKI_FLAME_GREEN = [1, 1.5];           // zona verde (en unidades de la barra)
+const MAKI_FLAME_MAX = 1.6;                  // a este valor se quema y el flameador se retira solo
+const MAKI_FLAME_NAMES = ['Maki Yama', 'Maki Nin Niku', 'Maki Digion'];
+function makiNeedsFlame() {
+  const a = analyzeMakiSequence(gameState.makiRoll.ingredients);
+  if (a.status !== 'READY' || !a.recipe) return false;
+  const names = a.recipe.candidates ? a.recipe.candidates.map(r => r.name) : [a.recipe.name];
+  return names.every(n => MAKI_FLAME_NAMES.includes(n));
+}
+const makiFlameAvailable = () => getUnlockedRecipes().some(r => r.area === 'makis' && MAKI_FLAME_NAMES.includes(r.name));
+function makiCanFlame() {
+  const roll = gameState.makiRoll;
+  return stagedOn('makis') && roll.rollState === 'ROLLED' && roll.cutState === 'NONE' && makiNeedsFlame();
+}
+function makiFlamePts(roll, need) {
+  if (!need) return 6;
+  const f = roll.flame || 0;
+  return f > MAKI_FLAME_GREEN[1] ? 2 : (f >= MAKI_FLAME_GREEN[0] ? 6 : (f >= 0.5 ? 3 : 0));
+}
+function makiSpreadAllowed() {
+  const roll = gameState.makiRoll;
+  return stagedOn('makis') && roll.matPlaced && roll.rollState === 'NONE' && roll.cutState === 'NONE' && roll.ingredients[0] === 38 && (roll.spread || 0) < 1;
+}
+// El arroz va de un montón a toda la esterilla según lo extendido (propiedad scale: no choca con la animación de entrada)
+function makiApplySpread() {
+  const g = document.querySelector('#mk-layer-root .mk-layer');
+  if (!g) return;
+  const roll = gameState.makiRoll;
+  if (!(stagedOn('makis') && roll.ingredients[0] === 38 && roll.rollState === 'NONE')) { g.style.scale = ''; return; }
+  const sp = Math.max(0, Math.min(1, roll.spread || 0));
+  g.style.transformBox = 'fill-box';
+  g.style.transformOrigin = 'center';
+  g.style.scale = `${(0.5 + 0.5 * sp).toFixed(3)} ${(0.62 + 0.38 * sp).toFixed(3)}`;
+}
+function makiFlameUi() {
+  const roll = gameState.makiRoll;
+  const bar = document.getElementById('maki-flame-bar'), fill = document.getElementById('maki-flame-fill');
+  const show = stagedOn('makis') && roll.rollState === 'ROLLED' && roll.cutState === 'NONE' && makiNeedsFlame();
+  if (bar) bar.style.display = show ? 'block' : 'none';
+  if (fill) fill.style.width = `${Math.min(100, (roll.flame || 0) / MAKI_FLAME_MAX * 100)}%`;
+  const wrap = document.getElementById('maki-roll-wrap');
+  if (wrap) {
+    const armed = toolArmedMap.get('torch');
+    wrap.classList.toggle('flaming', !!armed && armed.area === 'makis');
+    wrap.classList.toggle('seared', (roll.flame || 0) >= 0.6 && (roll.flame || 0) <= MAKI_FLAME_GREEN[1]);
+    wrap.classList.toggle('burnt', (roll.flame || 0) > MAKI_FLAME_GREEN[1]);
+  }
+}
+function makiFlameTick() {
+  const armed = toolArmedMap.get('torch');
+  if (!armed || armed.area !== 'makis' || gameState.isPaused || gameState.isGameOver) return;
+  const roll = gameState.makiRoll;
+  if (!makiCanFlame()) { toolDisarm('torch'); return; }                 // el maki cambió (se vació, se cortó...)
+  const before = roll.flame || 0;
+  roll.flame = Math.min(MAKI_FLAME_MAX, before + MAKI_FLAME_RATE * 0.1);
+  sfxEvery('flame', 420);
+  if (before < MAKI_FLAME_GREEN[0] && roll.flame >= MAKI_FLAME_GREEN[0]) { try { playSound('ding'); } catch (e) {} showStationToast('🔥 ¡En su punto! Retira el flameador ahora.'); }
+  if (roll.flame >= MAKI_FLAME_MAX) { showStationToast('⚠ Se quemó la cobertura.'); try { playSound('burn'); } catch (e) {} toolDisarm('torch'); }
+  makiFlameUi();
+}
+setInterval(makiFlameTick, 100);
+// Extender el arroz: gesto horizontal sobre la tabla (el vertical sigue siendo enrollar)
+let makiSpreadDrag = null;
+function endMakiSpreadDrag() {
+  document.removeEventListener('pointermove', onMakiSpreadMove);
+  document.removeEventListener('pointerup', onMakiSpreadUp);
+  document.removeEventListener('pointercancel', onMakiSpreadUp);
+  makiSpreadDrag = null;
+}
+function onMakiSpreadMove(e) {
+  const d = makiSpreadDrag;
+  if (!d || e.pointerId !== d.pointerId) return;
+  const dx = e.clientX - d.lx, dy = e.clientY - d.ly;
+  if (!d.mode) {
+    if (Math.hypot(e.clientX - d.x, e.clientY - d.y) < 8) return;
+    d.mode = Math.abs(e.clientX - d.x) > Math.abs(e.clientY - d.y) * 1.2 ? 'spread' : 'other';
+    if (d.mode === 'spread') {                                           // un temblor vertical al empezar no debe contar como enrollar
+      const roll = gameState.makiRoll;
+      if (roll.rollState === 'ROLLING' && roll.rollProgress < 0.2) { endMakiRollDrag(); setMakiRollProgress(0); }
+    }
+  }
+  d.lx = e.clientX; d.ly = e.clientY;
+  if (d.mode !== 'spread') return;
+  if (!makiSpreadAllowed()) { endMakiSpreadDrag(); return; }
+  const roll = gameState.makiRoll, before = roll.spread || 0;
+  roll.spread = Math.min(1, before + Math.abs(dx) / MAKI_SPREAD_PX);
+  sfxEvery('swish', 170);
+  makiApplySpread();
+  if (before < 1 && roll.spread >= 1) { try { playSound('ding'); } catch (err) {} showStationToast('🍚 ¡Arroz bien extendido!'); renderMakiStation(); }
+}
+function onMakiSpreadUp(e) {
+  const d = makiSpreadDrag;
+  if (!d || e.pointerId !== d.pointerId) return;
+  endMakiSpreadDrag();
+  renderMakiStation();
+}
+function attachMakiSpreadGesture() {
+  const zone = document.getElementById('maki-board-zone');
+  if (!zone || zone._spreadBound) return;
+  zone._spreadBound = true;
+  zone.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    if (gameState.isPaused || gameState.isGameOver || makiToolDrag || !makiSpreadAllowed()) return;
+    endMakiSpreadDrag();
+    makiSpreadDrag = { pointerId: e.pointerId, x: e.clientX, y: e.clientY, lx: e.clientX, ly: e.clientY, mode: null };
+    document.addEventListener('pointermove', onMakiSpreadMove);
+    document.addEventListener('pointerup', onMakiSpreadUp);
+    document.addEventListener('pointercancel', onMakiSpreadUp);
+  });
 }
 
 function attachMakiRollGesture() {
@@ -10454,6 +10589,7 @@ function attachMakiRollGesture() {
 
 function attachMakiTools() {
   attachMakiRollGesture();
+  attachMakiSpreadGesture();
   [['maki-tool-mat', 'mat'], ['maki-tool-knife', 'knife']].forEach(([id, tool]) => {
     const el = document.getElementById(id);
     if (!el || el._makiToolBound) return;
@@ -15781,6 +15917,8 @@ function evalProcess(dish) {
     return Math.max(0, 30 - 8 * (m.orderErrors || 0));
   }
   // con etapas: 10 pts de orden de armado + 14 de volteo (5 volteos = mezclado completo) + 6 de aceite; sin etapas, 30 de orden como siempre
+  // Makis con etapas: 10 pts de orden (ya exigido al armar) + 14 de arroz extendido + 6 de flameado (los que no se flamean los ganan)
+  if (dish.area === 'makis' && typeof m.spread === 'number') return 10 + Math.round(14 * Math.max(0, Math.min(1, m.spread))) + (m.flamePts == null ? 6 : m.flamePts);
   if (dish.area === 'salteados' && typeof m.toss === 'number' && m.orderTotal) return Math.round(10 * m.orderMatches / m.orderTotal) + Math.round(14 * Math.max(0, Math.min(1, m.toss))) + (m.oilMissing ? 0 : 6);
   if (dish.area === 'salteados' && m.orderTotal) return Math.round(30 * m.orderMatches / m.orderTotal);
   return 30; // Makis y Frituras ya exigen su orden para poder terminar
@@ -16442,7 +16580,9 @@ function ramenSauceIdsAvailable() {
 // Área cuya franja de herramientas se ve ahora: Ramen o Salteados con etapas, en la pantalla de cocina
 function toolStripArea() {
   const a = gameState.activeArea;
-  return (a === 'ramen' || a === 'salteados') && stagedOn(a) && getStage(a) === 'cook' ? a : null;
+  if (!(stagedOn(a) && getStage(a) === 'cook')) return null;
+  if (a === 'ramen' || a === 'salteados') return a;
+  return a === 'makis' && makiFlameAvailable() ? a : null;     // Makis: solo hay flameador (Yama, Nin Niku y Digión)
 }
 function wokSauceIdsAvailable() {
   const ids = new Set();
@@ -16458,11 +16598,12 @@ function renderToolStrip() {
   strip.classList.toggle('on', show);
   if (!show) { toolDisarmAll(true); strip._sig = ''; strip._area = null; return; }
   if (strip._area !== area) { toolDisarmAll(true); strip._area = area; strip._sig = ''; }   // al cambiar de área se guardan las herramientas
-  const ids = area === 'salteados' ? wokSauceIdsAvailable() : ramenSauceIdsAvailable();
+  const ids = area === 'makis' ? ['torch'] : (area === 'salteados' ? wokSauceIdsAvailable() : ramenSauceIdsAvailable());
   const sig = area + ':' + ids.join(',') + '|' + toolStripSig();
   if (strip._sig === sig) return;
   strip._sig = sig;
   const away = (kind, id) => toolArmedMap.has(toolKey(kind, id)) ? 'is-away' : '';
+  if (area === 'makis') { strip.innerHTML = `<div class="tool-item tool-torch ${away('torch')}" data-kind="torch" title="Flameador: arrástralo hasta la tabla con el maki enrollado (Yama, Nin Niku, Digión) y retíralo en la zona verde">${torchSvg(false)}<span class="tool-name">Flameador</span></div>`; return; }
   const target = area === 'salteados' ? 'un wok' : 'una sartén';
   const oilTip = area === 'salteados' ? 'Aceite: échalo al wok antes de los ingredientes (sin aceite el plato pierde puntos)' : 'Aceite de ajonjolí: al sofreír (Tan tan, Ebi) y al caldo cuando hierve (Tonkotsu, Vegetariano, Shoyu, Miso)';
   const bottles = ids.map(id => `<div class="tool-item tool-bottle ${away('sauce', id)}" data-kind="sauce" data-id="${id}" title="${id === OIL_ID ? oilTip : 'Salsa ' + TOOL_SAUCES[id].name}: arrástrala sobre ${target} y toca para verter (si te equivocas, desliza desde la tapa blanca hacia arriba para devolverla)">${sauceBottleSvg(id)}<span class="tool-name">${TOOL_SAUCES[id].name}</span></div>`).join('');
@@ -16474,6 +16615,12 @@ function renderToolStrip() {
 
 function toolPoint(d) { return { x: d.x, y: d.pointerType === 'mouse' ? d.y : d.y - DRAG_TOUCH_GHOST_OFFSET_Y }; }
 function toolTargetAt(kind, p) {
+  if (kind === 'torch' && toolStripArea() === 'makis') {
+    const z = document.getElementById('maki-board-zone');
+    if (!z) return null;
+    const r = z.getBoundingClientRect();
+    return (p.x >= r.left - 10 && p.x <= r.right + 10 && p.y >= r.top - 30 && p.y <= r.bottom + 10) ? { el: z } : null;
+  }
   if (kind === 'torch') {
     const b = document.getElementById('btn-flame-chasu');
     if (!b) return null;
@@ -16539,7 +16686,7 @@ function onToolUp(e) {
   if (!d) return;
   const p = toolPoint(d), wasActive = d.active, t = wasActive ? toolTargetAt(d.kind, p) : null, kind = d.kind, id = d.id;
   toolCleanupDrag(d);
-  if (!wasActive) { showStationToast(kind === 'torch' ? '🔥 Arrastra el flameador hasta "Flamear Chasu".' : (kind === 'ohashi' ? '🥢 Arrastra los ohashi hasta la parte de arriba de un cuenco con fideos.' : (toolStripArea() === 'salteados' ? '💧 Arrastra la botella hasta la parte de arriba de un wok.' : '💧 Arrastra la botella hasta la parte de arriba de una sartén.'))); return; }
+  if (!wasActive) { showStationToast(kind === 'torch' ? (toolStripArea() === 'makis' ? '🔥 Arrastra el flameador hasta la tabla del maki.' : '🔥 Arrastra el flameador hasta "Flamear Chasu".') : (kind === 'ohashi' ? '🥢 Arrastra los ohashi hasta la parte de arriba de un cuenco con fideos.' : (toolStripArea() === 'salteados' ? '💧 Arrastra la botella hasta la parte de arriba de un wok.' : '💧 Arrastra la botella hasta la parte de arriba de una sartén.'))); return; }
   try { playSound(t ? 'add' : 'click'); } catch (err) {}
   if (t) toolArm(kind, id, t.pan);
 }
@@ -16630,7 +16777,9 @@ function toolArm(kind, id, pan) {
   const key = toolKey(kind, id);
   if (toolArmedMap.has(key)) toolDisarm(key, true);
   if (kind === 'sauce') toolArmedMap.forEach(o => { if (o.kind === 'sauce' && o.pan === pan) toolDisarm(o.key, true); });   // una sola botella sobre cada sartén
-  if (kind === 'torch' && kitchenState.stocks.chasu >= stockCap()) { showStationToast(`🥩 Ya hay el máximo de chasu flameado (${stockCap()}/${stockCap()}).`); return; }
+  if (kind === 'torch' && toolStripArea() === 'makis') {
+    if (!makiCanFlame()) { showStationToast(gameState.makiRoll.rollState === 'ROLLED' ? '🔥 Este maki no se flamea (o ya está cortado).' : '🔥 Primero arma y enrolla el maki; luego se flamea.'); try { playSound('error'); } catch (e) {} return; }
+  } else if (kind === 'torch' && kitchenState.stocks.chasu >= stockCap()) { showStationToast(`🥩 Ya hay el máximo de chasu flameado (${stockCap()}/${stockCap()}).`); return; }
   if (kind === 'ohashi') {
     const b = gameState.bowls[pan];
     if (!b || !b.ingredients.includes(1)) { showStationToast('🥢 Ese cuenco aún no tiene fideos.'); try { playSound('error'); } catch (e) {} return; }
@@ -16644,7 +16793,11 @@ function toolArm(kind, id, pan) {
   a.el = el;
   toolArmedMap.set(key, a);
   toolPlaceArmed(a);
-  if (kind === 'torch') {
+  if (kind === 'torch' && a.area === 'makis') {
+    try { playSound('flame'); } catch (e) {}
+    showStationToast('🔥 Flameando el maki: retira el flameador (tócalo) cuando la barra esté en verde.');
+    makiFlameUi();
+  } else if (kind === 'torch') {
     toolTorchSince = performance.now();
     const btn = document.getElementById('btn-flame-chasu');
     if (btn) btn.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true, pointerId: 7771 }));   // empieza a flamear solo
@@ -16673,6 +16826,12 @@ function toolPlaceArmed(a) {
     const r = c.getBoundingClientRect();
     a.el.style.left = (r.left + r.width / 2 - 20) + 'px';
     a.el.style.top = (r.top - 86 * 0.6) + 'px';
+  } else if (a.area === 'makis') {
+    const z = document.getElementById('maki-board-zone');
+    if (!z) return;
+    const r = z.getBoundingClientRect();
+    a.el.style.left = (r.left + r.width * 0.72 - 42.8) + 'px';
+    a.el.style.top = (r.top + r.height * 0.18 - 25.9) + 'px';
   } else {
     const b = document.getElementById('btn-flame-chasu');
     if (!b) return;
@@ -16733,7 +16892,7 @@ function toolHoldEnd() {
 function toolDisarm(key, silent) {
   const a = toolArmedMap.get(key);
   if (!a) return;
-  if (a.kind === 'torch') {
+  if (a.kind === 'torch' && a.area !== 'makis') {
     const btn = document.getElementById('btn-flame-chasu');
     if (btn) btn.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, cancelable: true, pointerId: 7771 }));
   }
@@ -16742,6 +16901,7 @@ function toolDisarm(key, silent) {
   toolPressListenersOff();
   toolArmedMap.delete(key);
   if (a.el) a.el.remove();
+  if (a.area === 'makis') makiFlameUi();
   const strip = document.getElementById('ramen-tool-strip');
   if (strip) strip._sig = '';
   if (!silent) renderToolStrip();
@@ -16776,7 +16936,9 @@ function toolPour(a) {
 }
 function toolTick() {
   toolArmedMap.forEach(a => {
-    if (a.kind === 'torch') {
+    if (a.kind === 'torch' && a.area === 'makis') {
+      // el flameador del maki lo mueve makiFlameTick
+    } else if (a.kind === 'torch') {
       if (!kitchenState.chasu.isFlaming && performance.now() - toolTorchSince > 900) toolDisarm(a.key);   // llegó al máximo
     } else if (a.kind === 'ohashi') {
       const b = gameState.bowls[a.bowl];
