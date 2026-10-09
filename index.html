@@ -910,6 +910,23 @@
   .fp-card.two-step { border-color: #7a5a2a; }
   .fp-btn:hover:not(:disabled) { color: #fff; border-color: #ffb300; }
   .fp-btn:disabled { opacity: 0.45; cursor: default; }
+  /* Emplatar con 2 cuencos: pase a la izquierda, cuencos que reciben los componentes arrastrados desde arriba */
+  .fp-plating2.fp-wrap { padding: 4px 6px 4px; }
+  .pl2-row { display: flex; gap: 6px; align-items: stretch; }
+  .pl2-pass { width: 21%; min-width: 96px; max-width: 150px; background: rgba(60, 30, 22, 0.6); border-radius: 10px; padding: 3px 5px 5px; display: flex; flex-direction: column; gap: 3px; box-sizing: border-box; }
+  .pl2-pass .fp-pass-card { padding: 2px 4px; gap: 3px; }
+  .pl2-pass .fp-pass-ico { width: 22px; height: 22px; font-size: 17px; }
+  .plate-bowl { flex: 1; min-width: 0; background: rgba(60, 30, 22, 0.6); border: 2px dashed #6d4c41; border-radius: 12px; padding: 2px 6px 4px; display: flex; flex-direction: column; align-items: center; gap: 1px; box-sizing: border-box; }
+  .plate-bowl.is-empty { justify-content: center; opacity: 0.8; }
+  .plate-bowl:not(.is-empty) { border-style: solid; border-color: #8d6e63; }
+  .plate-bowl .pl2-title { font-family: 'Fredoka One', cursive, sans-serif; font-size: 10px; color: #ffcc80; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .plate-bowl .fp-bowl { min-height: 0; }
+  .plate-bowl .fp-bowl svg { width: 84px; }
+  .plate-bowl .fp-disc { width: 52px; height: 52px; }
+  .plate-bowl .fp-chips { min-height: 22px; }
+  .plate-bowl .fp-chip { width: 21px; height: 21px; font-size: 15px; }
+  .plate-bowl .fp-actions { align-items: center; gap: 4px; }
+  .plate-bowl .fp-btn { margin-top: 0; padding: 3px 7px; }
   .fp-serve { background: linear-gradient(180deg, #43a047 0%, #2e7d32 100%); border-color: #a5d6a7; color: #fff; }
   .fp-cols { display: flex; gap: 8px; align-items: stretch; }
   .fp-col { background: rgba(60, 30, 22, 0.6); border-radius: 10px; padding: 4px 6px 6px; min-width: 0; }
@@ -6183,7 +6200,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v64</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v65</span></button></div>
     </div>
   </div>
 
@@ -9310,6 +9327,7 @@ function sortIngredientsByCustomOrder(list) {
 }
 
 function getUnlockedIngredients() {
+  if (stagedOn(gameState.activeArea) && getStage(gameState.activeArea) === 'plate') return stPlateIngList(gameState.activeArea);   // Emplatar: todos los componentes de emplatado, arriba
   let list;
   if (gameState.activeArea && gameState.activeArea !== 'ramen') {
     // Áreas nuevas (Salteados/Frituras/Makis): solo los ingredientes de los platos ya desbloqueados.
@@ -9530,6 +9548,7 @@ function setKitchenStage(stage) {
   try { playSound('click'); } catch (e) {}
   updateStationVisibilityForArea();
   renderStageTabs();
+  if (stage === 'plate') renderPantryGrid();
   if (stage === 'cook') {
     renderPantryGrid();
     renderBowls();
@@ -9644,11 +9663,11 @@ function updateStageEdgeHints() {
 function getAreaAlert(areaId) {
   const base = getAreaAlertBase(areaId);
   if (base === 'warn' || !stagedOn(areaId)) return base;
-  if (stAnalyze(areaId).status === 'MATCHED') return 'ready';      // plato emplatado listo para servir
+  if (stReadyDishes(areaId).some(d => d.meta.plate.wrong === 0)) return 'ready';      // plato emplatado exacto listo para servir
   if (stShopReady(areaId)) return 'ready';                         // algo listo en una hornilla de Producción
   if (base) return base;
   const s = stGet(areaId);
-  return (s.pass.length || s.prep || stShopBusy(areaId)) ? 'busy' : '';   // platos en el pase o una preparación en curso
+  return (s.pass.length || s.slots.some(sl => sl.item) || s.prep || stShopBusy(areaId)) ? 'busy' : '';   // platos en el pase o en un cuenco, o una preparación en curso
 }
 function getAreaAlertBase(areaId) {
   if (areaId === 'ramen') {
@@ -9689,7 +9708,8 @@ function updateStationVisibilityForArea() {
   const wokBox = document.getElementById('salteado-station-box');
   const fryBox = document.getElementById('frituras-station-box');
   const area = gameState.activeArea;
-  const cook = getStage(area) === 'cook'; // en Producción y Emplatar no se ve la estación ni la despensa
+  const cook = getStage(area) === 'cook'; // en Producción y Emplatar no se ve la estación
+  const plateStage = stagedOn(area) && getStage(area) === 'plate';   // en Emplatar sí queda la despensa arriba (con los componentes de emplatado)
   if (cookPanel) cookPanel.style.display = (area === 'ramen' && cook) ? '' : 'none';
   if (bowlsBox) bowlsBox.style.display = (area === 'ramen' && cook) ? '' : 'none';
   if (makiBox) makiBox.style.display = (area === 'makis' && cook) ? 'flex' : 'none';
@@ -9700,7 +9720,7 @@ function updateStationVisibilityForArea() {
   const stagePanel = document.getElementById('stage-panel');
   const custHub = document.getElementById('customers-container');
   if (custHub) custHub.style.display = (stagedOn(area) && getStage(area) === 'prod') ? 'none' : '';   // más espacio en Producción
-  if (grid) grid.style.display = cook ? '' : 'none';
+  if (grid) grid.style.display = (cook || plateStage) ? '' : 'none';
   if (filters) filters.style.display = cook ? '' : 'none';
   if (stagePanel) { stagePanel.style.display = cook ? 'none' : 'flex'; if (!cook) renderStagePanel(); }
   try { renderToolStrip(); } catch (e) {}
@@ -10877,7 +10897,7 @@ function stView(area, list) {
 function stInit() {
   gameState.st = {};
   STAGE_AREAS.forEach(a => {
-    const st = { stock: {}, cut: {}, prep: null, board: null, knifeArmed: false, stove: [null, null], pass: [], plate: { sel: null, items: [] } };
+    const st = { stock: {}, cut: {}, prep: null, board: null, knifeArmed: false, stove: [null, null], pass: [], slots: [{ item: null, items: [] }, { item: null, items: [] }] };
     ST_PROD[a].forEach(p => { st.stock[p.key] = p.start; if (p.then) st.cut[p.key] = 0; });
     // el chasu flameado vive en la estación de Cocina: las existencias de emplatado leen y gastan esas mismas
     if (a === 'ramen') Object.defineProperty(st.stock, 'chasu', { enumerable: true, configurable: true, get: () => kitchenState.stocks.chasu, set: v => { kitchenState.stocks.chasu = v; } });
@@ -10958,7 +10978,6 @@ function stPassAdd(area, item) {
     return false;
   }
   st.pass.push(item);
-  if (st.plate.sel == null) st.plate = { sel: st.pass.length - 1, items: [] };
   try { playSound('clink'); } catch (e) {}
   showStationToast('🍽️ Plato al pase: ve a Emplatar antes de que se enfríe.');
   stRenderIfOpen(area);
@@ -10969,80 +10988,118 @@ function stPassDiscard(area, i) {
   const st = stGet(area);
   if (!st.pass[i]) return;
   st.pass.splice(i, 1);
-  st.plate = { sel: st.pass.length ? 0 : null, items: [] };
   try { playSound('trash'); } catch (e) {}
   stRenderIfOpen(area);
   updateAreaTabAlerts();
 }
 
 // ---- Emplatar ----
-function stPlateSelect(area, i) {
-  const st = stGet(area);
-  if (!st.pass[i] || st.plate.sel === i) return;
-  st.plate = { sel: i, items: [] };
-  stRenderIfOpen(area);
-}
 function stCandidates(area, item) { return item.recipes.map(n => stRecipe(area, n)).filter(Boolean); }
-function stTrayIds(area, item) {
+// Todos los componentes de emplatado de las recetas del menú del área: se muestran arriba, como la despensa de Cocina
+function stPlateIngList(area) {
   const ids = new Set();
-  stCandidates(area, item).forEach(r => stParts(area, r).forEach(id => ids.add(id)));
+  getUnlockedRecipes().filter(r => (r.area || 'ramen') === area).forEach(r => stParts(area, r).forEach(id => ids.add(id)));
   const order = ST_GROUPS[area];
-  return [...ids].sort((a, b) => order.indexOf(stGroupOf(area, a)) - order.indexOf(stGroupOf(area, b)) || a - b);
+  return INGREDIENTES.filter(i => ids.has(i.id)).sort((a, b) => order.indexOf(stGroupOf(area, a.id)) - order.indexOf(stGroupOf(area, b.id)) || a.id - b.id);
 }
-// ¿hay existencia para sumar este componente al plato? (los de un mismo insumo gastan una sola porción)
-function stPlateStockOk(area, id, items) {
+// Pasa un plato del pase al primer cuenco libre de emplatado
+function stPassToSlot(area, i) {
+  if (gameState.isPaused || gameState.isGameOver) return;
+  const st = stGet(area);
+  if (!st.pass[i]) return;
+  const slot = st.slots.findIndex(sl => !sl.item);
+  if (slot === -1) { showStationToast('🍽️ Los dos cuencos están ocupados: sirve o descarta uno.'); try { playSound('error'); } catch (e) {} return; }
+  st.slots[slot] = { item: st.pass.splice(i, 1)[0], items: [] };
+  try { playSound('clink'); } catch (e) {}
+  stRenderIfOpen(area);
+  renderStageTabs();
+  updateAreaTabAlerts();
+}
+// ¿hay existencia para sumar este componente? (cada cuenco gasta una porción de cada insumo; se cuenta lo de los otros cuencos)
+function stPlateStockOk(area, id, slotIdx) {
   const p = stProdFor(area, id, 'plate');
   if (!p) return true;
-  if (items.some(x => p.covers.includes(x))) return true;
-  return stGet(area).stock[p.key] >= 1;
+  const st = stGet(area);
+  if (st.slots[slotIdx] && st.slots[slotIdx].items.some(x => p.covers.includes(x))) return true;
+  let used = 0;
+  st.slots.forEach((sl, i) => { if (i !== slotIdx && sl.item && sl.items.some(x => p.covers.includes(x))) used++; });
+  return st.stock[p.key] - used >= 1;
 }
-function stPlateToggle(area, id) {
+// Se acepta CUALQUIER componente (incluso uno que no lleva ese plato): si no es el plato exacto, la calidad baja mucho
+function stPlateAddItem(area, slotIdx, id) {
   if (gameState.isPaused || gameState.isGameOver) return;
-  const st = stGet(area), pl = st.plate;
-  if (pl.sel == null || !st.pass[pl.sel]) { showStationToast('🍽️ Primero elige un plato del pase.'); playSound('error'); return; }
-  const at = pl.items.indexOf(id);
-  if (at !== -1) {
-    pl.items.splice(at, 1);
-    try { playSound('click'); } catch (e) {}
-  } else {
-    if (!stPlateStockOk(area, id, pl.items)) {
-      const p = stProdFor(area, id, 'plate');
-      showStationToast(p.virtual ? '🔥 Sin chasu flameado: flaméalo en Cocina.' : `🥬 Sin ${p.label.toLowerCase()}: prepáralo en Producción.`);
-      playSound('error');
-      return;
-    }
-    pl.items.push(id);
-    try { playSound('clink'); } catch (e) {}
+  const st = stGet(area), sl = st.slots[slotIdx];
+  if (!sl || !sl.item) { showStationToast('🍽️ Primero toca un plato del pase para ponerlo en este cuenco.'); try { playSound('error'); } catch (e) {} return; }
+  if (sl.items.includes(id)) { showStationToast(`${stIngName(id)} ya está en el cuenco ${slotIdx + 1}.`); return; }
+  if (!stPlateStockOk(area, id, slotIdx)) {
+    const p = stProdFor(area, id, 'plate');
+    showStationToast(p.virtual ? '🔥 Sin chasu flameado: flaméalo en Cocina.' : `🥬 Sin ${p.label.toLowerCase()}: prepáralo en Producción.`);
+    try { playSound('error'); } catch (e) {}
+    return;
   }
+  sl.items.push(id);
+  try { playSound('clink'); } catch (e) {}
   stRenderIfOpen(area);
   updateAreaTabAlerts();
 }
-function stPlateClear(area) { stGet(area).plate.items = []; stRenderIfOpen(area); }
-
-function stAnalyze(area) {
-  const st = gameState.st && gameState.st[area];
-  const item = st && st.pass[st.plate.sel];
-  if (!item) return { status: 'EMPTY' };
-  const cands = stCandidates(area, item), items = st.plate.items, have = new Set(items);
-  const exact = cands.find(r => { const p = stParts(area, r); return p.length === have.size && p.every(x => have.has(x)); });
-  if (exact) {
-    const order = stParts(area, exact);
-    let inv = 0;
-    for (let i = 0; i < items.length; i++) for (let j = i + 1; j < items.length; j++) if (order.indexOf(items[i]) > order.indexOf(items[j])) inv++;
-    return { status: 'MATCHED', recipe: exact, errors: inv, item, pts: ST_PLATE_POINTS.base + Math.max(0, ST_PLATE_POINTS.order - ST_PLATE_POINTS.orderPenalty * inv) };
-  }
-  let best = null, bestOv = -1;
-  cands.forEach(r => { const p = stParts(area, r); const ov = p.filter(x => have.has(x)).length - [...have].filter(x => !p.includes(x)).length; if (ov > bestOv) { bestOv = ov; best = r; } });
-  const parts = best ? stParts(area, best) : [];
-  return { status: have.size ? 'PROGRESS' : 'EMPTY', recipe: best, missing: parts.filter(x => !have.has(x)), extra: [...have].filter(x => !parts.includes(x)), item };
+function stPlateRemoveItem(area, slotIdx, id) {
+  const sl = stGet(area).slots[slotIdx];
+  if (!sl) return;
+  const at = sl.items.indexOf(id);
+  if (at === -1) return;
+  sl.items.splice(at, 1);
+  try { playSound('click'); } catch (e) {}
+  stRenderIfOpen(area);
+  updateAreaTabAlerts();
+}
+function stPlateClear(area, slotIdx) {
+  const sl = stGet(area).slots[slotIdx];
+  if (!sl || !sl.items.length) return;
+  sl.items = [];
+  try { playSound('trash'); } catch (e) {}
+  stRenderIfOpen(area);
+  updateAreaTabAlerts();
+}
+function stSlotDiscard(area, slotIdx) {
+  const st = stGet(area);
+  if (!st.slots[slotIdx] || !st.slots[slotIdx].item) return;
+  st.slots[slotIdx] = { item: null, items: [] };
+  try { playSound('trash'); } catch (e) {}
+  stRenderIfOpen(area);
+  renderStageTabs();
+  updateAreaTabAlerts();
 }
 
-function stReadyDish(area) {
-  const a = stAnalyze(area);
-  if (a.status !== 'MATCHED') return null;
-  const it = a.item;
-  return { area, index: 0, staged: true, recipe: a.recipe, quality: it.result || 'PERFECTO', label: `Plato de ${AREA_LABELS[area]}`,
-    meta: { ...(it.meta || {}), readyAt: it.readyAt, plate: { pts: a.pts, errors: a.errors } } };
+// Evalúa lo que hay en un cuenco contra la receta más parecida de su base. Faltan / sobran componentes = plato equivocado.
+function stPlateEval(area, item, items) {
+  const cands = stCandidates(area, item), have = new Set(items);
+  let best = null, bestWrong = 1e9, bestParts = [];
+  cands.forEach(r => {
+    const p = stParts(area, r);
+    const w = p.filter(x => !have.has(x)).length + items.filter(x => !p.includes(x)).length;
+    if (w < bestWrong) { bestWrong = w; best = r; bestParts = p; }
+  });
+  if (!best) return null;
+  const missing = bestParts.filter(x => !have.has(x)), extra = items.filter(x => !bestParts.includes(x)), wrong = missing.length + extra.length;
+  let inv = 0;                                                       // orden de colocación (solo de los componentes que sí lleva)
+  const mine = items.filter(x => bestParts.includes(x));
+  for (let i = 0; i < mine.length; i++) for (let j = i + 1; j < mine.length; j++) if (bestParts.indexOf(mine[i]) > bestParts.indexOf(mine[j])) inv++;
+  const pts = wrong ? Math.max(0, 8 - 4 * wrong) : ST_PLATE_POINTS.base + Math.max(0, ST_PLATE_POINTS.order - ST_PLATE_POINTS.orderPenalty * inv);
+  return { recipe: best, parts: bestParts, missing, extra, wrong, errors: inv, pts, exact: wrong === 0 };
+}
+// Platos listos para servir: uno por cuenco que tenga una base (aunque el emplatado esté incompleto o equivocado)
+function stReadyDishes(area) {
+  const st = gameState.st && gameState.st[area];
+  if (!st || !st.slots) return [];
+  const out = [];
+  st.slots.forEach((sl, i) => {
+    if (!sl.item) return;
+    const ev = stPlateEval(area, sl.item, sl.items);
+    if (!ev) return;
+    out.push({ area, index: i, staged: true, recipe: ev.recipe, quality: sl.item.result || 'PERFECTO', label: `Cuenco ${i + 1} de ${AREA_LABELS[area]}`,
+      meta: { ...(sl.item.meta || {}), readyAt: sl.item.readyAt, plate: { pts: ev.pts, errors: ev.errors, wrong: ev.wrong, missing: ev.missing.length, extra: ev.extra.length } } });
+  });
+  return out;
 }
 
 // Frescura (0-20) de un plato del pase, con la curva de los platos emplatados.
@@ -11056,23 +11113,23 @@ function stFreshPts(area, item) {
   return pts[pts.length - 1][1];
 }
 
-// Al servir (o si el cliente lo rechaza) el plato sale del pase y se gastan los insumos de emplatado.
-function stConsumePlated(area) {
-  const st = stGet(area), pl = st.plate;
+// Al servir (o si el cliente lo rechaza) el plato sale del cuenco y se gastan los insumos de emplatado.
+function stConsumePlated(area, slotIdx) {
+  const st = stGet(area), sl = st.slots[slotIdx];
+  if (!sl) return;
   const used = new Set();
-  pl.items.forEach(id => { const p = stProdFor(area, id, 'plate'); if (p) used.add(p.key); });
+  sl.items.forEach(id => { const p = stProdFor(area, id, 'plate'); if (p) used.add(p.key); });
   used.forEach(k => { st.stock[k] = Math.max(0, st.stock[k] - 1); });
   try { updateKitchenStationsUI(); } catch (e) {}
-  if (pl.sel != null) st.pass.splice(pl.sel, 1);
-  st.plate = { sel: st.pass.length ? 0 : null, items: [] };
+  st.slots[slotIdx] = { item: null, items: [] };
   stRenderIfOpen(area);
   renderStageTabs();
   updateAreaTabAlerts();
 }
-function stPlateServe(area) {
-  const a = stAnalyze(area);
-  if (a.status !== 'MATCHED') { showStationToast('🍽️ El plato aún no está completo.'); playSound('error'); return; }
-  serveReadyDish(area, 0);
+function stPlateServe(area, slotIdx) {
+  const sl = stGet(area).slots[slotIdx];
+  if (!sl || !sl.item) { showStationToast('🍽️ Este cuenco no tiene ningún plato.'); try { playSound('error'); } catch (e) {} return; }
+  serveReadyDish(area, slotIdx);
 }
 
 // ---- Pantallas de Producción y Emplatar ----
@@ -11515,55 +11572,33 @@ function stDiscHtml(area, item, plateItems) {
 }
 
 function stRenderPlate(area, panel) {
-  const st = stGet(area), pl = st.plate, pass = st.pass;
-  const a = stAnalyze(area), item = pass[pl.sel];
+  const st = stGet(area), pass = st.pass;
   const passHtml = pass.length ? pass.map((it, i) => {
     const fr = stFreshPts(area, it);
     const res = { CRUDO: '🥶', PERFECTO: '🔥', QUEMADO: '💨' }[it.result] || '';
-    return `<div class="fp-pass-card ${pl.sel === i ? 'is-sel' : ''}" onclick="stPlateSelect('${area}',${i})">
+    return `<div class="fp-pass-card" onclick="stPassToSlot('${area}',${i})" title="Toca para llevarlo a un cuenco libre">
       ${stPassIcon(it)}<span class="fp-pass-res">${res}</span>
       <div class="fp-bar fp-fresh"><i data-fp-ready="${it.readyAt}" style="width:${Math.round(100 * fr / 20)}%"></i></div>
       <button class="fp-x" title="Descartar" onclick="event.stopPropagation(); stPassDiscard('${area}',${i})">🗑️</button></div>`;
-  }).join('') : '<div class="fp-empty">El pase está vacío.<br>Termina un plato en la cocina y pásalo a emplatar.</div>';
-
-  let plateHtml, tray = '', status = '', serveDisabled = true, hint = '';
-  if (item) {
-    const ids = stTrayIds(area, item);
-    tray = ST_GROUPS[area].map(g => {
-      const inG = ids.filter(id => stGroupOf(area, id) === g);
-      if (!inG.length) return '';
-      return `<div class="fp-grp"><span class="fp-grp-name">${g}</span>${inG.map(id => {
-        const on = pl.items.includes(id), p = stProdFor(area, id, 'plate'), out = p && !on && !stPlateStockOk(area, id, pl.items);
-        return `<button class="fp-comp ${on ? 'on' : ''} ${out ? 'out' : ''}" onclick="stPlateToggle('${area}',${id})" title="${stIngName(id)}"><span>${stIngIcon(id)}</span><b>${stIngName(id)}</b>${p ? `<i class="fp-stock">${st.stock[p.key]}</i>` : ''}</button>`;
-      }).join('')}</div>`;
-    }).join('');
-    const chips = pl.items.map(id => `<span class="fp-chip" onclick="stPlateToggle('${area}',${id})" title="Quitar">${stIngIcon(id)}</span>`).join('');
-    plateHtml = `${stDiscHtml(area, item, pl.items)}<div class="fp-chips">${chips || '<small>Toca componentes →</small>'}</div>`;
-    if (a.status === 'MATCHED') {
-      serveDisabled = false;
-      status = `✅ ${a.recipe.name}${a.errors ? ` · orden: ${a.errors} al revés` : ' · ¡orden perfecto!'}`;
-      if (area === 'ramen' && item.meta && typeof item.meta.spread === 'number') status += ` · 🥢 fideos ${Math.round(item.meta.spread * 100)}%${item.meta.oilMissing ? ' · 🛢️ sin aceite' : ''}`;
-    } else if (a.status === 'PROGRESS' && a.recipe) {
-      status = a.missing.length ? `Para ${a.recipe.name} falta: ${a.missing.slice(0, 3).map(stIngName).join(', ')}${a.missing.length > 3 ? '…' : ''}` : '';
-      if (a.extra.length) status += `${status ? ' · ' : ''}sobra: ${a.extra.map(stIngName).join(', ')}`;
-    } else {
-      status = 'Elige los componentes según el pedido.';
-    }
-    hint = item.recipes.length > 1 ? `Esta base puede ser: ${item.recipes.join(' / ')}` : item.recipes[0];
-  } else {
-    plateHtml = '<div class="fp-empty">Elige un plato del pase.</div>';
-  }
-  const ready = getReadyDishes().find(d => d.area === area);
-  const stars = ready ? starsText(qualityTier(evaluateDish(ready))) : '';
-  panel.innerHTML = `<div class="fp-wrap fp-plating">
-    <div class="fp-head"><span>🍽️ Emplatar · ${AREA_LABELS[area]}</span><small>${hint || 'Fase final antes de servir'}</small>${stBackBtn(area)}</div>
-    <div class="fp-cols">
-      <div class="fp-col fp-pass"><div class="fp-h">Pase (${pass.length}/${ST_PASS_MAX})</div>${passHtml}</div>
-      <div class="fp-col fp-plate-col"><div class="fp-h">Plato</div>${plateHtml}
-        <div class="fp-status">${status}</div>
-        <div class="fp-actions"><button class="fp-btn" onclick="stPlateClear('${area}')" ${item && pl.items.length ? '' : 'disabled'}>Vaciar</button>
-        <button class="fp-btn fp-serve" onclick="stPlateServe('${area}')" ${serveDisabled ? 'disabled' : ''}>✅ Servir ${stars}</button></div></div>
-      <div class="fp-col fp-tray"><div class="fp-h">Componentes</div>${tray || '<div class="fp-empty">—</div>'}</div>
+  }).join('') : '<div class="fp-empty">Pase vacío: termina un plato en la cocina.</div>';
+  const ready = stReadyDishes(area);
+  const bowls = st.slots.map((sl, i) => {
+    if (!sl.item) return `<div class="plate-bowl is-empty" data-slot="${i}"><div class="pl2-title">Cuenco ${i + 1}</div><div class="fp-empty">Toca un plato del pase</div></div>`;
+    const dish = ready.find(d => d.index === i);
+    const stars = dish ? starsText(qualityTier(evaluateDish(dish))) : '';
+    const chips = sl.items.map(id => `<span class="fp-chip" onclick="stPlateRemoveItem('${area}',${i},${id})" title="Quitar ${stIngName(id)}">${stIngIcon(id)}</span>`).join('');
+    return `<div class="plate-bowl" data-slot="${i}">
+      <div class="pl2-title">Cuenco ${i + 1} · ${sl.item.recipes.join(' / ')}</div>
+      ${stDiscHtml(area, sl.item, sl.items)}
+      <div class="fp-chips">${chips || '<small>Arrastra aquí los ingredientes de arriba</small>'}</div>
+      <div class="fp-actions"><button class="fp-btn" onclick="stPlateClear('${area}',${i})" ${sl.items.length ? '' : 'disabled'}>Vaciar</button>
+      <button class="fp-btn fp-serve" onclick="stPlateServe('${area}',${i})">✅ Servir ${stars}</button>
+      <button class="fp-x" title="Descartar el plato" onclick="stSlotDiscard('${area}',${i})">🗑️</button></div></div>`;
+  }).join('');
+  panel.innerHTML = `<div class="fp-wrap fp-plating2">
+    <div class="pl2-row">
+      <div class="pl2-pass"><div class="fp-h">Pase (${pass.length}/${ST_PASS_MAX})</div>${passHtml}</div>
+      ${bowls}
     </div></div>`;
 }
 
@@ -12335,6 +12370,7 @@ document.addEventListener('touchmove', (e) => {
 
 function getIngredientDropTargets() {
   const area = gameState.activeArea;
+  if (stagedOn(area) && getStage(area) === 'plate') return Array.from(document.querySelectorAll('.plate-bowl'));   // Emplatar: los dos cuencos
   if (getStage(area) !== 'cook') return [];
   const sel = area === 'ramen' ? '.bowl-dock-card, .stove-pan'
     : area === 'salteados' ? '.wok-dock-card'
@@ -12357,6 +12393,7 @@ function findIngredientDropTarget(d) {
 
 function isIngredientInActiveDish(ingId) {
   const area = gameState.activeArea;
+  if (stagedOn(area) && getStage(area) === 'plate') return false;
   if (area === 'makis') return gameState.makiRoll.ingredients.includes(ingId);
   if (area === 'salteados') return gameState.woks[gameState.activeWokIndex].ingredients.includes(ingId);
   if (area === 'frituras') return gameState.fryStation.ingredients.includes(ingId);
@@ -12387,6 +12424,10 @@ function handleIngredientTap(ing) {
 
 function applyIngredientDrop(target, ing, coat) {
   const area = gameState.activeArea;
+  if (stagedOn(area) && getStage(area) === 'plate') {                       // Emplatar: cada ingrediente cae en el cuenco donde se suelta (varios a la vez con varios dedos)
+    if (target.classList.contains('plate-bowl')) stPlateAddItem(area, parseInt(target.dataset.slot, 10), ing.id);
+    return;
+  }
   if (area === 'ramen') {
     if (target.classList.contains('stove-pan')) { panAdd(parseInt(target.dataset.pan, 10), ing.id); return; }
     if (stagedOn('ramen') && PAN_ONLY_IDS.includes(ing.id)) { showStationToast(`🍳 ${ing.display} se prepara en una sartén: arrástralo a la Sartén 1 o 2.`); return; }
@@ -12632,13 +12673,14 @@ function renderPantryGrid() {
   if (!container) return;
   container.innerHTML = "";
   const currentBowl = gameState.bowls[gameState.activeBowlIndex] || { ingredients: [] };
+  const plateStage = stagedOn(gameState.activeArea) && getStage(gameState.activeArea) === 'plate';
   const unlocked = getUnlockedIngredients();
 
   const countBadge = document.getElementById("hud-unlocked-count");
   if (countBadge) countBadge.textContent = `${unlocked.length} ingredientes disponibles`;
 
   const filtered = unlocked.filter(ing => {
-    if (gameState.currentCategory === 'todos') return true;
+    if (plateStage || gameState.currentCategory === 'todos') return true;
     return ing.cat === gameState.currentCategory;
   });
 
@@ -12683,7 +12725,7 @@ function renderPantryGrid() {
   const isFriturasArea = gameState.activeArea === 'frituras';
   filtered.forEach(ing => {
     const tile = document.createElement("div");
-    const isInBowl = isMakisArea
+    const isInBowl = plateStage ? false : isMakisArea
       ? gameState.makiRoll.ingredients.includes(ing.id)
       : isSalteadosArea
       ? gameState.woks[gameState.activeWokIndex].ingredients.includes(ing.id)
@@ -12996,6 +13038,10 @@ const kitchenState = {
 };
 
 function getIngredientStock(ingId) {
+  if (stagedOn(gameState.activeArea) && getStage(gameState.activeArea) === 'plate') {
+    const p = stProdFor(gameState.activeArea, ingId, 'plate');
+    return p ? stGet(gameState.activeArea).stock[p.key] : null;
+  }
   if (ingId === 1) return kitchenState.stocks.noodles;
   if (ingId === 2) return kitchenState.stocks.shio;
   if (ingId === 3) return stagedOn('ramen') ? null : kitchenState.stocks.tonkotsu;   // con etapas el Tonkotsu se prepara en una sartén
@@ -14962,7 +15008,7 @@ function statsBump(field, n = 1) {
 // Tipo de error del plato: desorden (proceso), quemado o crudo.
 function statsMistakes(ev) {
   const day = statsDay();
-  if (ev.plate != null ? (ev.plateErrors > 0 || ev.procRaw < 30) : ev.proc < 30) day.er++;
+  if (ev.plate != null ? (ev.plateErrors > 0 || ev.wrong > 0 || ev.procRaw < 30) : ev.proc < 30) day.er++;
   if (ev.cook.state === 'QUEMADO' || ev.cook.state === 'CARBONIZADO') day.bu++;
   else if (ev.cook.state === 'CRUDO') day.cr++;
 }
@@ -15540,8 +15586,11 @@ function evaluateDish(dish) {
   const capped = cook.state === 'CRUDO' || cook.state === 'QUEMADO';
   if (plate) {
     // con emplatado: cocción 40 + proceso 20 + emplatado 25 + frescura 15
-    return { score: Math.round(cook.pts * 0.8 + proc * (2 / 3) + plate.pts + fresh * 0.75), cook, proc: Math.round(proc * 2 / 3), procRaw: proc, fresh,
-      plate: plate.pts, plateErrors: plate.errors, gate: cook.gate || null, capped };
+    const wrong = plate.wrong || 0;
+    let score = Math.round(cook.pts * 0.8 + proc * (2 / 3) + plate.pts + fresh * 0.75);
+    if (wrong > 0) score = Math.max(0, Math.round(score * 0.45) - 8 * (wrong - 1));   // plato equivocado (faltan o sobran componentes): calidad muy baja
+    return { score, cook, proc: Math.round(proc * 2 / 3), procRaw: proc, fresh,
+      plate: plate.pts, plateErrors: plate.errors, wrong, gate: cook.gate || null, capped: capped || wrong > 0 };
   }
   return { score: Math.round(cook.pts + proc + fresh), cook, proc, fresh, gate: cook.gate || null, capped };
 }
@@ -15563,6 +15612,7 @@ const starsText = t => ((isTraining() && !trainingFeature('q_stars')) ? '' : (t 
 function rejectReason(ev) {
   if (ev.gate === 'carbonizado') return 'está carbonizado';
   if (ev.gate === 'muy crudo') return 'está crudo';
+  if (ev.wrong) return 'no es el plato que pidió (le faltan o le sobran ingredientes)';
   return `la calidad no alcanza (${ev.score} pts)`;
 }
 
@@ -15603,17 +15653,19 @@ function getReadyDishes() {
       meta: { result: fry.fryResult || 'PERFECTO', secs: fry.frySeconds, proteinId: fry.proteinId, readyAt: fry.readyAt } });
   }
   // áreas con etapas: el plato listo es el que ya está emplatado
-  STAGE_AREAS.forEach(a => { if (stagedOn(a)) { const d = stReadyDish(a); if (d) list.push(d); } });
+  STAGE_AREAS.forEach(a => { if (stagedOn(a)) list.push(...stReadyDishes(a)); });
   return list;
 }
 
 function findReadyDishFor(recipe, ready) {
-  return (ready || getReadyDishes()).find(d => sameDish(d.recipe, recipe)) || null;
+  const list = (ready || getReadyDishes()).filter(d => sameDish(d.recipe, recipe));
+  if (!list.length) return null;
+  return list.length === 1 ? list[0] : list.sort((a, b) => evaluateDish(b).score - evaluateDish(a).score)[0];   // si hay dos cuencos del mismo plato, sale el mejor
 }
 
 // Vacía la estación de la que salió el plato servido.
 function consumeReadyDish(d) {
-  if (d.staged) { stConsumePlated(d.area); renderPantryGrid(); return; }
+  if (d.staged) { stConsumePlated(d.area, d.index); renderPantryGrid(); return; }
   if (d.area === 'ramen') {
     gameState.bowls[d.index] = { ingredients: [], matchedRamen: null };
   } else if (d.area === 'salteados') {
