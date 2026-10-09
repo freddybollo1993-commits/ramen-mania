@@ -3150,7 +3150,7 @@
   .wok-burner, .wok-fire-btn, .wok-heat, .wok-toss-pips { display: none; }
   .wok-body { position: absolute; inset: 0; pointer-events: none; transform-origin: 84% 56%; }
   .salteado-station-box.wok-staged .wok-dock-card { touch-action: none; overflow: visible; background: none; }
-  .salteado-station-box.wok-staged .wok-body { background: url('assets/wok_v2.svg') center / 100% 100% no-repeat; }
+  .salteado-station-box.wok-staged .wok-body { background: url('assets/wok_v3.svg') center / 100% 100% no-repeat; }
   .wok-fx { display: none; }
   .salteado-station-box.wok-staged .wok-fx { display: block; position: absolute; inset: 0; z-index: 5; pointer-events: none; overflow: visible; }
   .wok-spark { position: absolute; left: 34%; top: 34%; width: 3.2cqw; height: 3.2cqw; border-radius: 50%; background: var(--c, #ffb300); box-shadow: 0 0 6px var(--c, #ffb300); opacity: 0; animation: wokSpark 0.62s ease-out forwards; }
@@ -3161,17 +3161,47 @@
   .wok-dock-card.has-food .wok-spatula { opacity: 1; }
   .wok-dock-card.tossing .wok-spatula { animation: spatulaSweep 0.55s ease-in-out; }
   @keyframes spatulaSweep { 0% { rotate: 8deg; translate: 0 0; } 30% { rotate: -26deg; translate: -9cqw 3cqw; } 68% { rotate: 20deg; translate: 8cqw -1cqw; } 100% { rotate: 8deg; translate: 0 0; } }
-  .wok-dock-card.tossing .wok-body { animation: wokTilt 0.55s ease-in-out; }
-  @keyframes wokTilt { 0% { transform: translateY(0) rotate(0); } 28% { transform: translateY(-5%) rotate(-12deg); } 60% { transform: translateY(1%) rotate(5deg); } 100% { transform: translateY(0) rotate(0); } }
-  .wok-dock-card.tossing .wok-chip { animation: chipFly 0.55s ease-in-out var(--kd, 0ms) both; }
-  @keyframes chipFly { 0% { translate: 0 0; rotate: 0deg; } 42% { translate: var(--fx) var(--fy); rotate: var(--fr); } 100% { translate: 0 0; rotate: 0deg; } }
   .wok-burner .wb-flare { opacity: 0; transform-box: fill-box; transform-origin: 50% 100%; }
-  .wok-dock-card.tossing .wb-flare { animation: wokFlare 0.55s ease-out; }
   @keyframes wokFlare { 0% { opacity: 0; transform: scaleY(0.4); } 30% { opacity: 0.85; transform: scaleY(1.05); } 100% { opacity: 0; transform: scaleY(0.7); } }
   .wok-dock-card.tossing .wb-flames { transform-box: fill-box; transform-origin: 50% 100%; animation: wokFlamesUp 0.55s ease-out; }
   @keyframes wokFlamesUp { 0% { transform: scaleY(1); } 30% { transform: scaleY(1.7); } 100% { transform: scaleY(1); } }
   .wok-dock-card.overheat .wok-body { filter: drop-shadow(0 0 7px rgba(255, 60, 30, 0.85)); }
   .salteado-station-box.wok-staged .wok-stir-btn { top: -44%; left: 2%; width: 74%; }
+  /* Salteado por toques: cada toque desliza e inclina el wok de forma distinta; el tercero (cierra la ronda) lo lanza al aire con fuego */
+  .wok-dock-card[data-toss="a"] { --amp: 0.55; --dir: 1; }
+  .wok-dock-card[data-toss="b"] { --amp: 0.55; --dir: -1; }
+  .wok-dock-card[data-toss="c"] { --amp: 1; --dir: 1; }
+  .wok-dock-card[data-toss="a"].tossing .wok-body { animation: wokSlideA 0.56s cubic-bezier(0.3, 0.1, 0.3, 1); }
+  .wok-dock-card[data-toss="b"].tossing .wok-body { animation: wokSlideB 0.56s cubic-bezier(0.3, 0.1, 0.3, 1); }
+  .wok-dock-card[data-toss="c"].tossing .wok-body { animation: wokFlip 0.78s cubic-bezier(0.25, 0.1, 0.25, 1); }
+  @keyframes wokSlideA { 0% { transform: none; } 20% { transform: translate(-7%, -2%) rotate(9deg); } 48% { transform: translate(-11%, -4%) rotate(14deg); } 76% { transform: translate(1.5%, 1%) rotate(-3deg); } 100% { transform: none; } }
+  @keyframes wokSlideB { 0% { transform: none; } 20% { transform: translate(6%, -1%) rotate(-7deg); } 48% { transform: translate(9%, -3%) rotate(-11deg); } 76% { transform: translate(-1.5%, 1%) rotate(3deg); } 100% { transform: none; } }
+  @keyframes wokFlip { 0% { transform: none; } 18% { transform: translate(-4%, 2%) rotate(-6deg); } 42% { transform: translate(-8%, -12%) rotate(22deg); } 62% { transform: translate(-3%, -6%) rotate(10deg); } 82% { transform: translate(1%, 2%) rotate(-5deg); } 100% { transform: none; } }
+  .wok-dock-card.tossing .wok-chip { animation: chipArc 0.56s cubic-bezier(0.3, 0.6, 0.4, 1) var(--kd, 0ms) both; }
+  .wok-dock-card[data-toss="c"].tossing .wok-chip { animation-duration: 0.78s; }
+  @keyframes chipArc {
+    0% { translate: 0 0; rotate: 0deg; scale: 1; }
+    30% { translate: calc(var(--fx) * var(--amp) * 0.5 + var(--dir) * 3cqw * var(--amp)) calc(var(--fy) * var(--amp) * 0.9); rotate: calc(var(--fr) * var(--amp) * 0.5); scale: 1.1; }
+    52% { translate: calc(var(--fx) * var(--amp) + var(--dir) * 7cqw * var(--amp)) calc(var(--fy) * var(--amp)); rotate: calc(var(--fr) * var(--amp)); scale: 1.15; }
+    78% { translate: calc(var(--fx) * var(--amp) * 0.4) calc(var(--fy) * var(--amp) * 0.25); rotate: calc(var(--fr) * var(--amp) * 0.9); }
+    100% { translate: 0 0; rotate: 0deg; scale: 1; }
+  }
+  .wok-dock-card.fire-on.has-food.is-hot:not(.tossing) .wok-chip { animation: chipSizzle 0.8s ease-in-out infinite alternate; animation-delay: var(--kd, 0ms); }
+  @keyframes chipSizzle { from { translate: 0 0; rotate: -3deg; } to { translate: 0 -0.9cqw; rotate: 3deg; } }
+  .wok-dock-card[data-toss="c"].tossing .wb-flare { animation: wokFlare 0.78s ease-out; }
+  .wok-bit { position: absolute; left: 36%; top: 36%; width: 4.4cqw; height: 1.8cqw; border-radius: 50%; background: var(--c, #e53935); border: 0.3cqw solid rgba(0, 0, 0, 0.35); opacity: 0; animation: wokBit var(--d, 0.7s) cubic-bezier(0.25, 0.6, 0.4, 1) forwards; }
+  @keyframes wokBit { 0% { translate: 0 0; rotate: 0deg; opacity: 0; } 12% { opacity: 1; } 46% { translate: var(--dx) var(--dy); rotate: var(--r); opacity: 1; } 100% { translate: calc(var(--dx) * 1.25) calc(var(--dy) * -0.1); rotate: calc(var(--r) * 1.6); opacity: 0; } }
+  /* Perilla de cocina: OFF · dial · ON. Gira al encender, brilla y la aguja pasa a verde; si hay comida y el fuego está apagado, late para avisar */
+  .salteado-station-box.wok-staged .wok-fire-btn { display: flex; align-items: center; gap: 3px; position: absolute; left: 5%; top: 121%; translate: 0 -50%; width: auto; height: auto; padding: 0; z-index: 4; background: none; border: 0; border-radius: 0; box-shadow: none; filter: none; cursor: pointer; font-size: inherit; }
+  .wk-dial { position: relative; display: block; width: 30px; height: 30px; border-radius: 50%; background: radial-gradient(circle at 35% 28%, #f2f5f8, #a3afbb 42%, #5c6874 100%); border: 2px solid #23262b; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6), inset 0 0 0 3px rgba(0, 0, 0, 0.16); transform: rotate(-55deg); transition: transform 0.3s cubic-bezier(0.3, 1.6, 0.5, 1), box-shadow 0.2s; }
+  .wk-ptr { position: absolute; left: 50%; top: 2px; width: 4px; height: 11px; margin-left: -2px; border-radius: 2px; background: #d32f2f; box-shadow: 0 0 0 1px #23262b; }
+  .wok-dock-card.fire-on .wk-dial { transform: rotate(55deg); box-shadow: 0 0 11px 3px rgba(255, 145, 0, 0.95), 0 2px 4px rgba(0, 0, 0, 0.6), inset 0 0 0 3px rgba(0, 0, 0, 0.16); }
+  .wok-dock-card.fire-on .wk-ptr { background: #43a047; }
+  .wk-lab { font-size: 7px; font-weight: 900; line-height: 1; letter-spacing: 0.3px; color: #1c2329; opacity: 0.5; text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35); }
+  .wok-dock-card:not(.fire-on) .wk-lab.off { opacity: 1; color: #b71c1c; }
+  .wok-dock-card.fire-on .wk-lab.on { opacity: 1; color: #1b5e20; }
+  .wok-dock-card.has-food:not(.fire-on) .wk-dial { animation: knobHint 0.9s ease-in-out infinite; }
+  @keyframes knobHint { 0%, 100% { transform: rotate(-55deg) scale(1); } 50% { transform: rotate(-55deg) scale(1.16); box-shadow: 0 0 11px 3px rgba(255, 235, 59, 0.95), 0 2px 4px rgba(0, 0, 0, 0.6); } }
   .wok-row { display: flex; justify-content: center; align-items: center; gap: min(6vw, 48px); position: relative; }
   .wok-stove { display: none; }
   .salteado-station-box.wok-staged { --cw: clamp(100px, min(21vw, 34vh), 180px); align-items: flex-end; padding-bottom: 6px; }
@@ -3187,15 +3217,13 @@
   .wok-dock-card.fire-on .wb-flames { opacity: 1; }
   .wok-burner .wb-flames path { transform-box: fill-box; transform-origin: 50% 100%; animation: panFlame 0.3s ease-in-out infinite alternate; }
   .wok-burner .wb-flames path:nth-child(even) { animation-duration: 0.37s; }
-  .salteado-station-box.wok-staged .wok-heat { display: block; position: absolute; left: 51%; top: 118%; translate: 0 -50%; width: 30%; height: 5px; background: rgba(0,0,0,0.55); border-radius: 3px; overflow: hidden; z-index: 3; pointer-events: none; }
+  .salteado-station-box.wok-staged .wok-heat { display: block; position: absolute; left: 55%; top: 121%; translate: 0 -50%; width: 33%; height: 6px; background: rgba(0,0,0,0.55); border-radius: 3px; overflow: hidden; z-index: 3; pointer-events: none; }
   .wok-heat i { display: block; width: 0%; height: 100%; background: linear-gradient(90deg, #4fc3f7 0%, #ffb300 50%, #ff8f00 71.4%, #e53935 71.5%, #b71c1c 100%); background-size: 30cqw 100%; transition: width 0.1s linear; }
   .wok-heat::after { content: ''; position: absolute; left: 71.4%; top: -1px; bottom: -1px; width: 2px; background: #ffffff; opacity: 0.85; }
   .salteado-station-box.wok-staged .wok-toss-pips { display: flex; align-items: center; gap: 2px; position: absolute; right: 4%; top: 2%; z-index: 3; pointer-events: none; }
   .wok-toss-pips span { font-size: 9px; font-weight: 900; color: #ffe0b2; text-shadow: 0 1px 2px #000; margin-right: 1px; }
   .wok-toss-pips i { width: 6px; height: 6px; border-radius: 50%; background: rgba(0,0,0,0.55); border: 1px solid #ffb74d; }
   .wok-toss-pips i.on { background: #ffb300; box-shadow: 0 0 5px #ffb300; }
-  .salteado-station-box.wok-staged .wok-fire-btn { display: flex; align-items: center; justify-content: center; position: absolute; left: 40%; top: 118%; translate: -50% -50%; width: 24px; height: 24px; border-radius: 50%; z-index: 4; font-size: 13px; line-height: 1; padding: 0; cursor: pointer; background: radial-gradient(circle at 35% 30%, #cfd8df, #6b7681 70%); border: 2px solid #23262b; filter: grayscale(1) brightness(0.8); box-shadow: 0 2px 4px rgba(0,0,0,0.6); }
-  .wok-dock-card.fire-on .wok-fire-btn { filter: none; box-shadow: 0 0 10px 2px rgba(255, 145, 0, 0.9); }
   .wok-dock-card.is-hot .wok-dock-visual { filter: drop-shadow(0 0 5px rgba(255, 120, 0, 0.55)); }
   .wok-oil-sheen { position: absolute; left: 14%; top: 22%; width: 72%; height: 56%; border-radius: 50%; background: radial-gradient(ellipse, rgba(255, 213, 79, 0.55), rgba(255, 213, 79, 0) 70%); pointer-events: none; }
   .wok-dock-card.tool-target { box-shadow: 0 0 14px 3px rgba(255, 213, 79, 0.95) !important; }
@@ -6288,7 +6316,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v77</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v78</span></button></div>
     </div>
   </div>
 
@@ -6963,7 +6991,7 @@
         <div class="wok-burner" aria-hidden="true"></div>
         <div class="wok-heat" title="Calor del wok"><i id="wok-heat-fill-0"></i></div>
         <div class="wok-toss-pips" title="Toques del salteado: 3 toques = 1 ronda"><span id="wok-round-0">R1</span><i></i><i></i><i></i></div>
-        <button class="wok-fire-btn" id="wok-fire-0" onclick="event.stopPropagation(); wokFireToggle(0)" title="Fuego del wok 1">🔥</button>
+        <button class="wok-fire-btn" id="wok-fire-0" onclick="event.stopPropagation(); wokFireToggle(0)" title="Perilla del fuego del wok 1: toca para encender o apagar" aria-label="Perilla del fuego del wok 1"><span class="wk-lab off">OFF</span><span class="wk-dial"><b class="wk-ptr"></b></span><span class="wk-lab on">ON</span></button>
         <button class="wok-stir-btn" id="wok-stir-btn-0" style="display:none;">
           <span class="wok-stir-label" id="wok-stir-label-0">Saltear (mantén)</span>
           <div class="wok-stir-bar"><div class="wok-stir-fill" id="wok-stir-fill-0"></div></div>
@@ -6984,7 +7012,7 @@
         <div class="wok-burner" aria-hidden="true"></div>
         <div class="wok-heat" title="Calor del wok"><i id="wok-heat-fill-1"></i></div>
         <div class="wok-toss-pips" title="Toques del salteado: 3 toques = 1 ronda"><span id="wok-round-1">R1</span><i></i><i></i><i></i></div>
-        <button class="wok-fire-btn" id="wok-fire-1" onclick="event.stopPropagation(); wokFireToggle(1)" title="Fuego del wok 2">🔥</button>
+        <button class="wok-fire-btn" id="wok-fire-1" onclick="event.stopPropagation(); wokFireToggle(1)" title="Perilla del fuego del wok 2: toca para encender o apagar" aria-label="Perilla del fuego del wok 2"><span class="wk-lab off">OFF</span><span class="wk-dial"><b class="wk-ptr"></b></span><span class="wk-lab on">ON</span></button>
         <button class="wok-stir-btn" id="wok-stir-btn-1" style="display:none;">
           <span class="wok-stir-label" id="wok-stir-label-1">Saltear (mantén)</span>
           <div class="wok-stir-bar"><div class="wok-stir-fill" id="wok-stir-fill-1"></div></div>
@@ -10852,6 +10880,7 @@ function wokProfile(recipe) {
 // Con el plato listo se RETIRA tocando el botón de arriba: antes de tiempo sale crudo y si se sigue salteando de más se seca y se quema.
 const WOK_TAPS_PER_ROUND = 3;
 const WOK_TOSS_LOCK_MS = 480;     // cada salteado dura lo que dura su animación; los toques de más se ignoran
+const WOK_BIG_LOCK_MS = 760;      // el tercer toque (lanzamiento grande) tarda un poco más
 const WOK_HEAT_SECS = 3;          // segundos del wok frío al punto ideal
 const WOK_HEAT_BURN = 1.4;        // a esta temperatura la comida se quema (1 = ideal)
 const WOK_IDLE_GRACE = 2.5;       // segundos sin saltear antes de que la temperatura se pase del punto ideal
@@ -11070,17 +11099,27 @@ function wokStagedTick() {
 }
 setInterval(wokStagedTick, 100);
 // Cada toque sobre el wok es un salteado; 3 toques = 1 ronda
-function wokTossFx(i) {
+// kind: 'a' y 'b' = salteados cortos (desliza e inclina hacia un lado y hacia el otro); 'c' = el tercero de la ronda: lanza todo al aire con una llamarada
+function wokTossFx(i, kind) {
   const card = document.getElementById(`wok-card-${i}`);
   if (!card) return;
+  const big = kind === 'c';
+  card.dataset.toss = kind;
   card.classList.remove('tossing'); void card.offsetWidth; card.classList.add('tossing');
   clearTimeout(card._tossTimer);
-  card._tossTimer = setTimeout(() => card.classList.remove('tossing'), 580);
+  card._tossTimer = setTimeout(() => card.classList.remove('tossing'), big ? 820 : 600);
   const fx = document.getElementById(`wok-fx-${i}`);
   if (!fx) return;
-  const cols = ['#ff7043', '#ffb300', '#ffee58', '#e53935', '#66bb6a', '#ab47bc'];
+  const dir = kind === 'b' ? -1 : 1, cols = ['#e53935', '#43a047', '#8e24aa', '#fb8c00', '#9ccc65', '#fdd835'];
   let h = '';
-  for (let k = 0; k < 12; k++) h += `<i class="wok-spark" style="--dx:${((Math.random() - 0.5) * 62).toFixed(1)}cqw;--dy:${(-(20 + Math.random() * 42)).toFixed(1)}cqw;--c:${cols[k % cols.length]};animation-delay:${k * 16}ms" onanimationend="this.remove()"></i>`;
+  for (let k = 0; k < (big ? 16 : 7); k++) {                       // trocitos de verdura que salen volando y caen
+    const dx = dir * (big ? 4 : 6) + (Math.random() - 0.5) * (big ? 44 : 30), dy = -(big ? 26 + Math.random() * 34 : 12 + Math.random() * 16);
+    h += `<i class="wok-bit" style="--dx:${dx.toFixed(1)}cqw;--dy:${dy.toFixed(1)}cqw;--r:${Math.round(Math.random() * 300 - 150)}deg;--c:${cols[k % cols.length]};--d:${big ? 0.85 : 0.62}s;animation-delay:${k * (big ? 22 : 30)}ms" onanimationend="this.remove()"></i>`;
+  }
+  if (big) {
+    const sc = ['#ff7043', '#ffb300', '#ffee58'];
+    for (let k = 0; k < 10; k++) h += `<i class="wok-spark" style="--dx:${((Math.random() - 0.5) * 62).toFixed(1)}cqw;--dy:${(-(20 + Math.random() * 42)).toFixed(1)}cqw;--c:${sc[k % 3]};animation-delay:${k * 18}ms" onanimationend="this.remove()"></i>`;
+  }
   fx.insertAdjacentHTML('beforeend', h);
 }
 function wokToss(i) {
@@ -11091,8 +11130,9 @@ function wokToss(i) {
   if (!w.ingredients.length) { wokTossLock[i] = now + 600; showStationToast('🍳 Aún no hay nada en el wok: arrastra los ingredientes.'); return; }
   if (!w.fire) { wokTossLock[i] = now + 600; showStationToast('🔥 Enciende el fuego del wok (la perilla de abajo) para saltear.'); return; }
   if ((w.heat || 0) < 0.9) { wokTossLock[i] = now + 600; showStationToast('🔥 El wok aún se calienta…'); return; }
-  wokTossLock[i] = now + WOK_TOSS_LOCK_MS;
-  wokTossFx(i);
+  const kind = ['a', 'b', 'c'][Math.min(2, w.taps || 0)];     // 1.º y 2.º toque de la ronda: cortos; 3.º: lanzamiento grande
+  wokTossLock[i] = now + (kind === 'c' ? WOK_BIG_LOCK_MS : WOK_TOSS_LOCK_MS);
+  wokTossFx(i, kind);
   try { playSound('stir'); } catch (e) {}
   sfxEvery('sizzle', 200);
   w.lastAct = now;
