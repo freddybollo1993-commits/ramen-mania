@@ -3559,6 +3559,8 @@
     opacity: 0;
   }
 
+  #abollado-banner small { display: block; font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 800; letter-spacing: 0; margin-top: 3px; text-shadow: 0 1px 2px rgba(0,0,0,0.7); }
+  #abollado-banner.banner-dish { background: linear-gradient(135deg, #6d3b00 0%, #d98200 45%, #a85f00 100%); border-color: #fff3b0; box-shadow: 0 0 35px rgba(255, 160, 0, 0.95), 0 10px 24px rgba(0,0,0,0.8); text-shadow: 3px 3px 0 #2a1600, 0 0 12px rgba(255, 245, 157, 0.9); font-size: 28px; }
   #abollado-banner.banner-active {
     animation: abolladoPopAnim 1.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
   }
@@ -6316,7 +6318,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v80</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v81</span></button></div>
     </div>
   </div>
 
@@ -9325,9 +9327,14 @@ function playSound(type) {
   } catch(e) {}
 }
 
-function triggerAbolladoEffect() {
+// Cartel grande de aviso: por defecto "ESTAS ABOLLADO"; con texto propio sirve para avisos del plato (variante ámbar, con línea de detalle)
+function triggerAbolladoEffect(text, sub) {
   const overlay = document.getElementById("screen-flash-overlay");
   const banner = document.getElementById("abollado-banner");
+  if (banner) {
+    banner.innerHTML = text ? `${text}${sub ? `<small>${sub}</small>` : ''}` : '💥 ESTAS ABOLLADO 💥';
+    banner.classList.toggle('banner-dish', !!text);
+  }
 
   if (overlay) {
     overlay.classList.remove("flash-active");
@@ -9567,7 +9574,7 @@ function wokServeClick(i) {
   const main = rc.ingredients.find(id => [69, 61, 48].includes(id)) || rc.ingredients[0];
   const ok = stPassAdd('salteados', { recipes: (rc.candidates || [rc]).map(r => r.name), result: w.result,
     readyAt: w.readyAt != null ? w.readyAt : gameState.gameClock, vis: { kind: 'ing', id: main },
-    meta: { result: w.result, secs: w.stirSeconds, profile: w.profile, orderMatches: w.orderMatches, orderTotal: w.orderTotal, toss: w.toss || 0, oilMissing: !w.oil } });
+    meta: { result: w.result, secs: w.stirSeconds, profile: w.profile, orderMatches: w.orderMatches, orderTotal: w.orderTotal, toss: w.toss || 0, oilMissing: !w.oil, dry: w.dry || 0 } });
   if (!ok) return;
   gameState.woks[i] = newWok(w);
   renderWoks();
@@ -10877,7 +10884,7 @@ function wokProfile(recipe) {
 // y cuentan como integrados cuando pasa una ronda completa; hacen falta tantas rondas como ingredientes de cocción, entre 2 y 5).
 // El fuego es un interruptor y la barra de temperatura sube hasta el punto ideal (1): mientras se saltea se mantiene ahí; si se deja de saltear
 // demasiado rato la temperatura pasa de ese punto y la comida empieza a quemarse. Apagar el fuego a mitad de una ronda (con 1 o 2 toques) resta calidad.
-// Con el plato listo se RETIRA tocando el botón de arriba: antes de tiempo sale crudo y si se sigue salteando de más se seca y se quema.
+// Con el plato listo se RETIRA tocando el botón de arriba: antes de tiempo sale crudo; cada ronda de más lo seca y lo sala (resta calidad, con cartel de aviso) y a la tercera se quema.
 const WOK_TAPS_PER_ROUND = 3;
 const WOK_TOSS_LOCK_MS = 480;     // cada salteado dura lo que dura su animación; los toques de más se ignoran
 const WOK_BIG_LOCK_MS = 760;      // el tercer toque (lanzamiento grande) tarda un poco más
@@ -10886,7 +10893,8 @@ const WOK_HEAT_BURN = 1.4;        // a esta temperatura la comida se quema (1 = 
 const WOK_IDLE_GRACE = 2.5;       // segundos sin saltear antes de que la temperatura se pase del punto ideal
 const WOK_OVERHEAT_SECS = 5;      // de 1,0 a 1,4 sin saltear
 const WOK_TOSS_COOL = 0.25;       // cada salteado baja la temperatura que se pasó del punto ideal
-const WOK_OVER_ROUNDS = 2;        // rondas de más (sobre las necesarias) antes de que se seque y se queme
+const WOK_OVER_ROUNDS = 3;        // a esta ronda de más (sobre las necesarias) se seca del todo y se quema; cada ronda de más antes resta calidad
+const WOK_DRY_PTS = 12;           // puntos de cocción que resta cada ronda de más (el plato pierde jugo: queda más seco y salado)
 const WOK_VIRTUAL = { crudo: 1, perfecto: 3, quemado: 4.5 };   // ventana "virtual" para reutilizar los puntos de cocción de siempre
 const WOK_SAUCE_IDS = [79, 40, 8];   // salsas de cocción de Salteados que son botellas (las demás se ponen al emplatar)
 // Cocina de acero de salteado (referencia del usuario): pared trasera, plano de trabajo, borde y frente. Se estira al ancho de los dos woks
@@ -11004,10 +11012,18 @@ function wokPour(i, id) {
   return true;
 }
 // Resultado "virtual" para reutilizar la evaluación de cocción: PERFECTO en el centro de la ventana (algo menos si se apagó a mitad de una ronda)
+// Aviso de ronda de más: cartel grande + mensaje; el plato pierde jugo y sale más seco y salado
+function wokDryAlert(extra) {
+  const left = Math.max(0, WOK_OVER_ROUNDS + (getUpgradeLevel('wok') >= 2 ? 1 : 0) - extra);
+  try { triggerAbolladoEffect(extra >= 2 ? '🧂 ¡PLATO MUY SECO Y SALADO! 🧂' : '🧂 PLATO SECO Y SALADO 🧂', `Ronda de más ${extra}: −${WOK_DRY_PTS * extra} pts · retíralo ya${left ? '' : ' (¡se quema!)'}`); } catch (e) {}
+  try { playSound('error'); } catch (e) {}
+  showStationToast(`🧂 Ronda de más (${extra}): cada vuelta le saca más jugo y lo deja más seco y salado (−${WOK_DRY_PTS * extra} pts de cocción).`);
+}
 function wokSetResult(i, result) {
   const w = gameState.woks[i], p = WOK_VIRTUAL;
   const progress = Math.min(1, ((w.rounds || 0) + (w.taps || 0) / WOK_TAPS_PER_ROUND) / wokRoundsNeeded(i));
   w.profile = { ...p };
+  w.dry = Math.max(0, (w.rounds || 0) - wokRoundsNeeded(i));       // rondas de más
   if (result === 'PERFECTO') w.stirSeconds = (w.interrupts || 0) ? p.crudo + 0.85 * (p.perfecto - p.crudo) : (p.crudo + p.perfecto) / 2;
   else if (result === 'CRUDO') w.stirSeconds = p.crudo * Math.max(0.05, progress) * 0.95;
   else w.stirSeconds = (p.perfecto + p.quemado) / 2;
@@ -11046,6 +11062,7 @@ function wokStagedBtnUi(w, i, btn) {
   else if ((w.heat || 0) < 0.9 && !started) text = 'Calentando…';
   else if (!started) text = '👆 Toca el wok: 3 toques = 1 ronda';
   else if ((w.heat || 0) > 1.05) { zone = 'quemado'; text = '¡Se quema! Sigue salteando'; }
+  else if (wokReady(i) && (w.rounds || 0) > needed) { zone = 'quemado'; text = `🧂 ¡Retira ya! Seco y salado (−${WOK_DRY_PTS * ((w.rounds || 0) - needed)})`; }
   else if (wokReady(i)) { zone = 'perfecto'; text = '✅ ¡Listo! Toca para retirar'; }
   else { zone = 'crudo'; text = `Ronda ${Math.min(needed, (w.rounds || 0) + 1)}/${needed} · retirar (crudo)`; }
   if (label && label.textContent !== text) label.textContent = text;
@@ -11075,7 +11092,7 @@ function wokUpdateFireUi() {
     if (fill) fill.style.width = `${Math.round(Math.min(1, heat / WOK_HEAT_BURN) * 100)}%`;
     card.querySelectorAll('.wok-toss-pips i').forEach((p, k) => p.classList.toggle('on', k < (w.taps || 0)));
     const rl = document.getElementById(`wok-round-${i}`);
-    if (rl) { const t = w.result ? '' : `R${(w.rounds || 0) + 1}/${wokRoundsNeeded(i)}`; if (rl.textContent !== t) rl.textContent = t; }
+    if (rl) { const nd = wokRoundsNeeded(i), t = w.result ? '' : ((w.rounds || 0) > nd ? `🧂+${(w.rounds || 0) - nd}` : ((w.rounds || 0) === nd ? '✓' : `R${(w.rounds || 0) + 1}/${nd}`)); if (rl.textContent !== t) rl.textContent = t; }
     const btn = document.getElementById(`wok-stir-btn-${i}`);
     if (btn && btn.style.display !== 'none' && !w.result) wokStagedBtnUi(w, i, btn);
   });
@@ -11142,10 +11159,12 @@ function wokToss(i) {
     w.taps = 0;
     w.rounds = (w.rounds || 0) + 1;
     try { playSound('match'); } catch (e) {}
-    const needed = wokRoundsNeeded(i);
-    if (wokReady(i)) showStationToast('✅ ¡Listo! Retira el plato (botón de arriba) antes de que se seque.');
+    const needed = wokRoundsNeeded(i), matched = analyzeWok(i).status === 'MATCHED', extra = w.rounds - needed;
+    const limit = WOK_OVER_ROUNDS + (getUpgradeLevel('wok') >= 2 ? 1 : 0);
+    if (matched && extra >= limit && !isFree()) wokBurn(i, 'over');
+    else if (matched && extra >= 1 && wokIntegrated(w)) wokDryAlert(extra);
+    else if (wokReady(i)) showStationToast('✅ ¡Listo! Retira el plato (botón de arriba): cada ronda de más lo seca y resta calidad.');
     else showStationToast(`🍳 Ronda ${w.rounds} completa${w.rounds < needed ? ': integra el siguiente ingrediente' : ''}.`);
-    if (!isFree() && w.rounds >= needed + WOK_OVER_ROUNDS + (getUpgradeLevel('wok') >= 2 ? 1 : 0) && analyzeWok(i).status === 'MATCHED') wokBurn(i, 'over');
   }
   wokUpdateFireUi();
 }
@@ -16185,7 +16204,8 @@ function evalCooking(dish) {
   const sec = m.secs, res = m.result || dish.quality;
   if (res === 'PERFECTO') {
     const f = (sec - ready) / (burn - ready);
-    return { pts: (sec > 0 && f >= 0.3 && f <= 0.7) ? 50 : 40, state: 'OK' };
+    const base = (sec > 0 && f >= 0.3 && f <= 0.7) ? 50 : 40;
+    return { pts: Math.max(0, base - WOK_DRY_PTS * (m.dry || 0)), state: 'OK' };   // salteado: cada ronda de más seca y sala el plato
   }
   if (res === 'CRUDO') {
     if (sec > 0 && sec < ready * 0.5) return { pts: 0, state: 'CRUDO', gate: 'muy crudo' };
