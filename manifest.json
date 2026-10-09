@@ -5,7 +5,7 @@
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "orientation": "landscape",
+  "orientation": "any",
   "background_color": "#190e0c",
   "theme_color": "#ffb300",
   "categories": ["games", "arcade", "entertainment"],
