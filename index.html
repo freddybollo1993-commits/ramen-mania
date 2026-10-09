@@ -6329,7 +6329,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v84</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v85</span></button></div>
     </div>
   </div>
 
@@ -8871,12 +8871,13 @@ const INGREDIENTES = [
   {"id": 94, "name": "wantán", "cat": "otros", "areas": ["salteados"], "icon": "🥟", "display": "Wantán", "img": null},
   {"id": 95, "name": "zucchini", "cat": "vegetales", "areas": ["salteados"], "icon": "🥒", "display": "Zucchini", "img": null},
   {"id": 96, "name": "wasabi", "cat": "otros", "areas": [], "icon": "🌿", "display": "Wasabi", "img": null},
-  {"id": 97, "name": "jengibre", "cat": "otros", "areas": [], "icon": "🌸", "display": "Jengibre (gari)", "img": null}
+  {"id": 97, "name": "jengibre", "cat": "otros", "areas": [], "icon": "🌸", "display": "Jengibre (gari)", "img": null},
+  {"id": 98, "name": "salsa ponzu", "cat": "salsas", "areas": ["salteados"], "icon": "🍋", "display": "Salsa Ponzu", "img": null}
 ];
 // Nombre corto para las fichas del panel (en pantallas angostas el nombre completo se cortaba) y
 // iconos propios donde dos ingredientes de la misma área compartían el mismo.
 // Arte generado con tools/gen-ingredient-icons.mjs (id -> SVG 64x64). Los emoji quedan solo de respaldo.
-const ING_ART = {"31":"assets/ingredients/ing_31_aceite_ajonjoli.svg","32":"assets/ingredients/ing_32_ajo_chino.svg","33":"assets/ingredients/ing_33_ajonjoli.svg","34":"assets/ingredients/ing_34_ajonjoli_negro.svg","35":"assets/ingredients/ing_35_aji_limo.svg","36":"assets/fry/fry_36_alitas.svg","37":"assets/ingredients/ing_37_arroz.svg","38":"assets/ingredients/ing_38_arroz_shari.svg","39":"assets/ingredients/ing_39_atun.svg","40":"assets/ingredients/ing_40_base_shimaya.svg","41":"assets/ingredients/ing_41_benishoga.svg","42":"assets/ingredients/ing_42_beterraga.svg","43":"assets/fry/fry_43_bife_cerdo.svg","44":"assets/fry/fry_44_bife_pollo.svg","45":"assets/ingredients/ing_45_brocoli.svg","46":"assets/ingredients/ing_46_cebolla.svg","47":"assets/ingredients/ing_47_cecina.svg","48":"assets/ingredients/ing_48_chancho_chaufa.svg","49":"assets/ingredients/ing_49_cobertura_atun.svg","50":"assets/ingredients/ing_50_cobertura_conchas.svg","51":"assets/ingredients/ing_51_cobertura_amazon.svg","52":"assets/ingredients/ing_52_col.svg","53":"assets/ingredients/ing_53_condimentos.svg","54":"assets/ingredients/ing_54_ebi.svg","55":"assets/ingredients/ing_55_ensalada.svg","56":"assets/ingredients/ing_56_ensalada_fria.svg","57":"assets/ingredients/ing_57_gohan.svg","58":"assets/ingredients/ing_58_harina.svg","59":"assets/ingredients/ing_59_hilos_wantan.svg","60":"assets/fry/fry_60_langostinos.svg","61":"assets/ingredients/ing_61_lomo.svg","62":"assets/ingredients/ing_62_mayonesa_casa.svg","63":"assets/ingredients/ing_63_negi.svg","64":"assets/ingredients/ing_64_palta.svg","65":"assets/ingredients/ing_65_panko.svg","66":"assets/ingredients/ing_66_pasta_gyoza.svg","67":"assets/ingredients/ing_67_pimenton.svg","68":"assets/ingredients/ing_68_pimiento.svg","69":"assets/ingredients/ing_69_pollo.svg","70":"assets/fry/fry_70_pollo.svg","71":"assets/ingredients/ing_71_poro_especial.svg","72":"assets/ingredients/ing_72_queso_crema.svg","73":"assets/fry/fry_73_gyoza.svg","74":"assets/ingredients/ing_74_rulos_cebolla.svg","75":"assets/ingredients/ing_75_sal.svg","76":"assets/ingredients/ing_76_salsa.svg","77":"assets/ingredients/ing_77_salsa_acevichada.svg","78":"assets/ingredients/ing_78_salsa_batayaki.svg","79":"assets/ingredients/ing_79_salsa_chaufa.svg","80":"assets/ingredients/ing_80_salsa_digion.svg","81":"assets/ingredients/ing_81_salsa_guacamole.svg","82":"assets/ingredients/ing_82_salsa_hotate.svg","83":"assets/ingredients/ing_83_salsa_kare.svg","84":"assets/ingredients/ing_84_salsa_katsu.svg","85":"assets/ingredients/ing_85_salsa_nin_niku.svg","86":"assets/ingredients/ing_86_salsa_omuraisu.svg","87":"assets/ingredients/ing_87_salsa_teriyaki.svg","88":"assets/ingredients/ing_88_salsa_yakitori.svg","89":"assets/ingredients/ing_89_salsa_yama.svg","90":"assets/ingredients/ing_90_salsa_yasaitame.svg","91":"assets/ingredients/ing_91_togarashi.svg","92":"assets/ingredients/ing_92_toping.svg","93":"assets/ingredients/ing_93_tortilla.svg","94":"assets/ingredients/ing_94_wantan.svg","95":"assets/ingredients/ing_95_zucchini.svg","96":"assets/ingredients/ing_96_wasabi.svg","97":"assets/ingredients/ing_97_jengibre.svg"};
+const ING_ART = {"31":"assets/ingredients/ing_31_aceite_ajonjoli.svg","32":"assets/ingredients/ing_32_ajo_chino.svg","33":"assets/ingredients/ing_33_ajonjoli.svg","34":"assets/ingredients/ing_34_ajonjoli_negro.svg","35":"assets/ingredients/ing_35_aji_limo.svg","36":"assets/fry/fry_36_alitas.svg","37":"assets/ingredients/ing_37_arroz.svg","38":"assets/ingredients/ing_38_arroz_shari.svg","39":"assets/ingredients/ing_39_atun.svg","40":"assets/ingredients/ing_40_base_shimaya.svg","41":"assets/ingredients/ing_41_benishoga.svg","42":"assets/ingredients/ing_42_beterraga.svg","43":"assets/fry/fry_43_bife_cerdo.svg","44":"assets/fry/fry_44_bife_pollo.svg","45":"assets/ingredients/ing_45_brocoli.svg","46":"assets/ingredients/ing_46_cebolla.svg","47":"assets/ingredients/ing_47_cecina.svg","48":"assets/ingredients/ing_48_chancho_chaufa.svg","49":"assets/ingredients/ing_49_cobertura_atun.svg","50":"assets/ingredients/ing_50_cobertura_conchas.svg","51":"assets/ingredients/ing_51_cobertura_amazon.svg","52":"assets/ingredients/ing_52_col.svg","53":"assets/ingredients/ing_53_condimentos.svg","54":"assets/ingredients/ing_54_ebi.svg","55":"assets/ingredients/ing_55_ensalada.svg","56":"assets/ingredients/ing_56_ensalada_fria.svg","57":"assets/ingredients/ing_57_gohan.svg","58":"assets/ingredients/ing_58_harina.svg","59":"assets/ingredients/ing_59_hilos_wantan.svg","60":"assets/fry/fry_60_langostinos.svg","61":"assets/ingredients/ing_61_lomo.svg","62":"assets/ingredients/ing_62_mayonesa_casa.svg","63":"assets/ingredients/ing_63_negi.svg","64":"assets/ingredients/ing_64_palta.svg","65":"assets/ingredients/ing_65_panko.svg","66":"assets/ingredients/ing_66_pasta_gyoza.svg","67":"assets/ingredients/ing_67_pimenton.svg","68":"assets/ingredients/ing_68_pimiento.svg","69":"assets/ingredients/ing_69_pollo.svg","70":"assets/fry/fry_70_pollo.svg","71":"assets/ingredients/ing_71_poro_especial.svg","72":"assets/ingredients/ing_72_queso_crema.svg","73":"assets/fry/fry_73_gyoza.svg","74":"assets/ingredients/ing_74_rulos_cebolla.svg","75":"assets/ingredients/ing_75_sal.svg","76":"assets/ingredients/ing_76_salsa.svg","77":"assets/ingredients/ing_77_salsa_acevichada.svg","78":"assets/ingredients/ing_78_salsa_batayaki.svg","79":"assets/ingredients/ing_79_salsa_chaufa.svg","80":"assets/ingredients/ing_80_salsa_digion.svg","81":"assets/ingredients/ing_81_salsa_guacamole.svg","82":"assets/ingredients/ing_82_salsa_hotate.svg","83":"assets/ingredients/ing_83_salsa_kare.svg","84":"assets/ingredients/ing_84_salsa_katsu.svg","85":"assets/ingredients/ing_85_salsa_nin_niku.svg","86":"assets/ingredients/ing_86_salsa_omuraisu.svg","87":"assets/ingredients/ing_87_salsa_teriyaki.svg","88":"assets/ingredients/ing_88_salsa_yakitori.svg","89":"assets/ingredients/ing_89_salsa_yama.svg","90":"assets/ingredients/ing_90_salsa_yasaitame.svg","91":"assets/ingredients/ing_91_togarashi.svg","92":"assets/ingredients/ing_92_toping.svg","93":"assets/ingredients/ing_93_tortilla.svg","94":"assets/ingredients/ing_94_wantan.svg","95":"assets/ingredients/ing_95_zucchini.svg","96":"assets/ingredients/ing_96_wasabi.svg","97":"assets/ingredients/ing_97_jengibre.svg","98":"assets/ingredients/ing_98_salsa_ponzu.svg"};
 const ING_SHORT = { 73: 'Relleno Gyoza', 60: 'Langostino ×6', 70: 'Pollo ×7', 62: 'Mayo Casa', 74: 'Rulos Cebolla',
   49: 'Cob. Atún', 54: 'Ebi Langost.', 77: 'Acevichada', 50: 'Cob. Conchas', 51: 'Cob. Amazon', 28: 'Shitake', 21: 'Alga Wanji' };
 const ING_ICON_FIX = { 62: '🍯', 76: '🍅', 53: '🌿', 44: '🐔', 70: '🍖', 49: '🍣' };
@@ -8957,7 +8958,7 @@ const RECETAS_MAKIS = [
 const RECETAS_SALTEADOS = [
   {"id": 1, "name": "Chaufa Shimaya", "price": 40, "desc": "Arroz chaufa con huevo, chancho, champiñones y wantán", "ingredients": [15, 37, 63, 25, 79, 48, 27, 94, 41]},
   {"id": 2, "name": "Chicken Teriyaki", "price": 38, "desc": "Pollo con salsa teriyaki, arroz y ensalada fría", "ingredients": [69, 87, 37, 56]},
-  {"id": 3, "name": "Batayaki Ramen", "price": 44, "desc": "Lomo, champiñones y holantao salteados en wok; fideos en sartén al centro; poro frito con salsa ponzu al otro lado", "ingredients": [61, 27, 23, 1, 78, 71]},
+  {"id": 3, "name": "Batayaki Ramen", "price": 44, "desc": "Lomo, champiñones y holantao en wok y fideos en sartén, ambos con salsa batayaki; al otro lado poro frito (pasado por harina) con salsa ponzu", "ingredients": [61, 27, 23, 1, 78, 98, 71]},
   {"id": 4, "name": "Yakimeshi", "price": 39, "desc": "Arroz salteado con huevo, pollo, zanahoria y holantao", "ingredients": [15, 69, 37, 30, 67, 23, 40]},
   {"id": 5, "name": "Yakiramen", "price": 43, "desc": "Fideo ramen salteado con pollo y vegetales variados", "ingredients": [69, 46, 52, 95, 45, 68, 1, 25, 42]},
   {"id": 6, "name": "Yasaitame", "price": 37, "desc": "Salteado de vegetales con lomo y salsa yasaitame", "ingredients": [61, 46, 95, 52, 25, 45, 68, 90, 33]},
@@ -9484,6 +9485,7 @@ function getUnlockedIngredients() {
     // Áreas nuevas (Salteados/Frituras/Makis): solo los ingredientes de los platos ya desbloqueados.
     const ids = new Set();
     stView(gameState.activeArea, getUnlockedRecipes().filter(r => r.area === gameState.activeArea)).forEach(r => r.ingredients.forEach(id => ids.add(id)));
+    if (gameState.activeArea === 'frituras' && stagedOn('frituras') && getUnlockedRecipes().some(r => r.name === 'Batayaki Ramen')) ids.add(71);   // poro cortado en Salteado, para pasarlo por harina y freírlo
     list = INGREDIENTES.filter(i => ids.has(i.id));
     // En Frituras la harina, el huevo y el panko son los tres espacios de empanizado, no fichas.
     if (gameState.activeArea === 'frituras') list = list.filter(i => !FRY_BREADING_IDS.includes(i.id) && (!stagedOn('frituras') || FRY_PROTEIN_IDS.includes(i.id)));
@@ -10969,10 +10971,10 @@ const WOK_VIRTUAL = { crudo: 1, perfecto: 3, quemado: 4.5 };   // ventana "virtu
 const PAN_DISHES = ['Chicken Teriyaki', 'Yakitori'];
 const MIXED_DISHES = {
   'Omuraisu':       { wok: { ids: [69, 37, 46, 30, 29], label: 'arroz con pollo' }, pan: { ids: [93], label: 'tortilla' },                 how: 'El arroz con pollo va envuelto en la tortilla.' },
-  'Batayaki Ramen': { wok: { ids: [61, 27, 23], label: 'lomo, champiñones y holantao' }, pan: { ids: [1], label: 'fideos' },    how: 'Fideos al centro, estirados de punta a punta, y a un lado el lomo con champiñones y holantao.' }
+  'Batayaki Ramen': { wok: { ids: [61, 27, 23, 78], label: 'lomo, champiñones y holantao con salsa batayaki' }, pan: { ids: [1, 78], label: 'fideos con salsa batayaki' },    how: 'Fideos al centro, estirados de punta a punta, y a un lado el lomo con champiñones y holantao.' }
 };
 const WOK_WRONG_TOOL_PTS = 15;    // puntos de cocción que resta cocinar el plato en el utensilio equivocado
-const WOK_SAUCE_IDS = [79, 40, 8];   // salsas de cocción de Salteados que son botellas (las demás se ponen al emplatar)
+const WOK_SAUCE_IDS = [79, 40, 8, 78];   // salsas de cocción de Salteados que son botellas (las demás se ponen al emplatar)
 // Cocina de acero de salteado (referencia del usuario): pared trasera, plano de trabajo, borde y frente. Se estira al ancho de los dos woks
 // (los trazos no cambian de grosor: vector-effect). Las hornillas, llamas y vapor son de cada wok (WOK_BURNER_SVG); los utensilios van a la derecha.
 const WOK_STOVE_SVG = (() => {
@@ -11403,6 +11405,7 @@ const FRY_PROFILES = {
   73: { ready: 1.6, burn: 3.0, black: 5.5 }, // relleno de gyoza (Age Gyoza)
   70: { ready: 2.4, burn: 4.4, black: 6.9 }, // pollo (Kaarage)
   43: { ready: 2.8, burn: 5.0, black: 7.5 }, // bife de cerdo (Tonkatsu / Katsu Kare)
+  71: { ready: 1.6, burn: 3.2, black: 5.5 }, // poro con harina (Batayaki)
   44: { ready: 2.8, burn: 5.0, black: 7.5 }, // bife de pollo (Chicken Katsu)
   36: { ready: 3.4, burn: 6.0, black: 8.5 }  // alas de pollo (Alitas)
 };
@@ -11415,7 +11418,7 @@ function fryProfile(proteinId) {
 }
 const BREAD_DWELL_MS = 450;      // tiempo sobre cada espacio para que cuente el paso
 const FRY_BREADING_IDS = [58, 15, 65]; // harina, huevo, panko
-const FRY_PROTEIN_IDS = [36, 43, 44, 60, 70, 73]; // alas, bife de cerdo, bife de pollo, langostinos, pollo, relleno
+const FRY_PROTEIN_IDS = [36, 43, 44, 60, 70, 73, 71];     // 71 = poro cortado en Salteado (solo harina) // alas, bife de cerdo, bife de pollo, langostinos, pollo, relleno
 const FRY_BREAD_NAMES = ['la harina', 'el huevo', 'el panko'];
 let fryTimerInterval = null;
 let fryItemDrag = null;
@@ -11483,7 +11486,9 @@ const ST_PROD = {
     { key: 'pollo',    label: 'Pollo marinado',  icon: 69, covers: [69],                       use: 'cook',  how: 'cut',   binWord: 'trozado',            then: 'marinate', time: 9,  batch: 6, max: 12, start: 6 },
     { key: 'lomo',     label: 'Lomo cortado',    icon: 61, covers: [61],                       use: 'cook',  how: 'cut',                                                 time: 8,  batch: 4, max: 8,  start: 4 },
     { key: 'ensalada', label: 'Ensaladas',       icon: 55, covers: [55, 56],                   use: 'plate', how: 'clean', verb1: 'Lavar',                              time: 6,  batch: 6, max: 12, start: 6 },
-    { key: 'finos',    label: 'Vegetales finos', icon: 68, covers: [63, 68, 42, 23, 67, 71],   use: 'plate', how: 'cut',                                                 time: 7,  batch: 6, max: 12, start: 6 }
+    { key: 'finos',    label: 'Vegetales finos', icon: 68, covers: [63, 68, 42, 23, 67],       use: 'plate', how: 'cut',                                                 time: 7,  batch: 6, max: 12, start: 6 },
+    // Poro especial (Batayaki): se CORTA aquí, pasa a Frituras (solo harina y fritura) y vuelve como poro frito para emplatar. start 0: sin ese viaje no hay poro frito.
+    { key: 'poro',     label: 'Poro especial',   icon: 71, covers: [71],                       use: 'plate', how: 'cut', xfer: 'poroCut',                       time: 0,  batch: 0, max: 8,  start: 0 }
   ],
   makis: [
     { key: 'shari',    label: 'Arroz shari',        icon: 38, covers: [38],     use: 'cook',  how: 'clean', verb1: 'Lavar', binWord: 'lavado', then: 'cook', time: 10, batch: 6, max: 12, start: 6 },
@@ -11497,7 +11502,9 @@ const ST_PROD = {
     { key: 'zanahoria', label: 'Zanahoria',   icon: 30, covers: [30], use: 'plate', how: 'cut',                                                           time: 6,  batch: 6, max: 12, start: 6 },
     { key: 'betarraga', label: 'Betarraga',   icon: 42, covers: [42], use: 'plate', how: 'cut',                                                           time: 7,  batch: 4, max: 8,  start: 4 },
     { key: 'ebi',      label: 'Ebi furai',    icon: 60, covers: [60], use: 'cook',  how: 'clean', verb1: 'Pelar',                                        time: 12, batch: 4, max: 8,  start: 4 },
-    { key: 'gyozas',   label: 'Gyozas',       icon: 73, covers: [73], use: 'cook',  how: 'cut',   binWord: 'picado',            then: 'marinate',          time: 14, batch: 4, max: 8,  start: 4 }
+    { key: 'gyozas',   label: 'Gyozas',       icon: 73, covers: [73], use: 'cook',  how: 'cut',   binWord: 'picado',            then: 'marinate',          time: 14, batch: 4, max: 8,  start: 4 },
+    // Poro cortado en Salteado (Producción): llega aquí para pasarlo por harina y freírlo (ver fryPoroDone)
+    { key: 'poroCut',  label: 'Poro cortado', icon: 71, covers: [71], use: 'cook',  virtual: true, noStockMsg: '🥬 Sin poro cortado: córtalo en Producción de Salteado.', time: 0, batch: 0, max: 8, start: 0 }
   ]
 };
 
@@ -11518,7 +11525,7 @@ const RAMEN_COOK_EXTRA = { 'Tan tan': [25] };   // piezas "de emplatado" que en 
 const ST_PLATE_SAL = {
   'Chaufa Shimaya':   [94, 41, 63],
   'Chicken Teriyaki': [56, 87],
-  'Batayaki Ramen':   [78, 71],
+  'Batayaki Ramen':   [98, 71],
   'Yakimeshi':        [23, 67],
   'Yakiramen':        [68, 42],
   'Yasaitame':        [90, 33],
@@ -11605,7 +11612,7 @@ function stCookTake(area, ingId) {
   if (!p) return true;
   const st = stGet(area);
   if (st.stock[p.key] < 1) {
-    showStationToast(`🥬 Sin ${p.label.toLowerCase()}: prepáralo en Producción.`);
+    showStationToast(p.noStockMsg || `🥬 Sin ${p.label.toLowerCase()}: prepáralo en Producción.`);
     try { playSound('error'); } catch (e) {}
     return false;
   }
@@ -11845,7 +11852,14 @@ const ST_SHOP_LATE_SECONDS = 15;   // tiempo que aguanta un producto listo en la
 function stIsShop(area) { return ST_PROD[area].some(p => p.how); }
 const stProdOf = (area, key) => ST_PROD[area].find(x => x.key === key);
 
-function stBin(st, p) { return p.then ? st.cut : st.stock; }
+function stBin(st, p) {
+  if (p.xfer && stagedOn('frituras')) {          // lo cortado se va a otra área (Frituras): su depósito vive allí
+    const fs = stGet('frituras'), o = {};
+    Object.defineProperty(o, p.key, { get: () => fs.stock[p.xfer], set: v => { fs.stock[p.xfer] = v; }, enumerable: true });
+    return o;
+  }
+  return p.then ? st.cut : st.stock;
+}
 const stBinWord = p => p.binWord || (p.how === 'clean' ? 'limpio' : 'cortado');
 const stBinTag = p => (p.how === 'clean' ? '🧺' : '🔪');   // dónde cae lo que sale de la tabla
 
@@ -11945,7 +11959,7 @@ function shopUpdateCount(p) {
   document.querySelectorAll(`[data-cut-chip="${p.key}"]`).forEach(el => { el.textContent = c; });
   document.querySelectorAll(`[data-bl-btn="${p.key}"]`).forEach(el => { el.disabled = !(st.cut[p.key] >= 1) || n >= p.max || st.stove.findIndex(x => !x) === -1; });
   const lab = document.getElementById('shop-board-label');
-  if (lab && st.board && st.board.key === p.key) lab.textContent = p.then ? `${p.label} ${stBinWord(p)} · ${c}/${p.max}` : `${p.label} · ${n}/${p.max}`;
+  if (lab && st.board && st.board.key === p.key) lab.textContent = p.then ? `${p.label} ${stBinWord(p)} · ${c}/${p.max}` : `${p.label} · ${p.xfer ? c : n}/${p.max}`;
 }
 // ---- Tabla expandida: el producto se va dividiendo con cada corte y suelta porciones pequeñas ----
 function shopItemHtml(p, stg) {
@@ -12149,7 +12163,8 @@ function stRenderShop(area, panel) {
   const cards = list.map(p => {
     const n = st.stock[p.key], how = ST_HOW[p.how], low = n <= Math.ceil(p.max * 0.25);
     const onBoard = st.board && st.board.key === p.key, onStove = st.stove.some(sl => sl && sl.key === p.key);
-    const blocked = n >= p.max || (p.how !== 'cut' && freeSlot === -1);
+    const binFull = p.xfer ? stBin(st, p)[p.key] >= p.max : n >= p.max;
+    const blocked = binFull || (p.how !== 'cut' && p.how !== 'clean' && freeSlot === -1);
     if (p.then) {                                   // dos pasos: 🔪 cortar -> queda "cortado" -> 💧 blanquear
       const c = st.cut[p.key], cutOff = c >= p.max, blOff = c < 1 || n >= p.max || freeSlot === -1;
       const h2 = ST_HOW[p.then];
@@ -12166,8 +12181,8 @@ function stRenderShop(area, panel) {
     return `<div class="fp-card ${low ? 'is-low' : ''} ${(onBoard || onStove) ? 'is-busy' : ''}">
       <div class="fp-card-ico">${stIngIconRaw(p.icon)}</div>
       <div class="fp-card-name">${p.short || p.label}</div>
-      <div class="fp-card-n"><span data-stock-of="${p.key}">${n}/${p.max}</span>${stHasRaw(p.icon) ? ` <span class="fp-arrow">→${stIngIcon(p.icon)}</span>` : ''}</div>
-      <button class="fp-btn" ${blocked ? 'disabled' : ''} title="${stVerb1(p)} ${p.label}" onclick="stProdStart('${area}','${p.key}')">${n >= p.max ? 'Lleno' : `${how.icon} ${stVerb1(p)}`}</button>
+      <div class="fp-card-n"><span data-stock-of="${p.key}">${n}/${p.max}</span>${stHasRaw(p.icon) ? ` <span class="fp-arrow">→${stIngIcon(p.icon)}</span>` : ''}${p.xfer && stagedOn('frituras') ? ` <span class="fp-cut" title="Poro cortado: espera en Frituras para pasar por harina y freírse">🔪${stGet('frituras').stock[p.xfer]}→🍤</span>` : ''}</div>
+      <button class="fp-btn" ${blocked ? 'disabled' : ''} title="${stVerb1(p)} ${p.label}${p.xfer ? ' (luego se pasa por harina y se fríe en Frituras)' : ''}" onclick="stProdStart('${area}','${p.key}')">${binFull ? 'Lleno' : `${how.icon} ${stVerb1(p)}`}</button>
     </div>`;
   }).join('');
   const b = st.board, bp = b ? stProdOf(area, b.key) : null, on = b ? b.taps % SHOP_TAPS_PER_PORTION : 0;
@@ -12261,7 +12276,7 @@ function stPassIcon(item) {
 }
 // Plato del Batayaki Ramen: franja de fideos de punta a punta en el centro; arriba el lomo con champiñones y holantao; abajo el poro frito bañado en salsa ponzu
 function batayakiPlateSvg(plateItems) {
-  const poro = plateItems.includes(71), ponzu = plateItems.includes(78), ink = '#3a2b20';
+  const poro = plateItems.includes(71), ponzu = plateItems.includes(98), ink = '#3a2b20';
   let noodles = '';
   for (let k = 0; k < 7; k++) { const y = 33 + k * 2.6; noodles += `<path d="M 7,${y} q 8,-3 16,0 t 16,0 t 16,0 t 16,0 t 16,0 t 16,0" fill="none" stroke="${k % 2 ? '#f3d27a' : '#e9bf55'}" stroke-width="2.2" stroke-linecap="round"/>`; }
   const lomo = [[26, 18], [44, 15], [62, 18]].map(([x, y], k) => `<g transform="rotate(${k * 9 - 9} ${x} ${y})"><rect x="${x - 8}" y="${y - 4.5}" width="16" height="9" rx="3.5" fill="#8c3b2c" stroke="${ink}" stroke-width="1"/><path d="M ${x - 5},${y - 1} h 10" stroke="#d98a73" stroke-width="1.2" opacity="0.8"/></g>`).join('');
@@ -12333,9 +12348,26 @@ function stTickUi() {
 }
 
 // Frituras → pase: la proteína frita (y cortada si hace falta) se va a emplatar; la olla queda libre.
+// Poro frito: sale de Frituras y llega a Salteado (existencias de Emplatar del Batayaki). Perfecto rinde 3 porciones; crudo o quemado, 1.
+function fryPoroDone(st) {
+  const sal = stGet('salteados'), p = stProdOf('salteados', 'poro');
+  const gain = st.fryResult === 'PERFECTO' ? 3 : 1, before = sal.stock.poro;
+  sal.stock.poro = Math.min(p.max, before + gain);
+  showStationToast(`🍤 Poro frito: +${sal.stock.poro - before} para el Batayaki (ya está en Emplatar de Salteado)${st.fryResult === 'PERFECTO' ? '' : ' · no salió perfecto: rindió menos'}.`);
+  try { playSound('stock_add'); } catch (e) {}
+  if (fryTimerInterval) { clearInterval(fryTimerInterval); fryTimerInterval = null; }
+  cleanupFryItemDrag();
+  cleanupFryKnifeDrag();
+  gameState.fryStation = newFryStation();
+  renderFryStation();
+  renderPantryGrid();
+  stRenderIfOpen('salteados');
+  renderStageTabs();
+}
 function moveFryToPass() {
   const st = gameState.fryStation;
   if (st.phase !== 'FRIED' || !fryCutDone(st)) return;
+  if (st.proteinId === 71) { fryPoroDone(st); return; }
   const recipes = Object.entries(FRY_PLATING).filter(([n, p]) => p.protein === st.proteinId).map(([n]) => n);
   const ok = stPassAdd('frituras', { recipes, result: st.fryResult || 'PERFECTO', readyAt: st.readyAt != null ? st.readyAt : gameState.gameClock,
     vis: { kind: 'ing', id: st.proteinId, tone: st.fryTone }, meta: { result: st.fryResult || 'PERFECTO', secs: st.frySeconds, proteinId: st.proteinId, drain: st.drain || 0, cold: !!st.cold } });
@@ -12525,6 +12557,17 @@ function placeFryProtein(ing, coat) {
   if (!coopLock('fry-table-card')) return;
   if (station.phase !== 'BUILDING' || station.proteinId) {
     showStationToast('Ya hay una proteína en proceso: descarta con 🗑️ para empezar otra.');
+    return;
+  }
+  if (ing.id === 71) {                                  // poro cortado en Salteado: solo lleva harina
+    if (coat < 1) { showStationToast('🌾 Falta la harina: pasa el poro por la harina y suéltalo en la tabla.'); return; }
+    if (!stCookTake('frituras', 71)) return;
+    station.proteinId = 71;
+    station.coat = 1;
+    station.ingredients.push(71, 58);
+    playSound('add');
+    renderFryStation();
+    renderPantryGrid();
     return;
   }
   const needs = fryProteinNeedsBreading(ing.id);
@@ -12984,7 +13027,7 @@ function renderFryStation() {
       tableBadge.textContent = `✂️ Cortando… ${(cutSeconds() * (1 - station.cutProgress)).toFixed(1)}s`;
       tableBadge.classList.add('status-ready');
     } else if (complete) {
-      tableBadge.textContent = staged ? ((station.drain || 0) < 1 ? '¡Lista! Escúrrela (sacude ↕) o pásala a emplatar' : '¡Lista! Pásala a emplatar') : `¡Listo: ${analysis.recipe.name}!`;
+      tableBadge.textContent = staged ? (pid === 71 ? '¡Poro frito! Mándalo a Salteado' : ((station.drain || 0) < 1 ? '¡Lista! Escúrrela (sacude ↕) o pásala a emplatar' : '¡Lista! Pásala a emplatar')) : `¡Listo: ${analysis.recipe.name}!`;
       tableBadge.classList.add('status-ready');
     } else if (needsCut && !isCut) {
       tableBadge.textContent = '🔪 Frita — córtala con el cuchillo (3 s)';
@@ -13073,7 +13116,7 @@ function renderFryStation() {
     oilBadge.classList.add(station.fryResult === 'PERFECTO' ? 'status-ready' : (station.fryResult === 'CRUDO' ? 'status-error' : 'status-warn'));
     if (resultActions && complete) resultActions.style.display = 'flex';
     const passBtn = document.querySelector('.fry-btn-serve');
-    if (passBtn && staged) passBtn.textContent = '➡ A emplatar';
+    if (passBtn && staged) passBtn.textContent = pid === 71 ? '➡ A Salteado' : '➡ A emplatar';
   }
 
   // Cuchillo: resaltado cuando hay algo que cortar; barra de avance mientras corta.
@@ -13270,11 +13313,11 @@ function applyIngredientDrop(target, ing, coat) {
 // --- Empanizado: mientras se arrastra una proteína en Frituras, pasar por la harina, el huevo y
 // el panko (en ese orden, ~0.45 s sobre cada espacio) la va cubriendo; el dibujo que sigue al
 // dedo cambia en cada paso. Se suelta sobre la tabla ya empanizada.
-function setFryBreadingUi(on, coat) {
-  const slots = Array.from(document.querySelectorAll('.fry-bread-slot'));
+function setFryBreadingUi(on, coat, max) {
+  const mx = max != null ? max : 3, slots = Array.from(document.querySelectorAll('.fry-bread-slot'));
   slots.forEach((slot, i) => {
     slot.classList.toggle('slot-done', !!on && i < coat);
-    slot.classList.toggle('slot-next', !!on && i === coat && coat < 3);
+    slot.classList.toggle('slot-next', !!on && i === coat && coat < mx);
     if (!on) slot.classList.remove('is-dwelling');
   });
 }
@@ -13290,7 +13333,8 @@ function updateBreadingDwell() {
     if (p.x >= r.left - 6 && p.x <= r.right + 6 && p.y >= r.top - 8 && p.y <= r.bottom + 14) slotIdx = i;
   });
 
-  if (slotIdx !== -1 && slotIdx === d.coat && d.coat < 3) {
+  const maxCoat = d.maxCoat != null ? d.maxCoat : 3;
+  if (slotIdx !== -1 && slotIdx === d.coat && d.coat < maxCoat) {
     if (d.dwellIdx !== slotIdx) { d.dwellIdx = slotIdx; d.dwellStart = performance.now(); }
     const prog = Math.min(1, (performance.now() - d.dwellStart) / BREAD_DWELL_MS);
     slots[slotIdx].style.setProperty('--p', prog.toFixed(2));
@@ -13300,13 +13344,13 @@ function updateBreadingDwell() {
       d.dwellIdx = -1;
       slots[slotIdx].classList.remove('is-dwelling');
       if (d.ghost) d.ghost.innerHTML = fryItemMarkup(d.ing.id, d.coat);
-      setFryBreadingUi(true, d.coat);
+      setFryBreadingUi(true, d.coat, maxCoat);
       playSound(['pat', 'splat', 'crunch'][d.coat - 1] || 'add'); // harina, huevo, panko
     }
   } else {
     if (d.dwellIdx !== undefined && d.dwellIdx !== -1 && slots[d.dwellIdx]) slots[d.dwellIdx].classList.remove('is-dwelling');
     d.dwellIdx = -1;
-    if (slotIdx > d.coat && d.coat < 3 && performance.now() - (d.lastHint || 0) > 2500) {
+    if (slotIdx > d.coat && d.coat < maxCoat && performance.now() - (d.lastHint || 0) > 2500) {
       d.lastHint = performance.now();
       showStationToast(`🥖 Primero pásala por ${FRY_BREAD_NAMES[d.coat]}.`);
     }
@@ -13342,9 +13386,10 @@ function activateIngredientDrag(d) {
   // Proteína en Frituras: el dibujo que sigue al dedo se va empanizando al pasar por los espacios.
   if (gameState.activeArea === 'frituras' && FRY_PROTEIN_IDS.includes(d.ing.id)) {
     d.coat = 0;
+    d.maxCoat = d.ing.id === 71 ? 1 : 3;                 // el poro solo pasa por la harina
     d.dwellIdx = -1;
     ghost.innerHTML = fryItemMarkup(d.ing.id, 0);
-    setFryBreadingUi(true, 0);
+    setFryBreadingUi(true, 0, d.maxCoat);
     d.breadTimer = setInterval(updateBreadingDwell, 50);
   }
 
@@ -13837,11 +13882,12 @@ function getIngredientStock(ingId) {
   if (ingId === 3) return stagedOn('ramen') ? null : kitchenState.stocks.tonkotsu;   // con etapas el Tonkotsu se prepara en una sartén
   if (ingId === 11) return kitchenState.stocks.chasu;
   if (ingId === 25 && stagedOn('ramen')) return stGet('ramen').stock.moyashi;
+  if (ingId === 71 && gameState.activeArea === 'frituras' && stagedOn('frituras')) return stGet('frituras').stock.poroCut;   // poro cortado esperando en Frituras
   return null;
 }
 
 function updateKitchenStockBadges() {
-  [1, 2, 3, 11, 25].forEach(id => {
+  [1, 2, 3, 11, 25, 71].forEach(id => {
     const badge = document.getElementById(`stock-badge-ing-${id}`);
     const stockVal = getIngredientStock(id);
     if (badge && stockVal !== null) {
@@ -16937,6 +16983,7 @@ const TOOL_SAUCES = {
   9:  { name: 'Vegetal', c: '#8fc44a', d: '#5f8f2a' },
   10: { name: 'Bajiru',  c: '#3f8a35', d: '#25601f' },
   31: { name: 'Aceite',  c: '#d9a23a', d: '#8f5f12' },                // aceite de ajonjolí (Ramen) / aceite del wok (Salteados)
+  78: { name: 'Batayaki', c: '#8a5a2b', d: '#4a2a14' },                // Salteados: aliña el lomo y los fideos del Batayaki
   79: { name: 'Chaufa',  c: '#6b3a1d', d: '#3a1d0a' },                // Salteados
   40: { name: 'Base',    c: '#b8452a', d: '#7a2a14' }                 // Base Shimaya (Salteados)
 };
