@@ -1888,6 +1888,8 @@
   .tool-item:hover { transform: translateY(-3px); }
   .tool-item .tool-svg { height: 62px; width: auto; display: block; filter: drop-shadow(0 3px 3px rgba(0,0,0,0.55)); pointer-events: none; }
   .tool-item.tool-torch .tool-svg { height: 66px; }
+  .tool-item.tool-ohashi { margin-left: auto; margin-right: 34px; }
+  .tool-item.tool-ohashi .tool-svg { height: 66px; }
   .tool-name { font-size: 8.5px; font-weight: 800; color: #ffe0b2; text-shadow: 0 1px 2px #000; margin-top: 1px; pointer-events: none; }
   .tool-item.is-away { opacity: 0.28; }
   .tool-item.is-lifted { opacity: 0.35; }
@@ -1895,10 +1897,16 @@
   .tool-ghost .tool-svg { display: block; filter: drop-shadow(0 6px 5px rgba(0,0,0,0.5)); }
   .tool-ghost.sauce .tool-svg { height: 84px; width: auto; }
   .tool-ghost.torch .tool-svg { height: 84px; width: auto; }
+  .tool-ghost.ohashi .tool-svg { height: 84px; width: auto; }
   .tool-armed { position: fixed; z-index: 9000; cursor: pointer; touch-action: none; animation: toolFloat 1.1s ease-in-out infinite alternate; filter: drop-shadow(0 7px 5px rgba(0,0,0,0.5)) drop-shadow(0 0 9px rgba(255, 213, 79, 0.9)); }
   .tool-armed .tool-svg { width: 100%; height: 100%; display: block; pointer-events: none; }
   .tool-armed.sauce { width: 62px; height: 114px; rotate: 158deg; }
   .tool-armed.sauce.squeeze { animation: toolSqueeze 0.35s ease-out; }
+  .tool-armed.ohashi { width: 40px; height: 86px; transform-origin: 50% 100%; }
+  .tool-armed.ohashi.holding { animation: ohashiStir 0.42s ease-in-out infinite alternate; }
+  @keyframes ohashiStir { from { rotate: -11deg; translate: -7px 0; } to { rotate: 11deg; translate: 7px 0; } }
+  .bowl-dock-card.tool-target { box-shadow: 0 0 14px 3px rgba(255, 213, 79, 0.95) !important; border-color: #ffd54f !important; }
+  .stove-pan.needs-oil::after { content: '🛢️?'; position: absolute; top: 4px; left: 50%; transform: translateX(-50%); font-size: 9px; line-height: 1; background: rgba(0,0,0,0.72); border-radius: 6px; padding: 1px 3px; z-index: 3; animation: panWarn 0.8s ease-in-out infinite alternate; }
   .tool-armed.torch { width: 124px; height: 113px; rotate: -50deg; transform-origin: 42.8px 25.9px; }
   @keyframes toolFloat { from { translate: 0 0; } to { translate: 0 -4px; } }
   @keyframes toolSqueeze { 0% { scale: 1; } 40% { scale: 0.88 1.06; } 100% { scale: 1; } }
@@ -6166,7 +6174,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v60</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v61</span></button></div>
     </div>
   </div>
 
@@ -9384,7 +9392,7 @@ function stPassFromBowl(i) {
   if (!bowl || a.status !== 'READY') return;
   const ok = stPassAdd('ramen', { recipes: (a.recipe.candidates || [a.recipe]).map(r => r.name), result: 'PERFECTO',
     readyAt: bowl.readyAt != null ? bowl.readyAt : gameState.gameClock, vis: { kind: 'bowl', ings: [...bowl.ingredients], spread: bowl.spread || 0 },
-    meta: { orderErrors: bowl.orderErrors || 0, dashiBase: !!bowl.dashiBase, spread: bowl.spread || 0, fry: bowl.fry || null } });
+    meta: { orderErrors: bowl.orderErrors || 0, dashiBase: !!bowl.dashiBase, spread: bowl.spread || 0, fry: bowl.fry || null, oilMissing: !!bowl.oilMissing } });
   if (!ok) return;
   gameState.bowls[i] = { ingredients: [], matchedRamen: null };
   renderBowls();
@@ -11524,7 +11532,7 @@ function stRenderPlate(area, panel) {
     if (a.status === 'MATCHED') {
       serveDisabled = false;
       status = `✅ ${a.recipe.name}${a.errors ? ` · orden: ${a.errors} al revés` : ' · ¡orden perfecto!'}`;
-      if (area === 'ramen' && item.meta && typeof item.meta.spread === 'number') status += ` · 🥢 fideos ${Math.round(item.meta.spread * 100)}%`;
+      if (area === 'ramen' && item.meta && typeof item.meta.spread === 'number') status += ` · 🥢 fideos ${Math.round(item.meta.spread * 100)}%${item.meta.oilMissing ? ' · 🛢️ sin aceite' : ''}`;
     } else if (a.status === 'PROGRESS' && a.recipe) {
       status = a.missing.length ? `Para ${a.recipe.name} falta: ${a.missing.slice(0, 3).map(stIngName).join(', ')}${a.missing.length > 3 ? '…' : ''}` : '';
       if (a.extra.length) status += `${status ? ' · ' : ''}sobra: ${a.extra.map(stIngName).join(', ')}`;
@@ -15486,8 +15494,8 @@ function evalCooking(dish) {
 function evalProcess(dish) {
   const m = dish.meta || {};
   if (dish.area === 'ramen') {
-    // con etapas: 10 pts de orden de armado + 20 pts de fideos bien repartidos (sin etapas, 30 pts de orden como siempre)
-    if (typeof m.spread === 'number') return Math.max(0, 10 - 8 * (m.orderErrors || 0)) + Math.round(20 * Math.max(0, Math.min(1, m.spread)));
+    // con etapas: 6 pts de orden de armado + 14 de fideos bien repartidos + 10 de aceite de ajonjolí (si la receta lo lleva); sin etapas, 30 de orden como siempre
+    if (typeof m.spread === 'number') return Math.max(0, 6 - 8 * (m.orderErrors || 0)) + Math.round(14 * Math.max(0, Math.min(1, m.spread))) + (m.oilMissing ? 0 : 10);
     return Math.max(0, 30 - 8 * (m.orderErrors || 0));
   }
   if (dish.area === 'salteados' && m.orderTotal) return Math.round(30 * m.orderMatches / m.orderTotal);
@@ -15912,20 +15920,21 @@ function removeIngredientFromBowl(bowlIndex, ingId) {
 //   fry: se sofríe primero (juntos) · add: se agrega en orden · top: lo que se coloca encima del cuenco tras servir la sopa
 //   needs: lo que el cuenco debe llevar ya antes de recibir la sopa
 const PAN_RECIPES = {
-  'Shoyu':       { add: [2, 5] },
-  'Miso':        { add: [2, 6] },
-  'Tonkotsu':    { add: [3] },                                   // (y Chashu: misma preparación); si se calienta de más hace espuma y se desborda
-  'Vegetariano': { add: [4, 9] },                                // el tofu se sirve al emplatar
+  'Shoyu':       { add: [2, 5], oil: 'broth' },                    // oil: 'fry' = se agrega al sofreír · 'broth' = al caldo cuando hierve; sin aceite baja la calidad
+  'Miso':        { add: [2, 6], oil: 'broth' },
+  'Tonkotsu':    { add: [3], oil: 'broth' },                                   // (y Chashu: misma preparación); si se calienta de más hace espuma y se desborda
+  'Vegetariano': { add: [4, 9], oil: 'broth' },                                // el tofu se sirve al emplatar
   'Bajiru':      { add: [2, 10, 12], top: [12], topNeedsSpread: true },   // el brisket se calienta con el caldo, se retira y se agrega tras mover los fideos con el caldo
-  'Ebi':         { fry: [14], add: [2, 7], top: [14] },
-  'Tan tan':     { fry: [13, 8], add: [2], needs: [1, 25] }
+  'Ebi':         { fry: [14], add: [2, 7], top: [14], oil: 'fry' },
+  'Tan tan':     { fry: [13, 8], add: [2], needs: [1, 25], oil: 'fry' }
 };
+const OIL_ID = 31;   // aceite de ajonjolí (botella de la franja de herramientas)
 const PAN_ONLY_IDS = [3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14];   // con etapas solo entran por una sartén (el 2, Shio, también va directo al cuenco)
 const panAll = r => [...(r.fry || []), ...r.add];
 const panServeIds = r => panAll(r).filter(id => !(r.top || []).includes(id));
 // segundos; heat = calentar el caldo completo · dry = en caliente y con fuego, tiempo hasta secarse · foam = tiempo hasta desbordarse (Tonkotsu)
 const panTimes = () => (isFree() ? { ready: 2, over: 1e9, burn: 1e9, heat: 2, dry: 1e9, foam: 1e9 } : { ready: 4, over: 9, burn: 14, heat: 4, dry: 25, foam: 12 });
-function newPan() { return { items: [], t: 0, heat: 0, locked: false, fryStarted: false, result: null, errors: 0, served: false, target: null, burnt: false, dried: false, fire: false, vol: 100, foam: 0, dashiBase: false, recipe: null }; }
+function newPan() { return { items: [], t: 0, heat: 0, locked: false, fryStarted: false, result: null, errors: 0, served: false, target: null, burnt: false, dried: false, fire: false, vol: 100, foam: 0, dashiBase: false, recipe: null, oil: false }; }
 function panGet(i) { if (!gameState.pans) gameState.pans = [newPan(), newPan()]; return gameState.pans[i]; }
 
 // Recetas de sartén compatibles con lo que ya hay dentro (en el sofrito, lo del sofrito va primero)
@@ -16021,6 +16030,7 @@ function generatePanSVG(pan, ph) {
       <rect x="${x(Math.min(T.over, total))}" y="60.6" width="${Math.max(0, 84 - x(Math.min(T.over, total))).toFixed(1)}" height="3" rx="1.5" fill="#ff7043"/>
       <rect x="${(+x(pan.t) - 0.8).toFixed(1)}" y="59.2" width="1.8" height="5.6" rx="0.9" fill="#ffffff" stroke="#000" stroke-width="0.3"/>`;
   }
+  const oilSheen = pan.oil ? '<ellipse cx="46" cy="35" rx="25" ry="9.5" fill="#e6b13a" opacity="0.36"/><g fill="#ffe08a" opacity="0.85"><circle cx="34" cy="31" r="1.6"/><circle cx="52" cy="36" r="1.3"/><circle cx="43" cy="39" r="1.1"/><circle cx="58" cy="31" r="1.2"/></g>' : '';
   let flame = '';
   if (pan.fire) { for (let k = 0; k < 8; k++) { const fx = 22 + k * 7.4; flame += `<path d="M ${fx - 3},64 Q ${fx - 4},58 ${fx},51 Q ${fx + 4},58 ${fx + 3},64 Z" fill="#4aa3ff" stroke="#1f5fa8" stroke-width="0.5"/><path d="M ${fx - 1.4},61 Q ${fx},56 ${fx + 1.4},61 Z" fill="#ff9a3d"/>`; } flame = `<g class="pan-flame">${flame}</g>`; }
   return `<svg class="pan-svg ${sizz ? 'pan-sizzling' : ''}" viewBox="0 0 100 64">
@@ -16036,7 +16046,7 @@ function generatePanSVG(pan, ph) {
     <ellipse cx="46" cy="28" rx="35" ry="12.5" fill="#d3dbe3" stroke="#23262b" stroke-width="1.5"/>
     <ellipse cx="46" cy="28.6" rx="32" ry="10.6" fill="#4d5862" stroke="#3a424b" stroke-width="0.8"/>
     <path d="M 16.5,27.5 Q 46,14.5 75.5,27.5 Q 46,21 16.5,27.5 Z" fill="#8a95a0" opacity="0.55"/>
-    <g transform="translate(46 31) scale(0.9 0.72) translate(-46 -34.5)">${food}</g>
+    <g transform="translate(46 31) scale(0.9 0.72) translate(-46 -34.5)">${oilSheen}${food}</g>
     <path d="M 14,30 Q 46,43 78,30" stroke="#ffffff" stroke-opacity="0.45" stroke-width="1.2" fill="none"/>
     <circle class="pan-bub b1" cx="38" cy="30" r="1.6" fill="#fff"/><circle class="pan-bub b2" cx="52" cy="33" r="1.4" fill="#ffe082"/><circle class="pan-bub b3" cx="45" cy="28" r="1.2" fill="#fff"/>
     ${ph === 'BURNT' || ph === 'DRIED' ? '<g stroke="#9e9e9e" stroke-width="1.6" stroke-linecap="round" fill="none" opacity="0.8"><path d="M 36,24 q -3,-6 1,-10"/><path d="M 48,22 q 3,-6 -1,-11"/><path d="M 58,24 q -3,-6 1,-10"/></g>' : ''}
@@ -16054,7 +16064,8 @@ const TOOL_SAUCES = {
   7:  { name: 'Ebi',     c: '#ee6a2f', d: '#b3430f' },
   8:  { name: 'Tan tan', c: '#d12f14', d: '#8f1a08' },
   9:  { name: 'Vegetal', c: '#8fc44a', d: '#5f8f2a' },
-  10: { name: 'Bajiru',  c: '#3f8a35', d: '#25601f' }
+  10: { name: 'Bajiru',  c: '#3f8a35', d: '#25601f' },
+  31: { name: 'Aceite',  c: '#d9a23a', d: '#8f5f12' }                 // aceite de ajonjolí
 };
 const TOOL_SAUCE_IDS = Object.keys(TOOL_SAUCES).map(Number);
 function sauceBottleSvg(id) {
@@ -16069,7 +16080,19 @@ function sauceBottleSvg(id) {
     ${ridges}
     <path d="M 11,52 Q 9,52 9,58 V 98 Q 9,109 22,109 H 38 Q 51,109 51,98 V 58 Q 51,52 49,52 Z" fill="url(#${g})" stroke="${ink}" stroke-width="1.7"/>
     <path d="M 10,69 Q 30,73 50,68 M 10,88 Q 30,92 50,87" stroke="${ink}" stroke-opacity="0.28" stroke-width="1" fill="none"/>
+    ${id === OIL_ID ? `<rect x="19" y="64" width="22" height="26" rx="3" fill="#fff4d6" stroke="${ink}" stroke-width="1"/><g fill="#8a6a2a">${[[25,72],[32,70],[28,78],[35,77],[24,84],[31,85],[37,83]].map(([x, y]) => `<ellipse cx="${x}" cy="${y}" rx="2" ry="1.2"/>`).join('')}</g>` : ''}
     <rect x="15" y="58" width="4.5" height="42" rx="2.2" fill="#ffffff" opacity="0.42"/><circle cx="17" cy="104" r="2" fill="#ffffff" opacity="0.6"/>
+  </svg>`;
+}
+function ohashiSvg() {
+  const ink = '#3a2412';
+  return `<svg class="tool-svg" viewBox="0 0 56 120">
+    <defs><linearGradient id="ohG" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8a5a2b"/><stop offset="0.45" stop-color="#e6b070"/><stop offset="1" stop-color="#8a5a2b"/></linearGradient></defs>
+    <path d="M 8,4 H 14 L 30,116 H 27.5 Z" fill="url(#ohG)" stroke="${ink}" stroke-width="1.3" stroke-linejoin="round"/>
+    <path d="M 29,4 H 35 L 32.6,116 H 30 Z" fill="url(#ohG)" stroke="${ink}" stroke-width="1.3" stroke-linejoin="round"/>
+    <path d="M 8,4 H 14 L 14.9,24 H 9.6 Z" fill="#b71c1c" stroke="${ink}" stroke-width="1"/><path d="M 29,4 H 35 L 34.7,24 H 29.6 Z" fill="#b71c1c" stroke="${ink}" stroke-width="1"/>
+    <path d="M 10,26 L 12,60 M 31,26 L 31.6,60" stroke="#ffffff" stroke-opacity="0.45" stroke-width="1.3" fill="none"/>
+    <path d="M 12.4,34 H 17.2 M 29.8,34 H 34.4" stroke="${ink}" stroke-opacity="0.35" stroke-width="1"/>
   </svg>`;
 }
 function torchSvg(on) {
@@ -16114,7 +16137,10 @@ const toolStripSig = () => (toolArmed ? toolArmed.kind + toolArmed.id : '');
 function ramenSauceIdsAvailable() {
   const ids = new Set();
   stView('ramen', getUnlockedRamenRecipes()).forEach(r => r.ingredients.forEach(id => ids.add(id)));
-  return TOOL_SAUCE_IDS.filter(id => ids.has(id));
+  const list = TOOL_SAUCE_IDS.filter(id => id !== OIL_ID && ids.has(id));
+  const oilNames = ['Shoyu', 'Miso', 'Tonkotsu', 'Chashu', 'Vegetariano', 'Ebi', 'Tan tan'];
+  if (getUnlockedRamenRecipes().some(r => oilNames.includes(r.name))) list.push(OIL_ID);   // el aceite de ajonjolí va tras las salsas
+  return list;
 }
 function renderToolStrip() {
   const strip = document.getElementById('ramen-tool-strip');
@@ -16126,9 +16152,10 @@ function renderToolStrip() {
   const sig = ids.join(',') + '|' + toolStripSig();
   if (strip._sig === sig) return;
   strip._sig = sig;
-  const away = (kind, id) => (toolArmed && toolArmed.kind === kind && (kind === 'torch' || toolArmed.id === id)) ? 'is-away' : '';
-  strip.innerHTML = ids.map(id => `<div class="tool-item tool-bottle ${away('sauce', id)}" data-kind="sauce" data-id="${id}" title="Salsa ${TOOL_SAUCES[id].name}: arrástrala sobre una sartén y toca para verter">${sauceBottleSvg(id)}<span class="tool-name">${TOOL_SAUCES[id].name}</span></div>`).join('')
-    + `<div class="tool-item tool-torch ${away('torch')}" data-kind="torch" title="Flameador: arrástralo hasta Flamear Chasu">${torchSvg(false)}<span class="tool-name">Flameador</span></div>`;
+  const away = (kind, id) => (toolArmed && toolArmed.kind === kind && (kind !== 'sauce' || toolArmed.id === id)) ? 'is-away' : '';
+  strip.innerHTML = ids.map(id => `<div class="tool-item tool-bottle ${away('sauce', id)}" data-kind="sauce" data-id="${id}" title="${id === OIL_ID ? 'Aceite de ajonjolí: al sofreír (Tan tan, Ebi) y al caldo cuando hierve (Tonkotsu, Vegetariano, Shoyu, Miso)' : 'Salsa ' + TOOL_SAUCES[id].name}: arrástrala sobre una sartén y toca para verter">${sauceBottleSvg(id)}<span class="tool-name">${TOOL_SAUCES[id].name}</span></div>`).join('')
+    + `<div class="tool-item tool-torch ${away('torch')}" data-kind="torch" title="Flameador: arrástralo hasta Flamear Chasu">${torchSvg(false)}<span class="tool-name">Flameador</span></div>`
+    + `<div class="tool-item tool-ohashi ${away('ohashi')}" data-kind="ohashi" title="Ohashi: arrástralos sobre un cuenco con fideos y mantén pulsado para repartirlos">${ohashiSvg()}<span class="tool-name">Ohashi</span></div>`;
 }
 
 function toolPoint(d) { return { x: d.x, y: d.pointerType === 'mouse' ? d.y : d.y - DRAG_TOUCH_GHOST_OFFSET_Y }; }
@@ -16138,6 +16165,15 @@ function toolTargetAt(kind, p) {
     if (!b) return null;
     const r = b.getBoundingClientRect();
     return (p.x >= r.left - 12 && p.x <= r.right + 12 && p.y >= r.top - 18 && p.y <= r.bottom + 10) ? { el: b } : null;
+  }
+  if (kind === 'ohashi') {
+    for (const i of [0, 1]) {
+      const c = document.getElementById('bowl-card-' + i);
+      if (!c || getComputedStyle(c).display === 'none') continue;
+      const r = c.getBoundingClientRect();
+      if (p.x >= r.left - 4 && p.x <= r.right + 4 && p.y >= r.top - 40 && p.y <= r.top + r.height * 0.65) return { el: c, pan: i };
+    }
+    return null;
   }
   for (const i of [0, 1]) {
     const c = document.getElementById('pan-cell-' + i);
@@ -16167,7 +16203,7 @@ function onToolMove(e) {
     d.active = true;
     const ghost = document.createElement('div');
     ghost.className = 'tool-ghost ' + d.kind;
-    ghost.innerHTML = d.kind === 'torch' ? torchSvg(false) : sauceBottleSvg(d.id);
+    ghost.innerHTML = d.kind === 'torch' ? torchSvg(false) : (d.kind === 'ohashi' ? ohashiSvg() : sauceBottleSvg(d.id));
     document.body.appendChild(ghost);
     d.ghost = ghost;
     d.el.classList.add('is-lifted');
@@ -16184,7 +16220,7 @@ function onToolUp(e) {
   if (!d || e.pointerId !== d.pointerId) return;
   const p = toolPoint(d), wasActive = d.active, t = wasActive ? toolTargetAt(d.kind, p) : null, kind = d.kind, id = d.id;
   toolCleanupDrag();
-  if (!wasActive) { showStationToast(kind === 'torch' ? '🔥 Arrastra el flameador hasta "Flamear Chasu".' : '💧 Arrastra la botella hasta la parte de arriba de una sartén.'); return; }
+  if (!wasActive) { showStationToast(kind === 'torch' ? '🔥 Arrastra el flameador hasta "Flamear Chasu".' : (kind === 'ohashi' ? '🥢 Arrastra los ohashi hasta la parte de arriba de un cuenco con fideos.' : '💧 Arrastra la botella hasta la parte de arriba de una sartén.')); return; }
   try { playSound(t ? 'add' : 'click'); } catch (err) {}
   if (t) toolArm(kind, id, t.pan);
 }
@@ -16192,7 +16228,9 @@ document.addEventListener('pointerdown', (e) => {
   const armedHit = e.target.closest && e.target.closest('#tool-armed');
   if (armedHit && toolArmed) {
     e.preventDefault();
-    if (toolArmed.kind === 'sauce') toolPour(); else toolDisarm();      // botella: apretar; flameador: retirar
+    if (toolArmed.kind === 'sauce') toolPour();                      // botella: apretar
+    else if (toolArmed.kind === 'ohashi') toolHoldStart(e);          // ohashi: mantener pulsado para mover los fideos
+    else toolDisarm();                                               // flameador: retirar
     return;
   }
   const item = e.target.closest && e.target.closest('.tool-item');
@@ -16210,11 +16248,15 @@ document.addEventListener('pointerdown', (e) => {
 function toolArm(kind, id, pan) {
   toolDisarm(true);
   if (kind === 'torch' && kitchenState.stocks.chasu >= stockCap()) { showStationToast(`🥩 Ya hay el máximo de chasu flameado (${stockCap()}/${stockCap()}).`); return; }
-  toolArmed = { kind, id, pan };
+  if (kind === 'ohashi') {
+    const b = gameState.bowls[pan];
+    if (!b || !b.ingredients.includes(1)) { showStationToast('🥢 Ese cuenco aún no tiene fideos.'); try { playSound('error'); } catch (e) {} return; }
+  }
+  toolArmed = { kind, id, pan, bowl: kind === 'ohashi' ? pan : undefined };
   const el = document.createElement('div');
   el.id = 'tool-armed';
   el.className = 'tool-armed ' + kind;
-  el.innerHTML = kind === 'torch' ? torchSvg(true) : sauceBottleSvg(id);
+  el.innerHTML = kind === 'torch' ? torchSvg(true) : (kind === 'ohashi' ? ohashiSvg() : sauceBottleSvg(id));
   document.body.appendChild(el);
   toolArmedEl = el;
   toolPlaceArmed();
@@ -16223,8 +16265,10 @@ function toolArm(kind, id, pan) {
     const btn = document.getElementById('btn-flame-chasu');
     if (btn) btn.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true, pointerId: 7771 }));   // empieza a flamear solo
     showStationToast('🔥 Flameando el chasu… toca el flameador para retirarlo.');
+  } else if (kind === 'ohashi') {
+    showStationToast(`🥢 Ohashi sobre el cuenco ${pan + 1}: mantén pulsado para mover los fideos.`);
   } else {
-    showStationToast(`💧 Salsa ${TOOL_SAUCES[id].name} sobre la sartén ${pan + 1}: toca la botella para apretar.`);
+    showStationToast(id === OIL_ID ? `🛢️ Aceite sobre la sartén ${pan + 1}: toca la botella para apretar.` : `💧 Salsa ${TOOL_SAUCES[id].name} sobre la sartén ${pan + 1}: toca la botella para apretar.`);
   }
   const strip = document.getElementById('ramen-tool-strip');
   if (strip) strip._sig = '';
@@ -16238,6 +16282,12 @@ function toolPlaceArmed() {
     const r = c.getBoundingClientRect();
     toolArmedEl.style.left = (r.left + r.width / 2 - 31) + 'px';
     toolArmedEl.style.top = (r.top - 114 * 0.62) + 'px';
+  } else if (toolArmed.kind === 'ohashi') {
+    const c = document.getElementById('bowl-card-' + toolArmed.bowl);
+    if (!c) return;
+    const r = c.getBoundingClientRect();
+    toolArmedEl.style.left = (r.left + r.width / 2 - 20) + 'px';
+    toolArmedEl.style.top = (r.top - 86 * 0.6) + 'px';
   } else {
     const b = document.getElementById('btn-flame-chasu');
     if (!b) return;
@@ -16248,6 +16298,50 @@ function toolPlaceArmed() {
   }
 }
 window.addEventListener('resize', toolPlaceArmed);
+
+// Ohashi: con ellos sobre el cuenco, mantener pulsado reparte los fideos (≈ 2,5 s para repartirlos del todo)
+const NOODLE_HOLD_RATE = 0.4;      // porción de reparto por segundo de pulsación
+let toolHold = null;
+function toolHoldStart(e) {
+  const a = toolArmed;
+  if (!a || a.kind !== 'ohashi' || toolHold) return;
+  const bowl = gameState.bowls[a.bowl];
+  if (!bowl || !bowl.ingredients.includes(1)) { toolDisarm(); return; }
+  if ((bowl.spread || 0) >= 1) { showStationToast('🥢 Los fideos ya están bien repartidos.'); return; }
+  toolHold = { id: e ? e.pointerId : 0, timer: setInterval(toolHoldTick, 50) };
+  if (toolArmedEl) toolArmedEl.classList.add('holding');
+  document.addEventListener('pointerup', toolHoldEnd);
+  document.addEventListener('pointercancel', toolHoldEnd);
+}
+function toolHoldTick() {
+  const a = toolArmed;
+  if (!a || a.kind !== 'ohashi' || gameState.isPaused || gameState.isGameOver) { toolHoldEnd(); return; }
+  const bowl = gameState.bowls[a.bowl];
+  if (!bowl || !bowl.ingredients.includes(1)) { toolDisarm(); return; }
+  const before = bowl.spread || 0;
+  bowl.spread = Math.min(1, before + NOODLE_HOLD_RATE * 0.05);
+  bowl.stirX = 50 + 20 * Math.sin(performance.now() / 110);
+  noodleRedraw(a.bowl);
+  if (Math.floor(before * 5) < Math.floor(bowl.spread * 5)) { try { playSound('click'); } catch (err) {} }
+  if (before < 1 && bowl.spread >= 1) {
+    try { playSound('ding'); } catch (err) {}
+    showStationToast('🥢 ¡Fideos bien repartidos!');
+    toolHoldEnd();
+    setTimeout(() => { if (toolArmed && toolArmed.kind === 'ohashi') toolDisarm(); }, 500);
+  }
+}
+function toolHoldEnd() {
+  if (toolHold) { clearInterval(toolHold.timer); toolHold = null; }
+  document.removeEventListener('pointerup', toolHoldEnd);
+  document.removeEventListener('pointercancel', toolHoldEnd);
+  if (toolArmedEl) toolArmedEl.classList.remove('holding');
+  if (toolArmed && toolArmed.kind === 'ohashi') {
+    const bowl = gameState.bowls[toolArmed.bowl];
+    if (bowl) { bowl.stirX = null; noodleRedraw(toolArmed.bowl); }
+    renderBowls();
+  }
+}
+
 function toolDisarm(silent) {
   const a = toolArmed;
   if (!a) return;
@@ -16255,6 +16349,7 @@ function toolDisarm(silent) {
     const btn = document.getElementById('btn-flame-chasu');
     if (btn) btn.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, cancelable: true, pointerId: 7771 }));
   }
+  if (a.kind === 'ohashi') toolHoldEnd();
   toolArmed = null;
   if (toolArmedEl) { toolArmedEl.remove(); toolArmedEl = null; }
   toolPouring = false;
@@ -16265,9 +16360,9 @@ function toolDisarm(silent) {
 function toolPour() {
   const a = toolArmed;
   if (!a || a.kind !== 'sauce' || toolPouring || gameState.isPaused) return;
-  const pan = panGet(a.pan), before = pan.items.length;
+  const pan = panGet(a.pan), before = pan.items.length, beforeOil = pan.oil;
   panAdd(a.pan, a.id);
-  if (pan.items.length <= before) { setTimeout(() => toolDisarm(), 250); return; }      // no entró (panAdd ya avisó el motivo)
+  if (pan.items.length <= before && pan.oil === beforeOil) { setTimeout(() => toolDisarm(), 250); return; }      // no entró (panAdd ya avisó el motivo)
   toolPouring = true;
   toolArmedEl.classList.add('squeeze');
   try { playSound('splash'); } catch (e) {}
@@ -16287,8 +16382,13 @@ function toolPour() {
   setTimeout(() => toolDisarm(), 700);
 }
 function toolTick() {
-  if (!toolArmed || toolArmed.kind !== 'torch') return;
-  if (!kitchenState.chasu.isFlaming && performance.now() - toolTorchSince > 900) toolDisarm();   // llegó al máximo
+  if (!toolArmed) return;
+  if (toolArmed.kind === 'torch') {
+    if (!kitchenState.chasu.isFlaming && performance.now() - toolTorchSince > 900) toolDisarm();   // llegó al máximo
+  } else if (toolArmed.kind === 'ohashi') {
+    const b = gameState.bowls[toolArmed.bowl];
+    if (!b || !b.ingredients.includes(1)) toolDisarm();                                          // el cuenco se vació o pasó a emplatar
+  }
 }
 
 // ---- Dibujo de la cocina profesional (estilo ilustrado: acero con contorno de tinta) ----
@@ -16393,6 +16493,7 @@ function renderPans() {
     cell.classList.toggle('active', ph !== 'EMPTY' && !pan.fire);
     cell.classList.toggle('heating', pan.fire && ['HEAT', 'RAW', 'GOOD', 'OVER', 'HOT'].includes(ph));
     cell.classList.toggle('fire', !!pan.fire);
+    cell.classList.toggle('needs-oil', !!(rn && PAN_RECIPES[rn] && PAN_RECIPES[rn].oil && !pan.oil && !pan.served && ph !== 'EMPTY'));
     cell.classList.toggle('pan-ready', ph === 'HOT' || ph === 'TOP' || ph === 'GOOD');
     cell.classList.toggle('pan-warn', ph === 'HOT' && pan.fire && ((rn === 'Tonkotsu' && pan.foam >= 60) || (rn !== 'Tonkotsu' && pan.vol <= 35)));
     const art = document.getElementById('pan-art-' + i), st = document.getElementById('pan-status-' + i), fill = document.getElementById('pan-fill-' + i);
@@ -16464,6 +16565,7 @@ function panAdd(i, id) {
   const fail = msg => { showStationToast(msg); try { playSound('error'); } catch (e) {} };
   if (pan.burnt || pan.dried) { fail('🍳 La sartén se echó a perder: vacíala con 🗑️.'); return; }
   if (pan.served) { fail('🍳 La sopa ya se sirvió: pon lo que queda arriba del cuenco (toca la sartén).'); return; }
+  if (id === OIL_ID) { panAddOil(i); return; }
   if (pan.items.includes(id)) { showStationToast(`${ing.display} ya está en la sartén.`); return; }
   const cands = panCandidates([...pan.items, id]);
   if (!cands.length) {
@@ -16501,6 +16603,26 @@ function panAdd(i, id) {
   renderPans();
 }
 
+// Aceite de ajonjolí: al sofreer (Tan tan, Ebi) o al caldo cuando hierve (Tonkotsu, Vegetariano, Shoyu, Miso). Sin él baja la calidad.
+function panAddOil(i) {
+  const pan = panGet(i);
+  const fail = msg => { showStationToast(msg); try { playSound('error'); } catch (e) {} };
+  if (pan.oil) { showStationToast('🛢️ Esa sartén ya tiene aceite de ajonjolí.'); return; }
+  if (!pan.items.length) { fail('🛢️ Primero pon el chancho o los langostinos (sofrito), o los ingredientes del caldo.'); return; }
+  const rn = panRecipeName(pan), r = rn && PAN_RECIPES[rn];
+  if (r && !r.oil) { fail(`🛢️ El ${rn} no lleva aceite de ajonjolí.`); return; }
+  if (r && r.oil === 'fry') {
+    if (pan.locked) { fail('🛢️ El aceite va al sofreír: ya pasaste al caldo.'); return; }
+  } else {
+    const ph = panPhase(pan);
+    if (!pan.fire || (ph !== 'HEAT' && ph !== 'HOT')) { fail('🛢️ El aceite se agrega al caldo cuando hierve: completa los ingredientes y enciende la hornilla.'); return; }
+  }
+  pan.oil = true;
+  try { playSound('splash'); } catch (e) {}
+  showStationToast('🛢️ Aceite de ajonjolí agregado.');
+  renderPans();
+}
+
 function panAfterBowlChange() { renderBowls(); renderCustomers(); renderPantryGrid(); renderPans(); }
 function panServe(i) {
   if (gameState.isPaused || gameState.isGameOver) return;
@@ -16516,6 +16638,8 @@ function panServe(i) {
     if (missing.length) { fail(`🍜 Al cuenco ${idx + 1} le falta: ${missing.map(stIngName).join(' y ')} (va antes del caldo).`); return; }
     bowl.ingredients.push(...serve);
     bowl.panIds = [...serve]; bowl.panRecipe = rn; bowl.panErrors = pan.errors; bowl.fry = pan.result;
+    bowl.oilMissing = !!(r.oil && !pan.oil);
+    if (bowl.oilMissing) showStationToast('🛢️ Sin aceite de ajonjolí: el plato saldrá de menor calidad.');
     if (pan.dashiBase) bowl.dashiBase = true;
     if (typeof bowl.spread === 'number') bowl.spread = Math.min(bowl.spread, 0.25);   // al verter el caldo hay que mover los fideos con él
     bowl.orderErrors = bowlOrderErrors(bowl);
@@ -16529,7 +16653,7 @@ function panServe(i) {
   } else if (ph === 'TOP') {
     const bowl = gameState.bowls[pan.target];
     if (!bowl || bowl.panRecipe !== pan.recipe) { fail('🍜 El cuenco ya no tiene ese caldo: vacía la sartén.'); return; }
-    if (r && r.topNeedsSpread && (bowl.spread || 0) < 0.8) { fail('🥢 Primero mueve los fideos con el caldo (arrastra sobre el cuenco) y luego pon el brisket.'); return; }
+    if (r && r.topNeedsSpread && (bowl.spread || 0) < 0.8) { fail('🥢 Primero mueve los fideos con el caldo (ohashi sobre el cuenco, mantén pulsado) y luego pon el brisket.'); return; }
     bowl.ingredients.push(...pan.items);
     bowl.panIds.push(...pan.items);
     bowl.orderErrors = bowlOrderErrors(bowl);
@@ -16614,12 +16738,13 @@ function shioTick() {
 
 // Mover los fideos (Ramen con etapas): se arrastra el dedo / ratón sobre el cuenco; cada tramo de recorrido los reparte un poco más.
 // Un toque suelto no cuenta (sigue siendo seleccionar el cuenco o pasarlo a emplatar). El reparto pesa en la calidad (evalProcess).
+const NOODLE_DRAG_GESTURE = false;      // el reparto de los fideos ahora se hace con los ohashi de la franja de herramientas (mantener pulsado)
 const NOODLE_SPREAD_PX = 220;      // recorrido total para repartir los fideos del todo
 let noodleDrag = null, noodleNoClickUntil = 0, noodleTipShown = false;
 function noodleTip() {
   if (noodleTipShown) return;
   noodleTipShown = true;
-  showStationToast('🥢 Los fideos caen apelmazados: arrástralos sobre el cuenco para repartirlos (cuenta en la calidad).');
+  showStationToast('🥢 Los fideos caen apelmazados: arrastra los ohashi hasta el cuenco y mantén pulsado para repartirlos (cuenta en la calidad).');
 }
 function noodleRedraw(i) {
   const bowl = gameState.bowls[i], art = document.getElementById('bowl-art-' + i);
@@ -16656,6 +16781,7 @@ function endNoodleDrag(e) {
   renderBowls();
 }
 document.addEventListener('pointerdown', (e) => {
+  if (!NOODLE_DRAG_GESTURE) return;
   const vis = e.target.closest && e.target.closest('.bowl-dock-visual');
   if (!vis || !/^bowl-art-\d$/.test(vis.id) || !stagedOn('ramen') || gameState.isPaused || gameState.isGameOver) return;
   const i = parseInt(vis.id.replace('bowl-art-', ''), 10), bowl = gameState.bowls[i];
