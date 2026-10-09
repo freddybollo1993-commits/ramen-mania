@@ -42,6 +42,7 @@
     src: url('assets/fonts/nunito-latin-wght-normal.woff2') format('woff2');
     unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
   }
+  html, body { background: #190e0c; }
   :root {
     --bg-dark: #190e0c;
     --sat: env(safe-area-inset-top, 0px);
@@ -5923,6 +5924,10 @@
 </head>
 <body>
 
+<!-- Pantalla de arranque instantánea: se ve en cuanto llega el primer trozo del HTML (antes de procesar todo el juego) y se quita al iniciar -->
+<div id="boot-splash" style="position:fixed;inset:0;z-index:99999;background:#190e0c url('assets/icons/icon-192.png') center 38% / 92px no-repeat;display:flex;align-items:flex-end;justify-content:center;padding-bottom:16%;box-sizing:border-box;color:#ffb300;font:800 14px 'Nunito',sans-serif;letter-spacing:1px">Ramen Mania · cargando…</div>
+<script>setTimeout(function(){var s=document.getElementById('boot-splash');if(s)s.remove();},8000);</script>
+
 <!-- AVISO DE GIRO PARA CELULAR EN VERTICAL -->
 <div id="rotate-device-overlay">
   <div class="rotate-icon">📱 ➔ 📲</div>
@@ -6200,7 +6205,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v68</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v69</span></button></div>
     </div>
   </div>
 
@@ -22540,6 +22545,8 @@ function bootGameUI() {
   applyA11yLabels();
   setTimeout(() => { updatePropinasHUD(); cloudBoot(); }, 1800);
 
+  const bootSplash = document.getElementById('boot-splash');
+  if (bootSplash) bootSplash.remove();
   const startScr = document.getElementById("start-screen");
   if (startScr) {
     startScr.classList.remove("hidden");
