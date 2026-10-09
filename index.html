@@ -6200,7 +6200,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v66</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v67</span></button></div>
     </div>
   </div>
 
@@ -11229,8 +11229,8 @@ function stShopBusy(area) { const st = stGet(area); return stIsShop(area) && (!!
 // Se arrastra hasta la tabla y queda "flotando" sobre ella (armado). Con el cuchillo armado, cada TOQUE en la pantalla
 // es un corte: suena el cuchillo, sale una animación translúcida y cada 3 cortes se suma 1 porción del producto.
 const SHOP_TAPS_PER_PORTION = 3;
-const SHOP_CUT_LOCK_MS = 650;      // cada corte tarda lo que dura su animación completa; los toques de más se ignoran (no hace falta tocar desesperadamente)
-const SHOP_CLEAN_LOCK_MS = 900;    // igual para cada pasada de las manos al limpiar el moyashi
+const SHOP_CUT_LOCK_MS = 450;      // cada corte tarda lo que dura su animación completa; los toques de más se ignoran (no hace falta tocar desesperadamente)
+const SHOP_CLEAN_LOCK_MS = 650;    // igual para cada pasada de las manos al limpiar el moyashi
 let shopTapLockUntil = 0;
 let shopKnifeDrag = null;
 let shopTap = null;
