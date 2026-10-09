@@ -1821,18 +1821,43 @@
     color: #fff5f0;
   }
 
-  /* --- Sartén del ramen (Tan tan / Ebi) --- */
-  .bowl-dock-card.pan-dock-card { border-color: #46586f; }
-  .bowl-dock-card.pan-dock-card.active { border-color: #4fc3f7; box-shadow: 0 0 14px rgba(79, 195, 247, 0.5), inset 0 0 10px rgba(79, 195, 247, 0.12); }
-  .bowl-dock-card.pan-dock-card.pan-ready { animation: panReady 0.8s ease-in-out infinite alternate; }
-  @keyframes panReady { from { box-shadow: 0 0 6px rgba(102, 187, 106, 0.4); } to { box-shadow: 0 0 18px rgba(102, 187, 106, 0.95); } }
-  .bottom-bowls-row.has-pan { gap: 6px; }
-  .bottom-bowls-row.has-pan .bowl-dock-card { width: 108px; padding-left: 4px; padding-right: 4px; }
-  @media (max-width: 750px) { .bottom-bowls-row.has-pan .bowl-dock-card { width: 92px; } }
+  /* --- Cocina de 4 hornillas del ramen (con etapas): 1 fideos, 2 Shio, 3 y 4 sartenes hondas; el soplete del chasu al costado --- */
+  .stove-pan { display: none; }
+  .cook-stations-panel.stove-on {
+    grid-template-columns: 1fr 1fr 62px; width: 400px; height: auto; padding: 4px; gap: 4px;
+    background: linear-gradient(180deg, #5b646c, #363d44); border: 2px solid #1f252a; border-radius: 12px;
+    box-shadow: inset 0 2px 0 rgba(255,255,255,0.18), 0 3px 8px rgba(0,0,0,0.5);
+  }
+  .stove-on #btn-heat-tonkotsu { display: none; }
+  .stove-on #btn-cook-noodles { grid-area: 1 / 1; }
+  .stove-on #btn-heat-shio { grid-area: 1 / 2; }
+  .stove-on #btn-flame-chasu { grid-area: 1 / 3 / 3 / 4; height: auto; flex-direction: column; justify-content: center; text-align: center; padding: 2px; }
+  .stove-on #btn-flame-chasu .station-icon-wrap { margin: 0 0 2px; }
+  .stove-on #btn-flame-chasu .station-title { white-space: normal; font-size: 8.5px; }
+  .stove-on #btn-flame-chasu .station-status { white-space: normal; font-size: 7.5px; text-align: center; }
+  .stove-on .stove-pan { grid-row: 2; display: flex; align-items: center; gap: 3px; position: relative; overflow: hidden; cursor: pointer; height: 40px; padding: 2px 4px; box-sizing: border-box; background: rgba(32, 16, 12, 0.94); border: 1.5px solid #46586f; border-radius: 9px; box-shadow: 0 2px 6px rgba(0,0,0,0.4); user-select: none; transition: border-color 0.15s, box-shadow 0.15s; }
+  .stove-on .stove-pan:first-of-type { grid-column: 1; }
+  .stove-on #pan-cell-0 { grid-column: 1; } .stove-on #pan-cell-1 { grid-column: 2; }
+  .stove-pan.active { border-color: #4fc3f7; box-shadow: 0 0 10px rgba(79, 195, 247, 0.5), inset 0 0 8px rgba(79, 195, 247, 0.15); }
+  .stove-pan.heating { border-color: #ff7043; box-shadow: 0 0 12px rgba(255, 87, 34, 0.6), inset 0 0 8px rgba(255, 87, 34, 0.25); }
+  .stove-pan.pan-ready { animation: panReady 0.8s ease-in-out infinite alternate; border-color: #66bb6a; }
+  @keyframes panReady { from { box-shadow: 0 0 5px rgba(102, 187, 106, 0.4); } to { box-shadow: 0 0 16px rgba(102, 187, 106, 0.95); } }
+  .stove-pan .stove-pan-art { width: 46px; height: 29px; flex-shrink: 0; }
+  .stove-pan .stove-pan-art svg { width: 100%; height: 100%; display: block; }
+  .stove-pan .station-info { min-width: 0; }
+  .stove-pan-trash { position: absolute; top: 1px; right: 1px; width: 15px; height: 15px; padding: 0; border-radius: 50%; border: 1px solid #ef5350; background: #c62828; color: #fff; font-size: 8px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  #bowls-dock-box.stove-on #bowl-card-2 { display: none; }
+  @media (max-width: 750px) {
+    .cook-stations-panel.stove-on { width: 318px; gap: 3px; }
+    .stove-on .stove-pan { height: 38px; }
+    .stove-pan .stove-pan-art { width: 38px; height: 24px; }
+  }
   .pan-svg .pan-bub { opacity: 0; }
   .pan-svg.pan-sizzling .pan-bub { animation: panBub 0.8s ease-out infinite; }
   .pan-svg.pan-sizzling .pan-bub.b2 { animation-delay: 0.27s; } .pan-svg.pan-sizzling .pan-bub.b3 { animation-delay: 0.54s; }
   @keyframes panBub { 0% { transform: translateY(0); opacity: 0.9; } 100% { transform: translateY(-9px); opacity: 0; } }
+  .pan-svg .pan-steam { animation: panSteam 1.2s ease-in-out infinite alternate; }
+  @keyframes panSteam { from { opacity: 0.35; transform: translateY(0); } to { opacity: 0.9; transform: translateY(-3px); } }
 
   /* --- Estación propia de Makis: tabla de enrollado horizontal, un rollo a la vez --- */
   .maki-station-box {
@@ -6092,7 +6117,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v54</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v55</span></button></div>
     </div>
   </div>
 
@@ -6640,6 +6665,20 @@
           <div class="station-fill" id="chasu-fill"></div>
         </div>
       </button>
+
+      <!-- Hornillas 3 y 4 (solo con etapas): sartenes hondas donde se preparan los caldos mezclando en orden; al calentar se sirven al cuenco -->
+      <div class="stove-pan" id="pan-cell-0" data-pan="0" onclick="panServe(0)" title="Sartén honda 1">
+        <div class="stove-pan-art" id="pan-art-0"></div>
+        <div class="station-info"><div class="station-title">Sartén 1</div><div class="station-status" id="pan-status-0">Vacía</div></div>
+        <button class="stove-pan-trash" onclick="event.stopPropagation(); panDiscard(0)" title="Vaciar la sartén">🗑️</button>
+        <div class="station-progress-bar"><div class="station-fill" id="pan-fill-0"></div></div>
+      </div>
+      <div class="stove-pan" id="pan-cell-1" data-pan="1" onclick="panServe(1)" title="Sartén honda 2">
+        <div class="stove-pan-art" id="pan-art-1"></div>
+        <div class="station-info"><div class="station-title">Sartén 2</div><div class="station-status" id="pan-status-1">Vacía</div></div>
+        <button class="stove-pan-trash" onclick="event.stopPropagation(); panDiscard(1)" title="Vaciar la sartén">🗑️</button>
+        <div class="station-progress-bar"><div class="station-fill" id="pan-fill-1"></div></div>
+      </div>
     </div>
 
     <!-- Tazones Centrales (Cuencos Donburi) -->
@@ -6677,16 +6716,6 @@
         <div class="bowl-status-hint" id="bowl-badge-2">Vacío</div>
       </div>
 
-      <!-- Sartén (solo con etapas y si el menú tiene Tan tan o Ebi): sofreír → caldo / salsa → servir al cuenco -->
-      <div class="bowl-dock-card pan-dock-card" id="pan-card" style="display:none;" onclick="panServe()">
-        <div class="bowl-dock-tag">🍳 SARTÉN</div>
-        <div class="bowl-dock-visual" id="pan-art"></div>
-        <div class="bowl-dock-footer">
-          <span class="bowl-dock-name">Sartén</span>
-          <button class="btn-bowl-trash" onclick="event.stopPropagation(); panDiscard()" title="Vaciar la sartén">🗑️</button>
-        </div>
-        <div class="bowl-status-hint" id="pan-badge">Vacía</div>
-      </div>
     </div>
 
     <!-- Estación de Makis: un solo rollo a la vez, armado en secuencia -->
@@ -12226,7 +12255,7 @@ document.addEventListener('touchmove', (e) => {
 function getIngredientDropTargets() {
   const area = gameState.activeArea;
   if (getStage(area) !== 'cook') return [];
-  const sel = area === 'ramen' ? '.bowl-dock-card'
+  const sel = area === 'ramen' ? '.bowl-dock-card, .stove-pan'
     : area === 'salteados' ? '.wok-dock-card'
     : area === 'makis' ? '#maki-board-zone'
     : area === 'frituras' ? '#fry-table-card'
@@ -12278,8 +12307,8 @@ function handleIngredientTap(ing) {
 function applyIngredientDrop(target, ing, coat) {
   const area = gameState.activeArea;
   if (area === 'ramen') {
-    if (target.id === 'pan-card') { panAdd(ing.id); return; }
-    if (stagedOn('ramen') && PAN_ONLY_IDS.includes(ing.id)) { showStationToast(`🍳 ${ing.display} se sofríe en la sartén, no va directo al cuenco.`); return; }
+    if (target.classList.contains('stove-pan')) { panAdd(parseInt(target.dataset.pan, 10), ing.id); return; }
+    if (stagedOn('ramen') && PAN_ONLY_IDS.includes(ing.id)) { showStationToast(`🍳 ${ing.display} se prepara en una sartén: arrástralo a la Sartén 1 o 2.`); return; }
     const idx = parseInt(target.id.replace('bowl-card-', ''), 10);
     if (gameState.activeBowlIndex !== idx) selectBowl(idx);
     if (gameState.activeBowlIndex !== idx) return; // bloqueado por otro jugador (coop)
@@ -12883,7 +12912,7 @@ const kitchenState = {
 function getIngredientStock(ingId) {
   if (ingId === 1) return kitchenState.stocks.noodles;
   if (ingId === 2) return kitchenState.stocks.shio;
-  if (ingId === 3) return kitchenState.stocks.tonkotsu;
+  if (ingId === 3) return stagedOn('ramen') ? null : kitchenState.stocks.tonkotsu;   // con etapas el Tonkotsu se prepara en una sartén
   if (ingId === 11) return kitchenState.stocks.chasu;
   if (ingId === 25 && stagedOn('ramen')) return stGet('ramen').stock.moyashi;
   return null;
@@ -13578,7 +13607,7 @@ function renderBowls() {
       cardEl.onclick = () => selectBowl(i);
     }
   }
-  renderPan();
+  renderPans();
   updateAreaTabAlerts();
 }
 
@@ -14558,7 +14587,7 @@ function trainingFeature(id) {
   if (!isTraining()) return true;
   return trainingFeaturesUnlocked().has(id);
 }
-const bowlLimit = () => (!isTraining() ? 3 : (trainingFeature('bowls3') ? 3 : (trainingFeature('bowls2') ? 2 : 1)));
+const bowlLimit = () => Math.min(stagedOn('ramen') ? 2 : 3, !isTraining() ? 3 : (trainingFeature('bowls3') ? 3 : (trainingFeature('bowls2') ? 2 : 1)));   // con etapas el ramen usa 2 cuencos
 const wokLimit = () => (!isTraining() ? 2 : (trainingFeature('wok2') ? 2 : 1));
 
 function trainingPoolRecipes(ch, area) {
@@ -15700,6 +15729,7 @@ function toggleIngredientInBowl(ingId) {
   if (gameState.activeBowlIndex >= bowlLimit()) { showStationToast('🔒 Este cuenco se abre completando más retos del entrenamiento.'); return; }
   const bowl = gameState.bowls[gameState.activeBowlIndex];
 
+  if (stagedOn('ramen') && PAN_ONLY_IDS.includes(ingId) && !bowl.ingredients.includes(ingId)) { showStationToast('🍳 Eso se prepara en una sartén antes de servir al cuenco.'); return; }
   if (bowl.ingredients.includes(ingId)) {
     if ((bowl.panIds || []).includes(ingId)) { showStationToast('🍳 Eso ya se sirvió desde la sartén: vacía el cuenco para rehacerlo.'); return; }
     removeIngredientFromBowl(gameState.activeBowlIndex, ingId);
@@ -15800,43 +15830,72 @@ function removeIngredientFromBowl(bowlIndex, ingId) {
   renderCustomers();
 }
 
-// ---- Sartén (Ramen con etapas): sofreír → agregar caldo / salsa → servir al cuenco (→ poner lo que sobra encima) ----
-// Tan tan: chancho molido + salsa tan tan sofritos juntos, luego caldo Shio; se sirve a un cuenco que ya tiene fideos y moyashi.
-// Ebi: langostinos sofritos, luego Shio y luego la salsa ebi; se sirve a un cuenco con fideos y después los langostinos van arriba.
-const PAN_PROCESS = {
-  'Tan tan': { fry: [13, 8], add: [2], serve: [13, 8, 2], top: [], needs: [1, 25] },
-  'Ebi':     { fry: [14],    add: [2, 7], serve: [2, 7], top: [14], needs: [1] }
+// ---- Cocina de 4 hornillas (Ramen con etapas): 1 fideos · 2 Shio · 3 y 4 sartenes hondas ----
+// En las sartenes se preparan todos los caldos con salsa, mezclando en el orden de la receta (caldo → salsa → proteína); al estar
+// completos se calientan unos segundos y entonces se sirven al cuenco activo (que ya debe tener sus fideos). Ebi y Tan tan además
+// empiezan con un sofrito. El Shio solo (sin salsa) se sirve directo desde su hornilla.
+//   fry: se sofríe primero (juntos) · add: se agrega en orden · top: lo que se coloca encima del cuenco tras servir la sopa
+//   needs: lo que el cuenco debe llevar ya antes de recibir la sopa
+const PAN_RECIPES = {
+  'Shoyu':       { add: [2, 5] },
+  'Miso':        { add: [2, 6] },
+  'Tonkotsu':    { add: [3] },                                   // (y Chashu: misma preparación)
+  'Vegetariano': { add: [4, 9, 16] },
+  'Bajiru':      { add: [2, 10, 12] },
+  'Ebi':         { fry: [14], add: [2, 7], top: [14] },
+  'Tan tan':     { fry: [13, 8], add: [2], needs: [1, 25] }
 };
-const PAN_ONLY_IDS = [13, 14, 7, 8];   // con etapas, estos solo entran por la sartén
-const panTimes = () => (isFree() ? { ready: 2, over: 1e9, burn: 1e9 } : { ready: 4, over: 9, burn: 14 });   // segundos de sofrito
-function newPan() { return { items: [], recipe: null, t: 0, locked: false, result: null, errors: 0, served: false, target: null, burnt: false }; }
-function panGet() { if (!gameState.pan) gameState.pan = newPan(); return gameState.pan; }
-const panCfg = pan => (pan.recipe ? PAN_PROCESS[pan.recipe] : null);
-const panFryDone = pan => { const c = panCfg(pan); return !!c && c.fry.every(id => pan.items.includes(id)); };
-const panAddDone = pan => { const c = panCfg(pan); return !!c && c.add.every(id => pan.items.includes(id)); };
-const panShown = () => stagedOn('ramen') && getUnlockedRamenRecipes().some(r => PAN_PROCESS[r.name]);
-const panNext = pan => { const c = panCfg(pan); return c ? c.add.find(id => !pan.items.includes(id)) : null; };
+const PAN_ONLY_IDS = [3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 16];   // con etapas solo entran por una sartén (el 2, Shio, también va directo al cuenco)
+const panAll = r => [...(r.fry || []), ...r.add];
+const panServeIds = r => panAll(r).filter(id => !(r.top || []).includes(id));
+const panTimes = () => (isFree() ? { ready: 2, over: 1e9, burn: 1e9, heat: 2 } : { ready: 4, over: 9, burn: 14, heat: 4 });   // segundos
+function newPan() { return { items: [], t: 0, heat: 0, locked: false, fryStarted: false, result: null, errors: 0, served: false, target: null, burnt: false, dashiBase: false, recipe: null }; }
+function panGet(i) { if (!gameState.pans) gameState.pans = [newPan(), newPan()]; return gameState.pans[i]; }
+
+// Recetas de sartén compatibles con lo que ya hay dentro (en el sofrito, lo del sofrito va primero)
+function panCandidates(items) {
+  return Object.keys(PAN_RECIPES).filter(n => {
+    const r = PAN_RECIPES[n];
+    if (!items.every(id => panAll(r).includes(id))) return false;
+    if (r.fry) {
+      const seen = new Set();
+      for (const id of items) { if (!r.fry.includes(id) && !r.fry.every(f => seen.has(f))) return false; seen.add(id); }
+    }
+    return true;
+  });
+}
+function panRecipeName(pan) {
+  if (pan.recipe) return pan.recipe;
+  const c = panCandidates(pan.items);
+  return c.length === 1 ? c[0] : null;
+}
+const panNext = pan => { const n = panRecipeName(pan); return n ? PAN_RECIPES[n].add.find(id => !pan.items.includes(id)) : null; };
 
 function panPhase(pan) {
   if (!pan.items.length) return 'EMPTY';
   if (pan.burnt) return 'BURNT';
   if (pan.served) return 'TOP';
-  if (!panFryDone(pan)) return 'WAIT';
-  if (pan.locked) return panAddDone(pan) ? 'DONE' : 'ADDING';
-  const T = panTimes();
-  return pan.t < T.ready ? 'RAW' : (pan.t < T.over ? 'GOOD' : 'OVER');
+  const rn = panRecipeName(pan), r = rn && PAN_RECIPES[rn];
+  if (r && r.fry) {
+    if (!r.fry.every(id => pan.items.includes(id))) return 'WAIT';
+    if (!pan.locked) { const T = panTimes(); return pan.t < T.ready ? 'RAW' : (pan.t < T.over ? 'GOOD' : 'OVER'); }
+  }
+  if (r && r.add.every(id => pan.items.includes(id))) return pan.heat >= panTimes().heat ? 'HOT' : 'HEAT';
+  return 'ADDING';
 }
 function panStatusText(pan, ph) {
-  const c = panCfg(pan);
+  const rn = panRecipeName(pan), r = rn && PAN_RECIPES[rn];
+  const missing = r ? r.add.filter(id => !pan.items.includes(id)).map(stIngName).join(', ') : '';
   switch (ph) {
     case 'EMPTY': return 'Vacía';
-    case 'WAIT': return 'Falta: ' + c.fry.filter(id => !pan.items.includes(id)).map(stIngName).join(', ');
+    case 'WAIT': return 'Sofreír: falta ' + r.fry.filter(id => !pan.items.includes(id)).map(stIngName).join(', ');
     case 'RAW': return '🍳 Sofriendo…';
-    case 'GOOD': return '✅ Listo: agrega ' + stIngName(panNext(pan));
+    case 'GOOD': return '✅ Agrega ' + stIngName(panNext(pan));
     case 'OVER': return '⚠ Se pasa: agrega ya';
     case 'BURNT': return '🔥 Quemado: vacía';
-    case 'ADDING': return 'Falta: ' + stIngName(panNext(pan));
-    case 'DONE': return `✅ Toca: servir cuenco ${gameState.activeBowlIndex + 1}`;
+    case 'ADDING': return r ? 'Falta: ' + missing : 'Agrega salsa…';
+    case 'HEAT': return '♨️ Calentando…';
+    case 'HOT': return `✅ ${rn}: servir`;
     case 'TOP': return 'Toca: poner arriba';
   }
   return '';
@@ -15847,14 +15906,22 @@ function generatePanSVG(pan, ph) {
   const tone = pan.locked ? (pan.result === 'PASADO' ? 2 : 1) : ({ RAW: 0, WAIT: 0, GOOD: 1, OVER: 2, BURNT: 3 }[ph] || 0);
   const meat = ['#e6a5a0', '#a8603f', '#5b3a22', '#1e130b'][tone], shr = ['#d9c2bb', '#f08a4b', '#c25a24', '#2a1a10'][tone];
   const pts = [[30, 33], [34, 36], [38, 32], [42, 36.5], [46, 33], [50, 37], [54, 33.5], [58, 36], [40, 40], [47, 40.5], [35, 30], [52, 30.5], [60, 39], [44, 29.5]];
+  const sauceCol = { 5: '#793e18', 6: '#994d1a', 7: '#d65a29', 8: '#bd2c08', 9: '#6f9a3a', 10: '#4a6730' };
+  const sauce = [5, 6, 7, 8, 9, 10].find(has);
+  const base = has(3) ? '#f5eedb' : (has(4) ? '#cfe3e8' : (has(2) ? '#dfb552' : null));
   let food = '';
-  if (has(8) && !has(2)) food += '<ellipse cx="46" cy="35" rx="22" ry="8" fill="#bd2c08" opacity="0.9"/>';
-  if (has(2)) food += '<ellipse cx="46" cy="34.5" rx="28" ry="11.5" fill="#dfb552" opacity="0.93"/>' + (has(8) ? '<ellipse cx="46" cy="34.5" rx="28" ry="11.5" fill="#bd2c08" opacity="0.5"/>' : '') + (has(7) ? '<ellipse cx="46" cy="34.5" rx="28" ry="11.5" fill="#d65a29" opacity="0.6"/>' : '');
+  if (sauce && !base) food += `<ellipse cx="46" cy="35" rx="22" ry="8" fill="${sauceCol[sauce]}" opacity="0.9"/>`;
+  if (base) {
+    food += `<ellipse cx="46" cy="34.5" rx="28" ry="11.5" fill="${base}" opacity="0.94"/>`;
+    if (sauce) food += `<ellipse cx="46" cy="34.5" rx="28" ry="11.5" fill="${sauceCol[sauce]}" opacity="0.62"/>`;
+  }
   if (has(13)) food += `<g fill="${meat}" stroke="rgba(0,0,0,0.35)" stroke-width="0.4">${pts.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.7"/>`).join('')}</g>`;
   if (has(14)) food += `<g fill="${shr}" stroke="rgba(0,0,0,0.45)" stroke-width="0.8" stroke-linecap="round"><path d="M 34,36 q 3,-10 11,-5 q 5,4 -1,8 q -4,1 -4,-3"/><path d="M 48,38 q 3,-9 11,-4 q 5,4 -1,7 q -4,1 -4,-2"/><path d="M 41,31 q 2,-6 8,-3 q 3,3 0,5"/></g>`;
-  const sizz = ['RAW', 'GOOD', 'OVER'].includes(ph);
+  if (has(12)) food += '<g fill="#8e2f2a" stroke="#4a1512" stroke-width="0.6"><rect x="34" y="31" width="9" height="3.4" rx="1.4" transform="rotate(-10 34 31)"/><rect x="46" y="36" width="9" height="3.4" rx="1.4" transform="rotate(8 46 36)"/><rect x="38" y="38" width="8" height="3.2" rx="1.4"/></g>';
+  if (has(16)) food += '<g fill="#fff3d6" stroke="#c9b68a" stroke-width="0.6"><rect x="52" y="30.5" width="5.5" height="5.5" rx="0.8"/><rect x="58" y="35" width="5.5" height="5.5" rx="0.8"/><rect x="40" y="35.5" width="5.5" height="5.5" rx="0.8"/></g>';
+  const sizz = ['RAW', 'GOOD', 'OVER', 'HEAT'].includes(ph);
   let bar = '';
-  if (panFryDone(pan) && !pan.locked && !pan.burnt && !pan.served) {
+  if (['RAW', 'GOOD', 'OVER'].includes(ph)) {
     const T = panTimes(), total = T.burn < 1e8 ? T.burn : T.ready + 6, w = 64;
     const x = v => (20 + w * Math.min(1, v / total)).toFixed(1);
     bar = `<rect x="20" y="60.6" width="${w}" height="3" rx="1.5" fill="rgba(0,0,0,0.6)"/>
@@ -15863,7 +15930,7 @@ function generatePanSVG(pan, ph) {
       <rect x="${x(Math.min(T.over, total))}" y="60.6" width="${Math.max(0, 84 - x(Math.min(T.over, total))).toFixed(1)}" height="3" rx="1.5" fill="#ff7043"/>
       <rect x="${(+x(pan.t) - 0.8).toFixed(1)}" y="59.2" width="1.8" height="5.6" rx="0.9" fill="#ffffff" stroke="#000" stroke-width="0.3"/>`;
   }
-  return `<svg class="pan-svg ${sizz ? 'pan-sizzling' : ''}" viewBox="0 0 100 64" width="88" height="54">
+  return `<svg class="pan-svg ${sizz ? 'pan-sizzling' : ''}" viewBox="0 0 100 64">
     <ellipse cx="46" cy="56" rx="34" ry="4.5" fill="rgba(0,0,0,0.4)"/>
     <rect x="78" y="31" width="22" height="6.5" rx="3.2" fill="#6d4c41" stroke="#3e2723" stroke-width="1" transform="rotate(-6 78 34)"/>
     <ellipse cx="46" cy="37" rx="35" ry="17" fill="#2b2b2b" stroke="#111" stroke-width="1.5"/>
@@ -15872,127 +15939,145 @@ function generatePanSVG(pan, ph) {
     ${food}
     <circle class="pan-bub b1" cx="38" cy="30" r="1.6" fill="#fff"/><circle class="pan-bub b2" cx="52" cy="33" r="1.4" fill="#ffe082"/><circle class="pan-bub b3" cx="45" cy="28" r="1.2" fill="#fff"/>
     ${ph === 'BURNT' ? '<g stroke="#9e9e9e" stroke-width="1.6" stroke-linecap="round" fill="none" opacity="0.8"><path d="M 36,24 q -3,-6 1,-10"/><path d="M 48,22 q 3,-6 -1,-11"/><path d="M 58,24 q -3,-6 1,-10"/></g>' : ''}
+    ${ph === 'HOT' || ph === 'HEAT' ? '<g class="pan-steam" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" fill="none"><path d="M 38,24 q -3,-5 1,-9"/><path d="M 48,22 q 3,-5 -1,-10"/><path d="M 58,24 q -3,-5 1,-9"/></g>' : ''}
     ${bar}
   </svg>`;
 }
 
-function renderPan() {
-  const card = document.getElementById('pan-card');
-  if (!card) return;
-  const show = panShown();
-  card.style.display = show ? '' : 'none';
-  const row = document.getElementById('bowls-dock-box');
-  if (row) row.classList.toggle('has-pan', show);
-  if (!show) return;
-  const pan = panGet(), ph = panPhase(pan);
-  card.classList.toggle('active', ph !== 'EMPTY');
-  card.classList.toggle('pan-ready', ph === 'GOOD' || ph === 'DONE' || ph === 'TOP');
-  const art = document.getElementById('pan-art'), badge = document.getElementById('pan-badge');
-  if (art) art.innerHTML = generatePanSVG(pan, ph);
-  if (badge) badge.textContent = panStatusText(pan, ph);
+function renderPans() {
+  const staged = stagedOn('ramen');
+  const panel = document.getElementById('cook-stations-panel'), dock = document.getElementById('bowls-dock-box');
+  if (panel) panel.classList.toggle('stove-on', staged);
+  if (dock) dock.classList.toggle('stove-on', staged);
+  if (!staged) return;
+  const T = panTimes();
+  [0, 1].forEach(i => {
+    const cell = document.getElementById('pan-cell-' + i);
+    if (!cell) return;
+    const pan = panGet(i), ph = panPhase(pan);
+    cell.classList.toggle('active', ph !== 'EMPTY' && ph !== 'HEAT' && ph !== 'HOT');
+    cell.classList.toggle('heating', ph === 'HEAT' || ph === 'RAW' || ph === 'GOOD' || ph === 'OVER');
+    cell.classList.toggle('pan-ready', ph === 'HOT' || ph === 'TOP' || ph === 'GOOD');
+    const art = document.getElementById('pan-art-' + i), st = document.getElementById('pan-status-' + i), fill = document.getElementById('pan-fill-' + i);
+    if (art) art.innerHTML = generatePanSVG(pan, ph);
+    if (st) st.textContent = panStatusText(pan, ph);
+    if (fill) fill.style.width = (ph === 'HEAT' ? Math.round(100 * pan.heat / T.heat) : (ph === 'HOT' ? 100 : 0)) + '%';
+  });
 }
 
 function panTick() {
-  const pan = gameState.pan;
-  if (!pan || !pan.items.length || pan.burnt || pan.locked || pan.served || !panFryDone(pan)) return;
-  pan.t++;
+  if (!gameState.pans) return;
   const T = panTimes();
-  if (pan.t === T.ready) { try { playSound('ding'); } catch (e) {} showStationToast('🍳 ¡Sofrito listo! Agrega el caldo.'); }
-  if (pan.t >= T.burn) { pan.burnt = true; try { playSound('burn'); } catch (e) {} showStationToast('🔥 ¡Se quemó el sofrito! Vacía la sartén.'); }
-  renderPan();
+  let changed = false;
+  [0, 1].forEach(i => {
+    const pan = gameState.pans[i], ph = panPhase(pan);
+    if (ph === 'RAW' || ph === 'GOOD' || ph === 'OVER') {
+      pan.t++; changed = true;
+      if (pan.t === T.ready) { try { playSound('ding'); } catch (e) {} showStationToast(`🍳 Sartén ${i + 1}: ¡sofrito listo! Agrega el caldo.`); }
+      if (pan.t >= T.burn) { pan.burnt = true; try { playSound('burn'); } catch (e) {} showStationToast(`🔥 ¡Se quemó el sofrito de la sartén ${i + 1}! Vacíala.`); }
+    } else if (ph === 'HEAT') {
+      pan.heat++; changed = true;
+      if (pan.heat >= T.heat) { try { playSound('ding'); } catch (e) {} showStationToast(`♨️ Sartén ${i + 1}: caldo caliente. Toca para servir al cuenco.`); }
+    }
+  });
+  if (changed) renderPans();
 }
 
-function panAdd(id) {
+function panAdd(i, id) {
   if (!stagedOn('ramen') || gameState.isPaused || gameState.isGameOver) return;
-  const pan = panGet(), ing = INGREDIENTES.find(i => i.id === id);
+  const pan = panGet(i), ing = INGREDIENTES.find(x => x.id === id);
   const fail = msg => { showStationToast(msg); try { playSound('error'); } catch (e) {} };
   if (pan.burnt) { fail('🔥 La sartén se quemó: vacíala con 🗑️.'); return; }
-  if (!pan.items.length) {
-    const rec = [13, 8].includes(id) ? 'Tan tan' : (id === 14 ? 'Ebi' : null);
-    if (!rec) { fail('🍳 Primero se sofríe: chancho molido (Tan tan) o langostinos (Ebi).'); return; }
-    pan.recipe = rec;
-  }
-  const c = panCfg(pan);
   if (pan.served) { fail('🍳 La sopa ya se sirvió: pon lo que queda arriba del cuenco (toca la sartén).'); return; }
   if (pan.items.includes(id)) { showStationToast(`${ing.display} ya está en la sartén.`); return; }
-  const T = panTimes();
-  if (c.fry.includes(id)) {
-    if (pan.locked) { fail('🍳 El sofrito ya está hecho: sigue con el caldo.'); return; }
-    pan.items.push(id);
-    try { playSound('splash'); } catch (e) {}
-    if (panFryDone(pan)) { pan.t = 0; showStationToast('🍳 Sofriendo… espera a que esté listo.'); }
-    else showStationToast(`🍳 Falta: ${c.fry.filter(x => !pan.items.includes(x)).map(stIngName).join(', ')}.`);
-  } else if (c.add.includes(id)) {
-    if (!panFryDone(pan)) { fail(`🍳 Primero sofríe: ${c.fry.filter(x => !pan.items.includes(x)).map(stIngName).join(' y ')}.`); return; }
-    if (!pan.locked && pan.t < T.ready) { fail('🍳 Aún se está sofriendo: espera a que esté listo.'); return; }
-    if (id === 2) {                                   // caldo Shio caliente (o dashi de recortes)
-      if (kitchenState.stocks.shio > 0) kitchenState.stocks.shio--;
-      else if (gameState.dashi > 0) { gameState.dashi--; updateMottainaiHUD(); showStationToast('🐟 Dashi de recortes: Caldo Shio sin calentar.'); }
-      else { triggerGuideHighlight('btn-heat-shio'); fail('🥣 ¡Está Frío! Mantén presionado "Calentar Shio" 3 segundos.'); return; }
-      updateKitchenStationsUI();
-    }
-    if (!pan.locked) { pan.locked = true; pan.result = pan.t < T.over ? 'PERFECTO' : 'PASADO'; }
-    const expected = panNext(pan);
-    if (id !== expected) { pan.errors++; showStationToast(`🍳 Orden: primero ${stIngName(expected)} (−8 pts de proceso).`); }
-    pan.items.push(id);
-    try { playSound('add'); } catch (e) {}
-    if (panAddDone(pan)) { try { playSound('match'); } catch (e) {} showStationToast('✅ Sopa lista: toca la sartén para servirla al cuenco.'); }
-  } else {
-    fail(`🍳 ${ing.display} no va en esta sartén (${pan.recipe}).`);
+  const cands = panCandidates([...pan.items, id]);
+  if (!cands.length) {
+    const containing = Object.keys(PAN_RECIPES).filter(n => panAll(PAN_RECIPES[n]).includes(id));
+    const cur = panRecipeName(pan), cr = cur && PAN_RECIPES[cur];
+    if (!containing.length) fail(`🍳 ${ing.display} no va en la sartén.`);
+    else if (!pan.items.length) fail('🍳 Primero se sofríe: chancho molido (Tan tan) o langostinos (Ebi).');
+    else if (cr && cr.fry && !cr.fry.every(f => pan.items.includes(f))) fail(`🍳 Primero sofríe: ${cr.fry.filter(f => !pan.items.includes(f)).map(stIngName).join(' y ')}.`);
+    else fail('🍳 Eso no combina con lo que ya hay en la sartén.');
     return;
   }
-  renderPan();
+  const rn = cands.length === 1 ? cands[0] : null, r = rn ? PAN_RECIPES[rn] : null, T = panTimes();
+  const isFry = !!(r && r.fry && r.fry.includes(id));
+  if (r && r.fry && !isFry && !pan.locked && pan.t < T.ready) { fail('🍳 Aún se está sofriendo: espera a que esté listo.'); return; }
+  if (id === 2) {                                   // caldo Shio caliente (o dashi de recortes), de su hornilla
+    if (kitchenState.stocks.shio > 0) kitchenState.stocks.shio--;
+    else if (gameState.dashi > 0) { gameState.dashi--; updateMottainaiHUD(); showStationToast('🐟 Dashi de recortes: Caldo Shio sin calentar.'); }
+    else { triggerGuideHighlight('btn-heat-shio'); fail('🥣 ¡Está Frío! Mantén presionado "Calentar Shio" 3 segundos.'); return; }
+    updateKitchenStationsUI();
+  }
+  if (id === 4 && gameState.dashi > 0) { gameState.dashi--; pan.dashiBase = true; updateMottainaiHUD(); showStationToast('🐟 Dashi casero en el caldo: el ramen Vegetariano se paga +20 %.'); }
+  if (r && r.fry && !isFry && !pan.locked) { pan.locked = true; pan.result = pan.t < T.over ? 'PERFECTO' : 'PASADO'; }
+  const before = pan.errors;
+  pan.items.push(id);
+  if (rn) pan.recipe = rn;
+  pan.errors = ramenOrderErrors(pan.items.filter(x => !((r && r.fry) || []).includes(x)));
+  if (pan.errors > before) showStationToast('🍳 Orden: caldo → salsa → proteína (−8 pts de proceso).');
+  try { playSound(isFry ? 'splash' : 'add'); } catch (e) {}
+  if (r && r.fry && isFry) {
+    if (r.fry.every(f => pan.items.includes(f))) { if (!pan.fryStarted) { pan.fryStarted = true; pan.t = 0; showStationToast('🍳 Sofriendo… espera a que esté listo.'); } }
+    else showStationToast(`🍳 Falta sofreír: ${r.fry.filter(f => !pan.items.includes(f)).map(stIngName).join(', ')}.`);
+  } else if (r && r.add.every(f => pan.items.includes(f))) {
+    showStationToast('♨️ Todo en la sartén: calentando el caldo…');
+  }
+  renderPans();
 }
 
-function panAfterBowlChange() {
-  renderBowls(); renderCustomers(); renderPantryGrid(); renderPan();
-}
-function panServe() {
+function panAfterBowlChange() { renderBowls(); renderCustomers(); renderPantryGrid(); renderPans(); }
+function panServe(i) {
   if (gameState.isPaused || gameState.isGameOver) return;
-  const pan = panGet(), ph = panPhase(pan), c = panCfg(pan);
+  const pan = panGet(i), ph = panPhase(pan), rn = panRecipeName(pan), r = rn && PAN_RECIPES[rn];
   const fail = msg => { showStationToast(msg); try { playSound('error'); } catch (e) {} };
-  if (ph === 'EMPTY') { showStationToast('🍳 Sartén vacía: arrastra chancho molido (Tan tan) o langostinos (Ebi) para sofreír.'); return; }
+  if (ph === 'EMPTY') { showStationToast('🍳 Sartén vacía: arrastra los ingredientes del caldo en el orden de la receta.'); return; }
   if (ph === 'BURNT') { fail('🔥 Se quemó: vacía la sartén con 🗑️.'); return; }
-  if (ph === 'DONE') {
-    const idx = gameState.activeBowlIndex, bowl = gameState.bowls[idx];
+  if (ph === 'HOT') {
+    const idx = gameState.activeBowlIndex, bowl = gameState.bowls[idx], serve = panServeIds(r), needs = r.needs || [1];
     if (idx >= bowlLimit()) { fail('🔒 Este cuenco aún no está disponible.'); return; }
-    if (bowl.panRecipe) { fail('🍜 Este cuenco ya tiene sopa: elige otro.'); return; }
-    const missing = c.needs.filter(id => !bowl.ingredients.includes(id));
-    if (missing.length) { fail(`🍜 Al cuenco ${idx + 1} le falta: ${missing.map(stIngName).join(' y ')} (va antes de la sopa).`); return; }
-    bowl.ingredients.push(...c.serve);
-    bowl.panIds = [...c.serve]; bowl.panRecipe = pan.recipe; bowl.panErrors = pan.errors; bowl.fry = pan.result;
+    if (bowl.panRecipe || serve.some(id => bowl.ingredients.includes(id))) { fail('🍜 Este cuenco ya tiene caldo: elige otro.'); return; }
+    const missing = needs.filter(id => !bowl.ingredients.includes(id));
+    if (missing.length) { fail(`🍜 Al cuenco ${idx + 1} le falta: ${missing.map(stIngName).join(' y ')} (va antes del caldo).`); return; }
+    bowl.ingredients.push(...serve);
+    bowl.panIds = [...serve]; bowl.panRecipe = rn; bowl.panErrors = pan.errors; bowl.fry = pan.result;
+    if (pan.dashiBase) bowl.dashiBase = true;
     bowl.orderErrors = bowlOrderErrors(bowl);
-    pan.items = pan.items.filter(id => !c.serve.includes(id));
+    pan.items = pan.items.filter(id => !serve.includes(id));
     try { playSound('splash'); } catch (e) {}
-    if (c.top.length) { pan.served = true; pan.target = idx; showStationToast('🍜 Sopa servida. Ahora pon los langostinos arriba: toca la sartén.'); }
-    else { gameState.pan = newPan(); showStationToast(`🍜 ${pan.recipe}: sopa servida en el cuenco ${idx + 1}.`); }
+    if (r.top) { pan.served = true; pan.target = idx; pan.recipe = rn; showStationToast('🍜 Caldo servido. Ahora pon los langostinos arriba: toca la sartén.'); }
+    else { gameState.pans[i] = newPan(); showStationToast(`🍜 ${rn}: caldo servido en el cuenco ${idx + 1}.`); }
     if (analyzeBowl(idx).status === 'READY') { try { playSound('match'); } catch (e) {} }
     panAfterBowlChange();
   } else if (ph === 'TOP') {
     const bowl = gameState.bowls[pan.target];
-    if (!bowl || bowl.panRecipe !== pan.recipe) { fail('🍜 El cuenco ya no tiene esa sopa: vacía la sartén.'); return; }
+    if (!bowl || bowl.panRecipe !== pan.recipe) { fail('🍜 El cuenco ya no tiene ese caldo: vacía la sartén.'); return; }
     bowl.ingredients.push(...pan.items);
     bowl.panIds.push(...pan.items);
     bowl.orderErrors = bowlOrderErrors(bowl);
-    gameState.pan = newPan();
+    gameState.pans[i] = newPan();
     try { playSound('add'); } catch (e) {}
     if (analyzeBowl(gameState.bowls.indexOf(bowl)).status === 'READY') { try { playSound('match'); } catch (e) {} }
     panAfterBowlChange();
   } else if (ph === 'WAIT') {
-    showStationToast(`🍳 Falta sofreír: ${c.fry.filter(id => !pan.items.includes(id)).map(stIngName).join(' y ')}.`);
+    showStationToast(`🍳 Falta sofreír: ${r.fry.filter(id => !pan.items.includes(id)).map(stIngName).join(' y ')}.`);
   } else if (ph === 'RAW') {
     showStationToast('🍳 Aún se está sofriendo.');
+  } else if (ph === 'HEAT') {
+    showStationToast('♨️ Se está calentando: espera un momento.');
+  } else if (r) {
+    showStationToast(`🍳 Falta: ${r.add.filter(id => !pan.items.includes(id)).map(stIngName).join(', ')}.`);
   } else {
-    showStationToast(`🍳 Siguiente: ${stIngName(panNext(pan))}.`);
+    showStationToast('🍳 Sigue agregando los ingredientes del caldo según la receta.');
   }
 }
-function panDiscard() {
-  const pan = gameState.pan;
+function panDiscard(i) {
+  const pan = gameState.pans && gameState.pans[i];
   if (!pan || !pan.items.length) return;
   if (pan.items.length >= 2) addTrimmings(1, 'sartén descartada');
-  gameState.pan = newPan();
+  gameState.pans[i] = newPan();
   try { playSound('trash'); } catch (e) {}
-  renderPan();
+  renderPans();
 }
 
 // Mover los fideos (Ramen con etapas): se arrastra el dedo / ratón sobre el cuenco; cada tramo de recorrido los reparte un poco más.
@@ -16529,7 +16614,7 @@ function startLevel(lvlIndex) {
     { ingredients: [], matchedRamen: null }
   ];
   gameState.customerSlots = [null, null, null, null];
-  gameState.pan = null;
+  gameState.pans = null;
   gameState.recortes = 0;
   gameState.dashi = 0;
   gameState.gameClock = 0;
