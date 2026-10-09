@@ -6329,7 +6329,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v82</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v83</span></button></div>
     </div>
   </div>
 
@@ -9500,6 +9500,13 @@ function getUnlockedIngredients() {
   return sortIngredientsByCustomOrder(list);
 }
 
+// Platos mixtos de Salteados: se cocinan en dos utensilios y luego se combinan
+function mixedNote(r) {
+  const md = MIXED_DISHES[r.name];
+  if (!md || !stagedOn('salteados')) return '';
+  const ic = ids => ids.map(id => { const ing = INGREDIENTES.find(i => i.id === id); return ing ? `<span class="badge-ing">${ing.display}</span>` : ''; }).join(' ');
+  return `<div style="margin-top:3px;font-size:10px;font-weight:800;color:#6d4c41;">🍳 En 2 partes · WOK: ${ic(md.wok.ids)} · SARTÉN: ${ic(md.pan.ids)} · luego 🍽 Combinar</div>`;
+}
 function initRecipeTable() {
   const tbody = document.querySelector("#recipes-table tbody");
   tbody.innerHTML = "";
@@ -9515,7 +9522,7 @@ function initRecipeTable() {
 
     tr.innerHTML = `
       <td style="font-weight:900; color:#b71c1c;">${r.name} (${r.ingredients.length})<div style="font-size:9px;font-weight:700;color:#8d6e63;">${AREA_LABELS[r.area || 'ramen']}</div></td>
-      <td>${ingsList}</td>
+      <td>${ingsList}${mixedNote(r)}</td>
       <td style="font-weight:900; color:#2e7d32;">S/ ${r.price}</td>
     `;
     tbody.appendChild(tr);
@@ -9584,12 +9591,41 @@ function wokServeClick(i) {
   const w = gameState.woks[i];
   if (!w || !w.result || !w.matchedRecipe) return;
   const rc = w.matchedRecipe;
+  if (rc.isPart) { wokCombineClick(i); return; }           // una parte de un plato mixto no se sirve sola: se combina con la otra
   const main = rc.ingredients.find(id => [69, 61, 48].includes(id)) || rc.ingredients[0];
   const ok = stPassAdd('salteados', { recipes: (rc.candidates || [rc]).map(r => r.name), result: w.result,
     readyAt: w.readyAt != null ? w.readyAt : gameState.gameClock, vis: { kind: 'ing', id: main },
     meta: { result: w.result, secs: w.stirSeconds, profile: w.profile, orderMatches: w.orderMatches, orderTotal: w.orderTotal, toss: w.toss || 0, oilMissing: !w.oil, dry: w.dry || 0, wrongTool: !!w.wrongTool, tool: w.tool || 'wok' } });
   if (!ok) return;
   gameState.woks[i] = newWok(w);
+  renderWoks();
+  renderPantryGrid();
+}
+// Plato mixto: junta las dos partes ya terminadas (una en el wok y otra en la sartén) y las manda al pase.
+// Calidad: se toma la cocción de la parte que salió peor; el volteo es el promedio y el aceite debe estar en las dos.
+function wokCombineClick(i) {
+  const w = gameState.woks[i], rc = w && w.matchedRecipe, md = rc && MIXED_DISHES[rc.partOf];
+  if (!w || !w.result || !md) return;
+  const j = i === 0 ? 1 : 0, o = gameState.woks[j];
+  const found = o && o.result && o.matchedRecipe && o.matchedRecipe.isPart && o.matchedRecipe.partOf === rc.partOf && o.matchedRecipe.partTool !== rc.partTool;
+  if (!found) {
+    const other = rc.partTool === 'wok' ? 'pan' : 'wok';
+    showStationToast(`🍽 ${rc.partOf} va en 2 partes: falta ${md[other].label} en ${wokToolName(other)} (termínala en la otra hornilla y luego combina).`);
+    try { playSound('error'); } catch (e) {}
+    return;
+  }
+  const mk = x => ({ result: x.result, secs: x.stirSeconds, profile: x.profile, dry: x.dry || 0, wrongTool: !!x.wrongTool, toss: x.toss || 0, oilMissing: !x.oil, orderMatches: x.orderMatches || 0, orderTotal: x.orderTotal || 0 });
+  const A = mk(w), B = mk(o), cook = m => evalCooking({ area: 'salteados', quality: m.result, meta: m }).pts;
+  const worse = cook(A) <= cook(B) ? A : B;
+  const meta = { ...worse, toss: (A.toss + B.toss) / 2, oilMissing: A.oilMissing || B.oilMissing, orderMatches: A.orderMatches + B.orderMatches, orderTotal: A.orderTotal + B.orderTotal };
+  const full = [...md.wok.ids, ...md.pan.ids], main = full.find(id => [69, 61, 48].includes(id)) || full[0];
+  const now = gameState.gameClock;
+  const ok = stPassAdd('salteados', { recipes: [rc.partOf], result: worse.result, readyAt: Math.min(w.readyAt != null ? w.readyAt : now, o.readyAt != null ? o.readyAt : now), vis: { kind: 'ing', id: main }, meta });
+  if (!ok) return;
+  gameState.woks[i] = newWok(w);
+  gameState.woks[j] = newWok(o);
+  try { playSound('match'); } catch (e) {}
+  showStationToast(`🍽 ${rc.partOf}: ${md.how} Va al pase.`);
   renderWoks();
   renderPantryGrid();
 }
@@ -10711,7 +10747,22 @@ function analyzeWok(index) {
   if (!wok || wok.ingredients.length === 0) return { status: "EMPTY" };
 
   const wokSet = new Set(wok.ingredients);
+  if (wokStaged()) {                                       // platos mixtos: cada hornilla cocina UNA parte (la otra va en el otro utensilio)
+    for (const r of stView('salteados', RECETAS_SALTEADOS)) {
+      const md = MIXED_DISHES[r.name];
+      if (!md) continue;
+      for (const kind of ['wok', 'pan']) {
+        const ids = md[kind].ids;
+        if (ids.length === wokSet.size && ids.every(x => wokSet.has(x))) {
+          let orderMatches = 0;
+          ids.forEach((id, k) => { if (wok.ingredients[k] === id) orderMatches++; });
+          return { status: "MATCHED", recipe: { ...r, name: `${r.name} · ${md[kind].label}`, ingredients: ids, isPart: true, partOf: r.name, partTool: kind, candidates: undefined }, orderMatches, orderTotal: ids.length };
+        }
+      }
+    }
+  }
   for (const r of stView('salteados', RECETAS_SALTEADOS)) {
+    if (wokStaged() && MIXED_DISHES[r.name]) continue;     // un plato mixto no se hace entero en un solo utensilio
     const rSet = new Set(r.ingredients);
     if (rSet.size === wokSet.size && [...rSet].every(x => wokSet.has(x))) {
       let orderMatches = 0;
@@ -10856,7 +10907,8 @@ function renderWoks() {
       } else {
         if (badgeEl) {
           const falta = (getUpgradeLevel('libro') > 0 && analysis.missing && analysis.missing[0]) ? ` · sigue: ${analysis.missing[0]}` : '';
-          badgeEl.textContent = `Armando (${wok.ingredients.length})${falta}`;
+          const mixHint = (wokStaged() && analysis.recipe && MIXED_DISHES[analysis.recipe.name]) ? ` · ${analysis.recipe.name} va en 2 partes (wok + sartén)` : '';
+          badgeEl.textContent = `Armando (${wok.ingredients.length})${falta}${mixHint}`;
           badgeEl.style.display = 'block';
         }
         if (stirBtn) stirBtn.style.display = 'none';
@@ -10910,8 +10962,15 @@ const WOK_TOSS_COOL = 0.25;       // cada salteado baja la temperatura que se pa
 const WOK_OVER_ROUNDS = 3;        // a esta ronda de más (sobre las necesarias) se seca del todo y se quema; cada ronda de más antes resta calidad
 const WOK_DRY_PTS = 12;           // puntos de cocción que resta cada ronda de más (el plato pierde jugo: queda más seco y salado)
 const WOK_VIRTUAL = { crudo: 1, perfecto: 3, quemado: 4.5 };   // ventana "virtual" para reutilizar los puntos de cocción de siempre
-// Platos que se cocinan en SARTÉN (los demás van en wok). Asignación inicial: se ajusta con la lista del usuario.
-const PAN_DISHES = ['Chicken Teriyaki', 'Yakitori', 'Omuraisu', 'Batayaki Ramen'];
+// Utensilio de cada plato de Salteados (definido por el usuario):
+//  · WOK: Chaufa Shimaya, Yakimeshi, Yasaitame, Karameshi, Yakiramen (todo lo que no está en las otras listas)
+//  · SARTÉN: Yakitori, Chicken Teriyaki
+//  · MIXTOS (MIXED_DISHES): se hace una parte en wok y otra en sartén; luego se combinan (botón "Combinar") y se sirven.
+const PAN_DISHES = ['Chicken Teriyaki', 'Yakitori'];
+const MIXED_DISHES = {
+  'Omuraisu':       { wok: { ids: [69, 37, 46, 30, 29], label: 'arroz con pollo' }, pan: { ids: [93], label: 'tortilla' },                 how: 'El arroz con pollo va envuelto en la tortilla.' },
+  'Batayaki Ramen': { wok: { ids: [1], label: 'fideos' },                            pan: { ids: [61, 27], label: 'lomo y champiñones' },  how: 'Los fideos se mezclan con el lomo y los champiñones.' }
+};
 const WOK_WRONG_TOOL_PTS = 15;    // puntos de cocción que resta cocinar el plato en el utensilio equivocado
 const WOK_SAUCE_IDS = [79, 40, 8];   // salsas de cocción de Salteados que son botellas (las demás se ponen al emplatar)
 // Cocina de acero de salteado (referencia del usuario): pared trasera, plano de trabajo, borde y frente. Se estira al ancho de los dos woks
@@ -10996,6 +11055,7 @@ function wokNoteAdded(w, id) {
 function wokNeededTool(i) {
   const a = analyzeWok(i);
   if (a.status !== 'MATCHED' || !a.recipe) return null;
+  if (a.recipe.partTool) return a.recipe.partTool;
   const names = (a.recipe.candidates || [a.recipe]).map(r => r.name), pans = names.filter(n => PAN_DISHES.includes(n)).length;
   return pans === names.length ? 'pan' : (pans === 0 ? 'wok' : null);
 }
@@ -16345,7 +16405,12 @@ function updateServeButtonsQuality() {
     if (d) btn.textContent = `✅ Servir ${starsText(qualityTier(evaluateDish(d)))}`;
   };
   const toPlate = btn => { if (btn) btn.textContent = '➡ A emplatar'; };
-  [0, 1].forEach(i => { const b = document.getElementById(`wok-serve-btn-${i}`); if (stagedOn('salteados')) toPlate(b); else setLabel(b, 'salteados', i); });
+  [0, 1].forEach(i => {
+    const b = document.getElementById(`wok-serve-btn-${i}`), w = gameState.woks[i];
+    if (!stagedOn('salteados')) setLabel(b, 'salteados', i);
+    else if (b && w && w.matchedRecipe && w.matchedRecipe.isPart) b.textContent = '🍽 Combinar';     // parte de un plato mixto
+    else toPlate(b);
+  });
   const mb = document.getElementById('maki-serve-btn');
   if (stagedOn('makis')) toPlate(mb); else setLabel(mb, 'makis', 0);
   if (!stagedOn('frituras')) setLabel(document.querySelector('.fry-btn-serve'), 'frituras', 0);
