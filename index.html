@@ -1882,7 +1882,7 @@
 
   /* --- Franja de herramientas del ramen: salsas (botellas) y flameador --- */
   .ramen-tool-strip { display: none; }
-  .ramen-tool-strip.on { display: flex; justify-content: center; align-items: flex-end; gap: 11px; margin-top: auto; padding: 2px 6px 3px; flex-shrink: 0; position: relative; z-index: 91; pointer-events: none; }
+  .ramen-tool-strip.on { display: flex; justify-content: flex-start; align-items: flex-end; gap: 11px; margin-top: auto; padding: 2px 6px 3px 30px; width: 100%; box-sizing: border-box; align-self: stretch; flex-shrink: 0; position: relative; z-index: 91; pointer-events: none; }
   .ramen-tool-strip.on + .kitchen-bottom-dock { margin-top: 0; }
   .tool-item { pointer-events: auto; display: flex; flex-direction: column; align-items: center; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; transition: transform 0.12s, opacity 0.12s; }
   .tool-item:hover { transform: translateY(-3px); }
@@ -6166,7 +6166,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v59</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v60</span></button></div>
     </div>
   </div>
 
@@ -16026,14 +16026,18 @@ function generatePanSVG(pan, ph) {
   return `<svg class="pan-svg ${sizz ? 'pan-sizzling' : ''}" viewBox="0 0 100 64">
     <defs><linearGradient id="panSteel" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6e7884"/><stop offset="0.28" stop-color="#c3ccd5"/><stop offset="0.55" stop-color="#8f9aa6"/><stop offset="0.82" stop-color="#cfd8e0"/><stop offset="1" stop-color="#5f6974"/></linearGradient></defs>
     ${flame}
-    <path d="M 74,38 L 99,42" stroke="#23262b" stroke-width="6" stroke-linecap="round" fill="none"/>
-    <path d="M 74,38 L 99,42" stroke="#3a3f46" stroke-width="3.6" stroke-linecap="round" fill="none"/>
-    <path d="M 76,36.6 L 96,40.2" stroke="#6b727b" stroke-width="1" stroke-linecap="round" fill="none"/>
-    <ellipse cx="46" cy="38" rx="35" ry="16" fill="url(#panSteel)" stroke="#23262b" stroke-width="1.6"/>
-    <ellipse cx="46" cy="34" rx="33" ry="14.5" fill="#d3dbe3" stroke="#23262b" stroke-width="1.3"/>
-    <ellipse cx="46" cy="34.5" rx="29.5" ry="12.5" fill="#7b8691" stroke="#59626c" stroke-width="0.8"/>
-    <path d="M 22,30 Q 46,22 70,30" stroke="#ffffff" stroke-opacity="0.35" stroke-width="1.2" fill="none"/>
-    ${food}
+    <ellipse cx="46" cy="58" rx="33" ry="4" fill="rgba(0,0,0,0.4)"/>
+    <path d="M 79,30 L 99,34" stroke="#23262b" stroke-width="6" stroke-linecap="round" fill="none"/>
+    <path d="M 79,30 L 99,34" stroke="#3a3f46" stroke-width="3.6" stroke-linecap="round" fill="none"/>
+    <path d="M 82,29.4 L 96,32.2" stroke="#6b727b" stroke-width="1" stroke-linecap="round" fill="none"/>
+    <path d="M 11,28 C 11,50 24,55 46,55 C 68,55 81,50 81,28 Z" fill="url(#panSteel)" stroke="#23262b" stroke-width="1.7" stroke-linejoin="round"/>
+    <path d="M 14,37 Q 46,50 78,37" stroke="#ffffff" stroke-opacity="0.3" stroke-width="1.3" fill="none"/>
+    <path d="M 17,47 Q 46,59 75,47" stroke="#3d444d" stroke-opacity="0.3" stroke-width="1.5" fill="none"/>
+    <ellipse cx="46" cy="28" rx="35" ry="12.5" fill="#d3dbe3" stroke="#23262b" stroke-width="1.5"/>
+    <ellipse cx="46" cy="28.6" rx="32" ry="10.6" fill="#4d5862" stroke="#3a424b" stroke-width="0.8"/>
+    <path d="M 16.5,27.5 Q 46,14.5 75.5,27.5 Q 46,21 16.5,27.5 Z" fill="#8a95a0" opacity="0.55"/>
+    <g transform="translate(46 31) scale(0.9 0.72) translate(-46 -34.5)">${food}</g>
+    <path d="M 14,30 Q 46,43 78,30" stroke="#ffffff" stroke-opacity="0.45" stroke-width="1.2" fill="none"/>
     <circle class="pan-bub b1" cx="38" cy="30" r="1.6" fill="#fff"/><circle class="pan-bub b2" cx="52" cy="33" r="1.4" fill="#ffe082"/><circle class="pan-bub b3" cx="45" cy="28" r="1.2" fill="#fff"/>
     ${ph === 'BURNT' || ph === 'DRIED' ? '<g stroke="#9e9e9e" stroke-width="1.6" stroke-linecap="round" fill="none" opacity="0.8"><path d="M 36,24 q -3,-6 1,-10"/><path d="M 48,22 q 3,-6 -1,-11"/><path d="M 58,24 q -3,-6 1,-10"/></g>' : ''}
     ${(ph === 'HOT' || ph === 'HEAT') && pan.fire ? '<g class="pan-steam" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" fill="none"><path d="M 38,24 q -3,-5 1,-9"/><path d="M 48,22 q 3,-5 -1,-10"/><path d="M 58,24 q -3,-5 1,-9"/></g>' : ''}
