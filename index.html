@@ -6205,7 +6205,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v71</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v72</span></button></div>
     </div>
   </div>
 
@@ -10779,7 +10779,7 @@ function stGateHint(area) {
 
 // ---- Insumos de Producción por área ----
 // key, label, icon (id de ingrediente para el dibujo), covers (ingredientes que cubre), use, time (s), batch, max, start
-// how: cómo se procesa en el taller ('clean' = se limpia en la tabla tocándolo, sin cuchillo); then: 'blanch' = proceso en dos pasos (primero se CORTA en la tabla -> queda "cortado"
+// how: cómo se procesa en el taller ('clean' = se limpia en la tabla tocándolo, sin cuchillo); then: 'blanch' | 'cook' | 'marinate' = proceso en dos pasos (primero se CORTA en la tabla -> queda "cortado"
 // en st.cut, y luego se BLANQUEA en una hornilla gastando lo cortado -> pasa a las existencias de emplatar). time = blanqueado.
 const ST_PROD = {
   ramen: [
@@ -10799,26 +10799,28 @@ const ST_PROD = {
     // Chasu flameado: se flamea en Cocina (estación "Flamear Chasu"); sus existencias son las de esa estación y se gastan al emplatar
     { key: 'chasu', label: 'Chasu flameado', short: 'Chasu', icon: 11, covers: [11], use: 'plate', virtual: true, time: 0, batch: 0, max: 4, start: 0 }
   ],
+  // Salteados / Makis / Frituras (mismo taller que Ramen). how = primer paso; then = segundo paso en hornilla (time = su duración).
+  // verb1 / binWord ajustan el texto del primer paso (el arroz se LAVA y queda "lavado").
   salteados: [
-    { key: 'arroz',    label: 'Arroz cocido',    icon: 37, covers: [37],                       use: 'cook',  time: 10, batch: 6, max: 12, start: 6 },
-    { key: 'pollo',    label: 'Pollo marinado',  icon: 69, covers: [69],                       use: 'cook',  time: 9,  batch: 6, max: 12, start: 6 },
-    { key: 'lomo',     label: 'Lomo cortado',    icon: 61, covers: [61],                       use: 'cook',  time: 8,  batch: 4, max: 8,  start: 4 },
-    { key: 'ensalada', label: 'Ensaladas',       icon: 55, covers: [55, 56],                   use: 'plate', time: 6,  batch: 6, max: 12, start: 6 },
-    { key: 'finos',    label: 'Vegetales finos', icon: 68, covers: [63, 68, 42, 23, 67, 71],   use: 'plate', time: 7,  batch: 6, max: 12, start: 6 }
+    { key: 'arroz',    label: 'Arroz cocido',    icon: 37, covers: [37],                       use: 'cook',  how: 'clean', verb1: 'Lavar', binWord: 'lavado', then: 'cook',     time: 10, batch: 6, max: 12, start: 6 },
+    { key: 'pollo',    label: 'Pollo marinado',  icon: 69, covers: [69],                       use: 'cook',  how: 'cut',   binWord: 'trozado',            then: 'marinate', time: 9,  batch: 6, max: 12, start: 6 },
+    { key: 'lomo',     label: 'Lomo cortado',    icon: 61, covers: [61],                       use: 'cook',  how: 'cut',                                                 time: 8,  batch: 4, max: 8,  start: 4 },
+    { key: 'ensalada', label: 'Ensaladas',       icon: 55, covers: [55, 56],                   use: 'plate', how: 'clean', verb1: 'Lavar',                              time: 6,  batch: 6, max: 12, start: 6 },
+    { key: 'finos',    label: 'Vegetales finos', icon: 68, covers: [63, 68, 42, 23, 67, 71],   use: 'plate', how: 'cut',                                                 time: 7,  batch: 6, max: 12, start: 6 }
   ],
   makis: [
-    { key: 'shari',    label: 'Arroz shari',        icon: 38, covers: [38],     use: 'cook',  time: 10, batch: 6, max: 12, start: 6 },
-    { key: 'ebi',      label: 'Ebi cocido',         icon: 54, covers: [54],     use: 'cook',  time: 12, batch: 4, max: 8,  start: 4 },
-    { key: 'palta',    label: 'Palta en láminas',   icon: 64, covers: [64],     use: 'cook',  time: 6,  batch: 6, max: 12, start: 6 },
-    { key: 'pescado',  label: 'Atún y cecina',      icon: 39, covers: [39, 47], use: 'cook',  time: 8,  batch: 4, max: 8,  start: 4 },
-    { key: 'gari',     label: 'Jengibre y wasabi',  icon: 97, covers: [96, 97], use: 'plate', time: 6,  batch: 8, max: 16, start: 8 }
+    { key: 'shari',    label: 'Arroz shari',        icon: 38, covers: [38],     use: 'cook',  how: 'clean', verb1: 'Lavar', binWord: 'lavado', then: 'cook', time: 10, batch: 6, max: 12, start: 6 },
+    { key: 'ebi',      label: 'Ebi cocido',         icon: 54, covers: [54],     use: 'cook',  how: 'cook',                                                    time: 12, batch: 4, max: 8,  start: 4 },
+    { key: 'palta',    label: 'Palta en láminas',   icon: 64, covers: [64],     use: 'cook',  how: 'cut',                                                     time: 6,  batch: 6, max: 12, start: 6 },
+    { key: 'pescado',  label: 'Atún y cecina',      icon: 39, covers: [39, 47], use: 'cook',  how: 'cut',                                                     time: 8,  batch: 4, max: 8,  start: 4 },
+    { key: 'gari',     label: 'Jengibre y wasabi',  icon: 97, covers: [96, 97], use: 'plate', how: 'cut',                                                     time: 6,  batch: 8, max: 16, start: 8 }
   ],
   frituras: [
-    { key: 'col',      label: 'Col rallada',  icon: 52, covers: [52], use: 'plate', time: 8,  batch: 6, max: 12, start: 6 },
-    { key: 'zanahoria', label: 'Zanahoria',   icon: 30, covers: [30], use: 'plate', time: 6,  batch: 6, max: 12, start: 6 },
-    { key: 'betarraga', label: 'Betarraga',   icon: 42, covers: [42], use: 'plate', time: 7,  batch: 4, max: 8,  start: 4 },
-    { key: 'ebi',      label: 'Ebi furai',    icon: 60, covers: [60], use: 'cook',  time: 12, batch: 4, max: 8,  start: 4 },
-    { key: 'gyozas',   label: 'Gyozas',       icon: 73, covers: [73], use: 'cook',  time: 14, batch: 4, max: 8,  start: 4 }
+    { key: 'col',      label: 'Col rallada',  icon: 52, covers: [52], use: 'plate', how: 'cut',                                                           time: 8,  batch: 6, max: 12, start: 6 },
+    { key: 'zanahoria', label: 'Zanahoria',   icon: 30, covers: [30], use: 'plate', how: 'cut',                                                           time: 6,  batch: 6, max: 12, start: 6 },
+    { key: 'betarraga', label: 'Betarraga',   icon: 42, covers: [42], use: 'plate', how: 'cut',                                                           time: 7,  batch: 4, max: 8,  start: 4 },
+    { key: 'ebi',      label: 'Ebi furai',    icon: 60, covers: [60], use: 'cook',  how: 'clean', verb1: 'Pelar',                                        time: 12, batch: 4, max: 8,  start: 4 },
+    { key: 'gyozas',   label: 'Gyozas',       icon: 73, covers: [73], use: 'cook',  how: 'cut',   binWord: 'picado',            then: 'marinate',          time: 14, batch: 4, max: 8,  start: 4 }
   ]
 };
 
@@ -11152,32 +11154,36 @@ function stBackBtn(area) {
 // sobre ella el tiempo indicado); 'cook' = se cuece y 'blanch' = se blanquea en una hornilla (corre solo, hay que
 // retirarlo; si se olvida demasiado se pasa y solo se salva la mitad).
 const ST_HOW = {
-  cut:    { icon: '🔪', verb: 'Cortar' },
-  clean:  { icon: '🧺', verb: 'Limpiar' },
-  cook:   { icon: '♨️', verb: 'Cocer' },
-  blanch: { icon: '💧', verb: 'Blanquear' }
+  cut:      { icon: '🔪', verb: 'Cortar',    short: 'Cortar',  imp: 'córtalo' },
+  clean:    { icon: '🧺', verb: 'Limpiar',   short: 'Limpiar', imp: 'límpialo' },
+  cook:     { icon: '♨️', verb: 'Cocer',     short: 'Cocer',   imp: 'cuécelo' },
+  blanch:   { icon: '💧', verb: 'Blanquear', short: 'Blanq.',  imp: 'blanquéalo' },
+  marinate: { icon: '🧂', verb: 'Marinar',   short: 'Marinar', imp: 'márinalo' }
 };
+// verbo del primer paso (p.verb1 lo cambia: el arroz se LAVA) y palabra de lo que queda en el depósito (p.binWord)
+const stVerb1 = p => (p.verb1 || ST_HOW[p.how].verb);
+const stShopArea = () => gameState.activeArea;   // el taller (tabla / cuchillo) siempre es el del área abierta
 const ST_SHOP_LATE_SECONDS = 15;   // tiempo que aguanta un producto listo en la hornilla antes de pasarse
 
 function stIsShop(area) { return ST_PROD[area].some(p => p.how); }
 const stProdOf = (area, key) => ST_PROD[area].find(x => x.key === key);
 
 function stBin(st, p) { return p.then ? st.cut : st.stock; }
-const stBinWord = p => (p.how === 'clean' ? 'limpio' : 'cortado');
+const stBinWord = p => p.binWord || (p.how === 'clean' ? 'limpio' : 'cortado');
 const stBinTag = p => (p.how === 'clean' ? '🧺' : '🔪');   // dónde cae lo que sale de la tabla
 
 function stShopStart(area, p, mode) {
   const st = stGet(area);
   const how = p.then ? (mode || p.how) : p.how;
   if (how === 'cut' || how === 'clean') {
-    if (stBin(st, p)[p.key] >= p.max) { showStationToast(p.then ? `${ST_HOW[how].icon} ${p.label}: ya hay suficiente ${stBinWord(p)}, blanquéalo.` : `${p.label}: el depósito ya está lleno.`); playSound('error'); return; }
-    if (st.board && st.board.key === p.key) { showStationToast(how === 'clean' ? '🧺 Ya está en la tabla: toca el moyashi para limpiarlo.' : (st.knifeArmed ? '🔪 Ya está en la tabla: toca la pantalla para cortar.' : '🔪 Ya está en la tabla: arrastra el cuchillo sobre ella.')); return; }
+    if (stBin(st, p)[p.key] >= p.max) { showStationToast(p.then ? `${ST_HOW[how].icon} ${p.label}: ya hay suficiente ${stBinWord(p)}, ${ST_HOW[p.then].imp}.` : `${p.label}: el depósito ya está lleno.`); playSound('error'); return; }
+    if (st.board && st.board.key === p.key) { showStationToast(how === 'clean' ? `🧺 Ya está en la tabla: toca ${p.label.toLowerCase()} para ${stVerb1(p).toLowerCase()}lo.` : (st.knifeArmed ? '🔪 Ya está en la tabla: toca la pantalla para cortar.' : '🔪 Ya está en la tabla: arrastra el cuchillo sobre ella.')); return; }
     st.board = { key: p.key, taps: 0, mode: how };   // la tabla admite un producto a la vez; elegir otro lo reemplaza
-    showStationToast(how === 'clean' ? `🧺 ${p.label} en la tabla: tócalo para limpiarlo.` : (st.knifeArmed ? `🔪 ${p.label} en la tabla: toca la pantalla para cortar.` : `🔪 ${p.label} en la tabla: arrastra el cuchillo sobre ella.`));
+    showStationToast(how === 'clean' ? `🧺 ${p.label} en la tabla: tócalo para ${stVerb1(p).toLowerCase()}lo.` : (st.knifeArmed ? `🔪 ${p.label} en la tabla: toca la pantalla para cortar.` : `🔪 ${p.label} en la tabla: arrastra el cuchillo sobre ella.`));
     try { playSound('add'); } catch (e) {}
   } else {
     if (st.stock[p.key] >= p.max) { showStationToast(`${p.label}: el depósito ya está lleno.`); playSound('error'); return; }
-    if (p.then && !(st.cut[p.key] >= 1)) { showStationToast(`${stBinTag(p)} Primero ${p.how === 'clean' ? 'limpia' : 'corta'} ${p.label.toLowerCase()}: no hay nada ${stBinWord(p)} para blanquear.`); playSound('error'); return; }
+    if (p.then && !(st.cut[p.key] >= 1)) { showStationToast(`${stBinTag(p)} Primero ${stVerb1(p).toLowerCase()} ${p.label.toLowerCase()}: no hay nada ${stBinWord(p)} para ${ST_HOW[p.then].verb.toLowerCase()}.`); playSound('error'); return; }
     const slot = st.stove.findIndex(x => !x);
     if (slot === -1) { showStationToast('♨️ Las dos hornillas están ocupadas: retira algo cuando esté listo.'); playSound('error'); return; }
     const n = p.then ? Math.min(p.batch, st.cut[p.key], p.max - st.stock[p.key]) : p.batch;
@@ -11185,7 +11191,7 @@ function stShopStart(area, p, mode) {
     const total = stProdTime(p);
     st.stove[slot] = { key: p.key, how, n, left: total, total, state: 'cooking', late: 0 };
     try { playSound('splash'); } catch (e) {}
-    if (p.then) showStationToast(`💧 ${n} ${p.label.toLowerCase()} ${stBinWord(p)} a blanquear en la hornilla ${slot + 1}.`);
+    if (p.then) showStationToast(`${ST_HOW[how].icon} ${n} ${p.label.toLowerCase()} ${stBinWord(p)} a ${ST_HOW[how].verb.toLowerCase()} en la hornilla ${slot + 1}.`);
   }
   stRenderIfOpen(area);
   updateAreaTabAlerts();
@@ -11251,12 +11257,12 @@ function cleanupShopKnife() {
   const b = document.getElementById('shop-board'); if (b) b.classList.remove('drop-hover');
   shopKnifeDrag = null;
 }
-const shopArmedActive = () => stagedOn('ramen') && gameState.activeArea === 'ramen' && getStage('ramen') === 'prod'
-  && stGet('ramen').knifeArmed && !(stGet('ramen').board && stGet('ramen').board.mode === 'clean') && !gameState.isPaused && !gameState.isGameOver;
+const shopArmedActive = () => { const a = gameState.activeArea; return !!a && STAGE_AREAS.includes(a) && stagedOn(a) && stIsShop(a) && getStage(a) === 'prod'
+  && stGet(a).knifeArmed && !(stGet(a).board && stGet(a).board.mode === 'clean') && !gameState.isPaused && !gameState.isGameOver; };
 function shopHint(msg) { if (performance.now() - shopHintAt > 2500) { shopHintAt = performance.now(); showStationToast(msg); } }
 
 function shopUpdateCount(p) {
-  const st = stGet('ramen'), n = st.stock[p.key], c = stBin(st, p)[p.key];
+  const st = stGet(stShopArea()), n = st.stock[p.key], c = stBin(st, p)[p.key];
   document.querySelectorAll(`[data-stock-of="${p.key}"]`).forEach(el => { el.textContent = `${n}/${p.max}`; });
   document.querySelectorAll(`[data-cut-of="${p.key}"]`).forEach(el => { el.textContent = `${stBinTag(p)}${st.cut[p.key]}`; });
   document.querySelectorAll(`[data-cut-chip="${p.key}"]`).forEach(el => { el.textContent = c; });
@@ -11297,7 +11303,7 @@ function shopSplitFx(p, stg, done) {
   }
   item.className = base + ' s3';
   setTimeout(() => {
-    const it = document.getElementById('shop-cb-item'), st = stGet('ramen');
+    const it = document.getElementById('shop-cb-item'), st = stGet(stShopArea());
     const cur = st.board && st.board.key === p.key ? st.board.taps % SHOP_TAPS_PER_PORTION : 0;
     if (it) { it.className = base + ' s' + cur; void it.offsetWidth; it.className = base + ' s' + cur + ' pop'; }
     const pl = document.getElementById('shop-pile');
@@ -11333,13 +11339,13 @@ function shopCleanFx(p) {
   setTimeout(() => fx.remove(), 1000);
 }
 function shopStowKnife() {
-  const st = stGet('ramen');
+  const st = stGet(stShopArea());
   if (st.board && st.board.mode === 'clean') st.board = null; else st.knifeArmed = false;
   try { playSound('click'); } catch (e) {}
-  stRenderIfOpen('ramen');
+  stRenderIfOpen(stShopArea());
 }
 function shopPips() {
-  const st = stGet('ramen'), pips = document.querySelectorAll('#shop-board .shop-pips i');
+  const st = stGet(stShopArea()), pips = document.querySelectorAll('#shop-board .shop-pips i');
   const on = st.board ? st.board.taps % SHOP_TAPS_PER_PORTION : 0;
   pips.forEach((el, i) => el.classList.toggle('on', i < on));
 }
@@ -11357,14 +11363,14 @@ function shopChopFx(p) {
   setTimeout(() => fx.remove(), 520);
 }
 function shopChop() {
-  const st = stGet('ramen');
+  const st = stGet(stShopArea());
   if (!st.knifeArmed) return;
   if (!st.board) { shopHint('🔪 Primero pon un producto en la tabla (toca su ficha).'); return; }
   if (st.board.mode === 'clean') { shopHint('🧺 El moyashi se limpia tocándolo.'); return; }
   shopTapCore(st, 'cut');
 }
 function shopClean() {
-  const st = stGet('ramen');
+  const st = stGet(stShopArea());
   if (!st.board || st.board.mode !== 'clean') return;
   shopTapCore(st, 'clean');
 }
@@ -11372,7 +11378,7 @@ function shopTapCore(st, kind) {
   const now = performance.now();
   if (now < shopTapLockUntil) return;               // la animación anterior aún no termina
   shopTapLockUntil = now + (kind === 'clean' ? SHOP_CLEAN_LOCK_MS : SHOP_CUT_LOCK_MS);
-  const p = stProdOf('ramen', st.board.key);
+  const p = stProdOf(stShopArea(), st.board.key);
   try { playSound(kind === 'clean' ? 'splash' : 'chop'); } catch (e) {}
   if (kind === 'clean') shopCleanFx(p); else shopChopFx(p);
   st.board.taps++;
@@ -11388,8 +11394,8 @@ function shopTapCore(st, kind) {
     if (bin[p.key] >= p.max) {
       if (kind === 'cut') st.knifeArmed = false;
       st.board = null;
-      showStationToast(p.then ? `${stBinTag(p)} ${p.label}: todo ${stBinWord(p)}, ahora blanquéalo en la cocina.` : `🥬 ${p.label}: depósito lleno.`);
-      setTimeout(() => { stRenderIfOpen('ramen'); renderStageTabs(); }, 450);   // deja ver caer la última porción
+      showStationToast(p.then ? `${stBinTag(p)} ${p.label}: todo ${stBinWord(p)}, ahora ${ST_HOW[p.then].imp} en la hornilla.` : `🥬 ${p.label}: depósito lleno.`);
+      setTimeout(() => { stRenderIfOpen(stShopArea()); renderStageTabs(); }, 450);   // deja ver caer la última porción
       return;
     }
   }
@@ -11425,7 +11431,7 @@ function onShopKnifeUp(e) {
   const board = document.getElementById('shop-board'), r = board ? board.getBoundingClientRect() : null;
   const inside = !!r && p.x >= r.left - 6 && p.x <= r.right + 6 && p.y >= r.top - 6 && p.y <= r.bottom + 6;
   cleanupShopKnife();
-  const st = stGet('ramen');
+  const st = stGet(stShopArea());
   if (!wasActive) {                                  // un toque sobre el propio cuchillo
     if (st.knifeArmed) shopChop(); else shopHint('🔪 Arrastra el cuchillo hasta la tabla.');
     return;
@@ -11433,7 +11439,7 @@ function onShopKnifeUp(e) {
   st.knifeArmed = inside;                            // soltado sobre la tabla = armado; en otro lado = vuelve a su sitio
   try { playSound(inside ? 'add' : 'click'); } catch (e) {}
   if (inside) showStationToast(st.board ? '🔪 Toca la pantalla para cortar (3 cortes = 1 porción).' : '🔪 Ahora pon un producto en la tabla (toca su ficha).');
-  stRenderIfOpen('ramen');
+  stRenderIfOpen(stShopArea());
 }
 document.addEventListener('pointerdown', (e) => {
   const k = e.target.closest && e.target.closest('#shop-knife');
@@ -11469,13 +11475,14 @@ function stRenderShop(area, panel) {
     const blocked = n >= p.max || (p.how !== 'cut' && freeSlot === -1);
     if (p.then) {                                   // dos pasos: 🔪 cortar -> queda "cortado" -> 💧 blanquear
       const c = st.cut[p.key], cutOff = c >= p.max, blOff = c < 1 || n >= p.max || freeSlot === -1;
+      const h2 = ST_HOW[p.then];
       return `<div class="fp-card two-step ${low ? 'is-low' : ''} ${(onBoard || onStove) ? 'is-busy' : ''}">
       <div class="fp-card-ico">${stIngIconRaw(p.icon)}</div>
       <div class="fp-card-name">${p.short || p.label}</div>
-      <div class="fp-card-n"><span data-stock-of="${p.key}">${n}/${p.max}</span> <span class="fp-cut" data-cut-of="${p.key}" title="${stBinWord(p)[0].toUpperCase() + stBinWord(p).slice(1)}, listo para blanquear">${stBinTag(p)}${c}</span></div>
+      <div class="fp-card-n"><span data-stock-of="${p.key}">${n}/${p.max}</span> <span class="fp-cut" data-cut-of="${p.key}" title="${stBinWord(p)[0].toUpperCase() + stBinWord(p).slice(1)}, listo para ${ST_HOW[p.then].verb.toLowerCase()}">${stBinTag(p)}${c}</span></div>
       <div class="fp-btn-row">
-        <button class="fp-btn" ${cutOff ? 'disabled' : ''} title="${how.verb} ${p.label}" onclick="stProdStart('${area}','${p.key}','${p.how}')">${how.icon} ${how.verb}</button>
-        <button class="fp-btn" ${blOff ? 'disabled' : ''} title="Blanquear ${p.label} ${stBinWord(p)} (${stProdTime(p)} s)" onclick="stProdStart('${area}','${p.key}','blanch')">💧 Blanq.</button>
+        <button class="fp-btn" ${cutOff ? 'disabled' : ''} title="${stVerb1(p)} ${p.label}" onclick="stProdStart('${area}','${p.key}','${p.how}')">${how.icon} ${stVerb1(p)}</button>
+        <button class="fp-btn" ${blOff ? 'disabled' : ''} title="${h2.verb} ${p.label} ${stBinWord(p)} (${stProdTime(p)} s)" onclick="stProdStart('${area}','${p.key}','${p.then}')">${h2.icon} ${h2.short}</button>
       </div>
     </div>`;
     }
@@ -11483,7 +11490,7 @@ function stRenderShop(area, panel) {
       <div class="fp-card-ico">${stIngIconRaw(p.icon)}</div>
       <div class="fp-card-name">${p.short || p.label}</div>
       <div class="fp-card-n"><span data-stock-of="${p.key}">${n}/${p.max}</span>${stHasRaw(p.icon) ? ` <span class="fp-arrow">→${stIngIcon(p.icon)}</span>` : ''}</div>
-      <button class="fp-btn" ${blocked ? 'disabled' : ''} title="${how.verb} ${p.label}" onclick="stProdStart('${area}','${p.key}')">${n >= p.max ? 'Lleno' : `${how.icon} ${how.verb}`}</button>
+      <button class="fp-btn" ${blocked ? 'disabled' : ''} title="${stVerb1(p)} ${p.label}" onclick="stProdStart('${area}','${p.key}')">${n >= p.max ? 'Lleno' : `${how.icon} ${stVerb1(p)}`}</button>
     </div>`;
   }).join('');
   const b = st.board, bp = b ? stProdOf(area, b.key) : null, on = b ? b.taps % SHOP_TAPS_PER_PORTION : 0;
@@ -11505,14 +11512,14 @@ function stRenderShop(area, panel) {
     const pb = bp, bin = stBin(st, pb)[pb.key], isClean = st.board.mode === 'clean';
     const chips = list.filter(q => q.how === 'cut' || q.how === 'clean').map(q => {
       const c = stBin(st, q)[q.key];
-      return `<button class="cb-chip ${st.board.key === q.key ? 'on' : ''}" ${c >= q.max ? 'disabled' : ''} title="${ST_HOW[q.how].verb} ${q.label}" onclick="stProdStart('${area}','${q.key}','${q.how}')">${stIngIconRaw(q.icon)}<i data-cut-chip="${q.key}">${c}</i></button>`;
+      return `<button class="cb-chip ${st.board.key === q.key ? 'on' : ''}" ${c >= q.max ? 'disabled' : ''} title="${stVerb1(q)} ${q.label}" onclick="stProdStart('${area}','${q.key}','${q.how}')">${stIngIconRaw(q.icon)}<i data-cut-chip="${q.key}">${c}</i></button>`;
     }).join('');
     const rows = list.filter(q => q.then).map(q => {
       const c = st.cut[q.key], n2 = st.stock[q.key], off = c < 1 || n2 >= q.max || freeSlot === -1;
-      return `<div class="bl-row"><span class="bl-ico">${stIngIconRaw(q.icon)}</span><b>${q.short || q.label}</b><span class="fp-cut" data-cut-of="${q.key}">${stBinTag(q)}${c}</span><span data-stock-of="${q.key}">${n2}/${q.max}</span><button class="fp-btn" data-bl-btn="${q.key}" ${off ? 'disabled' : ''} title="Blanquear ${q.label} ${stBinWord(q)} (${stProdTime(q)} s)" onclick="stProdStart('${area}','${q.key}','blanch')">💧</button></div>`;
+      return `<div class="bl-row"><span class="bl-ico">${stIngIconRaw(q.icon)}</span><b>${q.short || q.label}</b><span class="fp-cut" data-cut-of="${q.key}">${stBinTag(q)}${c}</span><span data-stock-of="${q.key}">${n2}/${q.max}</span><button class="fp-btn" data-bl-btn="${q.key}" ${off ? 'disabled' : ''} title="${ST_HOW[q.then].verb} ${q.label} ${stBinWord(q)} (${stProdTime(q)} s)" onclick="stProdStart('${area}','${q.key}','${q.then}')">${ST_HOW[q.then].icon}</button></div>`;
     }).join('');
     panel.innerHTML = `<div class="fp-wrap fp-shop is-cutting">
-    <div class="fp-head"><span>🥬 Producción · ${AREA_LABELS[area]}</span><small>${isClean ? 'Toca el moyashi para limpiarlo: 3 toques = 1 porción limpia.' : 'Toca la pantalla para cortar: 3 cortes = 1 porción.'}</small><button class="stage-panel-back fp-back" onclick="shopStowKnife()">${isClean ? '✔ Terminar' : '🔪 Guardar cuchillo'}</button>${stBackBtn(area)}</div>
+    <div class="fp-head"><span>🥬 Producción · ${AREA_LABELS[area]}</span><small>${isClean ? `Toca ${pb.label.toLowerCase()} para ${stVerb1(pb).toLowerCase()}lo: 3 toques = 1 porción ${stBinWord(pb)}.` : 'Toca la pantalla para cortar: 3 cortes = 1 porción.'}</small><button class="stage-panel-back fp-back" onclick="shopStowKnife()">${isClean ? '✔ Terminar' : '🔪 Guardar cuchillo'}</button>${stBackBtn(area)}</div>
     <div class="shop-cutlayout">
       <div class="shop-bigboard has-item" id="shop-board">
         <div class="cb-chips">${chips}</div>
@@ -11523,13 +11530,13 @@ function stRenderShop(area, panel) {
         ${isClean ? '' : '<img class="fry-knife-tool shop-knife armed" id="shop-knife" src="assets/maki_knife.svg" alt="Cuchillo" draggable="false">'}
       </div>
       <div class="shop-side">
-        ${rows ? `<div class="bl-list"><div class="bl-title">💧 Blanquear lo preparado</div>${rows}</div>` : ''}
+        ${rows ? `<div class="bl-list"><div class="bl-title">♨️ A la hornilla</div>${rows}</div>` : ''}
         <div class="shop-stove">${pots}</div>
       </div>
     </div></div>`;
     return;
   }
-  const hint = !st.knifeArmed ? 'Cortar: toca 🔪 y arrastra el cuchillo a la tabla. Holantao, espárrago y col: corta y 💧 blanquea. Moyashi: 🧺 límpialo y 💧 blanquea.' : (st.board ? 'Toca la pantalla para cortar: 3 cortes = 1 porción.' : 'Cuchillo listo: toca la ficha de un producto para cortar.');
+  const hint = !st.knifeArmed ? (area === 'ramen' ? 'Cortar: toca 🔪 y arrastra el cuchillo a la tabla. Holantao, espárrago y col: corta y 💧 blanquea. Moyashi: 🧺 límpialo y 💧 blanquea.' : 'Cortar: toca 🔪 y arrastra el cuchillo a la tabla. 🧺 = se limpia con las manos. Lo de dos pasos se prepara en la tabla y luego pasa a la hornilla.') : (st.board ? 'Toca la pantalla para cortar: 3 cortes = 1 porción.' : 'Cuchillo listo: toca la ficha de un producto para cortar.');
   panel.innerHTML = `<div class="fp-wrap fp-shop">
     <div class="fp-head"><span>🥬 Producción · ${AREA_LABELS[area]}</span><small>${hint}</small>${stBackBtn(area)}</div>
     <div class="fp-cards many shop-cards" style="--cols:${Math.max(6, Math.ceil(list.length / 2))}">${cards}</div>
