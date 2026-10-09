@@ -2392,6 +2392,25 @@
     pointer-events: none;
   }
   .fry-stove-label.l1 { left: 34%; }
+  /* Frituras con etapas: perilla de fuego, llamas bajo la olla y temperatura del aceite */
+  .fry-flames, .fry-fire-btn, .fry-heat { display: none; }
+  .fry-stove.fry-fire-ui .fry-flames { display: block; position: absolute; left: 7%; top: 47%; width: 37%; height: 15%; pointer-events: none; opacity: 0; transition: opacity 0.2s; }
+  .fry-stove.fire-on .fry-flames { opacity: 1; }
+  .fry-flames svg { width: 100%; height: 100%; display: block; overflow: visible; }
+  .fry-flames path { transform-box: fill-box; transform-origin: 50% 100%; animation: panFlame 0.3s ease-in-out infinite alternate; }
+  .fry-flames path:nth-child(even) { animation-duration: 0.37s; }
+  .fry-stove.fry-fire-ui .fry-fire-btn { display: flex; align-items: center; justify-content: center; position: absolute; left: 27%; top: 74%; translate: -50% -50%; width: 22px; height: 22px; border-radius: 50%; padding: 0; z-index: 4; font-size: 12px; line-height: 1; cursor: pointer; background: rgba(40, 44, 50, 0.55); border: 2px solid #8f9aa6; filter: grayscale(1) brightness(0.85); }
+  .fry-stove.fire-on .fry-fire-btn { filter: none; border-color: #ff9100; box-shadow: 0 0 10px 2px rgba(255, 145, 0, 0.9); }
+  .fry-stove.fry-fire-ui .fry-heat { display: block; position: absolute; left: 18%; top: 85%; width: 25%; height: 5px; border-radius: 3px; background: rgba(0,0,0,0.6); overflow: hidden; z-index: 3; pointer-events: none; }
+  .fry-heat i { display: block; width: 0%; height: 100%; background: linear-gradient(90deg, #4fc3f7, #ffb300, #ff3d00); background-size: 25cqw 100%; transition: width 0.1s linear; }
+  .fry-stove.is-hot .fry-oil-visual { filter: drop-shadow(0 0 4px rgba(255, 150, 0, 0.6)); }
+  /* Proteína recién frita: brillo de aceite y gotas mientras no se escurra (--oil 1 → 0) */
+  .fry-board-item { position: relative; }
+  .fry-sheen { position: absolute; inset: 0; border-radius: 40%; pointer-events: none; background: radial-gradient(ellipse at 38% 32%, rgba(255, 238, 150, calc(0.7 * var(--oil, 0))), rgba(255, 238, 150, 0) 65%); }
+  .fry-drip { position: absolute; top: 78%; width: 4px; height: 7px; border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%; background: #f2c84b; pointer-events: none; opacity: calc(var(--oil, 0)); animation: fryDrip 0.9s ease-in infinite; }
+  .fry-drip.d1 { left: 25%; } .fry-drip.d2 { left: 50%; animation-delay: 0.3s; } .fry-drip.d3 { left: 72%; animation-delay: 0.6s; }
+  @keyframes fryDrip { 0% { transform: translateY(0) scale(0.7); } 100% { transform: translateY(16px) scale(1); } }
+  .fry-board-card { touch-action: none; }
   .fry-stove-label.l2 { left: 78%; }
   .fry-stove .fry-status-badge { left: 27%; }
   .fry-pot-card {
@@ -6240,7 +6259,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v74</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v75</span></button></div>
     </div>
   </div>
 
@@ -6986,6 +7005,9 @@
 
       <!-- Olla de aceite: aquí se fríe -->
       <div class="fry-stove" id="fry-stove">
+      <div class="fry-flames" aria-hidden="true"></div>
+      <button class="fry-fire-btn" id="fry-fire-btn" onclick="fryFireToggle()" title="Fuego de la olla de aceite">🔥</button>
+      <div class="fry-heat" title="Temperatura del aceite"><i id="fry-heat-fill"></i></div>
       <div class="fry-scene fry-pot-card" id="fry-oil-card">
         <div class="fry-oil-visual" id="fry-oil-visual"></div>
         <div class="fry-counter" id="fry-counter" style="display:none;">
@@ -11081,7 +11103,7 @@ let fryTimerInterval = null;
 let fryItemDrag = null;
 
 function newFryStation() {
-  return { ingredients: [], phase: 'BUILDING', proteinId: null, coat: 0, fryResult: null, frySeconds: 0, fryTone: '', matchedRecipe: null, cutState: 'NONE', cutProgress: 0 };
+  return { ingredients: [], phase: 'BUILDING', proteinId: null, coat: 0, fryResult: null, frySeconds: 0, fryTone: '', matchedRecipe: null, cutState: 'NONE', cutProgress: 0, drain: 0, cold: false };
 }
 
 // ===== Etapas por área: Producción → Cocinar → Emplatar =====
@@ -11981,7 +12003,7 @@ function moveFryToPass() {
   if (st.phase !== 'FRIED' || !fryCutDone(st)) return;
   const recipes = Object.entries(FRY_PLATING).filter(([n, p]) => p.protein === st.proteinId).map(([n]) => n);
   const ok = stPassAdd('frituras', { recipes, result: st.fryResult || 'PERFECTO', readyAt: st.readyAt != null ? st.readyAt : gameState.gameClock,
-    vis: { kind: 'ing', id: st.proteinId, tone: st.fryTone }, meta: { result: st.fryResult || 'PERFECTO', secs: st.frySeconds, proteinId: st.proteinId } });
+    vis: { kind: 'ing', id: st.proteinId, tone: st.fryTone }, meta: { result: st.fryResult || 'PERFECTO', secs: st.frySeconds, proteinId: st.proteinId, drain: st.drain || 0, cold: !!st.cold } });
   if (!ok) return;
   if (fryTimerInterval) { clearInterval(fryTimerInterval); fryTimerInterval = null; }
   cleanupFryItemDrag();
@@ -12089,6 +12111,79 @@ function analyzeFryStation() {
   };
 }
 
+// ---- Frituras con etapas: fuego, temperatura del aceite y escurrir ----
+// La olla tiene su propia perilla: encendida, el aceite sube de temperatura en ~3 s (se enfría más despacio al apagar). Meter la proteína
+// con el aceite frío la fríe más lento y la deja grasosa; al retirarla hay que ESCURRIRLA (sacudir arriba y abajo sobre la tabla).
+// Puntos de proceso (30): 12 de orden (ya exigido) + 10 de escurrido + 8 de aceite caliente.
+const FRY_HEAT_SECS = 4;           // de frío a caliente
+const FRY_COOL_SECS = 8;           // de caliente a frío con el fuego apagado
+const FRY_HOT_TEMP = 0.8;          // desde esta temperatura el aceite está listo
+const FRY_DRAIN_PX = 260;          // recorrido vertical total para escurrir del todo
+const fryer = () => gameState.fryer || (gameState.fryer = { fire: false, temp: 0 });
+const fryStaged = () => !!gameState.fryStation && stagedOn('frituras');
+const FRY_FLAMES_SVG = (() => {
+  let fl = '';
+  for (let k = 0; k < 9; k++) { const fx = 10 + k * 10; fl += `<path d="M ${fx - 3.6},20 Q ${fx - 4.6},10 ${fx},0 Q ${fx + 4.6},10 ${fx + 3.6},20 Z" fill="#4aa3ff" stroke="#1f5fa8" stroke-width="0.5"/><path d="M ${fx - 1.7},19 Q ${fx},11 ${fx + 1.7},19 Z" fill="#ff9a3d"/>`; }
+  return `<svg viewBox="0 0 100 20" preserveAspectRatio="none">${fl}</svg>`;
+})();
+function fryFireToggle() {
+  if (!fryStaged() || gameState.isPaused || gameState.isGameOver) return;
+  const f = fryer();
+  f.fire = !f.fire;
+  try { playSound(f.fire ? 'flame' : 'click'); } catch (e) {}
+  showStationToast(f.fire ? `🔥 Olla encendida: el aceite tarda ${FRY_HEAT_SECS} s en calentar.` : '🔥 Olla apagada.');
+  fryUpdateFireUi();
+}
+function fryHeatFactor() {
+  return fryStaged() ? 0.5 + 0.5 * Math.min(1, fryer().temp / FRY_HOT_TEMP) : 1;   // aceite frío: cocina a media velocidad
+}
+function fryUpdateFireUi() {
+  const stove = document.getElementById('fry-stove');
+  if (!stove) return;
+  const on = fryStaged();
+  stove.classList.toggle('fry-fire-ui', on);
+  if (!on) return;
+  const fl = stove.querySelector('.fry-flames');
+  if (fl && !fl.firstChild) fl.innerHTML = FRY_FLAMES_SVG;
+  const f = fryer();
+  stove.classList.toggle('fire-on', f.fire);
+  stove.classList.toggle('is-hot', f.temp >= FRY_HOT_TEMP);
+  const fill = document.getElementById('fry-heat-fill');
+  if (fill) fill.style.width = `${Math.round(f.temp * 100)}%`;
+}
+function fryTempTick() {
+  if (!gameState.fryStation || gameState.isPaused || gameState.isGameOver || !fryStaged()) return;
+  const f = fryer();
+  f.temp = f.fire ? Math.min(1, f.temp + 0.1 / FRY_HEAT_SECS) : Math.max(0, f.temp - 0.1 / FRY_COOL_SECS);
+  fryUpdateFireUi();
+}
+setInterval(fryTempTick, 100);
+// Escurrir: sacudir arriba y abajo sobre la tabla con la proteína ya frita
+let frySwipe = null;
+const fryDrainAllowed = () => { const st = gameState.fryStation; return fryStaged() && !!st && st.phase === 'FRIED' && !!st.proteinId && (st.drain || 0) < 1; };
+function fryDrainUi() {
+  const st = gameState.fryStation, item = document.querySelector('#fry-table-strip .fry-board-item');
+  if (item) item.style.setProperty('--oil', String(Math.max(0, 1 - (st.drain || 0)).toFixed(2)));
+}
+document.addEventListener('pointerdown', (e) => {
+  if (!fryDrainAllowed() || !e.target.closest) return;
+  if (!e.target.closest('#fry-table-card') || e.target.closest('button')) return;
+  frySwipe = { id: e.pointerId, y: e.clientY };
+}, { passive: true });
+document.addEventListener('pointermove', (e) => {
+  const sw = frySwipe;
+  if (!sw || e.pointerId !== sw.id) return;
+  if (!fryDrainAllowed()) { frySwipe = null; return; }
+  const dy = Math.abs(e.clientY - sw.y);
+  sw.y = e.clientY;
+  const st = gameState.fryStation, before = st.drain || 0;
+  st.drain = Math.min(1, before + dy / FRY_DRAIN_PX);
+  sfxEvery('splash', 240);
+  fryDrainUi();
+  if (before < 1 && st.drain >= 1) { try { playSound('ding'); } catch (err) {} showStationToast('💧 ¡Bien escurrido!'); renderFryStation(); }
+}, { passive: true });
+['pointerup', 'pointercancel'].forEach(t => document.addEventListener(t, (e) => { if (frySwipe && e.pointerId === frySwipe.id) frySwipe = null; }, { passive: true }));
+
 // Proteína ya empanizada (o sin empanizar, si la receta no lo lleva) que se suelta en la tabla.
 function placeFryProtein(ing, coat) {
   const station = gameState.fryStation;
@@ -12187,6 +12282,9 @@ function startFryingFromBoard() {
   station.phase = 'FRYING';
   station.frySeconds = 0;
   station.fryTone = '';
+  station.drain = 0;
+  station.cold = fryStaged() && fryer().temp < FRY_HOT_TEMP;
+  if (station.cold) showStationToast(fryer().fire ? '🛢️ El aceite aún está frío: sale más lento y grasoso. Espera a que caliente.' : '🛢️ Aceite frío: enciende la olla (🔥) antes de freír o saldrá grasoso.');
   playSound('splash');
   if (fryTimerInterval) { clearInterval(fryTimerInterval); fryTimerInterval = null; }
   ensureFryTimer();
@@ -12200,7 +12298,7 @@ function ensureFryTimer() {
     const st = gameState.fryStation;
     if (st.phase !== 'FRYING') { clearInterval(fryTimerInterval); fryTimerInterval = null; return; }
     if (gameState.isPaused || gameState.isGameOver) return;
-    st.frySeconds += 0.05;
+    st.frySeconds += 0.05 * fryHeatFactor();
     sfxEvery('crackle', 340);
     const pf = fryProfile(st.proteinId);
     if (!st._sndReady && st.frySeconds >= pf.ready) { st._sndReady = true; playSound('ding'); }   // punto justo
@@ -12529,7 +12627,8 @@ function renderFryStation() {
       html += `<span class="fry-slices" style="--meat:${FRY_MEAT_COLORS[pid] || '#f3e3c0'};filter:${station.fryTone} drop-shadow(0 2px 2px rgba(0,0,0,0.45))">${slices}</span>`;
     } else if (pid && station.phase === 'FRIED') {
       const marks = Array.from({ length: marksOn }, (_, k) => `<i class="fry-cut-mark" style="left:${(k + 1) * 16.6}%"></i>`).join('');
-      html += `<span class="fry-board-item is-static" style="filter:${station.fryTone} drop-shadow(0 2px 2px rgba(0,0,0,0.45))">${fryItemMarkup(pid, station.coat)}${marks}</span>`;
+      const oily = staged ? `<i class="fry-sheen"></i><i class="fry-drip d1"></i><i class="fry-drip d2"></i><i class="fry-drip d3"></i>` : '';
+      html += `<span class="fry-board-item is-static" style="--oil:${staged ? Math.max(0, 1 - (station.drain || 0)).toFixed(2) : 0};filter:${station.fryTone} drop-shadow(0 2px 2px rgba(0,0,0,0.45))">${fryItemMarkup(pid, station.coat)}${marks}${oily}</span>`;
     }
     html += extras.map(id => {
       const ing = INGREDIENTES.find(i => i.id === id);
@@ -12550,7 +12649,7 @@ function renderFryStation() {
       tableBadge.textContent = `✂️ Cortando… ${(cutSeconds() * (1 - station.cutProgress)).toFixed(1)}s`;
       tableBadge.classList.add('status-ready');
     } else if (complete) {
-      tableBadge.textContent = staged ? '¡Lista! Pásala a emplatar' : `¡Listo: ${analysis.recipe.name}!`;
+      tableBadge.textContent = staged ? ((station.drain || 0) < 1 ? '¡Lista! Escúrrela (sacude ↕) o pásala a emplatar' : '¡Lista! Pásala a emplatar') : `¡Listo: ${analysis.recipe.name}!`;
       tableBadge.classList.add('status-ready');
     } else if (needsCut && !isCut) {
       tableBadge.textContent = '🔪 Frita — córtala con el cuchillo (3 s)';
@@ -12649,6 +12748,7 @@ function renderFryStation() {
   const cutFill = document.getElementById('fry-cut-fill');
   if (cutBox) cutBox.style.display = cutting ? 'block' : 'none';
   if (cutFill) cutFill.style.width = `${Math.round(station.cutProgress * 100)}%`;
+  fryUpdateFireUi();
   syncStationIfChanged('frituras');
   if (station.phase !== 'FRYING') updateServeButtonsQuality();
   updateAreaTabAlerts();
@@ -15919,6 +16019,8 @@ function evalProcess(dish) {
   // con etapas: 10 pts de orden de armado + 14 de volteo (5 volteos = mezclado completo) + 6 de aceite; sin etapas, 30 de orden como siempre
   // Makis con etapas: 10 pts de orden (ya exigido al armar) + 14 de arroz extendido + 6 de flameado (los que no se flamean los ganan)
   if (dish.area === 'makis' && typeof m.spread === 'number') return 10 + Math.round(14 * Math.max(0, Math.min(1, m.spread))) + (m.flamePts == null ? 6 : m.flamePts);
+  // Frituras con etapas: 12 pts de orden (ya exigido) + 10 de escurrido + 8 de aceite caliente
+  if (dish.area === 'frituras' && typeof m.drain === 'number') return 12 + Math.round(10 * Math.max(0, Math.min(1, m.drain))) + (m.cold ? 0 : 8);
   if (dish.area === 'salteados' && typeof m.toss === 'number' && m.orderTotal) return Math.round(10 * m.orderMatches / m.orderTotal) + Math.round(14 * Math.max(0, Math.min(1, m.toss))) + (m.oilMissing ? 0 : 6);
   if (dish.area === 'salteados' && m.orderTotal) return Math.round(30 * m.orderMatches / m.orderTotal);
   return 30; // Makis y Frituras ya exigen su orden para poder terminar
