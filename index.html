@@ -6200,7 +6200,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v67</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v68</span></button></div>
     </div>
   </div>
 
@@ -18461,6 +18461,7 @@ function executeStartGame() {
 }
 
 function returnToStartMenu() {
+  if (window._updatePending) { window._updatePending = false; try { statsFlush(); } catch (e) {} location.reload(); return; }   // nueva versión descargada durante la partida
   updatePropinasHUD();
   statsFlush();
   if (gameState.gameMode === 'TRAINING') gameState.training = null;
@@ -19378,12 +19379,19 @@ if ('serviceWorker' in navigator) {
       console.warn('[PWA] Error registrando Service Worker:', err);
     });
 
+  // Antes la página se recargaba SIEMPRE al activarse un service worker (también en la primera instalación y a mitad de partida):
+  // al abrir la app instalada se cargaba dos veces. Ahora: primera instalación = no se recarga (ya es la última versión);
+  // actualización = se recarga solo en el menú de inicio; en partida se avisa y se aplica al volver al menú.
+  const swHadController = !!navigator.serviceWorker.controller;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (!window._swRefreshed) {
-      window._swRefreshed = true;
-      console.log('[PWA] Nueva versión de Service Worker activa, recargando...');
-      window.location.reload();
-    }
+    if (!swHadController || window._swRefreshed) return;
+    window._swRefreshed = true;
+    const start = document.getElementById('start-screen');
+    const inMenu = !start || getComputedStyle(start).display !== 'none';
+    if (inMenu) { window.location.reload(); return; }
+    window._updatePending = true;
+    const b = document.getElementById('app-version-btn'); if (b) b.style.borderColor = '#ffb300';
+    try { showStationToast('🔄 Hay una versión nueva: se aplicará al volver al menú.'); } catch (e) {}
   });
 }
 
@@ -22552,27 +22560,6 @@ function bootGameUI() {
   updateAudioToggleUI();
   setupKitchenStations();
   resetCookingStations();
-
-  // Detección y limpieza automática de cachés antiguas (v9 a v15)
-  const CURRENT_APP_BUILD = 'v16.0';
-  const savedBuild = safeStorage.getItem('ramen_mania_build_version');
-  if (savedBuild !== CURRENT_APP_BUILD) {
-    safeStorage.setItem('ramen_mania_build_version', CURRENT_APP_BUILD);
-    if ('caches' in window) {
-      caches.keys().then(keys => {
-        const oldKeys = keys.filter(k => k !== 'ramen-mania-v16');
-        if (oldKeys.length > 0) {
-          Promise.all(oldKeys.map(k => caches.delete(k))).then(() => {
-            if ('serviceWorker' in navigator) {
-              navigator.serviceWorker.getRegistrations().then(regs => {
-                regs.forEach(r => r.update());
-              });
-            }
-          });
-        }
-      });
-    }
-  }
 
   if (window.location.search.includes('tutorial=1')) {
     setTimeout(() => {

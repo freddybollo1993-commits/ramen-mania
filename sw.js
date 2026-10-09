@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ramen-mania-v67';
+const CACHE_NAME = 'ramen-mania-v68';
 
 // Solo el shell esencial para instalación instantánea (< 50ms)
 const CORE_SHELL = [
@@ -72,38 +72,34 @@ self.addEventListener('fetch', event => {
   }
 
   // 1. NAVEGACIÓN (HTML / APERTURA DE LA APP INSTALADA):
-  // NETWORK-FIRST con timeout de 1200ms para garantizar que la app siempre cargue la versión más reciente
+  // La copia guardada se abre AL INSTANTE (antes se esperaba hasta 4 s a la red antes de usarla: la app instalada tardaba en
+  // iniciar). La red solo actualiza la copia en segundo plano; cada despliegue cambia CACHE_NAME, así que la versión nueva se
+  // instala sola y la página se recarga en el menú de inicio (ver 'controllerchange' en index.html).
   if (req.mode === 'navigate' || (req.headers.get('accept') && req.headers.get('accept').includes('text/html'))) {
     event.respondWith(
       (async () => {
+        const cache = await caches.open(CACHE_NAME);
+        const cached = (await cache.match(req, { ignoreSearch: true }))
+          || (await cache.match('./index.html', { ignoreSearch: true }))
+          || (await cache.match('/index.html', { ignoreSearch: true }))
+          || (await cache.match('./', { ignoreSearch: true }))
+          || (await cache.match('/', { ignoreSearch: true }));
+        if (cached) {
+          event.waitUntil(refreshShell(cache, cached));
+          return cached;
+        }
+        // primera vez (aún no hay copia): se va a la red, con un tope para no quedarse esperando
         try {
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 4000);
+          const timeoutId = setTimeout(() => controller.abort(), 8000);
           const networkRes = await fetch(req, { signal: controller.signal });
           clearTimeout(timeoutId);
           if (networkRes && networkRes.ok) {
-            const cache = await caches.open(CACHE_NAME);
-            cache.put('/', networkRes.clone());
-            cache.put('./', networkRes.clone());
-            cache.put('/index.html', networkRes.clone());
-            cache.put('./index.html', networkRes.clone());
+            const clone = networkRes.clone();
+            event.waitUntil(putShell(cache, clone));
             return networkRes;
           }
-        } catch (e) {
-          // Si no hay red o hubo timeout, usa la caché
-        }
-
-        const cache = await caches.open(CACHE_NAME);
-        // red lenta: se abre la copia guardada, pero se sigue bajando la versión nueva para la próxima vez
-        fetch(req).then(r => { if (r && r.ok) { cache.put('/', r.clone()); cache.put('./', r.clone()); cache.put('/index.html', r.clone()); cache.put('./index.html', r.clone()); } }).catch(() => {});
-        const cached = (await cache.match(req, { ignoreSearch: true }))
-          || (await cache.match('/', { ignoreSearch: true }))
-          || (await cache.match('./', { ignoreSearch: true }))
-          || (await cache.match('/index.html', { ignoreSearch: true }))
-          || (await cache.match('./index.html', { ignoreSearch: true }));
-
-        if (cached) return cached;
-
+        } catch (e) {}
         return new Response('Ramen Mania Fuera de Línea', { status: 503, headers: { 'Content-Type': 'text/plain' } });
       })()
     );
@@ -132,3 +128,20 @@ self.addEventListener('fetch', event => {
     })
   );
 });
+
+// Guarda el HTML en las rutas con las que se pide
+async function putShell(cache, res) {
+  const keys = ['./index.html', '/index.html', './', '/'];
+  for (const k of keys) { try { await cache.put(k, res.clone()); } catch (e) {} }
+}
+// Actualiza la copia en segundo plano solo si el servidor tiene una versión distinta (ETag / Last-Modified)
+async function refreshShell(cache, cached) {
+  try {
+    const res = await fetch('./index.html', { cache: 'no-cache' });
+    if (!res || !res.ok) return;
+    const a = res.headers.get('etag') || res.headers.get('last-modified');
+    const b = cached.headers.get('etag') || cached.headers.get('last-modified');
+    if (a && b && a === b) return;
+    await putShell(cache, res);
+  } catch (e) {}
+}
