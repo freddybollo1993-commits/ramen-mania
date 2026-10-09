@@ -1882,27 +1882,27 @@
 
   /* --- Franja de herramientas del ramen: salsas (botellas) y flameador --- */
   .ramen-tool-strip { display: none; }
-  .ramen-tool-strip.on { display: flex; justify-content: center; align-items: flex-end; gap: 9px; margin-top: auto; padding: 2px 6px 3px; flex-shrink: 0; position: relative; z-index: 91; pointer-events: none; }
+  .ramen-tool-strip.on { display: flex; justify-content: center; align-items: flex-end; gap: 11px; margin-top: auto; padding: 2px 6px 3px; flex-shrink: 0; position: relative; z-index: 91; pointer-events: none; }
   .ramen-tool-strip.on + .kitchen-bottom-dock { margin-top: 0; }
   .tool-item { pointer-events: auto; display: flex; flex-direction: column; align-items: center; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; transition: transform 0.12s, opacity 0.12s; }
   .tool-item:hover { transform: translateY(-3px); }
-  .tool-item .tool-svg { height: 44px; width: auto; display: block; filter: drop-shadow(0 3px 3px rgba(0,0,0,0.55)); pointer-events: none; }
-  .tool-item.tool-torch .tool-svg { height: 34px; }
-  .tool-name { font-size: 7.5px; font-weight: 800; color: #ffe0b2; text-shadow: 0 1px 2px #000; margin-top: 1px; pointer-events: none; }
+  .tool-item .tool-svg { height: 62px; width: auto; display: block; filter: drop-shadow(0 3px 3px rgba(0,0,0,0.55)); pointer-events: none; }
+  .tool-item.tool-torch .tool-svg { height: 66px; }
+  .tool-name { font-size: 8.5px; font-weight: 800; color: #ffe0b2; text-shadow: 0 1px 2px #000; margin-top: 1px; pointer-events: none; }
   .tool-item.is-away { opacity: 0.28; }
   .tool-item.is-lifted { opacity: 0.35; }
   .tool-ghost { position: fixed; left: 0; top: 0; z-index: 9999; pointer-events: none; }
   .tool-ghost .tool-svg { display: block; filter: drop-shadow(0 6px 5px rgba(0,0,0,0.5)); }
-  .tool-ghost.sauce .tool-svg { height: 62px; width: auto; }
-  .tool-ghost.torch .tool-svg { height: 40px; width: auto; }
+  .tool-ghost.sauce .tool-svg { height: 84px; width: auto; }
+  .tool-ghost.torch .tool-svg { height: 84px; width: auto; }
   .tool-armed { position: fixed; z-index: 9000; cursor: pointer; touch-action: none; animation: toolFloat 1.1s ease-in-out infinite alternate; filter: drop-shadow(0 7px 5px rgba(0,0,0,0.5)) drop-shadow(0 0 9px rgba(255, 213, 79, 0.9)); }
   .tool-armed .tool-svg { width: 100%; height: 100%; display: block; pointer-events: none; }
-  .tool-armed.sauce { width: 44px; height: 80px; rotate: 158deg; }
+  .tool-armed.sauce { width: 62px; height: 114px; rotate: 158deg; }
   .tool-armed.sauce.squeeze { animation: toolSqueeze 0.35s ease-out; }
-  .tool-armed.torch { width: 128px; height: 43px; rotate: 24deg; transform-origin: 60% 55%; }
+  .tool-armed.torch { width: 124px; height: 113px; rotate: -50deg; transform-origin: 42.8px 25.9px; }
   @keyframes toolFloat { from { translate: 0 0; } to { translate: 0 -4px; } }
   @keyframes toolSqueeze { 0% { scale: 1; } 40% { scale: 0.88 1.06; } 100% { scale: 1; } }
-  .torch-flame { transform-box: fill-box; transform-origin: 0% 50%; animation: torchFlame 0.14s ease-in-out infinite alternate; }
+  .torch-flame { transform-box: fill-box; transform-origin: 100% 50%; animation: torchFlame 0.14s ease-in-out infinite alternate; }
   @keyframes torchFlame { from { transform: scaleX(0.82) scaleY(0.9); } to { transform: scaleX(1.12) scaleY(1.08); } }
   .sauce-drop { position: fixed; z-index: 9100; width: 6px; height: 10px; border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%; pointer-events: none; animation: sauceDrop 0.5s ease-in forwards; box-shadow: inset -1px -1px 2px rgba(0,0,0,0.3); }
   @keyframes sauceDrop { 0% { transform: translateY(0) scale(0.7); opacity: 1; } 100% { transform: translateY(var(--dy, 40px)) scale(1); opacity: 0.9; } }
@@ -6166,7 +6166,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v58</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v59</span></button></div>
     </div>
   </div>
 
@@ -13054,6 +13054,10 @@ function triggerGuideHighlight(btnId) {
 function updateCookingVisualOverlay() {
   const overlay = document.getElementById('kitchen-action-vfx-overlay');
   if (!overlay) return;
+  if (stagedOn('ramen')) {                       // con la cocina de acero las ollas y sartenes ya se animan solas: sin los paneles antiguos
+    overlay.querySelectorAll('.kitchen-vfx-panel.active').forEach(p => p.classList.remove('active'));
+    return;
+  }
 
   const panelFlame = document.getElementById('vfx-panel-flame');
   const panelTonkotsu = document.getElementById('vfx-panel-tonkotsu');
@@ -16065,20 +16069,39 @@ function sauceBottleSvg(id) {
   </svg>`;
 }
 function torchSvg(on) {
-  const ink = '#23262b';
-  const flame = on ? `<g class="torch-flame"><path d="M 128,32 Q 150,19 186,30 Q 200,34 186,38 Q 150,49 128,36 Z" fill="#ff9a3d" stroke="#e65100" stroke-width="0.8"/><path d="M 128,33.5 Q 142,28 164,33 Q 142,40 128,34.5 Z" fill="#4aa3ff"/><path d="M 128,34 Q 134,31 146,34 Q 134,37 128,34 Z" fill="#e8f4ff"/></g>` : '';
-  return `<svg class="tool-svg" viewBox="0 0 ${on ? 204 : 132} 64">
-    <defs><linearGradient id="trTank${on ? 'o' : ''}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7a8088"/><stop offset="0.5" stop-color="#3b3f46"/><stop offset="1" stop-color="#23262b"/></linearGradient>
-    <linearGradient id="trSteel${on ? 'o' : ''}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d3dce4"/><stop offset="0.5" stop-color="#8f9aa6"/><stop offset="1" stop-color="#5f6974"/></linearGradient></defs>
+  const ink = '#23262b', u = on ? 'o' : '';
+  const flame = on ? `<g class="torch-flame"><path d="M 10,46 Q -16,30 -58,41 Q -72,46 -58,51 Q -16,62 10,46 Z" fill="#ff9a3d" stroke="#e65100" stroke-width="0.9"/><path d="M 10,46 Q -10,38 -40,43 Q -10,52 10,46 Z" fill="#4aa3ff"/><path d="M 10,46 Q -2,43 -16,45 Q -2,49 10,46 Z" fill="#e8f4ff"/></g>` : '';
+  let ridges = '';
+  for (let x = 104; x <= 122; x += 3.2) ridges += `<path d="M ${x.toFixed(1)},24 V 33" stroke="#0f3d1a" stroke-opacity="0.55" stroke-width="0.9"/>`;
+  return `<svg class="tool-svg" viewBox="${on ? '-70 0 220 200' : '0 0 150 200'}">
+    <defs>
+      <linearGradient id="tcSteel${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e3e9ee"/><stop offset="0.45" stop-color="#9aa5b0"/><stop offset="1" stop-color="#5f6974"/></linearGradient>
+      <linearGradient id="tcSteelV${u}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6e7884"/><stop offset="0.3" stop-color="#d3dce4"/><stop offset="0.6" stop-color="#9aa5b0"/><stop offset="1" stop-color="#5f6974"/></linearGradient>
+      <linearGradient id="tcGreen${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3da250"/><stop offset="0.55" stop-color="#26863b"/><stop offset="1" stop-color="#165a26"/></linearGradient>
+      <linearGradient id="tcBlue${u}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#27378f"/><stop offset="0.5" stop-color="#2f46b0"/><stop offset="1" stop-color="#1b2766"/></linearGradient>
+    </defs>
     ${flame}
-    <rect x="5" y="22" width="50" height="29" rx="9" fill="url(#trTank${on ? 'o' : ''})" stroke="${ink}" stroke-width="1.6"/>
-    <rect x="21" y="22" width="10" height="29" fill="#c62828" stroke="${ink}" stroke-width="1"/>
-    <path d="M 9,28 H 17" stroke="#ffffff" stroke-opacity="0.4" stroke-width="2" stroke-linecap="round"/>
-    <path d="M 55,30 H 74 V 45 H 55 Z" fill="url(#trSteel${on ? 'o' : ''})" stroke="${ink}" stroke-width="1.5"/>
-    <rect x="61" y="22" width="11" height="9" rx="2.4" fill="#e53935" stroke="${ink}" stroke-width="1.3"/>
-    <rect x="74" y="26" width="46" height="17" rx="3.5" fill="url(#trSteel${on ? 'o' : ''})" stroke="${ink}" stroke-width="1.5"/>
-    <path d="M 82,28 V 41 M 88,28 V 41 M 94,28 V 41 M 100,28 V 41" stroke="${ink}" stroke-opacity="0.45" stroke-width="1.2"/>
-    <path d="M 120,28.5 H 127 L 129,31.5 V 37.5 L 127,40.5 H 120 Z" fill="#9aa5b0" stroke="${ink}" stroke-width="1.4"/>
+    <rect x="6" y="37" width="46" height="18" rx="4.5" fill="url(#tcSteel${u})" stroke="${ink}" stroke-width="1.6"/>
+    <path d="M 10,41.5 H 47" stroke="#ffffff" stroke-opacity="0.7" stroke-width="1.6" stroke-linecap="round"/>
+    <rect x="50" y="35" width="9" height="22" rx="2" fill="#7a838d" stroke="${ink}" stroke-width="1.4"/>
+    <path d="M 56,42 Q 60,32 72,34 H 118 Q 136,38 140,50 V 60 L 132,70 H 86 L 82,62 H 66 L 56,56 Z" fill="url(#tcGreen${u})" stroke="${ink}" stroke-width="1.7" stroke-linejoin="round"/>
+    <path d="M 74,36 H 116" stroke="#ffffff" stroke-opacity="0.35" stroke-width="1.4" stroke-linecap="round"/>
+    <g fill="#12301a" stroke="#0a1b0f" stroke-width="0.6"><ellipse cx="72" cy="48" rx="2.3" ry="7" transform="rotate(18 72 48)"/><ellipse cx="80" cy="48" rx="2.3" ry="7" transform="rotate(18 80 48)"/><ellipse cx="88" cy="48" rx="2.3" ry="7" transform="rotate(18 88 48)"/></g>
+    <rect x="101" y="22" width="24" height="14" rx="4" fill="url(#tcGreen${u})" stroke="${ink}" stroke-width="1.5"/>${ridges}
+    <rect x="84" y="60" width="26" height="8" rx="1.5" fill="#1f6d33" stroke="${ink}" stroke-width="1.2"/>
+    <path d="M 66,62 H 80 V 70 H 70 Z" fill="#26863b" stroke="${ink}" stroke-width="1.2"/>
+    <rect x="82" y="68" width="40" height="8" rx="2" fill="#c62828" stroke="${ink}" stroke-width="1.4"/>
+    <rect x="86" y="76" width="32" height="9" fill="url(#tcSteelV${u})" stroke="${ink}" stroke-width="1.2"/>
+    <path d="M 66,102 Q 66,90 84,84 H 120 Q 138,90 138,102 Z" fill="url(#tcSteelV${u})" stroke="${ink}" stroke-width="1.5"/>
+    <path d="M 66,102 H 138 V 190 Q 138,198 130,198 H 74 Q 66,198 66,190 Z" fill="#fbfbf7" stroke="${ink}" stroke-width="1.7"/>
+    <path d="M 66,102 H 138 V 130 H 66 Z" fill="url(#tcBlue${u})" stroke="${ink}" stroke-width="1.3"/>
+    <path d="M 86,108 Q 102,103 118,116 Q 102,115 92,126 Q 97,115 86,108 Z" fill="#d32f2f" stroke="#fbfbf7" stroke-width="0.8"/>
+    <rect x="93" y="136" width="9" height="38" rx="2" fill="#c9a227" stroke="#8a6d12" stroke-width="0.8"/>
+    <text x="100" y="172" transform="rotate(-90 100 172)" font-size="8" font-weight="900" fill="#7a5c0c" font-family="Arial, sans-serif">FLAMA</text>
+    <circle cx="124" cy="158" r="8.5" fill="#ffffff" stroke="#2e7d32" stroke-width="1.7"/><path d="M 119.5,158 l 3.2,3.4 l 6,-7" stroke="#2e7d32" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <path d="M 66,178 H 138 V 184 H 66 Z" fill="#c62828"/><path d="M 66,184 H 138 V 190 H 66 Z" fill="#1e2f7a"/>
+    <rect x="70" y="106" width="5" height="84" rx="2.5" fill="#ffffff" opacity="0.5"/><rect x="128" y="102" width="10" height="96" fill="#000000" opacity="0.1"/>
+    <path d="M 66,102 H 138 V 190 Q 138,198 130,198 H 74 Q 66,198 66,190 Z" fill="none" stroke="${ink}" stroke-width="1.7"/>
   </svg>`;
 }
 
@@ -16209,14 +16232,15 @@ function toolPlaceArmed() {
     const c = document.getElementById('pan-cell-' + toolArmed.pan);
     if (!c) return;
     const r = c.getBoundingClientRect();
-    toolArmedEl.style.left = (r.left + r.width / 2 - 22) + 'px';
-    toolArmedEl.style.top = (r.top - 80 * 0.6) + 'px';
+    toolArmedEl.style.left = (r.left + r.width / 2 - 31) + 'px';
+    toolArmedEl.style.top = (r.top - 114 * 0.62) + 'px';
   } else {
     const b = document.getElementById('btn-flame-chasu');
     if (!b) return;
     const r = b.getBoundingClientRect();
-    toolArmedEl.style.left = (r.left + r.width / 2 - 92) + 'px';       // la boquilla (a ~62 % del ancho) queda sobre el botón
-    toolArmedEl.style.top = (r.top - 26) + 'px';
+    // la boquilla (punta izquierda del flameador, de donde sale el fuego) queda arriba a la derecha del botón y apunta hacia él
+    toolArmedEl.style.left = (r.left + r.width / 2 + 24 - 42.8) + 'px';
+    toolArmedEl.style.top = (r.top - 22 - 25.9) + 'px';
   }
 }
 window.addEventListener('resize', toolPlaceArmed);
