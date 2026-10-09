@@ -1846,6 +1846,15 @@
   .stove-pan .stove-pan-art svg { width: 100%; height: 100%; display: block; }
   .stove-pan .station-info { min-width: 0; }
   .stove-pan-trash { position: absolute; top: 1px; right: 1px; width: 15px; height: 15px; padding: 0; border-radius: 50%; border: 1px solid #ef5350; background: #c62828; color: #fff; font-size: 8px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .stove-pan-fire { position: absolute; bottom: 4px; right: 1px; width: 15px; height: 15px; padding: 0; border-radius: 50%; border: 1px solid #5a4a44; background: #2c2420; color: #fff; font-size: 8px; line-height: 1; cursor: pointer; opacity: 0.55; display: flex; align-items: center; justify-content: center; }
+  .stove-pan.fire .stove-pan-fire { opacity: 1; background: #e64a19; border-color: #ff9800; box-shadow: 0 0 6px #ff6d00; }
+  .stove-pan.pan-warn { animation: panWarn 0.4s ease-in-out infinite alternate; border-color: #ef5350; }
+  @keyframes panWarn { from { box-shadow: 0 0 4px rgba(239, 83, 80, 0.4); } to { box-shadow: 0 0 16px rgba(239, 83, 80, 1); } }
+  .pan-svg .pan-flame { transform-box: fill-box; transform-origin: 50% 100%; animation: panFlame 0.3s ease-in-out infinite alternate; }
+  @keyframes panFlame { from { transform: scaleY(0.75); } to { transform: scaleY(1.25); } }
+  .stove-on #btn-heat-shio.fire-on { border-color: #ff3d00; box-shadow: 0 0 12px rgba(255, 61, 0, 0.7), inset 0 0 8px rgba(255, 87, 34, 0.35); background: rgba(45, 18, 12, 0.98); }
+  .stove-on #btn-heat-shio.fire-on .station-icon { animation: flamePulse 0.25s infinite alternate; }
+  .stove-on #btn-heat-shio.fire-warn { border-color: #ef5350; animation: panWarn 0.4s ease-in-out infinite alternate; }
   #bowls-dock-box.stove-on #bowl-card-2 { display: none; }
   @media (max-width: 750px) {
     .cook-stations-panel.stove-on { width: 318px; gap: 3px; }
@@ -6117,7 +6126,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v55</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v56</span></button></div>
     </div>
   </div>
 
@@ -6667,16 +6676,18 @@
       </button>
 
       <!-- Hornillas 3 y 4 (solo con etapas): sartenes hondas donde se preparan los caldos mezclando en orden; al calentar se sirven al cuenco -->
-      <div class="stove-pan" id="pan-cell-0" data-pan="0" onclick="panServe(0)" title="Sartén honda 1">
+      <div class="stove-pan" id="pan-cell-0" data-pan="0" onclick="panTap(0)" title="Sartén honda 1">
         <div class="stove-pan-art" id="pan-art-0"></div>
         <div class="station-info"><div class="station-title">Sartén 1</div><div class="station-status" id="pan-status-0">Vacía</div></div>
         <button class="stove-pan-trash" onclick="event.stopPropagation(); panDiscard(0)" title="Vaciar la sartén">🗑️</button>
+        <button class="stove-pan-fire" id="pan-fire-0" onclick="event.stopPropagation(); panFire(0)" title="Encender / apagar la hornilla">🔥</button>
         <div class="station-progress-bar"><div class="station-fill" id="pan-fill-0"></div></div>
       </div>
-      <div class="stove-pan" id="pan-cell-1" data-pan="1" onclick="panServe(1)" title="Sartén honda 2">
+      <div class="stove-pan" id="pan-cell-1" data-pan="1" onclick="panTap(1)" title="Sartén honda 2">
         <div class="stove-pan-art" id="pan-art-1"></div>
         <div class="station-info"><div class="station-title">Sartén 2</div><div class="station-status" id="pan-status-1">Vacía</div></div>
         <button class="stove-pan-trash" onclick="event.stopPropagation(); panDiscard(1)" title="Vaciar la sartén">🗑️</button>
+        <button class="stove-pan-fire" id="pan-fire-1" onclick="event.stopPropagation(); panFire(1)" title="Encender / apagar la hornilla">🔥</button>
         <div class="station-progress-bar"><div class="station-fill" id="pan-fill-1"></div></div>
       </div>
     </div>
@@ -10731,7 +10742,7 @@ const FRY_PLATING = {
   'Alitas':        { protein: 36, parts: [76, 92] },
   'Age Gyozas':    { protein: 73, parts: [52, 74] }
 };
-const ST_RAMEN_PLATE = new Set([11, 15, 17, 18, 19, 20, 21, 22, 23, 24, 25, 27, 28, 29, 30]);
+const ST_RAMEN_PLATE = new Set([11, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 27, 28, 29, 30]);
 const RAMEN_COOK_EXTRA = { 'Tan tan': [25] };   // piezas "de emplatado" que en esa receta se ponen en el cuenco durante la cocción
 const ST_PLATE_SAL = {
   'Chaufa Shimaya':   [94, 41, 63],
@@ -10758,7 +10769,7 @@ const ST_GROUPS = {
 };
 function stGroupOf(area, id) {
   if (area === 'frituras') return FRY_PLATE_GROUP[id] || 'Decoración';
-  if (area === 'ramen') return [11, 15].includes(id) ? 'Proteína' : ([17, 18].includes(id) ? 'Verdeos' : ([19, 20, 21].includes(id) ? 'Toppings' : ([27, 28, 29].includes(id) ? 'Hongos' : 'Verduras')));
+  if (area === 'ramen') return [11, 15, 16].includes(id) ? 'Proteína' : ([17, 18].includes(id) ? 'Verdeos' : ([19, 20, 21].includes(id) ? 'Toppings' : ([27, 28, 29].includes(id) ? 'Hongos' : 'Verduras')));
   if (area === 'salteados') { const i = INGREDIENTES.find(x => x.id === id); return [55, 56].includes(id) ? 'Ensalada' : (i && i.cat === 'salsas' ? 'Salsa' : 'Decoración'); }
   const i = INGREDIENTES.find(x => x.id === id);
   return i && i.cat === 'salsas' ? 'Salsa' : 'Guarnición';
@@ -10851,6 +10862,7 @@ function stProdStart(area, key, mode) {
 }
 
 function stTick() {
+  if (stagedOn('ramen')) shioTick();
   STAGE_AREAS.forEach(area => {
     if (area === 'ramen') panTick();
     const st = gameState.st && gameState.st[area];
@@ -12947,7 +12959,7 @@ function updateKitchenStationsUI(skipSync = false, source = '', delta = '') {
 
   const shioStatus = document.getElementById('shio-status');
   if (shioStatus && (!kitchenState.shio || !kitchenState.shio.isHeating)) {
-    shioStatus.textContent = kitchenState.stocks.shio > 0 ? `Listo (${kitchenState.stocks.shio})` : 'Mantén 3s';
+    shioStatus.textContent = stagedOn('ramen') ? shioStagedText() : (kitchenState.stocks.shio > 0 ? `Listo (${kitchenState.stocks.shio})` : 'Mantén 3s');
   }
 
   const tonkotsuStatus = document.getElementById('tonkotsu-status');
@@ -13215,6 +13227,13 @@ function setupShioButton() {
   const btn = document.getElementById('btn-heat-shio');
   if (!btn || btn._hasListeners) return;
   btn._hasListeners = true;
+  // con etapas la hornilla del Shio es un interruptor: se enciende y se apaga (no hay que mantener pulsado)
+  btn.addEventListener('pointerdown', (e) => {
+    if (!stagedOn('ramen')) return;
+    e.stopImmediatePropagation();
+    if (e.cancelable) e.preventDefault();
+    shioToggle();
+  }, true);
 
   let heatInterval = null;
 
@@ -13489,6 +13508,7 @@ function resetCookingStations() {
 
   kitchenState.shio.isHeating = false;
   kitchenState.shio.heatSeconds = 0;
+  Object.assign(kitchenState.shio, { fire: false, hot: false, heat: 0, reduce: 0 });
   kitchenState.tonkotsu.isHeating = false;
   kitchenState.tonkotsu.heatSeconds = 0;
   kitchenState.chasu.isFlaming = false;
@@ -15747,7 +15767,7 @@ function toggleIngredientInBowl(ingId) {
   if (ingId === 2 && kitchenState.stocks.shio <= 0 && !(gameState.dashi > 0)) {
     triggerGuideHighlight('btn-heat-shio');
     playSound('burn');
-    showStationToast('🥣 ¡Está Frío! Mantén presionado "Calentar Shio" 3 segundos.');
+    showStationToast(stagedOn('ramen') ? '🥣 ¡Está frío! Enciende la hornilla del Shio.' : '🥣 ¡Está Frío! Mantén presionado "Calentar Shio" 3 segundos.');
     return;
   }
   if (ingId === 3 && kitchenState.stocks.tonkotsu <= 0) {
@@ -15779,6 +15799,7 @@ function toggleIngredientInBowl(ingId) {
   const outOfOrder = bowl.ingredients.some(id => ramenStage(id) > ramenStage(ingId));
   bowl.ingredients.push(ingId);
   if (ingId === 1 && stagedOn('ramen')) { bowl.spread = 0; bowl.stirX = null; noodleTip(); }   // los fideos caen apelmazados
+  if (ingId === 2 && stagedOn('ramen') && typeof bowl.spread === 'number') bowl.spread = Math.min(bowl.spread, 0.25);   // al verter el caldo hay que mover los fideos con él
   bowl.orderErrors = bowlOrderErrors(bowl);
   playSound('add');
   if (outOfOrder) showStationToast('🍜 Orden del ramen: fideo → caldo → salsa → proteína → complementos. Este ingrediente llegó tarde (−8 pts de proceso).');
@@ -15839,17 +15860,18 @@ function removeIngredientFromBowl(bowlIndex, ingId) {
 const PAN_RECIPES = {
   'Shoyu':       { add: [2, 5] },
   'Miso':        { add: [2, 6] },
-  'Tonkotsu':    { add: [3] },                                   // (y Chashu: misma preparación)
-  'Vegetariano': { add: [4, 9, 16] },
-  'Bajiru':      { add: [2, 10, 12] },
+  'Tonkotsu':    { add: [3] },                                   // (y Chashu: misma preparación); si se calienta de más hace espuma y se desborda
+  'Vegetariano': { add: [4, 9] },                                // el tofu se sirve al emplatar
+  'Bajiru':      { add: [2, 10, 12], top: [12], topNeedsSpread: true },   // el brisket se calienta con el caldo, se retira y se agrega tras mover los fideos con el caldo
   'Ebi':         { fry: [14], add: [2, 7], top: [14] },
   'Tan tan':     { fry: [13, 8], add: [2], needs: [1, 25] }
 };
-const PAN_ONLY_IDS = [3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 16];   // con etapas solo entran por una sartén (el 2, Shio, también va directo al cuenco)
+const PAN_ONLY_IDS = [3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14];   // con etapas solo entran por una sartén (el 2, Shio, también va directo al cuenco)
 const panAll = r => [...(r.fry || []), ...r.add];
 const panServeIds = r => panAll(r).filter(id => !(r.top || []).includes(id));
-const panTimes = () => (isFree() ? { ready: 2, over: 1e9, burn: 1e9, heat: 2 } : { ready: 4, over: 9, burn: 14, heat: 4 });   // segundos
-function newPan() { return { items: [], t: 0, heat: 0, locked: false, fryStarted: false, result: null, errors: 0, served: false, target: null, burnt: false, dashiBase: false, recipe: null }; }
+// segundos; heat = calentar el caldo completo · dry = en caliente y con fuego, tiempo hasta secarse · foam = tiempo hasta desbordarse (Tonkotsu)
+const panTimes = () => (isFree() ? { ready: 2, over: 1e9, burn: 1e9, heat: 2, dry: 1e9, foam: 1e9 } : { ready: 4, over: 9, burn: 14, heat: 4, dry: 25, foam: 12 });
+function newPan() { return { items: [], t: 0, heat: 0, locked: false, fryStarted: false, result: null, errors: 0, served: false, target: null, burnt: false, dried: false, fire: false, vol: 100, foam: 0, dashiBase: false, recipe: null }; }
 function panGet(i) { if (!gameState.pans) gameState.pans = [newPan(), newPan()]; return gameState.pans[i]; }
 
 // Recetas de sartén compatibles con lo que ya hay dentro (en el sofrito, lo del sofrito va primero)
@@ -15874,6 +15896,7 @@ const panNext = pan => { const n = panRecipeName(pan); return n ? PAN_RECIPES[n]
 function panPhase(pan) {
   if (!pan.items.length) return 'EMPTY';
   if (pan.burnt) return 'BURNT';
+  if (pan.dried) return 'DRIED';
   if (pan.served) return 'TOP';
   const rn = panRecipeName(pan), r = rn && PAN_RECIPES[rn];
   if (r && r.fry) {
@@ -15886,17 +15909,22 @@ function panPhase(pan) {
 function panStatusText(pan, ph) {
   const rn = panRecipeName(pan), r = rn && PAN_RECIPES[rn];
   const missing = r ? r.add.filter(id => !pan.items.includes(id)).map(stIngName).join(', ') : '';
+  const off = !pan.fire ? '🔥 Enciende · ' : '';
   switch (ph) {
     case 'EMPTY': return 'Vacía';
     case 'WAIT': return 'Sofreír: falta ' + r.fry.filter(id => !pan.items.includes(id)).map(stIngName).join(', ');
-    case 'RAW': return '🍳 Sofriendo…';
-    case 'GOOD': return '✅ Agrega ' + stIngName(panNext(pan));
+    case 'RAW': return off + '🍳 Sofriendo…';
+    case 'GOOD': return off + '✅ Agrega ' + stIngName(panNext(pan));
     case 'OVER': return '⚠ Se pasa: agrega ya';
     case 'BURNT': return '🔥 Quemado: vacía';
+    case 'DRIED': return '💨 Se secó: vacía';
     case 'ADDING': return r ? 'Falta: ' + missing : 'Agrega salsa…';
-    case 'HEAT': return '♨️ Calentando…';
-    case 'HOT': return `✅ ${rn}: servir`;
-    case 'TOP': return 'Toca: poner arriba';
+    case 'HEAT': return pan.fire ? '♨️ Calentando…' : '🔥 Enciende la hornilla';
+    case 'HOT':
+      if (rn === 'Tonkotsu' && pan.foam >= 40) return `⚠ Espuma ${Math.round(pan.foam)}%: apaga`;
+      if (pan.fire && pan.vol < 100) return `✅ Servir · caldo ${Math.round(pan.vol)}%`;
+      return `✅ ${rn}: servir`;
+    case 'TOP': return r && r.topNeedsSpread ? 'Mueve fideos; toca: poner' : 'Toca: poner arriba';
   }
   return '';
 }
@@ -15909,17 +15937,26 @@ function generatePanSVG(pan, ph) {
   const sauceCol = { 5: '#793e18', 6: '#994d1a', 7: '#d65a29', 8: '#bd2c08', 9: '#6f9a3a', 10: '#4a6730' };
   const sauce = [5, 6, 7, 8, 9, 10].find(has);
   const base = has(3) ? '#f5eedb' : (has(4) ? '#cfe3e8' : (has(2) ? '#dfb552' : null));
+  const vk = Math.sqrt(Math.max(0.06, (typeof pan.vol === 'number' ? pan.vol : 100) / 100));   // el caldo se va reduciendo
+  const rx = (28 * vk).toFixed(1), ry = (11.5 * vk).toFixed(1);
   let food = '';
   if (sauce && !base) food += `<ellipse cx="46" cy="35" rx="22" ry="8" fill="${sauceCol[sauce]}" opacity="0.9"/>`;
   if (base) {
-    food += `<ellipse cx="46" cy="34.5" rx="28" ry="11.5" fill="${base}" opacity="0.94"/>`;
-    if (sauce) food += `<ellipse cx="46" cy="34.5" rx="28" ry="11.5" fill="${sauceCol[sauce]}" opacity="0.62"/>`;
+    food += `<ellipse cx="46" cy="34.5" rx="${rx}" ry="${ry}" fill="${base}" opacity="0.94"/>`;
+    if (sauce) food += `<ellipse cx="46" cy="34.5" rx="${rx}" ry="${ry}" fill="${sauceCol[sauce]}" opacity="0.62"/>`;
   }
   if (has(13)) food += `<g fill="${meat}" stroke="rgba(0,0,0,0.35)" stroke-width="0.4">${pts.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.7"/>`).join('')}</g>`;
   if (has(14)) food += `<g fill="${shr}" stroke="rgba(0,0,0,0.45)" stroke-width="0.8" stroke-linecap="round"><path d="M 34,36 q 3,-10 11,-5 q 5,4 -1,8 q -4,1 -4,-3"/><path d="M 48,38 q 3,-9 11,-4 q 5,4 -1,7 q -4,1 -4,-2"/><path d="M 41,31 q 2,-6 8,-3 q 3,3 0,5"/></g>`;
   if (has(12)) food += '<g fill="#8e2f2a" stroke="#4a1512" stroke-width="0.6"><rect x="34" y="31" width="9" height="3.4" rx="1.4" transform="rotate(-10 34 31)"/><rect x="46" y="36" width="9" height="3.4" rx="1.4" transform="rotate(8 46 36)"/><rect x="38" y="38" width="8" height="3.2" rx="1.4"/></g>';
-  if (has(16)) food += '<g fill="#fff3d6" stroke="#c9b68a" stroke-width="0.6"><rect x="52" y="30.5" width="5.5" height="5.5" rx="0.8"/><rect x="58" y="35" width="5.5" height="5.5" rx="0.8"/><rect x="40" y="35.5" width="5.5" height="5.5" rx="0.8"/></g>';
-  const sizz = ['RAW', 'GOOD', 'OVER', 'HEAT'].includes(ph);
+  // espuma del Tonkotsu: crece hasta desbordarse
+  const foam = pan.foam || 0;
+  if (foam > 0) {
+    const n = Math.min(16, Math.ceil(foam / 6));
+    let fb = '';
+    for (let k = 0; k < n; k++) { const a = k * 2.4, rr = 2 + (foam / 100) * 2.6; fb += `<circle cx="${(46 + Math.cos(a) * (14 + (k % 3) * 5)).toFixed(1)}" cy="${(33 - (foam / 100) * 7 + Math.sin(a) * 5).toFixed(1)}" r="${rr.toFixed(1)}"/>`; }
+    food += `<g fill="#ffffff" stroke="#d9d2c0" stroke-width="0.5" opacity="0.95">${fb}</g>`;
+  }
+  const sizz = pan.fire && ['RAW', 'GOOD', 'OVER', 'HEAT', 'HOT'].includes(ph);
   let bar = '';
   if (['RAW', 'GOOD', 'OVER'].includes(ph)) {
     const T = panTimes(), total = T.burn < 1e8 ? T.burn : T.ready + 6, w = 64;
@@ -15930,7 +15967,9 @@ function generatePanSVG(pan, ph) {
       <rect x="${x(Math.min(T.over, total))}" y="60.6" width="${Math.max(0, 84 - x(Math.min(T.over, total))).toFixed(1)}" height="3" rx="1.5" fill="#ff7043"/>
       <rect x="${(+x(pan.t) - 0.8).toFixed(1)}" y="59.2" width="1.8" height="5.6" rx="0.9" fill="#ffffff" stroke="#000" stroke-width="0.3"/>`;
   }
+  const flame = pan.fire ? '<g class="pan-flame" fill="#ff9800" stroke="#ffeb3b" stroke-width="0.6"><path d="M 24,60 q 2,-9 4,-2 q 2,-10 4,0 q 2,-8 4,1 q 3,-9 5,0 q 3,-9 5,1 q 2,-8 4,0 q 2,-9 4,1 l 0,4 z"/></g>' : '';
   return `<svg class="pan-svg ${sizz ? 'pan-sizzling' : ''}" viewBox="0 0 100 64">
+    ${flame}
     <ellipse cx="46" cy="56" rx="34" ry="4.5" fill="rgba(0,0,0,0.4)"/>
     <rect x="78" y="31" width="22" height="6.5" rx="3.2" fill="#6d4c41" stroke="#3e2723" stroke-width="1" transform="rotate(-6 78 34)"/>
     <ellipse cx="46" cy="37" rx="35" ry="17" fill="#2b2b2b" stroke="#111" stroke-width="1.5"/>
@@ -15938,8 +15977,8 @@ function generatePanSVG(pan, ph) {
     <ellipse cx="46" cy="34.5" rx="29" ry="12.5" fill="#262626"/>
     ${food}
     <circle class="pan-bub b1" cx="38" cy="30" r="1.6" fill="#fff"/><circle class="pan-bub b2" cx="52" cy="33" r="1.4" fill="#ffe082"/><circle class="pan-bub b3" cx="45" cy="28" r="1.2" fill="#fff"/>
-    ${ph === 'BURNT' ? '<g stroke="#9e9e9e" stroke-width="1.6" stroke-linecap="round" fill="none" opacity="0.8"><path d="M 36,24 q -3,-6 1,-10"/><path d="M 48,22 q 3,-6 -1,-11"/><path d="M 58,24 q -3,-6 1,-10"/></g>' : ''}
-    ${ph === 'HOT' || ph === 'HEAT' ? '<g class="pan-steam" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" fill="none"><path d="M 38,24 q -3,-5 1,-9"/><path d="M 48,22 q 3,-5 -1,-10"/><path d="M 58,24 q -3,-5 1,-9"/></g>' : ''}
+    ${ph === 'BURNT' || ph === 'DRIED' ? '<g stroke="#9e9e9e" stroke-width="1.6" stroke-linecap="round" fill="none" opacity="0.8"><path d="M 36,24 q -3,-6 1,-10"/><path d="M 48,22 q 3,-6 -1,-11"/><path d="M 58,24 q -3,-6 1,-10"/></g>' : ''}
+    ${(ph === 'HOT' || ph === 'HEAT') && pan.fire ? '<g class="pan-steam" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" fill="none"><path d="M 38,24 q -3,-5 1,-9"/><path d="M 48,22 q 3,-5 -1,-10"/><path d="M 58,24 q -3,-5 1,-9"/></g>' : ''}
     ${bar}
   </svg>`;
 }
@@ -15954,14 +15993,16 @@ function renderPans() {
   [0, 1].forEach(i => {
     const cell = document.getElementById('pan-cell-' + i);
     if (!cell) return;
-    const pan = panGet(i), ph = panPhase(pan);
-    cell.classList.toggle('active', ph !== 'EMPTY' && ph !== 'HEAT' && ph !== 'HOT');
-    cell.classList.toggle('heating', ph === 'HEAT' || ph === 'RAW' || ph === 'GOOD' || ph === 'OVER');
+    const pan = panGet(i), ph = panPhase(pan), rn = panRecipeName(pan);
+    cell.classList.toggle('active', ph !== 'EMPTY' && !pan.fire);
+    cell.classList.toggle('heating', pan.fire && ['HEAT', 'RAW', 'GOOD', 'OVER', 'HOT'].includes(ph));
+    cell.classList.toggle('fire', !!pan.fire);
     cell.classList.toggle('pan-ready', ph === 'HOT' || ph === 'TOP' || ph === 'GOOD');
+    cell.classList.toggle('pan-warn', ph === 'HOT' && pan.fire && ((rn === 'Tonkotsu' && pan.foam >= 60) || (rn !== 'Tonkotsu' && pan.vol <= 35)));
     const art = document.getElementById('pan-art-' + i), st = document.getElementById('pan-status-' + i), fill = document.getElementById('pan-fill-' + i);
     if (art) art.innerHTML = generatePanSVG(pan, ph);
     if (st) st.textContent = panStatusText(pan, ph);
-    if (fill) fill.style.width = (ph === 'HEAT' ? Math.round(100 * pan.heat / T.heat) : (ph === 'HOT' ? 100 : 0)) + '%';
+    if (fill) fill.style.width = (ph === 'HEAT' ? Math.round(100 * pan.heat / T.heat) : (ph === 'HOT' ? Math.round(rn === 'Tonkotsu' ? pan.foam : pan.vol) : 0)) + '%';
   });
 }
 
@@ -15970,24 +16011,62 @@ function panTick() {
   const T = panTimes();
   let changed = false;
   [0, 1].forEach(i => {
-    const pan = gameState.pans[i], ph = panPhase(pan);
+    const pan = gameState.pans[i];
+    if (!pan.items.length) return;
+    const ph = panPhase(pan), rn = panRecipeName(pan);
+    if (!pan.fire) { if (pan.foam > 0) { pan.foam = Math.max(0, pan.foam - 8); changed = true; } return; }   // apagada: la espuma baja
     if (ph === 'RAW' || ph === 'GOOD' || ph === 'OVER') {
       pan.t++; changed = true;
       if (pan.t === T.ready) { try { playSound('ding'); } catch (e) {} showStationToast(`🍳 Sartén ${i + 1}: ¡sofrito listo! Agrega el caldo.`); }
-      if (pan.t >= T.burn) { pan.burnt = true; try { playSound('burn'); } catch (e) {} showStationToast(`🔥 ¡Se quemó el sofrito de la sartén ${i + 1}! Vacíala.`); }
+      if (pan.t >= T.burn) { pan.burnt = true; pan.fire = false; try { playSound('burn'); } catch (e) {} showStationToast(`🔥 ¡Se quemó el sofrito de la sartén ${i + 1}! Vacíala.`); }
     } else if (ph === 'HEAT') {
       pan.heat++; changed = true;
-      if (pan.heat >= T.heat) { try { playSound('ding'); } catch (e) {} showStationToast(`♨️ Sartén ${i + 1}: caldo caliente. Toca para servir al cuenco.`); }
+      if (pan.heat >= T.heat) { pan.vol = 100; pan.foam = 0; try { playSound('ding'); } catch (e) {} showStationToast(`♨️ Sartén ${i + 1}: caldo caliente. Sírvelo o apaga la hornilla.`); }
+    } else if (ph === 'HOT' && T.dry < 1e8) {
+      changed = true;
+      if (rn === 'Tonkotsu') {
+        pan.foam += 100 / T.foam;
+        if (pan.foam >= 60 && !pan.foamWarned) { pan.foamWarned = true; try { playSound('burn'); } catch (e) {} showStationToast(`⚠ Sartén ${i + 1}: ¡mucha espuma del Tonkotsu! Apaga la hornilla.`); }
+        if (pan.foam >= 100) {
+          gameState.pans[i] = newPan();
+          try { playSound('burn'); } catch (e) {}
+          showStationToast(`🌊 ¡Se desbordó el Tonkotsu de la sartén ${i + 1}! Perdiste el caldo: hazlo de nuevo.`);
+        }
+      } else {
+        pan.vol -= 100 / T.dry;
+        if (pan.vol <= 35 && !pan.dryWarned) { pan.dryWarned = true; showStationToast(`⚠ Sartén ${i + 1}: el caldo se está reduciendo. Sírvelo o apaga la hornilla.`); }
+        if (pan.vol <= 0) { pan.vol = 0; pan.dried = true; pan.fire = false; try { playSound('burn'); } catch (e) {} showStationToast(`💨 ¡Se secó el caldo de la sartén ${i + 1}! Vacíala y empieza de nuevo.`); }
+      }
     }
   });
   if (changed) renderPans();
+}
+
+function panFire(i) {
+  if (!stagedOn('ramen') || gameState.isPaused || gameState.isGameOver) return;
+  const pan = panGet(i);
+  if (!pan.items.length) { showStationToast('🍳 Primero pon los ingredientes en la sartén.'); return; }
+  if (pan.burnt || pan.dried) { showStationToast('🍳 Esa sartén se echó a perder: vacíala con 🗑️.'); try { playSound('error'); } catch (e) {} return; }
+  if (pan.served) { showStationToast('🍳 Ya está servido: pon lo que queda arriba del cuenco.'); return; }
+  pan.fire = !pan.fire;
+  try { playSound(pan.fire ? 'flame' : 'click'); } catch (e) {}
+  showStationToast(pan.fire ? `🔥 Hornilla ${i + 3} encendida.` : `🧯 Hornilla ${i + 3} apagada.`);
+  renderPans();
+}
+// Toque sobre la sartén: servir si está caliente, poner lo que queda arriba, o encender / apagar la hornilla
+function panTap(i) {
+  const ph = panPhase(panGet(i));
+  if (ph === 'HOT' || ph === 'TOP') { panServe(i); return; }
+  if (ph === 'EMPTY') { showStationToast('🍳 Sartén vacía: arrastra los ingredientes del caldo en el orden de la receta.'); return; }
+  if (ph === 'WAIT' || ph === 'ADDING') { panServe(i); return; }   // avisa qué falta
+  panFire(i);
 }
 
 function panAdd(i, id) {
   if (!stagedOn('ramen') || gameState.isPaused || gameState.isGameOver) return;
   const pan = panGet(i), ing = INGREDIENTES.find(x => x.id === id);
   const fail = msg => { showStationToast(msg); try { playSound('error'); } catch (e) {} };
-  if (pan.burnt) { fail('🔥 La sartén se quemó: vacíala con 🗑️.'); return; }
+  if (pan.burnt || pan.dried) { fail('🍳 La sartén se echó a perder: vacíala con 🗑️.'); return; }
   if (pan.served) { fail('🍳 La sopa ya se sirvió: pon lo que queda arriba del cuenco (toca la sartén).'); return; }
   if (pan.items.includes(id)) { showStationToast(`${ing.display} ya está en la sartén.`); return; }
   const cands = panCandidates([...pan.items, id]);
@@ -16006,7 +16085,7 @@ function panAdd(i, id) {
   if (id === 2) {                                   // caldo Shio caliente (o dashi de recortes), de su hornilla
     if (kitchenState.stocks.shio > 0) kitchenState.stocks.shio--;
     else if (gameState.dashi > 0) { gameState.dashi--; updateMottainaiHUD(); showStationToast('🐟 Dashi de recortes: Caldo Shio sin calentar.'); }
-    else { triggerGuideHighlight('btn-heat-shio'); fail('🥣 ¡Está Frío! Mantén presionado "Calentar Shio" 3 segundos.'); return; }
+    else { triggerGuideHighlight('btn-heat-shio'); fail('🥣 ¡Está frío! Enciende la hornilla del Shio.'); return; }
     updateKitchenStationsUI();
   }
   if (id === 4 && gameState.dashi > 0) { gameState.dashi--; pan.dashiBase = true; updateMottainaiHUD(); showStationToast('🐟 Dashi casero en el caldo: el ramen Vegetariano se paga +20 %.'); }
@@ -16018,10 +16097,10 @@ function panAdd(i, id) {
   if (pan.errors > before) showStationToast('🍳 Orden: caldo → salsa → proteína (−8 pts de proceso).');
   try { playSound(isFry ? 'splash' : 'add'); } catch (e) {}
   if (r && r.fry && isFry) {
-    if (r.fry.every(f => pan.items.includes(f))) { if (!pan.fryStarted) { pan.fryStarted = true; pan.t = 0; showStationToast('🍳 Sofriendo… espera a que esté listo.'); } }
+    if (r.fry.every(f => pan.items.includes(f))) { if (!pan.fryStarted) { pan.fryStarted = true; pan.t = 0; showStationToast(pan.fire ? '🍳 Sofriendo… espera a que esté listo.' : '🍳 Enciende la hornilla 🔥 para sofreír.'); } }
     else showStationToast(`🍳 Falta sofreír: ${r.fry.filter(f => !pan.items.includes(f)).map(stIngName).join(', ')}.`);
   } else if (r && r.add.every(f => pan.items.includes(f))) {
-    showStationToast('♨️ Todo en la sartén: calentando el caldo…');
+    showStationToast(pan.fire ? '♨️ Todo en la sartén: calentando el caldo…' : '🔥 Todo en la sartén: enciende la hornilla para calentar el caldo.');
   }
   renderPans();
 }
@@ -16032,7 +16111,7 @@ function panServe(i) {
   const pan = panGet(i), ph = panPhase(pan), rn = panRecipeName(pan), r = rn && PAN_RECIPES[rn];
   const fail = msg => { showStationToast(msg); try { playSound('error'); } catch (e) {} };
   if (ph === 'EMPTY') { showStationToast('🍳 Sartén vacía: arrastra los ingredientes del caldo en el orden de la receta.'); return; }
-  if (ph === 'BURNT') { fail('🔥 Se quemó: vacía la sartén con 🗑️.'); return; }
+  if (ph === 'BURNT' || ph === 'DRIED') { fail('🍳 Se echó a perder: vacía la sartén con 🗑️.'); return; }
   if (ph === 'HOT') {
     const idx = gameState.activeBowlIndex, bowl = gameState.bowls[idx], serve = panServeIds(r), needs = r.needs || [1];
     if (idx >= bowlLimit()) { fail('🔒 Este cuenco aún no está disponible.'); return; }
@@ -16042,16 +16121,19 @@ function panServe(i) {
     bowl.ingredients.push(...serve);
     bowl.panIds = [...serve]; bowl.panRecipe = rn; bowl.panErrors = pan.errors; bowl.fry = pan.result;
     if (pan.dashiBase) bowl.dashiBase = true;
+    if (typeof bowl.spread === 'number') bowl.spread = Math.min(bowl.spread, 0.25);   // al verter el caldo hay que mover los fideos con él
     bowl.orderErrors = bowlOrderErrors(bowl);
     pan.items = pan.items.filter(id => !serve.includes(id));
+    pan.fire = false;
     try { playSound('splash'); } catch (e) {}
-    if (r.top) { pan.served = true; pan.target = idx; pan.recipe = rn; showStationToast('🍜 Caldo servido. Ahora pon los langostinos arriba: toca la sartén.'); }
-    else { gameState.pans[i] = newPan(); showStationToast(`🍜 ${rn}: caldo servido en el cuenco ${idx + 1}.`); }
+    if (r.top) { pan.served = true; pan.target = idx; pan.recipe = rn; showStationToast(r.topNeedsSpread ? '🍜 Caldo servido. Mueve los fideos con el caldo y luego pon el brisket: toca la sartén.' : '🍜 Caldo servido. Ahora pon los langostinos arriba: toca la sartén.'); }
+    else { gameState.pans[i] = newPan(); showStationToast(`🍜 ${rn}: caldo servido en el cuenco ${idx + 1}. Mueve los fideos con el caldo.`); }
     if (analyzeBowl(idx).status === 'READY') { try { playSound('match'); } catch (e) {} }
     panAfterBowlChange();
   } else if (ph === 'TOP') {
     const bowl = gameState.bowls[pan.target];
     if (!bowl || bowl.panRecipe !== pan.recipe) { fail('🍜 El cuenco ya no tiene ese caldo: vacía la sartén.'); return; }
+    if (r && r.topNeedsSpread && (bowl.spread || 0) < 0.8) { fail('🥢 Primero mueve los fideos con el caldo (arrastra sobre el cuenco) y luego pon el brisket.'); return; }
     bowl.ingredients.push(...pan.items);
     bowl.panIds.push(...pan.items);
     bowl.orderErrors = bowlOrderErrors(bowl);
@@ -16078,6 +16160,60 @@ function panDiscard(i) {
   gameState.pans[i] = newPan();
   try { playSound('trash'); } catch (e) {}
   renderPans();
+}
+
+// ---- Hornilla del Shio (con etapas): se enciende y se apaga; encendida y caliente el caldo se va reduciendo hasta secarse ----
+const SHIO_REDUCE_S = 10;                                  // segundos por porción que se evapora
+const shioHeatS = () => (isFree() ? 2 : 3);
+function shioStagedText() {
+  const k = kitchenState.shio, n = kitchenState.stocks.shio;
+  if (k.fire && !k.hot) return `♨️ Calentando… ${Math.max(0, shioHeatS() - (k.heat || 0))}s`;
+  if (k.fire) return `🔥 Hirviendo (${n}) · apaga`;
+  return n > 0 ? `Apagada (${n}) · enciende` : 'Toca: encender';
+}
+function shioRefresh() {
+  const k = kitchenState.shio, btn = document.getElementById('btn-heat-shio'), fill = document.getElementById('shio-fill');
+  if (btn) {
+    btn.classList.toggle('fire-on', !!k.fire);
+    btn.classList.toggle('fire-warn', !!k.fire && k.hot && kitchenState.stocks.shio <= 1 && !isFree());
+  }
+  if (fill) fill.style.width = (k.fire ? (k.hot ? Math.round(100 * (kitchenState.stocks.shio / Math.max(1, stockCap()))) : Math.round(100 * (k.heat || 0) / shioHeatS())) : 0) + '%';
+  updateKitchenStationsUI();
+}
+function shioToggle() {
+  if (gameState.isPaused || gameState.isGameOver) return;
+  const k = kitchenState.shio;
+  if (k.fire) {
+    k.fire = false;
+    try { playSound('click'); } catch (e) {}
+    showStationToast('🧯 Hornilla del Shio apagada: el caldo ya no se reduce.');
+  } else {
+    k.fire = true; k.reduce = 0; k.heat = 0;
+    k.hot = kitchenState.stocks.shio > 0;                  // si aún queda caldo ya está caliente
+    try { playSound('flame'); } catch (e) {}
+    showStationToast(k.hot ? '🔥 Hornilla del Shio encendida. Ojo: si la dejas, el caldo se reduce.' : '🔥 Hornilla del Shio encendida: calentando el caldo…');
+  }
+  shioRefresh();
+}
+function shioTick() {
+  const k = kitchenState.shio;
+  if (!k.fire) return;
+  if (!k.hot) {
+    k.heat = (k.heat || 0) + 1;
+    if (k.heat >= shioHeatS()) {
+      k.hot = true; k.reduce = 0; kitchenState.stocks.shio = stockCap();
+      try { playSound('ding'); } catch (e) {}
+      showStationToast(`🥣 ¡Caldo Shio caliente! (${stockCap()} porciones). Apaga la hornilla cuando termines: si no, se reduce.`);
+    }
+  } else if (!isFree()) {
+    if (kitchenState.stocks.shio <= 0) { k.fire = false; k.hot = false; showStationToast('🥣 No queda caldo Shio: la hornilla se apagó.'); }
+    else if (++k.reduce >= SHIO_REDUCE_S) {
+      k.reduce = 0; kitchenState.stocks.shio--;
+      if (kitchenState.stocks.shio <= 0) { k.fire = false; k.hot = false; try { playSound('burn'); } catch (e) {} showStationToast('💨 ¡El caldo Shio se secó por completo! Enciende de nuevo para hacer más.'); }
+      else if (kitchenState.stocks.shio === 1) showStationToast('⚠ El caldo Shio se está reduciendo: queda 1 porción.');
+    }
+  }
+  shioRefresh();
 }
 
 // Mover los fideos (Ramen con etapas): se arrastra el dedo / ratón sobre el cuenco; cada tramo de recorrido los reparte un poco más.
