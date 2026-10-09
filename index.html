@@ -1821,45 +1821,52 @@
     color: #fff5f0;
   }
 
-  /* --- Cocina de 4 hornillas del ramen (con etapas): 1 fideos, 2 Shio, 3 y 4 sartenes hondas; el soplete del chasu al costado --- */
-  .stove-pan { display: none; }
-  .cook-stations-panel.stove-on {
-    grid-template-columns: 1fr 1fr 62px; width: 400px; height: auto; padding: 4px; gap: 4px;
-    background: linear-gradient(180deg, #5b646c, #363d44); border: 2px solid #1f252a; border-radius: 12px;
-    box-shadow: inset 0 2px 0 rgba(255,255,255,0.18), 0 3px 8px rgba(0,0,0,0.5);
-  }
+  /* --- Cocina profesional de 4 hornillas del ramen (con etapas): fideos · olla grande de Shio · 2 sartenes hondas; soplete del chasu al costado --- */
+  .ramen-stove-bg, .stove-art, .stove-pan { display: none; }
+  .cook-stations-panel.stove-on { display: block; position: relative; width: 470px; aspect-ratio: 470 / 108; height: auto; padding: 0; gap: 0; background: none; border: none; box-shadow: none; flex-shrink: 0; }
+  .stove-on .ramen-stove-bg { display: block; position: absolute; left: 0; top: 0; width: 87.2%; height: 100%; pointer-events: none; filter: drop-shadow(0 4px 5px rgba(0,0,0,0.55)); }
+  .stove-on .ramen-stove-bg svg, .stove-on .stove-art svg, .stove-on .stove-pan-art svg { width: 100%; height: 100%; display: block; }
   .stove-on #btn-heat-tonkotsu { display: none; }
-  .stove-on #btn-cook-noodles { grid-area: 1 / 1; }
-  .stove-on #btn-heat-shio { grid-area: 1 / 2; }
-  .stove-on #btn-flame-chasu { grid-area: 1 / 3 / 3 / 4; height: auto; flex-direction: column; justify-content: center; text-align: center; padding: 2px; }
+  .stove-on #btn-cook-noodles, .stove-on #btn-heat-shio, .stove-on .stove-pan {
+    position: absolute; top: 0; height: 100%; display: block; padding: 0; overflow: visible; cursor: pointer; user-select: none;
+    background: transparent !important; border: 2px solid transparent; border-radius: 14px; box-shadow: none; transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .stove-on #btn-cook-noodles { left: 1.3%; width: 17.9%; }
+  .stove-on #btn-heat-shio { left: 20.4%; width: 26.8%; }
+  .stove-on #pan-cell-0 { left: 48.5%; width: 17.9%; }
+  .stove-on #pan-cell-1 { left: 67.2%; width: 18.7%; }
+  .stove-on #btn-cook-noodles .station-icon-wrap, .stove-on #btn-heat-shio .station-icon-wrap { display: none; }
+  .stove-on .stove-art, .stove-on .stove-pan .stove-pan-art { display: block; position: absolute; left: 0; right: 0; top: 0; height: 57.4%; pointer-events: none; }
+  .stove-on .stove-pan .stove-pan-art { top: 2%; height: 56%; }
+  /* cartelito de cada hornilla sobre el frente de la cocina */
+  .stove-on #btn-cook-noodles .station-info, .stove-on #btn-heat-shio .station-info, .stove-on .stove-pan .station-info {
+    position: absolute; left: 50%; transform: translateX(-50%); bottom: 13%; width: 94%; flex: none; text-align: center; padding: 1px 3px;
+    background: rgba(22, 16, 14, 0.88); border: 1px solid #3d4650; border-radius: 6px; z-index: 2; pointer-events: none;
+  }
+  .stove-on #btn-cook-noodles .station-title, .stove-on #btn-heat-shio .station-title, .stove-on .stove-pan .station-title { font-size: 8.5px; line-height: 1.15; }
+  .stove-on #btn-cook-noodles .station-status, .stove-on #btn-heat-shio .station-status, .stove-on .stove-pan .station-status { font-size: 7.5px; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .stove-on #btn-cook-noodles .station-progress-bar, .stove-on #btn-heat-shio .station-progress-bar, .stove-on .stove-pan .station-progress-bar { left: 8%; width: 84%; bottom: 7%; height: 3px; border-radius: 2px; }
+  .stove-on #btn-cook-noodles.cooking-active { border-color: #ff9800; }
+  .stove-on #btn-cook-noodles.noodle-ready-collect { border-color: #ffd600 !important; box-shadow: 0 0 14px #ffea00 !important; background: transparent !important; animation: noodleReadyFlash 0.45s infinite alternate !important; }
+  .stove-on #btn-cook-noodles.noodle-burnt { border-color: #d50000 !important; box-shadow: 0 0 14px #ff1744 !important; background: transparent !important; }
+  .stove-on #btn-heat-shio.fire-warn { border-color: #ef5350; animation: panWarn 0.4s ease-in-out infinite alternate; }
+  .stove-on .stove-pan.pan-ready { animation: panReady 0.8s ease-in-out infinite alternate; border-color: #66bb6a; }
+  .stove-on .stove-pan.pan-warn { animation: panWarn 0.4s ease-in-out infinite alternate; border-color: #ef5350; }
+  @keyframes panReady { from { box-shadow: 0 0 5px rgba(102, 187, 106, 0.4); } to { box-shadow: 0 0 16px rgba(102, 187, 106, 0.95); } }
+  @keyframes panWarn { from { box-shadow: 0 0 4px rgba(239, 83, 80, 0.4); } to { box-shadow: 0 0 16px rgba(239, 83, 80, 1); } }
+  .stove-pan-trash, .stove-pan-fire { position: absolute; top: 3px; width: 16px; height: 16px; padding: 0; border-radius: 50%; font-size: 8.5px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 3; }
+  .stove-pan-trash { right: 2px; border: 1px solid #ef5350; background: #c62828; color: #fff; }
+  .stove-pan-fire { left: 2px; border: 1px solid #5a4a44; background: #2c2420; color: #fff; opacity: 0.7; }
+  .stove-pan.fire .stove-pan-fire { opacity: 1; background: #e64a19; border-color: #ff9800; box-shadow: 0 0 6px #ff6d00; }
+  .stove-on #btn-flame-chasu { position: absolute; left: 88.3%; top: 6%; width: 11.7%; height: 88%; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 2px; background: linear-gradient(180deg, #59626a, #363d44); border: 2px solid #1f252a; border-radius: 10px; box-shadow: inset 0 2px 0 rgba(255,255,255,0.18), 0 3px 8px rgba(0,0,0,0.5); }
   .stove-on #btn-flame-chasu .station-icon-wrap { margin: 0 0 2px; }
   .stove-on #btn-flame-chasu .station-title { white-space: normal; font-size: 8.5px; }
   .stove-on #btn-flame-chasu .station-status { white-space: normal; font-size: 7.5px; text-align: center; }
-  .stove-on .stove-pan { grid-row: 2; display: flex; align-items: center; gap: 3px; position: relative; overflow: hidden; cursor: pointer; height: 40px; padding: 2px 4px; box-sizing: border-box; background: rgba(32, 16, 12, 0.94); border: 1.5px solid #46586f; border-radius: 9px; box-shadow: 0 2px 6px rgba(0,0,0,0.4); user-select: none; transition: border-color 0.15s, box-shadow 0.15s; }
-  .stove-on .stove-pan:first-of-type { grid-column: 1; }
-  .stove-on #pan-cell-0 { grid-column: 1; } .stove-on #pan-cell-1 { grid-column: 2; }
-  .stove-pan.active { border-color: #4fc3f7; box-shadow: 0 0 10px rgba(79, 195, 247, 0.5), inset 0 0 8px rgba(79, 195, 247, 0.15); }
-  .stove-pan.heating { border-color: #ff7043; box-shadow: 0 0 12px rgba(255, 87, 34, 0.6), inset 0 0 8px rgba(255, 87, 34, 0.25); }
-  .stove-pan.pan-ready { animation: panReady 0.8s ease-in-out infinite alternate; border-color: #66bb6a; }
-  @keyframes panReady { from { box-shadow: 0 0 5px rgba(102, 187, 106, 0.4); } to { box-shadow: 0 0 16px rgba(102, 187, 106, 0.95); } }
-  .stove-pan .stove-pan-art { width: 46px; height: 29px; flex-shrink: 0; }
-  .stove-pan .stove-pan-art svg { width: 100%; height: 100%; display: block; }
-  .stove-pan .station-info { min-width: 0; }
-  .stove-pan-trash { position: absolute; top: 1px; right: 1px; width: 15px; height: 15px; padding: 0; border-radius: 50%; border: 1px solid #ef5350; background: #c62828; color: #fff; font-size: 8px; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-  .stove-pan-fire { position: absolute; bottom: 4px; right: 1px; width: 15px; height: 15px; padding: 0; border-radius: 50%; border: 1px solid #5a4a44; background: #2c2420; color: #fff; font-size: 8px; line-height: 1; cursor: pointer; opacity: 0.55; display: flex; align-items: center; justify-content: center; }
-  .stove-pan.fire .stove-pan-fire { opacity: 1; background: #e64a19; border-color: #ff9800; box-shadow: 0 0 6px #ff6d00; }
-  .stove-pan.pan-warn { animation: panWarn 0.4s ease-in-out infinite alternate; border-color: #ef5350; }
-  @keyframes panWarn { from { box-shadow: 0 0 4px rgba(239, 83, 80, 0.4); } to { box-shadow: 0 0 16px rgba(239, 83, 80, 1); } }
-  .pan-svg .pan-flame { transform-box: fill-box; transform-origin: 50% 100%; animation: panFlame 0.3s ease-in-out infinite alternate; }
-  @keyframes panFlame { from { transform: scaleY(0.75); } to { transform: scaleY(1.25); } }
-  .stove-on #btn-heat-shio.fire-on { border-color: #ff3d00; box-shadow: 0 0 12px rgba(255, 61, 0, 0.7), inset 0 0 8px rgba(255, 87, 34, 0.35); background: rgba(45, 18, 12, 0.98); }
-  .stove-on #btn-heat-shio.fire-on .station-icon { animation: flamePulse 0.25s infinite alternate; }
-  .stove-on #btn-heat-shio.fire-warn { border-color: #ef5350; animation: panWarn 0.4s ease-in-out infinite alternate; }
   #bowls-dock-box.stove-on #bowl-card-2 { display: none; }
   @media (max-width: 750px) {
-    .cook-stations-panel.stove-on { width: 318px; gap: 3px; }
-    .stove-on .stove-pan { height: 38px; }
-    .stove-pan .stove-pan-art { width: 38px; height: 24px; }
+    .cook-stations-panel.stove-on { width: 392px; }
+    .stove-on #btn-cook-noodles .station-title, .stove-on #btn-heat-shio .station-title, .stove-on .stove-pan .station-title { font-size: 7.5px; }
+    .stove-on #btn-cook-noodles .station-status, .stove-on #btn-heat-shio .station-status, .stove-on .stove-pan .station-status { font-size: 6.8px; }
   }
   .pan-svg .pan-bub { opacity: 0; }
   .pan-svg.pan-sizzling .pan-bub { animation: panBub 0.8s ease-out infinite; }
@@ -1867,6 +1874,11 @@
   @keyframes panBub { 0% { transform: translateY(0); opacity: 0.9; } 100% { transform: translateY(-9px); opacity: 0; } }
   .pan-svg .pan-steam { animation: panSteam 1.2s ease-in-out infinite alternate; }
   @keyframes panSteam { from { opacity: 0.35; transform: translateY(0); } to { opacity: 0.9; transform: translateY(-3px); } }
+  .pan-svg .pan-flame { transform-box: fill-box; transform-origin: 50% 100%; animation: panFlame 0.3s ease-in-out infinite alternate; }
+  @keyframes panFlame { from { transform: scaleY(0.8); } to { transform: scaleY(1.2); } }
+  .pan-svg .pot-bub { animation: potBub 0.9s ease-out infinite; opacity: 0; }
+  .pan-svg .pot-bub.b2 { animation-delay: 0.3s; } .pan-svg .pot-bub.b3 { animation-delay: 0.6s; }
+  @keyframes potBub { 0% { transform: translateY(0) scale(0.6); opacity: 0.9; } 100% { transform: translateY(-4px) scale(1.2); opacity: 0; } }
 
   /* --- Estación propia de Makis: tabla de enrollado horizontal, un rollo a la vez --- */
   .maki-station-box {
@@ -6126,7 +6138,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v56</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v57</span></button></div>
     </div>
   </div>
 
@@ -6619,8 +6631,11 @@
   <div class="kitchen-bottom-dock">
     <!-- Panel de 4 estaciones interactivas de cocción a la izquierda -->
     <div class="cook-stations-panel" id="cook-stations-panel">
+      <!-- Cocina profesional de acero (solo con etapas): fondo dibujado; encima, las 4 hornillas -->
+      <div class="ramen-stove-bg" id="ramen-stove-bg"></div>
       <!-- 1. Cocinar Fideos -->
       <button class="cook-station-btn" id="btn-cook-noodles" onclick="handleNoodlesBtnClick()" title="Cocinar Fideos: Toca para iniciar (4s), toca para añadir más fideos (+1s hasta 4), toca para recoger cuando esté listo.">
+        <div class="stove-art" id="noodles-art"></div>
         <div class="station-icon-wrap">
           <span class="station-icon" id="noodles-icon">🥢</span>
         </div>
@@ -6635,6 +6650,7 @@
 
       <!-- 2. Calentar Shio -->
       <button class="cook-station-btn" id="btn-heat-shio" title="Calentar Shio: Mantén presionado durante 3 segundos para calentar caldo Shio al punto.">
+        <div class="stove-art" id="shio-art"></div>
         <div class="station-icon-wrap">
           <span class="station-icon" id="shio-icon">🥣</span>
         </div>
@@ -10862,7 +10878,7 @@ function stProdStart(area, key, mode) {
 }
 
 function stTick() {
-  if (stagedOn('ramen')) shioTick();
+  if (stagedOn('ramen')) { shioTick(); renderStoveArt(); }
   STAGE_AREAS.forEach(area => {
     if (area === 'ramen') panTick();
     const st = gameState.st && gameState.st[area];
@@ -12948,6 +12964,7 @@ function updateKitchenStockBadges() {
 function updateKitchenStationsUI(skipSync = false, source = '', delta = '') {
   // 1. Actualizar los números de stock en la despensa
   updateKitchenStockBadges();
+  try { renderStoveArt(); } catch (e) {}
 
   // 2. Actualizar los textos informativos en los 4 botones de cocina
   const chasuStatus = document.getElementById('chasu-status');
@@ -15967,14 +15984,18 @@ function generatePanSVG(pan, ph) {
       <rect x="${x(Math.min(T.over, total))}" y="60.6" width="${Math.max(0, 84 - x(Math.min(T.over, total))).toFixed(1)}" height="3" rx="1.5" fill="#ff7043"/>
       <rect x="${(+x(pan.t) - 0.8).toFixed(1)}" y="59.2" width="1.8" height="5.6" rx="0.9" fill="#ffffff" stroke="#000" stroke-width="0.3"/>`;
   }
-  const flame = pan.fire ? '<g class="pan-flame" fill="#ff9800" stroke="#ffeb3b" stroke-width="0.6"><path d="M 24,60 q 2,-9 4,-2 q 2,-10 4,0 q 2,-8 4,1 q 3,-9 5,0 q 3,-9 5,1 q 2,-8 4,0 q 2,-9 4,1 l 0,4 z"/></g>' : '';
+  let flame = '';
+  if (pan.fire) { for (let k = 0; k < 8; k++) { const fx = 22 + k * 7.4; flame += `<path d="M ${fx - 3},64 Q ${fx - 4},58 ${fx},51 Q ${fx + 4},58 ${fx + 3},64 Z" fill="#4aa3ff" stroke="#1f5fa8" stroke-width="0.5"/><path d="M ${fx - 1.4},61 Q ${fx},56 ${fx + 1.4},61 Z" fill="#ff9a3d"/>`; } flame = `<g class="pan-flame">${flame}</g>`; }
   return `<svg class="pan-svg ${sizz ? 'pan-sizzling' : ''}" viewBox="0 0 100 64">
+    <defs><linearGradient id="panSteel" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6e7884"/><stop offset="0.28" stop-color="#c3ccd5"/><stop offset="0.55" stop-color="#8f9aa6"/><stop offset="0.82" stop-color="#cfd8e0"/><stop offset="1" stop-color="#5f6974"/></linearGradient></defs>
     ${flame}
-    <ellipse cx="46" cy="56" rx="34" ry="4.5" fill="rgba(0,0,0,0.4)"/>
-    <rect x="78" y="31" width="22" height="6.5" rx="3.2" fill="#6d4c41" stroke="#3e2723" stroke-width="1" transform="rotate(-6 78 34)"/>
-    <ellipse cx="46" cy="37" rx="35" ry="17" fill="#2b2b2b" stroke="#111" stroke-width="1.5"/>
-    <ellipse cx="46" cy="34" rx="33" ry="15" fill="#4a4a4a" stroke="#8a8a8a" stroke-width="1.2"/>
-    <ellipse cx="46" cy="34.5" rx="29" ry="12.5" fill="#262626"/>
+    <path d="M 74,38 L 99,42" stroke="#23262b" stroke-width="6" stroke-linecap="round" fill="none"/>
+    <path d="M 74,38 L 99,42" stroke="#3a3f46" stroke-width="3.6" stroke-linecap="round" fill="none"/>
+    <path d="M 76,36.6 L 96,40.2" stroke="#6b727b" stroke-width="1" stroke-linecap="round" fill="none"/>
+    <ellipse cx="46" cy="38" rx="35" ry="16" fill="url(#panSteel)" stroke="#23262b" stroke-width="1.6"/>
+    <ellipse cx="46" cy="34" rx="33" ry="14.5" fill="#d3dbe3" stroke="#23262b" stroke-width="1.3"/>
+    <ellipse cx="46" cy="34.5" rx="29.5" ry="12.5" fill="#7b8691" stroke="#59626c" stroke-width="0.8"/>
+    <path d="M 22,30 Q 46,22 70,30" stroke="#ffffff" stroke-opacity="0.35" stroke-width="1.2" fill="none"/>
     ${food}
     <circle class="pan-bub b1" cx="38" cy="30" r="1.6" fill="#fff"/><circle class="pan-bub b2" cx="52" cy="33" r="1.4" fill="#ffe082"/><circle class="pan-bub b3" cx="45" cy="28" r="1.2" fill="#fff"/>
     ${ph === 'BURNT' || ph === 'DRIED' ? '<g stroke="#9e9e9e" stroke-width="1.6" stroke-linecap="round" fill="none" opacity="0.8"><path d="M 36,24 q -3,-6 1,-10"/><path d="M 48,22 q 3,-6 -1,-11"/><path d="M 58,24 q -3,-6 1,-10"/></g>' : ''}
@@ -15983,12 +16004,99 @@ function generatePanSVG(pan, ph) {
   </svg>`;
 }
 
+// ---- Dibujo de la cocina profesional (estilo ilustrado: acero con contorno de tinta) ----
+const STOVE_INK = '#23262b';
+const STOVE_BG_SVG = (() => {
+  const plates = [[48, 31], [159, 40], [270, 31], [360, 33]].map(([cx, hw]) => `
+    <path d="M ${cx - hw - 4},58 L ${cx - hw + 5},27 H ${cx + hw - 5} L ${cx + hw + 4},58 Z" fill="#262a31" stroke="${STOVE_INK}" stroke-width="1.6"/>
+    <path d="M ${cx - hw},54 L ${cx - hw + 7},31 M ${cx - hw / 3},54 L ${cx - hw / 3 + 2},31 M ${cx + hw / 3},54 L ${cx + hw / 3 - 2},31 M ${cx + hw},54 L ${cx + hw - 7},31" stroke="#4a515b" stroke-width="2.2" fill="none"/>
+    <ellipse cx="${cx}" cy="45" rx="${hw * 0.55}" ry="5.5" fill="#15181c" stroke="#59626c" stroke-width="1"/>
+    <circle cx="${cx - hw}" cy="56" r="1.6" fill="#8f9aa6"/><circle cx="${cx + hw}" cy="56" r="1.6" fill="#8f9aa6"/>`).join('');
+  const knobs = [48, 159, 270, 360].map(cx => `<circle cx="${cx}" cy="92" r="5.2" fill="#b9c3cd" stroke="${STOVE_INK}" stroke-width="1.3"/><circle cx="${cx}" cy="92" r="2" fill="#4b525b"/><path d="M ${cx - 9},88 q -4,5 0,10" stroke="${STOVE_INK}" stroke-width="0.9" fill="none"/>`).join('');
+  return `<svg viewBox="0 0 410 108" preserveAspectRatio="xMidYMid meet">
+    <defs>
+      <linearGradient id="stkTop" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7f8a99"/><stop offset="0.5" stop-color="#a7b0bb"/><stop offset="1" stop-color="#7d8895"/></linearGradient>
+      <linearGradient id="stkFront" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8794a3"/><stop offset="0.45" stop-color="#6c7785"/><stop offset="1" stop-color="#4a525c"/></linearGradient>
+      <linearGradient id="stkBack" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9aa4b0"/><stop offset="1" stop-color="#6f7a87"/></linearGradient>
+    </defs>
+    <rect x="12" y="96" width="9" height="12" fill="#4b525b" stroke="${STOVE_INK}" stroke-width="1.4"/><rect x="389" y="96" width="9" height="12" fill="#4b525b" stroke="${STOVE_INK}" stroke-width="1.4"/>
+    <path d="M 0,62 H 410 V 98 H 0 Z" fill="url(#stkFront)" stroke="${STOVE_INK}" stroke-width="1.8"/>
+    <path d="M 5,67 H 405" stroke="#d6dee6" stroke-opacity="0.45" stroke-width="1.4"/>
+    <path d="M 40,98 L 40,62 M 370,98 L 370,62" stroke="#3d444d" stroke-opacity="0.35" stroke-width="1"/>
+    <path d="M 6,0 H 404 V 11 H 6 Z" fill="url(#stkBack)" stroke="${STOVE_INK}" stroke-width="1.6"/>
+    <path d="M 12,4 H 398" stroke="#e1e8ee" stroke-opacity="0.5" stroke-width="1.2"/>
+    <path d="M 8,11 H 402 L 410,62 H 0 Z" fill="url(#stkTop)" stroke="${STOVE_INK}" stroke-width="1.8"/>
+    <ellipse cx="104" cy="52" rx="38" ry="4" fill="#b28a62" opacity="0.28"/><ellipse cx="215" cy="22" rx="30" ry="3.2" fill="#c9a37a" opacity="0.22"/><ellipse cx="320" cy="54" rx="26" ry="3.6" fill="#b28a62" opacity="0.26"/>
+    <path d="M 14,58 H 396" stroke="#e8eef3" stroke-opacity="0.38" stroke-width="1.3"/>
+    ${plates}
+    ${knobs}
+  </svg>`;
+})();
+
+// Olla de acero (vista 3/4): Shio = olla grande con el caldo que baja; fideos = olla mediana con agua y fideos
+function stovePotSvg(o) {
+  const cx = 65, cy = 21, rx = o.rx, ry = Math.round(rx * 0.24), bt = 54, x0 = cx - rx, x1 = cx + rx, ink = STOVE_INK, uid = o.id;
+  const lvl = Math.max(0, Math.min(1, o.level));
+  const lrx = rx - 6, lry = ry - 3, lcy = cy + 1.5 + (1 - lvl) * 5;
+  let flames = '';
+  if (o.fire) {
+    for (let k = 0; k < 9; k++) { const fx = cx - rx * 0.72 + k * (rx * 1.44 / 8); flames += `<path d="M ${(fx - 3.4).toFixed(1)},70 Q ${(fx - 4.2).toFixed(1)},63 ${fx.toFixed(1)},55 Q ${(fx + 4.2).toFixed(1)},63 ${(fx + 3.4).toFixed(1)},70 Z" fill="#4aa3ff" stroke="#1f5fa8" stroke-width="0.5"/><path d="M ${(fx - 1.5).toFixed(1)},66 Q ${fx.toFixed(1)},60 ${(fx + 1.5).toFixed(1)},66 Z" fill="#ff9a3d"/>`; }
+    flames = `<g class="pan-flame">${flames}</g>`;
+  }
+  const handle = sg => `<path d="M ${cx + sg * (rx - 1)},${cy + 8} q ${sg * 13},-4 ${sg * 11},9 q ${-sg},6 ${-sg * 11},4" fill="none" stroke="${ink}" stroke-width="5.6" stroke-linecap="round"/><path d="M ${cx + sg * (rx - 1)},${cy + 8} q ${sg * 13},-4 ${sg * 11},9 q ${-sg},6 ${-sg * 11},4" fill="none" stroke="#b4bfca" stroke-width="3" stroke-linecap="round"/>`;
+  let content = '';
+  if (o.liquid && lvl > 0) {
+    content += `<ellipse cx="${cx}" cy="${lcy.toFixed(1)}" rx="${lrx}" ry="${lry}" fill="${o.liquid}" stroke="rgba(0,0,0,0.25)" stroke-width="0.6"/><ellipse cx="${cx - 8}" cy="${(lcy - 1).toFixed(1)}" rx="${(lrx * 0.45).toFixed(1)}" ry="${(lry * 0.4).toFixed(1)}" fill="#ffffff" opacity="0.22"/>`;
+    if (o.meat) content += `<g fill="#b9605a" stroke="#6e2a26" stroke-width="0.6"><rect x="${cx - 22}" y="${(lcy - 2).toFixed(1)}" width="9" height="4.2" rx="1.6"/><rect x="${cx - 4}" y="${(lcy + 1).toFixed(1)}" width="9" height="4.2" rx="1.6"/><rect x="${cx + 10}" y="${(lcy - 3).toFixed(1)}" width="9" height="4.2" rx="1.6"/></g>`;
+    if (o.noodles === 'cook') content += `<g stroke="#f6e08a" stroke-width="1.8" stroke-linecap="round" fill="none">${[-9, -3, 3, 9].map(d => `<path d="M ${cx - 20},${(lcy + d * 0.3).toFixed(1)} q 5,-4 10,0 t 10,0 t 10,0 t 10,0"/>`).join('')}</g>`;
+    if (o.noodles === 'ready') content += `<ellipse cx="${cx}" cy="${cy - 3}" rx="${(rx * 0.5).toFixed(1)}" ry="6" fill="#f2c24a" stroke="#a87a1c" stroke-width="0.8"/><g stroke="#d9a62c" stroke-width="1" fill="none"><path d="M ${cx - 14},${cy - 4} q 5,-3 10,0 t 10,0 t 10,0"/><path d="M ${cx - 12},${cy - 1} q 5,-3 10,0 t 10,0"/></g>`;
+    if (o.noodles === 'burnt') content += `<ellipse cx="${cx}" cy="${cy - 1}" rx="${(rx * 0.5).toFixed(1)}" ry="5" fill="#3a2a1c" stroke="#1b120a" stroke-width="0.8"/>`;
+    if (o.bubbles) content += [[-18, 0, 'b1'], [-4, 2, 'b2'], [12, -1, 'b3'], [24, 1, 'b2']].map(([dx, dy, c]) => `<circle class="pot-bub ${c}" cx="${cx + dx}" cy="${(lcy + dy).toFixed(1)}" r="1.9" fill="#fff8d6" stroke="#caa84a" stroke-width="0.4"/>`).join('');
+  } else {
+    content += `<ellipse cx="${cx}" cy="${cy + 4}" rx="${lrx - 4}" ry="${lry - 1}" fill="#3e444c"/><ellipse cx="${cx}" cy="${cy + 4}" rx="${lrx - 14}" ry="${lry - 4}" fill="#5a4630" opacity="0.55"/>`;
+  }
+  const steam = o.steam ? `<g class="pan-steam" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.8"><path d="M ${cx - 14},${cy - 6} q -5,-8 0,-15"/><path d="M ${cx},${cy - 8} q 5,-8 0,-16"/><path d="M ${cx + 14},${cy - 6} q -5,-8 0,-15"/></g>` : '';
+  return `<svg class="pan-svg" viewBox="0 0 130 72" preserveAspectRatio="xMidYMax meet">
+    <defs><linearGradient id="potSteel${uid}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6e7884"/><stop offset="0.25" stop-color="#c3ccd5"/><stop offset="0.5" stop-color="#8f9aa6"/><stop offset="0.8" stop-color="#d3dce4"/><stop offset="1" stop-color="#5f6974"/></linearGradient></defs>
+    ${flames}
+    ${handle(-1)}${handle(1)}
+    <path d="M ${x0},${cy} C ${x0},${bt} ${x0 + 12},${bt + 5} ${cx},${bt + 5} C ${x1 - 12},${bt + 5} ${x1},${bt} ${x1},${cy} Z" fill="url(#potSteel${uid})" stroke="${ink}" stroke-width="1.6"/>
+    <path d="M ${x0 + 6},${cy + 12} Q ${cx},${cy + 20} ${x1 - 6},${cy + 12}" stroke="#ffffff" stroke-opacity="0.28" stroke-width="1.3" fill="none"/>
+    <path d="M ${x0 + 4},${cy + 22} q 8,4 14,-1" stroke="#b79e86" stroke-opacity="0.5" stroke-width="1.6" fill="none"/>
+    <ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="#d3dbe3" stroke="${ink}" stroke-width="1.4"/>
+    <ellipse cx="${cx}" cy="${cy + 0.6}" rx="${rx - 3}" ry="${ry - 1.6}" fill="#566069" stroke="#3d444d" stroke-width="0.7"/>
+    ${content}
+    ${steam}
+  </svg>`;
+}
+let stoveArtSig = {};
+function stoveArtSet(id, html) {
+  const el = document.getElementById(id);
+  if (!el || stoveArtSig[id] === html) return;
+  stoveArtSig[id] = html;
+  el.innerHTML = html;
+}
+function renderStoveArt() {
+  if (!stagedOn('ramen')) return;
+  const bg = document.getElementById('ramen-stove-bg');
+  if (bg && !bg.firstChild) bg.innerHTML = STOVE_BG_SVG;
+  const sh = kitchenState.shio, stock = kitchenState.stocks.shio, cap = Math.max(1, stockCap());
+  const warm = sh.hot || stock > 0;
+  stoveArtSet('shio-art', stovePotSvg({ id: 'sh', rx: 52, liquid: warm ? '#d9b24a' : '#cfc28c', level: warm ? Math.min(1, stock / cap) : 0.72, fire: !!sh.fire, bubbles: !!sh.fire && (warm || (sh.heat || 0) > 0), steam: !!sh.fire && !!sh.hot, meat: false }));
+  const nd = kitchenState.noodles.state;
+  stoveArtSet('noodles-art', stovePotSvg({ id: 'nd', rx: 38, liquid: nd === 'BURNING' ? '#6b5a3c' : '#cfe6ea', level: 0.85, fire: nd !== 'IDLE', bubbles: nd === 'COOKING', steam: nd === 'COOKING' || nd === 'READY', noodles: nd === 'COOKING' ? 'cook' : (nd === 'READY' ? 'ready' : (nd === 'BURNING' ? 'burnt' : 'none')) }));
+}
+
 function renderPans() {
   const staged = stagedOn('ramen');
   const panel = document.getElementById('cook-stations-panel'), dock = document.getElementById('bowls-dock-box');
   if (panel) panel.classList.toggle('stove-on', staged);
   if (dock) dock.classList.toggle('stove-on', staged);
+  const nt = document.querySelector('#btn-cook-noodles .station-title'), st2 = document.querySelector('#btn-heat-shio .station-title');
+  if (nt) nt.textContent = staged ? 'Fideos' : 'Cocinar Fideos';
+  if (st2) st2.textContent = staged ? 'Caldo Shio' : 'Calentar Shio';
   if (!staged) return;
+  renderStoveArt();
   const T = panTimes();
   [0, 1].forEach(i => {
     const cell = document.getElementById('pan-cell-' + i);
