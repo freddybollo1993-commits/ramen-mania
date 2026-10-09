@@ -1909,6 +1909,8 @@
   .tool-armed .tool-svg { width: 100%; height: 100%; display: block; pointer-events: none; }
   .tool-armed.sauce { width: 62px; height: 114px; rotate: 158deg; }
   .tool-armed.sauce.squeeze { animation: toolSqueeze 0.35s ease-out; }
+  .tool-armed.sauce.pulling { animation: none; filter: drop-shadow(0 7px 5px rgba(0,0,0,0.5)) drop-shadow(0 0 12px rgba(255, 255, 255, 0.9)); }
+  .tool-armed.sauce.returning { animation: none; transition: translate 0.22s ease-in, opacity 0.22s ease-in; translate: 0 -80px; opacity: 0; }
   .tool-armed.ohashi { width: 40px; height: 86px; transform-origin: 50% 100%; }
   .tool-armed.ohashi.holding { animation: ohashiStir 0.42s ease-in-out infinite alternate; }
   @keyframes ohashiStir { from { rotate: -11deg; translate: -7px 0; } to { rotate: 11deg; translate: 7px 0; } }
@@ -6181,7 +6183,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v63</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v64</span></button></div>
     </div>
   </div>
 
@@ -16173,7 +16175,7 @@ function renderToolStrip() {
   if (strip._sig === sig) return;
   strip._sig = sig;
   const away = (kind, id) => toolArmedMap.has(toolKey(kind, id)) ? 'is-away' : '';
-  strip.innerHTML = ids.map(id => `<div class="tool-item tool-bottle ${away('sauce', id)}" data-kind="sauce" data-id="${id}" title="${id === OIL_ID ? 'Aceite de ajonjolí: al sofreír (Tan tan, Ebi) y al caldo cuando hierve (Tonkotsu, Vegetariano, Shoyu, Miso)' : 'Salsa ' + TOOL_SAUCES[id].name}: arrástrala sobre una sartén y toca para verter">${sauceBottleSvg(id)}<span class="tool-name">${TOOL_SAUCES[id].name}</span></div>`).join('')
+  strip.innerHTML = ids.map(id => `<div class="tool-item tool-bottle ${away('sauce', id)}" data-kind="sauce" data-id="${id}" title="${id === OIL_ID ? 'Aceite de ajonjolí: al sofreír (Tan tan, Ebi) y al caldo cuando hierve (Tonkotsu, Vegetariano, Shoyu, Miso)' : 'Salsa ' + TOOL_SAUCES[id].name}: arrástrala sobre una sartén y toca para verter (si te equivocas, desliza desde la tapa blanca hacia arriba para devolverla)">${sauceBottleSvg(id)}<span class="tool-name">${TOOL_SAUCES[id].name}</span></div>`).join('')
     + `<div class="tool-item tool-torch ${away('torch')}" data-kind="torch" title="Flameador: arrástralo hasta Flamear Chasu">${torchSvg(false)}<span class="tool-name">Flameador</span></div>`
     + `<div class="tool-item tool-ohashi ${away('ohashi')}" data-kind="ohashi" title="Ohashi: arrástralos sobre un cuenco con fideos y mantén pulsado para repartirlos">${ohashiSvg()}<span class="tool-name">Ohashi</span></div>`;
 }
@@ -16254,7 +16256,7 @@ document.addEventListener('pointerdown', (e) => {
     const a = toolArmedMap.get(armedEl.dataset.akey);
     if (a) {
       e.preventDefault();
-      if (a.kind === 'sauce') toolPour(a);                       // botella: apretar
+      if (a.kind === 'sauce') toolBottlePress(a, e);             // botella: tocar = apretar · deslizar desde la tapa blanca hacia arriba = devolverla
       else if (a.kind === 'ohashi') toolHoldStart(a, e);         // ohashi: mantener pulsado para mover los fideos
       else toolDisarm(a.key);                                    // flameador: retirar
       return;
@@ -16274,6 +16276,62 @@ document.addEventListener('pointerdown', (e) => {
   document.addEventListener('pointerup', onToolUp);
   document.addEventListener('pointercancel', onToolUp);
 }, { passive: false });
+
+// Botella colocada sobre una sartén (queda invertida: la tapa blanca / boquilla apunta hacia abajo).
+//  - toque corto  -> aprieta y cae la salsa o el aceite
+//  - desde la tapa blanca, deslizar hacia arriba -> la botella vuelve a su sitio sin verter (por si elegiste la que no era)
+const TOOL_RETURN_PX = 24;
+const toolPresses = new Map();     // pointerId -> { a, startX, startY, tip, dx, dy }
+function toolBottlePress(a, e) {
+  if (a.pouring) return;
+  const r = a.el.getBoundingClientRect();
+  toolPresses.set(e.pointerId, { a, startX: e.clientX, startY: e.clientY, tip: e.clientY >= r.top + r.height * 0.5, dx: 0, dy: 0 });
+  document.addEventListener('pointermove', onToolPressMove);
+  document.addEventListener('pointerup', onToolPressUp);
+  document.addEventListener('pointercancel', onToolPressCancel);
+}
+function toolPressListenersOff() {
+  if (toolPresses.size) return;
+  document.removeEventListener('pointermove', onToolPressMove);
+  document.removeEventListener('pointerup', onToolPressUp);
+  document.removeEventListener('pointercancel', onToolPressCancel);
+}
+function onToolPressMove(e) {
+  const p = toolPresses.get(e.pointerId);
+  if (!p) return;
+  p.dx = e.clientX - p.startX; p.dy = e.clientY - p.startY;
+  if (p.tip && p.dy < -4 && toolArmedMap.has(p.a.key)) {
+    p.a.el.classList.add('pulling');
+    p.a.el.style.translate = '0 ' + Math.max(p.dy, -70) + 'px';       // la botella sigue al dedo hacia arriba
+  }
+}
+function onToolPressUp(e) {
+  const p = toolPresses.get(e.pointerId);
+  if (!p) return;
+  toolPresses.delete(e.pointerId);
+  toolPressListenersOff();
+  const a = p.a;
+  if (!toolArmedMap.has(a.key)) return;
+  a.el.classList.remove('pulling');
+  a.el.style.translate = '';
+  if (p.tip && p.dy <= -TOOL_RETURN_PX && Math.abs(p.dx) <= Math.abs(p.dy) * 1.5) { toolReturn(a); return; }
+  if (Math.hypot(p.dx, p.dy) < 12) toolPour(a);                   // toque corto: apretar
+}
+function onToolPressCancel(e) {
+  const p = toolPresses.get(e.pointerId);
+  if (!p) return;
+  toolPresses.delete(e.pointerId);
+  toolPressListenersOff();
+  if (p.a.el) { p.a.el.classList.remove('pulling'); p.a.el.style.translate = ''; }
+}
+function toolReturn(a) {
+  if (!a || a.pouring) return;
+  a.pouring = true;
+  a.el.classList.add('returning');
+  try { playSound('click'); } catch (e) {}
+  showStationToast(`↩ ${TOOL_SAUCES[a.id].name === 'Aceite' ? 'Aceite de ajonjolí' : 'Salsa ' + TOOL_SAUCES[a.id].name} devuelta a su sitio: no se vertió nada.`);
+  setTimeout(() => toolDisarm(a.key), 230);
+}
 
 function toolArm(kind, id, pan) {
   const key = toolKey(kind, id);
@@ -16301,7 +16359,7 @@ function toolArm(kind, id, pan) {
   } else if (kind === 'ohashi') {
     showStationToast(`🥢 Ohashi sobre el cuenco ${pan + 1}: mantén pulsado para mover los fideos.`);
   } else {
-    showStationToast(id === OIL_ID ? `🛢️ Aceite sobre la sartén ${pan + 1}: toca la botella para apretar.` : `💧 Salsa ${TOOL_SAUCES[id].name} sobre la sartén ${pan + 1}: toca la botella para apretar.`);
+    showStationToast((id === OIL_ID ? `🛢️ Aceite sobre la sartén ${pan + 1}` : `💧 Salsa ${TOOL_SAUCES[id].name} sobre la sartén ${pan + 1}`) + ': toca la botella para apretar. ¿Te equivocaste? Desliza desde la tapa blanca hacia arriba para devolverla.');
   }
   const strip = document.getElementById('ramen-tool-strip');
   if (strip) strip._sig = '';
@@ -16386,6 +16444,8 @@ function toolDisarm(key, silent) {
     if (btn) btn.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, cancelable: true, pointerId: 7771 }));
   }
   if (a.kind === 'ohashi' && toolHold && toolHold.a === a) toolHoldEnd();
+  toolPresses.forEach((p, pid) => { if (p.a === a) toolPresses.delete(pid); });
+  toolPressListenersOff();
   toolArmedMap.delete(key);
   if (a.el) a.el.remove();
   const strip = document.getElementById('ramen-tool-strip');
