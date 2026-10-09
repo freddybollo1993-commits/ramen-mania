@@ -6,7 +6,6 @@
   "scope": "./",
   "display": "standalone",
   "orientation": "landscape",
-  "launch_handler": { "client_mode": "focus-existing" },
   "background_color": "#190e0c",
   "theme_color": "#ffb300",
   "categories": ["games", "arcade", "entertainment"],
