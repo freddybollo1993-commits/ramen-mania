@@ -6339,7 +6339,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v87</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v88</span></button></div>
     </div>
   </div>
 
@@ -8887,12 +8887,15 @@ const INGREDIENTES = [
   {"id": 100, "name": "mantequilla", "cat": "otros", "areas": ["salteados"], "icon": "🧈", "display": "Mantequilla", "img": null},
   {"id": 101, "name": "aceite yakitori", "cat": "salsas", "areas": ["salteados"], "icon": "🫒", "display": "Aceite Yakitori", "img": null},
   {"id": 102, "name": "limón", "cat": "vegetales", "areas": ["salteados"], "icon": "🍋", "display": "Limón", "img": null},
-  {"id": 103, "name": "cebolla caramelizada", "cat": "vegetales", "areas": ["salteados"], "icon": "🧅", "display": "Cebolla Caramelizada", "img": null}
+  {"id": 103, "name": "cebolla caramelizada", "cat": "vegetales", "areas": ["salteados"], "icon": "🧅", "display": "Cebolla Caramelizada", "img": null},
+  {"id": 104, "name": "pollo cuadrado", "cat": "proteinas", "areas": ["salteados"], "icon": "🍗", "display": "Pollo Cuadrado", "img": null},
+  {"id": 105, "name": "pollo en tiras", "cat": "proteinas", "areas": ["salteados"], "icon": "🍗", "display": "Pollo en Tiras", "img": null},
+  {"id": 106, "name": "pollo teriyaki", "cat": "proteinas", "areas": ["salteados"], "icon": "🍗", "display": "Pollo Teriyaki", "img": null}
 ];
 // Nombre corto para las fichas del panel (en pantallas angostas el nombre completo se cortaba) y
 // iconos propios donde dos ingredientes de la misma área compartían el mismo.
 // Arte generado con tools/gen-ingredient-icons.mjs (id -> SVG 64x64). Los emoji quedan solo de respaldo.
-const ING_ART = {"31":"assets/ingredients/ing_31_aceite_ajonjoli.svg","32":"assets/ingredients/ing_32_ajo_chino.svg","33":"assets/ingredients/ing_33_ajonjoli.svg","34":"assets/ingredients/ing_34_ajonjoli_negro.svg","35":"assets/ingredients/ing_35_aji_limo.svg","36":"assets/fry/fry_36_alitas.svg","37":"assets/ingredients/ing_37_arroz.svg","38":"assets/ingredients/ing_38_arroz_shari.svg","39":"assets/ingredients/ing_39_atun.svg","40":"assets/ingredients/ing_40_base_shimaya.svg","41":"assets/ingredients/ing_41_benishoga.svg","42":"assets/ingredients/ing_42_beterraga.svg","43":"assets/fry/fry_43_bife_cerdo.svg","44":"assets/fry/fry_44_bife_pollo.svg","45":"assets/ingredients/ing_45_brocoli.svg","46":"assets/ingredients/ing_46_cebolla.svg","47":"assets/ingredients/ing_47_cecina.svg","48":"assets/ingredients/ing_48_chancho_chaufa.svg","49":"assets/ingredients/ing_49_cobertura_atun.svg","50":"assets/ingredients/ing_50_cobertura_conchas.svg","51":"assets/ingredients/ing_51_cobertura_amazon.svg","52":"assets/ingredients/ing_52_col.svg","53":"assets/ingredients/ing_53_condimentos.svg","54":"assets/ingredients/ing_54_ebi.svg","55":"assets/ingredients/ing_55_ensalada.svg","56":"assets/ingredients/ing_56_ensalada_fria.svg","57":"assets/ingredients/ing_57_gohan.svg","58":"assets/ingredients/ing_58_harina.svg","59":"assets/ingredients/ing_59_hilos_wantan.svg","60":"assets/fry/fry_60_langostinos.svg","61":"assets/ingredients/ing_61_lomo.svg","62":"assets/ingredients/ing_62_mayonesa_casa.svg","63":"assets/ingredients/ing_63_negi.svg","64":"assets/ingredients/ing_64_palta.svg","65":"assets/ingredients/ing_65_panko.svg","66":"assets/ingredients/ing_66_pasta_gyoza.svg","67":"assets/ingredients/ing_67_pimenton.svg","68":"assets/ingredients/ing_68_pimiento.svg","69":"assets/ingredients/ing_69_pollo.svg","70":"assets/fry/fry_70_pollo.svg","71":"assets/ingredients/ing_71_poro_especial.svg","72":"assets/ingredients/ing_72_queso_crema.svg","73":"assets/fry/fry_73_gyoza.svg","74":"assets/ingredients/ing_74_rulos_cebolla.svg","75":"assets/ingredients/ing_75_sal.svg","76":"assets/ingredients/ing_76_salsa.svg","77":"assets/ingredients/ing_77_salsa_acevichada.svg","78":"assets/ingredients/ing_78_salsa_batayaki.svg","79":"assets/ingredients/ing_79_salsa_chaufa.svg","80":"assets/ingredients/ing_80_salsa_digion.svg","81":"assets/ingredients/ing_81_salsa_guacamole.svg","82":"assets/ingredients/ing_82_salsa_hotate.svg","83":"assets/ingredients/ing_83_salsa_kare.svg","84":"assets/ingredients/ing_84_salsa_katsu.svg","85":"assets/ingredients/ing_85_salsa_nin_niku.svg","86":"assets/ingredients/ing_86_salsa_omuraisu.svg","87":"assets/ingredients/ing_87_salsa_teriyaki.svg","88":"assets/ingredients/ing_88_salsa_yakitori.svg","89":"assets/ingredients/ing_89_salsa_yama.svg","90":"assets/ingredients/ing_90_salsa_yasaitame.svg","91":"assets/ingredients/ing_91_togarashi.svg","92":"assets/ingredients/ing_92_toping.svg","93":"assets/ingredients/ing_93_tortilla.svg","94":"assets/ingredients/ing_94_wantan.svg","95":"assets/ingredients/ing_95_zucchini.svg","96":"assets/ingredients/ing_96_wasabi.svg","97":"assets/ingredients/ing_97_jengibre.svg","98":"assets/ingredients/ing_98_salsa_ponzu.svg"};
+const ING_ART = {"31":"assets/ingredients/ing_31_aceite_ajonjoli.svg","32":"assets/ingredients/ing_32_ajo_chino.svg","33":"assets/ingredients/ing_33_ajonjoli.svg","34":"assets/ingredients/ing_34_ajonjoli_negro.svg","35":"assets/ingredients/ing_35_aji_limo.svg","36":"assets/fry/fry_36_alitas.svg","37":"assets/ingredients/ing_37_arroz.svg","38":"assets/ingredients/ing_38_arroz_shari.svg","39":"assets/ingredients/ing_39_atun.svg","40":"assets/ingredients/ing_40_base_shimaya.svg","41":"assets/ingredients/ing_41_benishoga.svg","42":"assets/ingredients/ing_42_beterraga.svg","43":"assets/fry/fry_43_bife_cerdo.svg","44":"assets/fry/fry_44_bife_pollo.svg","45":"assets/ingredients/ing_45_brocoli.svg","46":"assets/ingredients/ing_46_cebolla.svg","47":"assets/ingredients/ing_47_cecina.svg","48":"assets/ingredients/ing_48_chancho_chaufa.svg","49":"assets/ingredients/ing_49_cobertura_atun.svg","50":"assets/ingredients/ing_50_cobertura_conchas.svg","51":"assets/ingredients/ing_51_cobertura_amazon.svg","52":"assets/ingredients/ing_52_col.svg","53":"assets/ingredients/ing_53_condimentos.svg","54":"assets/ingredients/ing_54_ebi.svg","55":"assets/ingredients/ing_55_ensalada.svg","56":"assets/ingredients/ing_56_ensalada_fria.svg","57":"assets/ingredients/ing_57_gohan.svg","58":"assets/ingredients/ing_58_harina.svg","59":"assets/ingredients/ing_59_hilos_wantan.svg","60":"assets/fry/fry_60_langostinos.svg","61":"assets/ingredients/ing_61_lomo.svg","62":"assets/ingredients/ing_62_mayonesa_casa.svg","63":"assets/ingredients/ing_63_negi.svg","64":"assets/ingredients/ing_64_palta.svg","65":"assets/ingredients/ing_65_panko.svg","66":"assets/ingredients/ing_66_pasta_gyoza.svg","67":"assets/ingredients/ing_67_pimenton.svg","68":"assets/ingredients/ing_68_pimiento.svg","69":"assets/ingredients/ing_69_pollo.svg","70":"assets/fry/fry_70_pollo.svg","71":"assets/ingredients/ing_71_poro_especial.svg","72":"assets/ingredients/ing_72_queso_crema.svg","73":"assets/fry/fry_73_gyoza.svg","74":"assets/ingredients/ing_74_rulos_cebolla.svg","75":"assets/ingredients/ing_75_sal.svg","76":"assets/ingredients/ing_76_salsa.svg","77":"assets/ingredients/ing_77_salsa_acevichada.svg","78":"assets/ingredients/ing_78_salsa_batayaki.svg","79":"assets/ingredients/ing_79_salsa_chaufa.svg","80":"assets/ingredients/ing_80_salsa_digion.svg","81":"assets/ingredients/ing_81_salsa_guacamole.svg","82":"assets/ingredients/ing_82_salsa_hotate.svg","83":"assets/ingredients/ing_83_salsa_kare.svg","84":"assets/ingredients/ing_84_salsa_katsu.svg","85":"assets/ingredients/ing_85_salsa_nin_niku.svg","86":"assets/ingredients/ing_86_salsa_omuraisu.svg","87":"assets/ingredients/ing_87_salsa_teriyaki.svg","88":"assets/ingredients/ing_88_salsa_yakitori.svg","89":"assets/ingredients/ing_89_salsa_yama.svg","90":"assets/ingredients/ing_90_salsa_yasaitame.svg","91":"assets/ingredients/ing_91_togarashi.svg","92":"assets/ingredients/ing_92_toping.svg","93":"assets/ingredients/ing_93_tortilla.svg","94":"assets/ingredients/ing_94_wantan.svg","95":"assets/ingredients/ing_95_zucchini.svg","96":"assets/ingredients/ing_96_wasabi.svg","97":"assets/ingredients/ing_97_jengibre.svg","98":"assets/ingredients/ing_98_salsa_ponzu.svg","104":"assets/ingredients/ing_104_pollo_cuadrado.svg","105":"assets/ingredients/ing_105_pollo_tiras.svg","106":"assets/ingredients/ing_106_pollo_teriyaki.svg"};
 const ING_SHORT = { 73: 'Relleno Gyoza', 60: 'Langostino ×6', 70: 'Pollo ×7', 62: 'Mayo Casa', 74: 'Rulos Cebolla',
   49: 'Cob. Atún', 54: 'Ebi Langost.', 77: 'Acevichada', 50: 'Cob. Conchas', 51: 'Cob. Amazon', 28: 'Shitake', 21: 'Alga Wanji' };
 const ING_ICON_FIX = { 62: '🍯', 76: '🍅', 53: '🌿', 44: '🐔', 70: '🍖', 49: '🍣' };
@@ -11009,23 +11012,23 @@ const SAL_STAGED = {
     { key: 'arroz',   label: 'arroz',             tool: 'wok', rounds: [{ a: [15] }, { a: [37] }, { a: [79] }, { a: [25] }, { a: [18, 31] }] },
     { key: 'chancho', label: 'chancho glaseado',  tool: 'wok', rounds: [{ a: [48, 27] }, { a: [87] }, { a: [99] }] } ] },
   'Yakimeshi': { plate: [67], parts: [
-    { key: 'main', label: '', tool: 'wok', rounds: [{ a: [15] }, { a: [100, 30, 23, 68, 69] }, { a: [37] }, { a: [40] }, { a: [31] }] } ] },
+    { key: 'main', label: '', tool: 'wok', rounds: [{ a: [15] }, { a: [100, 30, 23, 68, 104] }, { a: [37] }, { a: [40] }, { a: [31] }] } ] },
   'Yakiramen': { plate: [42], parts: [
-    { key: 'main', label: '', tool: 'wok', rounds: [{ a: [90, 69, 46, 45, 23, 95] }, { a: [90, 52, 1] }, { a: [90, 25, 68] }] } ] },
+    { key: 'main', label: '', tool: 'wok', rounds: [{ a: [90, 105, 46, 45, 23, 95] }, { a: [90, 52, 1] }, { a: [90, 25, 68] }] } ] },
   'Yasaitame': { plate: [61, 33], parts: [
     { key: 'lomo',     label: 'lomo',     tool: 'wok', to: 'plate', plateKey: 'lomoSal', rounds: [{ a: [90, 61] }, { a: [] }, { a: [] }] },
     { key: 'verduras', label: 'verduras', tool: 'wok', rounds: [{ a: [90, 46, 45, 23, 95] }, { a: [90, 52, 1] }, { a: [90, 25, 68] }] } ] },
   'Karameshi': { plate: [35, 33, 63], parts: [
     { key: 'main', label: '', tool: 'wok', rounds: [{ a: [15, 52, 23] }, { a: [69] }, { a: [37] }, { a: [8] }, { a: [25, 18, 31] }] } ] },
-  'Chicken Teriyaki': { plate: [56], parts: [
-    { key: 'main', label: '', tool: 'pan', rounds: [{ a: [69] }, { a: [87] }] } ] },
+  'Chicken Teriyaki': { plate: [37, 56], parts: [
+    { key: 'main', label: '', tool: 'pan', rounds: [{ a: [106] }, { a: [87] }] } ] },
   'Yakitori': { plate: [55, 88], parts: [
     { key: 'main', label: '', tool: 'pan', rounds: [{ a: [69] }, { a: [] }, { a: [101] }] } ] },
   'Batayaki Ramen': { plate: [98, 71], how: 'Fideos al centro, estirados de punta a punta, y a un lado el lomo con champiñones y holantao.', parts: [
     { key: 'wok', label: 'lomo, champiñones y holantao', tool: 'wok', rounds: [{ a: [61, 75] }, { a: [] }, { a: [27, 23] }, { a: [78], toss: false }] },
     { key: 'pan', label: 'fideos',                       tool: 'pan', rounds: [{ a: [78, 4] }, { a: [1] }, { a: [102], toss: false }] } ] },
   'Omuraisu': { plate: [84], how: 'El arroz con pollo va envuelto en la tortilla.', parts: [
-    { key: 'wok', label: 'arroz con pollo', tool: 'wok', rounds: [{ a: [23, 30, 103, 69] }, { a: [37] }, { a: [86] }, { a: [] }] },
+    { key: 'wok', label: 'arroz con pollo', tool: 'wok', rounds: [{ a: [23, 30, 103, 104] }, { a: [37] }, { a: [86] }, { a: [] }] },
     { key: 'pan', label: 'tortilla',        tool: 'pan', timed: 6, rounds: [{ a: [93], toss: false }] } ] }
 };
 const salPartIds = part => (part._ids || (part._ids = [...new Set(part.rounds.flatMap(r => r.a || []))]));
@@ -11045,7 +11048,7 @@ function salRoundScore(wok, part) {
 }
 const WOK_WRONG_TOOL_PTS = 15;    // puntos de cocción que resta cocinar el plato en el utensilio equivocado
 // Líquidos y aderezos de la cocción de Salteados: son botellas de la franja de herramientas (en orden); lo sólido se arrastra desde la despensa
-const WOK_SAUCE_IDS = [79, 40, 8, 78, 87, 90, 86, 99, 101, 31, 75, 4, 102];
+const WOK_SAUCE_IDS = [79, 40, 8, 78, 87, 90, 86, 99, 101, 31, 75, 102];
 // Cocina de acero de salteado (referencia del usuario): pared trasera, plano de trabajo, borde y frente. Se estira al ancho de los dos woks
 // (los trazos no cambian de grosor: vector-effect). Las hornillas, llamas y vapor son de cada wok (WOK_BURNER_SVG); los utensilios van a la derecha.
 const WOK_STOVE_SVG = (() => {
@@ -11643,7 +11646,7 @@ const ST_PROD = {
   // Salteados / Makis / Frituras (mismo taller que Ramen). how = primer paso; then = segundo paso en hornilla (time = su duración).
   // verb1 / binWord ajustan el texto del primer paso (el arroz se LAVA y queda "lavado").
   salteados: [
-    { key: 'arroz',    label: 'Arroz cocido',    icon: 37, covers: [37],                       use: 'cook',  how: 'clean', verb1: 'Lavar', binWord: 'lavado', then: 'cook',     time: 10, batch: 6, max: 12, start: 6 },
+    { key: 'arroz',    label: 'Arroz cocido',    icon: 37, covers: [37], plateToo: true,       use: 'cook',  how: 'clean', verb1: 'Lavar', binWord: 'lavado', then: 'cook',     time: 10, batch: 6, max: 12, start: 6 },
     { key: 'pollo',    label: 'Pollo marinado',  icon: 69, covers: [69],                       use: 'cook',  how: 'cut',   binWord: 'trozado',            then: 'marinate', time: 9,  batch: 6, max: 12, start: 6 },
     { key: 'lomo',     label: 'Lomo cortado',    icon: 61, covers: [61],                       use: 'cook',  how: 'cut',                                                 time: 8,  batch: 4, max: 8,  start: 4 },
     { key: 'ensalada', label: 'Ensaladas',       icon: 55, covers: [55, 56],                   use: 'plate', how: 'clean', verb1: 'Lavar',                              time: 6,  batch: 6, max: 12, start: 6 },
@@ -11768,7 +11771,7 @@ const stProdSpeed = () => (isFree() ? 0.5 : 1);
 const stProdTime = p => Math.max(2, Math.round(p.time * stProdSpeed()));
 // Insumos de Producción que se gastan en la cocción (en el cuenco / sartén): los de uso 'cook' y los que lo declaran en cookIds
 const stCookProdFor = (area, ingId) => ST_PROD[area].find(p => p.covers.includes(ingId) && (p.use === 'cook' || (p.cookIds || []).includes(ingId)));
-const stProdFor = (area, ingId, use) => ST_PROD[area].find(p => p.covers.includes(ingId) && (!use || p.use === use));
+const stProdFor = (area, ingId, use) => ST_PROD[area].find(p => p.covers.includes(ingId) && (!use || p.use === use || (use === 'plate' && p.plateToo)));   // plateToo: un insumo de cocción que también se emplata (arroz de guarnición)
 
 // ---- Existencias ----
 function stCookTake(area, ingId) {
@@ -17164,7 +17167,24 @@ const TOOL_SAUCES = {
   40: { name: 'Base',    c: '#b8452a', d: '#7a2a14' }                 // Base Shimaya (Salteados)
 };
 const TOOL_SAUCE_IDS = Object.keys(TOOL_SAUCES).map(Number);
+// Salero: vidrio con tapa metálica perforada y sal adentro (se usa boca abajo, como las botellas)
+function saltShakerSvg() {
+  const ink = '#2b2118';
+  return `<svg class="tool-svg" viewBox="0 0 60 112">
+    <defs><linearGradient id="saltCap" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#7f8a94"/><stop offset="0.3" stop-color="#eef2f5"/><stop offset="0.65" stop-color="#aab4bd"/><stop offset="1" stop-color="#6c7781"/></linearGradient>
+    <linearGradient id="saltGlass" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#b9d3e0"/><stop offset="0.35" stop-color="#eaf5fb"/><stop offset="1" stop-color="#a5c3d3"/></linearGradient></defs>
+    <path d="M 14,40 Q 10,44 10,54 V 96 Q 10,108 22,108 H 38 Q 50,108 50,96 V 54 Q 50,44 46,40 Z" fill="url(#saltGlass)" stroke="${ink}" stroke-width="1.7" stroke-linejoin="round"/>
+    <path d="M 11.5,66 V 96 Q 11.5,106.5 22,106.5 H 38 Q 48.5,106.5 48.5,96 V 66 Q 30,60 11.5,66 Z" fill="#ffffff" opacity="0.95"/>
+    <g fill="#cfd8dc"><circle cx="20" cy="82" r="1.6"/><circle cx="30" cy="90" r="1.6"/><circle cx="40" cy="80" r="1.6"/><circle cx="26" cy="98" r="1.6"/><circle cx="37" cy="99" r="1.6"/><circle cx="18" cy="94" r="1.4"/></g>
+    <rect x="12" y="38" width="36" height="6" rx="2" fill="#9aa5ae" stroke="${ink}" stroke-width="1.3"/>
+    <path d="M 14,38 Q 14,14 30,12 Q 46,14 46,38 Z" fill="url(#saltCap)" stroke="${ink}" stroke-width="1.7" stroke-linejoin="round"/>
+    <g fill="${ink}"><circle cx="24" cy="24" r="1.7"/><circle cx="30" cy="20" r="1.7"/><circle cx="36" cy="24" r="1.7"/><circle cx="27" cy="30" r="1.7"/><circle cx="33" cy="30" r="1.7"/></g>
+    <text x="30" y="80" font-size="11" font-weight="900" text-anchor="middle" fill="#37474f" font-family="Arial, sans-serif">SAL</text>
+    <rect x="15" y="52" width="3.4" height="40" rx="1.7" fill="#ffffff" opacity="0.7"/>
+  </svg>`;
+}
 function sauceBottleSvg(id) {
+  if (id === 75) return saltShakerSvg();
   const sc = TOOL_SAUCES[id], ink = '#2b2118', g = 'sbg' + id;
   let ridges = '';
   for (let x = 13; x <= 47; x += 3.4) ridges += `<path d="M ${x.toFixed(1)},38 V 44" stroke="#b9b9b2" stroke-width="0.8"/>`;
