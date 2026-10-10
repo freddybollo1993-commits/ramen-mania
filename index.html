@@ -6339,7 +6339,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v89</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v90</span></button></div>
     </div>
   </div>
 
@@ -8901,9 +8901,17 @@ const ING_SHORT = { 73: 'Relleno Gyoza', 60: 'Langostino ×6', 70: 'Pollo ×7', 
   49: 'Cob. Atún', 54: 'Ebi Langost.', 77: 'Acevichada', 50: 'Cob. Conchas', 51: 'Cob. Amazon', 28: 'Shitake', 21: 'Alga Wanji' };
 const ING_ICON_FIX = { 62: '🍯', 76: '🍅', 53: '🌿', 44: '🐔', 70: '🍖', 49: '🍣' };
 // Icono del ingrediente en línea (SVG si existe, emoji si no).
+// Algunos ingredientes se ven distinto según el área: en Salteado el huevo es CRUDO (ing_raw_15) y el lomo que se usa en cocina es el ya CORTADO
+const ING_CTX_ART = { salteados: { 15: 'assets/ingredients/ing_raw_15_huevo.svg', 61: 'assets/ingredients/ing_proc_61_lomo.svg' } };
+function ingCtxImg(ing) {
+  if (!ing) return null;
+  try { const m = ING_CTX_ART[gameState.activeArea]; if (m && m[ing.id]) return m[ing.id]; } catch (e) {}
+  return ing.img || null;
+}
 function ingIconHtml(ing) {
   if (!ing) return '❓';
-  return ing.img ? `<img class="ing-ico" src="${ing.img}" alt="" draggable="false">` : ing.icon;
+  const src = ingCtxImg(ing);
+  return src ? `<img class="ing-ico" src="${src}" alt="" draggable="false">` : ing.icon;
 }
 INGREDIENTES.forEach(i => {
   if (!i.img && ING_ART[i.id]) i.img = ING_ART[i.id];
@@ -8917,7 +8925,8 @@ const ING_RAW_ART = {
   20: 'assets/ingredients/ing_20_nori.svg', 21: 'assets/ingredients/ing_21_alga_wanji.svg', 22: 'assets/ingredients/ing_raw_22_bambu.svg',
   23: 'assets/ingredients/ing_23_holantao.svg', 24: 'assets/ingredients/ing_raw_24_col.svg', 25: 'assets/ingredients/ing_raw_25_moyashi.svg',
   27: 'assets/ingredients/ing_27_champinones.svg', 28: 'assets/ingredients/ing_28_shitake.svg', 29: 'assets/ingredients/ing_29_esparrago.svg',
-  30: 'assets/ingredients/ing_raw_30_zanahoria.svg'
+  30: 'assets/ingredients/ing_raw_30_zanahoria.svg',
+  61: 'assets/ingredients/ing_raw_61_lomo.svg'      // Salteado, Producción: el lomo entero que se corta
 };
 const ING_PROC_ART = {
   17: 'assets/ingredients/ing_proc_17_poro.svg', 18: 'assets/ingredients/ing_proc_18_cebolla_china.svg', 20: 'assets/ingredients/ing_proc_20_nori.svg',
@@ -10891,7 +10900,7 @@ function renderWoks() {
     if (artEl) {
       artEl.innerHTML = (wok.oil ? '<i class="wok-oil-sheen"></i>' : '') + (wok.ingredients.length === 0
         ? `<div class="wok-empty-hint">${wokStaged() ? 'Arrastra aquí los ingredientes' : 'Arrastra aquí los ingredientes'}</div>`
-        : wok.ingredients.map((id, idx) => {
+        : wok.ingredients.flatMap(id => Array(WOK_SAUCE_IDS.includes(id) ? 1 : Math.max(1, (wok.log || []).filter(e => e.id === id).length)).fill(id)).map((id, idx) => {
             const ing = INGREDIENTES.find(x => x.id === id);
             const radius = 0.27 * Math.sqrt(idx + 0.6);
             const angle = idx * 2.39996;
@@ -11030,13 +11039,15 @@ const SAL_STAGED = {
     { key: 'pan', label: 'fideos',                       tool: 'pan', rounds: [{ a: [78, 4] }, { a: [1] }, { a: [102], toss: false }] } ] },
   'Omuraisu': { plate: [84], how: 'El arroz con pollo va envuelto en la tortilla.', parts: [
     { key: 'wok', label: 'arroz con pollo', tool: 'wok', rounds: [{ a: [23, 30, 103, 104] }, { a: [37] }, { a: [86] }, { a: [] }] },
-    { key: 'pan', label: 'tortilla',        tool: 'pan', timed: 6, rounds: [{ a: [93], toss: false }] } ] }
+    { key: 'pan', label: 'tortilla',        tool: 'pan', timed: 6, rounds: [{ a: [15, 15, 75], toss: false }] } ] }       // tortilla = 2 huevos + sal, por tiempo
 };
 const salPartIds = part => (part._ids || (part._ids = [...new Set(part.rounds.flatMap(r => r.a || []))]));
 const salTossRounds = part => part.rounds.filter(r => r.toss !== false).length;
 const salCookIds = name => { const ids = []; SAL_STAGED[name].parts.forEach(p => salPartIds(p).forEach(id => { if (!ids.includes(id)) ids.push(id); })); return ids; };
 // ¿Este ingrediente solo se espera en rondas que no se saltean? (entonces no necesita una ronda completa para integrarse)
 const salNoToss = (part, id) => { const rs = part.rounds.filter(r => (r.a || []).includes(id)); return rs.length > 0 && rs.every(r => r.toss === false); };
+// ¿Entraron todas las unidades de los sólidos que se piden varias veces (los 2 huevos de la tortilla)? Las salsas repetidas no cuentan: se penalizan por ronda.
+const salCountsOk = (w, part) => salPartIds(part).every(id => WOK_SAUCE_IDS.includes(id) || (w.log || []).filter(e => e.id === id).length >= salExpectedCount(part, id));
 const salExpectedCount = (part, id) => part.rounds.reduce((n, r) => n + ((r.a || []).filter(x => x === id).length), 0);
 // Cuántos ingredientes de la parte entraron en la ronda en que debían entrar (y cuántos se esperan en total)
 function salRoundScore(wok, part) {
@@ -11147,7 +11158,7 @@ function wokReady(i) {
   const a = analyzeWok(i);
   if (a.status !== 'MATCHED') return false;
   const part = a.recipe.script;
-  if (part && part.timed) return (w.cookT || 0) >= part.timed;                       // se cocina por tiempo
+  if (part && part.timed) return salCountsOk(w, part) && (w.cookT || 0) >= part.timed;   // se cocina por tiempo, con todo puesto
   return wokIntegrated(w, part) && (w.rounds || 0) >= wokRoundsNeeded(i);
 }
 // Anota en qué ronda entró cada ingrediente (cuenta como integrado cuando pasa una ronda completa)
@@ -11193,6 +11204,18 @@ function wokSwapTool(i) {
     showStationToast(`🍳 Hornilla ${i + 1}: ahora usas ${w.tool === 'pan' ? 'una SARTÉN' : 'el WOK'}.`);
     renderWoks();
   }, 200);
+}
+// Segunda (o tercera) unidad de un sólido que la receta pide varias veces: no es un ingrediente nuevo, solo suma una unidad
+function wokAddExtra(i, id) {
+  const w = gameState.woks[i];
+  if (!wokStaged() || !w || w.result) return false;
+  const sc = wokScriptOf(i);
+  if (!sc || (w.log || []).filter(e => e.id === id).length >= salExpectedCount(sc.part, id)) return false;
+  wokNoteAdded(w, id);
+  wokAddFeedback(i, id, sc);
+  try { playSound('add'); } catch (e) {}
+  renderWoks();
+  return true;
 }
 function wokFireToggle(i) {
   if (!wokStaged() || gameState.isPaused || gameState.isGameOver) return;
@@ -11285,6 +11308,7 @@ function wokStagedBtnUi(w, i, btn) {
   let zone = '', text = '', pct = 0;
   if (!w.fire && !started) text = '🔥 Enciende el fuego';
   else if ((w.heat || 0) < 0.9 && !started) text = 'Calentando…';
+  else if (timed && !salCountsOk(w, part)) { text = '🥚 Faltan ingredientes'; }
   else if (timed) {
     pct = Math.round(Math.min(1, (w.cookT || 0) / timed) * 100);
     if ((w.heat || 0) > 1.05) { zone = 'quemado'; text = '¡Se quema! Retírala'; }
@@ -11319,10 +11343,11 @@ function wokGuideHtml(i) {
   if (a.status === 'MATCHED' && !part.timed && wokReady(i)) return `✅ ¡Listo!${a.recipe.isPart ? ' (parte)' : ''}${wokNeededTool(i) && wokNeededTool(i) !== (w.tool || 'wok') ? ` <span class="rc-t" style="color:#ffab91">⚠ va en ${wokToolName(wokNeededTool(i)).toLowerCase()}</span>` : ''}`;
   const cur = w.rounds || 0, total = part.rounds.length, rd = part.rounds[cur];
   const wrong = a.status === 'MATCHED' && wokNeededTool(i) && wokNeededTool(i) !== (w.tool || 'wok') ? ` <span class="rc-t" style="color:#ffab91">⚠ va en ${wokToolName(wokNeededTool(i)).toLowerCase()}</span>` : '';
-  if (part.timed) return `<b>${part.label}</b> ${wokReady(i) ? '✅ lista' : '⏱ ' + Math.ceil(Math.max(0, part.timed - (w.cookT || 0))) + ' s'}${wrong}`;
+  if (part.timed && salCountsOk(w, part)) return `<b>${part.label}</b> ${wokReady(i) ? '✅ lista' : '⏱ ' + Math.ceil(Math.max(0, part.timed - (w.cookT || 0))) + ' s'}${wrong}`;
   if (!rd) return wokReady(i) ? `✅ ¡Listo!${wrong}` : null;
-  const present = id => (w.log || []).some(e => e.id === id && e.round === cur);
-  const icon = id => { const ing = INGREDIENTES.find(x => x.id === id); return `<span class="rc-ing${present(id) ? ' done' : ''}" title="${ing ? ing.display : ''}">${ing ? ingIconHtml(ing) : ''}</span>`; };
+  const have = {};
+  (w.log || []).forEach(e => { if (e.round === cur) have[e.id] = (have[e.id] || 0) + 1; });
+  const icon = id => { const ing = INGREDIENTES.find(x => x.id === id), done = have[id] > 0; if (done) have[id]--; return `<span class="rc-ing${done ? ' done' : ''}" title="${ing ? ing.display : ''}">${ing ? ingIconHtml(ing) : ''}</span>`; };
   const items = (rd.a || []).map(icon).join('');
   return `<b>R${cur + 1}/${total}</b> ${items || '<span class="rc-t">🔁 saltea</span>'}${rd.toss === false ? ' <span class="rc-t">sin saltear</span>' : ''}${wrong}`;
 }
@@ -11373,7 +11398,7 @@ function wokStagedTick() {
     else if (w.ingredients.length && !w.result && i < wokLimit()) {
       const sc = wokScriptOf(i);
       if (sc && sc.part.timed) {                                   // tortilla: se cocina por tiempo, sin saltear
-        if (sc.exact) { w.cookT = (w.cookT || 0) + dt; sfxEvery('sizzle', 500); if (!isFree() && w.cookT >= sc.part.timed * 2) wokBurn(i, 'over'); }
+        if (sc.exact && salCountsOk(w, sc.part)) { w.cookT = (w.cookT || 0) + dt; sfxEvery('sizzle', 500); if (!isFree() && w.cookT >= sc.part.timed * 2) wokBurn(i, 'over'); }
       } else if (!isFree()) {
         const waitingFinish = !!sc && salTossRounds(sc.part) <= (w.rounds || 0);       // ya se saltearon todas las rondas: solo falta agregar lo que no se saltea
         const grace = (waitingFinish ? 10 : WOK_IDLE_GRACE) + 0.5 * lvl;
@@ -12214,8 +12239,8 @@ function shopChopFx(p) {
   if (!board) return;
   board.classList.remove('hit'); void board.offsetWidth; board.classList.add('hit');
   if (knife) { knife.classList.remove('chop'); void knife.offsetWidth; knife.classList.add('chop'); }
-  const proc = INGREDIENTES.find(i => i.id === p.icon);
-  const bits = [0, 1, 2, 3].map(k => `<span class="bit" style="--dx:${(k - 1.5) * 16}px;--dy:${-10 - (k % 2) * 12}px;--rot:${(k - 1.5) * 40}deg">${proc && proc.img ? `<img src="${proc.img}" alt="">` : ''}</span>`).join('');
+  const proc = INGREDIENTES.find(i => i.id === p.icon), procImg = ingCtxImg(proc);
+  const bits = [0, 1, 2, 3].map(k => `<span class="bit" style="--dx:${(k - 1.5) * 16}px;--dy:${-10 - (k % 2) * 12}px;--rot:${(k - 1.5) * 40}deg">${procImg ? `<img src="${procImg}" alt="">` : ''}</span>`).join('');
   const fx = document.createElement('div');
   fx.className = 'cut-fx';
   fx.innerHTML = `<img class="k" src="assets/maki_knife.svg" alt=""><i class="slash"></i>${bits}`;
@@ -13450,7 +13475,7 @@ function applyIngredientDrop(target, ing, coat) {
       return;
     }
     if (wok.ingredients.includes(ing.id)) {
-      showStationToast(`${ing.display} ya está en este wok.`);
+      if (!wokAddExtra(idx, ing.id)) showStationToast(`${ing.display} ya está en este wok.`);
       return;
     }
     toggleIngredientInWok(ing.id);
@@ -13548,7 +13573,7 @@ function activateIngredientDrag(d) {
 
   const ghost = document.createElement('div');
   ghost.className = 'drag-ghost';
-  ghost.innerHTML = d.ing.img ? `<img src="${d.ing.img}" alt="">` : d.ing.icon;
+  ghost.innerHTML = ingCtxImg(d.ing) ? `<img src="${ingCtxImg(d.ing)}" alt="">` : d.ing.icon;
   document.body.appendChild(ghost);
   d.ghost = ghost;
 
@@ -13743,8 +13768,9 @@ function renderPantryGrid() {
     tile.title = `${ing.display} (${isInBowl ? "En uso - Toca para retirar" : "Mantén y arrastra al plato"})`;
     attachIngredientDrag(tile, ing);
 
-    const artHtml = ing.img 
-      ? `<img src="${ing.img}" class="pixel-sprite-large" alt="${ing.display}" style="width:${iconSz}; height:${iconSz};">`
+    const artSrc = ingCtxImg(ing);
+    const artHtml = artSrc 
+      ? `<img src="${artSrc}" class="pixel-sprite-large" alt="${ing.display}" style="width:${iconSz}; height:${iconSz};">`
       : `<div class="ing-tile-icon">${ing.icon}</div>`;
 
     let stockBadgeHtml = '';
