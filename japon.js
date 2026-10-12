@@ -242,12 +242,18 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
     go(id) { S.cur = id; S.view = 'rest'; refresh(); },
     map() { S.view = 'map'; S.sel = S.sel || S.cur; if (window.JPScene) window.JPScene.destroy(); refresh(); },
     sel(id) { S.sel = id; refresh(); },
-    zone(z) { S.zone = z; refresh(); },
-    close() { S.zone = null; refresh(); },
+    zone(z) {
+      if (!S.cur || !S.rest[S.cur]) return;
+      if (KITCHENS.includes(z) && !CITY[S.cur].areas.includes(z)) return toast('Esta ciudad no tiene platos de esa cocina.');
+      S.zone = z; refresh(); dockFocus(z);
+    },
+    close() { S.zone = null; refresh(); if (window.JPScene) window.JPScene.focus(null); },
     fin() { S.fin = !S.fin; refresh(); },
     exit() { stop(); if (window.JPScene) window.JPScene.destroy(); const el = document.getElementById('jp-screen'); if (el) el.remove(); S.view = null; save(); updateChip(); }
   };
   const rs = () => S.rest[S.cur];
+  const dockW = () => Math.min(330, Math.round(window.innerWidth * 0.46));
+  function dockFocus(z) { if (window.JPScene) window.JPScene.focus(z, dockW()); }
 
   // ---------- interfaz ----------
   let timer = null;
@@ -299,7 +305,13 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
   .jp-obj { opacity: 1; } .jp-obj.have { background: #d7ecc0; } .jp-obj .ic { font-size: 22px; }
   .jp-fin table { width: 100%; border-collapse: collapse; font-size: 12px; } .jp-fin td { padding: 2px 4px; border-bottom: 1px solid #e0d2ac; } .jp-fin td:last-child { text-align: right; font-weight: 800; }
   .jp-mast { display: flex; flex-direction: column; gap: 2px; font-size: 11px; } .jp-mast .ok { color: #2e7d32; } .jp-mast .no { color: #8a6a35; }
-  .jp-scenehost { flex: 1; min-height: 0; display: flex; }
+  .jp-scenehost { flex: 1; min-height: 0; display: flex; position: relative; }
+  .jp-hudL { position: absolute; left: 8px; bottom: 8px; display: flex; gap: 6px; z-index: 30; align-items: flex-end; flex-wrap: wrap; max-width: calc(100% - 60px); }
+  .jp-hudL .jp-btn { box-shadow: 0 2px 0 rgba(0,0,0,0.35); } .jp-hudL .jp-btn.ghost { background: #7a1f1f; }
+  .jp-capchip { background: rgba(255,248,230,0.92); border: 2px solid #8a6a35; border-radius: 10px; padding: 3px 8px; min-width: 150px; } .jp-capchip small { font-size: 10px; color: #5b3a12; font-weight: 800; white-space: nowrap; }
+  .jp-dock { position: absolute; right: 0; top: 40px; bottom: 0; z-index: 40; background: #fff8e6; border-left: 3px solid #7a5a2a; box-shadow: -6px 0 14px rgba(0,0,0,0.3); padding: 8px 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+  .jp-dock .jp-row { flex-wrap: wrap; } .jp-dock .jp-row > div { flex: 1 1 100%; } .jp-dock .jp-row .jp-btn { flex: 1 1 auto; }
+  .jp-dock h3 { margin: 0; font-size: 16px; color: #7a1f1f; display: flex; justify-content: space-between; align-items: center; gap: 6px; }
   .jp-cloud { animation: jpCloud 38s linear infinite; opacity: 0.85; } .jp-cloud.c2 { animation-duration: 55s; animation-delay: -20s; } @keyframes jpCloud { from { transform: translateX(-80px); } to { transform: translateX(680px); } }
   .jp-wave { animation: jpWave 4s ease-in-out infinite; } @keyframes jpWave { 50% { transform: translateX(10px); } }
   .jp-boat { animation: jpBoat 22s linear infinite; } @keyframes jpBoat { from { transform: translateX(0); } to { transform: translateX(120px); } }
@@ -342,10 +354,9 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
   function renderRest() {
     const c = CITY[S.cur], r = rs(), ev = evalRest(c, r), m = mastery(c, r);
     r.net = ev.net;
-    return `<div class="jp-scenehost" id="jp-scene-host"></div>
-      <div class="jp-foot"><button class="jp-btn" onclick="JP.collect()">💴 Recolectar</button><button class="jp-btn ghost" onclick="JP.fin()">📊 Finanzas</button>
-        <button class="jp-btn ghost" onclick="JP.zone('local')">🏠 ${T.tiers[r.tier - 1].name}</button>
-        <div style="flex:1;min-width:120px"><div class="jp-bar"><b id="jp-capbar" style="width:${Math.round(100 * Math.min(1, r.since / (capHours(r) * 60)))}%"></b></div><small style="font-size:10px;color:#6b5a3a;font-weight:700">Caja: tope ${capHours(r).toFixed(1)} h sin recolectar · Maestría ${m.done}/${m.total} · escena en tiempo acelerado</small></div></div>`;
+    return `<div class="jp-scenehost" id="jp-scene-host">
+      <div class="jp-hudL"><button class="jp-btn" onclick="JP.collect()">💴 Recolectar</button><button class="jp-btn ghost" onclick="JP.fin()">📊 Finanzas</button>
+        <div class="jp-capchip"><div class="jp-bar"><b id="jp-capbar" style="width:${Math.round(100 * Math.min(1, r.since / (capHours(r) * 60)))}%"></b></div><small>Caja: tope ${capHours(r).toFixed(1)} h · Maestría ${m.done}/${m.total} · tiempo acelerado</small></div></div></div>`;
   }
 
   const hireRow = (c, r, z) => {
@@ -382,7 +393,7 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
         body += objRows(c, r, z);
       }
     }
-    return `<div class="jp-modal" onclick="JP.close()"><div class="jp-card" onclick="event.stopPropagation()"><h3><span>${head}</span><span><span class="jp-chip" style="background:#7a1f1f;color:#fff4d6">💴 S/ ${fmt(S.fondo)}</span> <button class="jp-btn red" onclick="JP.close()">✕</button></span></h3>${body}</div></div>`;
+    return `<div class="jp-dock" style="width:${dockW()}px"><h3><span>${head}</span><span><span class="jp-chip" style="background:#7a1f1f;color:#fff4d6">💴 S/ ${fmt(S.fondo)}</span> <button class="jp-btn red" onclick="JP.close()">✕</button></span></h3>${body}</div>`;
   }
 
   function renderFin() {
