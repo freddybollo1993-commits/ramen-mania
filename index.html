@@ -6396,7 +6396,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v100</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v101</span></button></div>
     </div>
   </div>
 
@@ -10194,6 +10194,18 @@ function placeMakiMat() {
   renderMakiStation();
 }
 
+// Tajos (Fruit Ninja): 3 tajos que crucen el maki enrollado lo cortan (van apareciendo las marcas de corte); el cuchillo mantenido 3 s sigue valiendo como respaldo
+function makiCutSlash() {
+  const roll = gameState.makiRoll;
+  if (!makiCanCut()) return;
+  roll.slashes = (roll.slashes || 0) + 1;
+  roll.cutState = 'CUTTING';
+  roll.cutProgress = Math.min(1, roll.slashes / slashesToCut());
+  playSound('chop');
+  slashFx({ zone: document.getElementById('maki-board-zone'), item: document.getElementById('maki-roll-wrap'), iconHtml: '', bitsImg: 'assets/ingredients/v2/ing_20.webp' });
+  if (roll.slashes >= slashesToCut()) { roll.slashes = 0; completeMakiCut(); return; }
+  renderMakiStation();
+}
 function completeMakiCut() {
   const roll = gameState.makiRoll;
   cleanupMakiToolDrag();
@@ -10479,7 +10491,7 @@ function renderMakiStation() {
     statusEl.textContent = `✅ Cortado: ${analysis.recipe.name}`;
     statusEl.classList.add('status-ready');
   } else if (cutting) {
-    statusEl.textContent = `✂️ Cortando… ${(cutSeconds() * (1 - roll.cutProgress)).toFixed(1)}s`;
+    statusEl.textContent = `✂️ Desliza el dedo sobre el maki: tajo ${Math.round(roll.cutProgress * slashesToCut())}/${slashesToCut()}`;
     statusEl.classList.add('status-ready');
   } else if (analysis.status === 'EMPTY') {
     statusEl.textContent = 'Esterilla lista — arrastra los ingredientes';
@@ -10495,7 +10507,7 @@ function renderMakiStation() {
     if (isReady) {
       statusEl.textContent = more.length
         ? `¡Enrollado: ${analysis.recipe.name}! Corta (3 s) o agrega encima: ${more.join(' · ')}`
-        : `¡Enrollado: ${analysis.recipe.name}! Corta con el cuchillo (3 s)`;
+        : `¡Enrollado: ${analysis.recipe.name}! Desliza el dedo sobre él para cortarlo (${slashesToCut()} tajos)`;
       statusEl.classList.add('status-ready');
     } else {
       statusEl.textContent = `🎍 Enrollado — agrega encima: ${more.join(' · ') || '…'}`;
@@ -10550,6 +10562,7 @@ function abortMakiCut() {
   if (roll.cutState === 'CUTTING') {
     roll.cutState = 'NONE';
     roll.cutProgress = 0;
+    roll.slashes = 0;
   }
 }
 
@@ -10648,7 +10661,7 @@ function onMakiToolUp(e) {
     // toque simple: recordatorio de cómo se usa
     showStationToast(tool === 'mat'
       ? '🎍 Arrastra la esterilla hasta la tabla para empezar un maki.'
-      : '🔪 Arrastra el cuchillo sobre un maki listo y mantenlo 3 segundos para cortarlo.');
+      : '🔪 Desliza el dedo de lado a lado sobre un maki enrollado para cortarlo (' + slashesToCut() + ' tajos).');
     renderMakiStation();
     return;
   }
@@ -10659,7 +10672,7 @@ function onMakiToolUp(e) {
   if (tool === 'knife' && inside && roll.cutState !== 'CUT') {
     showStationToast(makiCanRoll()
       ? '🎍 Primero enrolla el maki: desliza hacia arriba sobre la esterilla.'
-      : '🔪 Primero arma y enrolla el maki; luego mantén el cuchillo sobre él 3 segundos.');
+      : '🔪 Primero arma y enrolla el maki; luego desliza el dedo de lado a lado sobre él para cortarlo (' + slashesToCut() + ' tajos).');
   }
   renderMakiStation();
 }
@@ -12689,25 +12702,28 @@ function shopPips() {
   const on = st.board ? st.board.taps % SHOP_TAPS_PER_PORTION : 0;
   pips.forEach((el, i) => el.classList.toggle('on', i < on));
 }
-function shopChopFx(p) {
-  const board = document.getElementById('shop-board'), item = document.getElementById('shop-cb-item');
+// Efectos de un tajo (los comparten Producción, Frituras y Makis). o = { zone (elemento donde brilla el golpe), item (lo que se corta),
+// iconHtml (para las mitades voladoras; sin él no se parte), bitsImg (trocitos que salen disparados) }
+let shopCombo = 0, shopComboT = 0;
+function slashFx(o) {
+  const board = o.zone;
   if (!board) return;
   board.classList.remove('hit'); void board.offsetWidth; board.classList.add('hit');
-  const br = board.getBoundingClientRect();
+  const br = board.getBoundingClientRect(), item = o.item;
   const ir = item ? item.getBoundingClientRect() : { left: br.left + br.width * 0.44 - 30, top: br.top + br.height * 0.64 - 30, width: 60, height: 60 };
   const ic = { x: ir.left + ir.width / 2, y: ir.top + ir.height / 2 };
   // el tajo (de un gesto reciente) orienta todo; un toque de respaldo corta en diagonal suave
-  const sl = (shopSlashLast && performance.now() - shopSlashLast.t < 500) ? shopSlashLast : { ang: -0.45 + Math.random() * 0.9, x: ic.x + 40, y: ic.y, x0: ic.x - 60, y0: ic.y };
+  const sl = (shopSlashLast && performance.now() - shopSlashLast.t < 500) ? shopSlashLast : { ang: -0.45 + Math.random() * 0.9 };
   const ang = sl.ang, ca = Math.cos(ang), sa = Math.sin(ang);
   // 1) el producto se abre en dos mitades que salen volando a ambos lados del corte
-  if (item) {
-    const R = Math.max(ir.width, ir.height) * 2, ico = stIngIconRaw(p.icon), lc = ir.width / 2, lr = ir.height / 2;
+  if (item && o.iconHtml) {
+    const R = Math.max(ir.width, ir.height) * 2, lc = ir.width / 2, lr = ir.height / 2;
     [1, -1].forEach(side => {
       const pts = [[-R, 0], [R, 0], [R, side * R], [-R, side * R]].map(([x, y]) => `${(lc + x * ca - y * sa).toFixed(1)}px ${(lr + x * sa + y * ca).toFixed(1)}px`).join(',');
       const h = document.createElement('div');
       h.className = 'cb-half';
       h.style.cssText = `left:${ir.left}px;top:${ir.top}px;width:${ir.width}px;height:${ir.height}px`;
-      h.innerHTML = `<div class="hf" style="clip-path:polygon(${pts})">${ico}</div>`;
+      h.innerHTML = `<div class="hf" style="clip-path:polygon(${pts})">${o.iconHtml}</div>`;
       document.body.appendChild(h);
       const nx = -sa * side, ny = ca * side;                          // normal hacia el lado de esta mitad
       const an = h.animate([{ transform: 'translate(0,0) rotate(0deg)', opacity: 1 }, { transform: `translate(${(nx * 38).toFixed(1)}px, ${(ny * 38 + 46).toFixed(1)}px) rotate(${side * 26}deg)`, opacity: 0 }], { duration: 520, easing: 'cubic-bezier(.2,.6,.4,1)', fill: 'forwards' });
@@ -12716,9 +12732,10 @@ function shopChopFx(p) {
     });
   }
   // 2) línea blanca del corte sobre el producto
+  const len = Math.min(220, Math.max(120, Math.max(ir.width, ir.height) * 1.4));
   const ln = document.createElement('i');
   ln.className = 'slash-line';
-  ln.style.cssText = `left:${ic.x - 90}px;top:${ic.y - 1.5}px;transform:rotate(${ang}rad)`;
+  ln.style.cssText = `left:${ic.x - len / 2}px;top:${ic.y - 1.5}px;width:${len}px;transform:rotate(${ang}rad)`;
   document.body.appendChild(ln);
   ln.animate([{ opacity: 1, scale: '0.2 1' }, { opacity: 1, scale: '1 1', offset: 0.35 }, { opacity: 0, scale: '1 0.4' }], { duration: 300, easing: 'ease-out' }).onfinish = () => ln.remove();
   setTimeout(() => ln.remove(), 500);
@@ -12733,8 +12750,7 @@ function shopChopFx(p) {
   k.animate([{ transform: `translate(${-dx}px, ${-dy}px) rotate(${deg}deg) scale(0.9)`, opacity: 0 }, { transform: `translate(${-dx * 0.2}px, ${-dy * 0.2}px) rotate(${deg}deg) scale(1)`, opacity: 1, offset: 0.4 }, { transform: `translate(${dx}px, ${dy}px) rotate(${deg}deg) scale(1)`, opacity: 0 }], { duration: 240, easing: 'ease-out' }).onfinish = () => k.remove();
   setTimeout(() => k.remove(), 450);
   // 4) trocitos / jugo que salen disparados
-  const proc = INGREDIENTES.find(i => i.id === p.icon), procImg = ingCtxImg(proc);
-  const bits = [0, 1, 2, 3, 4, 5].map(j => `<span class="bit" style="--dx:${((j - 2.5) * 15).toFixed(0)}px;--dy:${(-12 - (j % 2) * 14).toFixed(0)}px;--rot:${(j - 2.5) * 40}deg">${procImg ? `<img src="${procImg}" alt="">` : ''}</span>`).join('');
+  const bits = [0, 1, 2, 3, 4, 5].map(j => `<span class="bit" style="--dx:${((j - 2.5) * 15).toFixed(0)}px;--dy:${(-12 - (j % 2) * 14).toFixed(0)}px;--rot:${(j - 2.5) * 40}deg">${o.bitsImg ? `<img src="${o.bitsImg}" alt="">` : ''}</span>`).join('');
   const fx = document.createElement('div');
   fx.className = 'cut-fx';
   fx.innerHTML = bits;
@@ -12746,7 +12762,10 @@ function shopChopFx(p) {
   shopComboT = now;
   if (shopCombo >= 2) { const cb = document.createElement('b'); cb.className = 'cut-plus'; cb.style.cssText = 'left:6%;top:70%;font-size:13px;color:#8fdcff'; cb.textContent = `¡Combo ×${shopCombo}!`; board.appendChild(cb); setTimeout(() => cb.remove(), 850); }
 }
-let shopCombo = 0, shopComboT = 0;
+function shopChopFx(p) {
+  const proc = INGREDIENTES.find(i => i.id === p.icon);
+  slashFx({ zone: document.getElementById('shop-board'), item: document.getElementById('shop-cb-item'), iconHtml: stIngIconRaw(p.icon), bitsImg: ingCtxImg(proc) });
+}
 function shopChop(lockMs) {
   const st = stGet(stShopArea());
   if (!st.knifeArmed) return;
@@ -12886,39 +12905,60 @@ document.addEventListener('pointerdown', (e) => {
     return;
   }
   // toque normal: solo cuenta como corte si el cuchillo está armado y no se tocó un control
-  if (!shopArmedActive() || (e.target.closest && e.target.closest('button, .fp-card, .shop-pot, .kitchen-stage-btn, .kitchen-area-tab-btn, .hud-side-btn, .modal-overlay, a, input'))) { shopTap = null; return; }
+  const cfg0 = slashCfg();
+  const zone0 = cfg0 && !cfg0.anywhere ? document.querySelector(cfg0.zone) : null;
+  if (!cfg0 || (zone0 && !(e.target.closest && zone0.contains(e.target))) || (e.target.closest && e.target.closest('button, .fp-card, .shop-pot, .kitchen-stage-btn, .kitchen-area-tab-btn, .hud-side-btn, .modal-overlay, a, input'))) { shopTap = null; shopSlash = null; return; }
   shopTap = { id: e.pointerId, x: e.clientX, y: e.clientY, t: performance.now() };
   shopSlash = { id: e.pointerId, pts: [{ x: e.clientX, y: e.clientY, t: shopTap.t }], fired: 0, ready: true };
   shopTrailAdd({ x: e.clientX, y: e.clientY, t: shopTap.t, brk: true });
 }, { passive: false });
-// Corte estilo «Fruit Ninja»: el dedo deja una estela y el producto se corta cuando el trazo LO CRUZA a buen ritmo; para el siguiente corte hay que
-// salir del producto y volver a cruzarlo (zigzag). El cuchillo solo aparece un instante a lo largo del tajo; sobre la tabla no hay silueta.
+// Corte estilo «Fruit Ninja» (Producción, Frituras y Makis): el dedo deja una estela y el producto se corta cuando el trazo LO CRUZA a buen ritmo;
+// para el siguiente corte hay que salir del producto y volver a cruzarlo (zigzag). El cuchillo solo aparece un instante a lo largo del tajo.
 const SHOP_SLASH_MIN_SPEED = 0.3;         // px/ms: más lento es un arrastre, no un tajo
 const SHOP_SLASH_MIN_LEN = 28;            // px recorridos antes de que cuente
+const slashesToCut = () => Math.max(2, Math.round(cutSeconds()));   // tajos para cortar la proteína (Frituras) o el maki (Makis): la mejora «Cuchillo afilado» los reduce (3 → 2); en Producción, 3 = 1 porción
 let shopSlash = null, shopSlashLast = null;
-const shopSegHitsCircle = (a, b, c, r) => {
-  const dx = b.x - a.x, dy = b.y - a.y, l2 = dx * dx + dy * dy || 1;
-  const t = Math.max(0, Math.min(1, ((c.x - a.x) * dx + (c.y - a.y) * dy) / l2));
-  return Math.hypot(a.x + t * dx - c.x, a.y + t * dy - c.y) <= r;
-};
+// ¿Hay algo que cortar con tajos ahora mismo? Devuelve dónde (zona), qué (item) y qué hacer con un tajo / un toque suelto
+function slashCfg() {
+  if (!gameState || gameState.isPaused || gameState.isGameOver) return null;
+  if (shopArmedActive()) return { zone: '#shop-board', item: '#shop-cb-item', anywhere: true, slash: () => shopChop(SHOP_GESTURE_LOCK_MS), tap: () => shopChop() };
+  const a = gameState.activeArea;
+  if (a === 'frituras' && gameState.fryStation && fryCanCut() && !fryKnifeDrag) return { zone: '#fry-table-card', item: '#fry-table-strip .fry-board-item', slash: () => fryCutSlash(), tap: () => fryCutSlash() };
+  if (a === 'makis' && makiCanCut() && !makiToolDrag) return { zone: '#maki-board-zone', item: '#maki-roll-wrap', slash: () => makiCutSlash(), tap: () => makiCutSlash() };
+  return null;
+}
+const slashShrink = (r, f) => ({ left: r.left + r.width * f, right: r.right - r.width * f, top: r.top + r.height * f, bottom: r.bottom - r.height * f });
+const slashInRect = (p, r) => p.x >= r.left && p.x <= r.right && p.y >= r.top && p.y <= r.bottom;
+function slashSegHitsRect(a, b, r) {                                  // Liang–Barsky: ¿el segmento a→b toca el rectángulo?
+  let t0 = 0, t1 = 1;
+  const dx = b.x - a.x, dy = b.y - a.y, p = [-dx, dx, -dy, dy], q = [a.x - r.left, r.right - a.x, a.y - r.top, r.bottom - a.y];
+  for (let i = 0; i < 4; i++) {
+    if (p[i] === 0) { if (q[i] < 0) return false; continue; }
+    const t = q[i] / p[i];
+    if (p[i] < 0) { if (t > t1) return false; if (t > t0) t0 = t; } else { if (t < t0) return false; if (t < t1) t1 = t; }
+  }
+  return true;
+}
 document.addEventListener('pointermove', (e) => {
   const s = shopSlash;
   if (!s || e.pointerId !== s.id) return;
-  if (!shopArmedActive()) { shopSlash = null; return; }
+  const cfg = slashCfg();
+  if (!cfg) { shopSlash = null; return; }
   const now = performance.now(), prev = s.pts[s.pts.length - 1], cur = { x: e.clientX, y: e.clientY, t: now };
   s.pts.push(cur);
   if (s.pts.length > 40) s.pts.shift();
   shopTrailAdd(cur);
-  const item = document.getElementById('shop-cb-item');
-  if (!item) return;
-  const r = item.getBoundingClientRect(), c = { x: r.left + r.width / 2, y: r.top + r.height / 2 }, rad = Math.min(r.width, r.height) * 0.46;
-  if (Math.hypot(cur.x - c.x, cur.y - c.y) > rad * 1.2) s.ready = true;            // salió del producto: puede volver a cruzarlo
-  if (!s.ready || !shopSegHitsCircle(prev, cur, c, rad)) return;
+  const itemEl = document.querySelector(cfg.item);
+  if (!itemEl) return;
+  const r = itemEl.getBoundingClientRect();
+  if (!r.width || !r.height) return;
+  if (!slashInRect(cur, slashShrink(r, -0.2))) s.ready = true;                      // salió del producto: puede volver a cruzarlo
+  if (!s.ready || !slashSegHitsRect(prev, cur, slashShrink(r, 0.12))) return;
   const back = s.pts[Math.max(0, s.pts.length - 4)], span = Math.max(1, cur.t - back.t), dist = Math.hypot(cur.x - back.x, cur.y - back.y);
   if (dist / span < SHOP_SLASH_MIN_SPEED || dist < SHOP_SLASH_MIN_LEN * 0.5) return;        // cruza muy despacio
   s.ready = false; s.fired++;
   shopSlashLast = { ang: Math.atan2(cur.y - back.y, cur.x - back.x), x: cur.x, y: cur.y, x0: back.x, y0: back.y, t: now };
-  shopChop(SHOP_GESTURE_LOCK_MS);
+  cfg.slash();
 }, { passive: true });
 document.addEventListener('pointerup', (e) => {
   const t = shopTap, s = shopSlash; shopTap = null; shopSlash = null;
@@ -12926,19 +12966,21 @@ document.addEventListener('pointerup', (e) => {
   if (s && s.fired) return;                                               // ya cortó con el tajo
   const len = Math.hypot(e.clientX - t.x, e.clientY - t.y), dur = performance.now() - t.t;
   if (!(len <= 12 && dur <= 450)) return;                                 // respaldo: un toque suelto corta; un trazo que no cruza el producto no
-  if (shopArmedActive()) shopChop();
+  const cfg = slashCfg();
+  if (cfg) cfg.tap();
 }, { passive: true });
 document.addEventListener('pointercancel', () => { shopTap = null; shopSlash = null; }, { passive: true });
-// Estela luminosa del dedo (canvas sobre la tabla expandida): se desvanece en ~0,26 s
+// Estela luminosa del dedo (canvas sobre la zona de corte): se desvanece en ~0,26 s
 let shopTrailPts = [], shopTrailRaf = 0;
 function shopTrailAdd(pt) { shopTrailPts.push(pt); if (!shopTrailRaf) shopTrailRaf = requestAnimationFrame(shopTrailDraw); }
 function shopTrailDraw() {
   shopTrailRaf = 0;
-  const board = document.getElementById('shop-board');
-  if (!board) { shopTrailPts = []; return; }
-  let cv = document.getElementById('shop-trail');
-  const br = board.getBoundingClientRect();
-  if (!cv) { cv = document.createElement('canvas'); cv.id = 'shop-trail'; cv.className = 'shop-trail'; board.appendChild(cv); }
+  const cfg = slashCfg();
+  const zone = cfg ? document.querySelector(cfg.zone) : null;
+  if (!zone) { shopTrailPts = []; return; }
+  let cv = zone.querySelector(':scope > canvas.shop-trail');
+  const br = zone.getBoundingClientRect();
+  if (!cv) { cv = document.createElement('canvas'); cv.className = 'shop-trail'; zone.appendChild(cv); }
   if (cv.width !== Math.round(br.width) || cv.height !== Math.round(br.height)) { cv.width = Math.round(br.width); cv.height = Math.round(br.height); }
   const g = cv.getContext('2d'), now = performance.now();
   g.clearRect(0, 0, cv.width, cv.height);
@@ -13646,6 +13688,7 @@ function abortFryCut() {
   if (station.cutState === 'CUTTING') {
     station.cutState = 'NONE';
     station.cutProgress = 0;
+    station.slashes = 0;
   }
 }
 
@@ -13664,6 +13707,19 @@ function cleanupFryKnifeDrag() {
   fryKnifeDrag = null;
 }
 
+// Tajos (Fruit Ninja): 3 tajos que crucen la proteína frita la cortan; el cuchillo arrastrado y mantenido 3 s sigue valiendo como respaldo
+function fryCutSlash() {
+  const station = gameState.fryStation;
+  if (!fryCanCut()) return;
+  station.slashes = (station.slashes || 0) + 1;
+  station.cutState = 'CUTTING';
+  station.cutProgress = Math.min(1, station.slashes / slashesToCut());
+  playSound('chop');
+  const item = document.querySelector('#fry-table-strip .fry-board-item');
+  slashFx({ zone: document.getElementById('fry-table-card'), item, iconHtml: item ? '<span style="display:flex;width:100%;height:100%;align-items:center;justify-content:center;filter:' + (station.fryTone || 'none') + '">' + fryItemMarkup(station.proteinId, station.coat) + '</span>' : '', bitsImg: ingCtxImg(INGREDIENTES.find(i => i.id === station.proteinId)) });
+  if (station.slashes >= slashesToCut()) { station.slashes = 0; completeFryCut(); return; }
+  renderFryStation();
+}
 function completeFryCut() {
   const station = gameState.fryStation;
   cleanupFryKnifeDrag();
@@ -13751,7 +13807,7 @@ function onFryKnifeUp(e) {
   abortFryCut();
   cleanupFryKnifeDrag();
   if (!wasActive) {
-    showStationToast('🔪 Arrastra el cuchillo sobre la proteína frita y mantenlo 3 segundos para cortarla.');
+    showStationToast('🔪 Desliza el dedo de lado a lado sobre la proteína frita para cortarla (' + slashesToCut() + ' tajos).');
   } else if (inside && !fryCanCut()) {
     const station = gameState.fryStation;
     if (station.cutState === 'CUT') showStationToast('Esa proteína ya está cortada.');
@@ -13854,13 +13910,13 @@ function renderFryStation() {
     tableBadge.textContent = 'En la olla: retírala a tiempo';
   } else if (station.phase === 'FRIED') {
     if (cutting) {
-      tableBadge.textContent = `✂️ Cortando… ${(cutSeconds() * (1 - station.cutProgress)).toFixed(1)}s`;
+      tableBadge.textContent = `✂️ Desliza el dedo sobre ella: tajo ${Math.round(station.cutProgress * slashesToCut())}/${slashesToCut()}`;
       tableBadge.classList.add('status-ready');
     } else if (complete) {
       tableBadge.textContent = staged ? (pid === 71 ? '¡Poro frito! Mándalo a Salteado' : ((station.drain || 0) < 1 ? '¡Lista! Escúrrela (sacude ↕) o pásala a emplatar' : '¡Lista! Pásala a emplatar')) : `¡Listo: ${analysis.recipe.name}!`;
       tableBadge.classList.add('status-ready');
     } else if (needsCut && !isCut) {
-      tableBadge.textContent = '🔪 Frita — córtala con el cuchillo (3 s)';
+      tableBadge.textContent = `🔪 Frita — desliza el dedo sobre ella para cortarla (${slashesToCut()} tajos)`;
       tableBadge.classList.add('status-ready');
     } else {
       const falta = (analysis.missing || []).filter(n => !['Harina', 'Huevo', 'Panko'].includes(n));
