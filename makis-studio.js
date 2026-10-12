@@ -53,7 +53,7 @@ function mkChecklist(b) {
 function mkHint(mk) {
   const b = mk.build;
   if (mk.fish && mk.fish.open) return 'Gira el pescado hasta que sus fibras queden en ángulo recto con tu tajo y corta con un movimiento firme: ni muy rápido ni muy suave.';
-  if (mk.sel >= 0) return 'Cobertura desde la despensa · flamea si hace falta · 🤏 Apretar · y desliza el dedo sobre el maki para cortarlo.';
+  if (mk.sel >= 0) return 'Cobertura desde la despensa · 🤏 Apretar · desliza el dedo sobre el maki para cortarlo · salsa y flameado, en Emplatar.';
   if (b.rolling) return MK_STEPS[b.step] === 'roll' ? 'Enrolla: desliza hacia arriba, ni muy rápido ni muy lento (zona verde).' : 'Ahora 🤏 Apretar el rollo.';
   if (!b.matPlaced) return 'Arrastra la esterilla hasta la tabla.';
   if (!b.rice) return 'Arrastra el arroz shari desde la despensa a la esterilla.';
@@ -140,7 +140,7 @@ function mkSlotsHtml(mk) {
   return mk.slots.map((s, i) => {
     if (!s) return `<div class="mk2-slot is-empty" data-mk-slot="${i}" title="Lugar libre">·</div>`;
     const r = s.roll, a = analyzeMakiSequence(r.ingredients), name = a.recipe ? (a.recipe.candidates ? a.recipe.candidates.map(c => c.name.replace('Maki ', '')).join('/') : a.recipe.name.replace('Maki ', '')) : '…';
-    const st = r.cutState === 'CUT' ? '✅' : (makiNeedsFlame && r === gameState.makiRoll && makiNeedsFlame() ? '🔥' : (a.status === 'READY' ? '🍣' : '·'));
+    const st = r.cutState === 'CUT' ? '✅' : (r.pressed2 ? '🤏' : (a.status === 'READY' ? '🍣' : '·'));
     return `<div class="mk2-slot ${mk.sel === i ? 'sel' : ''}" data-mk-slot="${i}" title="Maki ${i + 1}">${makiPieceMarkup(r.ingredients)}<small>${name}</small><i>${st}</i></div>`;
   }).join('');
 }
@@ -250,10 +250,10 @@ function mkOnToppingAdded(roll, id) {                  // la cobertura que se ag
 function mkServe() {
   const mk = mkGet(), roll = gameState.makiRoll, a = analyzeMakiSequence(roll.ingredients);
   if (roll.cutState !== 'CUT' || a.status !== 'READY' || mk.sel < 0) return;
-  const need = makiNeedsFlame(), flamePts = makiFlamePts(roll, need), q = roll.mkq || {};
-  const proc = 4 + Math.round(10 * (q.roll == null ? 1 : q.roll)) + (roll.pressed2 ? 4 : 0) + (roll.cobQ == null ? 6 : Math.round(6 * roll.cobQ)) + (need ? flamePts : 6);
+  const q = roll.mkq || {};                                            // el flameado se puntúa en Emplatar
+  const proc = 4 + Math.round(12 * (q.roll == null ? 1 : q.roll)) + (roll.pressed2 ? 6 : 0) + (roll.cobQ == null ? 8 : Math.round(8 * roll.cobQ));
   const ok = stPassAdd('makis', { recipes: (a.recipe.candidates || [a.recipe]).map(r => r.name), result: 'PERFECTO',
-    readyAt: roll.readyAt != null ? roll.readyAt : gameState.gameClock, vis: { kind: 'img', src: 'assets/maki_roll_v2.svg', id: 38 }, meta: { mkProc: Math.max(0, Math.min(30, proc)), spread: 1, flamePts } });
+    readyAt: roll.readyAt != null ? roll.readyAt : gameState.gameClock, vis: { kind: 'img', src: 'assets/maki_roll_v2.svg', id: 38 }, meta: { mkProc: Math.max(0, Math.min(30, proc)), spread: 1 } });
   if (!ok) return;
   mk.slots[mk.sel] = null;
   mkDeselect();
@@ -593,9 +593,9 @@ document.addEventListener('click', (e) => {
   .mk2 .mk2-row.shop-cutlayout { gap: 5px; height: clamp(96px, calc(100vh - 280px), 200px); }
   .mk2 .fp-head small { font-size: 9.5px; }
   /* con el estudio abierto el flameador se achica para dejarle altura */
-  body.mk-studio .ramen-tool-strip.on { padding-top: 0; padding-bottom: 0; }
-  body.mk-studio .ramen-tool-strip .tool-item.tool-torch .tool-svg { height: 36px; }
-  body.mk-studio .ramen-tool-strip .tool-name { display: none; }
+  body.mk-torch-small .ramen-tool-strip.on { padding-top: 0; padding-bottom: 0; }
+  body.mk-torch-small .ramen-tool-strip .tool-item.tool-torch .tool-svg { height: 36px; }
+  body.mk-torch-small .ramen-tool-strip .tool-name { display: none; }
   .mk2-slots { width: 60px; flex-shrink: 0; display: flex; flex-direction: column; gap: 4px; }
   .mk2-slot { flex: 1; min-height: 0; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px solid #8d6e63; border-radius: 9px; background: rgba(60,30,22,0.65); cursor: pointer; overflow: hidden; }
   .mk2-slot.is-empty { border-style: dashed; border-color: #5d4037; color: #8d6e63; font-size: 18px; cursor: default; opacity: 0.7; }
