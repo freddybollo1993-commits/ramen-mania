@@ -87,7 +87,12 @@ function frFoldHint(b) {
   return b.step === 'dough' ? 'Toca la masa para ponerla sobre la tabla.'
     : b.step === 'fill' ? 'Arrastra el relleno hasta el centro de la masa.'
     : b.step === 'egg' ? 'Moja el dedo en el huevo y pásalo por todo el borde de la masa: queda pegajoso.'
-    : `Pinza: pon 2 dedos en lados opuestos y júntalos hacia el centro. Tiempo ${Math.min(FR_PINCHES, b.pinch + 1)} de ${FR_PINCHES}.`;
+    : `Pinza ${Math.min(FR_PINCHES, b.pinch + 1)} de ${FR_PINCHES}: junta 2 dedos sobre la masa, o toca el punto que brilla en el borde.`;
+}
+// Punto del borde donde toca la siguiente pinza (en coordenadas del dibujo, 0–100)
+function frPinchMark(b) {
+  const sy = 1 - 0.5 * (b.pinch / FR_PINCHES), a = Math.PI + (b.pinch + 0.5) / FR_PINCHES * Math.PI;
+  return { sx: 50 + 36 * Math.cos(a), sy: 50 + 36 * sy * Math.sin(a) + 4 };
 }
 function frFoldSvg(b) {
   const f = b.pinch / FR_PINCHES, sy = 1 - 0.5 * f;                            // al cerrar, el círculo se pliega a media luna
@@ -95,7 +100,9 @@ function frFoldSvg(b) {
   const dough = b.step === 'dough' ? '' : `<g id="fr-dg" style="transform-origin:50% 50%;transform:scaleY(${sy.toFixed(3)})"><circle cx="50" cy="50" r="38" fill="#f7ecd0" stroke="#d9c590" stroke-width="2.2"/><circle cx="50" cy="50" r="33" fill="none" stroke="#fff6e0" stroke-width="1" opacity="0.7"/></g>`;
   const filling = (b.filled && b.pinch < FR_PINCHES) ? `<g style="transform-origin:50% 50%;transform:scaleY(${sy.toFixed(3)})"><ellipse cx="50" cy="50" rx="${(15 - 4 * f).toFixed(1)}" ry="12" fill="#c98a6a" stroke="#8a5238" stroke-width="1.2"/><circle cx="46" cy="47" r="2.2" fill="#e8b79c"/><circle cx="55" cy="52" r="2" fill="#7a9a4a"/><circle cx="51" cy="44" r="1.8" fill="#f2d4b8"/></g>` : '';
   const ring = (b.step === 'egg' || b.step === 'pinch') ? `<circle id="fr-eggring" cx="50" cy="50" r="35.5" fill="none" stroke="#ffd54f" stroke-width="4" stroke-linecap="round" pathLength="100" stroke-dasharray="${Math.min(100, b.egg * 100).toFixed(1)} 100" transform="rotate(-90 50 50)" opacity="0.85"/>` : '';
-  return `<svg class="fr-svg" id="fr-fsvg" viewBox="0 0 100 100" aria-hidden="true">${dough}${ring}${filling}${b.step === 'pinch' ? `<g id="fr-pleats">${pleats}</g>` : ''}</svg>`;
+  const mk = b.step === 'pinch' && b.pinch < FR_PINCHES ? frPinchMark(b) : null;
+  const mark = mk ? `<circle class="fr-mark" cx="${mk.sx.toFixed(1)}" cy="${mk.sy.toFixed(1)}" r="5" fill="#ffd54f" stroke="#fff" stroke-width="1.2"/>` : '';
+  return `<svg class="fr-svg" id="fr-fsvg" viewBox="0 0 100 100" aria-hidden="true">${dough}${ring}${filling}${b.step === 'pinch' ? `<g id="fr-pleats">${pleats}</g>${mark}` : ''}</svg>`;
 }
 function frFoldHtml(p, b, st) {
   const chips = FR_STEPS.map((s, i) => `<span class="${FR_STEPS.indexOf(b.step) > i ? 'done' : (b.step === s ? 'cur' : '')}">${['①', '②', '③', '④'][i]}</span>`).join('');
@@ -222,7 +229,14 @@ document.addEventListener('pointerdown', (e) => {
   if (b.step === 'pinch' && t.closest('#fr-dough')) {
     e.preventDefault();
     frPointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    if (frPointers.size === 2) { const [a, c] = [...frPointers.values()]; frPinch = { d0: Math.hypot(a.x - c.x, a.y - c.y), armed: true }; }
+    if (!frPinch) frPinch = { dmax: 0, fired: false };
+    if (!frPinch.fired && frPointers.size === 1) {                         // un dedo sobre el punto brillante también vale
+      const svg = document.getElementById('fr-fsvg'), m = frPinchMark(b);
+      if (svg) {
+        const r = svg.getBoundingClientRect(), mx = r.left + m.sx / 100 * r.width, my = r.top + m.sy / 100 * r.height;
+        if (Math.hypot(e.clientX - mx, e.clientY - my) <= Math.max(26, r.width * 0.16)) { frPinch.fired = true; frFoldPinch(); }
+      }
+    }
   }
 }, { passive: false });
 let frPinch = null;
@@ -230,14 +244,12 @@ document.addEventListener('pointermove', (e) => {
   if (!frPointers.has(e.pointerId)) return;
   frPointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
   const b = frBoard();
-  if (!b || b.mode !== 'fold' || b.step !== 'pinch' || frPointers.size < 2 || !frPinch) return;
-  const dough = document.getElementById('fr-dough'); if (!dough) return;
-  const R = Math.min(dough.getBoundingClientRect().width, dough.getBoundingClientRect().height) / 2;
+  if (!b || b.mode !== 'fold' || b.step !== 'pinch' || frPointers.size < 2 || !frPinch || frPinch.fired) return;
   const [a, c] = [...frPointers.values()], d = Math.hypot(a.x - c.x, a.y - c.y);
-  if (frPinch.armed && frPinch.d0 >= R * 0.9 && d <= frPinch.d0 * 0.3) { frPinch.armed = false; frFoldPinch(); }   // los dos dedos se juntaron hacia el mismo punto
-  else if (!frPinch.armed && d >= frPinch.d0 * 0.7) { frPinch.armed = true; }
+  frPinch.dmax = Math.max(frPinch.dmax, d);
+  if (frPinch.dmax >= 34 && d <= frPinch.dmax * 0.65) { frPinch.fired = true; frFoldPinch(); }          // los dos dedos se acercaron
 }, { passive: true });
-const frPointerUp = (e) => { frPointers.delete(e.pointerId); if (frPointers.size < 2) frPinch = null; };
+const frPointerUp = (e) => { frPointers.delete(e.pointerId); if (!frPointers.size) frPinch = null; };
 document.addEventListener('pointerup', frPointerUp, { passive: true });
 document.addEventListener('pointercancel', frPointerUp, { passive: true });
 
@@ -266,6 +278,8 @@ document.addEventListener('pointercancel', frPointerUp, { passive: true });
   .fr-bowl span { font-size: 24px; line-height: 1; display: block; } .fr-bowl small { font-size: 9px; font-weight: 800; }
   .fr-bowl.hot { border-style: solid; border-color: #ffd54f; background: rgba(120,80,30,0.7); animation: mkPulse 1s ease-out infinite; }
   .fr-pinch-btn { font-size: 11px; }
+  .fr-mark { animation: frPulse 0.8s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: 50% 50%; }
+  @keyframes frPulse { from { transform: scale(0.8); opacity: 0.7; } to { transform: scale(1.35); opacity: 1; } }
   `;
   const el = document.createElement('style'); el.textContent = css; document.head.appendChild(el);
 })();
