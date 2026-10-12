@@ -814,6 +814,19 @@
   .cb-scale.hover { transform: scale(1.1); background: rgba(156,204,101,0.55); border-color: #c5e1a5; }
   .scoop-ghost { position: fixed; left: 0; top: 0; z-index: 9500; font-size: 30px; pointer-events: none; filter: drop-shadow(0 3px 4px rgba(0,0,0,0.6)); }
   .cb-heap { touch-action: none; }
+  /* corte estilo Fruit Ninja: producto entero que se encoge con cada tajo; mitades voladoras, línea de corte, cuchillo fugaz y estela */
+  .shop-bigboard { touch-action: none; user-select: none; -webkit-user-select: none; }
+  .cb-item.cb-fruit .q1 { clip-path: none; }
+  .cb-item.cb-fruit.s1 .q1, .cb-item.cb-fruit.s2 .q1 { transform: none; }
+  .cb-item.cb-fruit { transition: scale 0.15s ease-out; }
+  .cb-item.cb-fruit.s1 { scale: 0.9; } .cb-item.cb-fruit.s2 { scale: 0.8; }
+  .cb-half { position: fixed; z-index: 9400; pointer-events: none; will-change: transform, opacity; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.45)); }
+  .cb-half .hf { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+  .cb-half .hf .ing-ico, .cb-half .hf img { width: 100%; height: 100%; object-fit: contain; }
+  .cb-half .hf > span, .cb-half .hf { font-size: 70px; }
+  .slash-line { position: fixed; z-index: 9410; width: 180px; height: 3px; border-radius: 2px; pointer-events: none; transform-origin: 50% 50%; background: linear-gradient(90deg, transparent, #fff 25%, #fff 75%, transparent); box-shadow: 0 0 10px 2px rgba(143, 220, 255, 0.9); }
+  .cut-knife-flash { position: fixed; z-index: 9420; width: 40px; height: 90px; pointer-events: none; opacity: 0; filter: drop-shadow(0 0 8px rgba(255,255,255,0.9)); }
+  .shop-trail { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 8; }
   .oil-gauge { position: fixed; z-index: 9600; width: 16px; height: 100px; border-radius: 8px; background: rgba(0,0,0,0.65); border: 2px solid rgba(255,255,255,0.55); overflow: hidden; pointer-events: none; box-shadow: 0 2px 6px rgba(0,0,0,0.5); }
   .oil-gauge .og-zone { position: absolute; left: 0; right: 0; background: rgba(156,204,101,0.6); }
   .oil-gauge .og-fill { position: absolute; left: 0; right: 0; bottom: 0; height: 0; background: linear-gradient(#ffe082, #f9a825); }
@@ -6383,7 +6396,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v99</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v100</span></button></div>
     </div>
   </div>
 
@@ -12544,7 +12557,7 @@ function shopUpdateCount(p) {
 // ---- Tabla expandida: el producto se va dividiendo con cada corte y suelta porciones pequeñas ----
 function shopItemHtml(p, stg) {
   const ico = stIngIconRaw(p.icon);
-  return `<div class="cb-item s${stg}" id="shop-cb-item">${['q1', 'q2', 'q3', 'q4'].map(q => `<span class="q ${q}">${ico}</span>`).join('')}</div>`;
+  return `<div class="cb-item cb-fruit s${stg}" id="shop-cb-item" data-base="cb-item cb-fruit"><span class="q q1">${ico}</span></div>`;     // entero: cada tajo suelta dos mitades que vuelan (shopChopFx)
 }
 function shopPileHtml(p, count) {
   const n = Math.min(count, 14);
@@ -12677,25 +12690,70 @@ function shopPips() {
   pips.forEach((el, i) => el.classList.toggle('on', i < on));
 }
 function shopChopFx(p) {
-  const board = document.getElementById('shop-board'), knife = document.getElementById('shop-knife');
+  const board = document.getElementById('shop-board'), item = document.getElementById('shop-cb-item');
   if (!board) return;
   board.classList.remove('hit'); void board.offsetWidth; board.classList.add('hit');
-  if (knife) { knife.classList.remove('chop'); void knife.offsetWidth; knife.classList.add('chop'); }
+  const br = board.getBoundingClientRect();
+  const ir = item ? item.getBoundingClientRect() : { left: br.left + br.width * 0.44 - 30, top: br.top + br.height * 0.64 - 30, width: 60, height: 60 };
+  const ic = { x: ir.left + ir.width / 2, y: ir.top + ir.height / 2 };
+  // el tajo (de un gesto reciente) orienta todo; un toque de respaldo corta en diagonal suave
+  const sl = (shopSlashLast && performance.now() - shopSlashLast.t < 500) ? shopSlashLast : { ang: -0.45 + Math.random() * 0.9, x: ic.x + 40, y: ic.y, x0: ic.x - 60, y0: ic.y };
+  const ang = sl.ang, ca = Math.cos(ang), sa = Math.sin(ang);
+  // 1) el producto se abre en dos mitades que salen volando a ambos lados del corte
+  if (item) {
+    const R = Math.max(ir.width, ir.height) * 2, ico = stIngIconRaw(p.icon), lc = ir.width / 2, lr = ir.height / 2;
+    [1, -1].forEach(side => {
+      const pts = [[-R, 0], [R, 0], [R, side * R], [-R, side * R]].map(([x, y]) => `${(lc + x * ca - y * sa).toFixed(1)}px ${(lr + x * sa + y * ca).toFixed(1)}px`).join(',');
+      const h = document.createElement('div');
+      h.className = 'cb-half';
+      h.style.cssText = `left:${ir.left}px;top:${ir.top}px;width:${ir.width}px;height:${ir.height}px`;
+      h.innerHTML = `<div class="hf" style="clip-path:polygon(${pts})">${ico}</div>`;
+      document.body.appendChild(h);
+      const nx = -sa * side, ny = ca * side;                          // normal hacia el lado de esta mitad
+      const an = h.animate([{ transform: 'translate(0,0) rotate(0deg)', opacity: 1 }, { transform: `translate(${(nx * 38).toFixed(1)}px, ${(ny * 38 + 46).toFixed(1)}px) rotate(${side * 26}deg)`, opacity: 0 }], { duration: 520, easing: 'cubic-bezier(.2,.6,.4,1)', fill: 'forwards' });
+      an.onfinish = () => h.remove();
+      setTimeout(() => h.remove(), 700);
+    });
+  }
+  // 2) línea blanca del corte sobre el producto
+  const ln = document.createElement('i');
+  ln.className = 'slash-line';
+  ln.style.cssText = `left:${ic.x - 90}px;top:${ic.y - 1.5}px;transform:rotate(${ang}rad)`;
+  document.body.appendChild(ln);
+  ln.animate([{ opacity: 1, scale: '0.2 1' }, { opacity: 1, scale: '1 1', offset: 0.35 }, { opacity: 0, scale: '1 0.4' }], { duration: 300, easing: 'ease-out' }).onfinish = () => ln.remove();
+  setTimeout(() => ln.remove(), 500);
+  // 3) el cuchillo aparece solo un instante, cruzando a lo largo del tajo, y se esfuma
+  const k = document.createElement('img');
+  k.className = 'cut-knife-flash';
+  k.src = 'assets/maki_knife.svg';
+  k.alt = '';
+  const dx = ca * 70, dy = sa * 70, deg = ang * 180 / Math.PI + 90;       // la hoja del dibujo apunta hacia arriba: se gira para que apunte en el sentido del tajo
+  k.style.left = (ic.x - 20) + 'px'; k.style.top = (ic.y - 45) + 'px';
+  document.body.appendChild(k);
+  k.animate([{ transform: `translate(${-dx}px, ${-dy}px) rotate(${deg}deg) scale(0.9)`, opacity: 0 }, { transform: `translate(${-dx * 0.2}px, ${-dy * 0.2}px) rotate(${deg}deg) scale(1)`, opacity: 1, offset: 0.4 }, { transform: `translate(${dx}px, ${dy}px) rotate(${deg}deg) scale(1)`, opacity: 0 }], { duration: 240, easing: 'ease-out' }).onfinish = () => k.remove();
+  setTimeout(() => k.remove(), 450);
+  // 4) trocitos / jugo que salen disparados
   const proc = INGREDIENTES.find(i => i.id === p.icon), procImg = ingCtxImg(proc);
-  const bits = [0, 1, 2, 3].map(k => `<span class="bit" style="--dx:${(k - 1.5) * 16}px;--dy:${-10 - (k % 2) * 12}px;--rot:${(k - 1.5) * 40}deg">${procImg ? `<img src="${procImg}" alt="">` : ''}</span>`).join('');
+  const bits = [0, 1, 2, 3, 4, 5].map(j => `<span class="bit" style="--dx:${((j - 2.5) * 15).toFixed(0)}px;--dy:${(-12 - (j % 2) * 14).toFixed(0)}px;--rot:${(j - 2.5) * 40}deg">${procImg ? `<img src="${procImg}" alt="">` : ''}</span>`).join('');
   const fx = document.createElement('div');
   fx.className = 'cut-fx';
-  fx.innerHTML = `<img class="k" src="assets/maki_knife.svg" alt=""><i class="slash"></i>${bits}`;
+  fx.innerHTML = bits;
   board.appendChild(fx);
-  setTimeout(() => fx.remove(), 520);
+  setTimeout(() => fx.remove(), 600);
+  // combo: varios tajos seguidos
+  const now = performance.now();
+  shopCombo = (now - shopComboT < 1100) ? shopCombo + 1 : 1;
+  shopComboT = now;
+  if (shopCombo >= 2) { const cb = document.createElement('b'); cb.className = 'cut-plus'; cb.style.cssText = 'left:6%;top:70%;font-size:13px;color:#8fdcff'; cb.textContent = `¡Combo ×${shopCombo}!`; board.appendChild(cb); setTimeout(() => cb.remove(), 850); }
 }
-function shopChop() {
+let shopCombo = 0, shopComboT = 0;
+function shopChop(lockMs) {
   const st = stGet(stShopArea());
   if (!st.knifeArmed) return;
   if (!st.board) { shopHint('🔪 Primero pon un producto en la tabla (toca su ficha).'); return; }
   if (st.board.mode === 'clean') { shopHint('🧺 Esto se limpia tocándolo.'); return; }
   if (st.board.mode === 'portion') { shopHint('⚖️ El arroz se porciona tocándolo.'); return; }
-  shopTapCore(st, 'cut');
+  shopTapCore(st, 'cut', lockMs);
 }
 function shopClean(lockMs) {
   const st = stGet(stShopArea());
@@ -12830,14 +12888,73 @@ document.addEventListener('pointerdown', (e) => {
   // toque normal: solo cuenta como corte si el cuchillo está armado y no se tocó un control
   if (!shopArmedActive() || (e.target.closest && e.target.closest('button, .fp-card, .shop-pot, .kitchen-stage-btn, .kitchen-area-tab-btn, .hud-side-btn, .modal-overlay, a, input'))) { shopTap = null; return; }
   shopTap = { id: e.pointerId, x: e.clientX, y: e.clientY, t: performance.now() };
+  shopSlash = { id: e.pointerId, pts: [{ x: e.clientX, y: e.clientY, t: shopTap.t }], fired: 0, ready: true };
+  shopTrailAdd({ x: e.clientX, y: e.clientY, t: shopTap.t, brk: true });
 }, { passive: false });
+// Corte estilo «Fruit Ninja»: el dedo deja una estela y el producto se corta cuando el trazo LO CRUZA a buen ritmo; para el siguiente corte hay que
+// salir del producto y volver a cruzarlo (zigzag). El cuchillo solo aparece un instante a lo largo del tajo; sobre la tabla no hay silueta.
+const SHOP_SLASH_MIN_SPEED = 0.3;         // px/ms: más lento es un arrastre, no un tajo
+const SHOP_SLASH_MIN_LEN = 28;            // px recorridos antes de que cuente
+let shopSlash = null, shopSlashLast = null;
+const shopSegHitsCircle = (a, b, c, r) => {
+  const dx = b.x - a.x, dy = b.y - a.y, l2 = dx * dx + dy * dy || 1;
+  const t = Math.max(0, Math.min(1, ((c.x - a.x) * dx + (c.y - a.y) * dy) / l2));
+  return Math.hypot(a.x + t * dx - c.x, a.y + t * dy - c.y) <= r;
+};
+document.addEventListener('pointermove', (e) => {
+  const s = shopSlash;
+  if (!s || e.pointerId !== s.id) return;
+  if (!shopArmedActive()) { shopSlash = null; return; }
+  const now = performance.now(), prev = s.pts[s.pts.length - 1], cur = { x: e.clientX, y: e.clientY, t: now };
+  s.pts.push(cur);
+  if (s.pts.length > 40) s.pts.shift();
+  shopTrailAdd(cur);
+  const item = document.getElementById('shop-cb-item');
+  if (!item) return;
+  const r = item.getBoundingClientRect(), c = { x: r.left + r.width / 2, y: r.top + r.height / 2 }, rad = Math.min(r.width, r.height) * 0.46;
+  if (Math.hypot(cur.x - c.x, cur.y - c.y) > rad * 1.2) s.ready = true;            // salió del producto: puede volver a cruzarlo
+  if (!s.ready || !shopSegHitsCircle(prev, cur, c, rad)) return;
+  const back = s.pts[Math.max(0, s.pts.length - 4)], span = Math.max(1, cur.t - back.t), dist = Math.hypot(cur.x - back.x, cur.y - back.y);
+  if (dist / span < SHOP_SLASH_MIN_SPEED || dist < SHOP_SLASH_MIN_LEN * 0.5) return;        // cruza muy despacio
+  s.ready = false; s.fired++;
+  shopSlashLast = { ang: Math.atan2(cur.y - back.y, cur.x - back.x), x: cur.x, y: cur.y, x0: back.x, y0: back.y, t: now };
+  shopChop(SHOP_GESTURE_LOCK_MS);
+}, { passive: true });
 document.addEventListener('pointerup', (e) => {
-  const t = shopTap; shopTap = null;
+  const t = shopTap, s = shopSlash; shopTap = null; shopSlash = null;
   if (!t || t.id !== e.pointerId) return;
+  if (s && s.fired) return;                                               // ya cortó con el tajo
   const len = Math.hypot(e.clientX - t.x, e.clientY - t.y), dur = performance.now() - t.t;
-  if (!((len <= 12 && dur <= 450) || (len >= 40 && dur <= 650))) return;     // un toque o un tajo ágil de lado a lado cortan; un arrastre lento o corto no
+  if (!(len <= 12 && dur <= 450)) return;                                 // respaldo: un toque suelto corta; un trazo que no cruza el producto no
   if (shopArmedActive()) shopChop();
 }, { passive: true });
+document.addEventListener('pointercancel', () => { shopTap = null; shopSlash = null; }, { passive: true });
+// Estela luminosa del dedo (canvas sobre la tabla expandida): se desvanece en ~0,26 s
+let shopTrailPts = [], shopTrailRaf = 0;
+function shopTrailAdd(pt) { shopTrailPts.push(pt); if (!shopTrailRaf) shopTrailRaf = requestAnimationFrame(shopTrailDraw); }
+function shopTrailDraw() {
+  shopTrailRaf = 0;
+  const board = document.getElementById('shop-board');
+  if (!board) { shopTrailPts = []; return; }
+  let cv = document.getElementById('shop-trail');
+  const br = board.getBoundingClientRect();
+  if (!cv) { cv = document.createElement('canvas'); cv.id = 'shop-trail'; cv.className = 'shop-trail'; board.appendChild(cv); }
+  if (cv.width !== Math.round(br.width) || cv.height !== Math.round(br.height)) { cv.width = Math.round(br.width); cv.height = Math.round(br.height); }
+  const g = cv.getContext('2d'), now = performance.now();
+  g.clearRect(0, 0, cv.width, cv.height);
+  shopTrailPts = shopTrailPts.filter(p => now - p.t < 260);
+  if (shopTrailPts.length > 1) {
+    g.lineCap = 'round'; g.lineJoin = 'round'; g.shadowColor = '#8fdcff'; g.shadowBlur = 12;
+    for (let i = 1; i < shopTrailPts.length; i++) {
+      const a = shopTrailPts[i - 1], b = shopTrailPts[i], life = 1 - (now - b.t) / 260;
+      if (b.brk) continue;                                            // inicio de otro trazo: no se une al anterior
+      g.strokeStyle = `rgba(235,248,255,${(0.95 * life).toFixed(2)})`;
+      g.lineWidth = 2 + 8 * life;
+      g.beginPath(); g.moveTo(a.x - br.left, a.y - br.top); g.lineTo(b.x - br.left, b.y - br.top); g.stroke();
+    }
+  }
+  if (shopTrailPts.length) shopTrailRaf = requestAnimationFrame(shopTrailDraw);
+}
 
 // ---- Pantalla del taller ----
 function stRenderShop(area, panel) {
@@ -12931,7 +13048,6 @@ function stRenderShop(area, panel) {
         ${isPortion ? '<div class="cb-scale" id="shop-scale"><span class="sc-ico">⚖️</span><b>400 g</b></div>' : ''}
         <div class="cb-pile" id="shop-pile">${shopPileHtml(pb, isPortion ? st.stock[pb.key] : bin)}</div>
         <div class="shop-pips">${[0, 1, 2].map(i => `<i class="${i < on ? 'on' : ''}"></i>`).join('')}</div>
-        ${isClean ? '' : '<img class="fry-knife-tool shop-knife armed" id="shop-knife" src="assets/maki_knife.svg" alt="Cuchillo" draggable="false">'}
       </div>
       <div class="shop-side">
         ${rows ? `<div class="bl-list"><div class="bl-title">♨️ A la hornilla</div>${rows}</div>` : ''}
