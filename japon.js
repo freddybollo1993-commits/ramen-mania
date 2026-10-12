@@ -87,17 +87,20 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
     st.salon.n = 1;
     const areas = {}; c.areas.forEach((a, i) => { areas[a] = i === 0; });
     if (c.areas[0]) st[c.areas[0]].n = 1;
-    return { tier: 1, tables: 3, q: 1, staff: st, areas, objs: {}, cash: 0, since: 0, t: Date.now(), net: 0 };
+    return { tier: 1, tables: 3, q: 1, staff: st, areas, objs: {}, cash: 0, cashIn: 0, cashOut: 0, since: 0, t: Date.now(), net: 0 };
   }
   function load() {
     if (S) return S;
     let d = null;
     try { d = JSON.parse(store().getItem(KEY) || 'null'); } catch (e) {}
-    S = d && d.v === 1 ? d : { v: 1, fondo: 0, lifetime: 0, open: {}, rest: {}, act: {}, cur: null };
+    S = d && d.v === 1 ? d : { v: 1, fondo: 0, lifetime: 0, spent: 0, open: {}, rest: {}, act: {}, cur: null };
     if (!S.open.tokio) { S.open.tokio = true; S.rest.tokio = newRest(CITY.tokio); }
+    if (typeof S.spent !== 'number') S.spent = Math.max(0, (S.lifetime || 0) - (S.fondo || 0));          // libro de gastos: Fondo = ganado − gastado
+    Object.keys(S.rest).forEach(id => { const r = S.rest[id]; if (typeof r.cashIn !== 'number') { r.cashIn = r.cash || 0; r.cashOut = 0; } if (typeof r.cashOut !== 'number') r.cashOut = 0; });
     return S;
   }
-  function save() { try { store().setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+  function persist() { try { store().setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+  function save() { if (S) { syncMeta().dirty = true; } persist(); syncSoon(); }
   const dayKey = (t = Date.now()) => Math.floor(t / 86400000);
   const fmt = n => { n = Math.round(n); return Math.abs(n) >= 10000 ? (n / 1000).toFixed(n >= 100000 ? 0 : 1) + 'k' : String(n); };
   const fmt1 = n => (Math.abs(n) < 10 ? n.toFixed(2) : n.toFixed(1));
@@ -167,7 +170,8 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
     const take = Math.max(0, Math.min(minutes, capMin - r.since));
     const mult = live ? 1 : actMult();
     const gain = net * take * mult;
-    r.cash = Math.max(0, r.cash + gain);
+    const before = r.cash; r.cash = Math.max(0, r.cash + gain);
+    if (r.cash > before) r.cashIn += r.cash - before; else r.cashOut += before - r.cash;
     r.since += take;
     return gain;
   }
@@ -227,7 +231,7 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
   function toast(m) { try { showStationToast(m); } catch (e) { console.log(m); } }
   function pay(cost) {
     if (S.fondo < cost) { toast('💴 Te faltan S/ ' + fmt(cost - S.fondo) + ' en el Fondo.'); try { playSound('error'); } catch (e) {} return false; }
-    S.fondo -= cost; try { playSound('stock_add'); } catch (e) {} return true;
+    S.fondo -= cost; S.spent += cost; try { playSound('stock_add'); } catch (e) {} return true;
   }
   const A = {
     hire(z) { const r = rs(), id = S.cur, s = r.staff[z]; if (s.n >= staffMax(r, z)) return toast('🏠 Tu local no tiene más puestos: amplíalo.'); if (!pay(costHire(id, z, s.n))) return; s.n++; refresh(); },
@@ -237,7 +241,7 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
     area(a) { const r = rs(), id = S.cur, k = Object.values(r.areas).filter(Boolean).length; if (!pay(costArea(id, k))) return; r.areas[a] = true; r.staff[a].n = Math.max(1, r.staff[a].n); refresh(); },
     qual() { const r = rs(), id = S.cur; if (r.q >= 5) return; if (!pay(costQual(id, r.q))) return; r.q++; refresh(); },
     obj(z, i) { const r = rs(), id = S.cur, o = OBJECTS[z][i], k = o[0] + '@' + z; if (r.objs[k]) return; if (!pay(costObj(id, i))) return; r.objs[k] = true; refresh(); },
-    collect() { const r = rs(); const g = Math.floor(r.cash); if (g < 1) return toast('La caja está vacía.'); S.fondo += g; S.lifetime += g; r.cash -= g; r.since = 0; try { playSound('match'); } catch (e) {} toast('💴 +S/ ' + fmt(g) + ' al Fondo'); refresh(); },
+    collect() { const r = rs(); const g = Math.floor(r.cash); if (g < 1) return toast('La caja está vacía.'); S.fondo += g; S.lifetime += g; r.cash -= g; r.cashOut += g; r.since = 0; try { playSound('match'); } catch (e) {} toast('💴 +S/ ' + fmt(g) + ' al Fondo'); refresh(); },
     open(id) { const c = CITY[id]; if (S.open[id]) { A.go(id); return; } if (!pay(c.cost)) return; S.open[id] = true; S.rest[id] = newRest(c); A.go(id); },
     go(id) { S.cur = id; S.view = 'rest'; refresh(); },
     map() { S.view = 'map'; S.sel = S.sel || S.cur; if (window.JPScene) window.JPScene.destroy(); refresh(); },
@@ -249,7 +253,7 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
     },
     close() { S.zone = null; refresh(); if (window.JPScene) window.JPScene.focus(null); },
     fin() { S.fin = !S.fin; refresh(); },
-    exit() { stop(); if (window.JPScene) window.JPScene.destroy(); const el = document.getElementById('jp-screen'); if (el) el.remove(); S.view = null; save(); updateChip(); }
+    exit() { persist(); stop(); if (window.JPScene) window.JPScene.destroy(); const el = document.getElementById('jp-screen'); if (el) el.remove(); S.view = null; save(); updateChip(); }
   };
   const rs = () => S.rest[S.cur];
   const dockW = () => Math.min(330, Math.round(window.innerWidth * 0.46));
@@ -258,7 +262,8 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
   // ---------- interfaz ----------
   let timer = null;
   function stop() { if (timer) { clearInterval(timer); timer = null; } }
-  function start() { stop(); timer = setInterval(() => { if (S.view === 'rest' && S.cur) { accrue(S.cur, 1 / 60, true); S.rest[S.cur].t = Date.now(); liveUi(); } }, 1000); }
+  let liveTicks = 0;
+  function start() { stop(); timer = setInterval(() => { if (S.view === 'rest' && S.cur) { accrue(S.cur, 1 / 60, true); S.rest[S.cur].t = Date.now(); liveUi(); if (++liveTicks % 15 === 0) persist(); } }, 1000); }
   function liveUi() {
     const r = rs(); if (!r) return;
     const q = id => document.getElementById(id);
@@ -439,8 +444,9 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
     const title = inRest ? `🏮 ${CITY[S.cur].name}` : '🗾 Recorrido por Japón';
     const top = `<div class="jp-top"><button class="jp-btn ghost" onclick="${inRest ? 'JP.map()' : 'JP.exit()'}">${inRest ? '← Mapa' : '← Menú'}</button><h2>${title}</h2>
       ${inRest ? `<span class="jp-chip">Caja <b id="jp-cash">S/ ${fmt(rs().cash)}</b></span><span class="jp-chip ${rs().net >= 0 ? 'pos' : 'neg'}"><b id="jp-net" class="${rs().net >= 0 ? 'pos' : 'neg'}">${rs().net >= 0 ? '+' : ''}${fmt1(rs().net * 60)}/h</b></span>` : ''}
-      <span class="jp-chip" title="Fondo: soles de Campaña, Rash, Retos y de las cajas">💴 Fondo <b>S/ ${fmt(S.fondo)}</b></span></div>`;
+      <span class="jp-chip" id="jp-cloud" style="font-size:11px"></span><span class="jp-chip" title="Fondo: soles de Campaña, Rash, Retos y de las cajas">💴 Fondo <b>S/ ${fmt(S.fondo)}</b></span></div>`;
     el.innerHTML = top + (inRest ? renderRest() : renderMap()) + (inRest && S.zone ? renderZone() : '') + (inRest && S.fin ? renderFin() : '') + (inRest && S.playOpen ? renderPlay() : '');
+    syncUi();
     if (inRest && window.JPScene) window.JPScene.mount(document.getElementById('jp-scene-host'), sceneState);
     else if (window.JPScene) window.JPScene.destroy();
   }
@@ -493,7 +499,7 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
     const d = DIFFS[jr.diff], money = Math.max(0, Math.round(gameState.money || 0)), mult = d.mult * areasMult(jr.areas.length), perfect = gameState.customersLost === 0 && gameState.customersServed > 0;
     const reward = Math.round(money * mult * (perfect ? 1.1 : 1) * (reason === 'abandon' ? 0.5 : 1));
     const r = S.rest[jr.city];
-    if (r) { r.cash += reward; r.runs = (r.runs || 0) + 1; r.best = Math.max(r.best || 0, reward); }
+    if (r) { r.cash += reward; r.cashIn += reward; r.runs = (r.runs || 0) + 1; r.best = Math.max(r.best || 0, reward); }
     const mins = runStart ? Math.min(60, (Date.now() - runStart) / 60000) : 0;
     S.act[dayKey()] = (S.act[dayKey()] || 0) + mins;
     save();
@@ -531,6 +537,112 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
     try { executeStartGame(); } finally { startSelectedMode = prev; }
   }
   window.JP = Object.assign(window.JP || {}, A);
+
+  // ---------- guardado en la nube (por cuenta) ----------
+  // Se guarda una instantánea del progreso (Japón + nivel de Rash + tutorial) con número de revisión. Al combinar con el servidor los
+  // contadores (ganado, gastado, caja) se suman por diferencia con lo último sincronizado y lo estructural (niveles, objetos, mesas…) toma el mayor,
+  // así dos dispositivos de la misma cuenta no se pisan ni duplican. Los datos de otra cuenta nunca se mezclan: se guardan aparte y se restauran al volver.
+  const STASH_KEY = 'ramen_game_stash', RASH_KEY = 'ramen_mania_rash_level', TUT_KEY = 'ramen_tutorial_completed';
+  const syncMeta = () => (S.sync || (S.sync = { owner: null, rev: 0, base: null, dirty: false, status: 'off', lastSig: null }));
+  const nz = (v, d = 0) => (typeof v === 'number' && isFinite(v) ? v : d);
+  const clone = o => JSON.parse(JSON.stringify(o));
+  let syncing = false, syncTimer = 0;
+  function snapshot() {
+    load();
+    const rest = {};
+    Object.keys(S.rest).forEach(id => { const r = S.rest[id];
+      rest[id] = { tier: r.tier, tables: r.tables, q: r.q, staff: r.staff, areas: r.areas, objs: r.objs, cashIn: r.cashIn, cashOut: r.cashOut, runs: r.runs || 0, best: r.best || 0, t: r.t, since: r.since }; });
+    return { v: 1, japon: { lifetime: S.lifetime, spent: S.spent, open: S.open, rest, act: S.act }, rash: parseInt(store().getItem(RASH_KEY) || '1', 10) || 1, tut: store().getItem(TUT_KEY) === 'true' };
+  }
+  function ledgers(g) {
+    const jp = (g && g.japon) || {}, rest = {};
+    Object.keys(jp.rest || {}).forEach(id => { const r = jp.rest[id]; rest[id] = { cashIn: nz(r.cashIn), cashOut: nz(r.cashOut), runs: nz(r.runs) }; });
+    return { lifetime: nz(jp.lifetime), spent: nz(jp.spent), rest };
+  }
+  function mergeGame(l, sv, base) {
+    const out = clone(sv && sv.v === 1 ? sv : { v: 1, japon: { lifetime: 0, spent: 0, open: {}, rest: {}, act: {} }, rash: 1, tut: false });
+    out.japon = out.japon || {}; const lj = l.japon || {}, oj = out.japon;
+    oj.rest = oj.rest || {}; oj.open = oj.open || {}; oj.act = oj.act || {};
+    const add = (lv, svv, bv) => nz(svv) + Math.max(0, nz(lv) - nz(bv));
+    oj.lifetime = add(lj.lifetime, oj.lifetime, base && base.lifetime);
+    oj.spent = add(lj.spent, oj.spent, base && base.spent);
+    Object.assign(oj.open, lj.open || {});
+    Object.keys(lj.rest || {}).forEach(id => {
+      const lr = lj.rest[id], sr = oj.rest[id], br = base && base.rest && base.rest[id];
+      if (!sr) { oj.rest[id] = clone(lr); return; }
+      ['tier', 'tables', 'q', 'best'].forEach(k => { sr[k] = Math.max(nz(sr[k]), nz(lr[k])); });
+      sr.staff = sr.staff || {};
+      Object.keys(lr.staff || {}).forEach(z => { const a = sr.staff[z] || { n: 0, l: 1 }, b = lr.staff[z]; sr.staff[z] = { n: Math.max(nz(a.n), nz(b.n)), l: Math.max(nz(a.l, 1), nz(b.l, 1)) }; });
+      sr.areas = Object.assign({}, sr.areas, ...[lr.areas || {}].map(o => Object.fromEntries(Object.entries(o).filter(([, v]) => v))));
+      sr.objs = Object.assign({}, sr.objs, lr.objs || {});
+      sr.cashIn = add(lr.cashIn, sr.cashIn, br && br.cashIn); sr.cashOut = add(lr.cashOut, sr.cashOut, br && br.cashOut); sr.runs = add(lr.runs, sr.runs, br && br.runs);
+      sr.since = nz(lr.t) >= nz(sr.t) ? nz(lr.since) : nz(sr.since); sr.t = Math.max(nz(sr.t), nz(lr.t));
+    });
+    Object.keys(lj.act || {}).forEach(d => { oj.act[d] = Math.max(nz(oj.act[d]), nz(lj.act[d])); });
+    out.rash = Math.max(nz(out.rash, 1), nz(l.rash, 1)); out.tut = !!(out.tut || l.tut);
+    return out;
+  }
+  function applySnap(g) {
+    load(); const jp = g.japon || {};
+    S.lifetime = nz(jp.lifetime); S.spent = nz(jp.spent); S.fondo = Math.max(0, S.lifetime - S.spent);
+    S.open = Object.assign({ tokio: true }, jp.open || {});
+    S.act = jp.act || {};
+    const rest = {};
+    Object.keys(S.open).forEach(id => { if (!CITY[id]) return; const old = S.rest[id], src = (jp.rest || {})[id] || (old ? null : newRest(CITY[id]));
+      if (!src) { rest[id] = old; return; }
+      const r = Object.assign(newRest(CITY[id]), clone(src)); r.cash = Math.max(0, nz(r.cashIn) - nz(r.cashOut)); r.cashIn = nz(r.cashIn); r.cashOut = nz(r.cashOut);
+      if (old && old.play) r.play = old.play; rest[id] = r; });
+    S.rest = rest;
+    try { if ((g.rash || 1) > (parseInt(store().getItem(RASH_KEY) || '1', 10) || 1)) store().setItem(RASH_KEY, String(Math.min(100, g.rash))); if (g.tut) store().setItem(TUT_KEY, 'true'); } catch (e) {}
+    persist();
+  }
+  function resetJapon() { S.fondo = 0; S.lifetime = 0; S.spent = 0; S.open = { tokio: true }; S.rest = { tokio: newRest(CITY.tokio) }; S.act = {}; S.cur = null; S.view = null; S.sync = { owner: null, rev: 0, base: null, dirty: false, status: 'sync', lastSig: null }; }
+  function syncUi() {
+    const el = document.getElementById('jp-cloud'); if (!el || !S) return;
+    const st = syncMeta().status;
+    el.textContent = { ok: '☁️ guardado', sync: '☁️ …', error: '⚠️ sin nube', off: '📱 solo aquí' }[st] || '☁️'; el.title = { ok: 'Tu progreso está guardado en tu cuenta', sync: 'Sincronizando…', error: 'No se pudo guardar en la nube: se reintentará. Tu progreso está a salvo en este dispositivo.', off: 'Sin cuenta conectada: el progreso se guarda solo en este dispositivo' }[st] || '';
+  }
+  function syncSoon(now) { clearTimeout(syncTimer); const m = S && syncMeta(); const wait = (m && m.status === 'error' && Date.now() - (m.failAt || 0) < 30000) ? 30000 : (now ? 50 : 3500); syncTimer = setTimeout(syncNow, wait); }
+  async function syncNow() {
+    if (syncing || typeof cloudCall !== 'function' || typeof CloudAuth === 'undefined') return;
+    load(); const m = syncMeta();
+    const accId = CloudAuth.kind === 'key' ? CloudAuth.accountId : (CloudAuth.deviceAccountId || CloudAuth.accountId);
+    if (!CloudAuth.token || !accId) { m.status = 'off'; syncUi(); return; }
+    syncing = true; m.status = 'sync'; syncUi();
+    try {
+      let d = await cloudCall('get_game', {});
+      if (!d || !d.ok) { m.status = 'error'; return; }
+      if (m.owner && m.owner !== accId) {                                   // otra cuenta: lo de la anterior se guarda aparte y no se mezcla
+        try { store().setItem(STASH_KEY + '_' + m.owner, JSON.stringify({ owner: m.owner, snap: snapshot(), sync: m })); } catch (e) {}
+        let stash = null; try { stash = JSON.parse(store().getItem(STASH_KEY + '_' + accId) || 'null'); } catch (e) {}
+        resetJapon(); const mm = syncMeta();
+        if (stash && stash.owner === accId) { applySnap(stash.snap); S.sync = Object.assign(mm, stash.sync || {}); }
+        S.sync.owner = accId; S.sync.status = 'sync';
+      }
+      const m2 = syncMeta(); if (!m2.owner) m2.owner = accId;
+      const server = d.game && d.game.v === 1 ? d.game : null, local = snapshot();
+      let base = m2.base;
+      if (server && m2.lastSig && server.sig === m2.lastSig) base = ledgers(server);        // el servidor ya trae nuestro último envío (aunque no llegó la respuesta)
+      let merged = server ? mergeGame(local, server, base) : local, rev = d.rev || 0, ref = server;
+      applySnap(merged);
+      if (!server || m2.dirty || server.sig !== m2.lastSig) {
+        for (let i = 0; i < 3; i++) {
+          const sig = Math.random().toString(36).slice(2, 12) + Date.now().toString(36); merged.sig = sig; m2.lastSig = sig;
+          const r = await cloudCall('save_game', { p_game: merged, p_base_rev: rev });
+          if (!r || !r.ok) { m2.status = 'error'; return; }
+          if (!r.conflict) { m2.rev = r.rev; m2.base = ledgers(merged); m2.dirty = false; m2.status = 'ok'; break; }
+          merged = mergeGame(merged, r.game, ledgers(ref)); ref = r.game; rev = r.rev; applySnap(merged);
+          if (i === 2) { m2.status = 'error'; return; }
+        }
+      } else { m2.rev = rev; m2.base = ledgers(merged); m2.dirty = false; m2.status = 'ok'; }
+      persist(); updateChip(); if (S.view === 'rest' || S.view === 'map') { try { render(); } catch (e) {} }
+    } catch (e) { syncMeta().status = 'error'; }
+    finally { syncing = false; if (syncMeta().status === 'error') syncMeta().failAt = Date.now(); persist(); syncUi(); }
+  }
+  window.japonSyncAccount = () => { setTimeout(() => { load(); syncNow(); }, 400); };
+  document.addEventListener('visibilitychange', () => { if (S) persist(); if (document.hidden && S && syncMeta().dirty) syncSoon(true); });
+  window.addEventListener('pagehide', () => { if (S) persist(); });
+  setInterval(() => { if (S && syncMeta().dirty && !document.hidden) syncSoon(true); }, 60000);
 
   // ---------- ganchos con el juego ----------
   let runStart = 0, lastRun = null;
@@ -582,7 +694,7 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
   window.japonOpen = open;
   window.japonBuff = japonBuff;
   window.japonDishBonus = japonDishBonus;
-  window.JP_TEST = { CITIES, T, evalRest, newRest, mastery, costHire, costLevel, costObj, costTable, costTier, costQual, costArea, OBJECTS, staffMax };
+  window.JP_TEST = { reload() { S = null; syncing = false; return load(); }, syncNow, getS: () => S, mergeGame, snapshot, ledgers, A, CITIES, T, evalRest, newRest, mastery, costHire, costLevel, costObj, costTable, costTier, costQual, costArea, OBJECTS, staffMax };
   if (typeof document !== 'undefined') {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install); else install();
   }

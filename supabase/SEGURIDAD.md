@@ -22,3 +22,9 @@
 - **Alias único** (sin distinguir mayúsculas) con índice en `accounts`; `alias_available` lo consulta y `save_account` devuelve `alias_ocupado`. Una cuenta nueva con un alias repetido recibe un sufijo numérico.
 - **PvP (MMR)** vive en la cuenta: `pvp_sync` acota el cambio por llamada (±60, +1 victoria/derrota, mínimo 15 s entre llamadas; la primera sincronización adopta lo que ya tenía el dispositivo) y `pvp_ranking` es público sin datos privados. Sigue siendo un MMR informado por el cliente: no hay árbitro del servidor.
 - **Analíticas:** `game_sessions` se escribe con `log_session` (≤120/h por cuenta); el panel lee `admin_players` y `admin_sessions`, igual que el dashboard, solo con el secreto de administrador. El panel dentro del juego valida con `admin_check` (ya no hay usuario/clave en el código).
+
+## Progreso del juego en la nube (migración 20261013000000)
+- `get_game` / `save_game` guardan, por cuenta, una instantánea con número de revisión: **Recorrido por Japón** (Fondo ganado/gastado, locales, personal, objetos, cajas, actividad), **nivel de Rash** y **tutorial completado**. Son funciones aparte de `save_account`: si la migración aún no está aplicada, propinas, retos y estadísticas siguen funcionando y el juego avisa «sin nube» (el progreso queda a salvo en el dispositivo).
+- El servidor solo acepta el guardado si la revisión base coincide; si otra sesión guardó antes devuelve `conflict` con la versión actual y el cliente vuelve a combinar (contadores por diferencia, niveles/objetos con el mayor). Tamaño máximo 120 KB y topes de cordura (ganado/gastado ≤ 1 000 millones, Rash ≤ 100).
+- Los datos de otra cuenta no se mezclan: al cambiar de cuenta con clave, lo local se guarda aparte (`ramen_game_stash_<id>`) y se restaura al volver a esa cuenta.
+- Para aplicarla: `supabase db push` o pegar `supabase/migrations/20261013000000_game_progress.sql` en el SQL Editor de Supabase.
