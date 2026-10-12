@@ -2480,6 +2480,21 @@
   .fry-board-card { touch-action: none; }
   /* Acomodo de piezas empanizadas: la tabla se expande sobre la escena */
   .fry-board-card.fry-expanded { z-index: 400; transform-origin: 50% 50%; box-shadow: 0 0 0 100vmax rgba(0,0,0,0.55); transition: transform 0.25s ease-out; }
+  .fry-pan-zone { position: absolute; left: 56%; top: 14%; width: 42%; height: 48%; display: flex; align-items: center; justify-content: center; z-index: 4; touch-action: none; border-radius: 10px; }
+  .fry-pan-zone.drop-target-ready { outline: 2px dashed #ffd54f; background: rgba(255, 213, 79, 0.12); }
+  .fry-pan-zone.drop-hover { background: rgba(255, 213, 79, 0.3); }
+  .fry-pan-empty { font-size: 8px; font-size: max(7px, 3cqw); font-weight: 800; color: #ffe9a8; text-shadow: 0 1px 2px #000; text-align: center; pointer-events: none; opacity: 0.85; }
+  .fry-pan { position: relative; width: 100%; cursor: grab; touch-action: none; }
+  .fry-pan svg { width: 100%; display: block; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.5)); }
+  .fry-pan.hot { filter: drop-shadow(0 0 6px rgba(255, 190, 60, 0.9)); }
+  .fry-pan-steam { animation: panFlame 0.6s ease-in-out infinite alternate; }
+  .fry-pan-bar { display: block; height: 4px; border-radius: 2px; background: rgba(0,0,0,0.6); overflow: hidden; margin-top: 1px; }
+  .fry-pan-bar b { display: block; height: 100%; background: linear-gradient(90deg, #4fc3f7, #ffb300, #ff3d00); }
+  .fry-pan-tip { position: absolute; left: 0; right: 0; top: -9px; text-align: center; font-size: max(7px, 2.8cqw); font-weight: 800; color: #fff; text-shadow: 0 1px 2px #000; white-space: nowrap; }
+  .fry-slices { position: relative; }
+  .fry-slices.has-kare::after { content: ''; position: absolute; left: -6%; right: -6%; top: -8%; bottom: -6%; border-radius: 40% 40% 34% 34%; background: radial-gradient(ellipse at 30% 25%, #a9631f 0%, #7a3d12 55%, #5a2a0c 100%); opacity: 0.93; pointer-events: none; clip-path: inset(0 0 calc((1 - var(--k, 0)) * 100%) 0); transition: clip-path 0.08s linear; }
+  .fp-disc { position: relative; }
+  .fp-kare { position: absolute; inset: 14% 10% 22% 10%; border-radius: 45% 45% 40% 40%; background: radial-gradient(ellipse at 30% 25%, #a9631f 0%, #7a3d12 60%, #5a2a0c 100%); opacity: 0.9; pointer-events: none; }
   .fry-bread-slot { touch-action: none; user-select: none; }
   .fry-bread-pips { position: absolute; left: 0; right: 0; bottom: -11px; text-align: center; font-size: 9px; letter-spacing: 1px; color: #ffd54f; text-shadow: 0 1px 2px #000; pointer-events: none; }
   .fry-bread-slot.fry-bread-live { filter: drop-shadow(0 0 7px rgba(255, 213, 79, 0.95)); }
@@ -6431,7 +6446,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v122</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v123</span></button></div>
     </div>
   </div>
 
@@ -7206,6 +7221,7 @@
         </div>
       </div>
         <span class="fry-stove-label l1">Olla de aceite</span>
+        <div class="fry-pan-zone" id="fry-pan-zone" style="display:none"></div>
         <span class="fry-stove-label l2">Hornilla 2</span>
         <div class="fry-status-badge" id="fry-oil-badge">Esperando...</div>
       </div>
@@ -9628,7 +9644,7 @@ function getUnlockedIngredients() {
     if (gameState.activeArea === 'makis' && stagedOn('makis')) { if (ids.has(49)) ids.add(110); if (ids.has(50)) ids.add(111); }   // atún y conchas enteros: se cortan en la tabla de pescado   // poro cortado en Salteado, para pasarlo por harina y freírlo
     list = INGREDIENTES.filter(i => ids.has(i.id));
     // En Frituras la harina, el huevo y el panko son los tres espacios de empanizado, no fichas.
-    if (gameState.activeArea === 'frituras') list = list.filter(i => !FRY_BREADING_IDS.includes(i.id) && (!stagedOn('frituras') || FRY_PROTEIN_IDS.includes(i.id)));
+    if (gameState.activeArea === 'frituras') list = list.filter(i => !FRY_BREADING_IDS.includes(i.id) && (!stagedOn('frituras') || FRY_PROTEIN_IDS.includes(i.id) || i.id === 83));
   } else if (isMultiplayerSession()) {
     list = INGREDIENTES.filter(i => i.areas && i.areas.includes('ramen'));
   } else {
@@ -11905,7 +11921,7 @@ let fryTimerInterval = null;
 let fryItemDrag = null;
 
 function newFryStation() {
-  return { ingredients: [], phase: 'BUILDING', proteinId: null, coat: 0, fryResult: null, frySeconds: 0, fryTone: '', matchedRecipe: null, cutState: 'NONE', cutProgress: 0, drain: 0, cold: false, arr: 0, bp: 0 };
+  return { ingredients: [], phase: 'BUILDING', proteinId: null, coat: 0, fryResult: null, frySeconds: 0, fryTone: '', matchedRecipe: null, cutState: 'NONE', cutProgress: 0, drain: 0, cold: false, arr: 0, bp: 0, kare: false, kp: 0 };
 }
 
 // ===== Etapas por área: Producción → Cocinar → Emplatar =====
@@ -12032,7 +12048,7 @@ const ST_PROD = {
 // Salteado y Makis: la salsa, la guarnición o el acompañamiento final.
 const FRY_PLATING = {
   'Chicken Katsu': { protein: 44, parts: [57, 52, 30, 84, 74, 91] },
-  'Katsu Kare':    { protein: 43, parts: [57, 52, 30, 83, 74, 91] },
+  'Katsu Kare':    { protein: 43, parts: [57, 52, 30, 74, 91] },      // la salsa kare ya viene derramada desde la cocina
   'Tonkatsu':      { protein: 43, parts: [57, 52, 42, 84, 74, 91] },
   'Ebi Furai':     { protein: 60, parts: [52, 42, 62, 74] },
   'Kaarage':       { protein: 70, parts: [52, 30, 62, 91, 74] },
@@ -13504,7 +13520,7 @@ function stDiscHtml(area, item, plateItems, sl) {
   }
   if (v.kind === 'bowl') return `<div class="fp-bowl">${generateBowlSVG({ ingredients: [...(v.ings || []), ...plateItems], spread: v.spread, hideBar: true }, null)}</div>`;
   if (v.kind === 'img') return `<div class="fp-disc"><img class="fp-disc-img" src="${v.src}" alt=""></div>`;
-  return `<div class="fp-disc"><span class="fp-disc-main" style="filter:${v.tone || 'none'}">${stIngIcon(v.id)}</span></div>`;
+  return `<div class="fp-disc"><span class="fp-disc-main" style="filter:${v.tone || 'none'}">${stIngIcon(v.id)}</span>${v.kare ? '<i class="fp-kare"></i>' : ''}</div>`;
 }
 
 function stRenderPlate(area, panel) {
@@ -13578,9 +13594,10 @@ function moveFryToPass() {
   const st = gameState.fryStation;
   if (st.phase !== 'FRIED' || !fryCutDone(st)) return;
   if (st.proteinId === 71) { fryPoroDone(st); return; }
-  const recipes = Object.entries(FRY_PLATING).filter(([n, p]) => p.protein === st.proteinId).map(([n]) => n);
+  let recipes = Object.entries(FRY_PLATING).filter(([n, p]) => p.protein === st.proteinId).map(([n]) => n);
+  if (st.proteinId === 43) recipes = recipes.filter(n => st.kare ? n === 'Katsu Kare' : n !== 'Katsu Kare');      // con salsa kare (ya derramada en la cocina) es Katsu Kare; sin ella, Tonkatsu
   const ok = stPassAdd('frituras', { recipes, result: st.fryResult || 'PERFECTO', readyAt: st.readyAt != null ? st.readyAt : gameState.gameClock,
-    vis: { kind: 'ing', id: st.proteinId, tone: st.fryTone }, meta: { result: st.fryResult || 'PERFECTO', secs: st.frySeconds, proteinId: st.proteinId, drain: st.drain || 0, cold: !!st.cold } });
+    vis: { kind: 'ing', id: st.proteinId, tone: st.fryTone, kare: !!st.kare }, meta: { result: st.fryResult || 'PERFECTO', secs: st.frySeconds, proteinId: st.proteinId, kare: !!st.kare, drain: st.drain || 0, cold: !!st.cold } });
   if (!ok) return;
   if (fryTimerInterval) { clearInterval(fryTimerInterval); fryTimerInterval = null; }
   cleanupFryItemDrag();
@@ -13614,6 +13631,105 @@ function fryDishComplete() {
   if (stagedOn('frituras')) return station.phase === 'FRIED' && fryCutDone(station);
   return station.phase === 'FRIED' && analyzeFryStation().status === 'MATCHED' && fryCutDone(station);
 }
+
+// Salsa kare (Katsu Kare): se elige de la despensa, se calienta en la sartén (hornilla 2) y se derrama sobre el bife de cerdo frito y cortado hasta bañarlo por completo.
+const FRY_PAN_HEAT_SECS = 5, FRY_POUR_SECS = 1.6;
+const fryPan = () => (gameState.fryPan || (gameState.fryPan = { sauce: false, heat: 0 }));
+let fryPanTimer = null, fryPourDrag = null;
+function fryPanHtml() {
+  const p = fryPan();
+  if (!p.sauce) return '<span class="fry-pan-empty">Salsa kare ⟶ aquí</span>';
+  const hot = p.heat >= 1;
+  return `<div class="fry-pan ${hot ? 'hot' : ''}" id="fry-pan"><svg viewBox="0 0 100 60" aria-hidden="true"><ellipse cx="46" cy="34" rx="36" ry="17" fill="#2b2f33" stroke="#0e1012" stroke-width="2"/><ellipse cx="46" cy="32" rx="30" ry="13" fill="#6b3512"/><ellipse cx="40" cy="29" rx="12" ry="4" fill="#9a5424" opacity="0.7"/><rect x="80" y="30" width="19" height="6" rx="3" fill="#1b1d20"/>${hot ? '<path d="M30,20 q-4,-8 0,-14 M46,18 q-4,-8 0,-14 M62,20 q-4,-8 0,-14" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity="0.7" class="fry-pan-steam"/>' : ''}</svg>
+    <i class="fry-pan-bar"><b id="fry-pan-fill" style="width:${Math.round(Math.min(1, p.heat) * 100)}%"></b></i>
+    <span class="fry-pan-tip">${hot ? '¡Caliente! Arrástrala sobre el bife' : 'Calentando…'}</span></div>`;
+}
+function fryPanRender() {
+  const z = document.getElementById('fry-pan-zone'); if (!z) return;
+  z.style.display = stagedOn('frituras') ? 'block' : 'none';
+  z.innerHTML = fryPanHtml();
+}
+function fryPanAdd(ing) {
+  const p = fryPan();
+  if (p.sauce) { showStationToast('🥣 La sartén ya tiene salsa kare.'); return; }
+  p.sauce = true; p.heat = 0;
+  try { playSound('add'); } catch (e) {}
+  showStationToast('🔥 Salsa kare en la sartén: espera a que caliente y derrámala sobre el katsu.');
+  fryPanRender();
+  if (!fryPanTimer) fryPanTimer = setInterval(fryPanTick, 100);
+}
+function fryPanTick() {
+  const p = fryPan();
+  if (!p.sauce) { clearInterval(fryPanTimer); fryPanTimer = null; return; }
+  if (gameState.isPaused || gameState.isGameOver) return;
+  if (p.heat < 1) {
+    p.heat = Math.min(1, p.heat + 0.1 / FRY_PAN_HEAT_SECS);
+    const f = document.getElementById('fry-pan-fill'); if (f) f.style.width = Math.round(p.heat * 100) + '%';
+    if (p.heat >= 1) { try { playSound('ding'); } catch (e) {} fryPanRender(); }
+  }
+}
+function fryPourTarget() {                              // ¿hay un bife de cerdo frito y cortado listo para bañar?
+  const st = gameState.fryStation;
+  return st.phase === 'FRIED' && st.proteinId === 43 && fryCutDone(st) && !st.kare;
+}
+document.addEventListener('pointerdown', (e) => {
+  const pan = e.target.closest && e.target.closest('#fry-pan');
+  if (!pan || !stagedOn('frituras') || gameState.isPaused || gameState.isGameOver || fryPourDrag) return;
+  if (e.pointerType === 'mouse' && e.button !== 0) return;
+  e.preventDefault();
+  const p = fryPan();
+  if (p.heat < 1) { showStationToast('♨️ La salsa aún está calentando.'); return; }
+  const ghost = document.createElement('div');
+  ghost.className = 'drag-ghost fry-pan-ghost';
+  ghost.innerHTML = '<span style="font-size:38px">🍳</span>';
+  document.body.appendChild(ghost);
+  fryPourDrag = { id: e.pointerId, x: e.clientX, y: e.clientY, touch: e.pointerType !== 'mouse', ghost, last: performance.now() };
+  fryPourMoveGhost();
+  fryPourDrag.timer = setInterval(fryPourTick, 50);
+}, { passive: false });
+function fryPourOver() {
+  const d = fryPourDrag, card = document.getElementById('fry-table-card');
+  if (!d || !card) return false;
+  const py = d.touch ? d.y - DRAG_TOUCH_GHOST_OFFSET_Y : d.y, r = card.getBoundingClientRect();
+  return d.x >= r.left && d.x <= r.right && py >= r.top && py <= r.bottom;
+}
+function fryPourMoveGhost() {
+  const d = fryPourDrag; if (!d) return;
+  const py = d.touch ? d.y - DRAG_TOUCH_GHOST_OFFSET_Y : d.y;
+  d.ghost.style.transform = `translate(${d.x}px, ${py}px) translate(-50%, -50%) rotate(${d.pouring ? -38 : 0}deg) scale(1.15)`;
+}
+function fryPourTick() {
+  const d = fryPourDrag; if (!d) return;
+  const now = performance.now(), dt = (now - d.last) / 1000; d.last = now;
+  const st = gameState.fryStation, over = fryPourOver();
+  if (over && !fryPourTarget() && now - (d.hint || 0) > 2500) {
+    d.hint = now;
+    showStationToast(st.kare ? '🍛 Ya está bañado.' : '🍛 La salsa kare va sobre el bife de cerdo ya frito y cortado.');
+  }
+  d.pouring = over && fryPourTarget();
+  fryPourMoveGhost();
+  if (!d.pouring) return;
+  st.kp = Math.min(1, (st.kp || 0) + dt / FRY_POUR_SECS);
+  sfxEvery('splash', 220);
+  const el = document.querySelector('#fry-table-strip .fry-slices'); if (el) el.style.setProperty('--k', st.kp.toFixed(2));
+  if (st.kp >= 1) {
+    st.kare = true;
+    const p = fryPan(); p.sauce = false; p.heat = 0;
+    try { playSound('match'); } catch (e) {}
+    showStationToast('🍛 ¡Katsu bañado por completo con salsa kare! Pásalo a emplatar.');
+    fryPourEnd();
+    fryPanRender();
+    renderFryStation();
+  }
+}
+function fryPourEnd() {
+  const d = fryPourDrag; if (!d) return;
+  clearInterval(d.timer);
+  if (d.ghost) d.ghost.remove();
+  fryPourDrag = null;
+}
+document.addEventListener('pointermove', (e) => { const d = fryPourDrag; if (d && e.pointerId === d.id) { d.x = e.clientX; d.y = e.clientY; fryPourMoveGhost(); } }, { passive: true });
+['pointerup', 'pointercancel'].forEach(t => document.addEventListener(t, (e) => { if (fryPourDrag && e.pointerId === fryPourDrag.id) fryPourEnd(); }, { passive: true }));
 
 // Empanizado por gestos (Cocina por etapas): la proteína se suelta en la tabla cruda y se empaniza sobre las 3 bandejas, en orden:
 // harina = 3 toques · huevo = 2 círculos con el dedo · panko = 3 toques. Solo entonces va a la olla (y el langostino, antes, al acomodo).
@@ -13914,6 +14030,8 @@ function removeFryProtein() {
   station.coat = 0;
   station.arr = 0;
   station.bp = 0;
+  station.kare = false;
+  station.kp = 0;
   return true;
 }
 
@@ -14330,7 +14448,8 @@ function renderFryStation() {
   const arrOn = fryNeedsArrange();
   const expandOn = arrOn || (staged && fryCanCut());
   fryBreadUi();
-  const stripSig = JSON.stringify([arrOn, station.arr || 0, station.phase, pid, station.coat, extras, station.phase === 'FRIED' ? station.fryTone : '', station.cutState, marksOn]);
+  if (!document.getElementById('fry-pan') || !fryPan().sauce) fryPanRender(); else { const z = document.getElementById('fry-pan-zone'); if (z) z.style.display = staged ? 'block' : 'none'; }
+  const stripSig = JSON.stringify([station.kare, arrOn, station.arr || 0, station.phase, pid, station.coat, extras, station.phase === 'FRIED' ? station.fryTone : '', station.cutState, marksOn]);
   if (strip._sig !== stripSig) {
     strip._sig = stripSig;
     let html = '';
@@ -14341,7 +14460,7 @@ function renderFryStation() {
     } else if (pid && station.phase === 'FRIED' && isCut) {
       // Filete cortado: 5 rodajas con el color que alcanzó al freírse
       const slices = '<i class="fry-slice"></i>'.repeat(5);
-      html += `<span class="fry-slices" style="--meat:${FRY_MEAT_COLORS[pid] || '#f3e3c0'};filter:${station.fryTone} drop-shadow(0 2px 2px rgba(0,0,0,0.45))">${slices}</span>`;
+      html += `<span class="fry-slices${station.kp > 0 ? ' has-kare' : ''}" style="--k:${station.kare ? 1 : (station.kp || 0)};--meat:${FRY_MEAT_COLORS[pid] || '#f3e3c0'};filter:${station.fryTone} drop-shadow(0 2px 2px rgba(0,0,0,0.45))">${slices}</span>`;
     } else if (pid && station.phase === 'FRIED') {
       const marks = Array.from({ length: marksOn }, (_, k) => `<i class="fry-cut-mark" style="left:${(k + 1) * 16.6}%"></i>`).join('');
       const oily = staged ? `<i class="fry-sheen"></i><i class="fry-drip d1"></i><i class="fry-drip d2"></i><i class="fry-drip d3"></i>` : '';
@@ -14563,7 +14682,7 @@ function getIngredientDropTargets() {
   const sel = area === 'ramen' ? '.bowl-dock-card, .stove-pan'
     : area === 'salteados' ? '.wok-dock-card'
     : area === 'makis' ? (mkStaged() ? mkDropSelector() : '#maki-board-zone')
-    : area === 'frituras' ? (stagedOn('frituras') ? '#fry-table-card, #fry-oil-card' : '#fry-table-card')
+    : area === 'frituras' ? (stagedOn('frituras') ? '#fry-table-card, #fry-oil-card, #fry-pan-zone' : '#fry-table-card')
     : null;
   return sel ? Array.from(document.querySelectorAll(sel)) : [];
 }
@@ -14648,6 +14767,11 @@ function applyIngredientDrop(target, ing, coat) {
     }
     toggleIngredientInMaki(ing.id);
   } else if (area === 'frituras') {
+    if (target && target.id === 'fry-pan-zone') {
+      if (ing.id === 83) fryPanAdd(ing); else showStationToast('♨️ La sartén es para la salsa kare.');
+      return;
+    }
+    if (stagedOn('frituras') && ing.id === 83) { showStationToast('🍛 La salsa kare se calienta primero en la sartén (hornilla 2).'); return; }
     // La proteína llega con el empanizado que consiguió al pasar por los tres espacios.
     if (FRY_PROTEIN_IDS.includes(ing.id)) {
       placeFryProtein(ing, coat || 0);
