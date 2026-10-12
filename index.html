@@ -6413,7 +6413,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v105</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v112</span></button></div>
     </div>
   </div>
 
@@ -8968,7 +8968,9 @@ const INGREDIENTES = [
   {"id": 105, "name": "pollo en tiras", "cat": "proteinas", "areas": ["salteados"], "icon": "🍗", "display": "Pollo en Tiras", "img": null},
   {"id": 106, "name": "pollo teriyaki", "cat": "proteinas", "areas": ["salteados"], "icon": "🍗", "display": "Pollo Teriyaki", "img": null},
   {"id": 107, "name": "pollo yakitori", "cat": "proteinas", "areas": ["salteados"], "icon": "🍢", "display": "Pollo Yakitori", "img": null},
-  {"id": 109, "name": "frutos secos", "cat": "otros", "areas": ["salteados"], "icon": "🥜", "display": "Frutos Secos", "img": null}
+  {"id": 109, "name": "frutos secos", "cat": "otros", "areas": ["salteados"], "icon": "🥜", "display": "Frutos Secos", "img": null},
+  {"id": 110, "name": "atún (pieza)", "cat": "proteinas", "areas": ["makis"], "icon": "🐟", "display": "Atún (pieza)", "img": null},
+  {"id": 111, "name": "conchas de abanico", "cat": "proteinas", "areas": ["makis"], "icon": "🦪", "display": "Conchas de abanico", "img": null}
 ];
 // Nombre corto para las fichas del panel (en pantallas angostas el nombre completo se cortaba) y
 // iconos propios donde dos ingredientes de la misma área compartían el mismo.
@@ -9600,7 +9602,8 @@ function getUnlockedIngredients() {
     // Áreas nuevas (Salteados/Frituras/Makis): solo los ingredientes de los platos ya desbloqueados.
     const ids = new Set();
     stView(gameState.activeArea, getUnlockedRecipes().filter(r => r.area === gameState.activeArea)).forEach(r => r.ingredients.forEach(id => ids.add(id)));
-    if (gameState.activeArea === 'frituras' && stagedOn('frituras') && getUnlockedRecipes().some(r => r.name === 'Batayaki Ramen')) ids.add(71);   // poro cortado en Salteado, para pasarlo por harina y freírlo
+    if (gameState.activeArea === 'frituras' && stagedOn('frituras') && getUnlockedRecipes().some(r => r.name === 'Batayaki Ramen')) ids.add(71);
+    if (gameState.activeArea === 'makis' && stagedOn('makis')) { if (ids.has(49)) ids.add(110); if (ids.has(50)) ids.add(111); }   // atún y conchas enteros: se cortan en la tabla de pescado   // poro cortado en Salteado, para pasarlo por harina y freírlo
     list = INGREDIENTES.filter(i => ids.has(i.id));
     // En Frituras la harina, el huevo y el panko son los tres espacios de empanizado, no fichas.
     if (gameState.activeArea === 'frituras') list = list.filter(i => !FRY_BREADING_IDS.includes(i.id) && (!stagedOn('frituras') || FRY_PROTEIN_IDS.includes(i.id)));
@@ -9796,6 +9799,7 @@ function wokPartToPlate(i) {
 }
 function makiServeClick() {
   if (!stagedOn('makis')) { serveReadyDish('makis', 0); return; }
+  if (typeof mkServe === 'function') { mkServe(); return; }                  // estudio de Makis: calcula el proceso y pasa el maki a Emplatar
   const roll = gameState.makiRoll, a = analyzeMakiSequence(roll.ingredients);
   if (roll.cutState !== 'CUT' || a.status !== 'READY') return;
   const flameNeeded = makiNeedsFlame();
@@ -9866,6 +9870,7 @@ function renderStagePanel() {
   const panel = document.getElementById('stage-panel');
   if (!panel) return;
   const area = gameState.activeArea, stage = getStage(area), info = STAGE_INFO[stage];
+  if (area === 'makis' && stage === 'cook' && stagedOn('makis') && typeof mkRender === 'function') { mkRender(); return; }   // estudio de Makis
   panel.classList.toggle('fp-active', stagedOn(area) && !!info);
   if (stagedOn(area) && info) {
     if (stage === 'prod') stRenderProd(area, panel); else stRenderPlate(area, panel);
@@ -10036,6 +10041,7 @@ function getAreaAlertBase(areaId) {
     if (st.phase === 'FRIED') return fryDishComplete() ? 'ready' : 'busy';
     if (st.ingredients.length > 0) return 'busy';
   } else if (areaId === 'makis') {
+    if (stagedOn('makis') && typeof mkAlert === 'function') return mkAlert();
     const roll = gameState.makiRoll;
     if (roll.cutState === 'CUT' || makiCanCut()) return 'ready';
     if (roll.matPlaced || roll.ingredients.length > 0) return 'busy';
@@ -10066,7 +10072,8 @@ function updateStationVisibilityForArea() {
   const plateStage = stagedOn(area) && getStage(area) === 'plate';   // en Emplatar sí queda la despensa arriba (con los componentes de emplatado)
   if (cookPanel) cookPanel.style.display = (area === 'ramen' && cook) ? '' : 'none';
   if (bowlsBox) bowlsBox.style.display = (area === 'ramen' && cook) ? '' : 'none';
-  if (makiBox) makiBox.style.display = (area === 'makis' && cook) ? 'flex' : 'none';
+  const mkStudio = area === 'makis' && cook && stagedOn('makis');            // con etapas: estudio de Makis (panel), no la estación de siempre
+  if (makiBox && !mkStudio) makiBox.style.display = (area === 'makis' && cook) ? 'flex' : 'none';
   if (wokBox) wokBox.style.display = (area === 'salteados' && cook) ? 'flex' : 'none';
   if (fryBox) fryBox.style.display = (area === 'frituras' && cook) ? 'flex' : 'none';
   const grid = document.getElementById('ingredients-grid');
@@ -10075,8 +10082,9 @@ function updateStationVisibilityForArea() {
   const custHub = document.getElementById('customers-container');
   if (custHub) custHub.style.display = (stagedOn(area) && getStage(area) === 'prod') ? 'none' : '';   // más espacio en Producción
   if (grid) grid.style.display = (cook || plateStage) ? '' : 'none';
-  if (filters) filters.style.display = cook ? '' : 'none';
-  if (stagePanel) { stagePanel.style.display = cook ? 'none' : 'flex'; if (!cook) renderStagePanel(); }
+  if (filters) filters.style.display = (cook && !mkStudio) ? '' : 'none';
+  if (stagePanel) { const showPanel = !cook || mkStudio; stagePanel.style.display = showPanel ? 'flex' : 'none'; if (showPanel) renderStagePanel(); }
+  if (!mkStudio && typeof mkRestoreOldBox === 'function') mkRestoreOldBox();       // la estación de siempre vuelve a su sitio
   try { renderToolStrip(); } catch (e) {}
 }
 
@@ -10136,7 +10144,7 @@ function makiIsComplete() {
 // Cortar: la receta completa y el maki ya enrollado.
 function makiCanCut() {
   const roll = gameState.makiRoll;
-  return makiIsComplete() && roll.rollState === 'ROLLED' && roll.cutState !== 'CUT';
+  return makiIsComplete() && roll.rollState === 'ROLLED' && roll.cutState !== 'CUT' && (!stagedOn('makis') || !!roll.pressed2);   // con etapas: un apretón más antes de cortar
 }
 
 // Enrollar: la estructura base completa (o ya a medio enrollar), sin cortar.
@@ -10188,6 +10196,7 @@ function toggleIngredientInMaki(ingId) {
     }
     if (!stCookTake('makis', ingId)) return;
     roll.ingredients.push(ingId);
+    if (stagedOn('makis') && typeof mkOnToppingAdded === 'function') mkOnToppingAdded(roll, ingId);   // la cobertura lleva la calidad con que se cortó
   }
   playSound('add');
   renderMakiStation();
@@ -10195,6 +10204,7 @@ function toggleIngredientInMaki(ingId) {
 }
 
 function clearMakiRoll() {
+  if (stagedOn('makis') && typeof mkTrashSelected === 'function') { mkTrashSelected(); return; }
   if (gameState.makiRoll.ingredients.length >= MOTTAINAI_MIN_DISCARD && gameState.makiRoll.cutState !== 'CUT') addTrimmings(1, 'maki descartado');
   cleanupMakiToolDrag();
   gameState.makiRoll = newMakiRoll();
@@ -10524,8 +10534,8 @@ function renderMakiStation() {
     const more = makiNextOptions(ings, false, roll.baseLen);
     if (isReady) {
       statusEl.textContent = more.length
-        ? `¡Enrollado: ${analysis.recipe.name}! Corta (3 s) o agrega encima: ${more.join(' · ')}`
-        : `¡Enrollado: ${analysis.recipe.name}! Desliza el dedo sobre él para cortarlo (${slashesToCut()} tajos)`;
+        ? `¡Enrollado: ${analysis.recipe.name}! Agrega encima: ${more.join(' · ')} · luego 🤏 aprieta y corta`
+        : (roll.pressed2 || !stagedOn('makis') ? `¡Enrollado: ${analysis.recipe.name}! Desliza el dedo sobre él para cortarlo (${slashesToCut()} tajos)` : `¡Enrollado: ${analysis.recipe.name}! Aprieta el maki (🤏) y luego córtalo`);
       statusEl.classList.add('status-ready');
     } else {
       statusEl.textContent = `🎍 Enrollado — agrega encima: ${more.join(' · ') || '…'}`;
@@ -11946,7 +11956,10 @@ const ST_PROD = {
     { key: 'ebi',      label: 'Ebi cocido',         icon: 54, covers: [54],     use: 'cook',  how: 'cook',                                                    time: 12, batch: 4, max: 8,  start: 4 },
     { key: 'palta',    label: 'Palta en láminas',   icon: 64, covers: [64],     use: 'cook',  how: 'cut',                                                     time: 6,  batch: 6, max: 12, start: 6 },
     { key: 'pescado',  label: 'Atún y cecina',      icon: 39, covers: [39, 47], use: 'cook',  how: 'cut',                                                     time: 8,  batch: 4, max: 8,  start: 4 },
-    { key: 'gari',     label: 'Jengibre y wasabi',  icon: 97, covers: [96, 97], use: 'plate', how: 'cut',                                                     time: 6,  batch: 8, max: 16, start: 8 }
+    { key: 'gari',     label: 'Jengibre y wasabi',  icon: 97, covers: [96, 97], use: 'plate', how: 'cut',                                                     time: 6,  batch: 8, max: 16, start: 8 },
+    // Coberturas: salen de cortar el pescado en su tabla (Cocina). Existencias virtuales: se gastan al ponerlas sobre un maki
+    { key: 'cobAtun',  label: 'Cobertura de atún',  short: 'Cob. atún', icon: 49, covers: [49], use: 'cook', virtual: true, noStockMsg: '🐟 Sin cobertura de atún: corta un atún en la tabla de pescado.', time: 0, batch: 0, max: 8, start: 0 },
+    { key: 'cobConch', label: 'Cobertura de conchas', short: 'Cob. conchas', icon: 50, covers: [50], use: 'cook', virtual: true, noStockMsg: '🦪 Sin cobertura de conchas: corta las conchas en la tabla de pescado.', time: 0, batch: 0, max: 8, start: 0 }
   ],
   frituras: [
     { key: 'col',      label: 'Col rallada',  icon: 52, covers: [52], use: 'plate', how: 'cut',                                                           time: 8,  batch: 6, max: 12, start: 6 },
@@ -14352,7 +14365,7 @@ function getIngredientDropTargets() {
   if (getStage(area) !== 'cook') return [];
   const sel = area === 'ramen' ? '.bowl-dock-card, .stove-pan'
     : area === 'salteados' ? '.wok-dock-card'
-    : area === 'makis' ? '#maki-board-zone'
+    : area === 'makis' ? (mkStaged() ? mkDropSelector() : '#maki-board-zone')
     : area === 'frituras' ? '#fry-table-card'
     : null;
   return sel ? Array.from(document.querySelectorAll(sel)) : [];
@@ -14372,7 +14385,7 @@ function findIngredientDropTarget(d) {
 function isIngredientInActiveDish(ingId) {
   const area = gameState.activeArea;
   if (stagedOn(area) && getStage(area) === 'plate') return false;
-  if (area === 'makis') return gameState.makiRoll.ingredients.includes(ingId);
+  if (area === 'makis') return mkStaged() ? mkBuildHas(ingId) : gameState.makiRoll.ingredients.includes(ingId);
   if (area === 'salteados') return gameState.woks[gameState.activeWokIndex].ingredients.includes(ingId);
   if (area === 'frituras') return gameState.fryStation.ingredients.includes(ingId);
   const bowl = gameState.bowls[gameState.activeBowlIndex];
@@ -14382,7 +14395,7 @@ function isIngredientInActiveDish(ingId) {
 // Quita el ingrediente del plato activo (las funciones toggle retiran si ya está dentro).
 function removeIngredientFromActiveDish(ingId) {
   const area = gameState.activeArea;
-  if (area === 'makis') toggleIngredientInMaki(ingId);
+  if (area === 'makis') { if (mkStaged() && mkRemoveFromBuild(ingId)) return; toggleIngredientInMaki(ingId); }
   else if (area === 'salteados') toggleIngredientInWok(ingId);
   else if (area === 'frituras') toggleIngredientInFryStation(ingId);
   else toggleIngredientInBowl(ingId);
@@ -14431,6 +14444,7 @@ function applyIngredientDrop(target, ing, coat) {
     }
     toggleIngredientInWok(ing.id);
   } else if (area === 'makis') {
+    if (mkStaged() && mkDropIngredient(ing, target)) return;                  // armado en el estudio (esterilla, arroz, nori, rellenos, pescado)
     if (gameState.makiRoll.ingredients.includes(ing.id)) {
       showStationToast(`${ing.display} ya está en el rollo.`);
       return;
@@ -14694,6 +14708,9 @@ function renderPantryGrid() {
     nameSz = total > 30 ? "7.2px" : "8.5px";
   }
 
+  if (gameState.activeArea === 'makis' && stagedOn('makis') && getStage('makis') === 'cook') {   // estudio de Makis: despensa en UNA fila compacta (el estudio necesita la altura)
+    cols = Math.max(6, Math.min(total, 14)); tileMinH = '38px'; tilePad = '2px 1px'; iconSz = '16px'; nameSz = '7.5px';
+  }
   container.style.setProperty('--ing-cols', cols);
   container.style.setProperty('--tile-min-h', tileMinH);
   container.style.setProperty('--tile-pad', tilePad);
@@ -14706,7 +14723,7 @@ function renderPantryGrid() {
   filtered.forEach(ing => {
     const tile = document.createElement("div");
     const isInBowl = plateStage ? false : isMakisArea
-      ? gameState.makiRoll.ingredients.includes(ing.id)
+      ? (mkStaged() ? mkBuildHas(ing.id) : gameState.makiRoll.ingredients.includes(ing.id))
       : isSalteadosArea
       ? gameState.woks[gameState.activeWokIndex].ingredients.includes(ing.id)
       : isFriturasArea
@@ -17546,6 +17563,7 @@ function evalProcess(dish) {
   }
   // con etapas: 10 pts de orden de armado + 14 de volteo (5 volteos = mezclado completo) + 6 de aceite; sin etapas, 30 de orden como siempre
   // Makis con etapas: 10 pts de orden (ya exigido al armar) + 14 de arroz extendido + 6 de flameado (los que no se flamean los ganan)
+  if (dish.area === 'makis' && typeof m.mkProc === 'number') return m.mkProc;      // estudio de Makis: extender 4 + enrollar 10 + apretar 4 + cobertura 6 + flameado 6
   if (dish.area === 'makis' && typeof m.spread === 'number') return 10 + Math.round(14 * Math.max(0, Math.min(1, m.spread))) + (m.flamePts == null ? 6 : m.flamePts);
   // Frituras con etapas: 12 pts de orden (ya exigido) + 10 de escurrido + 8 de aceite caliente
   if (dish.area === 'frituras' && typeof m.drain === 'number') return 12 + Math.round(10 * Math.max(0, Math.min(1, m.drain))) + (m.cold ? 0 : 8);
@@ -24707,5 +24725,6 @@ if (document.readyState === 'loading') {
 }
 </script>
 <script src="multiplayer.js?v=21"></script>
+<script src="makis-studio.js?v=112"></script>
 </body>
 </html>
