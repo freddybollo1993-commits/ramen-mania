@@ -2478,6 +2478,14 @@
   .fry-drip.d1 { left: 25%; } .fry-drip.d2 { left: 50%; animation-delay: 0.3s; } .fry-drip.d3 { left: 72%; animation-delay: 0.6s; }
   @keyframes fryDrip { 0% { transform: translateY(0) scale(0.7); } 100% { transform: translateY(16px) scale(1); } }
   .fry-board-card { touch-action: none; }
+  /* Acomodo de piezas empanizadas: la tabla se expande sobre la escena */
+  .fry-board-card.fry-expanded { z-index: 400; transform-origin: 50% 50%; box-shadow: 0 0 0 100vmax rgba(0,0,0,0.55); transition: transform 0.25s ease-out; }
+  .fry-arr { position: absolute; inset: 0; touch-action: none; cursor: ew-resize; }
+  .fry-arr-mid { position: absolute; left: 47%; top: 6%; bottom: 14%; width: 0; border-left: 1px dashed rgba(120,80,30,0.45); }
+  .fry-arr-s { position: absolute; width: 19%; font-size: 6.6cqw; transition: left 0.28s cubic-bezier(.3,1.4,.5,1); pointer-events: none; }
+  .fry-arr-s .fry-item { display: block; font-size: 6.6cqw; }
+  .fry-arr-s.moved { filter: drop-shadow(0 1px 2px rgba(0,0,0,0.35)); }
+  .fry-arr-hint { white-space: nowrap; position: absolute; left: 0; right: 0; bottom: 0; text-align: center; font-size: max(7px, 4.4cqw); font-weight: 800; color: #8a5d2b; pointer-events: none; }
   .fry-stove-label.l2 { left: 78%; }
   .fry-stove .fry-status-badge { left: 27%; }
   .fry-pot-card {
@@ -6418,7 +6426,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v120</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v121</span></button></div>
     </div>
   </div>
 
@@ -9935,7 +9943,7 @@ const STAGE_ORDER = ['prod', 'cook', 'plate'];
 const SWIPE_EDGE_PX = 72;        // zona del borde donde puede empezar el gesto
 const SWIPE_MIN_PX = 80;         // recorrido horizontal mínimo
 const SWIPE_MAX_MS = 700;        // el gesto debe ser ágil
-const SWIPE_NO_START = '.fry-knife-tool, .maki-tool, .fry-board-item, .wok-stir-btn, .tool-item, .tool-armed, .shop-bigboard, .stir-wok, input, textarea, select';   // las herramientas del ramen (ohashi junto al borde derecho) no deben iniciar el deslizamiento entre etapas
+const SWIPE_NO_START = '#fry-arr, .fry-knife-tool, .maki-tool, .fry-board-item, .wok-stir-btn, .tool-item, .tool-armed, .shop-bigboard, .stir-wok, input, textarea, select';   // las herramientas del ramen (ohashi junto al borde derecho) no deben iniciar el deslizamiento entre etapas
 let stageSwipe = null;
 let swipeNoClickUntil = 0;
 
@@ -11892,7 +11900,7 @@ let fryTimerInterval = null;
 let fryItemDrag = null;
 
 function newFryStation() {
-  return { ingredients: [], phase: 'BUILDING', proteinId: null, coat: 0, fryResult: null, frySeconds: 0, fryTone: '', matchedRecipe: null, cutState: 'NONE', cutProgress: 0, drain: 0, cold: false };
+  return { ingredients: [], phase: 'BUILDING', proteinId: null, coat: 0, fryResult: null, frySeconds: 0, fryTone: '', matchedRecipe: null, cutState: 'NONE', cutProgress: 0, drain: 0, cold: false, arr: 0 };
 }
 
 // ===== Etapas por área: Producción → Cocinar → Emplatar =====
@@ -12005,7 +12013,7 @@ const ST_PROD = {
     { key: 'col',      label: 'Col rallada',  icon: 52, covers: [52], use: 'plate', how: 'grate',                                                         time: 8,  batch: 6, max: 12, start: 6 },
     { key: 'zanahoria', label: 'Zanahoria',   icon: 30, covers: [30], use: 'plate', how: 'grate',                                                         time: 6,  batch: 6, max: 12, start: 6 },
     { key: 'betarraga', label: 'Betarraga',   icon: 42, covers: [42], use: 'plate', how: 'grate',                                                         time: 7,  batch: 4, max: 8,  start: 4 },
-    { key: 'ebi',      label: 'Ebi furai',    icon: 60, covers: [60], use: 'cook',  how: 'clean', verb1: 'Pelar',                                        time: 12, batch: 4, max: 8,  start: 4 },
+    // Langostino (ebi): ya llega limpio, siempre hay existencia; en Cocina solo se empaniza y se acomoda en la tabla
     // Gyozas: primero el relleno (se pica y se marina) y luego se ARMAN a mano: masa redonda, relleno al centro, borde con huevo y pinza en 4 tiempos
     { key: 'relleno',  label: 'Relleno de gyoza', short: 'Relleno', icon: 73, covers: [], use: 'cook', how: 'cut', binWord: 'picado', then: 'marinate', time: 14, batch: 4, max: 8, start: 4 },
     { key: 'gyozas',   label: 'Gyozas',       icon: 73, covers: [73], use: 'cook',  how: 'fold',                                                          time: 0,  batch: 1, max: 8,  start: 4 },
@@ -13602,6 +13610,41 @@ function fryDishComplete() {
   return station.phase === 'FRIED' && analyzeFryStation().status === 'MATCHED' && fryCutDone(station);
 }
 
+// Acomodo en la tabla (solo Cocina por etapas): la tabla se expande y se mueven las piezas empanizadas de un lado al otro en N pasadas → 1 porción para un plato
+const FRY_ARRANGE = { 60: { passes: 3, count: 6 } };      // langostino: 6 piezas en 3 pasadas de 2
+const FRY_ARR_MIN_PX = 60;
+const fryNeedsArrange = () => { const st = gameState.fryStation; return !!st && st.phase === 'BUILDING' && !!st.proteinId && !!FRY_ARRANGE[st.proteinId] && stagedOn('frituras') && (st.arr || 0) < FRY_ARRANGE[st.proteinId].passes; };
+function fryArrangeHtml(pid, arr) {
+  const cfg = FRY_ARRANGE[pid], per = cfg.count / cfg.passes;
+  const shr = Array.from({ length: cfg.count }, (_, i) => {
+    const moved = i < per * arr, col = i % 2, row = Math.floor(i / 2);
+    const x = (moved ? 60 : 8) + col * 15 + (row % 2 ? 3 : 0), y = 4 + row * 24;
+    return `<span class="fry-arr-s${moved ? ' moved' : ''}" style="left:${x}%;top:${y}%">${fryItemMarkup(pid, 3)}</span>`;
+  }).join('');
+  return `<div class="fry-arr" id="fry-arr"><i class="fry-arr-mid"></i>${shr}<span class="fry-arr-hint">Desliza → · pasada ${Math.min(cfg.passes, arr + 1)} de ${cfg.passes}</span></div>`;
+}
+let fryArrDrag = null;
+document.addEventListener('pointerdown', (e) => {
+  if (!e.target.closest || !e.target.closest('#fry-arr') || !fryNeedsArrange() || gameState.isPaused || gameState.isGameOver) return;
+  if (e.pointerType === 'mouse' && e.button !== 0) return;
+  fryArrDrag = { id: e.pointerId, x: e.clientX, y: e.clientY, fired: false };
+  e.preventDefault();
+}, { passive: false });
+document.addEventListener('pointermove', (e) => {
+  const d = fryArrDrag;
+  if (!d || e.pointerId !== d.id || d.fired || !fryNeedsArrange()) return;
+  const dx = e.clientX - d.x, dy = e.clientY - d.y;
+  if (dx > FRY_ARR_MIN_PX && dx > Math.abs(dy) * 1.2) {
+    d.fired = true;
+    const st = gameState.fryStation, cfg = FRY_ARRANGE[st.proteinId];
+    st.arr = (st.arr || 0) + 1;
+    try { sfxEvery('splash', 120); } catch (err) {}
+    if (st.arr >= cfg.passes) { try { playSound('ding'); } catch (err) {} showStationToast('🍤 ¡1 porción lista! Arrástrala a la olla.'); }
+    renderFryStation();
+  }
+}, { passive: true });
+['pointerup', 'pointercancel'].forEach(t => document.addEventListener(t, (e) => { if (fryArrDrag && e.pointerId === fryArrDrag.id) fryArrDrag = null; }, { passive: true }));
+
 // ¿Esta proteína va empanizada? (la usa alguna receta que lleva harina + huevo + panko)
 function fryProteinNeedsBreading(id) {
   return getFriturasFryableRecipes().some(r => r.ingredients.includes(id) && FRY_BREADING_IDS.every(b => r.ingredients.includes(b)));
@@ -13779,6 +13822,7 @@ function placeFryProtein(ing, coat) {
   if (!stCookTake('frituras', ing.id)) return;
   station.proteinId = ing.id;
   station.coat = needs ? 3 : 0;
+  station.arr = 0;
   station.ingredients.push(ing.id);
   if (needs) station.ingredients.push(...FRY_BREADING_IDS);
   playSound('add');
@@ -13794,6 +13838,7 @@ function removeFryProtein() {
   station.ingredients = station.ingredients.filter(id => id !== station.proteinId && !FRY_BREADING_IDS.includes(id));
   station.proteinId = null;
   station.coat = 0;
+  station.arr = 0;
   return true;
 }
 
@@ -13853,6 +13898,7 @@ function discardFryStation() {
 function startFryingFromBoard() {
   const station = gameState.fryStation;
   if (station.phase !== 'BUILDING' || !station.proteinId) return;
+  if (fryNeedsArrange()) { showStationToast('🍤 Falta acomodarlas: desliza → sobre la tabla para pasarlas de un lado al otro.'); return; }
   if (!coopLock('fry-table-card')) return;
   station.phase = 'FRYING';
   station.frySeconds = 0;
@@ -14204,11 +14250,14 @@ function renderFryStation() {
   // --- Tabla: la proteína (cruda empanizada / en la olla / frita / cortada) y las guarniciones ---
   const extras = station.ingredients.filter(id => id !== pid && !FRY_BREADING_IDS.includes(id));
   const marksOn = cutting ? Math.min(5, Math.floor(station.cutProgress * 6)) : 0;
-  const stripSig = JSON.stringify([station.phase, pid, station.coat, extras, station.phase === 'FRIED' ? station.fryTone : '', station.cutState, marksOn]);
+  const arrOn = fryNeedsArrange();
+  const stripSig = JSON.stringify([arrOn, station.arr || 0, station.phase, pid, station.coat, extras, station.phase === 'FRIED' ? station.fryTone : '', station.cutState, marksOn]);
   if (strip._sig !== stripSig) {
     strip._sig = stripSig;
     let html = '';
-    if (pid && station.phase === 'BUILDING') {
+    if (arrOn) {
+      html += fryArrangeHtml(pid, station.arr || 0);
+    } else if (pid && station.phase === 'BUILDING') {
       html += `<span class="fry-board-item" title="Arrástrala a la olla">${fryItemMarkup(pid, station.coat)}</span>`;
     } else if (pid && station.phase === 'FRIED' && isCut) {
       // Filete cortado: 5 rodajas con el color que alcanzó al freírse
@@ -14230,8 +14279,21 @@ function renderFryStation() {
     if (slicesEl) setTimeout(() => slicesEl.classList.add('spread'), 40); // las rodajas se separan
   }
 
+  const tableCard = document.getElementById('fry-table-card');
+  if (tableCard) {
+    if (arrOn && !tableCard.classList.contains('fry-expanded')) {      // la tabla crece hasta el centro de la pantalla
+      tableCard.style.transform = 'none';
+      const r = tableCard.getBoundingClientRect(), vw = window.innerWidth, vh = window.innerHeight;
+      const sc = Math.min(vw * 0.78 / r.width, vh * 0.8 / r.height);
+      tableCard.style.transform = `translate(${(vw / 2 - (r.left + r.width / 2)).toFixed(1)}px, ${(vh / 2 - (r.top + r.height / 2)).toFixed(1)}px) scale(${sc.toFixed(3)})`;
+    } else if (!arrOn) tableCard.style.transform = '';
+    tableCard.classList.toggle('fry-expanded', arrOn);
+  }
   tableBadge.classList.remove('status-error', 'status-ready', 'status-warn');
-  if (frying) {
+  if (arrOn) {
+    tableBadge.textContent = `🍤 Pasada ${Math.min(FRY_ARRANGE[pid].passes, (station.arr || 0) + 1)} de ${FRY_ARRANGE[pid].passes}`;
+    tableBadge.classList.add('status-ready');
+  } else if (frying) {
     tableBadge.textContent = 'En la olla: retírala a tiempo';
   } else if (station.phase === 'FRIED') {
     if (cutting) {
