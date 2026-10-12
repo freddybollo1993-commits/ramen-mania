@@ -6418,7 +6418,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v118</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v119</span></button></div>
     </div>
   </div>
 
@@ -11995,6 +11995,20 @@ const ST_PROD = {
     { key: 'cobConch', label: 'Cobertura de conchas', short: 'Cob. conchas', icon: 50, covers: [50], use: 'cook', virtual: true, noStockMsg: '🦪 Sin cobertura de conchas: corta las conchas en la tabla de pescado.', time: 0, batch: 0, max: 8, start: 0 }
   ],
   frituras: [
+    // Proteínas (se gastan 1 por plato al empanizar y freír): se cortan o se limpian y luego se sazonan / marinan en la hornilla
+    { key: 'bifePollo', label: 'Bife de pollo', icon: 44, covers: [44], use: 'cook', how: 'cut', verb1: 'Filetear', binWord: 'fileteado', then: 'marinate', time: 9,  batch: 4, max: 8, start: 4 },
+    { key: 'bifeCerdo', label: 'Bife de cerdo', icon: 43, covers: [43], use: 'cook', how: 'cut', verb1: 'Filetear', binWord: 'fileteado', then: 'marinate', time: 10, batch: 4, max: 8, start: 4 },
+    { key: 'pollo7',    label: 'Pollo ×7',      icon: 70, covers: [70], use: 'cook', how: 'cut', verb1: 'Trozar',   binWord: 'en trozos', then: 'marinate', time: 14, batch: 4, max: 8, start: 4 },
+    { key: 'alitas',    label: 'Alas de pollo', icon: 36, covers: [36], use: 'cook', how: 'clean', verb1: 'Limpiar', binWord: 'limpias',  then: 'marinate', time: 12, batch: 4, max: 8, start: 4 },
+    // Arroz Gohan para las guarniciones (mismo proceso que en Salteado: 2 lavados, cocción, se enfría y se porciona en 400 g)
+    { key: 'gohan',     label: 'Arroz Gohan',   short: 'Gohan', icon: 57, covers: [57], use: 'plate', how: 'clean', passes: 2, verb1: 'Lavar', binWord: 'lavado', then: 'cook', after: 'portion', cool: 8, time: 16, batch: 6, max: 12, start: 6 },
+    // Salsas: katsu, mayonesa de la casa y la de las alitas se licúan; la kare se cocina
+    { key: 'katsu',     label: 'Salsa katsu',   short: 'Katsu',      icon: 84, covers: [84], use: 'plate', how: 'blend', time: 3, batch: 4, max: 8, start: 4 },
+    { key: 'mayo',      label: 'Mayonesa de la casa', short: 'Mayo casa', icon: 62, covers: [62], use: 'plate', how: 'blend', time: 3, batch: 4, max: 8, start: 4 },
+    { key: 'salsaAl',   label: 'Salsa de alitas', short: 'Salsa alitas', icon: 76, covers: [76], use: 'plate', how: 'blend', time: 3, batch: 4, max: 8, start: 4 },
+    { key: 'kare',      label: 'Salsa kare',    short: 'Kare',       icon: 83, covers: [83], use: 'plate', how: 'cook',  time: 12, batch: 4, max: 8, start: 4 },
+    // Rulos de cebolla china: se cortan en juliana fina y se rizan en agua con hielo
+    { key: 'rulos',     label: 'Rulos de cebolla china', short: 'Rulos', icon: 74, covers: [74], use: 'plate', how: 'cut', binWord: 'en juliana', then: 'curl', time: 6, batch: 6, max: 12, start: 6 },
     { key: 'col',      label: 'Col rallada',  icon: 52, covers: [52], use: 'plate', how: 'cut',                                                           time: 8,  batch: 6, max: 12, start: 6 },
     { key: 'zanahoria', label: 'Zanahoria',   icon: 30, covers: [30], use: 'plate', how: 'cut',                                                           time: 6,  batch: 6, max: 12, start: 6 },
     { key: 'betarraga', label: 'Betarraga',   icon: 42, covers: [42], use: 'plate', how: 'cut',                                                           time: 7,  batch: 4, max: 8,  start: 4 },
@@ -12341,6 +12355,7 @@ const ST_HOW = {
   blanch:   { icon: '💧', verb: 'Blanquear', short: 'Blanq.',  imp: 'blanquéalo' },
   caramelize: { icon: '🍯', verb: 'Caramelizar', short: 'Caram.', imp: 'carameliza' },
   portion:  { icon: '⚖️', verb: 'Porcionar', short: 'Porc.',   imp: 'porciónalo' },
+  curl:     { icon: '❄️', verb: 'Remojar en agua helada', short: 'Remojar', imp: 'remójalo en agua helada' },
   zu:       { icon: '🍶', verb: 'Aderezar con Zu y enfriar', short: 'Zu', imp: 'aderézalo con Zu' },
   blend:    { icon: '🌀', verb: 'Licuar',    short: 'Licuar',  imp: 'licúala' },
   marinate: { icon: '🧂', verb: 'Marinar',   short: 'Marinar', imp: 'márinalo' }
@@ -13297,7 +13312,7 @@ function stRenderShop(area, panel) {
     </div></div>`;
     return;
   }
-  const hint = !st.knifeArmed ? (area === 'makis' ? 'Arroz shari: 🧺 3 lavados → ♨️ cuécelo → 🍶 Zu y enfría en zigzag (3 tiempos). Queso crema: 🔪 en bastones. Salsa acevichada: 🌀 mantén pulsada la licuadora.' : area === 'salteados' ? 'Arroz Gohan: 🧺 lávalo 2 veces → ♨️ cuécelo → 🧊 se enfría solo → ⚖️ porciónalo (400 g). Verduras: 🔪 córtalas; el brócoli además 💧 se blanquea. Cebolla caramelizada: 🔪 corta la cebolla blanca → 🍯 con aceite en el wok hasta color caramelo.' : area === 'ramen' ?'Cortar: toca 🔪 y arrastra el cuchillo a la tabla. Holantao, espárrago y col: corta y 💧 blanquea. Moyashi: 🧺 límpialo y 💧 blanquea.' : 'Cortar: toca 🔪 y arrastra el cuchillo a la tabla. 🧺 = se limpia con las manos. Lo de dos pasos se prepara en la tabla y luego pasa a la hornilla.') : (st.board ? 'Da un tajo de lado a lado (o toca) para cortar: 3 cortes = 1 porción.' : 'Cuchillo listo: toca la ficha de un producto para cortar.');
+  const hint = !st.knifeArmed ? (area === 'frituras' ? 'Bifes, pollo y alitas: 🔪 corta (o 🧺 limpia) y luego 🧂 marina. Salsas: 🌀 licúa (la kare se ♨️ cocina). Rulos: 🔪 juliana fina → ❄️ agua helada. Gohan: 🧺 2 lavados → ♨️ → 🧊 → ⚖️.' : area === 'makis' ? 'Arroz shari: 🧺 3 lavados → ♨️ cuécelo → 🍶 Zu y enfría en zigzag (3 tiempos). Queso crema: 🔪 en bastones. Salsa acevichada: 🌀 mantén pulsada la licuadora.' : area === 'salteados' ? 'Arroz Gohan: 🧺 lávalo 2 veces → ♨️ cuécelo → 🧊 se enfría solo → ⚖️ porciónalo (400 g). Verduras: 🔪 córtalas; el brócoli además 💧 se blanquea. Cebolla caramelizada: 🔪 corta la cebolla blanca → 🍯 con aceite en el wok hasta color caramelo.' : area === 'ramen' ?'Cortar: toca 🔪 y arrastra el cuchillo a la tabla. Holantao, espárrago y col: corta y 💧 blanquea. Moyashi: 🧺 límpialo y 💧 blanquea.' : 'Cortar: toca 🔪 y arrastra el cuchillo a la tabla. 🧺 = se limpia con las manos. Lo de dos pasos se prepara en la tabla y luego pasa a la hornilla.') : (st.board ? 'Da un tajo de lado a lado (o toca) para cortar: 3 cortes = 1 porción.' : 'Cuchillo listo: toca la ficha de un producto para cortar.');
   panel.innerHTML = `<div class="fp-wrap fp-shop">
     <div class="fp-head"><span>🥬 Producción · ${AREA_LABELS[area]}</span><small>${hint}</small>${stBackBtn(area)}</div>
     <div class="fp-cards many shop-cards" style="--cols:${Math.max(6, Math.ceil(list.length / 2))}">${cards}</div>
