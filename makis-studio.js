@@ -588,30 +588,45 @@ document.addEventListener('click', (e) => {
 });
 
 
-// ---------- emplatado de Makis: las 6 piezas del corte sobre una fuente oscura; salsa, ajonjolí, jengibre y wasabi se suman al añadirlos ----------
-const MK_PLATE_SPOTS = [[44, 27], [66, 27], [88, 27], [44, 53], [66, 53], [88, 53]];   // centro de cada pieza (lienzo 110×80)
-function mkPieceInner(ings) { return makiPieceMarkup(ings).replace(/^\s*<svg[^>]*>/, '').replace(/<\/svg>\s*$/, ''); }
+// ---------- emplatado de Makis: 10 piezas paradas en escalera (uramaki: arroz por fuera, nori por dentro); salsa arriba; jengibre y wasabi al costado ----------
+const MK_STAIR = Array.from({ length: MAKI_PIECES }, (_, i) => ({ x: 15 + i * 8.6, y: 52 - i * 2.8 }));      // centro de la cara de cada pieza (lienzo 110×80)
+function mkStairPiece(p, ings) {
+  const { x, y } = p, fills = ings.filter(id => MAKI_FILL_COLORS[id]).slice(0, 3).map(id => MAKI_FILL_COLORS[id]);
+  if (!fills.length) fills.push('#f08a3c');
+  const fcx = fills.length === 1 ? [0] : (fills.length === 2 ? [-1.5, 1.5] : [-2, 0, 2]);
+  const center = fills.map((c, k) => `<ellipse cx="${(x + fcx[k]).toFixed(1)}" cy="${(y + (fills.length === 3 && k === 1 ? -0.6 : 0.2)).toFixed(1)}" rx="${fills.length === 1 ? 2.3 : 1.7}" ry="${fills.length === 1 ? 1.4 : 1.15}" fill="${c}"/>`).join('');
+  const topId = ings.find(id => MAKI_TOPPING_COLORS[id]);
+  const topping = topId ? `<path d="M ${x - 5.6},${y - 0.5} A 5.9 3.3 0 0 1 ${x + 5.6},${y - 0.5}" fill="none" stroke="${MAKI_TOPPING_COLORS[topId]}" stroke-width="2.1" stroke-linecap="round"/>` : '';
+  return `<g transform="translate(${x} ${y}) scale(1.2) translate(${-x} ${-y})">
+    <path d="M ${x - 6.2},${y} v 7.4 a 6.2 3.7 0 0 0 12.4 0 v -7.4 Z" fill="#efe9d6" stroke="#b9b196" stroke-width="0.8"/>
+    <path d="M ${x + 2.4},${y + 3.4} v 4.4 a 6.2 3.7 0 0 0 3.8,-3.6 v -4 Z" fill="#000" opacity="0.07"/>
+    <ellipse cx="${x}" cy="${y}" rx="6.2" ry="3.7" fill="#f7f3e6" stroke="#b9b196" stroke-width="0.8"/>
+    <ellipse cx="${x}" cy="${y}" rx="4.4" ry="2.6" fill="#17261b"/>
+    <ellipse cx="${x}" cy="${y}" rx="3.5" ry="2.0" fill="#f1ecda"/>${center}${topping}
+  </g>`;
+}
 function mkPlateHtml(item, plateItems, sl) {
   const v = item && item.vis;
   if (!v || !v.ings) return null;                                            // maki antiguo (sin etapas): dibujo genérico
   const ings = v.ings, last = plateItems[plateItems.length - 1], flame = sl ? (sl.flame || 0) : 0;
-  const pieces = MK_PLATE_SPOTS.map(([x, y]) => `<svg x="${x - 12}" y="${y - 12}" width="24" height="24" viewBox="0 0 40 40">${mkPieceInner(ings)}</svg>`).join('');
+  const pieces = MK_STAIR.map((p, i) => ({ p, i })).reverse().map(({ p }) => mkStairPiece(p, ings)).join('');          // las de atrás (arriba a la derecha) primero
   const pop = id => (id === last ? ' class="sal-pop"' : '');
   let extra = '';
   const sauceId = plateItems.find(id => MAKI_SAUCE_COLORS[id]);
-  if (sauceId) {
+  if (sauceId) {                                                             // la salsa va en la parte superior de las piezas
     const c = MAKI_SAUCE_COLORS[sauceId];
+    const zig = MK_STAIR.flatMap(p => [[p.x - 2.9, p.y + 0.3], [p.x + 2.9, p.y - 3.1]]).map((q, k) => (k ? 'L' : 'M') + q[0].toFixed(1) + ',' + q[1].toFixed(1)).join(' ');
     extra += `<g${pop(sauceId)}>` + (sauceId === 81
-      ? MK_PLATE_SPOTS.map(([x, y], i) => `<circle cx="${x + (i % 2 ? 3 : -3)}" cy="${y - 7}" r="3.3" fill="${c}" stroke="#5e8d2d" stroke-width="0.7"/>`).join('')
-      : [27, 53].map(y => `<path d="M 32,${y - 8} l 6,13 l 6,-13 l 6,13 l 6,-13 l 6,13 l 6,-13 l 6,13 l 6,-13 l 5,13" fill="none" stroke="#00000044" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" transform="translate(0 1)"/><path d="M 32,${y - 8} l 6,13 l 6,-13 l 6,13 l 6,-13 l 6,13 l 6,-13 l 6,13 l 6,-13 l 5,13" fill="none" stroke="${c}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>`).join('')) + '</g>';
+      ? MK_STAIR.map((p, i) => `<circle cx="${p.x + (i % 2 ? 1.3 : -1.3)}" cy="${p.y - 1.5}" r="2.2" fill="${c}" stroke="#5e8d2d" stroke-width="0.5"/>`).join('')
+      : `<path d="${zig}" fill="none" stroke="#00000040" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" transform="translate(0 0.7)"/><path d="${zig}" fill="none" stroke="${c}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>`) + '</g>';
   }
-  if (plateItems.includes(34)) extra += `<g${pop(34)}>${salBlackSesame(30, 7, 66, 40, 30, 22)}</g>`;                                  // ajonjolí negro (California)
-  if (flame > 0.15 && sauceId) {                                                                                                   // flameado: marcas tostadas sobre las piezas
+  if (plateItems.includes(34)) extra += `<g${pop(34)}>` + MK_STAIR.map((p, i) => [[-5.5, -0.2], [-1.9, -3.2], [2.9, -3.0], [5.5, 0.2], [0.5, 3.3]].map(([dx, dy], k) => `<ellipse cx="${(p.x + dx).toFixed(1)}" cy="${(p.y + dy).toFixed(1)}" rx="0.7" ry="0.42" fill="#15110f" transform="rotate(${(i * 37 + k * 53) % 180} ${(p.x + dx).toFixed(1)} ${(p.y + dy).toFixed(1)})"/>`).join('')).join('') + '</g>';   // ajonjolí negro (California)
+  if (flame > 0.15 && sauceId) {                                             // flameado: marcas tostadas sobre las piezas (negras si se pasa)
     const burnt = flame > MAKI_FLAME_GREEN[1], col = burnt ? '#0d0a08' : '#5a2a10', op = Math.min(1, flame / MAKI_FLAME_GREEN[0]) * (burnt ? 0.95 : 0.8);
-    extra += `<g opacity="${op.toFixed(2)}">` + MK_PLATE_SPOTS.map(([x, y]) => `<path d="M ${x - 6},${y - 6} q 6,-5 12,0 M ${x - 4},${y - 3} q 4,-3 8,0" fill="none" stroke="${col}" stroke-width="1.8" stroke-linecap="round"/>`).join('') + '</g>';
+    extra += `<g opacity="${op.toFixed(2)}">` + MK_STAIR.map(p => `<path d="M ${p.x - 4.8},${p.y - 1.3} q 4.8,-3.8 9.6,0" fill="none" stroke="${col}" stroke-width="1.2" stroke-linecap="round"/>`).join('') + '</g>';
   }
-  if (plateItems.includes(97)) extra += `<g${pop(97)}><ellipse cx="18" cy="30" rx="8" ry="5.4" fill="#f6a8b4" stroke="#c9677a" stroke-width="1"/><path d="M 12,30 q 6,-6 12,0 M 13,33 q 5,-5 10,0 M 14,27 q 4,-3 8,0" fill="none" stroke="#ffd3da" stroke-width="1.1" stroke-linecap="round"/></g>`;   // jengibre (gari)
-  if (plateItems.includes(96)) extra += `<g${pop(96)}><path d="M 11,52 q 0,-8 8,-8 q 8,0 8,8 q 0,4 -8,4 q -8,0 -8,-4 Z" fill="#7fb23d" stroke="#4a7a1f" stroke-width="1"/><path d="M 14,49 q 3,-3 6,-1" fill="none" stroke="#c5e08a" stroke-width="1.2" stroke-linecap="round"/></g>`;   // wasabi
+  if (plateItems.includes(97)) extra += `<g${pop(97)}><ellipse cx="74" cy="63" rx="8" ry="4.8" fill="#f6a8b4" stroke="#c9677a" stroke-width="1"/><path d="M 68,63 q 6,-5.4 12,0 M 69,65.6 q 5,-4.6 10,0 M 70,60.4 q 4,-2.8 8,0" fill="none" stroke="#ffd3da" stroke-width="1.1" stroke-linecap="round"/></g>`;   // jengibre (gari)
+  if (plateItems.includes(96)) extra += `<g${pop(96)}><path d="M 88,64 q 0,-7.4 7.5,-7.4 q 7.5,0 7.5,7.4 q 0,3.8 -7.5,3.8 q -7.5,0 -7.5,-3.8 Z" fill="#7fb23d" stroke="#4a7a1f" stroke-width="1"/><path d="M 91,61 q 3,-3 6,-1" fill="none" stroke="#c5e08a" stroke-width="1.2" stroke-linecap="round"/></g>`;   // wasabi
   return `<div class="fp-bowl"><div class="sal-plate"><svg viewBox="0 0 110 80" aria-hidden="true">
     <rect x="4" y="8" width="102" height="64" rx="9" fill="#2a2e35" stroke="#12141a" stroke-width="2.4"/><rect x="8" y="12" width="94" height="56" rx="6" fill="none" stroke="#4a515c" stroke-width="1"/>
     <path d="M 12,15 H 60" stroke="#ffffff" stroke-opacity="0.18" stroke-width="2" stroke-linecap="round"/>
