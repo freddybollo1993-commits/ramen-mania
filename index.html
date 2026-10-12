@@ -808,6 +808,17 @@
   /* remover en círculos (cebolla caramelizada): wok visto desde arriba + medidores de color, ritmo y "se pega" */
   .stir-wok { position: relative; flex: 1; min-width: 0; overflow: hidden; border-radius: 16px; border: 3px solid #4a4f57; box-sizing: border-box; background: radial-gradient(circle at 50% 50%, #2c2f35 0 50%, #17181c 100%); box-shadow: inset 0 0 22px rgba(0,0,0,0.7); touch-action: none; user-select: none; -webkit-user-select: none; cursor: grab; }
   .stir-wok.on { cursor: grabbing; }
+  /* porcionar: balanza a la que se arrastran las paladas · frotar: pista de ida y vuelta */
+  .cb-scale { position: absolute; right: 6%; top: 22%; width: 22%; height: 30%; border-radius: 12px; border: 2.5px dashed rgba(255,255,255,0.65); background: rgba(40,28,20,0.45); display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 900; z-index: 4; transition: transform 0.12s, background 0.12s; pointer-events: none; }
+  .cb-scale .sc-ico { font-size: 26px; line-height: 1; }
+  .cb-scale.hover { transform: scale(1.1); background: rgba(156,204,101,0.55); border-color: #c5e1a5; }
+  .scoop-ghost { position: fixed; left: 0; top: 0; z-index: 9500; font-size: 30px; pointer-events: none; filter: drop-shadow(0 3px 4px rgba(0,0,0,0.6)); }
+  .cb-heap { touch-action: none; }
+  .oil-gauge { position: fixed; z-index: 9600; width: 16px; height: 100px; border-radius: 8px; background: rgba(0,0,0,0.65); border: 2px solid rgba(255,255,255,0.55); overflow: hidden; pointer-events: none; box-shadow: 0 2px 6px rgba(0,0,0,0.5); }
+  .oil-gauge .og-zone { position: absolute; left: 0; right: 0; background: rgba(156,204,101,0.6); }
+  .oil-gauge .og-fill { position: absolute; left: 0; right: 0; bottom: 0; height: 0; background: linear-gradient(#ffe082, #f9a825); }
+  .oil-gauge.good { border-color: #9ccc65; box-shadow: 0 0 8px #9ccc65; }
+  .oil-gauge.over { border-color: #ef5350; }
   .stir-pan { position: absolute; left: 50%; top: 50%; height: 94%; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; overflow: hidden; background: radial-gradient(circle at 38% 34%, #6a6f78 0%, #3b3f46 38%, #202227 72%, #111317 100%); border: 4px solid #8d939b; box-shadow: 0 0 0 3px #23262b, inset 0 0 18px rgba(0,0,0,0.8), 0 6px 10px rgba(0,0,0,0.6); }
   .stir-oil { position: absolute; inset: 10%; border-radius: 50%; background: radial-gradient(circle at 40% 36%, rgba(255,226,120,0.36), rgba(255,200,60,0.1) 55%, transparent 72%); pointer-events: none; }
   .stir-pieces { position: absolute; inset: 0; pointer-events: none; transition: filter 0.3s linear; }
@@ -6372,7 +6383,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v98</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v99</span></button></div>
     </div>
   </div>
 
@@ -7046,7 +7057,7 @@
         <div class="wok-fx" id="wok-fx-0" aria-hidden="true"></div>
         <div class="wok-burner" aria-hidden="true"></div>
         <div class="wok-heat" title="Calor del wok"><i id="wok-heat-fill-0"></i></div>
-        <div class="wok-toss-pips" title="Toques del salteado: 3 toques = 1 ronda"><span id="wok-round-0">R1</span><i></i><i></i><i></i></div>
+        <div class="wok-toss-pips" title="Lanzamientos del wok (desliza hacia arriba): 3 = 1 ronda"><span id="wok-round-0">R1</span><i></i><i></i><i></i></div>
         <button class="wok-fire-btn" id="wok-fire-0" onclick="event.stopPropagation(); wokFireToggle(0)" title="Perilla del fuego del wok 1: toca para encender o apagar" aria-label="Perilla del fuego del wok 1"><span class="wk-lab off">OFF</span><span class="wk-dial"><b class="wk-ptr"></b></span><span class="wk-lab on">ON</span></button>
         <button class="wok-swap-btn" id="wok-swap-0" onclick="event.stopPropagation(); wokSwapTool(0)" title="Cambiar el utensilio de esta hornilla: wok o sartén"><span id="wok-swap-lab-0">WOK</span> ⇄</button>
         <div class="wok-parked" id="wok-parked-0" onclick="event.stopPropagation(); wokSwapTool(0)"></div>
@@ -7069,7 +7080,7 @@
         <div class="wok-fx" id="wok-fx-1" aria-hidden="true"></div>
         <div class="wok-burner" aria-hidden="true"></div>
         <div class="wok-heat" title="Calor del wok"><i id="wok-heat-fill-1"></i></div>
-        <div class="wok-toss-pips" title="Toques del salteado: 3 toques = 1 ronda"><span id="wok-round-1">R1</span><i></i><i></i><i></i></div>
+        <div class="wok-toss-pips" title="Lanzamientos del wok (desliza hacia arriba): 3 = 1 ronda"><span id="wok-round-1">R1</span><i></i><i></i><i></i></div>
         <button class="wok-fire-btn" id="wok-fire-1" onclick="event.stopPropagation(); wokFireToggle(1)" title="Perilla del fuego del wok 2: toca para encender o apagar" aria-label="Perilla del fuego del wok 2"><span class="wk-lab off">OFF</span><span class="wk-dial"><b class="wk-ptr"></b></span><span class="wk-lab on">ON</span></button>
         <button class="wok-swap-btn" id="wok-swap-1" onclick="event.stopPropagation(); wokSwapTool(1)" title="Cambiar el utensilio de esta hornilla: wok o sartén"><span id="wok-swap-lab-1">WOK</span> ⇄</button>
         <div class="wok-parked" id="wok-parked-1" onclick="event.stopPropagation(); wokSwapTool(1)"></div>
@@ -9587,7 +9598,7 @@ function salStepsHtml(r) {
   const parts = sd.parts.map(p => {
     const rounds = p.rounds.map((rd, k) => {
       const items = (rd.a || []).length ? rd.a.map(id => `<span class="rs-ing">${ico(id)} ${nm(id)}</span>`).join('') : '<span class="rs-ing">🔁 solo saltear otra ronda</span>';
-      return `<div class="rs-round"><b>Ronda ${k + 1}</b> <small>${rd.toss === false ? '(solo agregar, sin saltear)' : '(3 toques)'}</small> ${items}</div>`;
+      return `<div class="rs-round"><b>Ronda ${k + 1}</b> <small>${rd.toss === false ? '(solo agregar, sin saltear)' : '(3 lanzamientos)'}</small> ${items}</div>`;
     }).join('');
     const extra = (p.timed ? ` · ⏱ se cocina ${p.timed} s, sin saltear` : '') + (p.to === 'plate' ? ' · va como pieza de emplatado' : '');
     return `<div class="rs-part"><div class="rs-tool">${tool(p.tool)}${p.label ? ' · ' + p.label : ''}${extra}</div>${rounds}</div>`;
@@ -9697,7 +9708,7 @@ function wokServeClick(i) {
   const main = rc.ingredients.find(id => [69, 61, 48].includes(id)) || rc.ingredients[0];
   const ok = stPassAdd('salteados', { recipes: (rc.candidates || [rc]).map(r => r.name), result: w.result,
     readyAt: w.readyAt != null ? w.readyAt : gameState.gameClock, vis: { kind: 'ing', id: main },
-    meta: { result: w.result, secs: w.stirSeconds, profile: w.profile, orderMatches: w.orderMatches, orderTotal: w.orderTotal, toss: w.toss || 0, oilMissing: false, dry: w.dry || 0, wrongTool: !!w.wrongTool, tool: w.tool || 'wok', rscript: !!rc.script } });
+    meta: { result: w.result, secs: w.stirSeconds, profile: w.profile, orderMatches: w.orderMatches, orderTotal: w.orderTotal, toss: w.toss || 0, oilMissing: false, oilAdj: w.oilAdj || 0, dry: w.dry || 0, wrongTool: !!w.wrongTool, tool: w.tool || 'wok', rscript: !!rc.script } });
   if (!ok) return;
   gameState.woks[i] = newWok(w);
   renderWoks();
@@ -9721,7 +9732,7 @@ function wokCombineClick(i) {
     return;
   }
   const x = src.v;
-  const mk = v => ({ result: v.result, secs: v.stirSeconds, profile: v.profile, dry: v.dry || 0, wrongTool: !!v.wrongTool, toss: v.toss || 0, orderMatches: v.orderMatches || 0, orderTotal: v.orderTotal || 0 });
+  const mk = v => ({ result: v.result, secs: v.stirSeconds, profile: v.profile, dry: v.dry || 0, oilAdj: v.oilAdj || 0, wrongTool: !!v.wrongTool, toss: v.toss || 0, orderMatches: v.orderMatches || 0, orderTotal: v.orderTotal || 0 });
   const A = mk(w), B = mk(x), cook = m => evalCooking({ area: 'salteados', quality: m.result, meta: m }).pts;
   const worse = cook(A) <= cook(B) ? A : B;
   const meta = { ...worse, toss: (A.toss + B.toss) / 2, oilMissing: false, orderMatches: A.orderMatches + B.orderMatches, orderTotal: A.orderTotal + B.orderTotal, rscript: true };
@@ -9879,7 +9890,7 @@ const STAGE_ORDER = ['prod', 'cook', 'plate'];
 const SWIPE_EDGE_PX = 72;        // zona del borde donde puede empezar el gesto
 const SWIPE_MIN_PX = 80;         // recorrido horizontal mínimo
 const SWIPE_MAX_MS = 700;        // el gesto debe ser ágil
-const SWIPE_NO_START = '.fry-knife-tool, .maki-tool, .fry-board-item, .wok-stir-btn, .tool-item, .tool-armed, input, textarea, select';   // las herramientas del ramen (ohashi junto al borde derecho) no deben iniciar el deslizamiento entre etapas
+const SWIPE_NO_START = '.fry-knife-tool, .maki-tool, .fry-board-item, .wok-stir-btn, .tool-item, .tool-armed, .shop-bigboard, .stir-wok, input, textarea, select';   // las herramientas del ramen (ohashi junto al borde derecho) no deben iniciar el deslizamiento entre etapas
 let stageSwipe = null;
 let swipeNoClickUntil = 0;
 
@@ -11113,7 +11124,7 @@ const SAL_STAGED = {
     { key: 'pan', label: 'fideos',                       tool: 'pan', rounds: [{ a: [78, 4] }, { a: [1] }, { a: [102], toss: false }] } ] },
   'Omuraisu': { plate: [84], how: 'El arroz con pollo va envuelto en la tortilla.', parts: [
     { key: 'wok', label: 'arroz con pollo', tool: 'wok', rounds: [{ a: [23, 30, 103, 104] }, { a: [37] }, { a: [86] }, { a: [] }] },
-    { key: 'pan', label: 'tortilla',        tool: 'pan', timed: 6, rounds: [{ a: [15, 15, 75], toss: false }] } ] }       // tortilla = 2 huevos + sal, por tiempo
+    { key: 'pan', label: 'tortilla',        tool: 'pan', timed: 6, whisk: 4, rounds: [{ a: [15, 15, 75], toss: false }] } ] }       // tortilla = 2 huevos + sal, por tiempo
 };
 const salPartIds = part => (part._ids || (part._ids = [...new Set(part.rounds.flatMap(r => r.a || []))]));
 const salTossRounds = part => part.rounds.filter(r => r.toss !== false).length;
@@ -11192,7 +11203,7 @@ const WOK_BURNER_SVG = (() => {
   </svg>`;
 })();
 // Cada hornilla tiene un wok y una sartén: el que está sobre el fuego es el "activo" y el otro queda guardado con su contenido (ingredientes, rondas, plato listo)
-const WOK_VESSEL_KEYS = ['ingredients', 'result', 'matchedRecipe', 'stirring', 'stirSeconds', 'oil', 'toss', 'taps', 'rounds', 'addRound', 'log', 'cookT', 'interrupts', 'burnPeak', 'lastAct', 'profile', 'profileStaged', 'readyAt', 'orderMatches', 'orderTotal', 'dry', 'wrongTool'];
+const WOK_VESSEL_KEYS = ['ingredients', 'result', 'matchedRecipe', 'stirring', 'stirSeconds', 'oil', 'toss', 'taps', 'rounds', 'addRound', 'log', 'cookT', 'interrupts', 'burnPeak', 'lastAct', 'profile', 'profileStaged', 'readyAt', 'orderMatches', 'orderTotal', 'dry', 'wrongTool', 'whisk', 'oilAdj'];
 function wokTakeVessel(w) { const v = { tool: w.tool || 'wok' }; WOK_VESSEL_KEYS.forEach(k => { v[k] = w[k]; }); return v; }
 function wokPutVessel(w, v) { WOK_VESSEL_KEYS.forEach(k => { w[k] = v[k]; }); w.tool = v.tool; }
 function wokFreshVessel(tool) { const v = wokTakeVessel(newWok()); v.tool = tool; return v; }
@@ -11330,7 +11341,7 @@ function wokFireToggle(i) {
   if (w.fire && (w.taps || 0) > 0 && w.ingredients.length && !w.result) {     // apagar a mitad de una ronda: la comida pierde calidad
     w.interrupts = (w.interrupts || 0) + 1;
     w.taps = 0;
-    showStationToast('⚠ Apagaste a mitad de un salteado (3 toques): la comida pierde calidad.');
+    showStationToast('⚠ Apagaste a mitad de un salteado (3 lanzamientos): la comida pierde calidad.');
     try { playSound('error'); } catch (e) {}
   }
   w.fire = !w.fire;
@@ -11413,7 +11424,7 @@ function wokStagedTap(i) {
   const started = (w.rounds || 0) > 0 || (w.taps || 0) > 0 || (w.cookT || 0) > 0;
   if (!w.fire && !started) { wokFireToggle(i); return; }
   if (analyzeWok(i).status !== 'MATCHED') return;
-  if (!started) { showStationToast('👆 Toca el wok para saltear (3 toques = 1 ronda).'); return; }
+  if (!started) { showStationToast('⤴ Lanza el wok deslizando el dedo hacia arriba (3 lanzamientos = 1 ronda; un toque también vale).'); return; }
   const result = wokReady(i) ? 'PERFECTO' : 'CRUDO';
   wokSetResult(i, result);
   finishStir(i, result);
@@ -11426,13 +11437,14 @@ function wokStagedBtnUi(w, i, btn) {
   if (!w.fire && !started) text = '🔥 Enciende el fuego';
   else if ((w.heat || 0) < 0.9 && !started) text = 'Calentando…';
   else if (timed && !salCountsOk(w, part)) { text = '🥚 Faltan ingredientes'; }
+  else if (timed && !wokWhisked(w, part)) { zone = 'crudo'; text = '🥚 Bate: gira el dedo sobre la sartén (' + Math.round(100 * (w.whisk || 0) / part.whisk) + '%)'; pct = Math.round(100 * (w.whisk || 0) / part.whisk); }
   else if (timed) {
     pct = Math.round(Math.min(1, (w.cookT || 0) / timed) * 100);
     if ((w.heat || 0) > 1.05) { zone = 'quemado'; text = '¡Se quema! Retírala'; }
     else if (wokReady(i)) { zone = 'perfecto'; text = '✅ ¡Lista! Toca para retirar'; }
     else { zone = 'crudo'; text = `⏱ Cocinando… ${Math.ceil(Math.max(0, timed - (w.cookT || 0)))} s`; }
   }
-  else if (!started) text = '👆 Toca el wok: 3 toques = 1 ronda';
+  else if (!started) text = '⤴ Lanza el wok: desliza hacia arriba · 3 = 1 ronda';
   else if ((w.heat || 0) > 1.05) { zone = 'quemado'; text = '¡Se quema! Sigue salteando'; }
   else if (wokNeededTool(i) && wokNeededTool(i) !== (w.tool || 'wok')) { zone = 'quemado'; text = `⚠ Va en ${wokToolName(wokNeededTool(i))}: cámbialo ⇄ (−${WOK_WRONG_TOOL_PTS})`; }
   else if (wokReady(i) && (w.rounds || 0) > needed) { zone = 'quemado'; text = `🧂 ¡Retira ya! Seco y salado (−${WOK_DRY_PTS * ((w.rounds || 0) - needed)})`; }
@@ -11466,6 +11478,7 @@ function wokGuideHtml(i) {
   if (a.status === 'MATCHED' && !part.timed && wokReady(i)) return `✅ ¡Listo!${a.recipe.isPart ? ' (parte)' : ''}${wokNeededTool(i) && wokNeededTool(i) !== (w.tool || 'wok') ? ` <span class="rc-t" style="color:#ffab91">⚠ va en ${wokToolName(wokNeededTool(i)).toLowerCase()}</span>` : ''}`;
   const cur = w.rounds || 0, total = part.rounds.length, rd = part.rounds[cur];
   const wrong = a.status === 'MATCHED' && wokNeededTool(i) && wokNeededTool(i) !== (w.tool || 'wok') ? ` <span class="rc-t" style="color:#ffab91">⚠ va en ${wokToolName(wokNeededTool(i)).toLowerCase()}</span>` : '';
+  if (part.timed && salCountsOk(w, part) && !wokWhisked(w, part)) return `<b>${part.label}</b> 🥚 bate: gira el dedo (${Math.round(100 * (w.whisk || 0) / part.whisk)}%)`;
   if (part.timed && salCountsOk(w, part)) return `<b>${part.label}</b> ${wokReady(i) ? '✅ lista' : '⏱ ' + Math.ceil(Math.max(0, part.timed - (w.cookT || 0))) + ' s'}${wrong}`;
   if (!rd) return wokReady(i) ? `✅ ¡Listo!${wrong}` : null;
   const have = {};
@@ -11528,7 +11541,7 @@ function wokStagedTick() {
     else if (w.ingredients.length && !w.result && i < wokLimit()) {
       const sc = wokScriptOf(i);
       if (sc && sc.part.timed) {                                   // tortilla: se cocina por tiempo, sin saltear
-        if (sc.exact && salCountsOk(w, sc.part)) { w.cookT = (w.cookT || 0) + dt; sfxEvery('sizzle', 500); if (!isFree() && w.cookT >= sc.part.timed * 2) wokBurn(i, 'over'); }
+        if (sc.exact && salCountsOk(w, sc.part) && wokWhisked(w, sc.part)) { w.cookT = (w.cookT || 0) + dt; sfxEvery('sizzle', 500); if (!isFree() && w.cookT >= sc.part.timed * 2) wokBurn(i, 'over'); }
       } else if (!isFree()) {
         const waitingFinish = !!sc && salTossRounds(sc.part) <= (w.rounds || 0);       // ya se saltearon todas las rondas: solo falta agregar lo que no se saltea
         const grace = (waitingFinish ? 10 : WOK_IDLE_GRACE) + 0.5 * lvl;
@@ -11577,7 +11590,7 @@ function wokToss(i) {
   if (!w.fire) { wokTossLock[i] = now + 600; showStationToast('🔥 Enciende el fuego del wok (la perilla de abajo) para saltear.'); return; }
   if ((w.heat || 0) < 0.9) { wokTossLock[i] = now + 600; showStationToast('🔥 El wok aún se calienta…'); return; }
   const scT = wokScriptOf(i);
-  if (scT && scT.part.timed) { wokTossLock[i] = now + 800; showStationToast('🍳 Esto se cocina por tiempo: no hace falta saltear.'); return; }
+  if (scT && scT.part.timed) { wokTossLock[i] = now + 800; showStationToast(wokNeedsWhisk(i) ? '🥚 Bate los huevos: gira el dedo sobre la sartén.' : '🍳 Esto se cocina por tiempo: no hace falta saltear.'); return; }
   const kind = ['a', 'b', 'c'][Math.min(2, w.taps || 0)];     // 1.º y 2.º toque de la ronda: cortos; 3.º: lanzamiento grande
   wokTossLock[i] = now + (kind === 'c' ? WOK_BIG_LOCK_MS : WOK_TOSS_LOCK_MS);
   wokTossFx(i, kind);
@@ -11602,12 +11615,60 @@ function wokToss(i) {
   }
   wokUpdateFireUi();
 }
+// Salteo: se LANZA el wok deslizando el dedo hacia arriba sobre él (un toque suelto, al soltar, vale por un lanzamiento: respaldo).
+// Tortilla del Omuraisu: antes de cocerse hay que BATIR los huevos con la sal girando el dedo sobre la sartén.
+const WOK_FLICK_PX = 26;
+let wokPress = null;
+function wokWhisked(w, part) { return !part || !part.whisk || (w.whisk || 0) >= part.whisk; }
+function wokNeedsWhisk(i) {
+  const w = gameState.woks[i], sc = w && wokScriptOf(i);
+  return !!(sc && sc.exact && sc.part.whisk && salCountsOk(w, sc.part) && !wokWhisked(w, sc.part));
+}
+function wokWhiskStep(i, r) {
+  const w = gameState.woks[i], sc = wokScriptOf(i);
+  if (!w || !sc || !sc.part.whisk) return;
+  const rev = Math.abs(r.delta) / (2 * Math.PI), ok = r.speed >= 0.8;                  // batir pide ritmo vivo: ≥ 0,8 vueltas/s
+  const before = w.whisk || 0;
+  w.whisk = Math.min(sc.part.whisk, before + rev * (ok ? 1 : 0.4));
+  w.lastAct = performance.now();
+  if (Math.floor(before) < Math.floor(w.whisk)) { try { playSound('stir'); } catch (e) {} }
+  if (before < sc.part.whisk && w.whisk >= sc.part.whisk) {
+    try { playSound('match'); } catch (e) {}
+    showStationToast('🥚 ¡Huevos batidos con la sal! Ahora se cocina la tortilla.');
+  }
+  wokUpdateFireUi();
+}
 document.addEventListener('pointerdown', (e) => {
   if (!wokStaged() || !e.target.closest || gameState.isPaused || gameState.isGameOver) return;
   const c = e.target.closest('.wok-dock-card');
   if (!c || e.target.closest('button')) return;
-  wokToss(parseInt(c.id.replace('wok-card-', ''), 10));
+  const r = c.getBoundingClientRect();
+  wokPress = { i: parseInt(c.id.replace('wok-card-', ''), 10), id: e.pointerId, x0: e.clientX, y0: e.clientY, t0: performance.now(), fired: false, far: 0,
+    circle: new CircleTracker(r.left + r.width / 2, r.top + r.height * 0.45, Math.min(r.width, r.height) * 0.1) };
+  wokPress.circle.feed(e.clientX, e.clientY, performance.now());
 }, { passive: true });
+document.addEventListener('pointermove', (e) => {
+  const p = wokPress;
+  if (!p || e.pointerId !== p.id) return;
+  p.far = Math.max(p.far, Math.hypot(e.clientX - p.x0, e.clientY - p.y0));
+  if (wokNeedsWhisk(p.i)) {                                                   // batir: gira el dedo sobre la sartén
+    const r = p.circle.feed(e.clientX, e.clientY, performance.now());
+    if (r && r.delta) { p.fired = true; wokWhiskStep(p.i, r); }
+    return;
+  }
+  if (!p.fired && p.y0 - e.clientY >= WOK_FLICK_PX) { p.fired = true; wokToss(p.i); }   // lanzamiento hacia arriba
+}, { passive: true });
+const wokPressEnd = (e) => {
+  const p = wokPress;
+  if (!p || e.pointerId !== p.id) return;
+  wokPress = null;
+  if (e.type === 'pointerup' && !p.fired && p.far <= 12 && performance.now() - p.t0 <= 450) {
+    if (wokNeedsWhisk(p.i)) { showStationToast('🥚 Bate los huevos: gira el dedo sobre la sartén.'); return; }
+    wokToss(p.i);                                                              // respaldo: toque suelto
+  }
+};
+document.addEventListener('pointerup', wokPressEnd, { passive: true });
+document.addEventListener('pointercancel', wokPressEnd, { passive: true });
 
 function finishStir(index, result) {
   const wok = gameState.woks[index];
@@ -12218,35 +12279,45 @@ function stPotTone(sl) {
 // ---- Gestos ----
 // Reconocedor de círculos reutilizable: mide el ángulo del dedo alrededor del centro del elemento y entrega, en cada movimiento,
 // cuánto giró (delta, rad) y a qué ritmo (speed, vueltas por segundo: giro NETO de los últimos 0,6 s, así que ir y venir no cuenta).
+class CircleTracker {
+  constructor(cx, cy, minR) { this.cx = cx; this.cy = cy; this.minR = minR; this.last = null; this.samples = []; }
+  // x, y del dedo → { delta (rad girados desde la última muestra), speed (vueltas/s netas en 0,6 s) }; null en la primera muestra
+  feed(x, y, now) {
+    const a = Math.atan2(y - this.cy, x - this.cx);
+    if (this.last === null) { this.last = a; return null; }
+    let d = a - this.last; if (d > Math.PI) d -= 2 * Math.PI; else if (d < -Math.PI) d += 2 * Math.PI;
+    this.last = a;
+    if (Math.hypot(x - this.cx, y - this.cy) < this.minR) return { delta: 0, speed: 0 };       // muy cerca del centro el ángulo salta: no cuenta
+    this.samples.push({ t: now, d });
+    while (this.samples.length && now - this.samples[0].t > 600) this.samples.shift();
+    const span = Math.max(250, now - (this.samples[0] ? this.samples[0].t : now));
+    return { delta: d, speed: Math.abs(this.samples.reduce((s, q) => s + q.d, 0)) / (span / 1000) / (2 * Math.PI) };
+  }
+}
 function makeCircleGesture(el, cb) {
-  let id = null, cx = 0, cy = 0, minR = 0, last = 0, samples = [];
+  let id = null, tracker = null;
   el.style.touchAction = 'none';
   el.addEventListener('pointerdown', e => {
     if (id !== null || (e.pointerType === 'mouse' && e.button !== 0)) return;
     e.preventDefault();
     const r = el.getBoundingClientRect();
-    cx = r.left + r.width / 2; cy = r.top + r.height / 2; minR = Math.min(r.width, r.height) * 0.12;
-    id = e.pointerId; samples = [];
+    tracker = new CircleTracker(r.left + r.width / 2, r.top + r.height / 2, Math.min(r.width, r.height) * 0.12);
+    id = e.pointerId;
     try { el.setPointerCapture(id); } catch (err) {}
-    last = Math.atan2(e.clientY - cy, e.clientX - cx);
+    tracker.feed(e.clientX, e.clientY, performance.now());
     cb({ type: 'down', x: e.clientX, y: e.clientY, speed: 0 });
   });
   el.addEventListener('pointermove', e => {
     if (e.pointerId !== id) return;
-    const now = performance.now(), a = Math.atan2(e.clientY - cy, e.clientX - cx);
-    let d = a - last; if (d > Math.PI) d -= 2 * Math.PI; else if (d < -Math.PI) d += 2 * Math.PI;
-    last = a;
-    if (Math.hypot(e.clientX - cx, e.clientY - cy) < minR) { cb({ type: 'move', x: e.clientX, y: e.clientY, delta: 0, speed: 0 }); return; }   // muy cerca del centro el ángulo salta: no cuenta
-    samples.push({ t: now, d });
-    while (samples.length && now - samples[0].t > 600) samples.shift();
-    const span = Math.max(250, now - (samples[0] ? samples[0].t : now));
-    const speed = Math.abs(samples.reduce((s, q) => s + q.d, 0)) / (span / 1000) / (2 * Math.PI);
-    cb({ type: 'move', x: e.clientX, y: e.clientY, delta: d, speed });
+    const r = tracker.feed(e.clientX, e.clientY, performance.now());
+    if (r) cb({ type: 'move', x: e.clientX, y: e.clientY, delta: r.delta, speed: r.speed });
   });
   const up = e => { if (e.pointerId !== id) return; id = null; cb({ type: 'up' }); };
   el.addEventListener('pointerup', up);
   el.addEventListener('pointercancel', up);
 }
+// Frotar de lado a lado: cada pasada completa (≥ RUB_MIN px y cambio de sentido) es una pasada; un toque suelto vale por una (respaldo)
+const RUB_MIN_PX = 36;
 // Cebolla caramelizada: remover en círculos con el dedo. Ritmo parejo (0,7–2,2 vueltas/s) = avanza el color y se despega; lento/rápido = avanza a medias; sin remover = se pega y se quema.
 const STIR_GOOD_MIN = 0.7, STIR_GOOD_MAX = 2.2, STIR_SCALE_MAX = 3;
 function stStirTick(area, st, sl, i) {
@@ -12330,7 +12401,7 @@ function stShopStart(area, p, mode) {
     if (!(st.cooled[p.key] >= 1)) { showStationToast(stCoolInfo(st, p).cooling ? `🧊 El ${p.label.toLowerCase()} aún se está enfriando.` : `⚖️ No hay ${p.label.toLowerCase()} frío para porcionar: lávalo, cuécelo y deja que se enfríe.`); playSound('error'); return; }
     if (st.stock[p.key] >= p.max) { showStationToast(`${p.label}: el depósito ya está lleno.`); playSound('error'); return; }
     st.board = { key: p.key, taps: 0, mode: 'portion' };
-    showStationToast(`⚖️ ${p.label} frío en la tabla: tócalo para porcionarlo (3 toques = 1 porción de 400 g).`);
+    showStationToast(`⚖️ ${p.label} frío en la tabla: arrastra paladas hasta la balanza (3 paladas = 1 porción de 400 g).`);
     try { playSound('add'); } catch (e) {}
     stRenderIfOpen(area);
     updateAreaTabAlerts();
@@ -12338,9 +12409,9 @@ function stShopStart(area, p, mode) {
   }
   if (how === 'cut' || how === 'clean') {
     if (stBin(st, p)[p.key] >= p.max) { showStationToast(p.then ? `${ST_HOW[how].icon} ${p.label}: ya hay suficiente ${stBinWord(p)}, ${ST_HOW[p.then].imp}.` : `${p.label}: el depósito ya está lleno.`); playSound('error'); return; }
-    if (st.board && st.board.key === p.key && st.board.mode === how) { showStationToast(how === 'clean' ? `🧺 Ya está en la tabla: toca ${p.label.toLowerCase()} para ${stVerb1(p).toLowerCase()}lo.` : (st.knifeArmed ? '🔪 Ya está en la tabla: toca la pantalla para cortar.' : '🔪 Ya está en la tabla: arrastra el cuchillo sobre ella.')); return; }
+    if (st.board && st.board.key === p.key && st.board.mode === how) { showStationToast(how === 'clean' ? `🧺 Ya está en la tabla: frótalo de lado a lado para ${stVerb1(p).toLowerCase()}lo.` : (st.knifeArmed ? '🔪 Ya está en la tabla: da un tajo de lado a lado (o toca) para cortar.' : '🔪 Ya está en la tabla: arrastra el cuchillo sobre ella.')); return; }
     st.board = { key: p.key, taps: 0, mode: how };   // la tabla admite un producto a la vez; elegir otro lo reemplaza
-    showStationToast(how === 'clean' ? `🧺 ${p.label} en la tabla: tócalo para ${stVerb1(p).toLowerCase()}lo.` : (st.knifeArmed ? `🔪 ${p.label} en la tabla: toca la pantalla para cortar.` : `🔪 ${p.label} en la tabla: arrastra el cuchillo sobre ella.`));
+    showStationToast(how === 'clean' ? `🧺 ${p.label} en la tabla: frótalo de lado a lado para ${stVerb1(p).toLowerCase()}lo.` : (st.knifeArmed ? `🔪 ${p.label} en la tabla: da un tajo de lado a lado (o toca) para cortar.` : `🔪 ${p.label} en la tabla: arrastra el cuchillo sobre ella.`));
     try { playSound('add'); } catch (e) {}
   } else {
     if (st.stock[p.key] >= p.max) { showStationToast(`${p.label}: el depósito ya está lleno.`); playSound('error'); return; }
@@ -12519,14 +12590,50 @@ function shopHeapHtml(p, stg, portion) {
   const ico = portion ? stIngIcon(p.icon) : stIngIconRaw(p.icon);          // al porcionar, el arroz ya está cocido
   const sp = SHOP_HEAP.map(([l, t, r, w]) => `<span class="sp" style="left:${l}%;top:${t}%;width:${w * 100}%;transform:rotate(${r}deg)">${ico}</span>`).join('');
   const im = portion ? '' : SHOP_IMPS.map(([l, t, lv], i) => `<i class="imp k${i % 3} l${lv}" style="left:${l}%;top:${t}%;transform:rotate(${(i * 37) % 90}deg)"></i>`).join('');
-  return `<div class="cb-item cb-heap s${stg}" id="shop-cb-item" data-base="cb-item cb-heap" onpointerdown="${portion ? 'shopPortionTap' : 'shopCleanTap'}(event)">${sp}${im}<em class="cb-tip">${portion ? '⚖️' : '👆'}</em></div>`;
+  return `<div class="cb-item cb-heap s${stg}" id="shop-cb-item" data-base="cb-item cb-heap" onpointerdown="${portion ? 'shopPortionDown' : 'shopRubDown'}(event)">${sp}${im}<em class="cb-tip">${portion ? '🥄' : '↔'}</em></div>`;
 }
-function shopPortionTap(e) {
+// Porcionar: se arrastra una palada de arroz desde el montón hasta la balanza (3 paladas = 400 g); un toque suelto vale por una palada (respaldo)
+let shopScoop = null;
+function shopScoopCleanup() {
+  document.removeEventListener('pointermove', onShopScoopMove);
+  document.removeEventListener('pointerup', onShopScoopUp);
+  document.removeEventListener('pointercancel', onShopScoopUp);
+  if (shopScoop && shopScoop.ghost) shopScoop.ghost.remove();
+  const sc = document.getElementById('shop-scale'); if (sc) sc.classList.remove('hover');
+  shopScoop = null;
+}
+const shopOverScale = (x, y) => { const s = document.getElementById('shop-scale'); if (!s) return false; const r = s.getBoundingClientRect(); return x >= r.left - 14 && x <= r.right + 14 && y >= r.top - 14 && y <= r.bottom + 14; };
+function shopPortionDown(e) {
   if (e) { e.preventDefault(); e.stopPropagation(); }
   if (gameState.isPaused || gameState.isGameOver) return;
   const st = stGet(stShopArea());
   if (!st.board || st.board.mode !== 'portion') return;
-  shopTapCore(st, 'portion');
+  shopScoopCleanup();
+  shopScoop = { id: e.pointerId, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, t0: performance.now(), ghost: null, far: 0 };
+  document.addEventListener('pointermove', onShopScoopMove);
+  document.addEventListener('pointerup', onShopScoopUp);
+  document.addEventListener('pointercancel', onShopScoopUp);
+}
+function onShopScoopMove(e) {
+  const s = shopScoop;
+  if (!s || e.pointerId !== s.id) return;
+  s.x = e.clientX; s.y = e.clientY;
+  s.far = Math.max(s.far, Math.hypot(s.x - s.x0, s.y - s.y0));
+  if (!s.ghost && s.far > 8) { s.ghost = document.createElement('div'); s.ghost.className = 'scoop-ghost'; s.ghost.textContent = '🥄'; document.body.appendChild(s.ghost); }
+  if (s.ghost) s.ghost.style.transform = `translate(${s.x}px, ${s.y - 28}px) translate(-50%, -50%)`;
+  const sc = document.getElementById('shop-scale'); if (sc) sc.classList.toggle('hover', shopOverScale(s.x, s.y - 28));
+}
+function onShopScoopUp(e) {
+  const s = shopScoop;
+  if (!s || e.pointerId !== s.id) return;
+  const over = shopOverScale(s.x, s.y - 28) || shopOverScale(s.x, s.y), tap = s.far <= 12 && performance.now() - s.t0 <= 450, ok = e.type === 'pointerup';
+  shopScoopCleanup();
+  if (!ok) return;
+  const st = stGet(stShopArea());
+  if (!st.board || st.board.mode !== 'portion') return;
+  if (tap) shopTapCore(st, 'portion');                                                     // respaldo: toque = palada
+  else if (over) shopTapCore(st, 'portion', SHOP_GESTURE_LOCK_MS);                          // palada arrastrada hasta la balanza
+  else shopHint('⚖️ Lleva la palada hasta la balanza.');
 }
 // Porcionar: cada toque pasa una palada del arroz a la balanza (400 g = 3 paladas)
 function shopPortionFx(p) {
@@ -12590,15 +12697,52 @@ function shopChop() {
   if (st.board.mode === 'portion') { shopHint('⚖️ El arroz se porciona tocándolo.'); return; }
   shopTapCore(st, 'cut');
 }
-function shopClean() {
+function shopClean(lockMs) {
   const st = stGet(stShopArea());
   if (!st.board || st.board.mode !== 'clean') return;
-  shopTapCore(st, 'clean');
+  shopTapCore(st, 'clean', lockMs);
 }
-function shopTapCore(st, kind) {
+// Lavar / limpiar: se frota el montón de lado a lado con el dedo (cada pasada cuenta); un toque suelto vale por una pasada
+const SHOP_GESTURE_LOCK_MS = 380;
+let shopRub = null;
+function shopRubCleanup() {
+  document.removeEventListener('pointermove', onShopRubMove);
+  document.removeEventListener('pointerup', onShopRubUp);
+  document.removeEventListener('pointercancel', onShopRubUp);
+  shopRub = null;
+}
+function shopRubDown(e) {
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  if (gameState.isPaused || gameState.isGameOver) return;
+  const st = stGet(stShopArea());
+  if (!st.board || st.board.mode !== 'clean') return;
+  shopRubCleanup();
+  shopRub = { id: e.pointerId, x0: e.clientX, y0: e.clientY, t0: performance.now(), ext: e.clientX, dir: 0, strokes: 0, far: 0 };
+  document.addEventListener('pointermove', onShopRubMove);
+  document.addEventListener('pointerup', onShopRubUp);
+  document.addEventListener('pointercancel', onShopRubUp);
+}
+function onShopRubMove(e) {
+  const r = shopRub;
+  if (!r || e.pointerId !== r.id) return;
+  r.far = Math.max(r.far, Math.hypot(e.clientX - r.x0, e.clientY - r.y0));
+  const dx = e.clientX - r.ext;
+  if (r.dir === 0) { if (Math.abs(dx) >= RUB_MIN_PX) { r.dir = Math.sign(dx); r.ext = e.clientX; r.strokes++; shopClean(SHOP_GESTURE_LOCK_MS); } }
+  else if (dx * r.dir > 0) r.ext = e.clientX;                                        // sigue en el mismo sentido: avanza el extremo
+  else if (-dx * r.dir >= RUB_MIN_PX) { r.dir = -r.dir; r.ext = e.clientX; r.strokes++; shopClean(SHOP_GESTURE_LOCK_MS); }   // cambio de sentido tras una pasada completa
+}
+function onShopRubUp(e) {
+  const r = shopRub;
+  if (!r || e.pointerId !== r.id) return;
+  const tap = !r.strokes && r.far <= 12 && performance.now() - r.t0 <= 450;
+  shopRubCleanup();
+  if (tap && e.type === 'pointerup') shopClean();                                    // respaldo: un toque = una pasada
+}
+// lockMs: los gestos (frotar, paladas, tajos) entran más seguidos que los toques sueltos; el toque de respaldo usa la espera de siempre
+function shopTapCore(st, kind, lockMs) {
   const now = performance.now();
   if (now < shopTapLockUntil) return;               // la animación anterior aún no termina
-  shopTapLockUntil = now + (kind === 'cut' ? SHOP_CUT_LOCK_MS : SHOP_CLEAN_LOCK_MS);
+  shopTapLockUntil = now + (lockMs || (kind === 'cut' ? SHOP_CUT_LOCK_MS : SHOP_CLEAN_LOCK_MS));
   const p = stProdOf(stShopArea(), st.board.key);
   try { playSound(kind === 'cut' ? 'chop' : 'splash'); } catch (e) {}
   if (kind === 'clean') shopCleanFx(p); else if (kind === 'portion') shopPortionFx(p); else shopChopFx(p);
@@ -12667,7 +12811,7 @@ function onShopKnifeUp(e) {
   }
   st.knifeArmed = inside;                            // soltado sobre la tabla = armado; en otro lado = vuelve a su sitio
   try { playSound(inside ? 'add' : 'click'); } catch (e) {}
-  if (inside) showStationToast(st.board ? '🔪 Toca la pantalla para cortar (3 cortes = 1 porción).' : '🔪 Ahora pon un producto en la tabla (toca su ficha).');
+  if (inside) showStationToast(st.board ? '🔪 Da un tajo de lado a lado (o toca) para cortar (3 cortes = 1 porción).' : '🔪 Ahora pon un producto en la tabla (toca su ficha).');
   stRenderIfOpen(stShopArea());
 }
 document.addEventListener('pointerdown', (e) => {
@@ -12690,7 +12834,8 @@ document.addEventListener('pointerdown', (e) => {
 document.addEventListener('pointerup', (e) => {
   const t = shopTap; shopTap = null;
   if (!t || t.id !== e.pointerId) return;
-  if (Math.hypot(e.clientX - t.x, e.clientY - t.y) > 12 || performance.now() - t.t > 450) return;   // un deslizamiento no es un corte
+  const len = Math.hypot(e.clientX - t.x, e.clientY - t.y), dur = performance.now() - t.t;
+  if (!((len <= 12 && dur <= 450) || (len >= 40 && dur <= 650))) return;     // un toque o un tajo ágil de lado a lado cortan; un arrastre lento o corto no
   if (shopArmedActive()) shopChop();
 }, { passive: true });
 
@@ -12777,12 +12922,13 @@ function stRenderShop(area, panel) {
       return `<div class="bl-row"><span class="bl-ico">${stIngIconRaw(q.icon)}</span><b>${q.short || q.label}</b><span class="fp-cut" data-cut-of="${q.key}">${stBinTag(q)}${c}</span><span data-stock-of="${q.key}">${n2}/${q.max}</span><button class="fp-btn" data-bl-btn="${q.key}" ${off ? 'disabled' : ''} title="${ST_HOW[q.then].verb} ${q.label} ${stBinWord(q)} (${stProdTime(q)} s)" onclick="stProdStart('${area}','${q.key}','${q.then}')">${ST_HOW[q.then].icon}</button>${q.after ? `${stCoolChip(st, q)}<button class="fp-btn" data-pt-btn="${q.key}" ${!(st.cooled[q.key] >= 1) || n2 >= q.max ? 'disabled' : ''} title="Porcionar el ${q.label.toLowerCase()} frío (400 g)" onclick="stProdStart('${area}','${q.key}','portion')">${ST_HOW[q.after].icon}</button>` : ''}</div>`;
     }).join('');
     panel.innerHTML = `<div class="fp-wrap fp-shop is-cutting">
-    <div class="fp-head"><span>🥬 Producción · ${AREA_LABELS[area]}</span><small>${isPortion ? `Toca el ${pb.label.toLowerCase()} frío: 3 toques = 1 porción de 400 g.` : isClean ? `Toca ${pb.label.toLowerCase()} para ${stVerb1(pb).toLowerCase()}lo: ${SHOP_TAPS_PER_PORTION * (pb.passes || 1)} toques = 1 porción ${stBinWord(pb)}${pb.passes > 1 ? ` (${pb.passes} lavados de ${SHOP_TAPS_PER_PORTION})` : ''}.` : 'Toca la pantalla para cortar: 3 cortes = 1 porción.'}</small><button class="stage-panel-back fp-back" onclick="shopStowKnife()">${isClean ? '✔ Terminar' : '🔪 Guardar cuchillo'}</button>${stBackBtn(area)}</div>
+    <div class="fp-head"><span>🥬 Producción · ${AREA_LABELS[area]}</span><small>${isPortion ? `Arrastra paladas del ${pb.label.toLowerCase()} frío hasta la balanza ⚖️: 3 paladas = 1 porción de 400 g.` : isClean ? `Frota ${pb.label.toLowerCase()} de lado a lado con el dedo: ${SHOP_TAPS_PER_PORTION * (pb.passes || 1)} pasadas = 1 porción ${stBinWord(pb)}${pb.passes > 1 ? ` (${pb.passes} lavados de ${SHOP_TAPS_PER_PORTION})` : ''}.` : 'Desliza el dedo de lado a lado para dar un tajo (o toca): 3 cortes = 1 porción.'}</small><button class="stage-panel-back fp-back" onclick="shopStowKnife()">${isClean ? '✔ Terminar' : '🔪 Guardar cuchillo'}</button>${stBackBtn(area)}</div>
     <div class="shop-cutlayout">
       <div class="shop-bigboard has-item" id="shop-board">
         <div class="cb-chips">${chips}</div>
         <div class="shop-label" id="shop-board-label">${shopBoardLabelText(st, pb)}</div>
         ${isClean ? shopHeapHtml(pb, on, isPortion) : shopItemHtml(pb, on)}
+        ${isPortion ? '<div class="cb-scale" id="shop-scale"><span class="sc-ico">⚖️</span><b>400 g</b></div>' : ''}
         <div class="cb-pile" id="shop-pile">${shopPileHtml(pb, isPortion ? st.stock[pb.key] : bin)}</div>
         <div class="shop-pips">${[0, 1, 2].map(i => `<i class="${i < on ? 'on' : ''}"></i>`).join('')}</div>
         ${isClean ? '' : '<img class="fry-knife-tool shop-knife armed" id="shop-knife" src="assets/maki_knife.svg" alt="Cuchillo" draggable="false">'}
@@ -12794,7 +12940,7 @@ function stRenderShop(area, panel) {
     </div></div>`;
     return;
   }
-  const hint = !st.knifeArmed ? (area === 'salteados' ? 'Arroz Gohan: 🧺 lávalo 2 veces → ♨️ cuécelo → 🧊 se enfría solo → ⚖️ porciónalo (400 g). Verduras: 🔪 córtalas; el brócoli además 💧 se blanquea. Cebolla caramelizada: 🔪 corta la cebolla blanca → 🍯 con aceite en el wok hasta color caramelo.' : area === 'ramen' ?'Cortar: toca 🔪 y arrastra el cuchillo a la tabla. Holantao, espárrago y col: corta y 💧 blanquea. Moyashi: 🧺 límpialo y 💧 blanquea.' : 'Cortar: toca 🔪 y arrastra el cuchillo a la tabla. 🧺 = se limpia con las manos. Lo de dos pasos se prepara en la tabla y luego pasa a la hornilla.') : (st.board ? 'Toca la pantalla para cortar: 3 cortes = 1 porción.' : 'Cuchillo listo: toca la ficha de un producto para cortar.');
+  const hint = !st.knifeArmed ? (area === 'salteados' ? 'Arroz Gohan: 🧺 lávalo 2 veces → ♨️ cuécelo → 🧊 se enfría solo → ⚖️ porciónalo (400 g). Verduras: 🔪 córtalas; el brócoli además 💧 se blanquea. Cebolla caramelizada: 🔪 corta la cebolla blanca → 🍯 con aceite en el wok hasta color caramelo.' : area === 'ramen' ?'Cortar: toca 🔪 y arrastra el cuchillo a la tabla. Holantao, espárrago y col: corta y 💧 blanquea. Moyashi: 🧺 límpialo y 💧 blanquea.' : 'Cortar: toca 🔪 y arrastra el cuchillo a la tabla. 🧺 = se limpia con las manos. Lo de dos pasos se prepara en la tabla y luego pasa a la hornilla.') : (st.board ? 'Da un tajo de lado a lado (o toca) para cortar: 3 cortes = 1 porción.' : 'Cuchillo listo: toca la ficha de un producto para cortar.');
   panel.innerHTML = `<div class="fp-wrap fp-shop">
     <div class="fp-head"><span>🥬 Producción · ${AREA_LABELS[area]}</span><small>${hint}</small>${stBackBtn(area)}</div>
     <div class="fp-cards many shop-cards" style="--cols:${Math.max(6, Math.ceil(list.length / 2))}">${cards}</div>
@@ -16949,7 +17095,7 @@ function evalCooking(dish) {
   if (res === 'PERFECTO') {
     const f = (sec - ready) / (burn - ready);
     const base = (sec > 0 && f >= 0.3 && f <= 0.7) ? 50 : 40;
-    return { pts: Math.max(0, base - WOK_DRY_PTS * (m.dry || 0) - (m.wrongTool ? WOK_WRONG_TOOL_PTS : 0)), state: 'OK' };   // salteado: cada ronda de más seca y sala el plato; utensilio equivocado resta
+    return { pts: Math.max(0, base - WOK_DRY_PTS * (m.dry || 0) - (m.wrongTool ? WOK_WRONG_TOOL_PTS : 0) + (m.oilAdj || 0)), state: 'OK' };   // salteado: cada ronda de más seca y sala el plato; utensilio equivocado resta
   }
   if (res === 'CRUDO') {
     if (sec > 0 && sec < ready * 0.5) return { pts: 0, state: 'CRUDO', gate: 'muy crudo' };
@@ -17812,7 +17958,9 @@ const toolPresses = new Map();     // pointerId -> { a, startX, startY, tip, dx,
 function toolBottlePress(a, e) {
   if (a.pouring) return;
   const r = a.el.getBoundingClientRect();
-  toolPresses.set(e.pointerId, { a, startX: e.clientX, startY: e.clientY, tip: e.clientY >= r.top + r.height * 0.5, dx: 0, dy: 0 });
+  const press = { a, startX: e.clientX, startY: e.clientY, tip: e.clientY >= r.top + r.height * 0.5, dx: 0, dy: 0 };
+  if (a.area === 'salteados' && a.id === WOK_OIL_ID) press.oil = { on: false, timer: setTimeout(() => { press.oil.on = true; oilPourStart(a); }, OIL_HOLD_MS) };   // aceite: mantener pulsado = dosificar
+  toolPresses.set(e.pointerId, press);
   document.addEventListener('pointermove', onToolPressMove);
   document.addEventListener('pointerup', onToolPressUp);
   document.addEventListener('pointercancel', onToolPressCancel);
@@ -17827,6 +17975,8 @@ function onToolPressMove(e) {
   const p = toolPresses.get(e.pointerId);
   if (!p) return;
   p.dx = e.clientX - p.startX; p.dy = e.clientY - p.startY;
+  if (p.oil && p.oil.on) return;                                      // vertiendo: el dedo solo sostiene la botella
+  if (p.oil && Math.hypot(p.dx, p.dy) > 14) { clearTimeout(p.oil.timer); p.oil = null; }       // si se desliza, es devolver la botella, no dosificar
   if (p.tip && p.dy < -4 && toolArmedMap.has(p.a.key)) {
     p.a.el.classList.add('pulling');
     p.a.el.style.translate = '0 ' + Math.max(p.dy, -70) + 'px';       // la botella sigue al dedo hacia arriba
@@ -17838,6 +17988,7 @@ function onToolPressUp(e) {
   toolPresses.delete(e.pointerId);
   toolPressListenersOff();
   const a = p.a;
+  if (p.oil) { clearTimeout(p.oil.timer); if (p.oil.on) { oilPourEnd(a, true); return; } }      // soltó la botella tras dosificar
   if (!toolArmedMap.has(a.key)) return;
   a.el.classList.remove('pulling');
   a.el.style.translate = '';
@@ -17849,7 +18000,55 @@ function onToolPressCancel(e) {
   if (!p) return;
   toolPresses.delete(e.pointerId);
   toolPressListenersOff();
+  if (p.oil) { clearTimeout(p.oil.timer); if (p.oil.on) oilPourEnd(p.a, false); }
   if (p.a.el) { p.a.el.classList.remove('pulling'); p.a.el.style.translate = ''; }
+}
+// Aceite de cocina: mantener pulsada la botella lo va vertiendo; se suelta con el nivel en la zona verde (ni poco ni mucho).
+// Un toque suelto lo echa «sin medir» (respaldo, −3 pts de cocción); poco o mucho aceite, −8; en la zona, sin penalidad.
+const OIL_HOLD_MS = 260, OIL_FILL_SECS = 1.7, OIL_ZONE_MIN = 0.42, OIL_ZONE_MAX = 0.78, OIL_TAP_PTS = -3, OIL_BAD_PTS = -8;
+let oilPour = null;
+function oilPourStart(a) {
+  if (!a || a.pouring || !toolArmedMap.has(a.key) || gameState.isPaused) return;
+  const g = document.createElement('div');
+  g.className = 'oil-gauge';
+  g.innerHTML = `<i class="og-zone" style="bottom:${OIL_ZONE_MIN * 100}%;height:${(OIL_ZONE_MAX - OIL_ZONE_MIN) * 100}%"></i><i class="og-fill"></i>`;
+  document.body.appendChild(g);
+  const r = a.el.getBoundingClientRect();
+  g.style.left = Math.min(window.innerWidth - 24, r.right + 6) + 'px'; g.style.top = Math.max(4, r.top + 2) + 'px';
+  a.el.classList.add('squeeze');
+  oilPour = { a, amt: 0, g, fill: g.querySelector('.og-fill'), iv: setInterval(oilPourTick, 60), n: 0 };
+  try { playSound('splash'); } catch (e) {}
+}
+function oilPourTick() {
+  const o = oilPour;
+  if (!o) return;
+  if (!toolArmedMap.has(o.a.key) || gameState.isPaused) { oilPourEnd(o.a, false); return; }
+  o.amt = Math.min(1, o.amt + 0.06 / OIL_FILL_SECS);
+  o.fill.style.height = (o.amt * 100) + '%';
+  o.g.classList.toggle('good', o.amt >= OIL_ZONE_MIN && o.amt <= OIL_ZONE_MAX);
+  o.g.classList.toggle('over', o.amt > OIL_ZONE_MAX);
+  if (++o.n % 2 === 0) {
+    const nz = o.a.el.getBoundingClientRect(), art = document.getElementById('wok-art-' + o.a.pan), ar = art ? art.getBoundingClientRect() : nz;
+    const d = document.createElement('i');
+    d.className = 'sauce-drop';
+    d.style.background = TOOL_SAUCES[o.a.id].c;
+    d.style.left = (nz.left + nz.width / 2 - 3) + 'px'; d.style.top = (nz.bottom - 4) + 'px';
+    d.style.setProperty('--dy', Math.max(14, ar.top + ar.height * 0.55 - (nz.bottom - 4)) + 'px');
+    document.body.appendChild(d);
+    setTimeout(() => d.remove(), 900);
+  }
+}
+function oilPourEnd(a, commit) {
+  const o = oilPour;
+  if (!o) return;
+  clearInterval(o.iv);
+  o.g.remove();
+  oilPour = null;
+  a.el && a.el.classList.remove('squeeze');
+  if (!commit || !toolArmedMap.has(a.key)) return;
+  const adj = (o.amt >= OIL_ZONE_MIN && o.amt <= OIL_ZONE_MAX) ? 0 : OIL_BAD_PTS;
+  showStationToast(adj === 0 ? '🛢️ Aceite justo ✓' : (o.amt < OIL_ZONE_MIN ? `🛢️ Poco aceite (${OIL_BAD_PTS} pts de cocción): la próxima mantén pulsado hasta la zona verde.` : `🛢️ Demasiado aceite (${OIL_BAD_PTS} pts de cocción): suelta antes, en la zona verde.`));
+  toolPour(a, adj);
 }
 function toolReturn(a) {
   if (!a || a.pouring) return;
@@ -17994,10 +18193,14 @@ function toolDisarm(key, silent) {
   if (!silent) renderToolStrip();
 }
 function toolDisarmAll(silent) { [...toolArmedMap.keys()].forEach(k => toolDisarm(k, true)); if (!silent) renderToolStrip(); }
-function toolPour(a) {
+function toolPour(a, oilAdj) {
   if (!a || a.kind !== 'sauce' || a.pouring || gameState.isPaused) return;
   if (a.area === 'salteados') {
     if (!wokPour(a.pan, a.id)) { setTimeout(() => toolDisarm(a.key), 250); return; }    // no entró (wokPour ya avisó el motivo)
+    if (a.id === WOK_OIL_ID && gameState.woks[a.pan]) {
+      gameState.woks[a.pan].oilAdj = oilAdj != null ? oilAdj : OIL_TAP_PTS;                // dosificado: 0 / −8 · toque suelto: −3
+      if (oilAdj == null) showStationToast(`🛢️ Aceite echado sin medir (${OIL_TAP_PTS} pts). Mantén pulsada la botella para dosificarlo.`);
+    }
   } else {
     const pan = panGet(a.pan), before = pan.items.length, beforeOil = pan.oil;
     panAdd(a.pan, a.id);
