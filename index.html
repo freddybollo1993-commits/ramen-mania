@@ -6446,7 +6446,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v123</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v124</span></button></div>
     </div>
   </div>
 
@@ -9084,13 +9084,13 @@ const RECETAS_RAMEN = [
 // analyzeBowl (o su equivalente para esta área) deberá comparar también "metodo" además del set de ingredientes.
 const RECETAS_FRITURAS = [
   {"id": 1, "name": "Gyozas", "metodo": "hervido", "price": 32, "desc": "Empanadillas hervidas de langostino y chancho", "ingredients": [66, 73, 32, 31, 53, 52, 74]},
-  {"id": 2, "name": "Chicken Katsu", "price": 52, "desc": "Bife de pollo empanizado, col, zanahoria y salsa katsu", "ingredients": [44, 65, 58, 15, 75, 52, 30, 74, 91, 57, 84]},
-  {"id": 3, "name": "Age Gyozas", "metodo": "frito", "price": 36, "desc": "Empanadillas fritas de langostino y chancho", "ingredients": [66, 73, 32, 31, 53, 52, 74]},
+  {"id": 2, "name": "Chicken Katsu", "price": 52, "desc": "Bife de pollo empanizado, col, zanahoria y salsa katsu", "ingredients": [44, 65, 58, 15, 75, 52, 30, 62, 74, 91, 57, 84]},
+  {"id": 3, "name": "Age Gyozas", "metodo": "frito", "price": 36, "desc": "Empanadillas fritas de langostino y chancho, sobre col y betarraga con salsa teriyaki", "ingredients": [66, 73, 32, 31, 53, 52, 42, 74, 91, 87]},
   {"id": 4, "name": "Alitas", "price": 30, "desc": "Alitas de pollo fritas con salsa y toping", "ingredients": [36, 53, 76, 92]},
-  {"id": 5, "name": "Ebi Furai", "price": 44, "desc": "Langostinos empanizados con mayonesa de la casa", "ingredients": [60, 65, 58, 15, 52, 42, 74, 62]},
+  {"id": 5, "name": "Ebi Furai", "price": 44, "desc": "Langostinos empanizados con ensalada y salsa teriyaki", "ingredients": [60, 65, 58, 15, 52, 30, 62, 74, 91, 87]},
   {"id": 6, "name": "Kaarage", "price": 38, "desc": "Pollo frito estilo karaage con mayonesa de la casa", "ingredients": [70, 53, 52, 30, 62, 91, 74]},
-  {"id": 7, "name": "Katsu Kare", "price": 56, "desc": "Bife de cerdo empanizado con salsa kare", "ingredients": [43, 65, 58, 15, 75, 52, 30, 74, 91, 57, 83]},
-  {"id": 8, "name": "Tonkatsu", "price": 54, "desc": "Bife de cerdo empanizado con salsa katsu", "ingredients": [43, 65, 58, 15, 75, 52, 42, 74, 91, 57, 84]}
+  {"id": 7, "name": "Katsu Kare", "price": 56, "desc": "Bife de cerdo empanizado con salsa kare", "ingredients": [43, 65, 58, 15, 75, 52, 42, 62, 74, 91, 57, 83]},
+  {"id": 8, "name": "Tonkatsu", "price": 54, "desc": "Bife de cerdo empanizado con salsa katsu", "ingredients": [43, 65, 58, 15, 75, 52, 42, 62, 74, 91, 57, 84]}
 ];
 
 // --- Makis: el orden de armado importa ---
@@ -12047,13 +12047,13 @@ const ST_PROD = {
 // Frituras: proteína que se fríe + componentes. Ramen: los complementos (verduras, nori, ajonjolí) de la receta.
 // Salteado y Makis: la salsa, la guarnición o el acompañamiento final.
 const FRY_PLATING = {
-  'Chicken Katsu': { protein: 44, parts: [57, 52, 30, 84, 74, 91] },
-  'Katsu Kare':    { protein: 43, parts: [57, 52, 30, 74, 91] },      // la salsa kare ya viene derramada desde la cocina
-  'Tonkatsu':      { protein: 43, parts: [57, 52, 42, 84, 74, 91] },
-  'Ebi Furai':     { protein: 60, parts: [52, 42, 62, 74] },
-  'Kaarage':       { protein: 70, parts: [52, 30, 62, 91, 74] },
+  'Chicken Katsu': { protein: 44, parts: [57, 52, 62, 30, 84, 74, 91] },      // arriba: arroz (izq.) · ensalada con mayonesa y zanahoria (centro) · salsa katsu (der.); abajo: 5 rodajas; decoran rulos y togarashi
+  'Katsu Kare':    { protein: 43, parts: [57, 52, 62, 42, 74, 91] },          // ensalada con betarraga; sin salsa de acompañamiento (la kare ya baña el bife)
+  'Tonkatsu':      { protein: 43, parts: [57, 52, 62, 42, 84, 74, 91] },      // betarraga en lugar de zanahoria
+  'Ebi Furai':     { protein: 60, parts: [52, 62, 30, 87, 74, 91] },          // sin arroz; teriyaki de acompañamiento; 6 langostinos
+  'Kaarage':       { protein: 70, parts: [52, 62, 30, 74, 91] },              // sin arroz; la mayonesa es también la salsa de acompañamiento; 7 piezas
   'Alitas':        { protein: 36, parts: [76, 92] },
-  'Age Gyozas':    { protein: 73, parts: [52, 74] }
+  'Age Gyozas':    { protein: 73, parts: [52, 42, 87, 74, 91] }
 };
 const ST_RAMEN_PLATE = new Set([11, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 27, 28, 29, 30]);
 const RAMEN_COOK_EXTRA = { 'Tan tan': [25] };   // piezas "de emplatado" que en esa receta se ponen en el cuenco durante la cocción
@@ -12073,7 +12073,7 @@ const ST_PLATE_MAKI = {
   'Maki Guacamole': [81, 97, 96], 'Maki Yama': [89, 97, 96], 'Maki Nin Niku': [85, 97, 96],
   'Maki Amazon': [97, 96], 'Maki Digion': [80, 97, 96], 'Maki Furai': [97, 96]
 };
-const FRY_PLATE_GROUP = { 57: 'Base', 52: 'Ensalada', 30: 'Ensalada', 42: 'Ensalada', 84: 'Salsa', 83: 'Salsa', 62: 'Salsa', 76: 'Salsa', 74: 'Decoración', 91: 'Decoración', 92: 'Decoración' };
+const FRY_PLATE_GROUP = { 57: 'Base', 52: 'Ensalada', 30: 'Ensalada', 42: 'Ensalada', 84: 'Salsa', 83: 'Salsa', 87: 'Salsa', 62: 'Salsa', 76: 'Salsa', 74: 'Decoración', 91: 'Decoración', 92: 'Decoración' };
 const ST_GROUPS = {
   ramen: ['Proteína', 'Verdeos', 'Toppings', 'Verduras', 'Hongos'],
   salteados: ['Ensalada', 'Salsa', 'Decoración'],
@@ -13516,6 +13516,10 @@ function stDiscHtml(area, item, plateItems, sl) {
     const ev = item.recipes.length > 1 ? stPlateEval(area, item, plateItems) : null, dish = ev ? ev.recipe.name : item.recipes[0];
     if (dish === 'Batayaki Ramen') return `<div class="fp-bowl">${batayakiPlateSvg(plateItems)}</div>`;
     const h = salPlateHtml(dish, plateItems, item);
+    if (h) return h;
+  }
+  if (area === 'frituras' && item.recipes && item.recipes.length && typeof friPlateHtml === 'function') {
+    const ev = item.recipes.length > 1 ? stPlateEval(area, item, plateItems) : null, h = friPlateHtml(ev ? ev.recipe.name : item.recipes[0], plateItems, item);
     if (h) return h;
   }
   if (v.kind === 'bowl') return `<div class="fp-bowl">${generateBowlSVG({ ingredients: [...(v.ings || []), ...plateItems], spread: v.spread, hideBar: true }, null)}</div>`;
@@ -25058,5 +25062,6 @@ if (document.readyState === 'loading') {
 <script src="multiplayer.js?v=21"></script>
 <script src="makis-studio.js?v=118"></script>
 <script src="frituras-prod.js?v=2"></script>
+<script src="frituras-plate.js?v=2"></script>
 </body>
 </html>
