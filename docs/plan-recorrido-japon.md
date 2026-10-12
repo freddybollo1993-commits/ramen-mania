@@ -59,6 +59,18 @@ Vista isométrica del local completo, como la referencia: cocina al fondo (pared
 - Un ⬆ verde avisa dónde hay una mejora que ya puedes pagar. El montón de dinero de la caja se toca para recolectar.
 - Es solo visual (tiempo acelerado ×10): la ganancia real la calcula la economía de la sección 3. Los sprites son vectoriales y se pueden sustituir por el arte final.
 
+## 5c. Jugar aquí (v128)
+Botón «🎮 Jugar aquí» en cada local. Se elige **dificultad** y **áreas activas** (solo cocinas ya abiertas del local; los platos son los de esa ciudad en esas áreas) y se juega una jornada con tiempo fijo, con todas las etapas (Producción, Cocina, Emplatar).
+
+| Dificultad | Tiempo | Clientes a la vez | Pedidos | Paciencia | Multiplicador |
+|---|---|---|---|---|---|
+| Fácil | 4 min | 2 | 1 | ×1,5 | ×0,8 |
+| Normal | 4,5 min | 3 | 1 | ×1,15 | ×1,0 |
+| Difícil | 5 min | 3 | 1–2 | ×0,9 | ×1,4 |
+| Maestro | 5,5 min | 4 | 1–3 | ×0,7 | ×2,0 |
+
+Recompensa = dinero recaudado × multiplicador de dificultad × (1 + 0,3 por cada área extra) (+10 % si no pierdes clientes). **Va a la caja de esa ciudad** (no al Fondo) y se recolecta como el resto. Abandonar paga la mitad. Los objetos del local dan sus mejoras permanentes también en la jornada.
+
 ## 6. Platos por ciudad (relación histórica o afinidad)
 | Ciudad | Platos |
 |---|---|
@@ -75,7 +87,7 @@ Vista isométrica del local completo, como la referencia: cocina al fondo (pared
 Las 34 recetas del juego quedan repartidas una sola vez. Costo de abrir cada ciudad: 0 / 1 500 / 2 500 / 4 000 / 6 000 / 8 000 / 11 000 / 15 000 / 20 000.
 
 ## 7. Pendiente (siguientes fases)
-1. **Modo «Jugar aquí»:** elegir cantidad de áreas activas y dificultad; la recompensa y el dinero generado van a la caja de esa ciudad. Requiere que el motor acepte partidas con áreas y dificultad definidas.
+1. ~~Modo «Jugar aquí»~~ (hecho en v128, ver 5c).
 2. Sincronizar el progreso con la nube (como las propinas) y comprobar contra trampas de reloj.
 3. Arte final (Gemini): mapa, restaurante con personas reales, objetos y personal por nivel (la escena ya admite reemplazar los sprites).
 4. Conectar `fresh`, eventos aleatorios (hora pico, inspección, apagón), reputación por ciudad y ranking.

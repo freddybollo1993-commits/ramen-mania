@@ -316,6 +316,11 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
   .jp-wave { animation: jpWave 4s ease-in-out infinite; } @keyframes jpWave { 50% { transform: translateX(10px); } }
   .jp-boat { animation: jpBoat 22s linear infinite; } @keyframes jpBoat { from { transform: translateX(0); } to { transform: translateX(120px); } }
   .jp-pin.owned circle, .jp-pin.done circle { animation: jpPin 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; } @keyframes jpPin { 50% { transform: scale(1.25); } }
+  .jp-opts { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; } .jp-opt { flex: 1 1 110px; background: #f4ead2; border: 2px solid #c9b78a; border-radius: 10px; padding: 5px 8px; cursor: pointer; display: flex; flex-direction: column; gap: 1px; position: relative; } .jp-opt b { font-size: 13px; } .jp-opt small { font-size: 10px; color: #6b5a3a; font-weight: 600; } .jp-opt em { position: absolute; top: 4px; right: 7px; font-style: normal; font-weight: 900; font-size: 12px; color: #b71c1c; }
+  .jp-opt.sel { border-color: #b71c1c; background: #ffe9c9; box-shadow: 0 0 0 2px rgba(183,28,28,0.25); } .jp-opt.off { opacity: 0.5; cursor: default; }
+  .jp-resultbox { position: fixed; inset: 0; z-index: 9500; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; padding: 10px; font-family: 'Fredoka', 'Nunito', system-ui, sans-serif; color: #3b2a1a; } .jp-resultbox .jp-card { width: 100%; background: #fff8e6; border: 3px solid #7a5a2a; border-radius: 16px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; } .jp-resultbox h3 { margin: 0; font-size: 16px; color: #7a1f1f; }
+  .jp-resultbox .jp-row { display: flex; align-items: center; gap: 8px; background: #f4ead2; border-radius: 10px; padding: 6px 8px; font-size: 12px; font-weight: 700; } .jp-resultbox .jp-row > div { flex: 1; } .jp-resultbox .jp-row small { display: block; color: #6b5a3a; font-weight: 600; } .jp-resultbox .jp-btn { border: 0; border-radius: 10px; padding: 7px 14px; font-weight: 900; font-size: 13px; background: #c9a24a; color: #2b1a08; cursor: pointer; font-family: inherit; } .jp-resultbox .jp-btn.red { background: #b71c1c; color: #fff; }
+  .jp-stats { display: flex; gap: 6px; } .jp-stats div { flex: 1; background: #f4ead2; border-radius: 10px; padding: 5px; text-align: center; } .jp-stats b { display: block; font-size: 16px; } .jp-stats small { font-size: 10px; color: #6b5a3a; font-weight: 700; }
   .jp-foot { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; padding: 0 8px 6px; flex-shrink: 0; }
   .jp-note { background: #fff2b3; border: 2px solid #c9a24a; border-radius: 10px; padding: 4px 8px; font-size: 12px; font-weight: 800; margin: 0 8px; }
   `;
@@ -355,7 +360,7 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
     const c = CITY[S.cur], r = rs(), ev = evalRest(c, r), m = mastery(c, r);
     r.net = ev.net;
     return `<div class="jp-scenehost" id="jp-scene-host">
-      <div class="jp-hudL"><button class="jp-btn" onclick="JP.collect()">💴 Recolectar</button><button class="jp-btn ghost" onclick="JP.fin()">📊 Finanzas</button>
+      <div class="jp-hudL"><button class="jp-btn red" onclick="JP.play()">🎮 Jugar aquí</button><button class="jp-btn" onclick="JP.collect()">💴 Recolectar</button><button class="jp-btn ghost" onclick="JP.fin()">📊 Finanzas</button>
         <div class="jp-capchip"><div class="jp-bar"><b id="jp-capbar" style="width:${Math.round(100 * Math.min(1, r.since / (capHours(r) * 60)))}%"></b></div><small>Caja: tope ${capHours(r).toFixed(1)} h · Maestría ${m.done}/${m.total} · tiempo acelerado</small></div></div></div>`;
   }
 
@@ -435,7 +440,7 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
     const top = `<div class="jp-top"><button class="jp-btn ghost" onclick="${inRest ? 'JP.map()' : 'JP.exit()'}">${inRest ? '← Mapa' : '← Menú'}</button><h2>${title}</h2>
       ${inRest ? `<span class="jp-chip">Caja <b id="jp-cash">S/ ${fmt(rs().cash)}</b></span><span class="jp-chip ${rs().net >= 0 ? 'pos' : 'neg'}"><b id="jp-net" class="${rs().net >= 0 ? 'pos' : 'neg'}">${rs().net >= 0 ? '+' : ''}${fmt1(rs().net * 60)}/h</b></span>` : ''}
       <span class="jp-chip" title="Fondo: soles de Campaña, Rash, Retos y de las cajas">💴 Fondo <b>S/ ${fmt(S.fondo)}</b></span></div>`;
-    el.innerHTML = top + (inRest ? renderRest() : renderMap()) + (inRest && S.zone ? renderZone() : '') + (inRest && S.fin ? renderFin() : '');
+    el.innerHTML = top + (inRest ? renderRest() : renderMap()) + (inRest && S.zone ? renderZone() : '') + (inRest && S.fin ? renderFin() : '') + (inRest && S.playOpen ? renderPlay() : '');
     if (inRest && window.JPScene) window.JPScene.mount(document.getElementById('jp-scene-host'), sceneState);
     else if (window.JPScene) window.JPScene.destroy();
   }
@@ -451,6 +456,82 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
     else if (res.away > MIN_LIVE && res.total < 0) toast('⚠️ Tus locales perdieron dinero mientras no estabas.');
   }
 
+  // ---------- jugar aquí: una jornada en el local (elige dificultad y cuántas áreas abrir) ----------
+  const DIFFS = [
+    { name: 'Fácil', icon: '🌱', time: 240, spawn: 11, orders: 1, cust: 2, pat: 1.5, mult: 0.8, min: 15, desc: 'Clientes pacientes y de a pocos' },
+    { name: 'Normal', icon: '🍜', time: 270, spawn: 8, orders: 1, cust: 3, pat: 1.15, mult: 1.0, min: 22, desc: 'El ritmo de un día normal' },
+    { name: 'Difícil', icon: '🔥', time: 300, spawn: 6.5, orders: 2, cust: 3, pat: 0.9, mult: 1.4, min: 30, desc: 'Pedidos dobles y poca paciencia' },
+    { name: 'Maestro', icon: '👹', time: 330, spawn: 5, orders: 3, cust: 4, pat: 0.7, mult: 2.0, min: 38, desc: 'Hora pico: hasta tres pedidos y mucha prisa' }
+  ];
+  const areasMult = n => 1 + 0.3 * (n - 1);                                   // más áreas activas, más recompensa
+  const AREA_ICON = { ramen: '🍜', salteados: '🥘', frituras: '🍤', makis: '🍣' };
+  const runOf = () => (typeof gameState !== 'undefined' && gameState.japon) || null;
+  window.japonRunAreas = () => (runOf() ? runOf().areas : []);
+  window.japonFirstArea = () => (runOf() && runOf().areas[0]) || 'ramen';
+  window.japonRunDishes = () => { const r = runOf(); return new Set(r ? CITY[r.city].dishes.filter(d => r.areas.includes(d[1])).map(d => d[0]) : []); };
+  window.japonRunConfig = () => {
+    const r = runOf(), d = DIFFS[r ? r.diff : 1];
+    return { level: 1, name: r ? r.cityName : 'Local', customers: 999, base_patience: 40, max_orders: d.orders, max_customers: d.cust, ramen_names: [...window.japonRunDishes()], spawn_time: d.spawn, patience_mult: d.pat, goal: 0, time: d.time, min_score: d.min };
+  };
+  const playSel = r => { if (!r.play) { const open = Object.keys(r.areas).filter(a => r.areas[a]); r.play = { d: 1, a: open.slice(0, 1) }; } r.play.a = r.play.a.filter(a => r.areas[a]); if (!r.play.a.length) r.play.a = Object.keys(r.areas).filter(a => r.areas[a]).slice(0, 1); return r.play; };
+  function renderPlay() {
+    const c = CITY[S.cur], r = rs(), p = playSel(r), d = DIFFS[p.d], mult = d.mult * areasMult(p.a.length);
+    const diffs = DIFFS.map((x, i) => `<div class="jp-opt ${p.d === i ? 'sel' : ''}" onclick="JP.pdiff(${i})"><b>${x.icon} ${x.name}</b><small>${x.desc}</small><em>×${x.mult.toFixed(1)}</em></div>`).join('');
+    const areas = c.areas.map(a => { const open = !!r.areas[a], on = p.a.includes(a), ds = c.dishes.filter(q => q[1] === a).map(q => q[0]).join(', ');
+      return `<div class="jp-opt ${on ? 'sel' : ''} ${open ? '' : 'off'}" ${open ? `onclick="JP.parea('${a}')"` : ''}><b>${AREA_ICON[a]} ${ZONE_INFO[a].name}</b><small>${open ? ds : 'Cocina cerrada: ábrela en el local'}</small></div>`; }).join('');
+    return `<div class="jp-modal" onclick="JP.pclose()"><div class="jp-card" onclick="event.stopPropagation()"><h3><span>🎮 Jugar en ${c.name}</span><button class="jp-btn red" onclick="JP.pclose()">✕</button></h3>
+      <div><b style="font-size:12px">Dificultad</b><div class="jp-opts">${diffs}</div></div>
+      <div><b style="font-size:12px">Áreas activas (${p.a.length}/${c.areas.length})</b><div class="jp-opts">${areas}</div></div>
+      <div class="jp-row"><div>⏱️ ${Math.round(d.time / 60 * 10) / 10} min · Recompensa <b>×${mult.toFixed(2)}</b> del dinero que recaudes<small>(${d.name} ×${d.mult.toFixed(1)}) × (${p.a.length} área${p.a.length > 1 ? 's' : ''} ×${areasMult(p.a.length).toFixed(1)}) · +10 % si no pierdes clientes · va a la caja de ${c.name}${r.best ? ` · mejor: S/ ${fmt(r.best)}` : ''}</small></div><button class="jp-btn red" onclick="JP.pstart()">▶ Empezar jornada</button></div></div></div>`;
+  }
+  function endRun(reason) {
+    const jr = runOf(); if (!jr || jr.ended) return null;
+    jr.ended = true;
+    gameState.isGameOver = true; try { clearInterval(gameLoopInterval); } catch (e) {} try { resetCookingStations(); } catch (e) {}
+    try { AnalyticsTracker.endSession('COMPLETED'); } catch (e) {}
+    load();
+    const d = DIFFS[jr.diff], money = Math.max(0, Math.round(gameState.money || 0)), mult = d.mult * areasMult(jr.areas.length), perfect = gameState.customersLost === 0 && gameState.customersServed > 0;
+    const reward = Math.round(money * mult * (perfect ? 1.1 : 1) * (reason === 'abandon' ? 0.5 : 1));
+    const r = S.rest[jr.city];
+    if (r) { r.cash += reward; r.runs = (r.runs || 0) + 1; r.best = Math.max(r.best || 0, reward); }
+    const mins = runStart ? Math.min(60, (Date.now() - runStart) / 60000) : 0;
+    S.act[dayKey()] = (S.act[dayKey()] || 0) + mins;
+    save();
+    const res = { reason, city: jr.cityName, diff: d, areas: jr.areas, money, mult, perfect, reward, served: gameState.customersServed || 0, lost: gameState.customersLost || 0, tips: gameState.propinasSession || 0 };
+    jr.result = res;
+    if (reason !== 'abandon') showResult(res);
+    return res;
+  }
+  window.japonEnd = endRun;
+  function showResult(res) {
+    css();
+    const el = document.createElement('div'); el.id = 'jp-result'; el.className = 'jp-resultbox';
+    el.innerHTML = `<div class="jp-card" style="max-width:520px"><h3><span>🏮 Jornada en ${res.city} terminada</span></h3>
+      <div class="jp-stats"><div><b>S/ ${res.money}</b><small>Recaudado</small></div><div><b>${res.served}</b><small>Servidos</small></div><div><b>${res.lost}</b><small>Perdidos</small></div><div><b>🧧 ${res.tips}</b><small>Propinas</small></div></div>
+      <div class="jp-row"><div>${res.diff.icon} ${res.diff.name} · ${res.areas.length} área${res.areas.length > 1 ? 's' : ''}<small>×${res.mult.toFixed(2)}${res.perfect ? ' · +10 % por no perder clientes' : ''}</small></div><div style="flex:0 0 auto;text-align:right;font-size:16px;font-weight:900;color:#2e7d32">+S/ ${res.reward}<small>a la caja de ${res.city}</small></div></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end"><button class="jp-btn" onclick="JP.again()">🔄 Otra jornada</button><button class="jp-btn red" onclick="JP.back()">🏮 Volver al local</button></div></div>`;
+    document.body.appendChild(el);
+    try { playSound('serve'); } catch (e) {}
+  }
+  Object.assign(A, {
+    play() { const r = rs(); if (!Object.keys(r.areas).some(a => r.areas[a])) return toast('Abre primero una cocina.'); S.playOpen = true; refresh(); },
+    pclose() { S.playOpen = false; refresh(); },
+    pdiff(i) { playSel(rs()).d = i; refresh(); },
+    parea(a) { const p = playSel(rs()), k = p.a.indexOf(a); if (k >= 0) { if (p.a.length > 1) p.a.splice(k, 1); } else p.a.push(a); refresh(); },
+    pstart() { const r = rs(), c = CITY[S.cur], p = playSel(r); S.playOpen = false; save(); beginRun(c.id, p.a.slice(), p.d); },
+    again() { const jr = runOf(); const box = document.getElementById('jp-result'); if (box) box.remove(); if (!jr) return; beginRun(jr.city, jr.areas.slice(), jr.diff); },
+    back() { const box = document.getElementById('jp-result'); if (box) box.remove(); try { returnToStartMenu(); } catch (e) { console.warn(e); } }
+  });
+  function beginRun(city, areas, diff) {
+    stop(); if (window.JPScene) window.JPScene.destroy();
+    const el = document.getElementById('jp-screen'); if (el) el.remove();
+    S.view = 'rest'; S.cur = city; save();
+    gameState.japon = { city, cityName: CITY[city].name, areas, diff, ended: false };
+    const prev = startSelectedMode; startSelectedMode = 'JAPON';
+    try { executeStartGame(); } finally { startSelectedMode = prev; }
+  }
+  window.JP = Object.assign(window.JP || {}, A);
+
   // ---------- ganchos con el juego ----------
   let runStart = 0, lastRun = null;
   function wrap(name, fn) { const o = window[name]; if (typeof o === 'function' && !o._jp) { const w = function () { try { fn.apply(this, arguments); } catch (e) { console.warn(name, e); } return o.apply(this, arguments); }; w._jp = true; window[name] = w; } }
@@ -458,7 +539,7 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
     try {
       load();
       const mode = gameState.gameMode;
-      if (!['NORMAL', 'RASH', 'TRAINING'].includes(mode)) return;
+      if (!['NORMAL', 'RASH', 'TRAINING'].includes(mode)) return;                // la jornada en un local (JAPON) paga a la caja de ese local, no al Fondo
       const key = mode + ':' + runStart + ':' + (gameState.rashLevel || 0) + ':' + (typeof currentLevelIndex !== 'undefined' ? currentLevelIndex : 0);
       if (lastRun === key) return;
       lastRun = key;
@@ -472,6 +553,18 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
   }
   function install() {
     wrap('executeStartGame', () => { runStart = Date.now(); });
+    // al salir de la jornada (terminada o abandonada) se vuelve al restaurante; abandonar paga solo la mitad
+    const origBack = window.returnToStartMenu;
+    if (typeof origBack === 'function' && !origBack._jp) {
+      const w = function () {
+        const jr = runOf(); let res = null;
+        if (jr) { if (!jr.ended) res = endRun('abandon'); else res = jr.result; }
+        const r = origBack.apply(this, arguments);
+        if (jr) { gameState.japon = null; gameState.gameMode = 'NORMAL'; setTimeout(() => { japonOpen(); if (res && res.reason === 'abandon') toast('Jornada interrumpida: +S/ ' + res.reward + ' (la mitad) a la caja.'); }, 60); }
+        return r;
+      };
+      w._jp = true; window.returnToStartMenu = w;
+    }
     wrap('recordGameScoreAutomatically', onRunEnd);
     // botón en la barra superior del menú
     const wal = document.querySelector('.start-top-right .start-wallet-chip');
