@@ -253,7 +253,7 @@ function mkServe() {
   const q = roll.mkq || {};                                            // el flameado se puntúa en Emplatar
   const proc = 4 + Math.round(12 * (q.roll == null ? 1 : q.roll)) + (roll.pressed2 ? 6 : 0) + (roll.cobQ == null ? 8 : Math.round(8 * roll.cobQ));
   const ok = stPassAdd('makis', { recipes: (a.recipe.candidates || [a.recipe]).map(r => r.name), result: 'PERFECTO',
-    readyAt: roll.readyAt != null ? roll.readyAt : gameState.gameClock, vis: { kind: 'img', src: 'assets/maki_roll_v2.svg', id: 38 }, meta: { mkProc: Math.max(0, Math.min(30, proc)), spread: 1 } });
+    readyAt: roll.readyAt != null ? roll.readyAt : gameState.gameClock, vis: { kind: 'img', src: 'assets/maki_roll_v2.svg', id: 38, ings: roll.ingredients.slice() }, meta: { mkProc: Math.max(0, Math.min(30, proc)), spread: 1 } });
   if (!ok) return;
   mk.slots[mk.sel] = null;
   mkDeselect();
@@ -586,6 +586,37 @@ document.addEventListener('click', (e) => {
   else if (k === 'clear') { const mk = mkGet(); if (mk.sel >= 0) mkTrashSelected(); else mkClearBuild(); }
   else if (k === 'fishback') mkFishBack();
 });
+
+
+// ---------- emplatado de Makis: las 6 piezas del corte sobre una fuente oscura; salsa, ajonjolí, jengibre y wasabi se suman al añadirlos ----------
+const MK_PLATE_SPOTS = [[44, 27], [66, 27], [88, 27], [44, 53], [66, 53], [88, 53]];   // centro de cada pieza (lienzo 110×80)
+function mkPieceInner(ings) { return makiPieceMarkup(ings).replace(/^\s*<svg[^>]*>/, '').replace(/<\/svg>\s*$/, ''); }
+function mkPlateHtml(item, plateItems, sl) {
+  const v = item && item.vis;
+  if (!v || !v.ings) return null;                                            // maki antiguo (sin etapas): dibujo genérico
+  const ings = v.ings, last = plateItems[plateItems.length - 1], flame = sl ? (sl.flame || 0) : 0;
+  const pieces = MK_PLATE_SPOTS.map(([x, y]) => `<svg x="${x - 12}" y="${y - 12}" width="24" height="24" viewBox="0 0 40 40">${mkPieceInner(ings)}</svg>`).join('');
+  const pop = id => (id === last ? ' class="sal-pop"' : '');
+  let extra = '';
+  const sauceId = plateItems.find(id => MAKI_SAUCE_COLORS[id]);
+  if (sauceId) {
+    const c = MAKI_SAUCE_COLORS[sauceId];
+    extra += `<g${pop(sauceId)}>` + (sauceId === 81
+      ? MK_PLATE_SPOTS.map(([x, y], i) => `<circle cx="${x + (i % 2 ? 3 : -3)}" cy="${y - 7}" r="3.3" fill="${c}" stroke="#5e8d2d" stroke-width="0.7"/>`).join('')
+      : [27, 53].map(y => `<path d="M 32,${y - 8} l 6,13 l 6,-13 l 6,13 l 6,-13 l 6,13 l 6,-13 l 6,13 l 6,-13 l 5,13" fill="none" stroke="#00000044" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" transform="translate(0 1)"/><path d="M 32,${y - 8} l 6,13 l 6,-13 l 6,13 l 6,-13 l 6,13 l 6,-13 l 6,13 l 6,-13 l 5,13" fill="none" stroke="${c}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>`).join('')) + '</g>';
+  }
+  if (plateItems.includes(34)) extra += `<g${pop(34)}>${salBlackSesame(30, 7, 66, 40, 30, 22)}</g>`;                                  // ajonjolí negro (California)
+  if (flame > 0.15 && sauceId) {                                                                                                   // flameado: marcas tostadas sobre las piezas
+    const burnt = flame > MAKI_FLAME_GREEN[1], col = burnt ? '#0d0a08' : '#5a2a10', op = Math.min(1, flame / MAKI_FLAME_GREEN[0]) * (burnt ? 0.95 : 0.8);
+    extra += `<g opacity="${op.toFixed(2)}">` + MK_PLATE_SPOTS.map(([x, y]) => `<path d="M ${x - 6},${y - 6} q 6,-5 12,0 M ${x - 4},${y - 3} q 4,-3 8,0" fill="none" stroke="${col}" stroke-width="1.8" stroke-linecap="round"/>`).join('') + '</g>';
+  }
+  if (plateItems.includes(97)) extra += `<g${pop(97)}><ellipse cx="18" cy="30" rx="8" ry="5.4" fill="#f6a8b4" stroke="#c9677a" stroke-width="1"/><path d="M 12,30 q 6,-6 12,0 M 13,33 q 5,-5 10,0 M 14,27 q 4,-3 8,0" fill="none" stroke="#ffd3da" stroke-width="1.1" stroke-linecap="round"/></g>`;   // jengibre (gari)
+  if (plateItems.includes(96)) extra += `<g${pop(96)}><path d="M 11,52 q 0,-8 8,-8 q 8,0 8,8 q 0,4 -8,4 q -8,0 -8,-4 Z" fill="#7fb23d" stroke="#4a7a1f" stroke-width="1"/><path d="M 14,49 q 3,-3 6,-1" fill="none" stroke="#c5e08a" stroke-width="1.2" stroke-linecap="round"/></g>`;   // wasabi
+  return `<div class="fp-bowl"><div class="sal-plate"><svg viewBox="0 0 110 80" aria-hidden="true">
+    <rect x="4" y="8" width="102" height="64" rx="9" fill="#2a2e35" stroke="#12141a" stroke-width="2.4"/><rect x="8" y="12" width="94" height="56" rx="6" fill="none" stroke="#4a515c" stroke-width="1"/>
+    <path d="M 12,15 H 60" stroke="#ffffff" stroke-opacity="0.18" stroke-width="2" stroke-linecap="round"/>
+    ${pieces}${extra}</svg></div></div>`;
+}
 
 // ---------- estilos ----------
 (function mkInjectCss() {
