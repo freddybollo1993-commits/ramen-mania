@@ -1,6 +1,6 @@
-# Recorrido por Japón — diseño y estado (v125)
+# Recorrido por Japón — diseño y estado (v126)
 
-Archivo: `japon.js` · Guardado local: `ramen_japon_v1` · Entrada: botón «🗾 Japón · S/ …» en la barra superior del menú.
+Archivos: `japon.js` (datos, economía, menús) y `japon-scene.js` (escena animada del restaurante) · Guardado local: `ramen_japon_v1` · Entrada: botón «🗾 Japón · S/ …» en la barra superior del menú.
 
 ## 1. Idea (MDA)
 - **Mecánica:** un mapa de 9 ciudades. Cada ciudad es un restaurante «idle» (minimalista) con zonas: Depósito, 4 cocinas (Ramen, Salteados, Frituras, Makis; solo las que tengan platos de esa ciudad), Salón, Caja y Baños. Se compra personal, niveles, mesas, objetos, calidad de ingredientes y tamaño del local con el **Fondo**.
@@ -36,7 +36,7 @@ Archivo: `japon.js` · Guardado local: `ramen_japon_v1` · Entrada: botón «�
 | Pequeño | 4 | 2 / 2 / 1 | 0,15 | — |
 | Mediano | 8 | 3 / 4 / 1 | 0,45 | 600 |
 | Grande | 14 | 4 / 6 / 2 | 1,0 | 2 500 |
-| Amplio | 22 | 5 / 9 / 2 | 1,9 | 9 000 |
+| Amplio | 18 | 5 / 9 / 2 | 1,9 | 9 000 |
 
 Costos de mejoras: `COST_K = 3` y un multiplicador por ciudad (1 → 4). Simulación con un jugador diligente (8 h offline al 60 % + 1 partida de S/ 300 al día): Tokio llega a Maestría en ~45 días; sin actividad, mucho más lento. **Todos los valores están en `T`, `OBJ_COST`, `COST_K` y son ajustables.**
 
@@ -49,8 +49,15 @@ Costos de mejoras: `COST_K = 3` y un multiplicador por ciudad (1 → 4). Simulac
 | `price` | +0,5 % pago por plato | integrado |
 | `fresh` | más tiempo antes de enfriarse | pendiente de conectar |
 
-## 5. Maestría y platos
-Una ciudad se completa cuando: local grande o mayor, calidad 5, todas sus cocinas abiertas, cocineros nivel 4, mozos nivel 4 (≥1 por cada 3 mesas) y los 24 objetos. Entonces **sus platos se desbloquean** en Campaña/Rash/Retos (hoy como *desbloqueo adicional* al de los niveles: `japonUnlockedSafe`).
+## 5. Maestría y mejoras de plato
+Una ciudad se completa cuando: local grande o mayor, calidad 5, todas sus cocinas abiertas, cocineros nivel 4, mozos nivel 4 (≥1 por cada 3 mesas) y los 24 objetos. Los platos **siguen disponibles en el juego de todos modos** (por nivel, como antes); lo que se gana al completar la ciudad es **la mejora de cada plato: +8 % de pago al servirlo** (, constante ). Los objetos aportan además sus mejoras permanentes (sección 4).
+
+## 5b. Escena del restaurante (v126)
+Corte lateral animado: cocina arriba con 4 mostradores con letrero (Ramen, Salteados, Frituras, Makis) + Depósito y Baños; salón abajo con mesas, caja a la izquierda y entrada con noren a la derecha. Todo se toca directo (cartel o zona) y abre la gestión de esa zona.
+- Los cocineros, mozos, cajero, almacenero y limpieza que contratas **aparecen** en la escena con su nivel (círculo de color 1–5); los objetos comprados aparecen en su sitio (los vacíos se ven como «＋»).
+- Clientes (grupos de 1–2) entran, se sientan, piden (burbuja con el plato), un mozo va a la cocina, espera a que el cocinero lo prepare, lo lleva, comen, pagan en la caja (+S/) y se van. Los errores salen como 😖 sin cobro.
+- Un ⬆ verde avisa dónde hay una mejora que ya puedes pagar. El montón de dinero de la caja se toca para recolectar.
+- Es solo visual (tiempo acelerado ×10): la ganancia real la calcula la economía de la sección 3. Los sprites son vectoriales y se pueden sustituir por el arte final.
 
 ## 6. Platos por ciudad (relación histórica o afinidad)
 | Ciudad | Platos |
@@ -70,6 +77,6 @@ Las 34 recetas del juego quedan repartidas una sola vez. Costo de abrir cada ciu
 ## 7. Pendiente (siguientes fases)
 1. **Modo «Jugar aquí»:** elegir cantidad de áreas activas y dificultad; la recompensa y el dinero generado van a la caja de esa ciudad. Requiere que el motor acepte partidas con áreas y dificultad definidas.
 2. Sincronizar el progreso con la nube (como las propinas) y comprobar contra trampas de reloj.
-3. Arte (Gemini): mapa, restaurante isométrico con personas reales, objetos, personal por nivel.
+3. Arte final (Gemini): mapa, restaurante con personas reales, objetos y personal por nivel (la escena ya admite reemplazar los sprites).
 4. Conectar `fresh`, eventos aleatorios (hora pico, inspección, apagón), reputación por ciudad y ranking.
 5. Revisar el equilibrio con la economía general (`tools/economia-niveles.cjs`).

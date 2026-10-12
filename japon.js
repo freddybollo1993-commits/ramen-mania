@@ -58,7 +58,7 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
     waiter: { spd: [0.50, 0.70, 0.95, 1.25, 1.60], err: [0.20, 0.14, 0.09, 0.05, 0.03], wage: [0.10, 0.15, 0.23, 0.35, 0.50] },
     aux:    { wage: [0.08, 0.12, 0.18, 0.27, 0.38] },
     tiers: [{ name: 'Local pequeño', tables: 4, rent: 0.15, cooks: 2, waiters: 2, aux: 1, cost: 0 }, { name: 'Local mediano', tables: 8, rent: 0.45, cooks: 3, waiters: 4, aux: 1, cost: 600 },
-            { name: 'Local grande', tables: 14, rent: 1.0, cooks: 4, waiters: 6, aux: 2, cost: 2500 }, { name: 'Local amplio', tables: 22, rent: 1.9, cooks: 5, waiters: 9, aux: 2, cost: 9000 }],
+            { name: 'Local grande', tables: 14, rent: 1.0, cooks: 4, waiters: 6, aux: 2, cost: 2500 }, { name: 'Local amplio', tables: 18, rent: 1.9, cooks: 5, waiters: 9, aux: 2, cost: 9000 }],
     demand: 0.4,                                         // platos/min por mesa
     quality: { price: 0.12, cogs: 0.03, base: 0.26, cost: [0, 300, 900, 2400, 6000] },
     elecTable: 0.015, elecTier: 0.04, waterTable: 0.012, leak: 0.06,
@@ -210,9 +210,11 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
     const done = checks.filter(x => x.ok).length;
     return { checks, done, total: checks.length, complete: done === checks.length };
   }
-  function japonUnlocked(name) {
+  // Mejora de plato: al completar la Maestría de una ciudad, cada uno de sus platos da +8 % de pago al servirlo (los platos ya están disponibles en el juego de todos modos)
+  const DISH_BONUS = 0.08;
+  function japonDishBonus(name) {
     load();
-    return Object.keys(S.rest).some(id => CITY[id].dishes.some(d => d[0] === name) && mastery(CITY[id], S.rest[id]).complete);
+    return Object.keys(S.rest).some(id => CITY[id].dishes.some(d => d[0] === name) && mastery(CITY[id], S.rest[id]).complete) ? DISH_BONUS : 0;
   }
   function japonBuff(key) {
     load();
@@ -238,12 +240,12 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
     collect() { const r = rs(); const g = Math.floor(r.cash); if (g < 1) return toast('La caja está vacía.'); S.fondo += g; S.lifetime += g; r.cash -= g; r.since = 0; try { playSound('match'); } catch (e) {} toast('💴 +S/ ' + fmt(g) + ' al Fondo'); refresh(); },
     open(id) { const c = CITY[id]; if (S.open[id]) { A.go(id); return; } if (!pay(c.cost)) return; S.open[id] = true; S.rest[id] = newRest(c); A.go(id); },
     go(id) { S.cur = id; S.view = 'rest'; refresh(); },
-    map() { S.view = 'map'; S.sel = S.sel || S.cur; refresh(); },
+    map() { S.view = 'map'; S.sel = S.sel || S.cur; if (window.JPScene) window.JPScene.destroy(); refresh(); },
     sel(id) { S.sel = id; refresh(); },
     zone(z) { S.zone = z; refresh(); },
     close() { S.zone = null; refresh(); },
     fin() { S.fin = !S.fin; refresh(); },
-    exit() { stop(); const el = document.getElementById('jp-screen'); if (el) el.remove(); S.view = null; save(); updateChip(); }
+    exit() { stop(); if (window.JPScene) window.JPScene.destroy(); const el = document.getElementById('jp-screen'); if (el) el.remove(); S.view = null; save(); updateChip(); }
   };
   const rs = () => S.rest[S.cur];
 
@@ -256,6 +258,7 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
     const q = id => document.getElementById(id);
     if (q('jp-cash')) q('jp-cash').textContent = 'S/ ' + fmt(r.cash);
     if (q('jp-net')) { q('jp-net').textContent = (r.net >= 0 ? '+' : '') + fmt1(r.net * 60) + '/h'; q('jp-net').className = r.net >= 0 ? 'pos' : 'neg'; }
+    if (window.JPScene) window.JPScene.update();
     if (q('jp-capbar')) q('jp-capbar').style.width = Math.round(100 * Math.min(1, r.since / (capHours(r) * 60))) + '%';
   }
   function refresh() { save(); render(); }
@@ -296,6 +299,11 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
   .jp-obj { opacity: 1; } .jp-obj.have { background: #d7ecc0; } .jp-obj .ic { font-size: 22px; }
   .jp-fin table { width: 100%; border-collapse: collapse; font-size: 12px; } .jp-fin td { padding: 2px 4px; border-bottom: 1px solid #e0d2ac; } .jp-fin td:last-child { text-align: right; font-weight: 800; }
   .jp-mast { display: flex; flex-direction: column; gap: 2px; font-size: 11px; } .jp-mast .ok { color: #2e7d32; } .jp-mast .no { color: #8a6a35; }
+  .jp-scenehost { flex: 1; min-height: 0; display: flex; }
+  .jp-cloud { animation: jpCloud 38s linear infinite; opacity: 0.85; } .jp-cloud.c2 { animation-duration: 55s; animation-delay: -20s; } @keyframes jpCloud { from { transform: translateX(-80px); } to { transform: translateX(680px); } }
+  .jp-wave { animation: jpWave 4s ease-in-out infinite; } @keyframes jpWave { 50% { transform: translateX(10px); } }
+  .jp-boat { animation: jpBoat 22s linear infinite; } @keyframes jpBoat { from { transform: translateX(0); } to { transform: translateX(120px); } }
+  .jp-pin.owned circle, .jp-pin.done circle { animation: jpPin 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; } @keyframes jpPin { 50% { transform: scale(1.25); } }
   .jp-foot { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; padding: 0 8px 6px; flex-shrink: 0; }
   .jp-note { background: #fff2b3; border: 2px solid #c9a24a; border-radius: 10px; padding: 4px 8px; font-size: 12px; font-weight: 800; margin: 0 8px; }
   `;
@@ -307,11 +315,13 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
       return `<g class="jp-pin ${done ? 'done' : (open ? 'owned' : 'locked')} ${S.sel === c.id ? 'sel' : ''}" onclick="JP.sel('${c.id}')"><circle cx="${c.x}" cy="${c.y}" r="9"/><text x="${c.x + 12}" y="${c.y + 4}">${c.name}</text></g>`;
     }).join('');
     return `<svg viewBox="0 0 600 300" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-      <rect width="600" height="300" fill="#9fd0e8"/><path d="M0,40 q60,10 120,0 t120,0 t120,0 t120,0 t120,0" fill="none" stroke="#b9e0f2" stroke-width="3" opacity="0.7"/><path d="M0,280 q60,-10 120,0 t120,0 t120,0 t120,0 t120,0" fill="none" stroke="#b9e0f2" stroke-width="3" opacity="0.7"/>
+      <rect width="600" height="300" fill="#9fd0e8"/><g class="jp-wave"><path d="M20,100 q20,-8 40,0 t40,0 M470,230 q20,-8 40,0 t40,0 M30,150 q20,-8 40,0 t40,0" fill="none" stroke="#c8e8f6" stroke-width="3"/></g><path d="M0,40 q60,10 120,0 t120,0 t120,0 t120,0 t120,0" fill="none" stroke="#b9e0f2" stroke-width="3" opacity="0.7"/><path d="M0,280 q60,-10 120,0 t120,0 t120,0 t120,0 t120,0" fill="none" stroke="#b9e0f2" stroke-width="3" opacity="0.7"/>
       <path class="jp-land" d="M 500,30 L 545,22 L 585,45 L 570,72 L 535,68 L 515,82 L 495,62 Z"/>
       <path class="jp-land" d="M 160,214 L 205,196 L 252,196 L 292,178 L 318,146 L 330,122 L 372,138 L 398,126 L 418,98 L 432,70 L 452,66 L 456,92 L 446,128 L 424,162 L 392,176 L 352,190 L 318,200 L 270,214 L 220,226 Z"/>
       <path class="jp-land" d="M 232,232 L 275,224 L 290,238 L 262,252 L 238,248 Z"/>
       <path class="jp-land" d="M 80,236 L 118,214 L 150,226 L 146,258 L 118,278 L 92,270 L 78,252 Z"/>
+      <g class="jp-boat"><path d="M180,262 h22 l-4,8 h-14 Z" fill="#8a5a2b"/><path d="M190,262 v-12 l9,10 Z" fill="#fff"/></g>
+      <g class="jp-cloud"><ellipse cx="60" cy="40" rx="26" ry="9" fill="#fff"/><ellipse cx="78" cy="34" rx="16" ry="8" fill="#fff"/></g><g class="jp-cloud c2"><ellipse cx="40" cy="190" rx="22" ry="8" fill="#fff"/><ellipse cx="56" cy="185" rx="14" ry="7" fill="#fff"/></g>
       ${pins}</svg>`;
   }
 
@@ -325,34 +335,17 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
     return `<div class="jp-body"><div class="jp-map">${mapSvg()}</div>
       <div class="jp-side"><h3>${sel.name} <small>· ${sel.region}</small></h3><small>${sel.story}</small>
         ${dishes}
-        <small>${open ? `Local abierto · neto ${net >= 0 ? '+' : ''}${fmt1(net * 60)}/h · Maestría ${m.done}/${m.total}${m.complete ? ' ✅ platos desbloqueados' : ''}` : 'Al completar la Maestría de este local se desbloquean estos platos en el juego.'}</small>
+        <small>${open ? `Local abierto · neto ${net >= 0 ? '+' : ''}${fmt1(net * 60)}/h · Maestría ${m.done}/${m.total}${m.complete ? ' ✅ mejoras de platos ganadas' : ''}` : 'Al completar la Maestría de este local ganas la mejora de cada uno de estos platos (+8 % de pago al servirlo). Los platos están disponibles en el juego igualmente.'}</small>
         <button class="jp-btn ${open ? '' : 'red'}" onclick="JP.open('${sel.id}')">${open ? '🏮 Entrar al restaurante' : `Abrir local · S/ ${fmt(sel.cost)}`}</button></div></div>`;
-  }
-
-  function zoneTile(c, r, z, ev) {
-    const info = ZONE_INFO[z], s = r.staff[z], isK = KITCHENS.includes(z);
-    if (isK && !c.areas.includes(z)) return `<div class="jp-zone off" style="opacity:0.35;cursor:default"><span class="ic">${info.icon}</span><span class="nm">${info.name}</span><small>sin platos aquí</small></div>`;
-    if (isK && !r.areas[z]) return `<div class="jp-zone off" onclick="JP.zone('${z}')"><span class="ic">${info.icon}</span><span class="nm">${info.name}</span><small>Cerrada · abrir S/ ${fmt(costArea(c.id, Object.values(r.areas).filter(Boolean).length))}</small></div>`;
-    const objs = OBJECTS[z].filter(o => r.objs[o[0] + '@' + z]).length;
-    const p = isK ? (ev.per.find(x => x.a === z) || null) : null;
-    let extra = `<small>${info.role}: ${s.n} · Nv ${s.l}</small>`;
-    if (z === 'salon') extra = `<div class="jp-tables">${Array.from({ length: r.tables }, () => '<i>🪑</i>').join('')}</div><small>${r.tables} mesas · Mozos ${s.n} Nv ${s.l} · Rep ×${ev.R.toFixed(2)}</small>`;
-    if (p) extra += `<small>${p.ok.toFixed(2)} platos/min${s.n === 0 ? ' · ¡sin personal!' : ''}</small>`;
-    if (z === 'caja') extra += `<small>Tope ${capHours(r).toFixed(1)} h</small>`;
-    if (z === 'depo') extra += `<small>Calidad ${r.q}/5</small>`;
-    return `<div class="jp-zone ${z === 'salon' ? 'salon' : ''}" onclick="JP.zone('${z}')"><span class="bd">${objs}/3</span><span class="ic">${info.icon}</span><span class="nm">${info.name}</span>${extra}</div>`;
   }
 
   function renderRest() {
     const c = CITY[S.cur], r = rs(), ev = evalRest(c, r), m = mastery(c, r);
     r.net = ev.net;
-    const order = ['depo', 'ramen', 'salteados', 'frituras', 'makis', 'salon', 'caja', 'banos'];
-    const tiles = order.map(z => zoneTile(c, r, z, ev)).join('');
-    const warn = ev.net < 0 ? `<div class="jp-note">⚠️ El local pierde dinero (S/ ${fmt1(-ev.net * 60)}/h): sube el nivel del personal o baja gastos.</div>` : (ev.wCap <= 0 ? '<div class="jp-note">⚠️ Sin mozos nadie atiende las mesas: contrata uno en el Salón.</div>' : '');
-    return `${warn}<div class="jp-body"><div class="jp-plan">${tiles}</div></div>
+    return `<div class="jp-scenehost" id="jp-scene-host"></div>
       <div class="jp-foot"><button class="jp-btn" onclick="JP.collect()">💴 Recolectar</button><button class="jp-btn ghost" onclick="JP.fin()">📊 Finanzas</button>
         <button class="jp-btn ghost" onclick="JP.zone('local')">🏠 ${T.tiers[r.tier - 1].name}</button>
-        <div style="flex:1;min-width:120px"><div class="jp-bar"><b id="jp-capbar" style="width:${Math.round(100 * Math.min(1, r.since / (capHours(r) * 60)))}%"></b></div><small style="font-size:10px;color:#6b5a3a;font-weight:700">Caja: tope ${capHours(r).toFixed(1)} h sin recolectar · Maestría ${m.done}/${m.total}</small></div></div>`;
+        <div style="flex:1;min-width:120px"><div class="jp-bar"><b id="jp-capbar" style="width:${Math.round(100 * Math.min(1, r.since / (capHours(r) * 60)))}%"></b></div><small style="font-size:10px;color:#6b5a3a;font-weight:700">Caja: tope ${capHours(r).toFixed(1)} h sin recolectar · Maestría ${m.done}/${m.total} · escena en tiempo acelerado</small></div></div>`;
   }
 
   const hireRow = (c, r, z) => {
@@ -401,11 +394,29 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
       <small>Errores: se pierden S/ ${fmt1(ev.lost * h)}/h en platos mal hechos o mal servidos. Demanda ${(ev.demand * 60).toFixed(0)} platos/h, atendidos ${(ev.served * 60).toFixed(0)}/h. Reputación ×${ev.R.toFixed(2)}.</small>
       <small>Offline: acumulas hasta ${capHours(r).toFixed(1)} h; tu actividad reciente rinde al ${Math.round(actMult() * 100)}% (juega Campaña, Rash o Retos para subirla).</small>
       <h3 style="font-size:14px">🏆 Maestría ${m.done}/${m.total}</h3><div class="jp-mast">${m.checks.map(x => `<span class="${x.ok ? 'ok' : 'no'}">${x.ok ? '✔' : '○'} ${x.t}</span>`).join('')}</div>
-      <small>Al completar la Maestría se desbloquean en el juego: ${c.dishes.map(d => d[0]).join(', ')}.</small></div></div>`;
+      <small>Al completar la Maestría ganas la mejora de sus platos (+8 % de pago al servirlos): ${c.dishes.map(d => d[0]).join(', ')}.</small></div></div>`;
   }
 
+  const UP = (z, r, id) => {                                         // ¿hay una mejora pagable en esa zona?
+    const f = S.fondo;
+    if (z === 'local') return r.tier < 4 && costTier(id, r.tier) <= f;
+    if (KITCHENS.includes(z) && !r.areas[z]) return costArea(id, Object.values(r.areas).filter(Boolean).length) <= f;
+    const s = r.staff[z];
+    if (s.n < staffMax(r, z) && costHire(id, z, s.n) <= f) return true;
+    if (s.n > 0 && s.l < 5 && costLevel(id, z, s.l, s.n) <= f) return true;
+    if (z === 'salon' && r.tables < T.tiers[r.tier - 1].tables && costTable(id, r.tables) <= f) return true;
+    if (z === 'depo' && r.q < 5 && costQual(id, r.q) <= f) return true;
+    return (OBJECTS[z] || []).some((o, i) => !r.objs[o[0] + '@' + z] && costObj(id, i) <= f);
+  };
+  function sceneState() {
+    if (!S.cur || !S.rest[S.cur]) return null;
+    const c = CITY[S.cur], r = S.rest[S.cur], ev = evalRest(c, r);
+    return { c, r, ev, fmt, OBJ: OBJECTS, pm: 1 + T.quality.price * (r.q - 1), tierName: T.tiers[r.tier - 1].name, tierTables: T.tiers[r.tier - 1].tables,
+      canUp: z => UP(z, r, c.id), costArea: () => costArea(c.id, Object.values(r.areas).filter(Boolean).length), staffMax: z => staffMax(r, z), hasObj: k => !!r.objs[k] };
+  }
   function render() {
     load(); css();
+    if (window.JPScene) window.JPScene.detach();
     let el = document.getElementById('jp-screen');
     if (!el) { el = document.createElement('div'); el.id = 'jp-screen'; document.body.appendChild(el); }
     const inRest = S.view === 'rest' && S.cur && S.rest[S.cur];
@@ -414,6 +425,8 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
       ${inRest ? `<span class="jp-chip">Caja <b id="jp-cash">S/ ${fmt(rs().cash)}</b></span><span class="jp-chip ${rs().net >= 0 ? 'pos' : 'neg'}"><b id="jp-net" class="${rs().net >= 0 ? 'pos' : 'neg'}">${rs().net >= 0 ? '+' : ''}${fmt1(rs().net * 60)}/h</b></span>` : ''}
       <span class="jp-chip" title="Fondo: soles de Campaña, Rash, Retos y de las cajas">💴 Fondo <b>S/ ${fmt(S.fondo)}</b></span></div>`;
     el.innerHTML = top + (inRest ? renderRest() : renderMap()) + (inRest && S.zone ? renderZone() : '') + (inRest && S.fin ? renderFin() : '');
+    if (inRest && window.JPScene) window.JPScene.mount(document.getElementById('jp-scene-host'), sceneState);
+    else if (window.JPScene) window.JPScene.destroy();
   }
 
   function open() {
@@ -464,7 +477,7 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
   window.JP = Object.assign({}, A);
   window.japonOpen = open;
   window.japonBuff = japonBuff;
-  window.japonUnlocked = japonUnlocked;
+  window.japonDishBonus = japonDishBonus;
   window.JP_TEST = { CITIES, T, evalRest, newRest, mastery, costHire, costLevel, costObj, costTable, costTier, costQual, costArea, OBJECTS, staffMax };
   if (typeof document !== 'undefined') {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install); else install();

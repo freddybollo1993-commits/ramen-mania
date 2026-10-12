@@ -6446,7 +6446,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v125</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v126</span></button></div>
     </div>
   </div>
 
@@ -9581,7 +9581,7 @@ function getUnlockedRamenRecipes() {
   if (isFree()) return RECETAS_RAMEN;
   if (isMultiplayerSession()) return RECETAS_RAMEN;
   const cfg = getCurrentLevelConfig();
-  return RECETAS_RAMEN.filter(r => cfg.ramen_names.includes(r.name) || japonUnlockedSafe(r.name));
+  return RECETAS_RAMEN.filter(r => cfg.ramen_names.includes(r.name));
 }
 
 // Todo lo que los clientes pueden pedir ahora: ramen + los platos de las otras áreas que ya entraron
@@ -9598,7 +9598,7 @@ function getUnlockedRecipes() {
   const lvl = campaign ? (currentLevelIndex + 1) : (gameState.rashLevel || 1);
   Object.keys(AREA_DISH_UNLOCKS).forEach(area => {
     AREA_DISH_UNLOCKS[area].forEach(([name, campLvl, rashLvl]) => {
-      if (!mp && lvl < (campaign ? campLvl : rashLvl) && !japonUnlockedSafe(name)) return;
+      if (!mp && lvl < (campaign ? campLvl : rashLvl)) return;
       const r = AREA_CATALOGS[area].find(x => x.name === name);
       if (r) list.push(r);
     });
@@ -16387,7 +16387,7 @@ const UPGRADES = [
 const UPGRADE_BY_ID = Object.fromEntries(UPGRADES.map(u => [u.id, u]));
 // Recorrido por Japón (japon.js): mejoras permanentes de los objetos de los restaurantes y platos desbloqueados por Maestría
 const japonBuffSafe = k => (typeof japonBuff === 'function' && !isMultiplayerSession() && !isTraining() && !isFree()) ? japonBuff(k) : 0;
-const japonUnlockedSafe = n => { try { return typeof japonUnlocked === 'function' && japonUnlocked(n); } catch (e) { return false; } };
+const japonDishBonusSafe = n => { try { return (typeof japonDishBonus === 'function' && !isMultiplayerSession() && !isTraining() && !isFree()) ? japonDishBonus(n) : 0; } catch (e) { return 0; } };
 
 const TRAINING_KEY = 'ramen_training';
 const STATS_KEY = 'ramen_stats';
@@ -18106,7 +18106,7 @@ function serveOrder(customerIndex, itemIndex, dish) {
 
   let pay = Math.round(orderItem.recipe.price * QUALITY_PAY_MULT[tier]);
   if (dish.meta && dish.meta.dashiBase && orderItem.recipe.name === 'Vegetariano') pay = Math.round(pay * 1.2);
-  pay = Math.round(pay * (1 + japonBuffSafe('price')));
+  pay = Math.round(pay * (1 + japonBuffSafe('price') + japonDishBonusSafe(orderItem.recipe.name)));
   serveVfx(customerIndex, pay, tier);
   orderItem.served = true;
   orderItem.quality = dish.quality;
@@ -25067,6 +25067,7 @@ if (document.readyState === 'loading') {
 <script src="makis-studio.js?v=118"></script>
 <script src="frituras-prod.js?v=2"></script>
 <script src="frituras-plate.js?v=2"></script>
-<script src="japon.js?v=5"></script>
+<script src="japon.js?v=6"></script>
+<script src="japon-scene.js?v=4"></script>
 </body>
 </html>
