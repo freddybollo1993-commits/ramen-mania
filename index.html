@@ -6351,7 +6351,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v96</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v97</span></button></div>
     </div>
   </div>
 
@@ -11795,7 +11795,10 @@ const ST_PROD = {
     { key: 'finos',    label: 'Vegetales finos', icon: 68, covers: [63, 68, 42, 23, 67],       use: 'plate', how: 'cut',                                                 time: 7,  batch: 6, max: 12, start: 6 },
     // Poro especial (Batayaki): se CORTA aquí, pasa a Frituras (solo harina y fritura) y vuelve como poro frito para emplatar. start 0: sin ese viaje no hay poro frito.
     // Cebolla caramelizada (Omuraisu): se corta y se carameliza en una hornilla
-    { key: 'cebcar',   label: 'Cebolla caramelizada', short: 'Cebolla carm.', icon: 46, covers: [103], use: 'cook', how: 'cut', binWord: 'cortada', then: 'caramelize', time: 12, batch: 4, max: 8, start: 4 },
+    // Cebolla caramelizada (proceso real): cebolla blanca fresca → se corta → se cocina con un poco de aceite en el wok hasta el color caramelo (la cebolla de la hornilla va cambiando de color; retirarla a tiempo)
+    { key: 'cebcar',   label: 'Cebolla caramelizada', short: 'Cebolla carm.', icon: 46, covers: [103], use: 'cook', how: 'cut', binWord: 'cortada', then: 'caramelize', time: 12, batch: 4, max: 8, start: 4,
+      tip1: 'Cortar la cebolla blanca fresca', tip2: 'Cocinar con un poco de aceite en el wok hasta el color caramelo',
+      msg2: (n, slot) => `🍯 ${n} cebolla cortada al wok (hornilla ${slot + 1}) con un poco de aceite: retírala cuando tome color caramelo.` },
     // Lomo ya salteado (Yasaitame, primera parte): llega a Emplatar como pieza; se hace en un wok (ver wokPartToPlate)
     { key: 'lomoSal',  label: 'Lomo salteado',   icon: 61, covers: [61], use: 'plate', virtual: true, noStockMsg: '🥩 Sin lomo salteado: saltéalo en un wok (Yasaitame, primera parte).', time: 0, batch: 0, max: 8, start: 0 },
     { key: 'poro',     label: 'Poro especial',   icon: 71, covers: [71],                       use: 'plate', how: 'cut', xfer: 'poroCut',                       time: 0,  batch: 0, max: 8,  start: 0 }
@@ -12183,6 +12186,13 @@ function stCoolInfo(st, p) {
 }
 function stCoolText(st, p) { const c = stCoolInfo(st, p); return `🧊${c.cooled}${c.cooling ? ` +${c.cooling}⏳${c.left}s` : ''}`; }
 const stCoolChip = (st, p) => ` <span class="fp-cut" data-cool-of="${p.key}" title="Frío, listo para porcionar (400 g) · y lo que se está enfriando">${stCoolText(st, p)}</span>`;
+// Color de lo que se caramelizó en la hornilla: pálido (crudo) → dorado → caramelo (listo) → casi negro (pasado)
+function stPotTone(sl) {
+  if (!sl || sl.how !== 'caramelize') return '';
+  if (sl.state === 'over') return 'sepia(1) saturate(1.2) brightness(0.32)';
+  const k = sl.state === 'ready' ? 1 : 1 - sl.left / sl.total;
+  return `sepia(${(0.15 + 0.8 * k).toFixed(2)}) saturate(${(0.7 + 1.3 * k).toFixed(2)}) hue-rotate(${Math.round(-14 * k)}deg) brightness(${(1.25 - 0.4 * k).toFixed(2)})`;
+}
 // Texto de la tabla: producto, cuánto hay en su depósito y, si se lava varias veces, en qué pasada va
 function shopBoardLabelText(st, p) {
   const b = st.board;
@@ -12224,7 +12234,7 @@ function stShopStart(area, p, mode) {
     const total = stProdTime(p);
     st.stove[slot] = { key: p.key, how, n, left: total, total, state: 'cooking', late: 0 };
     try { playSound('splash'); } catch (e) {}
-    if (p.then) showStationToast(`${ST_HOW[how].icon} ${n} ${p.label.toLowerCase()} ${stBinWord(p)} a ${ST_HOW[how].verb.toLowerCase()} en la hornilla ${slot + 1}.`);
+    if (p.then) showStationToast(p.msg2 ? p.msg2(n, slot) : `${ST_HOW[how].icon} ${n} ${p.label.toLowerCase()} ${stBinWord(p)} a ${ST_HOW[how].verb.toLowerCase()} en la hornilla ${slot + 1}.`);
   }
   stRenderIfOpen(area);
   updateAreaTabAlerts();
@@ -12573,8 +12583,8 @@ function stRenderShop(area, panel) {
       <div class="fp-card-name">${p.short || p.label}</div>
       <div class="fp-card-n"><span data-stock-of="${p.key}">${n}/${p.max}</span> <span class="fp-cut" data-cut-of="${p.key}" title="${stBinWord(p)[0].toUpperCase() + stBinWord(p).slice(1)}, listo para ${ST_HOW[p.then].verb.toLowerCase()}">${stBinTag(p)}${c}</span>${p.after ? stCoolChip(st, p) : ''}</div>
       <div class="fp-btn-row">
-        <button class="fp-btn" ${cutOff ? 'disabled' : ''} title="${stVerb1(p)} ${p.label}" onclick="stProdStart('${area}','${p.key}','${p.how}')">${how.icon} ${stVerb1(p)}</button>
-        <button class="fp-btn" ${blOff ? 'disabled' : ''} title="${h2.verb} ${p.label} ${stBinWord(p)} (${stProdTime(p)} s)" onclick="stProdStart('${area}','${p.key}','${p.then}')">${h2.icon} ${h2.short}</button>
+        <button class="fp-btn" ${cutOff ? 'disabled' : ''} title="${p.tip1 || `${stVerb1(p)} ${p.label}`}" onclick="stProdStart('${area}','${p.key}','${p.how}')">${how.icon} ${stVerb1(p)}</button>
+        <button class="fp-btn" ${blOff ? 'disabled' : ''} title="${p.tip2 ? `${p.tip2} (${stProdTime(p)} s)` : `${h2.verb} ${p.label} ${stBinWord(p)} (${stProdTime(p)} s)`}" onclick="stProdStart('${area}','${p.key}','${p.then}')">${h2.icon} ${h2.short}</button>
         ${p.after ? `<button class="fp-btn" data-pt-btn="${p.key}" ${!(st.cooled[p.key] >= 1) || n >= p.max ? 'disabled' : ''} title="Porcionar el ${p.label.toLowerCase()} frío en porciones de 400 g" onclick="stProdStart('${area}','${p.key}','portion')">${ST_HOW[p.after].icon} ${ST_HOW[p.after].short}</button>` : ''}
       </div>
     </div>`;
@@ -12596,7 +12606,7 @@ function stRenderShop(area, panel) {
     const p = sl ? stProdOf(area, sl.key) : null;
     const st2 = sl ? (sl.state === 'cooking' ? `${ST_HOW[sl.how].icon} <b data-slot-left="${i}">${sl.left}</b> s` : (sl.state === 'ready' ? '✅ ¡Retirar!' : '⚠ Pasado')) : 'Libre';
     return `<div class="shop-pot p${i} ${sl ? 'is-' + sl.state : ''}" onclick="stShopCollect('${area}',${i})" title="Hornilla ${i + 1}">
-      ${sl ? `<span class="shop-pot-ico">${stIngIconRaw(p.icon)}</span>` : ''}
+      ${sl ? `<span class="shop-pot-ico" data-pot-ico="${i}" style="${stPotTone(sl) ? `filter:${stPotTone(sl)};transition:filter 1s linear` : ''}">${stIngIconRaw(p.icon)}</span>` : ''}
       <span class="shop-pot-state" data-slot-state="${i}">${st2}</span>
       ${sl && sl.state === 'cooking' ? `<div class="shop-bar pot-bar"><i data-slot-bar="${i}" style="width:${Math.round(100 * (1 - sl.left / sl.total))}%"></i></div>` : ''}
     </div>`;
@@ -12629,7 +12639,7 @@ function stRenderShop(area, panel) {
     </div></div>`;
     return;
   }
-  const hint = !st.knifeArmed ? (area === 'salteados' ? 'Arroz Gohan: 🧺 lávalo 2 veces → ♨️ cuécelo → 🧊 se enfría solo → ⚖️ porciónalo (400 g). Verduras: 🔪 córtalas; el brócoli además 💧 se blanquea.' : area === 'ramen' ?'Cortar: toca 🔪 y arrastra el cuchillo a la tabla. Holantao, espárrago y col: corta y 💧 blanquea. Moyashi: 🧺 límpialo y 💧 blanquea.' : 'Cortar: toca 🔪 y arrastra el cuchillo a la tabla. 🧺 = se limpia con las manos. Lo de dos pasos se prepara en la tabla y luego pasa a la hornilla.') : (st.board ? 'Toca la pantalla para cortar: 3 cortes = 1 porción.' : 'Cuchillo listo: toca la ficha de un producto para cortar.');
+  const hint = !st.knifeArmed ? (area === 'salteados' ? 'Arroz Gohan: 🧺 lávalo 2 veces → ♨️ cuécelo → 🧊 se enfría solo → ⚖️ porciónalo (400 g). Verduras: 🔪 córtalas; el brócoli además 💧 se blanquea. Cebolla caramelizada: 🔪 corta la cebolla blanca → 🍯 con aceite en el wok hasta color caramelo.' : area === 'ramen' ?'Cortar: toca 🔪 y arrastra el cuchillo a la tabla. Holantao, espárrago y col: corta y 💧 blanquea. Moyashi: 🧺 límpialo y 💧 blanquea.' : 'Cortar: toca 🔪 y arrastra el cuchillo a la tabla. 🧺 = se limpia con las manos. Lo de dos pasos se prepara en la tabla y luego pasa a la hornilla.') : (st.board ? 'Toca la pantalla para cortar: 3 cortes = 1 porción.' : 'Cuchillo listo: toca la ficha de un producto para cortar.');
   panel.innerHTML = `<div class="fp-wrap fp-shop">
     <div class="fp-head"><span>🥬 Producción · ${AREA_LABELS[area]}</span><small>${hint}</small>${stBackBtn(area)}</div>
     <div class="fp-cards many shop-cards" style="--cols:${Math.max(6, Math.ceil(list.length / 2))}">${cards}</div>
@@ -12646,6 +12656,7 @@ function stShopUi(area, panel) {
     if (!sl || sl.state !== 'cooking') return;
     const l = panel.querySelector(`[data-slot-left="${i}"]`); if (l) l.textContent = sl.left;
     const bar = panel.querySelector(`[data-slot-bar="${i}"]`); if (bar) bar.style.width = `${Math.round(100 * (1 - sl.left / sl.total))}%`;
+    const ic = panel.querySelector(`[data-pot-ico="${i}"]`); if (ic && stPotTone(sl)) ic.style.filter = stPotTone(sl);   // la cebolla va tomando color caramelo
   });
   panel.querySelectorAll('[data-cool-of]').forEach(el => { const p = stProdOf(area, el.dataset.coolOf); if (p) el.textContent = stCoolText(st, p); });   // 🧊 enfriando: cuenta atrás
 }
