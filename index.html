@@ -6418,7 +6418,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v119</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v120</span></button></div>
     </div>
   </div>
 
@@ -11995,25 +11995,20 @@ const ST_PROD = {
     { key: 'cobConch', label: 'Cobertura de conchas', short: 'Cob. conchas', icon: 50, covers: [50], use: 'cook', virtual: true, noStockMsg: '🦪 Sin cobertura de conchas: corta las conchas en la tabla de pescado.', time: 0, batch: 0, max: 8, start: 0 }
   ],
   frituras: [
-    // Proteínas (se gastan 1 por plato al empanizar y freír): se cortan o se limpian y luego se sazonan / marinan en la hornilla
-    { key: 'bifePollo', label: 'Bife de pollo', icon: 44, covers: [44], use: 'cook', how: 'cut', verb1: 'Filetear', binWord: 'fileteado', then: 'marinate', time: 9,  batch: 4, max: 8, start: 4 },
-    { key: 'bifeCerdo', label: 'Bife de cerdo', icon: 43, covers: [43], use: 'cook', how: 'cut', verb1: 'Filetear', binWord: 'fileteado', then: 'marinate', time: 10, batch: 4, max: 8, start: 4 },
-    { key: 'pollo7',    label: 'Pollo ×7',      icon: 70, covers: [70], use: 'cook', how: 'cut', verb1: 'Trozar',   binWord: 'en trozos', then: 'marinate', time: 14, batch: 4, max: 8, start: 4 },
-    { key: 'alitas',    label: 'Alas de pollo', icon: 36, covers: [36], use: 'cook', how: 'clean', verb1: 'Limpiar', binWord: 'limpias',  then: 'marinate', time: 12, batch: 4, max: 8, start: 4 },
-    // Arroz Gohan para las guarniciones (mismo proceso que en Salteado: 2 lavados, cocción, se enfría y se porciona en 400 g)
-    { key: 'gohan',     label: 'Arroz Gohan',   short: 'Gohan', icon: 57, covers: [57], use: 'plate', how: 'clean', passes: 2, verb1: 'Lavar', binWord: 'lavado', then: 'cook', after: 'portion', cool: 8, time: 16, batch: 6, max: 12, start: 6 },
-    // Salsas: katsu, mayonesa de la casa y la de las alitas se licúan; la kare se cocina
-    { key: 'katsu',     label: 'Salsa katsu',   short: 'Katsu',      icon: 84, covers: [84], use: 'plate', how: 'blend', time: 3, batch: 4, max: 8, start: 4 },
+    // Siempre hay existencia (no se producen): bife de pollo y de cerdo, alitas, pollo ×7 (kaarage) y las salsas katsu, kare y de alitas.
+    // Arroz Gohan para las guarniciones: mismo proceso que en Salteado (2 lavados, cocción, se enfría y se porciona), en porciones de 150 g
+    { key: 'gohan',     label: 'Arroz Gohan',   short: 'Gohan', icon: 57, covers: [57], use: 'plate', how: 'clean', passes: 2, verb1: 'Lavar', binWord: 'lavado', then: 'cook', after: 'portion', cool: 8, grams: 150, time: 16, batch: 6, max: 12, start: 6 },
+    // Mayonesa de la casa: se licúa
     { key: 'mayo',      label: 'Mayonesa de la casa', short: 'Mayo casa', icon: 62, covers: [62], use: 'plate', how: 'blend', time: 3, batch: 4, max: 8, start: 4 },
-    { key: 'salsaAl',   label: 'Salsa de alitas', short: 'Salsa alitas', icon: 76, covers: [76], use: 'plate', how: 'blend', time: 3, batch: 4, max: 8, start: 4 },
-    { key: 'kare',      label: 'Salsa kare',    short: 'Kare',       icon: 83, covers: [83], use: 'plate', how: 'cook',  time: 12, batch: 4, max: 8, start: 4 },
     // Rulos de cebolla china: se cortan en juliana fina y se rizan en agua con hielo
     { key: 'rulos',     label: 'Rulos de cebolla china', short: 'Rulos', icon: 74, covers: [74], use: 'plate', how: 'cut', binWord: 'en juliana', then: 'curl', time: 6, batch: 6, max: 12, start: 6 },
-    { key: 'col',      label: 'Col rallada',  icon: 52, covers: [52], use: 'plate', how: 'cut',                                                           time: 8,  batch: 6, max: 12, start: 6 },
-    { key: 'zanahoria', label: 'Zanahoria',   icon: 30, covers: [30], use: 'plate', how: 'cut',                                                           time: 6,  batch: 6, max: 12, start: 6 },
-    { key: 'betarraga', label: 'Betarraga',   icon: 42, covers: [42], use: 'plate', how: 'cut',                                                           time: 7,  batch: 4, max: 8,  start: 4 },
+    { key: 'col',      label: 'Col rallada',  icon: 52, covers: [52], use: 'plate', how: 'grate',                                                         time: 8,  batch: 6, max: 12, start: 6 },
+    { key: 'zanahoria', label: 'Zanahoria',   icon: 30, covers: [30], use: 'plate', how: 'grate',                                                         time: 6,  batch: 6, max: 12, start: 6 },
+    { key: 'betarraga', label: 'Betarraga',   icon: 42, covers: [42], use: 'plate', how: 'grate',                                                         time: 7,  batch: 4, max: 8,  start: 4 },
     { key: 'ebi',      label: 'Ebi furai',    icon: 60, covers: [60], use: 'cook',  how: 'clean', verb1: 'Pelar',                                        time: 12, batch: 4, max: 8,  start: 4 },
-    { key: 'gyozas',   label: 'Gyozas',       icon: 73, covers: [73], use: 'cook',  how: 'cut',   binWord: 'picado',            then: 'marinate',          time: 14, batch: 4, max: 8,  start: 4 },
+    // Gyozas: primero el relleno (se pica y se marina) y luego se ARMAN a mano: masa redonda, relleno al centro, borde con huevo y pinza en 4 tiempos
+    { key: 'relleno',  label: 'Relleno de gyoza', short: 'Relleno', icon: 73, covers: [], use: 'cook', how: 'cut', binWord: 'picado', then: 'marinate', time: 14, batch: 4, max: 8, start: 4 },
+    { key: 'gyozas',   label: 'Gyozas',       icon: 73, covers: [73], use: 'cook',  how: 'fold',                                                          time: 0,  batch: 1, max: 8,  start: 4 },
     // Poro cortado en Salteado (Producción): llega aquí para pasarlo por harina y freírlo (ver fryPoroDone)
     { key: 'poroCut',  label: 'Poro cortado', icon: 71, covers: [71], use: 'cook',  virtual: true, noStockMsg: '🥬 Sin poro cortado: córtalo en Producción de Salteado.', time: 0, batch: 0, max: 8, start: 0 }
   ]
@@ -12356,12 +12351,16 @@ const ST_HOW = {
   caramelize: { icon: '🍯', verb: 'Caramelizar', short: 'Caram.', imp: 'carameliza' },
   portion:  { icon: '⚖️', verb: 'Porcionar', short: 'Porc.',   imp: 'porciónalo' },
   curl:     { icon: '❄️', verb: 'Remojar en agua helada', short: 'Remojar', imp: 'remójalo en agua helada' },
+  grate:    { icon: '🧀', verb: 'Rallar', short: 'Rallar', imp: 'rállalo en la mandolina' },
+  fold:     { icon: '🥟', verb: 'Armar', short: 'Armar', imp: 'ármalas' },
   zu:       { icon: '🍶', verb: 'Aderezar con Zu y enfriar', short: 'Zu', imp: 'aderézalo con Zu' },
   blend:    { icon: '🌀', verb: 'Licuar',    short: 'Licuar',  imp: 'licúala' },
   marinate: { icon: '🧂', verb: 'Marinar',   short: 'Marinar', imp: 'márinalo' }
 };
 // verbo del primer paso (p.verb1 lo cambia: el arroz se LAVA) y palabra de lo que queda en el depósito (p.binWord)
 const stVerb1 = p => (p.verb1 || ST_HOW[p.how].verb);
+const stGrams = p => p.grams || 400;                       // gramos de cada porción de arroz (Salteado: 400 g · guarnición de Frituras: 150 g)
+const SHOP_HAND_MODES = ['clean', 'portion', 'fan', 'blend', 'grate', 'fold'];      // modos de la tabla grande que se hacen con las manos
 const stShopArea = () => gameState.activeArea;   // el taller (tabla / cuchillo) siempre es el del área abierta
 const ST_SHOP_LATE_SECONDS = 15;   // tiempo que aguanta un producto listo en la hornilla antes de pasarse
 
@@ -12391,7 +12390,7 @@ function stCoolText(st, p) {
 }
 const stAfterAvail = (st, p) => p.after === 'zu' ? (st.hot[p.key] || 0) + (st.zued[p.key] || 0) : (st.cooled[p.key] || 0);
 const stAfterOff = (st, p, n) => stAfterAvail(st, p) < 1 || (p.after !== 'zu' && n >= p.max);
-const stAfterTip = p => p.after === 'zu' ? `Agregar el Zu (vinagre y azúcar) al ${p.label.toLowerCase()} cocido y enfriarlo moviéndolo en zigzag` : `Porcionar el ${p.label.toLowerCase()} frío en porciones de 400 g`;
+const stAfterTip = p => p.after === 'zu' ? `Agregar el Zu (vinagre y azúcar) al ${p.label.toLowerCase()} cocido y enfriarlo moviéndolo en zigzag` : `Porcionar el ${p.label.toLowerCase()} frío en porciones de ${stGrams(p)} g`;
 const stCoolChip = (st, p) => ` <span class="fp-cut" data-cool-of="${p.key}" title="${p.after === 'zu' ? 'Cocido esperando el Zu · con Zu enfriándose' : 'Frío, listo para porcionar (400 g) · y lo que se está enfriando'}">${stCoolText(st, p)}</span>`;
 // Color de lo que se caramelizó en la hornilla: pálido (crudo) → dorado → caramelo (listo) → casi negro (pasado)
 function stPotTone(sl) {
@@ -12514,6 +12513,8 @@ function shopBoardLabelText(st, p) {
   if (b && b.mode === 'portion') return `${p.label} frío · ${st.cooled[p.key]} por porcionar · ${st.stock[p.key]}/${p.max}`;
   if (b && b.mode === 'fan') return `${p.label} con Zu · tiempo ${Math.min(FAN_PHASES, (b.phase || 0) + 1)} de ${FAN_PHASES} · ${st.stock[p.key]}/${p.max}`;
   if (b && b.mode === 'blend') return `${p.label} · licuando ${Math.round((b.prog || 0) * 100)}% · ${st.stock[p.key]}/${p.max}`;
+  if (b && b.mode === 'grate') return `${p.label} · ${st.stock[p.key]}/${p.max} · pasada ${(b.strokes % FR_GRATE_STROKES) + 1} de ${FR_GRATE_STROKES}`;
+  if (b && b.mode === 'fold') return `Gyozas ${st.stock[p.key]}/${p.max} · relleno ${st.stock.relleno || 0} · ${['masa', 'relleno', 'huevo', `pinza ${Math.min(FR_PINCHES, (b.pinch || 0) + 1)}/${FR_PINCHES}`][FR_STEPS.indexOf(b.step)]}`;
   const c = stBin(st, p)[p.key];
   let t = p.then ? `${p.label} ${stBinWord(p)} · ${c}/${p.max}` : `${p.label} · ${p.xfer ? c : st.stock[p.key]}/${p.max}`;
   if (b && b.mode === 'clean' && p.passes > 1) t += ` · Lavado ${Math.floor((b.taps % (SHOP_TAPS_PER_PORTION * p.passes)) / SHOP_TAPS_PER_PORTION) + 1}/${p.passes}`;
@@ -12527,7 +12528,7 @@ function stShopStart(area, p, mode) {
     if (!(st.cooled[p.key] >= 1)) { showStationToast(stCoolInfo(st, p).cooling ? `🧊 El ${p.label.toLowerCase()} aún se está enfriando.` : `⚖️ No hay ${p.label.toLowerCase()} frío para porcionar: lávalo, cuécelo y deja que se enfríe.`); playSound('error'); return; }
     if (st.stock[p.key] >= p.max) { showStationToast(`${p.label}: el depósito ya está lleno.`); playSound('error'); return; }
     st.board = { key: p.key, taps: 0, mode: 'portion' };
-    showStationToast(`⚖️ ${p.label} frío en la tabla: arrastra paladas hasta la balanza (3 paladas = 1 porción de 400 g).`);
+    showStationToast(`⚖️ ${p.label} frío en la tabla: arrastra paladas hasta la balanza (3 paladas = 1 porción de ${stGrams(p)} g).`);
     try { playSound('add'); } catch (e) {}
     stRenderIfOpen(area);
     updateAreaTabAlerts();
@@ -12546,6 +12547,8 @@ function stShopStart(area, p, mode) {
     updateAreaTabAlerts();
     return;
   }
+  if (how === 'grate') { frStartGrate(area, st, p); return; }          // mandolina (frituras-prod.js)
+  if (how === 'fold') { frStartFold(area, st, p); return; }            // armado de gyozas (frituras-prod.js)
   if (how === 'blend') {                                    // salsa licuada: se mantiene pulsada la licuadora hasta llenar la barra
     if (st.stock[p.key] >= p.max) { showStationToast(`${p.label}: el depósito ya está lleno.`); playSound('error'); return; }
     st.board = { key: p.key, taps: 0, mode: 'blend', prog: 0 };
@@ -12611,7 +12614,7 @@ function stShopTick(area, st) {
         const p = stProdOf(area, b.key);
         st.cooled[b.key] = (st.cooled[b.key] || 0) + b.n;
         try { playSound('ding'); } catch (e) {}
-        showStationToast(`🧊 ${p.label} frío: ya puedes porcionarlo (⚖️ 400 g).`);
+        showStationToast(`🧊 ${p.label} frío: ya puedes porcionarlo (⚖️ ${stGrams(p)} g).`);
       });
       changed = true;
     }
@@ -12683,7 +12686,7 @@ function cleanupShopKnife() {
   shopKnifeDrag = null;
 }
 const shopArmedActive = () => { const a = gameState.activeArea; return !!a && STAGE_AREAS.includes(a) && stagedOn(a) && stIsShop(a) && getStage(a) === 'prod'
-  && stGet(a).knifeArmed && !(stGet(a).board && ['clean', 'portion', 'fan', 'blend'].includes(stGet(a).board.mode)) && !gameState.isPaused && !gameState.isGameOver; };
+  && stGet(a).knifeArmed && !(stGet(a).board && SHOP_HAND_MODES.includes(stGet(a).board.mode)) && !gameState.isPaused && !gameState.isGameOver; };
 function shopHint(msg) { if (performance.now() - shopHintAt > 2500) { shopHintAt = performance.now(); showStationToast(msg); } }
 
 function shopUpdateCount(p) {
@@ -12826,7 +12829,7 @@ function shopCleanFx(p) {
 }
 function shopStowKnife() {
   const st = stGet(stShopArea());
-  if (st.board && ['clean', 'portion', 'fan', 'blend'].includes(st.board.mode)) { shopBlendEnd(); st.board = null; } else st.knifeArmed = false;
+  if (st.board && SHOP_HAND_MODES.includes(st.board.mode)) { shopBlendEnd(); if (typeof frFoldAbort === 'function') frFoldAbort(st); st.board = null; } else st.knifeArmed = false;
   try { playSound('click'); } catch (e) {}
   stRenderIfOpen(stShopArea());
 }
@@ -13052,7 +13055,7 @@ function shopTapCore(st, kind, lockMs) {
     else { const bin0 = stBin(st, p); bin0[p.key] = Math.min(p.max, bin0[p.key] + 1); }
     try { playSound('stock_add'); } catch (e) {}
     const board = document.getElementById('shop-board');
-    if (board) { const plus = document.createElement('b'); plus.className = 'cut-plus'; plus.textContent = kind === 'portion' ? '+1 · 400 g' : '+1'; board.appendChild(plus); setTimeout(() => plus.remove(), 850); }
+    if (board) { const plus = document.createElement('b'); plus.className = 'cut-plus'; plus.textContent = kind === 'portion' ? '+1 · ' + stGrams(p) + ' g' : '+1'; board.appendChild(plus); setTimeout(() => plus.remove(), 850); }
     shopUpdateCount(p);
     const full = kind === 'portion' ? (st.cooled[p.key] < 1 || st.stock[p.key] >= p.max) : stBin(st, p)[p.key] >= p.max;
     if (full) {
@@ -13220,7 +13223,7 @@ function stRenderShop(area, panel) {
     const n = st.stock[p.key], how = ST_HOW[p.how], low = n <= Math.ceil(p.max * 0.25);
     const onBoard = st.board && st.board.key === p.key, onStove = st.stove.some(sl => sl && sl.key === p.key);
     const binFull = p.xfer ? stBin(st, p)[p.key] >= p.max : n >= p.max;
-    const blocked = binFull || (p.how !== 'cut' && p.how !== 'clean' && freeSlot === -1);
+    const blocked = binFull || (!['cut', 'clean', 'blend', 'grate', 'fold'].includes(p.how) && freeSlot === -1);
     if (p.then) {                                   // dos pasos: 🔪 cortar -> queda "cortado" -> 💧 blanquear
       const c = st.cut[p.key], cutOff = c >= p.max, blOff = c < 1 || n >= p.max || freeSlot === -1;
       const h2 = ST_HOW[p.then];
@@ -13284,8 +13287,8 @@ function stRenderShop(area, panel) {
     stStirUi();
     return;
   }
-  if (st.board && (['clean', 'portion', 'fan', 'blend'].includes(st.board.mode) || st.knifeArmed)) {   // modo corte / limpieza / porcionado / enfriado / licuadora: tabla grande + cocina visible
-    const pb = bp, bin = stBin(st, pb)[pb.key], isPortion = st.board.mode === 'portion', isFan = st.board.mode === 'fan', isBlend = st.board.mode === 'blend', isClean = st.board.mode === 'clean' || isPortion || isFan || isBlend;   // isClean = se hace con las manos
+  if (st.board && (SHOP_HAND_MODES.includes(st.board.mode) || st.knifeArmed)) {   // modo corte / limpieza / porcionado / enfriado / licuadora: tabla grande + cocina visible
+    const pb = bp, bin = stBin(st, pb)[pb.key], isPortion = st.board.mode === 'portion', isFan = st.board.mode === 'fan', isBlend = st.board.mode === 'blend', isGrate = st.board.mode === 'grate', isFold = st.board.mode === 'fold', isClean = st.board.mode === 'clean' || isPortion || isFan || isBlend || isGrate || isFold;   // isClean = se hace con las manos
     const chips = list.filter(q => q.how === 'cut' || q.how === 'clean').map(q => {
       const c = stBin(st, q)[q.key];
       return `<button class="cb-chip ${st.board.key === q.key ? 'on' : ''}" ${c >= q.max ? 'disabled' : ''} title="${stVerb1(q)} ${q.label}" onclick="stProdStart('${area}','${q.key}','${q.how}')">${stIngIconRaw(q.icon)}<i data-cut-chip="${q.key}">${c}</i></button>`;
@@ -13295,15 +13298,15 @@ function stRenderShop(area, panel) {
       return `<div class="bl-row"><span class="bl-ico">${stIngIconRaw(q.icon)}</span><b>${q.short || q.label}</b><span class="fp-cut" data-cut-of="${q.key}">${stBinTag(q)}${c}</span><span data-stock-of="${q.key}">${n2}/${q.max}</span><button class="fp-btn" data-bl-btn="${q.key}" ${off ? 'disabled' : ''} title="${ST_HOW[q.then].verb} ${q.label} ${stBinWord(q)} (${stProdTime(q)} s)" onclick="stProdStart('${area}','${q.key}','${q.then}')">${ST_HOW[q.then].icon}</button>${q.after ? `${stCoolChip(st, q)}<button class="fp-btn" data-pt-btn="${q.key}" ${stAfterOff(st, q, n2) ? 'disabled' : ''} title="${stAfterTip(q)}" onclick="stProdStart('${area}','${q.key}','${q.after}')">${ST_HOW[q.after].icon}</button>` : ''}</div>`;
     }).join('');
     panel.innerHTML = `<div class="fp-wrap fp-shop is-cutting">
-    <div class="fp-head"><span>🥬 Producción · ${AREA_LABELS[area]}</span><small>${isBlend ? `Mantén pulsada la licuadora hasta llenar la barra: ${stProdTime(pb)} s.` : isFan ? `Mueve el arroz con Zu en zigzag con el dedo: ${FAN_STROKES_PER_PHASE} pasadas por tiempo, 3 tiempos hasta que enfríe.` : isPortion ? `Arrastra paladas del ${pb.label.toLowerCase()} frío hasta la balanza ⚖️: 3 paladas = 1 porción de 400 g.` : isClean ? `Frota ${pb.label.toLowerCase()} de lado a lado con el dedo: ${SHOP_TAPS_PER_PORTION * (pb.passes || 1)} pasadas = 1 porción ${stBinWord(pb)}${pb.passes > 1 ? ` (${pb.passes} lavados de ${SHOP_TAPS_PER_PORTION})` : ''}.` : 'Desliza el dedo de lado a lado para dar un tajo (o toca): 3 cortes = 1 porción.'}</small><button class="stage-panel-back fp-back" onclick="shopStowKnife()">${isClean ? '✔ Terminar' : '🔪 Guardar cuchillo'}</button>${stBackBtn(area)}</div>
+    <div class="fp-head"><span>🥬 Producción · ${AREA_LABELS[area]}</span><small>${isGrate ? frGrateHint(pb) : isFold ? frFoldHint(st.board) : isBlend ? `Mantén pulsada la licuadora hasta llenar la barra: ${stProdTime(pb)} s.` : isFan ? `Mueve el arroz con Zu en zigzag con el dedo: ${FAN_STROKES_PER_PHASE} pasadas por tiempo, 3 tiempos hasta que enfríe.` : isPortion ? `Arrastra paladas del ${pb.label.toLowerCase()} frío hasta la balanza ⚖️: 3 paladas = 1 porción de ${stGrams(pb)} g.` : isClean ? `Frota ${pb.label.toLowerCase()} de lado a lado con el dedo: ${SHOP_TAPS_PER_PORTION * (pb.passes || 1)} pasadas = 1 porción ${stBinWord(pb)}${pb.passes > 1 ? ` (${pb.passes} lavados de ${SHOP_TAPS_PER_PORTION})` : ''}.` : 'Desliza el dedo de lado a lado para dar un tajo (o toca): 3 cortes = 1 porción.'}</small><button class="stage-panel-back fp-back" onclick="shopStowKnife()">${isClean ? '✔ Terminar' : '🔪 Guardar cuchillo'}</button>${stBackBtn(area)}</div>
     <div class="shop-cutlayout">
       <div class="shop-bigboard has-item" id="shop-board">
         <div class="cb-chips">${chips}</div>
         <div class="shop-label" id="shop-board-label">${shopBoardLabelText(st, pb)}</div>
-        ${isBlend ? shopBlendHtml(pb, st.board.prog) : isClean ? shopHeapHtml(pb, on, isPortion ? true : (isFan ? 'fan' : false)) : shopItemHtml(pb, on)}
-        ${isPortion ? '<div class="cb-scale" id="shop-scale"><span class="sc-ico">⚖️</span><b>400 g</b></div>' : ''}
+        ${isGrate ? frGrateHtml(pb, st.board) : isFold ? frFoldHtml(pb, st.board, st) : isBlend ? shopBlendHtml(pb, st.board.prog) : isClean ? shopHeapHtml(pb, on, isPortion ? true : (isFan ? 'fan' : false)) : shopItemHtml(pb, on)}
+        ${isPortion ? '<div class="cb-scale" id="shop-scale"><span class="sc-ico">⚖️</span><b>' + stGrams(pb) + ' g</b></div>' : ''}
         <div class="cb-pile" id="shop-pile">${shopPileHtml(pb, isPortion ? st.stock[pb.key] : bin)}</div>
-        <div class="shop-pips" style="${isBlend ? 'display:none' : ''}">${[0, 1, 2].map(i => `<i class="${i < on ? 'on' : ''}"></i>`).join('')}</div>
+        <div class="shop-pips" style="${isBlend || isGrate || isFold ? 'display:none' : ''}">${[0, 1, 2].map(i => `<i class="${i < on ? 'on' : ''}"></i>`).join('')}</div>
       </div>
       <div class="shop-side">
         ${rows ? `<div class="bl-list"><div class="bl-title">♨️ A la hornilla</div>${rows}</div>` : ''}
@@ -13312,7 +13315,7 @@ function stRenderShop(area, panel) {
     </div></div>`;
     return;
   }
-  const hint = !st.knifeArmed ? (area === 'frituras' ? 'Bifes, pollo y alitas: 🔪 corta (o 🧺 limpia) y luego 🧂 marina. Salsas: 🌀 licúa (la kare se ♨️ cocina). Rulos: 🔪 juliana fina → ❄️ agua helada. Gohan: 🧺 2 lavados → ♨️ → 🧊 → ⚖️.' : area === 'makis' ? 'Arroz shari: 🧺 3 lavados → ♨️ cuécelo → 🍶 Zu y enfría en zigzag (3 tiempos). Queso crema: 🔪 en bastones. Salsa acevichada: 🌀 mantén pulsada la licuadora.' : area === 'salteados' ? 'Arroz Gohan: 🧺 lávalo 2 veces → ♨️ cuécelo → 🧊 se enfría solo → ⚖️ porciónalo (400 g). Verduras: 🔪 córtalas; el brócoli además 💧 se blanquea. Cebolla caramelizada: 🔪 corta la cebolla blanca → 🍯 con aceite en el wok hasta color caramelo.' : area === 'ramen' ?'Cortar: toca 🔪 y arrastra el cuchillo a la tabla. Holantao, espárrago y col: corta y 💧 blanquea. Moyashi: 🧺 límpialo y 💧 blanquea.' : 'Cortar: toca 🔪 y arrastra el cuchillo a la tabla. 🧺 = se limpia con las manos. Lo de dos pasos se prepara en la tabla y luego pasa a la hornilla.') : (st.board ? 'Da un tajo de lado a lado (o toca) para cortar: 3 cortes = 1 porción.' : 'Cuchillo listo: toca la ficha de un producto para cortar.');
+  const hint = !st.knifeArmed ? (area === 'frituras' ? 'Col, zanahoria y betarraga: 🧀 mandolina en diagonal. Gyozas: relleno (🔪 + 🧂) y luego 🥟 armar. Rulos: 🔪 juliana → ❄️ agua helada. Mayo: 🌀. Gohan (150 g): 🧺 2 lavados → ♨️ → 🧊 → ⚖️.' : area === 'makis' ? 'Arroz shari: 🧺 3 lavados → ♨️ cuécelo → 🍶 Zu y enfría en zigzag (3 tiempos). Queso crema: 🔪 en bastones. Salsa acevichada: 🌀 mantén pulsada la licuadora.' : area === 'salteados' ? 'Arroz Gohan: 🧺 lávalo 2 veces → ♨️ cuécelo → 🧊 se enfría solo → ⚖️ porciónalo (400 g). Verduras: 🔪 córtalas; el brócoli además 💧 se blanquea. Cebolla caramelizada: 🔪 corta la cebolla blanca → 🍯 con aceite en el wok hasta color caramelo.' : area === 'ramen' ?'Cortar: toca 🔪 y arrastra el cuchillo a la tabla. Holantao, espárrago y col: corta y 💧 blanquea. Moyashi: 🧺 límpialo y 💧 blanquea.' : 'Cortar: toca 🔪 y arrastra el cuchillo a la tabla. 🧺 = se limpia con las manos. Lo de dos pasos se prepara en la tabla y luego pasa a la hornilla.') : (st.board ? 'Da un tajo de lado a lado (o toca) para cortar: 3 cortes = 1 porción.' : 'Cuchillo listo: toca la ficha de un producto para cortar.');
   panel.innerHTML = `<div class="fp-wrap fp-shop">
     <div class="fp-head"><span>🥬 Producción · ${AREA_LABELS[area]}</span><small>${hint}</small>${stBackBtn(area)}</div>
     <div class="fp-cards many shop-cards" style="--cols:${Math.max(6, Math.ceil(list.length / 2))}">${cards}</div>
@@ -24781,5 +24784,6 @@ if (document.readyState === 'loading') {
 </script>
 <script src="multiplayer.js?v=21"></script>
 <script src="makis-studio.js?v=118"></script>
+<script src="frituras-prod.js?v=1"></script>
 </body>
 </html>
