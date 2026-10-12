@@ -6446,7 +6446,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v124</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v125</span></button></div>
     </div>
   </div>
 
@@ -9581,7 +9581,7 @@ function getUnlockedRamenRecipes() {
   if (isFree()) return RECETAS_RAMEN;
   if (isMultiplayerSession()) return RECETAS_RAMEN;
   const cfg = getCurrentLevelConfig();
-  return RECETAS_RAMEN.filter(r => cfg.ramen_names.includes(r.name));
+  return RECETAS_RAMEN.filter(r => cfg.ramen_names.includes(r.name) || japonUnlockedSafe(r.name));
 }
 
 // Todo lo que los clientes pueden pedir ahora: ramen + los platos de las otras áreas que ya entraron
@@ -9598,7 +9598,7 @@ function getUnlockedRecipes() {
   const lvl = campaign ? (currentLevelIndex + 1) : (gameState.rashLevel || 1);
   Object.keys(AREA_DISH_UNLOCKS).forEach(area => {
     AREA_DISH_UNLOCKS[area].forEach(([name, campLvl, rashLvl]) => {
-      if (!mp && lvl < (campaign ? campLvl : rashLvl)) return;
+      if (!mp && lvl < (campaign ? campLvl : rashLvl) && !japonUnlockedSafe(name)) return;
       const r = AREA_CATALOGS[area].find(x => x.name === name);
       if (r) list.push(r);
     });
@@ -16385,6 +16385,9 @@ const UPGRADES = [
     effect: ['Recoge los fideos cuando ya están listos'] }
 ];
 const UPGRADE_BY_ID = Object.fromEntries(UPGRADES.map(u => [u.id, u]));
+// Recorrido por Japón (japon.js): mejoras permanentes de los objetos de los restaurantes y platos desbloqueados por Maestría
+const japonBuffSafe = k => (typeof japonBuff === 'function' && !isMultiplayerSession() && !isTraining() && !isFree()) ? japonBuff(k) : 0;
+const japonUnlockedSafe = n => { try { return typeof japonUnlocked === 'function' && japonUnlocked(n); } catch (e) { return false; } };
 
 const TRAINING_KEY = 'ramen_training';
 const STATS_KEY = 'ramen_stats';
@@ -18103,6 +18106,7 @@ function serveOrder(customerIndex, itemIndex, dish) {
 
   let pay = Math.round(orderItem.recipe.price * QUALITY_PAY_MULT[tier]);
   if (dish.meta && dish.meta.dashiBase && orderItem.recipe.name === 'Vegetariano') pay = Math.round(pay * 1.2);
+  pay = Math.round(pay * (1 + japonBuffSafe('price')));
   serveVfx(customerIndex, pay, tier);
   orderItem.served = true;
   orderItem.quality = dish.quality;
@@ -18142,7 +18146,7 @@ function serveOrder(customerIndex, itemIndex, dish) {
     const tipRate = ratio > 0.5 ? TIP_RATE_HAPPY : (ratio > 0.25 ? TIP_RATE_OK : 0);
     if (c.worstTier >= 2 && tipRate > 0 && !isTraining() && !isFree()) { // en el entrenamiento solo dan propina los retos
       const orderTotal = c.orders.reduce((t, o) => t + o.recipe.price, 0);
-      const tip = Math.max(1, Math.round(orderTotal * tipRate * (c.worstTier === 3 ? 2 : 1)));
+      const tip = Math.max(1, Math.round(orderTotal * tipRate * (c.worstTier === 3 ? 2 : 1) * (1 + japonBuffSafe('tips'))));
       addPropinas(tip);
       const card = document.getElementById(`cust-slot-card-${customerIndex}`);
       const cr = card ? card.getBoundingClientRect() : null;
@@ -19565,7 +19569,7 @@ function spawnCustomer(forced) {
     totalPatience = (25 + totalIngredients * 2.5 + processSeconds) * (cfg.patience_mult || 1);
   }
 
-  totalPatience *= 1 + [0, 0.08, 0.15, 0.25][getUpgradeLevel('te')];
+  totalPatience *= 1 + [0, 0.08, 0.15, 0.25][getUpgradeLevel('te')] + japonBuffSafe('patience');
 
   gameState.customerSlots[emptyIndex] = {
     name: template.name,
@@ -25063,5 +25067,6 @@ if (document.readyState === 'loading') {
 <script src="makis-studio.js?v=118"></script>
 <script src="frituras-prod.js?v=2"></script>
 <script src="frituras-plate.js?v=2"></script>
+<script src="japon.js?v=5"></script>
 </body>
 </html>
