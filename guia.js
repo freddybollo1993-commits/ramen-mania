@@ -50,14 +50,14 @@
   const SHIO_PLATE = [11, 15, 17, 18, 19, 20, 25];
   add({ seg: 'Ramen', area: 'ramen', stage: 'plate', title: '🥚 Ponle sus adornos', target: () => { const sl = stGet('ramen').slots.find(s => s.item); const n = SHIO_PLATE.find(id => !sl || !sl.items.includes(id)); return n ? tile(n) : null; }, to: '.plate-bowl:not(.is-empty)', text: () => { const sl = stGet('ramen').slots.find(s => s.item), left = SHIO_PLATE.filter(id => !sl || !sl.items.includes(id)); return `Arrastra los adornos al cuenco <b>en este orden</b>: ${orderNames(SHIO_PLATE)}. Te marco el que sigue${left.length ? ` (faltan ${left.length}: <b>${nm(left[0])}</b>)` : ''}.`; }, done: () => { const sl = stGet('ramen').slots.find(s => s.item); return !!sl && SHIO_PLATE.every(id => sl.items.includes(id)); }, assist: () => { const k = stGet('ramen').slots.findIndex(s => s.item); SHIO_PLATE.forEach(id => stPlateAddItem('ramen', k, id)); } });
   add({ seg: 'Ramen', area: 'ramen', stage: 'plate', title: '✅ ¡Servir!', target: '.plate-bowl:not(.is-empty) .fp-serve', text: 'El plato está completo. Toca <b>✅ Servir</b>: el cliente lo recibe y te paga según la calidad (⭐).', setup() { base.served = served(); }, done: () => served() > base.served, assist: () => stPlateServe('ramen', Math.max(0, stGet('ramen').slots.findIndex(s => s.item))) });
-  add({ seg: 'Ramen', info: true, area: 'ramen', title: '🎉 ¡Primer plato servido!', text: 'Así se hace un ramen: <b>Producción → Cocinar → Emplatar → Servir</b>. En una partida real los clientes se impacientan, así que conviene tener insumos preparados y varios cuencos en marcha. ¡Ahora el <b>Salteado</b>!' });
+  add({ seg: 'Ramen', info: true, area: 'ramen', title: '🎉 ¡Primer plato servido!', text: () => 'Así se hace un ramen: <b>Producción → Cocinar → Emplatar → Servir</b>. En una partida real los clientes se impacientan, así que conviene tener insumos preparados y varios cuencos en marcha.' + rewardLine('ramen') });
 
   // ===== SALTEADO (Chicken Teriyaki, en sartén) =====
   const TERI = () => RECETAS_SALTEADOS.find(r => r.name === 'Chicken Teriyaki');
   const wk = () => gameState.woks[0];
   const cardBtn = (name, btnSel) => () => { const c = [...document.querySelectorAll('.fp-card')].find(x => x.querySelector('.fp-card-name') && x.querySelector('.fp-card-name').textContent.toLowerCase().includes(name)); return c ? c.querySelector(btnSel || '.fp-btn') : null; };
   const slotItem = a => stGet(a).slots.findIndex(s => s.item);
-  add({ seg: 'Salteado', title: '🥘 Ahora, el SALTEADO', target: '.kitchen-area-tab-btn[data-area="salteados"]', setup() { cust(TERI()); }, text: 'Llegó otro cliente: pide un <b>Chicken Teriyaki</b> (pollo con salsa teriyaki, de acompañamiento arroz gohan y ensalada fría). Toca la pestaña <b>SALTEADO</b>.', done: () => gameState.activeArea === 'salteados', assist: () => switchKitchenArea('salteados') });
+  add({ seg: 'Salteado', title: '🥘 Lección: SALTEADO', target: '.kitchen-area-tab-btn[data-area="salteados"]', setup() { cust(TERI()); }, text: 'En esta lección cocinas un plato de Salteado. Llegó un cliente que pide un <b>Chicken Teriyaki</b> (pollo con salsa teriyaki, de acompañamiento arroz gohan y ensalada fría). Toca la pestaña <b>SALTEADO</b>.', done: () => gameState.activeArea === 'salteados', assist: () => switchKitchenArea('salteados') });
   add({ seg: 'Salteado', area: 'salteados', title: '🥬 Producción: la ensalada', target: '.kitchen-stage-btn[data-stage="prod"]', text: 'Primero un insumo del plato: la <b>ensalada fría</b>. Entra a la etapa <b>🥬 Producción</b>.', done: () => stg('salteados') === 'prod', assist: () => setKitchenStage('prod') });
   add({ seg: 'Salteado', area: 'salteados', stage: 'prod', title: '🧺 Limpiar la ensalada', target: cardBtn('ensalada'), text: 'En Salteado hay insumos que se <b>limpian</b> en vez de cortarse. Toca <b>🧺 Limpiar</b> en la ficha «Ensaladas».', done: () => stGet('salteados').board && stGet('salteados').board.key === 'ensalada', assist: () => stProdStart('salteados', 'ensalada') });
   add({ seg: 'Salteado', area: 'salteados', stage: 'prod', title: '👋 Frota de lado a lado', target: '#shop-board', setup() { base.ens = stGet('salteados').stock.ensalada; }, text: 'Pasa el dedo sobre la ensalada <b>de lado a lado</b>, como lavándola. <b>3 pasadas</b> = 1 porción limpia.', done: () => stGet('salteados').stock.ensalada > base.ens, assist: async () => { for (let k = 0; k < 8 && stGet('salteados').stock.ensalada <= base.ens; k++) { shopClean(); await sleep(520); } } });
@@ -77,14 +77,14 @@
   const TERI_PLATE = [37, 56];
   add({ seg: 'Salteado', area: 'salteados', stage: 'plate', title: '🍚 Arroz y ensalada', target: () => { const k = slotItem('salteados'), sl = k >= 0 ? stGet('salteados').slots[k] : null; const n = TERI_PLATE.find(id => !sl || !sl.items.includes(id)); return n ? tile(n) : null; }, to: '.plate-bowl:not(.is-empty)', text: () => `Arrastra al plato, <b>en este orden</b>: ${orderNames(TERI_PLATE)}.`, done: () => { const k = slotItem('salteados'); return k >= 0 && TERI_PLATE.every(id => stGet('salteados').slots[k].items.includes(id)); }, assist: () => { const k = slotItem('salteados'); TERI_PLATE.forEach(id => stPlateAddItem('salteados', k, id)); } });
   add({ seg: 'Salteado', area: 'salteados', stage: 'plate', title: '✅ ¡Servir!', target: '.plate-bowl:not(.is-empty) .fp-serve', setup() { base.served = served(); }, text: 'Toca <b>✅ Servir</b> para entregar el Chicken Teriyaki.', done: () => served() > base.served, assist: () => stPlateServe('salteados', Math.max(0, slotItem('salteados'))) });
-  add({ seg: 'Salteado', info: true, area: 'salteados', title: '🎉 ¡Salteado servido!', text: 'En el Salteado cuenta el <b>ritmo</b>: fuego, aceite, ingredientes en su ronda y 3 lanzamientos por ronda. Cada plato tiene sus propias rondas (el recetario las indica). Ahora los <b>Makis</b>.' });
+  add({ seg: 'Salteado', info: true, area: 'salteados', title: '🎉 ¡Salteado servido!', text: () => 'En el Salteado cuenta el <b>ritmo</b>: fuego, aceite, ingredientes en su ronda y 3 lanzamientos por ronda. Cada plato tiene sus propias rondas (el recetario las indica).' + rewardLine('salteados') });
 
   // ===== MAKIS (Maki California) =====
   const MKT = () => RECETAS_MAKIS.find(r => r.name === 'Maki California');
   const mkb = () => mkGet().build;
   const MK_FILL_IDS = [64, 54, 72];
   const sideBtn = rx => () => [...document.querySelectorAll('#mk2-side button')].find(b => b.offsetParent !== null && rx.test(b.textContent));
-  add({ seg: 'Makis', title: '🍣 Ahora, los MAKIS', target: '.kitchen-area-tab-btn[data-area="makis"]', setup() { cust(MKT()); }, text: 'Un cliente pide un <b>Maki California</b>: arroz shari, nori, palta, langostino y queso crema, con ajonjolí negro encima. Toca la pestaña <b>MAKIS</b>.', done: () => gameState.activeArea === 'makis', assist: () => switchKitchenArea('makis') });
+  add({ seg: 'Makis', title: '🍣 Lección: MAKIS', target: '.kitchen-area-tab-btn[data-area="makis"]', setup() { cust(MKT()); }, text: 'En esta lección armas un maki. Un cliente pide un <b>Maki California</b>: arroz shari, nori, palta, langostino y queso crema, con ajonjolí negro encima. Toca la pestaña <b>MAKIS</b>.', done: () => gameState.activeArea === 'makis', assist: () => switchKitchenArea('makis') });
   add({ seg: 'Makis', info: true, area: 'makis', title: '🥬 Producción de Makis', target: '.kitchen-stage-btn[data-stage="prod"]', text: 'En <b>Producción</b> de Makis se prepara el <b>arroz shari</b> (lavarlo, cocerlo, aliñarlo con zu y abanicarlo), se corta la palta y el queso, se cuece el langostino y se corta el jengibre. Para no hacerte esperar, ya tienes insumos listos.' });
   add({ seg: 'Makis', area: 'makis', title: '🍣 Etapa de armado', target: '.kitchen-stage-btn[data-stage="cook"]', text: 'Entra a la etapa de armado (<b>🍣 Armar</b>): aquí enrollas el maki.', done: () => stg('makis') === 'cook', assist: () => setKitchenStage('cook') });
   add({ seg: 'Makis', area: 'makis', stage: 'cook', title: '🎍 La esterilla', target: '#mk2-mat-tool', to: '#mk2-board', text: 'Arrastra la <b>esterilla de bambú</b> hasta la tabla y suéltala.', done: () => mkb().matPlaced, assist: () => mkPlaceMat() });
@@ -107,13 +107,13 @@
   const MK_PLATE = [34, 97, 96];
   add({ seg: 'Makis', area: 'makis', stage: 'plate', title: '🌸 Ajonjolí, jengibre y wasabi', target: () => { const k = slotItem('makis'), sl = k >= 0 ? stGet('makis').slots[k] : null; const n = MK_PLATE.find(id => !sl || !sl.items.includes(id)); return n ? tile(n) : null; }, to: '.plate-bowl:not(.is-empty)', text: () => `Arrastra al plato, <b>en este orden</b>: ${orderNames(MK_PLATE)}. (Los makis con salsa y flameado se terminan también aquí.)`, done: () => { const k = slotItem('makis'); return k >= 0 && MK_PLATE.every(id => stGet('makis').slots[k].items.includes(id)); }, assist: () => { const k = slotItem('makis'); MK_PLATE.forEach(id => stPlateAddItem('makis', k, id)); } });
   add({ seg: 'Makis', area: 'makis', stage: 'plate', title: '✅ ¡Servir!', target: '.plate-bowl:not(.is-empty) .fp-serve', setup() { base.served = served(); }, text: 'Toca <b>✅ Servir</b> para entregar el Maki California.', done: () => served() > base.served, assist: () => stPlateServe('makis', Math.max(0, slotItem('makis'))) });
-  add({ seg: 'Makis', info: true, area: 'makis', title: '🎉 ¡Maki servido!', text: 'Los makis piden <b>precisión</b>: arroz bien extendido, enrollar en la zona verde, apretar y cortar con tajos limpios. Falta la última área: las <b>Frituras</b>.' });
+  add({ seg: 'Makis', info: true, area: 'makis', title: '🎉 ¡Maki servido!', text: () => 'Los makis piden <b>precisión</b>: arroz bien extendido, enrollar en la zona verde, apretar y cortar con tajos limpios.' + rewardLine('makis') });
 
   // ===== FRITURAS (Chicken Katsu) =====
   const KATSU = () => RECETAS_FRITURAS.find(r => r.name === 'Chicken Katsu');
   const fsn = () => gameState.fryStation;
   const KATSU_PLATE = [57, 52, 62, 30, 84, 74, 91];
-  add({ seg: 'Frituras', title: '🍤 Por último, las FRITURAS', target: '.kitchen-area-tab-btn[data-area="frituras"]', setup() { cust(KATSU()); }, text: 'El último cliente pide un <b>Chicken Katsu</b>: bife de pollo empanizado y frito, con gohan, ensalada, salsa katsu y adornos. Toca la pestaña <b>FRITURAS</b>.', done: () => gameState.activeArea === 'frituras', assist: () => switchKitchenArea('frituras') });
+  add({ seg: 'Frituras', title: '🍤 Lección: FRITURAS', target: '.kitchen-area-tab-btn[data-area="frituras"]', setup() { cust(KATSU()); }, text: 'En esta lección cocinas una fritura. Un cliente pide un <b>Chicken Katsu</b>: bife de pollo empanizado y frito, con gohan, ensalada, salsa katsu y adornos. Toca la pestaña <b>FRITURAS</b>.', done: () => gameState.activeArea === 'frituras', assist: () => switchKitchenArea('frituras') });
   add({ seg: 'Frituras', area: 'frituras', title: '🥬 Producción: zanahoria', target: '.kitchen-stage-btn[data-stage="prod"]', text: 'Entra a <b>🥬 Producción</b>: vamos a rallar la zanahoria de la ensalada.', done: () => stg('frituras') === 'prod', assist: () => setKitchenStage('prod') });
   add({ seg: 'Frituras', area: 'frituras', stage: 'prod', title: '🧀 La mandolina', target: cardBtn('zanahoria'), text: 'Toca <b>🧀 Rallar</b> en la ficha de la <b>Zanahoria</b>.', done: () => stGet('frituras').board && stGet('frituras').board.key === 'zanahoria', assist: () => stProdStart('frituras', 'zanahoria') });
   add({ seg: 'Frituras', area: 'frituras', stage: 'prod', title: '↗️ Ralla en diagonal', target: '#fr-mando', setup() { base.zan = stGet('frituras').stock.zanahoria; }, text: 'Pasa la zanahoria <b>en diagonal ↗ ↙</b> sobre la mandolina (arrastra el dedo de una punta a la otra y vuelve). <b>4 pasadas = 1 porción</b>; los hilos van cayendo a la pila.', done: () => stGet('frituras').stock.zanahoria > base.zan, assist: async () => { for (let k = 0; k < 6 && stGet('frituras').stock.zanahoria <= base.zan; k++) { frGrateStroke(); await sleep(300); } } });
@@ -133,9 +133,24 @@
   add({ seg: 'Frituras', area: 'frituras', stage: 'plate', title: '📥 Del pase al plato', target: '.fp-pass-card', text: 'Toca el katsu del <b>pase</b> para ponerlo en el plato.', done: () => slotItem('frituras') >= 0, assist: () => stPassToSlot('frituras', 0) });
   add({ seg: 'Frituras', area: 'frituras', stage: 'plate', title: '🥗 Guarnición y adornos', target: () => { const k = slotItem('frituras'), sl = k >= 0 ? stGet('frituras').slots[k] : null; const n = KATSU_PLATE.find(id => !sl || !sl.items.includes(id)); return n ? tile(n) : null; }, to: '.plate-bowl:not(.is-empty)', text: () => `El katsu va abajo; arriba, de izquierda a derecha: arroz, ensalada de col con mayonesa y zanahoria, y la salsa; decora con rulos y togarashi. Arrastra <b>en este orden</b>: ${orderNames(KATSU_PLATE)}.`, done: () => { const k = slotItem('frituras'); return k >= 0 && KATSU_PLATE.every(id => stGet('frituras').slots[k].items.includes(id)); }, assist: () => { const k = slotItem('frituras'); KATSU_PLATE.forEach(id => stPlateAddItem('frituras', k, id)); } });
   add({ seg: 'Frituras', area: 'frituras', stage: 'plate', title: '✅ ¡Servir!', target: '.plate-bowl:not(.is-empty) .fp-serve', setup() { base.served = served(); }, text: 'Toca <b>✅ Servir</b> para entregar el Chicken Katsu.', done: () => served() > base.served, assist: () => stPlateServe('frituras', Math.max(0, slotItem('frituras'))) });
-  add({ seg: 'Final', info: true, title: '🏆 ¡Tutorial completado!', text: 'Ya cocinaste un plato de <b>cada área</b>: Ramen, Salteado, Makis y Frituras. Recuerda el camino: <b>Producción → Cocinar → Emplatar → Servir</b>. Ahora te espera la <b>Campaña</b> (con reloj y clientes reales), el <b>Modo Libre</b> para practicar cualquier plato y el modo <b>Ingredientes</b> para memorizar recetas. ¡Suerte, chef!' });
+  add({ seg: 'Frituras', info: true, area: 'frituras', title: '🎉 ¡Katsu servido!', text: () => 'Las frituras piden <b>punto y limpieza</b>: empanizar en orden, aceite caliente, retirar dorado, escurrir y cortar. Con esto ya conoces <b>las 4 áreas</b> de la cocina.' + rewardLine('frituras') });
 
-  steps = S;
+  // ---- lecciones: cada área es una lección corta con su recompensa en propinas (la primera vez) ----
+  const LESSON_OF = { Bienvenida: 'ramen', Ramen: 'ramen', Salteado: 'salteados', Makis: 'makis', Frituras: 'frituras' };
+  const LESSONS = {};
+  S.forEach(s => { const k = LESSON_OF[s.seg]; (LESSONS[k] = LESSONS[k] || []).push(s); });
+  const ORDER = ['ramen', 'salteados', 'makis', 'frituras'];
+  const LESSON_INFO = { ramen: { icon: '🍜', name: 'Ramen', dish: 'Ramen Shio', min: '≈ 5 min', note: 'Incluye lo básico: etapas, pedido y cuenco.' }, salteados: { icon: '🥘', name: 'Salteado', dish: 'Chicken Teriyaki', min: '≈ 4 min', note: 'Sartén, aceite y rondas de salteo.' },
+    makis: { icon: '🍣', name: 'Makis', dish: 'Maki California', min: '≈ 5 min', note: 'Esterilla, arroz, enrollar y cortar.' }, frituras: { icon: '🍤', name: 'Frituras', dish: 'Chicken Katsu', min: '≈ 5 min', note: 'Empanizado, aceite y corte.' } };
+  const REWARD = { ramen: 60, salteados: 80, makis: 100, frituras: 120 };
+  const FKEY = 'ramen_tut_areas';
+  const flags = () => { try { return JSON.parse(safeStorage.getItem(FKEY) || '{}') || {}; } catch (e) { return {}; } };
+  G.flags = flags;
+  G.doneCount = () => ORDER.filter(k => flags()[k]).length;
+  G.lessonOrder = ORDER;
+  function rewardLine(k) { return flags()[k] ? ' <span style="color:#6b5a3a">Ya reclamaste la recompensa de esta lección.</span>' : ' 🎁 Al terminar ganas <b>+' + REWARD[k] + ' 🧧 propinas</b> para comprar tus primeras mejoras.'; }
+  steps = LESSONS.ramen;
+  G.lesson = 'ramen';
   window.GUIA_STEPS = S;
   G.addSteps = fn => { fn({ add, sleep, ING, nm, tile, sel, stg, dropIn, served, cust, orderNames, base: () => base, setBase: (k, v) => { base[k] = v; } }); steps = S; };
 
@@ -161,6 +176,15 @@
   .gu-ask { display: none; font-size: 12px; font-weight: 800; margin-top: 6px; background: #ffe0e0; border-radius: 8px; padding: 5px 8px; }
   .gu-ask button { margin-left: 6px; }
   @media (max-height: 460px) { .gu-card { width: min(350px, 47vw); padding: 6px 9px 6px; } .gu-title { font-size: 13px; } .gu-text { font-size: 11.5px; line-height: 1.25; } .gu-btns { margin-top: 4px; } .gu-btns button { padding: 4px 10px; } }
+  .gu-menuwrap { position: fixed; inset: 0; z-index: 9850; background: rgba(0,0,0,0.65); display: flex; align-items: center; justify-content: center; padding: 8px; font-family: 'Fredoka','Nunito',system-ui,sans-serif; color: #3b2a1a; }
+  .gu-menubox { width: min(640px, 100%); max-height: 100%; overflow-y: auto; background: #fff8e6; border: 3px solid #7a5a2a; border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+  .gu-menubox h3 { margin: 0; color: #7a1f1f; font-size: 18px; } .gu-menubox p { margin: 0; font-size: 12.5px; font-weight: 600; line-height: 1.35; } .gu-menubox p b { color: #b71c1c; }
+  .gu-lessons { display: grid; grid-template-columns: repeat(auto-fit, minmax(135px, 1fr)); gap: 8px; }
+  .gu-lesson { position: relative; background: #f4ead2; border: 2px solid #c9b78a; border-radius: 12px; padding: 7px 8px 22px; cursor: pointer; display: flex; flex-direction: column; gap: 2px; min-height: 108px; }
+  .gu-lesson b { font-size: 14px; color: #7a1f1f; } .gu-lesson small { font-size: 10.5px; color: #6b5a3a; font-weight: 700; line-height: 1.2; } .gu-lesson em { font-style: normal; font-size: 11px; font-weight: 900; color: #8a6a35; margin-top: auto; }
+  .gu-lesson .rw { position: absolute; right: 6px; bottom: 4px; background: #ffe082; color: #5a3a00; border-radius: 9px; padding: 0 7px; font-size: 11px; font-weight: 900; }
+  .gu-lesson.next { border-color: #43a047; background: #e8f5e0; box-shadow: 0 0 0 2px rgba(67,160,71,0.35); } .gu-lesson.next em { color: #2e7d32; } .gu-lesson.done { background: #eef3e6; } .gu-lesson.done em { color: #2e7d32; }
+  .gu-mbtns { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; } .gu-mb { border: 0; border-radius: 10px; padding: 7px 13px; font: 900 12.5px inherit; font-family: inherit; cursor: pointer; background: #c9a24a; color: #2b1a08; } .gu-mb.green { background: #43a047; color: #fff; } .gu-mb.gold { background: #ffb300; } .gu-mb.ghost { background: #e6d7b0; }
   body.guia-on #btn-free-menu { display: none !important; }
   `;
   function css() { if (document.getElementById('gu-css')) return; const s = document.createElement('style'); s.id = 'gu-css'; s.textContent = CSS; document.head.appendChild(s); }
@@ -204,11 +228,12 @@
   function render() {
     const s = steps[i]; if (!s) return;
     const e = ui(); css(); document.body.classList.add('guia-on');
-    document.getElementById('gu-seg').textContent = s.seg || '';
+    document.getElementById('gu-seg').textContent = 'Lección: ' + LESSON_INFO[G.lesson].name;
     document.getElementById('gu-n').textContent = `Paso ${i + 1} de ${steps.length}`;
     document.getElementById('gu-bar').style.width = Math.round(100 * i / steps.length) + '%';
     document.getElementById('gu-title').innerHTML = s.title || '';
     document.getElementById('gu-ok').style.display = s.info ? '' : 'none';
+    document.getElementById('gu-ok').textContent = i === steps.length - 1 ? (flags()[G.lesson] ? 'Terminar ▶' : '🧧 Reclamar y terminar ▶') : 'Entendido ▶';
     document.getElementById('gu-skip').style.display = s.info || !s.assist ? 'none' : '';
     document.getElementById('gu-tip').style.display = 'none';
     document.getElementById('gu-ask').style.display = 'none'; exitAsk = false;
@@ -267,9 +292,10 @@
     askExit(hide) { const a = document.getElementById('gu-ask'); if (a) a.style.display = hide ? 'none' : 'block'; },
     exit() { G.stop(); try { returnToStartMenu(); } catch (e) {} },
     stop() { G.active = false; clearInterval(timer); const e = document.getElementById('guia'); if (e) e.remove(); document.body.classList.remove('guia-on'); },
-    start() {
+    start(key) {
       if (G.active) return;
       css();
+      G.lesson = LESSONS[key] ? key : 'ramen'; steps = LESSONS[G.lesson];
       S.forEach(s => { delete s._did; });
       base = {}; G.active = true;
       const prev = startSelectedMode; startSelectedMode = 'FREE';
@@ -285,11 +311,38 @@
     }
   });
   function complete() {
+    const key = G.lesson, f = flags(), first = !f[key], reward = first ? REWARD[key] : 0;
     G.stop();
-    try { safeStorage.setItem('ramen_tutorial_completed', 'true'); updateStartModesDisplay(); } catch (e) {}
+    f[key] = true;
+    try { safeStorage.setItem(FKEY, JSON.stringify(f)); } catch (e) {}
+    if (first) { try { addPropinas(REWARD[key]); } catch (e) { console.warn(e); } }
+    if (key === 'ramen') { try { safeStorage.setItem('ramen_tutorial_completed', 'true'); } catch (e) {} }      // con la lección de Ramen ya se abren Campaña y Rash
+    try { updateStartModesDisplay(); } catch (e) {}
     try { if (typeof japonSyncSoon === 'function') japonSyncSoon(); } catch (e) {}
     try { returnToStartMenu(); } catch (e) {}
-    setTimeout(() => { try { playSound('win'); } catch (e) {} const modal = document.getElementById('tutorial-completed-modal'); if (modal) modal.style.display = 'flex'; }, 400);
+    setTimeout(() => showDone(key, first, reward), 450);
   }
+  function modal(id, html) {
+    css(); const old = document.getElementById(id); if (old) old.remove();
+    const el = document.createElement('div'); el.id = id; el.className = 'gu-menuwrap'; el.innerHTML = html; document.body.appendChild(el); return el;
+  }
+  function showDone(key, first, reward) {
+    const nxt = ORDER.find(k => !flags()[k]), info = LESSON_INFO[key], all = G.doneCount() === ORDER.length;
+    try { playSound('win'); } catch (e) {}
+    modal('gu-done', `<div class="gu-menubox"><h3>${all && first ? '🏆 ¡Tutorial completo!' : '🎉 ¡Lección de ' + info.name + ' completada!'}</h3>
+      <p>${first ? '🎁 Recompensa: <b style="color:#b71c1c">+' + reward + ' 🧧 propinas</b>. Ya tienes <b>' + getPropinasWallet() + ' 🧧</b> para comprar mejoras en la tienda.' : 'Repetiste la lección (la recompensa se gana solo la primera vez).'}${key === 'ramen' && first ? ' 🔓 <b>Campaña y Rash desbloqueados.</b>' : ''}</p>
+      <div class="gu-mbtns"><button class="gu-mb gold" onclick="document.getElementById('gu-done').remove(); openUpgradesModal()">🧧 Ver mejoras</button>
+      ${nxt ? '<button class="gu-mb green" onclick="document.getElementById(\'gu-done\').remove(); Guia.start(\'' + nxt + '\')">Siguiente: ' + LESSON_INFO[nxt].name + ' ▶</button>' : ''}
+      <button class="gu-mb" onclick="document.getElementById('gu-done').remove(); Guia.menu()">Elegir lección</button><button class="gu-mb ghost" onclick="document.getElementById('gu-done').remove()">Menú</button></div></div>`);
+  }
+  G.menu = function () {
+    const f = flags(), nxt = ORDER.find(k => !f[k]);
+    modal('gu-menu', `<div class="gu-menubox"><h3>🎓 Tutorial por áreas</h3>
+      <p>Elige una lección: cocinas <b>1 plato</b> de esa área con ayuda paso a paso. Cada lección es corta y da una <b>recompensa en propinas 🧧</b> la primera vez, para comprar tus primeras mejoras.</p>
+      <div class="gu-lessons">${ORDER.map(k => { const n = LESSON_INFO[k]; return '<div class="gu-lesson ' + (f[k] ? 'done' : (k === nxt ? 'next' : '')) + '" onclick="document.getElementById(\'gu-menu\').remove(); Guia.start(\'' + k + '\')"><b>' + n.icon + ' ' + n.name + '</b><small>' + n.dish + ' · ' + n.min + '</small><small>' + n.note + '</small><em>' + (f[k] ? '✓ Completada' : (k === nxt ? '▶ Te recomiendo esta' : 'Pendiente')) + '</em><span class="rw">' + (f[k] ? '🧧 ganada' : '🧧 +' + REWARD[k]) + '</span></div>'; }).join('')}</div>
+      <div class="gu-mbtns"><button class="gu-mb ghost" onclick="document.getElementById('gu-menu').remove()">Cerrar</button></div></div>`);
+  };
+  // entrada desde el menú: quien nunca hizo una lección empieza directo por Ramen; el resto elige la lección
+  G.begin = function () { if (G.doneCount() === 0) G.start('ramen'); else G.menu(); };
   G.complete = complete;
 })();

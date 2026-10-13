@@ -552,7 +552,7 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
     const rest = {};
     Object.keys(S.rest).forEach(id => { const r = S.rest[id];
       rest[id] = { tier: r.tier, tables: r.tables, q: r.q, staff: r.staff, areas: r.areas, objs: r.objs, cashIn: r.cashIn, cashOut: r.cashOut, runs: r.runs || 0, best: r.best || 0, t: r.t, since: r.since }; });
-    return { v: 1, japon: { lifetime: S.lifetime, spent: S.spent, open: S.open, rest, act: S.act }, rash: parseInt(store().getItem(RASH_KEY) || '1', 10) || 1, tut: store().getItem(TUT_KEY) === 'true', rec: (typeof reconGet === 'function' ? reconGet() : { best: {}, runs: 0 }) };
+    return { v: 1, japon: { lifetime: S.lifetime, spent: S.spent, open: S.open, rest, act: S.act }, rash: parseInt(store().getItem(RASH_KEY) || '1', 10) || 1, tut: store().getItem(TUT_KEY) === 'true', tuts: (typeof Guia !== 'undefined' ? Guia.flags() : {}), rec: (typeof reconGet === 'function' ? reconGet() : { best: {}, runs: 0 }) };
   }
   function ledgers(g) {
     const jp = (g && g.japon) || {}, rest = {};
@@ -580,6 +580,7 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
     });
     Object.keys(lj.act || {}).forEach(d => { oj.act[d] = Math.max(nz(oj.act[d]), nz(lj.act[d])); });
     out.rash = Math.max(nz(out.rash, 1), nz(l.rash, 1)); out.tut = !!(out.tut || l.tut);
+    out.tuts = Object.assign({}, out.tuts || {}, l.tuts || {});
     out.rec = out.rec || { best: {}, runs: 0 }; out.rec.best = out.rec.best || {};
     Object.keys((l.rec && l.rec.best) || {}).forEach(k => { const b = l.rec.best[k], o = out.rec.best[k]; if (b && (!o || nz(b.t, 1e9) < nz(o.t, 1e9))) out.rec.best[k] = b; });
     out.rec.runs = Math.max(nz(out.rec.runs), nz(l.rec && l.rec.runs));
@@ -598,6 +599,7 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
     S.rest = rest;
     try { if ((g.rash || 1) > (parseInt(store().getItem(RASH_KEY) || '1', 10) || 1)) store().setItem(RASH_KEY, String(Math.min(100, g.rash))); if (g.tut) store().setItem(TUT_KEY, 'true'); } catch (e) {}
     try { if (g.rec && typeof reconMerge === 'function') reconMerge(g.rec); } catch (e) {}
+    try { if (g.tuts) { const cur = JSON.parse(store().getItem('ramen_tut_areas') || '{}') || {}; store().setItem('ramen_tut_areas', JSON.stringify(Object.assign({}, cur, g.tuts))); } } catch (e) {}
     persist();
   }
   function resetJapon() { S.fondo = 0; S.lifetime = 0; S.spent = 0; S.open = { tokio: true }; S.rest = { tokio: newRest(CITY.tokio) }; S.act = {}; S.cur = null; S.view = null; S.sync = { owner: null, rev: 0, base: null, dirty: false, status: 'sync', lastSig: null }; }
