@@ -6446,7 +6446,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v132</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v133</span></button></div>
     </div>
   </div>
 
@@ -17189,8 +17189,10 @@ function startTrainingChallenge(id) {
 
 // --- Entrenamiento: lista de retos, ficha del reto y resultado ---
 let trainingView = { mode: 'list', id: null };
+let trainingOnly = null;   // lista de capítulos a mostrar (desde un área del local); null = todos
 
-function openTrainingModal(id) {
+function openTrainingModal(id, only) {
+  trainingOnly = (only && only.length) ? only : null;
   trainingView = id ? { mode: 'brief', id } : { mode: 'list', id: null };
   renderTrainingHub();
   const m = document.getElementById('training-modal');
@@ -17220,7 +17222,7 @@ function renderTrainingHub() {
   const next = trainingNextChallenge();
   const featChips = Object.entries(TRAINING_FEATURES).map(([id, f]) =>
     `<span class="trn-feat ${feats.has(id) ? 'on' : ''}" title="${f.name}">${feats.has(id) ? f.icon : '🔒'} ${f.name}</span>`).join('');
-  const chapters = TRAINING_CHAPTERS.map(chp => {
+  const chapters = TRAINING_CHAPTERS.filter(chp => !trainingOnly || trainingOnly.includes(chp.id)).map(chp => {
     const list = TRAINING_CHALLENGES.filter(c => c.ch === chp.id);
     const dn = list.filter(c => (trainingProgressOf(c.id) || {}).m > 0).length;
     const cards = list.map(c => {
@@ -19997,7 +19999,8 @@ function startLevel(lvlIndex) {
   updateHUD();
   renderBowls();
   renderCustomers();
-  gameState.activeArea = (gameState.gameMode === 'JAPON' && gameState.japon) ? japonFirstArea() : 'ramen';
+  gameState.activeArea = (gameState.gameMode === 'JAPON' && gameState.japon) ? japonFirstArea()
+    : ((gameState.gameMode === 'FREE' && gameState.free && gameState.free.areas.length === 1) ? gameState.free.areas[0] : 'ramen');   // cocina libre de una sola área: empieza en ella
   gameState.stages = { ramen: 'cook', salteados: 'cook', makis: 'cook', frituras: 'cook' };
   cleanupMakiToolDrag();
   gameState.makiRoll = newMakiRoll();
@@ -20963,7 +20966,8 @@ function executeStartGame() {
   gameState.gameMode = startSelectedMode;
   statsBump('g');
   if (startSelectedMode !== 'TRAINING') gameState.training = null;
-  gameState.free = startSelectedMode === 'FREE' ? { auto: true, areas: [...FREE_AREAS] } : null;
+  const freeOnly = window.startFreeAreas; window.startFreeAreas = null;   // desde el local isométrico: cocina libre de una sola área
+  gameState.free = startSelectedMode === 'FREE' ? { auto: true, areas: (freeOnly && freeOnly.length) ? [...freeOnly] : [...FREE_AREAS] } : null;
   if (startSelectedMode === 'NORMAL') {
     startLevel(0);
   } else if (startSelectedMode === 'TRAINING' || startSelectedMode === 'FREE') {
@@ -25106,6 +25110,7 @@ if (document.readyState === 'loading') {
 <script src="japon.js?v=14"></script>
 <script src="reconocer.js?v=2"></script>
 <script src="guia.js?v=7"></script>
-<script src="japon-scene.js?v=8"></script>
+<script src="japon-scene.js?v=9"></script>
+<script src="inicio.js?v=12"></script>
 </body>
 </html>

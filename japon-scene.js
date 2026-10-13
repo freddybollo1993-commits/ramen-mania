@@ -467,6 +467,8 @@
   }
 
   // ---------- API ----------
+  // piezas compartidas con la escena del inicio (inicio.js): misma proyección isométrica, personas, cajas y estilos
+  window.JPKit = { TW, TH, GW, GD, OX, OY, WW, WH, WALL, sx, sy, P, mkPerson, boxHtml, bill, EQUIP, lamp, css, WOODC, GREYC, TABLEC, LV, rnd, pick };
   window.JPScene = {
     mount(host, getState) {
       if (sc && sc.key !== getState().c.id) destroy();
