@@ -38,12 +38,12 @@ Orden de carga al final de `index.html`: `multiplayer.js`, `makis-studio.js`, `f
 ### 3.1 Cuatro áreas
 Pestañas de cocina (`KITCHEN_AREAS`): **RAMEN · SALTEADO · FRITURAS · MAKIS**. Cada una tiene un catálogo de platos (`RECETAS_RAMEN`, `AREA_CATALOGS`) y se desbloquea por nivel (Campaña), ronda (Rash) o reto (Entrenamiento) según `AREA_DISH_UNLOCKS` (plato, nivel de campaña, ronda de Rash):
 
-| Área | Platos (≈34 en total) |
+| Área | Platos (35 recetas; 33 jugables) |
 |---|---|
 | Ramen (9) | Shio, Shoyu, Miso, Chashu, Tonkotsu, Tan tan, Ebi, Bajiru, Vegetariano |
 | Salteado (9) | Yakimeshi, Chicken Teriyaki, Chaufa Shimaya, Yakitori, Yakiramen, Yasaitame, Batayaki Ramen, Karameshi, Omuraisu |
-| Makis (8) | California, Guacamole, Acevichado, Hotate, Amazon, Yama, Nin Niku, Digion |
-| Frituras (7) | Alitas, Kaarage, Tonkatsu, Chicken Katsu, Katsu Kare, Ebi Furai, Age Gyozas |
+| Makis (9) | California, Guacamole, Acevichado, Hotate, Amazon, Yama, Nin Niku, Digion + Maki Furai (existe, aún no se puede pedir: «termina en Frituras») |
+| Frituras (8) | Alitas, Kaarage, Tonkatsu, Chicken Katsu, Katsu Kare, Ebi Furai, Age Gyozas + Gyozas al vapor/hervidas (existe, aún no se puede pedir: necesita 2.ª hornilla con sartén) |
 
 ### 3.2 Tres etapas por área («etapas», `stagedOn(area)`)
 **Producción → Cocina → Emplatar**, en ese orden fijo de pantallas (se cambia deslizando desde el borde).
