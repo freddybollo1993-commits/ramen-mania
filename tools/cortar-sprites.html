@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cortar hoja de sprites</title>
+<style>
+  body { font: 14px/1.4 system-ui, sans-serif; margin: 0; padding: 14px; background: #2b1810; color: #ffe9b0; }
+  h1 { font-size: 18px; margin: 0 0 8px; } fieldset { border: 1px solid #6b4a24; border-radius: 8px; margin: 8px 0; padding: 8px 12px; }
+  label { margin-right: 14px; white-space: nowrap; } input[type=number] { width: 64px; } button { background: #ffb300; border: 0; border-radius: 8px; padding: 6px 14px; font-weight: 700; cursor: pointer; }
+  canvas { background: repeating-conic-gradient(#555 0 25%, #777 0 50%) 0 0 / 16px 16px; max-width: 100%; border: 1px solid #6b4a24; }
+  .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-start; } #msg { margin: 6px 0; color: #9be39b; } code { background: #000; padding: 1px 4px; border-radius: 4px; }
+</style>
+</head>
+<body>
+<h1>Cortar hoja de sprites (fondo magenta → atlas WebP)</h1>
+<p>Sube la hoja generada (cuadrícula uniforme con fondo <code>#FF00FF</code>). La herramienta quita el magenta, corta cada celda, escala <b>todos los cuadros con el mismo factor</b>, apoya los pies en una línea base común y entrega un atlas listo para el juego.</p>
+<fieldset>
+  <input type="file" id="file" accept="image/*">
+  <label>Columnas <input type="number" id="cols" value="4" min="1"></label>
+  <label>Filas <input type="number" id="rows" value="4" min="1"></label>
+  <label>Ancho cuadro <input type="number" id="cw" value="128"></label>
+  <label>Alto cuadro <input type="number" id="ch" value="192"></label>
+  <label>Alto del personaje <input type="number" id="th" value="150"></label>
+  <label>Línea de pies (y) <input type="number" id="base" value="182"></label>
+  <label>Umbral magenta <input type="number" id="thr" value="40"></label>
+  <label>Nombre <input type="text" id="name" value="cook_ramen_v1" size="16"></label>
+  <button id="go">Procesar</button> <button id="dl" disabled>Descargar atlas WebP</button> <button id="dlj" disabled>Descargar JSON</button> <button id="dlp" disabled>Descargar PNG</button>
+</fieldset>
+<div id="msg"></div>
+<div class="row"><div><b>Hoja original</b><br><canvas id="src" width="10" height="10"></canvas></div><div><b>Atlas resultante</b> (línea roja = pies)<br><canvas id="out" width="10" height="10"></canvas></div></div>
+<script>
+/* Procesa una hoja de sprites con fondo magenta.
+   opts: { cols, rows, cw, ch, th, base, thr }. Devuelve { canvas, meta } con el atlas (cols×cw por rows×ch). */
+function quitarMagenta(ctx, w, h, thr) {
+  const d = ctx.getImageData(0, 0, w, h), p = d.data;
+  for (let i = 0; i < p.length; i += 4) {
+    const r = p[i], g = p[i + 1], b = p[i + 2], m = Math.min(r, b) - g;            // cuánto «magenta» tiene el píxel
+    if (m >= thr + 60) p[i + 3] = 0;                                                  // magenta puro: transparente
+    else if (m > thr) {                                                               // borde: transparencia parcial y se quita el tinte rosado
+      p[i + 3] = Math.round(255 * (1 - (m - thr) / 60));
+      p[i] = Math.min(r, g + 30); p[i + 2] = Math.min(b, g + 30);
+    } else if (m > thr * 0.5) { p[i] = Math.min(r, g + 40); p[i + 2] = Math.min(b, g + 40); }   // despill suave
+  }
+  ctx.putImageData(d, 0, 0);
+}
+function cajaVisible(ctx, w, h) {
+  const p = ctx.getImageData(0, 0, w, h).data; let x0 = w, y0 = h, x1 = -1, y1 = -1;
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (p[(y * w + x) * 4 + 3] > 24) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+  return x1 < 0 ? null : { x: x0, y: y0, w: x1 - x0 + 1, h: y1 - y0 + 1 };
+}
+function procesarHoja(img, o) {
+  const W = img.naturalWidth || img.width, H = img.naturalHeight || img.height, cellW = W / o.cols, cellH = H / o.rows;
+  const work = document.createElement('canvas'); work.width = W; work.height = H;
+  const wc = work.getContext('2d', { willReadFrequently: true }); wc.drawImage(img, 0, 0); quitarMagenta(wc, W, H, o.thr);
+  const cells = [];
+  for (let r = 0; r < o.rows; r++) for (let c = 0; c < o.cols; c++) {
+    const sx = Math.round(c * cellW), sy = Math.round(r * cellH), sw = Math.round(cellW), sh = Math.round(cellH);
+    const cc = document.createElement('canvas'); cc.width = sw; cc.height = sh; const cx = cc.getContext('2d', { willReadFrequently: true });
+    cx.drawImage(work, sx, sy, sw, sh, 0, 0, sw, sh);
+    cells.push({ r, c, cv: cc, box: cajaVisible(cx, sw, sh) });
+  }
+  const alturas = cells.filter(k => k.box).map(k => k.box.h), maxH = Math.max(...alturas);   // misma escala para todos los cuadros: manda el más alto
+  const k = o.th / maxH;
+  const atlas = document.createElement('canvas'); atlas.width = o.cols * o.cw; atlas.height = o.rows * o.ch;
+  const ax = atlas.getContext('2d'); ax.imageSmoothingQuality = 'high';
+  const frames = [];
+  cells.forEach(cell => {
+    const ox = cell.c * o.cw, oy = cell.r * o.ch;
+    if (cell.box) {
+      const b = cell.box, dw = b.w * k, dh = b.h * k, dx = ox + o.cw / 2 - dw / 2, dy = oy + o.base - dh;   // pies sobre la línea base, centrado en el cuadro
+      ax.drawImage(cell.cv, b.x, b.y, b.w, b.h, dx, dy, dw, dh);
+    }
+    frames.push({ row: cell.r, col: cell.c, x: ox, y: oy, w: o.cw, h: o.ch, empty: !cell.box });
+  });
+  return { canvas: atlas, meta: { cols: o.cols, rows: o.rows, frame: [o.cw, o.ch], pivot: [o.cw / 2, o.base], scale: +k.toFixed(4), sourceMaxHeight: maxH, frames } };
+}
+window.procesarHoja = procesarHoja;
+let last = null, imgEl = null;
+const $ = id => document.getElementById(id);
+const nums = () => ({ cols: +$('cols').value, rows: +$('rows').value, cw: +$('cw').value, ch: +$('ch').value, th: +$('th').value, base: +$('base').value, thr: +$('thr').value });
+$('file').onchange = e => { const f = e.target.files[0]; if (!f) return; const im = new Image(); im.onload = () => { imgEl = im; const s = $('src'); s.width = im.naturalWidth; s.height = im.naturalHeight; s.getContext('2d').drawImage(im, 0, 0); $('msg').textContent = 'Hoja cargada: ' + im.naturalWidth + '×' + im.naturalHeight; }; im.src = URL.createObjectURL(f); };
+$('go').onclick = () => {
+  if (!imgEl) { $('msg').textContent = 'Primero sube una hoja.'; return; }
+  const o = nums(); last = procesarHoja(imgEl, o);
+  const out = $('out'); out.width = last.canvas.width; out.height = last.canvas.height; const ox = out.getContext('2d'); ox.drawImage(last.canvas, 0, 0);
+  ox.strokeStyle = 'rgba(255,0,0,.6)'; for (let r = 0; r < o.rows; r++) { ox.beginPath(); ox.moveTo(0, r * o.ch + o.base + 0.5); ox.lineTo(out.width, r * o.ch + o.base + 0.5); ox.stroke(); }
+  const vac = last.meta.frames.filter(f => f.empty).length;
+  $('msg').textContent = `Listo: ${last.meta.frames.length} cuadros (${vac} vacíos) · escala ×${last.meta.scale} · atlas ${last.canvas.width}×${last.canvas.height}`;
+  $('dl').disabled = $('dlj').disabled = $('dlp').disabled = false;
+};
+function bajar(blob, nombre) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nombre; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); }
+$('dl').onclick = () => last.canvas.toBlob(b => bajar(b, $('name').value + '.webp'), 'image/webp', 0.9);
+$('dlp').onclick = () => last.canvas.toBlob(b => bajar(b, $('name').value + '.png'), 'image/png');
+$('dlj').onclick = () => bajar(new Blob([JSON.stringify(last.meta, null, 1)], { type: 'application/json' }), $('name').value + '.json');
+</script>
+</body>
+</html>
