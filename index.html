@@ -6271,7 +6271,7 @@
             <span class="start-mode-badge" style="background:#00e5ff; color:#002b36;">INICIO</span>
           </div>
           <div class="start-mode-desc">
-            Aprende paso a paso cómo funciona cada botón, los caldos y el armado de ramen.
+            Tutorial 100 % guiado: cocinas con ayuda un plato de cada área (Ramen, Salteado, Makis y Frituras) y aprendes cada gesto.
           </div>
           <div class="start-mode-footer">
             <div class="start-mode-status" id="start-tutorial-stats-text" style="color:#80deea;">
@@ -6446,7 +6446,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v130</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v131</span></button></div>
     </div>
   </div>
 
@@ -8016,13 +8016,14 @@
         ¡TUTORIAL COMPLETADO!
       </h2>
       <p style="color:#e0f7fa; font-size:13px; line-height:1.45; margin-bottom:14px;">
-        ¡Felicidades, Chef! Ya dominas la cocina de <b>Ramen Mania</b>, las 4 estaciones de preparación y el orden sagrado de armado Donburi.
+        ¡Felicidades, Chef! Cocinaste un plato de <b>cada área</b> (Ramen, Salteado, Makis y Frituras) y conoces el camino: <b>Producción → Cocinar → Emplatar → Servir</b>.
       </p>
       <div style="background:rgba(0, 229, 255, 0.12); border:1px solid #00e5ff; border-radius:12px; padding:10px 14px; margin-bottom:18px; text-align:left;">
         <div style="font-size:11px; font-weight:900; color:#80deea; margin-bottom:4px; letter-spacing:0.5px;">🔓 MODOS DESBLOQUEADOS PERMANENTEMENTE:</div>
         <div style="font-size:12px; color:#fff; display:flex; flex-direction:column; gap:5px;">
-          <span>🏮 <b>Modo Normal</b>: Campaña gastronómica de 5 niveles con metas de venta en Soles.</span>
+          <span>🏮 <b>Modo Normal</b>: Campaña de 8 niveles con metas de venta en Soles.</span>
           <span>⚡ <b>Modo Rash</b>: Supervivencia extrema contra el reloj en 100 rondas.</span>
+          <span>🔍 <b>Ingredientes</b> (en el menú): practica qué lleva cada plato, sin reloj en contra.</span>
         </div>
       </div>
       <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
@@ -8030,7 +8031,7 @@
           🏮 ¡Jugar Campaña Normal!
         </button>
         <button class="btn" onclick="TutorialManager.restartTutorial()" style="background: linear-gradient(135deg, #00b0ff, #0288d1); border-color:#80d8ff; color:#fff; padding:9px 18px; font-size:12.5px; font-weight:800;">
-          🔄 Repetir Tutorial Completo
+          🔄 Repetir el tutorial
         </button>
         <button class="btn" onclick="TutorialManager.finishAndGoMenu()" style="background:#37474f; border-color:#607d8b; color:#eceff1; padding:9px 18px; font-size:12px; font-weight:800;">
           🏠 Menú Principal
@@ -20000,6 +20001,7 @@ function startLevel(lvlIndex) {
   gameState.stages = { ramen: 'cook', salteados: 'cook', makis: 'cook', frituras: 'cook' };
   cleanupMakiToolDrag();
   gameState.makiRoll = newMakiRoll();
+  gameState.mk = null;                                   // el estudio de Makis (esterilla, rollos en la tabla, pescado) empieza vacío en cada partida
   gameState.woks = [newWok(), newWok()];
   if (fryTimerInterval) { clearInterval(fryTimerInterval); fryTimerInterval = null; }
   cleanupFryItemDrag();
@@ -20476,7 +20478,13 @@ const TutorialManager = {
   isActive: false,
   _listenersAttached: false,
 
+  // El tutorial ahora es guiado e interactivo (guia.js): se hace cocinando 1 plato de cada área.
   start() {
+    if (typeof Guia !== 'undefined') { Guia.start(); return; }
+    this.startLegacy();
+  },
+
+  startLegacy() {
     this.isActive = true;
     this.currentStep = 0;
     const overlay = document.getElementById("tutorial-overlay");
@@ -25097,6 +25105,7 @@ if (document.readyState === 'loading') {
 <script src="frituras-plate.js?v=2"></script>
 <script src="japon.js?v=13"></script>
 <script src="reconocer.js?v=2"></script>
+<script src="guia.js?v=6"></script>
 <script src="japon-scene.js?v=8"></script>
 </body>
 </html>
