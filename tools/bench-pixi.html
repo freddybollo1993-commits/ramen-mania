@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Prueba DOM contra PixiJS</title>
+<title>Prueba DOM contra PixiJS (v3)</title>
 <style>
   html, body { margin: 0; background: #2b1810; color: #ffe9b0; font: 14px/1.35 system-ui, sans-serif; }
   #bar { padding: 6px 10px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; background: #3e2410; position: relative; z-index: 5; }
@@ -12,6 +12,10 @@
   #stage canvas { position: absolute; left: 0; top: 0; }
   .dom-s { position: absolute; left: 0; top: 0; width: 64px; height: 96px; background: url(/assets/people/cook_ramen_v1.webp) 0 0 / 256px 288px no-repeat; animation: walk 0.46s steps(4) infinite; will-change: transform; }
   @keyframes walk { from { background-position-x: 0; } to { background-position-x: -256px; } }
+  /* variante optimizada: el sprite se anima con transform (lo hace la GPU) en vez de background-position (repinta en el hilo principal) */
+  .dom-o { position: absolute; left: 0; top: 0; width: 64px; height: 96px; overflow: hidden; will-change: transform; }
+  .dom-o > i { position: absolute; left: 0; top: 0; width: 256px; height: 288px; background: url(/assets/people/cook_ramen_v1.webp) 0 0 / 256px 288px no-repeat; animation: walk2 0.46s steps(4) infinite; will-change: transform; }
+  @keyframes walk2 { from { transform: translateX(0); } to { transform: translateX(-256px); } }
   pre { margin: 8px 10px; white-space: pre-wrap; font-size: 13px; }
 </style>
 </head>
@@ -19,7 +23,7 @@
 <div id="bar">
   <b>Prueba de rendimiento</b>
   Personas animadas: <select id="n"><option>40</option><option selected>80</option><option>150</option><option>300</option></select>
-  <button id="go">Empezar (≈ 14 s)</button> <span id="st"></span>
+  <button id="go">Empezar (≈ 20 s)</button> <span id="st"></span>
 </div>
 <div id="stage"></div>
 <pre id="out">Pulsa «Empezar». Se mide el mismo conjunto de personas animadas (el sprite del Maestro andando y moviéndose por la pantalla) primero con DOM + CSS, que es como funciona hoy el juego, y luego con PixiJS (WebGL). Mantén la pantalla encendida y no toques nada mientras corre.
@@ -52,6 +56,11 @@ async function testDom(n) {
   const r = await measure((t, dt) => { as.forEach((a, i) => { move(a, dt); els[i].style.transform = `translate(${a.x.toFixed(1)}px, ${a.y.toFixed(1)}px)`; }); });
   stage.innerHTML = ''; return r;
 }
+async function testDomOpt(n) {
+  stage.innerHTML = ''; const as = actors(n), els = as.map(a => { const e = document.createElement('div'); e.className = 'dom-o'; e.appendChild(document.createElement('i')); stage.appendChild(e); return e; });
+  const r = await measure((t, dt) => { as.forEach((a, i) => { move(a, dt); els[i].style.transform = `translate(${a.x.toFixed(1)}px, ${a.y.toFixed(1)}px)`; }); });
+  stage.innerHTML = ''; return r;
+}
 async function testPixi(n) {
   stage.innerHTML = ''; const app = new PIXI.Application();
   await app.init({ width: W(), height: H, backgroundAlpha: 0, antialias: false, resolution: Math.min(window.devicePixelRatio || 1, 2), autoDensity: true, autoStart: false });
@@ -64,14 +73,17 @@ async function testPixi(n) {
 }
 $('go').onclick = async () => {
   const n = +$('n').value; $('go').disabled = true; out.textContent = 'Midiendo con ' + n + ' personas…'; $('st').textContent = 'DOM + CSS (como hoy)…';
-  let d, p, err = '';
+  let d, o, p, err = '';
   try { d = await testDom(n); } catch (e) { err += 'DOM: ' + e.message + '\n'; }
+  $('st').textContent = 'DOM optimizado…';
+  try { o = await testDomOpt(n); } catch (e) { err += 'DOM optimizado: ' + e.message + '\n'; }
   $('st').textContent = 'PixiJS…';
   try { p = await testPixi(n); } catch (e) { err += 'Pixi: ' + e.message + '\n'; }
   $('st').textContent = ''; $('go').disabled = false;
-  const row = (t, r) => r ? `${t.padEnd(14)} ${String(r.fps).padStart(5)} fps · fotograma p95 ${r.p95} ms · peor ${r.worst} ms · lentos (>25 ms) ${r.slow}/${r.n}` : t + ' sin datos';
-  const win = d && p ? (p.fps > d.fps * 1.15 ? 'PixiJS rinde claramente más aquí.' : (d.fps > p.fps * 1.15 ? 'El DOM rinde más aquí.' : 'Rinden parecido: no compensa cambiar.')) : '';
-  out.textContent = `${n} personas animadas · ${innerWidth}×${innerHeight} · ${navigator.hardwareConcurrency || '?'} núcleos · ${(navigator.deviceMemory || '?')} GB\n${row('DOM + CSS', d)}\n${row('PixiJS ' + (PIXI.VERSION || ''), p)}${p && p.renderer ? ' (' + p.renderer + ')' : ''}\n${win}\n${err}\nAyuda: por encima de 55 fps y sin fotogramas lentos el DOM basta; si el DOM baja de 45 fps con el número de personas que usaremos, Pixi vale la pena.`;
+  const row = (t, r) => r ? `${t.padEnd(15)} ${String(r.fps).padStart(5)} fps · p95 ${r.p95} ms · peor ${r.worst} ms · lentos (>25 ms) ${r.slow}/${r.n}` : t + ' sin datos';
+  const best = [d, o].filter(Boolean).sort((a, b) => b.fps - a.fps)[0];
+  const win = best && p ? (p.fps > best.fps * 1.15 ? 'PixiJS rinde claramente más que el mejor DOM.' : (best.fps > p.fps * 1.15 ? 'El DOM rinde más aquí.' : 'Rinden parecido: no compensa cambiar.')) : (o && d && o.fps > d.fps * 1.1 ? 'El DOM optimizado rinde más que el DOM actual.' : '');
+  out.textContent = `v3 · ${n} personas animadas · ${innerWidth}×${innerHeight} · ${navigator.hardwareConcurrency || '?'} núcleos · ${(navigator.deviceMemory || '?')} GB\n${row('DOM (actual)', d)}\n${row('DOM optimizado', o)}\n${row('PixiJS ' + (PIXI.VERSION || ''), p)}${p && p.renderer ? ' (' + p.renderer + ')' : ''}\n${win}\n${err}\nAyuda: por encima de 55 fps y sin fotogramas lentos el DOM basta; si el DOM baja de 45 fps con el número de personas que usaremos, Pixi vale la pena.`;
 };
 </script>
 </body>
