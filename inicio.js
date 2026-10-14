@@ -39,22 +39,22 @@
         icon: '🍜',
         title: 'Jugar',
         sub: 'Campaña · Rash · Japón · Online',
-        tag: 'MODO PRINCIPAL · SERVICIO EN VIVO',
+        tag: 'MODO PRINCIPAL',
         heroTitle: 'Servicio en la Cocina',
-        desc: 'El corazón de Shimaya: enciende los fogones y sirve a los comensales más exigentes. Supera los 8 niveles de la Campaña, desafía tus reflejos en la Supervivencia Rash, expande tu imperio gastronómico por 9 ciudades de Japón o compite en línea con amigos.',
-        pills: ['🔥 4 Cocinas Activas', '⏱️ Contrarreloj y Rash', '🌐 Multijugador Online'],
-        ctaText: 'ELEGIR MODO DE JUEGO ▶',
+        desc: 'Servicio en vivo: 8 niveles de Campaña, Supervivencia Rash extrema, Recorrido por Japón y Multijugador en línea.',
+        pills: ['🔥 4 Cocinas', '⏱️ Contrarreloj', '🌐 Online'],
+        ctaText: 'VER MODOS DE JUEGO ▶',
         defaultItem: 'camp'
       },
       {
         id: 'aprender',
         icon: '🎓',
         title: 'Aprender',
-        sub: 'Aula del Maestro · Retos · Práctica',
-        tag: 'ESCUELA CULINARIA TRADICIONAL',
+        sub: 'Aula · Retos · Cocina Libre',
+        tag: 'ESCUELA CULINARIA',
         heroTitle: 'El Dojo del Maestro',
-        desc: 'Domina las técnicas tradicionales de la cocina japonesa de la mano del Maestro Chef. Aprende paso a paso los secretos de caldos, woks, corte de makis y frituras tempura, supera los 27 retos de destreza con medallas y practica con calma sin reloj.',
-        pills: ['🎓 4 Lecciones con Guía', '🥋 27 Retos de Técnica', '🌿 Cocina Libre Zen'],
+        desc: 'Academia tradicional: 4 disciplinas guiadas por el Maestro, 27 retos de técnica y práctica libre zen sin reloj.',
+        pills: ['🎓 4 Lecciones', '🥋 27 Retos', '🌿 Práctica Zen'],
         ctaText: 'VER LECCIONES Y RETOS ▶',
         defaultItem: 'aula'
       },
@@ -62,13 +62,25 @@
         id: 'restaurante',
         icon: '🏆',
         title: 'Mi Restaurante',
-        sub: 'Mejoras · Recetario · Ranking · Cuenta',
-        tag: 'PROGRESIÓN Y PRESTIGIO DEL CHEF',
+        sub: 'Mejoras · Recetario · Ranking',
+        tag: 'PROGRESIÓN Y PRESTIGIO',
         heroTitle: 'Gestión y Progreso',
-        desc: 'Tu centro de mando culinario y tesoro del chef. Invierte tus propinas ganadas en cuchillos forjados en Sakai y utensilios permanentes, consulta los secretos del recetario de 35 platos, escala en la tabla de líderes mundiales y asegura tu partida en la nube.',
-        pills: ['🧧 10 Mejoras de Cocina', '📖 35 Recetas Oficiales', '☁️ Nube y Cuenta'],
+        desc: 'Centro de mando: 10 mejoras de cocina con propinas, recetario oficial de 35 platos, ranking mundial y nube.',
+        pills: ['🧧 10 Mejoras', '📖 35 Recetas', '☁️ Nube y Perfil'],
         ctaText: 'VER MEJORAS Y RECETAS ▶',
         defaultItem: 'knives'
+      },
+      {
+        id: 'gear',
+        icon: '⚙️',
+        title: 'Ajustes',
+        sub: 'Sonido · Pantalla · Atajos',
+        tag: 'SISTEMA Y AJUSTES',
+        heroTitle: 'Ajustes del Sistema',
+        desc: 'Configuración: audio y efectos de cocina, pantalla completa inmersiva, actualizaciones y atajos rápidos de PC.',
+        pills: ['🔊 Audio', '⛶ Pantalla Completa', '🔄 Actualizar'],
+        ctaText: 'CONFIGURAR SISTEMA ▶',
+        defaultItem: 'sound'
       }
     ],
 
@@ -77,11 +89,11 @@
         id: 'camp',
         icon: '🏮',
         title: 'Campaña Gastronómica',
-        sub: '8 niveles con metas de ventas y tiempo',
-        tag: 'MODO HISTORIA · DE APRENDIZ A MAESTRO',
+        sub: '8 niveles con metas de ventas',
+        tag: 'MODO HISTORIA',
         heroTitle: 'Campaña Gastronómica',
-        desc: 'Tu camino hacia la maestría. Atiende comandas a contrarreloj en 8 niveles progresivos con dificultad creciente. Coordina tus estaciones de fideos, wok, frituras y sushi para alcanzar la meta de ventas diaria y desbloquear nuevas recetas.',
-        pills: ['⏱️ 8 Niveles Progresivos', '📈 Metas Diarias', '⭐ Evaluación de Estrellas'],
+        desc: 'Atiende comandas a contrarreloj en 8 niveles progresivos con metas de ventas diarias y evaluación de estrellas.',
+        pills: ['⏱️ 8 Niveles', '📈 Metas Diarias', '⭐ Estrellas'],
         ctaText: '▶ JUGAR CAMPAÑA',
         act: 'camp',
         reqTut: true
@@ -90,11 +102,11 @@
         id: 'rash',
         icon: '⚡',
         title: 'Supervivencia Rash',
-        sub: 'Rondas sin fin con 3 vidas · Arcade puro',
-        tag: 'DESAFÍO EXTREMO SIN PAUSA',
+        sub: 'Rondas infinitas · 3 vidas',
+        tag: 'DESAFÍO EXTREMO',
         heroTitle: 'Supervivencia Rash',
-        desc: 'El reto supremo para chefs de reflejos afilados. Oleadas infinitas de clientes cada vez más veloces e impacientes. Cuentas con solo 3 vidas: cada comanda quemada o cliente marchado te acerca al final del turno. ¿Hasta qué ronda eres capaz de llegar?',
-        pills: ['⚡ Rondas Infinitas', '❤️ 3 Vidas Máximas', '🏆 Récords Mundiales'],
+        desc: 'Arcade puro: clientes cada vez más veloces e impacientes. Solo tienes 3 vidas antes de cerrar el turno.',
+        pills: ['⚡ Sin Fin', '❤️ 3 Vidas', '🏆 Récords'],
         ctaText: '⚡ JUGAR RASH',
         act: 'rash',
         reqTut: true
@@ -103,11 +115,11 @@
         id: 'door',
         icon: '🗾',
         title: 'Recorrido por Japón',
-        sub: 'Cadena de restaurantes por 9 ciudades',
-        tag: 'EXPANSIÓN IDLE Y GESTIÓN',
+        sub: 'Franquicia en 9 ciudades',
+        tag: 'EXPANSIÓN IDLE',
         heroTitle: 'Recorrido por Japón',
-        desc: 'Expande tu franquicia por 9 ciudades emblemáticas de Japón: Tokio, Osaka, Kioto, Sapporo, Yokohama y más. Abre locales que generan ingresos en yenes las 24 horas, contrata personal, decora con objetos típicos y adquiere ventajas permanentes.',
-        pills: ['🗾 9 Ciudades Icónicas', '💴 Ingresos Pasivos 24/7', '🏮 Mejoras de Cadena'],
+        desc: 'Abre restaurantes en 9 ciudades emblemáticas de Japón con ingresos pasivos en yenes las 24 horas y mejoras.',
+        pills: ['🗾 9 Ciudades', '💴 Ingresos 24/7', '🏮 Mejoras'],
         ctaText: '🗾 VIAJAR POR JAPÓN',
         act: 'door'
       },
@@ -115,11 +127,11 @@
         id: 'room',
         icon: '👥',
         title: 'Multijugador Online',
-        sub: 'Salas con amigos o matchmaking 2-4 chefs',
-        tag: 'COMPETITIVO EN TIEMPO REAL',
+        sub: 'Duelos de 2 a 4 chefs en vivo',
+        tag: 'COMPETITIVO EN LÍNEA',
         heroTitle: 'Duelo Culinario Online',
-        desc: 'Compite en vivo cara a cara. Crea una sala privada con código para retar a tus amigos o entra al emparejamiento mundial global para subir de división en la liga competitiva de chefs con rango MMR.',
-        pills: ['👥 2 a 4 Jugadores', '🌐 Servidor en Vivo', '⚔️ Rango MMR'],
+        desc: 'Compite cara a cara: crea salas privadas con código para amigos o entra al matchmaking global con rango MMR.',
+        pills: ['👥 2-4 Jugadores', '🌐 Servidor Realtime', '⚔️ Rango MMR'],
         ctaText: '👥 ABRIR MULTIJUGADOR',
         act: 'room'
       }
@@ -130,10 +142,10 @@
         id: 'aula',
         icon: '🎓',
         title: 'Aula del Maestro',
-        sub: 'Lecciones guiadas interactivas paso a paso',
-        tag: 'TUTORIAL INTERACTIVO CON GUÍA',
-        heroTitle: 'El Aula del Maestro Chef',
-        desc: 'Aprende las 4 grandes disciplinas de la gastronomía japonesa: la alquimia de caldos de Ramen, el salteado al Wok, el enrollado y corte milimétrico de Makis y la fritura crujiente Tempura/Katsu. ¡Gana propinas la primera vez que completas cada lección!',
+        sub: 'Lecciones guiadas paso a paso',
+        tag: 'TUTORIAL CON GUÍA',
+        heroTitle: 'Aula del Maestro Chef',
+        desc: 'Aprende las 4 disciplinas: caldos de Ramen, Wok, Makis y Frituras tempura. ¡Gana propinas la primera vez!',
         pills: ['🍜 Ramen', '🥘 Salteados', '🍣 Makis', '🍤 Frituras'],
         ctaText: '🎓 ENTRAR AL AULA',
         act: 'enter',
@@ -143,11 +155,11 @@
         id: 'tickets',
         icon: '🎫',
         title: 'Retos del Chef',
-        sub: '27 desafíos técnicos con medallas',
-        tag: 'DESAFÍOS DE ALTA PRECISIÓN',
+        sub: '27 desafíos con medallas',
+        tag: 'DESAFÍOS TÉCNICOS',
         heroTitle: '27 Retos del Chef',
-        desc: 'Comprueba tu velocidad y destreza bajo condiciones de alta presión: comandas a ciegas, cortes express y pedidos complejos. Gana medallas de oro, plata y bronce con generosas recompensas en propinas para tu cartera.',
-        pills: [`🎫 ${retosHechos()}/27 Completados`, '🥇 Medallas de Maestría', '🧧 Propinas Acumulables'],
+        desc: 'Comprueba tu velocidad y técnica bajo presión: comandas a ciegas y cortes express con medallas y propinas.',
+        pills: [`🎫 ${retosHechos()}/27 Listos`, '🥇 Medallas', '🧧 Propinas'],
         ctaText: '🎫 VER LISTA DE RETOS',
         act: 'tickets'
       },
@@ -155,11 +167,11 @@
         id: 'free',
         icon: '🌿',
         title: 'Cocina Libre Zen',
-        sub: 'Práctica libre sin reloj, notas ni clientes',
-        tag: 'PRÁCTICA Y PERFECCIONAMIENTO',
+        sub: 'Práctica libre sin reloj',
+        tag: 'PRÁCTICA TRANQUILA',
         heroTitle: 'Cocina Libre Zen',
-        desc: 'Tu espacio para respirar y pulir tu técnica sin estrés. Sin reloj en contra, sin comensales impacientes y sin penalizaciones: selecciona cualquier estación de cocina y practica tus recetas y emplatados con total tranquilidad.',
-        pills: ['🌿 Sin Cronómetro', '🧘 Ritmo Propio', '✨ Todas las Recetas'],
+        desc: 'Espacio para perfeccionar tu técnica a tu propio ritmo: sin reloj, sin comensales impacientes y sin notas.',
+        pills: ['🌿 Sin Cronómetro', '🧘 Ritmo Propio', '✨ 35 Recetas'],
         ctaText: '🌿 ENTRAR A COCINA LIBRE',
         act: 'free'
       },
@@ -167,11 +179,11 @@
         id: 'pantry',
         icon: '🔍',
         title: 'Modo Ingredientes',
-        sub: 'Memoriza qué lleva cada plato de la despensa',
-        tag: 'AGILIDAD MENTAL Y MEMORIA',
+        sub: 'Memoriza qué lleva cada plato',
+        tag: 'AGILIDAD MENTAL',
         heroTitle: 'Despensa de Ingredientes',
-        desc: 'Pon a prueba tu agilidad mental identificando los ingredientes exactos que componen cada plato tradicional. Mide tu tiempo de reconocimiento para que durante el servicio real cocines por puro reflejo.',
-        pills: ['🧠 Memoria Visual', '🍱 35 Recetas', '⏱️ Test de Velocidad'],
+        desc: 'Prueba tu memoria visual identificando rápidamente los ingredientes exactos que lleva cada plato tradicional.',
+        pills: ['🧠 Memoria Visual', '🍱 35 Platos', '⏱️ Test Rápido'],
         ctaText: '🔍 ABRIR DESPENSA',
         act: 'pantry'
       }
@@ -182,11 +194,11 @@
         id: 'knives',
         icon: '🧧',
         title: 'Tienda de Mejoras',
-        sub: '10 utensilios y cuchillos permanentes',
-        tag: 'EQUIPAMIENTO DE ALTA GAMA',
-        heroTitle: 'Tienda de Mejoras del Chef',
-        desc: 'Invierte tus propinas en herramientas forjadas por maestros artesanos. Desbloquea cuchillos que aumentan permanentemente la paciencia de los comensales, amuletos que multiplican propinas y ollas que reducen tiempos de cocción.',
-        pills: [`🧧 Cartera: ${wallet()} 🧧`, '🔪 Cuchillos de Sakai', '⏱️ +30% Paciencia'],
+        sub: '10 utensilios y cuchillos',
+        tag: 'EQUIPAMIENTO PERMANENTE',
+        heroTitle: 'Tienda de Mejoras',
+        desc: 'Invierte propinas en cuchillos de Sakai que dan paciencia a los clientes, amuletos de propina y ollas rápidas.',
+        pills: [`🧧 Cartera: ${wallet()} 🧧`, '🔪 Cuchillos Sakai', '⏱️ +30% Paciencia'],
         ctaText: '🧧 ABRIR TIENDA',
         act: 'knives'
       },
@@ -194,10 +206,10 @@
         id: 'book',
         icon: '📖',
         title: 'Recetario Oficial',
-        sub: '35 recetas tradicionales japonesas',
+        sub: '35 recetas tradicionales',
         tag: 'ENCICLOPEDIA GASTRONÓMICA',
         heroTitle: 'Gran Recetario Oficial',
-        desc: 'El compendio gastronómico completo de Shimaya. Revisa en cualquier momento los ingredientes requeridos, orden exacto de montaje, tiempos de fuego, notas culturales y precios de venta en soles para cada uno de los 35 platos.',
+        desc: 'Compendio de 35 platos japoneses: ingredientes necesarios, orden de montaje, notas históricas y precios.',
         pills: ['🍜 8 Ramens', '🥘 7 Salteados', '🍣 11 Makis', '🍤 9 Frituras'],
         ctaText: '📖 ABRIR RECETARIO',
         act: 'book'
@@ -206,24 +218,24 @@
         id: 'board',
         icon: '🏆',
         title: 'Ranking Mundial',
-        sub: 'Líderes de Campaña, Rash y ligas MMR',
+        sub: 'Líderes de Campaña y Rash',
         tag: 'LEADERBOARD GLOBAL',
-        heroTitle: 'Salón de la Fama de Chefs',
-        desc: 'Mídete con los mejores cocineros de ramen de todo el planeta. Consulta las puntuaciones máximas de Campaña, las rondas de supervivencia alcanzadas en Rash y la tabla clasificatoria de ligas multijugador.',
-        pills: ['🌍 Global en Tiempo Real', '🏆 Récords de Rash', '⭐ Ligas Competitivas'],
-        ctaText: '🏆 VER CLASIFICACIÓN',
+        heroTitle: 'Salón de la Fama',
+        desc: 'Consulta los mejores chefs del mundo en puntuaciones de Campaña, rondas de Rash y ligas competitivas.',
+        pills: ['🌍 Global Realtime', '🏆 Récords Rash', '⭐ Ligas MMR'],
+        ctaText: '🏆 VER RANKING',
         act: 'board'
       },
       {
         id: 'acct',
         icon: '🔐',
-        title: 'Mi Cuenta y Progreso',
-        sub: 'Clave en la nube ☁️, estadísticas y despensa',
-        tag: 'GESTIÓN DE CUENTA Y NUBE',
+        title: 'Mi Cuenta y Nube',
+        sub: 'Clave ☁️, estadísticas y despensa',
+        tag: 'GESTIÓN DE CUENTA',
         heroTitle: 'Perfil de Chef y Nube',
-        desc: 'Asegura tu partida en la nube con tu clave secreta de acceso para jugar en cualquier dispositivo sin perder tus avances. Revisa estadísticas históricas detalladas y reorganiza a tu gusto el orden de tu despensa.',
-        pills: ['☁️ Sincronización en la Nube', '📊 Estadísticas Completas', '🍱 Orden de Despensa'],
-        ctaText: '🔐 GESTIONAR MI CUENTA',
+        desc: 'Asegura tu progreso en la nube con tu clave secreta para continuar en cualquier dispositivo sin perder nada.',
+        pills: ['☁️ Nube Segura', '📊 Estadísticas', '🍱 Despensa'],
+        ctaText: '🔐 GESTIONAR CUENTA',
         act: 'acct'
       }
     ],
@@ -233,11 +245,11 @@
         id: 'sound',
         icon: '🔊',
         title: 'Sonido y Música',
-        sub: 'Activar o silenciar efectos de cocina',
+        sub: 'Activar o silenciar efectos',
         tag: 'AJUSTES DE AUDIO',
         heroTitle: 'Audio y Efectos Sonoros',
-        desc: 'Controla el volumen de los efectos de sonido de la cocina, las campanillas de pedidos, el siseo del wok y los fuegos crepitantes.',
-        pills: ['🔊 Efectos de Cocina', '🎵 Música Tradicional'],
+        desc: 'Controla los efectos sonoros de la cocina, hervor, corte con cuchillo, fuego del wok y campanas de pedidos.',
+        pills: ['🔊 Efectos de Cocina', '🎵 Música'],
         ctaText: '🔊 ALTERNAR SONIDO',
         act: 'sound'
       },
@@ -245,11 +257,11 @@
         id: 'full',
         icon: '⛶',
         title: 'Pantalla Completa',
-        sub: 'Activar modo inmersivo total (Atajo: F)',
-        tag: 'AJUSTES DE PANTALLA',
-        heroTitle: 'Modo Pantalla Completa',
-        desc: 'Disfruta de la experiencia visual completa sin distracciones del navegador. Perfecto para jugar con gestos precisos en móvil y escritorio.',
-        pills: ['⛶ Modo Inmersivo', '⌨️ Atajo tecla F'],
+        sub: 'Modo inmersivo (Atajo: F)',
+        tag: 'PANTALLA',
+        heroTitle: 'Pantalla Completa',
+        desc: 'Experiencia inmersiva total sin barras del navegador para cocinar con gestos táctiles precisos y fluidos.',
+        pills: ['⛶ Inmersivo', '⌨️ Tecla F'],
         ctaText: '⛶ PANTALLA COMPLETA',
         act: 'full'
       },
@@ -257,22 +269,22 @@
         id: 'update',
         icon: '🔄',
         title: 'Actualizar Juego',
-        sub: 'Descarga la última versión del juego',
-        tag: 'SISTEMA Y CACHÉ',
+        sub: 'Descarga la última versión',
+        tag: 'SISTEMA',
         heroTitle: 'Actualización del Sistema',
-        desc: 'Verifica y descarga la versión más reciente del juego para recibir las últimas recetas, correcciones y mejoras de rendimiento sin borrar tu partida.',
-        pills: ['⚡ Sin perder progreso', '🔄 Descarga directa'],
-        ctaText: '🔄 BUSCAR ACTUALIZACIÓN',
+        desc: 'Descarga la última versión del juego con mejoras y correcciones sin borrar tu cuenta ni tu progreso.',
+        pills: ['⚡ Sin perder datos', '🔄 Descarga directa'],
+        ctaText: '🔄 ACTUALIZAR AHORA',
         act: 'update'
       },
       {
         id: 'keys',
         icon: '⌨️',
         title: 'Atajos de Teclado',
-        sub: 'Ver teclas rápidas para PC',
-        tag: 'CONTROL Y ATAJOS',
+        sub: 'Teclas rápidas para PC',
+        tag: 'CONTROLES',
         heroTitle: 'Atajos de Teclado',
-        desc: 'Aprende los atajos de teclado rápidos para navegar por menús, seleccionar ingredientes y activar estaciones de cocina en segundos.',
+        desc: 'Teclas rápidas para PC: Espacio para jugar, 1-5 para áreas de cocina, M para silenciar y F para pantalla completa.',
         pills: ['🕹️ Espacio: Jugar', '🔢 Teclas 1-5'],
         ctaText: '⌨️ VER ATAJOS',
         act: 'keys'
@@ -281,11 +293,11 @@
         id: 'classic',
         icon: '📋',
         title: 'Menú Clásico',
-        sub: 'Alternar a la vista clásica en lista',
+        sub: 'Volver a botones de lista',
         tag: 'VISTA ALTERNATIVA',
         heroTitle: 'Menú Clásico',
-        desc: 'Si prefieres el diseño anterior de botones simples apilados, puedes volver a él en cualquier momento desde aquí.',
-        pills: ['📋 Lista de Botones', '🏠 Alternable libremente'],
+        desc: 'Si prefieres el diseño anterior de botones apilados en lista simple, puedes volver a él cuando quieras.',
+        pills: ['📋 Lista Simple', '🏠 Alternable'],
         ctaText: '📋 ACTIVAR MENÚ CLÁSICO',
         act: 'classic'
       }
@@ -811,106 +823,137 @@
 
   /* BARRA LATERAL IZQUIERDA */
   .hub-sidebar {
-    width: clamp(280px, 34%, 340px); height: 100%; flex: none; display: flex; flex-direction: column;
-    background: linear-gradient(180deg, rgba(38, 18, 10, 0.98), rgba(20, 9, 5, 0.98));
+    width: clamp(290px, 35%, 350px); height: 100%; flex: none; display: flex; flex-direction: column;
+    background: linear-gradient(180deg, rgba(34, 16, 9, 0.98), rgba(18, 8, 4, 0.98));
     border-right: 2.5px solid rgba(138, 90, 43, 0.5); box-shadow: 6px 0 24px rgba(0,0,0,0.6);
-    padding: 12px 14px 14px; box-sizing: border-box; z-index: 10; position: relative;
+    padding: 10px 12px 10px; box-sizing: border-box; z-index: 10; position: relative;
   }
 
   /* Cabecera del sidebar */
-  .hub-side-header { flex: none; margin-bottom: 8px; }
-  .hub-brand { display: flex; align-items: center; justify-content: space-between; padding-bottom: 8px; border-bottom: 1.5px solid rgba(138,90,43,0.3); }
+  .hub-side-header { flex: none; margin-bottom: 6px; }
+  .hub-brand { display: flex; align-items: center; justify-content: space-between; padding-bottom: 6px; border-bottom: 1.5px solid rgba(138,90,43,0.3); }
   .hub-brand-logo { font: 900 15px/1 'Fredoka', sans-serif; color: #ffe082; display: flex; align-items: center; gap: 6px; letter-spacing: 0.5px; }
   .hub-brand-logo span { color: #ffab91; font-size: 11px; font-weight: 700; }
   .hub-wallet-badge { background: rgba(0,0,0,0.4); border: 1.5px solid #ffb300; border-radius: 12px; padding: 2px 8px; font: 900 11px sans-serif; color: #ffd54f; }
 
   /* Botón de volver en submenú */
   .hub-back-btn {
-    width: 100%; border: 2px solid #8a5a00; border-radius: 12px; background: linear-gradient(#ffe082, #ffb300);
-    color: #3b2208; font: 900 13px/1 'Fredoka', sans-serif; padding: 8px 12px; display: flex; align-items: center; gap: 8px;
-    cursor: pointer; box-shadow: 0 3px 0 #8a5a00; margin-bottom: 8px; transition: transform 0.12s, box-shadow 0.12s;
+    width: 100%; border: 2px solid #8a5a00; border-radius: 10px; background: linear-gradient(#ffe082, #ffb300);
+    color: #3b2208; font: 900 12.5px/1 'Fredoka', sans-serif; padding: 7px 10px; display: flex; align-items: center; gap: 6px;
+    cursor: pointer; box-shadow: 0 2px 0 #8a5a00; margin-bottom: 4px; transition: transform 0.12s, box-shadow 0.12s;
   }
-  .hub-back-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #8a5a00; }
-  .hub-sub-title { font: 900 11px 'Fredoka', sans-serif; text-transform: uppercase; letter-spacing: 0.8px; color: #ffcc80; padding: 0 2px 4px; }
+  .hub-back-btn:active { transform: translateY(1px); box-shadow: 0 1px 0 #8a5a00; }
+  .hub-sub-title { font: 900 10.5px 'Fredoka', sans-serif; text-transform: uppercase; letter-spacing: 0.8px; color: #ffcc80; padding: 0 2px 2px; }
 
-  /* Lista de opciones deslizante */
-  .hub-list-wrap { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 7px; padding-right: 2px; -webkit-overflow-scrolling: touch; }
+  /* Lista de opciones con scroll vertical y snapping en Posición 2 */
+  .hub-list-wrap {
+    flex: 1; min-height: 0; overflow-y: scroll; display: flex; flex-direction: column;
+    gap: 8px; padding-right: 2px;
+    padding-top: 76px;    /* Espacio del Slot 1: el primer item inicia exactamente en Posición 2 */
+    padding-bottom: 160px; /* Margen inferior para permitir que el último item alcance la Posición 2 */
+    scroll-padding-top: 76px;
+    scroll-snap-type: y mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 200, 60, 0.3) transparent;
+    mask-image: linear-gradient(to bottom, transparent 0px, black 24px, black calc(100% - 28px), transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0px, black 24px, black calc(100% - 28px), transparent 100%);
+  }
+
+  /* Opciones del menú: amplias, con altura de 68px y padding ergonómico */
   .hub-item {
-    border: 2px solid rgba(107, 74, 36, 0.85); border-radius: 14px;
-    background: linear-gradient(135deg, rgba(255, 244, 214, 0.94), rgba(233, 207, 148, 0.94));
-    color: #3b2208; padding: 8px 12px; min-height: 52px; display: flex; align-items: center; gap: 10px;
-    cursor: pointer; box-shadow: 0 3px 0 rgba(74, 50, 22, 0.85); text-align: left;
-    transition: transform 0.15s cubic-bezier(0.2, 0.9, 0.3, 1), box-shadow 0.15s, background 0.15s, border-color 0.15s;
+    height: 68px; flex: none; box-sizing: border-box;
+    scroll-snap-align: start;
+    border-radius: 14px;
+    padding: 10px 14px;
+    display: flex; align-items: center; gap: 10px;
+    cursor: pointer; text-align: left;
     font-family: inherit;
+    /* Estado desenfocado por defecto (Posiciones 1, 3 o 4) */
+    opacity: 0.38;
+    transform: scale(0.95);
+    background: rgba(32, 14, 8, 0.72);
+    border: 1.5px solid rgba(138, 90, 43, 0.3);
+    color: #cbb393;
+    box-shadow: none;
+    transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.2, 0.9, 0.3, 1), background 0.22s, border-color 0.22s, box-shadow 0.22s;
   }
-  .hub-item:hover { transform: translateX(3px); }
-  .hub-item:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(74, 50, 22, 0.85); }
-  .hub-item.sel {
-    background: linear-gradient(135deg, #ffe9a8, #ffc84a); border-color: #8a5a00;
-    transform: translateX(6px); box-shadow: 0 3px 0 #8a5a00, 0 0 16px rgba(255, 200, 60, 0.65);
-  }
-  .hub-item-icon { font-size: 24px; width: 30px; text-align: center; flex: none; line-height: 1; }
-  .hub-item-text { flex: 1; min-width: 0; }
-  .hub-item-text b { display: block; font: 900 14.5px/1.15 'Fredoka', sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .hub-item-text small { display: block; font: 700 10.5px/1.2 sans-serif; color: #7a5a22; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .hub-item-arrow { font-style: normal; font-weight: 900; color: #b71c1c; font-size: 14px; opacity: 0; transition: opacity 0.15s; }
-  .hub-item.sel .hub-item-arrow { opacity: 1; }
-  .hub-item.locked { opacity: 0.6; filter: grayscale(0.5); }
+  .hub-item:hover:not(.sel) { opacity: 0.65; transform: scale(0.98); }
 
-  /* Pie del sidebar */
-  .hub-footer { flex: none; padding-top: 8px; margin-top: 4px; border-top: 1.5px solid rgba(138,90,43,0.3); }
-  .hub-gear-btn {
-    width: 100%; border: 2px solid rgba(107, 74, 36, 0.9); border-radius: 12px;
-    background: rgba(255, 243, 207, 0.92); color: #5b3a12; font: 900 12.5px 'Fredoka', sans-serif;
-    padding: 7px 10px; display: flex; align-items: center; justify-content: center; gap: 6px;
-    cursor: pointer; box-shadow: 0 2px 0 rgba(107, 74, 36, 0.9); transition: transform 0.12s;
+  /* SOLO UNA OPCIÓN SE RESALTA: La que está en Posición 2 */
+  .hub-item.sel {
+    opacity: 1;
+    transform: scale(1.02) translateX(4px);
+    background: linear-gradient(135deg, #ffe9a8, #ffc84a);
+    border: 2.5px solid #ffb300;
+    color: #2c1605;
+    box-shadow: 0 4px 18px rgba(255, 179, 0, 0.55), 0 0 12px rgba(255, 215, 0, 0.35);
   }
-  .hub-gear-btn:active { transform: translateY(1px); }
+  .hub-item-icon { font-size: 26px; width: 32px; text-align: center; flex: none; line-height: 1; }
+  .hub-item-text { flex: 1; min-width: 0; }
+  .hub-item-text b { display: block; font: 900 15px/1.2 'Fredoka', sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hub-item-text small { display: block; font: 700 11px/1.25 sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0.9; }
+
+  .hub-item:not(.sel) .hub-item-text b { color: #e0ccb4; }
+  .hub-item:not(.sel) .hub-item-text small { color: #9c8065; }
+  .hub-item.sel .hub-item-text b { color: #2c1605; }
+  .hub-item.sel .hub-item-text small { color: #6d4810; font-weight: 800; }
+
+  /* Badge indicador y flecha de acción */
+  .hub-item-badge {
+    display: none; font: 900 9px 'Fredoka', sans-serif; padding: 2px 6px; border-radius: 6px;
+    background: rgba(44, 22, 5, 0.15); border: 1px solid rgba(44, 22, 5, 0.3); color: #2c1605;
+  }
+  .hub-item.sel .hub-item-badge { display: inline-block; }
+  .hub-item-arrow { font-style: normal; font-weight: 900; color: #b71c1c; font-size: 15px; opacity: 0; transition: opacity 0.18s; }
+  .hub-item.sel .hub-item-arrow { opacity: 1; }
+  .hub-item.locked { opacity: 0.35; filter: grayscale(0.6); }
 
   /* ESCENARIO / VITRINA DE LA ILUSTRACIÓN DERECHA */
   .hub-stage {
     flex: 1; height: 100%; position: relative; overflow: hidden; display: flex; flex-direction: column;
-    justify-content: flex-end; padding: 18px 24px 22px; box-sizing: border-box;
+    justify-content: flex-end; padding: 14px 20px 18px; box-sizing: border-box;
   }
 
-  /* Ilustración animada viva de fondo / centro */
+  /* Ilustración animada viva de fondo / centro (completamente despejada) */
   .hub-art-wrap {
     position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-    pointer-events: none; z-index: 1; transition: opacity 0.25s ease, transform 0.25s ease;
+    pointer-events: none; z-index: 1; transition: opacity 0.22s ease, transform 0.22s ease;
   }
   .hub-art-wrap.fade-out { opacity: 0; transform: scale(0.96); }
 
-  /* Tarjeta de Reseña y Acción sobrepuesta */
+  /* Tarjeta de Reseña y Acción sobrepuesta - compacta y con fondo translúcido no sólido */
   .hub-meta-card {
-    position: relative; z-index: 3; max-width: min(520px, 92%);
-    background: linear-gradient(135deg, rgba(30, 14, 8, 0.88), rgba(18, 8, 4, 0.92));
-    border: 2px solid rgba(255, 200, 60, 0.4); border-radius: 20px; padding: 14px 18px 16px;
-    box-shadow: 0 6px 24px rgba(0,0,0,0.65), 0 0 16px rgba(255,160,0,0.15);
-    backdrop-filter: blur(10px); animation: hubCardIn 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
+    position: relative; z-index: 3; max-width: min(440px, 88%);
+    background: rgba(18, 8, 4, 0.42); /* Fondo translúcido para apreciar la animación viva detrás */
+    border: 1.5px solid rgba(255, 200, 60, 0.28); border-radius: 16px; padding: 10px 16px 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.35), 0 0 12px rgba(255, 179, 0, 0.1);
+    backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+    animation: hubCardIn 0.25s cubic-bezier(0.2, 0.9, 0.3, 1);
   }
-  @keyframes hubCardIn { from { opacity: 0; transform: translateY(14px); } }
+  @keyframes hubCardIn { from { opacity: 0; transform: translateY(10px); } }
 
   .hub-meta-tag {
-    display: inline-block; background: rgba(255, 179, 0, 0.18); border: 1px solid #ffb300;
-    border-radius: 8px; padding: 2px 8px; font: 900 10px 'Fredoka', sans-serif; color: #ffd54f;
-    letter-spacing: 0.6px; margin-bottom: 4px; text-transform: uppercase;
+    display: inline-block; background: rgba(255, 179, 0, 0.15); border: 1px solid rgba(255, 179, 0, 0.6);
+    border-radius: 6px; padding: 1px 6px; font: 900 9px 'Fredoka', sans-serif; color: #ffd54f;
+    letter-spacing: 0.6px; margin-bottom: 2px; text-transform: uppercase;
   }
-  .hub-meta-title { margin: 0 0 4px; font: 900 24px/1.15 'Fredoka', sans-serif; color: #fff8e7; text-shadow: 0 2px 6px rgba(0,0,0,0.8); }
-  .hub-meta-desc { margin: 0 0 10px; font: 600 12.5px/1.4 sans-serif; color: #f5dfba; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
+  .hub-meta-title { margin: 0 0 2px; font: 900 18px/1.15 'Fredoka', sans-serif; color: #fff8e7; text-shadow: 0 2px 4px rgba(0,0,0,0.9); }
+  .hub-meta-desc { margin: 0 0 8px; font: 600 11px/1.35 sans-serif; color: #f5dfba; text-shadow: 0 1px 3px rgba(0,0,0,0.9); }
 
-  .hub-meta-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
-  .hub-pill { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18); border-radius: 8px; padding: 2px 8px; font: 800 11px sans-serif; color: #ffe082; }
+  .hub-meta-pills { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
+  .hub-pill { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.16); border-radius: 6px; padding: 1.5px 6px; font: 800 10px sans-serif; color: #ffe082; }
 
-  /* Gran botón CTA de acción */
+  /* Botón CTA de acción compacto */
   .hub-cta-btn {
-    border: 2.5px solid #ffe082; border-radius: 14px; padding: 10px 24px;
+    border: 2px solid #ffe082; border-radius: 10px; padding: 7px 18px;
     background: linear-gradient(135deg, #ff9800, #e64a19 65%, #c62828);
-    color: #ffffff; font: 900 16px/1 'Fredoka', sans-serif; cursor: pointer;
-    box-shadow: 0 4px 0 #7f0000, 0 0 18px rgba(255, 152, 0, 0.55);
-    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    color: #ffffff; font: 900 13.5px/1 'Fredoka', sans-serif; cursor: pointer;
+    box-shadow: 0 3px 0 #7f0000, 0 0 14px rgba(255, 152, 0, 0.45);
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
     text-shadow: 0 1px 2px rgba(0,0,0,0.5); transition: transform 0.12s, box-shadow 0.12s;
   }
-  .hub-cta-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #7f0000; }
+  .hub-cta-btn:active { transform: translateY(1.5px); box-shadow: 0 1.5px 0 #7f0000; }
   .hub-cta-btn.locked { background: #616161; border-color: #9e9e9e; box-shadow: none; cursor: default; }
 
   /* ANIMACIONES DE LA ILUSTRACIÓN VIVA */
@@ -993,16 +1036,17 @@
 
   /* Responsive para pantallas estrechas */
   @media (max-width: 680px) {
-    .hub-sidebar { width: 230px; padding: 8px 10px 10px; }
-    .hub-item { min-height: 44px; padding: 6px 8px; }
-    .hub-item-icon { font-size: 20px; width: 24px; }
-    .hub-item-text b { font-size: 13px; }
-    .hub-item-text small { display: none; }
-    .hub-stage { padding: 12px 14px 14px; }
-    .hub-meta-card { padding: 10px 14px 12px; }
-    .hub-meta-title { font-size: 19px; }
-    .hub-meta-desc { font-size: 11.5px; margin-bottom: 6px; }
-    .hub-cta-btn { padding: 8px 16px; font-size: 14px; }
+    .hub-sidebar { width: 240px; padding: 8px 10px; }
+    .hub-item { height: 60px; padding: 8px 10px; }
+    .hub-item-icon { font-size: 22px; width: 26px; }
+    .hub-item-text b { font-size: 13.5px; }
+    .hub-item-text small { font-size: 10px; }
+    .hub-list-wrap { padding-top: 68px; scroll-padding-top: 68px; }
+    .hub-stage { padding: 10px 14px 14px; }
+    .hub-meta-card { padding: 8px 12px 10px; max-width: 95%; }
+    .hub-meta-title { font-size: 16px; }
+    .hub-meta-desc { font-size: 10.5px; margin-bottom: 5px; }
+    .hub-cta-btn { padding: 6px 14px; font-size: 12.5px; }
   }
   `;
 
@@ -1072,8 +1116,8 @@
 
     S = {
       wrap, side, stage, artWrap, metaWrap, room,
-      sub: null,         // null (nivel raíz 3 pilares) | 'jugar' | 'aprender' | 'restaurante' | 'gear'
-      item: 'camp',      // clave del item actualmente seleccionado y mostrado en la vitrina
+      sub: null,         // null (nivel raíz pilares) | 'jugar' | 'aprender' | 'restaurante' | 'gear'
+      item: 'jugar',     // clave del item actualmente seleccionado y mostrado en la vitrina
       curRoom: null,
       busy: false
     };
@@ -1095,30 +1139,117 @@
     return DATA.pillars[0];
   }
 
-  function selectOption(id, autoTrigger) {
+  const SLOT_H = 76;
+  const SLOT2_CENTER = 110;
+  let scrollTicking = false;
+  let snapTimer = null;
+
+  function bindListScroll() {
+    if (!S || !S.side) return;
+    const list = S.side.querySelector('.hub-list-wrap');
+    if (!list) return;
+
+    const items = Array.from(list.querySelectorAll('.hub-item'));
+    if (!items.length) return;
+
+    // Buscar el índice del elemento actual
+    const curIdx = items.findIndex(el => el.dataset.id === S.item);
+    const targetIdx = curIdx >= 0 ? curIdx : 0;
+
+    // Posicionar el elemento exactamente en Posición 2
+    list.scrollTop = targetIdx * SLOT_H;
+
+    // Asegurar que solo el item en targetIdx tenga .sel
+    items.forEach((el, idx) => el.classList.toggle('sel', idx === targetIdx));
+
+    // Listener de scroll fluido con detección de Posición 2
+    list.addEventListener('scroll', () => {
+      if (!scrollTicking) {
+        requestAnimationFrame(() => {
+          updateHighlightFromScroll(list);
+          scrollTicking = false;
+        });
+        scrollTicking = true;
+      }
+      clearTimeout(snapTimer);
+      snapTimer = setTimeout(() => {
+        snapToClosestSlot(list);
+      }, 140);
+    }, { passive: true });
+  }
+
+  function snapToClosestSlot(list) {
+    if (!list) return;
+    const currentScroll = list.scrollTop;
+    const targetIndex = Math.round(currentScroll / SLOT_H);
+    const items = list.querySelectorAll('.hub-item');
+    if (targetIndex >= 0 && targetIndex < items.length) {
+      list.scrollTo({ top: targetIndex * SLOT_H, behavior: 'smooth' });
+    }
+  }
+
+  function updateHighlightFromScroll(list) {
+    if (!list || !S) return;
+    const items = Array.from(list.querySelectorAll('.hub-item'));
+    if (!items.length) return;
+
+    const listRect = list.getBoundingClientRect();
+    const targetCenterY = listRect.top + SLOT2_CENTER;
+
+    let closest = null;
+    let minDist = Infinity;
+
+    items.forEach(item => {
+      const r = item.getBoundingClientRect();
+      const itemCenter = r.top + (r.height / 2);
+      const dist = Math.abs(itemCenter - targetCenterY);
+      if (dist < minDist) {
+        minDist = dist;
+        closest = item;
+      }
+    });
+
+    if (closest && !closest.classList.contains('sel')) {
+      items.forEach(el => el.classList.remove('sel'));
+      closest.classList.add('sel');
+      const id = closest.dataset.id;
+      if (id && S.item !== id) {
+        S.item = id;
+        renderShowcase();
+        sfx('click');
+      }
+    }
+  }
+
+  function handleItemClick(id, element) {
     if (!S) return;
-    sfx('click');
-    const pilar = DATA.pillars.find(p => p.id === id);
+    const list = element.closest('.hub-list-wrap');
+    if (!list) return;
 
-    if (pilar) {
-      // Si tocó un pilar principal en la raíz: abrimos su submenú directamente en el panel izquierdo
-      S.sub = id;
-      S.item = pilar.defaultItem || id;
-      renderSidebar();
-      renderShowcase();
-      return;
-    }
-
-    // Si tocó una subopción:
-    const prevItem = S.item;
-    S.item = id;
-    renderSidebar();
-    renderShowcase();
-
-    // Si vuelve a tocar la opción que ya estaba activa o se fuerza trigger:
-    if (autoTrigger || prevItem === id) {
+    // Si la opción ya está en Posición 2 (resaltada): se entra en sus opciones adicionales
+    if (element.classList.contains('sel')) {
       triggerActiveItem();
+    } else {
+      // Si no estaba en Posición 2: hacer scroll suave hasta la Posición 2 y resaltar
+      sfx('click');
+      const items = Array.from(list.querySelectorAll('.hub-item'));
+      const idx = items.indexOf(element);
+      if (idx >= 0) {
+        list.scrollTo({ top: idx * SLOT_H, behavior: 'smooth' });
+      }
+      items.forEach(el => el.classList.remove('sel'));
+      element.classList.add('sel');
+      S.item = id;
+      renderShowcase();
     }
+  }
+
+  function selectOption(id) {
+    if (!S || !S.side) return;
+    const list = S.side.querySelector('.hub-list-wrap');
+    if (!list) return;
+    const target = list.querySelector(`.hub-item[data-id="${id}"]`);
+    if (target) handleItemClick(id, target);
   }
 
   function goBack() {
@@ -1136,6 +1267,19 @@
     const it = getItemData(S.item);
     if (!it) return;
 
+    // Si estamos en la raíz y es un pilar: abrir sus opciones adicionales (submenú)
+    if (!S.sub) {
+      const pilar = DATA.pillars.find(p => p.id === S.item);
+      if (pilar) {
+        sfx('serve');
+        S.sub = pilar.id;
+        S.item = pilar.defaultItem || pilar.id;
+        renderSidebar();
+        renderShowcase();
+        return;
+      }
+    }
+
     // Validación de tutorial previo
     if (it.reqTut && !tutDone()) {
       sfx('deny');
@@ -1149,7 +1293,6 @@
     } else if (it.ctaAct) {
       Inicio.act(it.ctaAct, it.ctaArg);
     } else if (it.defaultItem) {
-      // Es un pilar: abrir su submenú
       S.sub = it.id;
       S.item = it.defaultItem;
       renderSidebar();
@@ -1162,7 +1305,7 @@
     let html = '';
 
     if (!S.sub) {
-      // NIVEL RAÍZ: 3 Pilares principales
+      // NIVEL RAÍZ: 4 Pilares principales en lista deslizable
       html += `
         <div class="hub-side-header">
           <div class="hub-brand">
@@ -1172,18 +1315,16 @@
         </div>
         <div class="hub-list-wrap">
           ${DATA.pillars.map(p => `
-            <button class="hub-item ${S.item === p.id || S.sub === p.id ? 'sel' : ''}" onclick="Inicio.pick('${p.id}')">
+            <div class="hub-item ${S.item === p.id ? 'sel' : ''}" data-id="${p.id}" onclick="Inicio.onItemClick('${p.id}', this)">
               <span class="hub-item-icon">${p.icon}</span>
               <span class="hub-item-text">
                 <b>${p.title}</b>
                 <small>${p.sub}</small>
               </span>
+              <span class="hub-item-badge">ENTRAR</span>
               <em class="hub-item-arrow">▶</em>
-            </button>
+            </div>
           `).join('')}
-        </div>
-        <div class="hub-footer">
-          <button class="hub-gear-btn" onclick="Inicio.gear()">⚙️ Ajustes del Sistema</button>
         </div>
       `;
     } else {
@@ -1202,14 +1343,15 @@
           ${items.map(it => {
             const isLocked = it.reqTut && !tutDone();
             return `
-              <button class="hub-item ${S.item === it.id ? 'sel' : ''} ${isLocked ? 'locked' : ''}" onclick="Inicio.pick('${it.id}')">
+              <div class="hub-item ${S.item === it.id ? 'sel' : ''} ${isLocked ? 'locked' : ''}" data-id="${it.id}" onclick="Inicio.onItemClick('${it.id}', this)">
                 <span class="hub-item-icon">${it.icon}</span>
                 <span class="hub-item-text">
                   <b>${it.title}</b>
                   <small>${isLocked ? '🔒 Bloqueado hasta lección' : it.sub}</small>
                 </span>
+                <span class="hub-item-badge">${isLocked ? 'BLOQUEADO' : 'JUGAR'}</span>
                 <em class="hub-item-arrow">▶</em>
-              </button>
+              </div>
             `;
           }).join('')}
         </div>
@@ -1217,6 +1359,7 @@
     }
 
     S.side.innerHTML = html;
+    bindListScroll();
   }
 
   function renderShowcase() {
@@ -1291,6 +1434,7 @@
       try { f(arg); } catch (e) { console.warn('Inicio.act', k, e); }
     },
     pick(id) { selectOption(id); },
+    onItemClick(id, el) { handleItemClick(id, el); },
     back() { goBack(); },
     trigger() { triggerActiveItem(); },
     gear() {
@@ -1307,7 +1451,7 @@
     refresh() {
       if (S) {
         S.sub = null;
-        S.item = 'camp';
+        S.item = 'jugar';
         render();
       }
     },
@@ -1325,6 +1469,34 @@
     view() { return S ? 'hub' : 'classic'; },
     _S: () => S
   };
+
+  // Teclas rápidas de teclado para navegación en PC
+  window.addEventListener('keydown', e => {
+    if (!S || S.curRoom) return;
+    const sc = $('start-screen');
+    if (!sc || !sc.classList.contains('ini-on')) return;
+    const list = S.side ? S.side.querySelector('.hub-list-wrap') : null;
+    if (!list) return;
+
+    const items = Array.from(list.querySelectorAll('.hub-item'));
+    const curIdx = items.findIndex(el => el.classList.contains('sel'));
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      const nextIdx = Math.min(items.length - 1, (curIdx >= 0 ? curIdx : 0) + 1);
+      list.scrollTo({ top: nextIdx * SLOT_H, behavior: 'smooth' });
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      const prevIdx = Math.max(0, (curIdx >= 0 ? curIdx : 0) - 1);
+      list.scrollTo({ top: prevIdx * SLOT_H, behavior: 'smooth' });
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      triggerActiveItem();
+    } else if (e.key === 'Escape' && S.sub) {
+      e.preventDefault();
+      goBack();
+    }
+  });
 
   // ---------- Inicialización ----------
   function init() {
