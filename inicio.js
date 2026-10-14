@@ -38,18 +38,15 @@
     puerta: { n: 'Japón', i: '🗾', pin: [0.2, 4.5, 60], boxes: [[0, 3.2, 0.3, 5.9, 0, 56]], foc: [0.2, 4.5, 28, 2.3] },
     cuchillos: { n: 'Mejoras', i: '🔪', pin: [0.2, 7.4, 60], boxes: [[0, 5.8, 0.3, 8.8, 26, 58]], foc: [0.2, 7.3, 40, 2.4] },
     baul: { n: 'Secretos', i: '📜', pin: [2.3, 6.9, 18], boxes: [[0.4, 6.0, 2.3, 7.9, 0, 22]], foc: [1.3, 6.9, 12, 2.6] },
-    sala: { n: 'Sala privada', i: '🚪', pin: [16.5, 7.2, 56], boxes: [[14.0, 6.4, 19.9, 11.8, 0, 44]], foc: [17.0, 8.8, 16, 1.9] }
+    sala: { n: 'Sala privada', i: '🚪', pin: [16.5, 7.2, 56], boxes: [[14.0, 6.4, 19.9, 11.8, 0, 44]], foc: [17.0, 8.8, 16, 1.9] },
+    restaurante: { n: 'Mi Restaurante', i: '🏆', hubOnly: true, pin: [0.8, 8.5, 40], boxes: [], foc: [1.2, 8.2, 28, 2.2] }
   };
   const FIRST_ZONE = 'maestro';
-  // Opciones del hub (lista de la izquierda): qué etiquetas se ven en la escena y cómo se encuadra la cámara. room = sala a la que se entra.
+  // Los 3 Pilares del inicio (Arquitectura sin duplicidades)
   const HUB = [
-    { id: 'cocinar', i: '🍜', n: 'Cocinar', s: 'Campaña · Rash', zones: ['camp', 'rash'], frame: 'timbre' },
-    { id: 'aprender', i: '🎓', n: 'Aprender', s: 'Lecciones · Retos', zones: ['maestro'], frame: 'maestro' },
-    { id: 'japon', i: '🗾', n: 'Japón', s: 'Recorrido', zones: ['puerta'], frame: 'puerta' },
-    { id: 'multi', i: '👥', n: 'Multijugador', s: '2 a 4 chefs', zones: ['sala'], frame: 'sala' },
-    { id: 'tienda', i: '🧧', n: 'Tienda', s: 'Mejoras', zones: ['cuchillos'], frame: 'cuchillos' },
-    { id: 'coleccion', i: '📖', n: 'Colección', s: 'Recetario · Ranking', zones: ['libro', 'pizarra', 'caja'], frame: null },
-    { id: 'secretos', i: '📜', n: 'Secretos', s: 'El baúl del Maestro', zones: ['baul'], frame: 'baul' }
+    { id: 'jugar', i: '🍜', n: 'Jugar', s: 'Campaña · Rash · Japón · Online', frame: 'timbre' },
+    { id: 'aprender', i: '🎓', n: 'Aprender', s: 'Aula del Maestro · Retos · Práctica', frame: 'maestro' },
+    { id: 'restaurante', i: '🏆', n: 'Mi Restaurante', s: 'Mejoras · Recetario · Ranking · Cuenta', frame: 'restaurante' }
   ];
   const HUBO = Object.fromEntries(HUB.map(h => [h.id, h]));
   const ROOMS = {};                                          // salas registradas por aula.js: { mount(el, api), unmount() }
@@ -141,20 +138,31 @@
   @keyframes iniSpr { from { background-position-x: 0; } to { background-position-x: -256px; } }
   /* ---- vista hub: lista a la izquierda y escena enfocada a la derecha ---- */
   .ini-stage { position: absolute; inset: 0; }
-  .ini-hublist { display: none; position: absolute; left: 8px; top: 46px; bottom: 8px; width: calc(36% - 14px); flex-direction: column; gap: 4px; z-index: 20; }
+  .ini-hublist { display: none; position: absolute; left: 10px; top: 46px; bottom: 10px; width: calc(36% - 14px); flex-direction: column; gap: 8px; z-index: 20; justify-content: center; }
   .ini-wrap.hub .ini-hublist { display: flex; }
-  .ini-wrap.hub .ini-view { inset: 46px 8px 8px 36%; border: 3px solid #6b4a24; border-radius: 14px; box-shadow: 0 0 0 2px #2b1810, 0 6px 18px rgba(0,0,0,0.5); background: radial-gradient(ellipse at 50% 40%, #6b4126 0%, #351b0f 80%); }
-  .ini-wrap.hub .ini-pin { display: none; } .ini-wrap.hub .ini-pin.hv { display: block; } .ini-wrap.hub.meas .ini-pin { display: block !important; visibility: hidden; }
-  .ini-wrap.hub .ini-ring, .ini-wrap.hub .ini-start { display: none; } .ini-wrap.hub .ini-ring.hv, .ini-wrap.hub .ini-start.hv { display: block; }
-  .ini-wrap.hub .ini-pin { font-size: 14.5px; } .ini-wrap.hub .ini-gear, .ini-wrap.hub .ini-hint { display: none; } .ini-wrap.hub .ini-play { right: 18px; bottom: 16px; }
-  .ini-hi { flex: 1; min-height: 0; display: flex; align-items: center; gap: 8px; border: 2px solid #6b4a24; border-radius: 12px; background: linear-gradient(#fff4d6, #e9cf94); padding: 0 10px; color: #3b2208; font-family: 'Fredoka', sans-serif; cursor: pointer; box-shadow: 0 3px 0 #4a3216; text-align: left; transition: transform 0.15s; }
-  .ini-hi i { font-style: normal; font-size: 22px; width: 28px; text-align: center; flex: none; } .ini-hi span { flex: 1; min-width: 0; }
-  .ini-hi b { display: block; font: 900 15px/1.05 'Fredoka', sans-serif; } .ini-hi small { display: block; font: 700 10px/1.1 sans-serif; color: #7a5a22; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .ini-hi em { font-style: normal; opacity: 0; font-weight: 900; color: #b71c1c; } .ini-hi.sel { background: linear-gradient(#ffe9a8, #ffc84a); transform: translateX(8px); box-shadow: 0 3px 0 #8a5a00, 0 0 12px rgba(255,200,60,0.6); } .ini-hi.sel em { opacity: 1; }
+  .ini-wrap.hub .ini-view { inset: 46px 10px 10px 36%; border: 3px solid #6b4a24; border-radius: 16px; box-shadow: 0 0 0 2px #2b1810, 0 6px 18px rgba(0,0,0,0.5); background: radial-gradient(ellipse at 50% 40%, #6b4126 0%, #351b0f 80%); }
+  .ini-wrap.hub .ini-pin, .ini-wrap.hub .ini-ring, .ini-wrap.hub .ini-start { display: none !important; }
+  .ini-wrap.hub .ini-gear, .ini-wrap.hub .ini-hint { display: none; }
+  .ini-wrap.hub .ini-play { right: 18px; bottom: 16px; }
+  .ini-hi { flex: 1; min-height: 68px; max-height: 88px; display: flex; align-items: center; gap: 12px; border: 3px solid #6b4a24; border-radius: 14px; background: linear-gradient(#fff4d6, #e9cf94); padding: 0 14px; color: #3b2208; font-family: 'Fredoka', sans-serif; cursor: pointer; box-shadow: 0 4px 0 #4a3216; text-align: left; transition: transform 0.15s, box-shadow 0.15s; }
+  .ini-hi i { font-style: normal; font-size: 28px; width: 34px; text-align: center; flex: none; }
+  .ini-hi span { flex: 1; min-width: 0; }
+  .ini-hi b { display: block; font: 900 16px/1.1 'Fredoka', sans-serif; }
+  .ini-hi small { display: block; font: 700 11px/1.25 sans-serif; color: #7a5a22; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ini-hi em { font-style: normal; opacity: 0; font-weight: 900; color: #b71c1c; font-size: 16px; }
+  .ini-hi.sel { background: linear-gradient(#ffe9a8, #ffc84a); transform: translateX(6px); box-shadow: 0 4px 0 #8a5a00, 0 0 14px rgba(255,200,60,0.6); }
+  .ini-hi.sel em { opacity: 1; }
   .ini-hi.first:not(.sel) { animation: iniGlow 1.2s ease-in-out infinite; }
-  .ini-hfoot { display: flex; gap: 6px; height: 34px; flex: none; } .ini-hfoot button { flex: 1; border: 2px solid #6b4a24; border-radius: 10px; background: #fff3cf; font-size: 17px; cursor: pointer; box-shadow: 0 2px 0 #6b4a24; padding: 0; }
-  .ini-wrap.hub .ini-dock { top: auto; bottom: 16px; left: calc(36% + 14px); right: 16px; width: auto; max-height: 48%; flex-direction: row; flex-wrap: wrap; align-items: stretch; gap: 5px 8px; padding: 8px 10px; }
-  .ini-wrap.hub .ini-dock .ini-dt, .ini-wrap.hub .ini-dock .ini-dsub { flex: 1 1 100%; } .ini-wrap.hub .ini-dock .ini-opt { flex: 1 1 44%; }
+  .ini-hfoot { display: flex; gap: 6px; height: 38px; flex: none; margin-top: 2px; }
+  .ini-hfoot button { flex: 1; border: 2px solid #6b4a24; border-radius: 10px; background: #fff3cf; font: 900 13px 'Fredoka', sans-serif; color: #5b3a12; cursor: pointer; box-shadow: 0 2px 0 #6b4a24; padding: 0 10px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .ini-hfoot button:active { transform: translateY(1px); box-shadow: 0 1px 0 #6b4a24; }
+  .ini-wrap.hub .ini-dock { top: auto; bottom: 14px; left: calc(36% + 12px); right: 14px; width: auto; max-height: 52%; flex-direction: row; flex-wrap: wrap; align-items: stretch; gap: 8px; padding: 10px 12px; background: linear-gradient(135deg, rgba(255,248,230,0.96), rgba(244,226,180,0.96)); backdrop-filter: blur(8px); border: 3px solid #6b4a24; border-radius: 16px; box-shadow: 0 4px 0 #4a3216, 0 8px 24px rgba(0,0,0,0.5); }
+  .ini-wrap.hub .ini-dock .ini-dt { flex: 1 1 100%; font: 900 18px/1 'Fredoka', sans-serif; padding-right: 0; }
+  .ini-wrap.hub .ini-dock .ini-dsub { flex: 1 1 100%; font: 700 11.5px/1.2 sans-serif; color: #5b3a12; margin-bottom: 2px; }
+  .ini-wrap.hub .ini-dock .ini-opt { flex: 1 1 calc(50% - 6px); min-height: 52px; padding: 6px 10px; border-radius: 12px; }
+  .ini-wrap.hub .ini-dock .ini-opt b { font-size: 14px; }
+  .ini-wrap.hub .ini-dock .ini-opt small { font-size: 10.5px; }
+  .ini-wrap.hub .ini-x { display: none; }
   /* ---- transición «entrar a la sala»: zoom que acelera, desenfoque horizontal y rayas de velocidad ---- */
   .ini-room { display: none; position: absolute; inset: 0; z-index: 48; padding-top: 44px; box-sizing: border-box; background: #1f0e08; overflow: hidden; }
   .ini-room.arrive { animation: iniArrive 0.36s cubic-bezier(.1,.7,.2,1); } .ini-room.leaving { animation: iniLeave 0.32s cubic-bezier(.6,0,1,.5) forwards; }
@@ -494,8 +502,30 @@
 
   // ---------- panel lateral ----------
   const opt = (cls, ico, title, sub, act, arg, arrow) => `<button class="ini-opt ${cls || ''}" ${cls && cls.includes('off') && !act ? 'disabled' : ''} onclick="Inicio.act('${act}'${arg != null ? `,'${arg}'` : ''})"><i>${ico}</i><span><b>${title}</b><small>${sub}</small></span><em>${arrow == null ? '▶' : arrow}</em></button>`;
+  function jugarPanel() {
+    const ok = tutDone();
+    let body = '';
+    body += opt(ok ? 'go' : 'off', '🏮', 'Campaña', ok ? '8 niveles con metas de ventas y tiempo' : '🔒 Bloqueado hasta la lección de Ramen', 'camp', '', ok ? '▶' : '🔒');
+    body += opt(ok ? 'go' : 'off', '⚡', 'Supervivencia Rash', ok ? 'Rondas sin fin con vidas · vas por ronda ' + rashLvl() : '🔒 Bloqueado hasta la lección de Ramen', 'rash', '', ok ? '▶' : '🔒');
+    body += opt('go', '🗾', 'Recorrido por Japón', 'Restaurantes que generan soles y «Jugar aquí»', 'door');
+    body += opt('go', '👥', 'Multijugador', 'Salas con amigos o matchmaking global (2 a 4 chefs)', 'room');
+    return `<div class="ini-dt"><span>🍜</span>Jugar</div><div class="ini-dsub">Elige tu modo de servicio y empieza a cocinar.</div>${body}`;
+  }
+  function restaurantePanel() {
+    const wallet = (() => { try { return getPropinasWallet(); } catch (e) { return 0; } })();
+    let body = '';
+    body += opt('go', '🧧', 'Tienda de Mejoras', `10 mejoras permanentes · Saldo: ${wallet} 🧧`, 'knives');
+    body += opt('go', '📖', 'Recetario Oficial', '35 recetas: ingredientes, montaje y precios', 'book');
+    body += opt('go', '🏆', 'Ranking Mundial', 'Líderes de Campaña, Rash y Ligas MMR', 'board');
+    body += opt('go', '🔐', 'Mi Cuenta y Progreso', 'Clave en la nube ☁️, estadísticas y despensa', 'acct');
+    return `<div class="ini-dt"><span>🏆</span>Mi Restaurante</div><div class="ini-dsub">Progresión, recetas, clasificación y gestión de tu cuenta.</div>${body}`;
+  }
   function panel(id) {
+    if (id === 'jugar') return jugarPanel();
+    if (id === 'restaurante') return restaurantePanel();
+    if (id === 'gear') return gearPanel();
     const z = ZONES[id], fl = flags(); let sub = '', body = '';
+    if (!z) return '';
     if (z.area) {
       const a = AREA[id], lit = areaLit(id), list = (() => { try { return TRAINING_CHALLENGES.filter(c => c.ch === a.ch); } catch (e) { return []; } })();
       const dn = list.filter(c => { try { return (trainingProgressOf(c.id) || {}).m > 0; } catch (e) { return false; } }).length;
@@ -575,24 +605,32 @@
     enter: n => Inicio.enterRoom(n)
   };
 
-  // ---------- hub: lista de opciones ----------
+  // ---------- hub: lista de opciones (3 Pilares) ----------
   function renderHub() {
     if (!S || !S.hublist) return;
     S.hublist.innerHTML = HUB.map(h => `<button class="ini-hi ${S.opt === h.id ? 'sel' : ''} ${firstTime() && h.id === 'aprender' ? 'first' : ''}" onclick="Inicio.pick('${h.id}')"><i>${h.i}</i><span><b>${h.n}</b><small>${h.s}</small></span><em>▶</em></button>`).join('')
-      + '<div class="ini-hfoot"><button onclick="Inicio.gear()" aria-label="Ajustes">⚙️</button><button onclick="Inicio.act(\'acct\')" aria-label="Cuenta">🔐</button><button onclick="Inicio.act(\'stats\')" aria-label="Estadísticas">📊</button></div>';
+      + '<div class="ini-hfoot"><button onclick="Inicio.gear()" aria-label="Ajustes">⚙️ <span>Ajustes del Sistema</span></button></div>';
   }
   function applyHubVis() {
-    if (!S) return; const h = HUBO[S.opt], set = new Set(h ? h.zones : []); S.vis = set;
-    S.layers.ui.querySelectorAll('[data-z]').forEach(p => p.classList.toggle('hv', set.has(p.dataset.z)));
+    if (!S) return;
+    // En vista Hub la escena 3D se mantiene limpia y despejada sin pines flotantes redundantes
+    S.layers.ui.querySelectorAll('[data-z]').forEach(p => p.classList.remove('hv'));
   }
   /** Encuadra la escena en la opción elegida (sin abrir tarjeta). */
   function frameOpt(anim) { const h = HUBO[S.opt]; if (!h || !h.frame) { fit(anim); return; } focusOn(h.frame, anim); }
-  /** Elige una opción del hub: muestra solo sus etiquetas y lleva la cámara hasta ella. @param {string} id clave de HUB */
+  /** Elige un pilar del hub: encuadra la cámara y abre sus opciones directas. @param {string} id clave de HUB */
   function pickOpt(id) {
     if (!S || !HUBO[id]) return; try { playSound('add'); } catch (e) {}
-    S.opt = id; store.set('ramen_inicio_opt', id); closePanel(); renderHub(); applyHubVis();
-    const h = HUBO[id]; frameOpt(true);
-    if (h.zones.length === 1) setTimeout(() => { if (S && S.opt === id) openZone(h.zones[0]); }, 180);
+    S.opt = id; store.set('ramen_inicio_opt', id); renderHub(); applyHubVis();
+    frameOpt(true);
+    if (id === 'aprender') {
+      closePanel();
+      setTimeout(() => { if (S && S.opt === 'aprender') enterRoom('aula'); }, 140);
+    } else if (id === 'jugar') {
+      openPanel(jugarPanel());
+    } else if (id === 'restaurante') {
+      openPanel(restaurantePanel());
+    }
   }
 
   // ---------- salas (Aula, Secretos): entrar con efecto de velocidad ----------
@@ -649,11 +687,18 @@
     if (!document.getElementById('ini-filters')) { const d = document.createElement('div'); d.id = 'ini-filters'; d.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden'; d.innerHTML = '<svg width="0" height="0"><filter id="iniMB1" x="-10%" y="-2%" width="120%" height="104%"><feGaussianBlur stdDeviation="4 0"/></filter><filter id="iniMB2" x="-15%" y="-2%" width="130%" height="104%"><feGaussianBlur stdDeviation="10 0"/></filter><filter id="iniMB3" x="-20%" y="-2%" width="140%" height="104%"><feGaussianBlur stdDeviation="22 0"/></filter></svg>'; document.body.appendChild(d); }
     try { if ((navigator.deviceMemory && navigator.deviceMemory <= 2) || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2)) wrap.classList.add('ini-nofx'); } catch (e) {}
     sc.appendChild(wrap);
-    S = { wrap, stage, hublist, room, fx, view, world, layers, tint, dock, play, vis: new Set(), opt: 'cocinar', hub: false, cur: null, busy: false, ents: [], cooks: [], waiters: [], guests: [], shapes: [], last: performance.now(), sig: '', ptr: null, tier: 0, lit: {}, vw: 0, vh: 0 };
+    S = { wrap, stage, hublist, room, fx, view, world, layers, tint, dock, play, vis: new Set(), opt: 'jugar', hub: false, cur: null, busy: false, ents: [], cooks: [], waiters: [], guests: [], shapes: [], last: performance.now(), sig: '', ptr: null, tier: 0, lit: {}, vw: 0, vh: 0 };
     view.addEventListener('pointerdown', e => { S.ptr = { x: e.clientX, y: e.clientY, t: performance.now() }; });
     view.addEventListener('pointerup', e => {
       const p = S.ptr; S.ptr = null; if (!p || Math.hypot(e.clientX - p.x, e.clientY - p.y) > 10 || performance.now() - p.t > 700) return;
       const [wx, wy] = worldPt(e.clientX, e.clientY), id = hitZone(wx, wy);
+      if (S.hub) {
+        if (!id) return;
+        if (id === 'maestro') Inicio.pick('aprender');
+        else if (id === 'caja' || id === 'cuchillos' || id === 'pizarra' || id === 'libro' || id === 'baul') Inicio.pick('restaurante');
+        else Inicio.pick('jugar');
+        return;
+      }
       if (id) openZone(id); else if (cam.focus || S.dock.classList.contains('open')) closeZone();
     });
     view.addEventListener('pointercancel', () => { S.ptr = null; });
@@ -666,14 +711,33 @@
     if (!S) return; const now = performance.now();
     if (!visible()) { S.last = now; return; }
     const dt = Math.min(0.1, (now - S.last) / 1000); S.last = now;
-    if (!S.built) { measure(); build(); if (S.hub) { renderHub(); applyHubVis(); fit(false); frameOpt(false); const h0 = HUBO[S.opt]; if (h0 && h0.zones.length === 1) openZone(h0.zones[0]); } else fit(false); S.built = true; updatePlay(); }
+    if (!S.built) {
+      measure(); build();
+      if (S.hub) {
+        renderHub(); applyHubVis(); fit(false); frameOpt(false);
+        if (S.opt === 'jugar') openPanel(jugarPanel());
+        else if (S.opt === 'restaurante') openPanel(restaurantePanel());
+      } else fit(false);
+      S.built = true; updatePlay();
+    }
     const w = S.view.clientWidth, h = S.view.clientHeight;
     if (w !== S.vw || h !== S.vh) { if (cam.focus) focusOn(cam.focus.z, false); else fit(false); S.vw = w; S.vh = h; }
     if (document.hidden || S.cur) return;                    // pestaña oculta o dentro de una sala: se detiene la animación
     if (sprDirty) { sprDirty = false; buildPeople(S.lit); }
     tickPeople(dt);
     S.chk = (S.chk || 0) + dt;
-    if (S.chk > 1.2) { S.chk = 0; updatePlay(); if (infoSig() !== S.sig) { build(); if (S.dock.classList.contains('open') && cam.focus) S.dock.innerHTML = panel(cam.focus.z); renderHub(); applyHubVis(); } }
+    if (S.chk > 1.2) {
+      S.chk = 0; updatePlay();
+      if (infoSig() !== S.sig) {
+        build();
+        if (S.dock.classList.contains('open')) {
+          if (S.opt === 'jugar') S.dock.innerHTML = jugarPanel();
+          else if (S.opt === 'restaurante') S.dock.innerHTML = restaurantePanel();
+          else if (cam.focus) S.dock.innerHTML = panel(cam.focus.z);
+        }
+        renderHub(); applyHubVis();
+      }
+    }
   }
 
   // ---------- API ----------
@@ -687,7 +751,7 @@
       if (v !== 'classic') {
         if (!S) create();
         S.hub = v === 'hub'; S.wrap.classList.toggle('hub', S.hub); closePanel(); S.built = false; cam.focus = null;
-        if (S.hub) { const first = firstTime(), last = store.get('ramen_inicio_opt'); S.opt = first ? 'aprender' : (HUBO[last] ? last : 'cocinar'); }
+        if (S.hub) { const first = firstTime(), last = store.get('ramen_inicio_opt'); S.opt = first ? 'aprender' : (HUBO[last] ? last : 'jugar'); }
         setTimeout(() => { if (S) measure(); }, 0);
       } else if (S) closePanel();
       try { updateStartModesDisplay(); } catch (e) {}

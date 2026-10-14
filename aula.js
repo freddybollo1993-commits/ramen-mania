@@ -125,9 +125,10 @@
       + `<button class="au-card" data-free="all"><i>🌿</i><b>Cocina libre · Todo</b><small>Las 4 áreas a la vez</small></button>`;
   }
   function repasoHtml() {
-    return `<div class="au-sum au-wide">Repasa qué lleva cada plato antes de cocinarlo.</div>
-      <button class="au-card" data-do="pantry"><i>🔍</i><b>Modo Ingredientes</b><small>Reconoce los ingredientes de cada plato. Sin reloj: solo mide cuánto tardas.</small></button>
-      <button class="au-card" data-do="book"><i>📖</i><b>Recetario</b><small>Ingredientes, pasos y precios de todos los platos.</small></button>
+    return `<div class="au-sum au-wide">Repasa qué lleva cada plato, técnicas maestras y organiza tu cocina.</div>
+      <button class="au-card" data-do="pantry"><i>🔍</i><b>Modo Ingredientes</b><small>Reconoce los ingredientes de cada plato sin reloj.</small></button>
+      <button class="au-card" data-do="book"><i>📖</i><b>Recetario Oficial</b><small>Ingredientes, pasos y precios de todos los platos.</small></button>
+      <button class="au-card" data-do="secretos"><i>📜</i><b>Secretos del Maestro</b><small>El baúl de técnicas avanzadas y trucos legendarios.</small></button>
       <button class="au-card" data-do="order"><i>🍱</i><b>Ordenar ingredientes</b><small>Cambia el orden de tu despensa.</small></button>`;
   }
   const TABS = [['lecciones', '🎓 Lecciones'], ['retos', '🏋️ Retos'], ['practica', '🌿 Práctica'], ['repaso', '🔍 Repaso']];
@@ -151,7 +152,10 @@
         if (t.dataset.les) { sfx('click'); return Guia.start(t.dataset.les); }
         if (t.dataset.reto !== undefined) { if (t.dataset.reto) { sfx('click'); openTrainingModal(t.dataset.reto); } return; }
         if (t.dataset.free) { sfx('click'); if (t.dataset.free === 'all') { window.startFreeAreas = null; setStartSelectedMode('FREE'); handleStartPlayClick(); } else api.act('free', t.dataset.free); return; }
-        if (t.dataset.do) { return api.act(t.dataset.do); }
+        if (t.dataset.do) {
+          if (t.dataset.do === 'secretos') return api.act('enter', 'secretos');
+          return api.act(t.dataset.do);
+        }
       });
       bub.addEventListener('click', e => { if (e.target.hasAttribute('data-go2')) { e.stopPropagation(); rec(); } });
       au.tab(au.tabName); rec();
