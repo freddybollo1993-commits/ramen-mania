@@ -3,7 +3,9 @@
 // Uso:  node tools/economia-niveles.cjs
 const fs = require('fs');
 const path = require('path');
-const src = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+const root = path.join(__dirname, '..');
+// el código del juego vive en index.html y en los módulos de js/ (se concatenan en su orden de carga)
+const src = [fs.readFileSync(path.join(root, 'index.html'), 'utf8'), ...fs.readdirSync(path.join(root, 'js')).filter(f => f.endsWith('.js')).sort().map(f => fs.readFileSync(path.join(root, 'js', f), 'utf8'))].join('\n');
 const grab = n => eval('(' + src.match(new RegExp('const ' + n + ' = (\\[[\\s\\S]*?\\n\\]);'))[1] + ')');
 const R = { ramen: grab('RECETAS_RAMEN'), salteados: grab('RECETAS_SALTEADOS'), makis: grab('RECETAS_MAKIS'), frituras: grab('RECETAS_FRITURAS') };
 const NIVELES = grab('NIVELES');

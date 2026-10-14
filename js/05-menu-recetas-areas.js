@@ -1,0 +1,356 @@
+/* Módulo 05-menu-recetas-areas — Configuración de niveles, platos y menús por área.
+   Script clásico (ámbito global compartido): se carga en el orden de los <script> de index.html. */
+
+function getRashConfig(lvl) {
+  const customers = 8 + (lvl - 1) * 4;
+  // Piso de 25s (antes 14s): un ramen de 9 ingredientes ya toma ~11–13s solo en armarse y cocer.
+  const basePatience = Math.max(25, 60 - (lvl - 1) * 2);
+  let maxOrders = 1;
+  if (lvl > 30) maxOrders = 3;
+  else if (lvl > 10) maxOrders = 2;
+  
+  let maxCustomers = 2;
+  if (lvl > 15) maxCustomers = 4;
+  else if (lvl > 5) maxCustomers = 3;
+  
+  let ramenNames = [];
+  if (lvl <= 5) ramenNames = ["Shio", "Shoyu"];
+  else if (lvl <= 15) ramenNames = ["Shio", "Shoyu", "Miso", "Chashu"];
+  else if (lvl <= 30) ramenNames = ["Shio", "Shoyu", "Miso", "Chashu", "Tonkotsu", "Tan tan"];
+  else if (lvl <= 50) ramenNames = ["Shio", "Shoyu", "Miso", "Chashu", "Tonkotsu", "Tan tan", "Ebi", "Bajiru"];
+  else ramenNames = ["Shio", "Shoyu", "Miso", "Chashu", "Tonkotsu", "Tan tan", "Ebi", "Bajiru", "Vegetariano"];
+  
+  const spawnTime = Math.max(2, Math.round(6 - (lvl - 1) * 0.05));
+  return {
+    level: lvl,
+    name: `Modo Rash - Ronda ${lvl}`,
+    customers: customers,
+    base_patience: basePatience,
+    max_orders: maxOrders,
+    max_customers: maxCustomers,
+    ramen_names: ramenNames,
+    spawn_time: spawnTime
+  };
+}
+
+function getCurrentLevelConfig() {
+  if (isTraining()) return trainingConfig();
+  if (isFree()) return freeConfig();
+  if ((gameState.gameMode === 'JAPON' && gameState.japon)) return japonRunConfig();
+  if (typeof MultiplayerManager !== 'undefined' && (MultiplayerManager.isGameActive || MultiplayerManager.isInMultiplayer)) {
+    return {
+      level: 99,
+      name: "Servicio Multijugador",
+      customers: 999,
+      base_patience: 35,
+      max_orders: 2,
+      max_customers: 4,
+      ramen_names: RECETAS_RAMEN.map(r => r.name),
+      spawn_time: 4
+    };
+  }
+  if (gameState.gameMode === 'RASH') {
+    return getRashConfig(gameState.rashLevel || 1);
+  }
+  return NIVELES[currentLevelIndex];
+}
+
+function isMultiplayerSession() {
+  return typeof MultiplayerManager !== 'undefined' && (MultiplayerManager.isGameActive || MultiplayerManager.isInMultiplayer);
+}
+
+// Áreas de cocina que eligió el anfitrión de la sala (todas si no hay sala).
+function mpAreas() {
+  return (typeof MultiplayerManager !== 'undefined' && Array.isArray(MultiplayerManager.areas) && MultiplayerManager.areas.length) ? MultiplayerManager.areas : KITCHEN_AREAS.map(a => a.id);
+}
+
+// Solo los ramen del menú actual (cuencos, ingredientes de la pestaña Ramen).
+function getUnlockedRamenRecipes() {
+  if (isTraining()) return trainingPoolRecipes(gameState.training.challenge, 'ramen');
+  if (isFree()) return RECETAS_RAMEN;
+  if ((gameState.gameMode === 'JAPON' && gameState.japon)) return RECETAS_RAMEN.filter(r => japonRunDishes().has(r.name));
+  if (isMultiplayerSession()) return mpAreas().includes('ramen') ? RECETAS_RAMEN : [];
+  const cfg = getCurrentLevelConfig();
+  return RECETAS_RAMEN.filter(r => cfg.ramen_names.includes(r.name));
+}
+
+// Todo lo que los clientes pueden pedir ahora: ramen + los platos de las otras áreas que ya entraron
+// al menú (por nivel de campaña o ronda Rash; en multijugador, todos los preparables).
+function getUnlockedRecipes() {
+  if (isFree()) return freeAllRecipes();
+  const list = [...getUnlockedRamenRecipes()];
+  if ((gameState.gameMode === 'JAPON' && gameState.japon)) {                                   // jornada en un local de Japón: los platos de esa ciudad en las áreas elegidas
+    Object.keys(AREA_CATALOGS).forEach(a => AREA_CATALOGS[a].forEach(r => { if (japonRunDishes().has(r.name) && japonRunAreas().includes(a)) list.push(r); }));
+    return list;
+  }
+  if (isTraining()) {
+    ['salteados', 'makis', 'frituras'].forEach(a => list.push(...trainingPoolRecipes(gameState.training.challenge, a)));
+    return list;
+  }
+  const mp = isMultiplayerSession();
+  const campaign = gameState.gameMode === 'NORMAL';
+  const lvl = campaign ? (currentLevelIndex + 1) : (gameState.rashLevel || 1);
+  Object.keys(AREA_DISH_UNLOCKS).forEach(area => {
+    AREA_DISH_UNLOCKS[area].forEach(([name, campLvl, rashLvl]) => {
+      if (!mp && lvl < (campaign ? campLvl : rashLvl)) return;
+      if (mp && !mpAreas().includes(area)) return;                // sala multijugador: solo las áreas que eligió el anfitrión
+      const r = AREA_CATALOGS[area].find(x => x.name === name);
+      if (r) list.push(r);
+    });
+  });
+  return list;
+}
+
+function getCustomIngredientOrder() {
+  try {
+    const raw = localStorage.getItem("ramen_custom_ingredient_order");
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed.map(Number);
+      }
+    }
+  } catch (e) {
+    console.error("Error reading ramen_custom_ingredient_order", e);
+  }
+  return null;
+}
+
+function sortIngredientsByCustomOrder(list) {
+  const customOrder = getCustomIngredientOrder();
+  if (!customOrder || !Array.isArray(customOrder)) return list;
+  const orderMap = new Map();
+  customOrder.forEach((id, idx) => orderMap.set(Number(id), idx));
+  return [...list].sort((a, b) => {
+    const posA = orderMap.has(Number(a.id)) ? orderMap.get(Number(a.id)) : 999;
+    const posB = orderMap.has(Number(b.id)) ? orderMap.get(Number(b.id)) : 999;
+    return posA - posB;
+  });
+}
+
+function getUnlockedIngredients() {
+  if (stagedOn(gameState.activeArea) && getStage(gameState.activeArea) === 'plate') return stPlateIngList(gameState.activeArea);   // Emplatar: todos los componentes de emplatado, arriba
+  let list;
+  if (gameState.activeArea && gameState.activeArea !== 'ramen') {
+    // Áreas nuevas (Salteados/Frituras/Makis): solo los ingredientes de los platos ya desbloqueados.
+    const ids = new Set();
+    stView(gameState.activeArea, getUnlockedRecipes().filter(r => r.area === gameState.activeArea)).forEach(r => r.ingredients.forEach(id => ids.add(id)));
+    if (gameState.activeArea === 'frituras' && stagedOn('frituras') && getUnlockedRecipes().some(r => r.name === 'Batayaki Ramen')) ids.add(71);
+    if (gameState.activeArea === 'makis' && stagedOn('makis')) { if (ids.has(49)) ids.add(110); if (ids.has(50)) ids.add(111); }   // atún y conchas enteros: se cortan en la tabla de pescado   // poro cortado en Salteado, para pasarlo por harina y freírlo
+    list = INGREDIENTES.filter(i => ids.has(i.id));
+    // En Frituras la harina, el huevo y el panko son los tres espacios de empanizado, no fichas.
+    if (gameState.activeArea === 'frituras') list = list.filter(i => !FRY_BREADING_IDS.includes(i.id) && (!stagedOn('frituras') || FRY_PROTEIN_IDS.includes(i.id) || i.id === 83));
+  } else if (isMultiplayerSession()) {
+    list = INGREDIENTES.filter(i => i.areas && i.areas.includes('ramen'));
+  } else {
+    const unlockedRecs = getUnlockedRamenRecipes();
+    const ingIds = new Set();
+    stView('ramen', unlockedRecs).forEach(r => r.ingredients.forEach(id => ingIds.add(id)));
+    list = INGREDIENTES.filter(i => ingIds.has(i.id));
+    if (stagedOn('ramen')) list = list.filter(i => !TOOL_SAUCE_IDS.includes(i.id));   // con etapas las salsas son botellas de la franja de herramientas
+  }
+  if (gameState.activeArea === 'salteados' && stagedOn('salteados')) list = list.filter(i => !WOK_SAUCE_IDS.includes(i.id));   // lo mismo en Salteados
+  return sortIngredientsByCustomOrder(list);
+}
+
+// Platos mixtos de Salteados: se cocinan en dos utensilios y luego se combinan
+// Pasos de un plato de Salteado, uno por línea: utensilio, rondas (con sus ingredientes) y cómo se combina / se emplata
+function salStepsHtml(r) {
+  const sd = r.area === 'salteados' && stagedOn('salteados') ? SAL_STAGED[r.name] : null;
+  if (!sd) return '';
+  const nm = id => { const ing = INGREDIENTES.find(i => i.id === id); return ing ? (ing.short || ing.display) : id; };
+  const ico = id => { const ing = INGREDIENTES.find(i => i.id === id); const src = ing ? ingCtxImg(ing) : null; return src ? `<img src="${src}" style="width:15px;height:15px;vertical-align:middle;">` : (ing ? ing.icon : ''); };
+  const tool = t => (t === 'pan' ? '🍳 SARTÉN' : '🥘 WOK');
+  const start = '<div class="rs-start">🔥 Antes de cada parte: enciende el fuego, echa 🛢️ aceite y espera a que el wok / sartén esté caliente.</div>';
+  const parts = sd.parts.map(p => {
+    const rounds = p.rounds.map((rd, k) => {
+      const items = (rd.a || []).length ? rd.a.map(id => `<span class="rs-ing">${ico(id)} ${nm(id)}</span>`).join('') : '<span class="rs-ing">🔁 solo saltear otra ronda</span>';
+      return `<div class="rs-round"><b>Ronda ${k + 1}</b> <small>${rd.toss === false ? '(solo agregar, sin saltear)' : '(3 lanzamientos)'}</small> ${items}</div>`;
+    }).join('');
+    const extra = (p.timed ? ` · ⏱ se cocina ${p.timed} s, sin saltear` : '') + (p.to === 'plate' ? ' · va como pieza de emplatado' : '');
+    return `<div class="rs-part"><div class="rs-tool">${tool(p.tool)}${p.label ? ' · ' + p.label : ''}${extra}</div>${rounds}</div>`;
+  }).join('');
+  const combine = sd.parts.filter(p => p.to !== 'plate').length > 1 ? '<div class="rs-combine">🍽 Con las dos partes listas: botón <b>Combinar</b>.</div>' : '';
+  const plate = sd.plate.length ? `<div class="rs-plate">🍽 En Emplatar: ${sd.plate.map(id => `<span class="rs-ing">${ico(id)} ${nm(id)}</span>`).join('')}</div>` : '';
+  return start + parts + combine + plate;
+}
+function initRecipeTable() {
+  const tbody = document.querySelector("#recipes-table tbody");
+  tbody.innerHTML = "";
+  const unlocked = getUnlockedRecipes();
+  const areas = ['ramen', 'salteados', 'makis', 'frituras'];
+  const sorted = areas.flatMap(a => unlocked.filter(r => (r.area || 'ramen') === a));
+  let lastArea = null;
+  sorted.forEach(r => {
+    const area = r.area || 'ramen';
+    if (area !== lastArea) {                                   // encabezado de cada área
+      lastArea = area;
+      const hr = document.createElement("tr");
+      hr.className = 'recipe-area-row';
+      hr.innerHTML = `<td colspan="3">${AREA_ICONS[area] || ''} ${AREA_LABELS[area].toUpperCase()}</td>`;
+      tbody.appendChild(hr);
+    }
+    const staged = area === 'salteados' && stagedOn('salteados') && SAL_STAGED[r.name];
+    const ids = staged ? [...salCookIds(r.name), ...SAL_STAGED[r.name].plate] : r.ingredients;
+    const ingsList = ids.map(ingId => {
+      const ing = INGREDIENTES.find(i => i.id === ingId);
+      const src = ingCtxImg(ing);
+      const ic = src ? `<img src="${src}" class="pixel-sprite-large" style="width:16px; height:16px; vertical-align:middle; margin-right:2px;">` : ing.icon;
+      return `<span class="badge-ing">${ic} ${ing.display}</span>`;
+    }).join(" ");
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td style="font-weight:900; color:#b71c1c;">${r.name} <span style="font-size:10px;color:#8d6e63;">(${ids.length})</span></td>
+      <td>${staged ? salStepsHtml(r) : ingsList}</td>
+      <td style="font-weight:900; color:#2e7d32;">S/ ${r.price}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+const AREA_LABELS = { ramen: 'Ramen', salteados: 'Salteado', makis: 'Makis', frituras: 'Frituras' };
+const KITCHEN_AREAS = [
+  { id: 'ramen', label: 'RAMEN' },
+  { id: 'salteados', label: 'SALTEADO' },
+  { id: 'frituras', label: 'FRITURAS' },
+  { id: 'makis', label: 'MAKIS' }
+];
+
+const CATEGORY_LABELS = { bases: 'Bases', salsas: 'Salsas', proteinas: 'Proteínas', vegetales: 'Vegetales', otros: 'Otros' };
+
+function switchKitchenArea(areaId) {
+  if (gameState.activeArea === areaId) return;
+  if (!isAreaUnlocked(areaId)) {
+    showStationToast(`🔒 ${AREA_LABELS[areaId]} se desbloquea en ${areaUnlockHint(areaId)}.`);
+    return;
+  }
+  gameState.activeArea = areaId;
+  gameState.currentCategory = 'todos';
+  try { playSound('click'); } catch (e) {}
+  try { // pista única para quien juega con el dedo
+    if ((navigator.maxTouchPoints > 0) && !isMultiplayerSession() && safeStorage.getItem('ramen_swipe_hint') !== '1') {
+      safeStorage.setItem('ramen_swipe_hint', '1');
+      setTimeout(() => showStationToast('👆 Desde el borde izquierdo → Producción · desde el borde derecho ← Emplatar'), 600);
+    }
+  } catch (e) {}
+  // Cada estación conserva su estado al cambiar de pestaña, como en una cocina real: los
+  // cuencos de Ramen, los woks, la tabla de Makis y la mesa/olla de Frituras siguen como los
+  // dejaste. La olla incluso sigue friendo (y quemando) mientras trabajas en otra área; las
+  // pestañas muestran un indicador de lo que está en curso o listo. Solo se cancela un gesto
+  // a medias (arrastrar el cuchillo o deslizar para enrollar), que no tiene sentido cruzar áreas.
+  abortMakiCut();
+  cleanupMakiToolDrag();
+  cleanupFryItemDrag();
+  abortFryCut();
+  cleanupFryKnifeDrag();
+  cleanupShopKnife();
+  updateStationVisibilityForArea();
+  renderPantryGrid();
+  renderBowls();
+  if (areaId === 'makis') renderMakiStation();
+  if (areaId === 'salteados') renderWoks();
+  if (areaId === 'frituras') renderFryStation();
+}
+
+// --- De la estación al pase (Emplatar) ---
+function stPassFromBowl(i) {
+  const bowl = gameState.bowls[i], a = analyzeBowl(i);
+  if (!bowl || a.status !== 'READY') return;
+  const ok = stPassAdd('ramen', { recipes: (a.recipe.candidates || [a.recipe]).map(r => r.name), result: 'PERFECTO',
+    readyAt: bowl.readyAt != null ? bowl.readyAt : gameState.gameClock, vis: { kind: 'bowl', ings: [...bowl.ingredients], spread: bowl.spread || 0 },
+    meta: { orderErrors: bowl.orderErrors || 0, dashiBase: !!bowl.dashiBase, spread: bowl.spread || 0, fry: bowl.fry || null, oilMissing: !!bowl.oilMissing } });
+  if (!ok) return;
+  gameState.bowls[i] = { ingredients: [], matchedRamen: null };
+  renderBowls();
+  renderCustomers();
+  renderPantryGrid();
+}
+function wokServeClick(i) {
+  if (!stagedOn('salteados')) { serveReadyDish('salteados', i); return; }
+  const w = gameState.woks[i];
+  if (!w || !w.result || !w.matchedRecipe) return;
+  const rc = w.matchedRecipe;
+  if (rc.toPlate) { wokPartToPlate(i); return; }           // parte que no va dentro del plato: queda como pieza de Emplatar
+  if (rc.isPart) { wokCombineClick(i); return; }           // una parte de un plato de dos partes no se sirve sola: se combina con la otra
+  const main = rc.ingredients.find(id => [69, 61, 48].includes(id)) || rc.ingredients[0];
+  const ok = stPassAdd('salteados', { recipes: (rc.candidates || [rc]).map(r => r.name), result: w.result,
+    readyAt: w.readyAt != null ? w.readyAt : gameState.gameClock, vis: { kind: 'ing', id: main },
+    meta: { result: w.result, secs: w.stirSeconds, profile: w.profile, orderMatches: w.orderMatches, orderTotal: w.orderTotal, toss: w.toss || 0, oilMissing: false, oilAdj: w.oilAdj || 0, dry: w.dry || 0, wrongTool: !!w.wrongTool, tool: w.tool || 'wok', rscript: !!rc.script } });
+  if (!ok) return;
+  gameState.woks[i] = newWok(w);
+  renderWoks();
+  renderPantryGrid();
+}
+// Plato mixto: junta las dos partes ya terminadas (una en el wok y otra en la sartén) y las manda al pase.
+// Calidad: se toma la cocción de la parte que salió peor; el volteo es el promedio y el aceite debe estar en las dos.
+function wokCombineClick(i) {
+  const w = gameState.woks[i], rc = w && w.matchedRecipe, sd = rc && SAL_STAGED[rc.partOf];
+  if (!w || !w.result || !sd) return;
+  const j = i === 0 ? 1 : 0, o = gameState.woks[j];
+  // la otra parte puede estar ya terminada en la otra hornilla (activa o guardada) o guardada en esta misma hornilla (el otro utensilio)
+  const cands = [];
+  if (o) { cands.push({ v: o, at: 'otherActive' }); if (o.parked) cands.push({ v: o.parked, at: 'otherParked' }); }
+  if (w.parked) cands.push({ v: w.parked, at: 'ownParked' });
+  const src = cands.find(c => c.v.result && c.v.matchedRecipe && c.v.matchedRecipe.isPart && !c.v.matchedRecipe.toPlate && c.v.matchedRecipe.partOf === rc.partOf && c.v.matchedRecipe.partKey !== rc.partKey);
+  if (!src) {
+    const other = sd.parts.find(p => p.to !== 'plate' && p.key !== rc.partKey);
+    showStationToast(`🍽 ${rc.partOf} va en 2 partes: falta ${other ? other.label : 'la otra parte'} en ${other ? wokToolName(other.tool) : 'la otra hornilla'} (termínala y luego combina).`);
+    try { playSound('error'); } catch (e) {}
+    return;
+  }
+  const x = src.v;
+  const mk = v => ({ result: v.result, secs: v.stirSeconds, profile: v.profile, dry: v.dry || 0, oilAdj: v.oilAdj || 0, wrongTool: !!v.wrongTool, toss: v.toss || 0, orderMatches: v.orderMatches || 0, orderTotal: v.orderTotal || 0 });
+  const A = mk(w), B = mk(x), cook = m => evalCooking({ area: 'salteados', quality: m.result, meta: m }).pts;
+  const worse = cook(A) <= cook(B) ? A : B;
+  const meta = { ...worse, toss: (A.toss + B.toss) / 2, oilMissing: false, orderMatches: A.orderMatches + B.orderMatches, orderTotal: A.orderTotal + B.orderTotal, rscript: true };
+  const full = salCookIds(rc.partOf), main = full.find(id => [69, 61, 48].includes(id)) || full[0];
+  const now = gameState.gameClock;
+  const ok = stPassAdd('salteados', { recipes: [rc.partOf], result: worse.result, readyAt: Math.min(w.readyAt != null ? w.readyAt : now, x.readyAt != null ? x.readyAt : now), vis: { kind: 'ing', id: main }, meta });
+  if (!ok) return;
+  if (src.at === 'ownParked') w.parked = null;
+  if (src.at === 'otherParked') o.parked = null;
+  gameState.woks[i] = newWok(w);
+  if (src.at === 'otherActive') gameState.woks[j] = newWok(o);
+  try { playSound('match'); } catch (e) {}
+  showStationToast(`🍽 ${rc.partOf}: ${sd.how || 'las dos partes se juntan.'} Va al pase.`);
+  renderWoks();
+  renderPantryGrid();
+}
+// Parte que no va dentro del plato (Yasaitame: el lomo): rinde porciones para Emplatar según cómo salió
+function wokPartToPlate(i) {
+  const w = gameState.woks[i], rc = w && w.matchedRecipe, part = rc && rc.script;
+  if (!w || !w.result || !part || !part.plateKey) return;
+  const sal = stGet('salteados'), p = stProdOf('salteados', part.plateKey), before = sal.stock[p.key], perfect = w.result === 'PERFECTO';
+  sal.stock[p.key] = Math.min(p.max, before + (perfect ? 3 : 1));
+  gameState.woks[i] = newWok(w);
+  showStationToast(`🥩 ${p.label}: +${sal.stock[p.key] - before} para Emplatar${perfect ? '' : ' (no salió perfecto: rindió menos)'}.`);
+  try { playSound('stock_add'); } catch (e) {}
+  renderWoks();
+  renderPantryGrid();
+  stRenderIfOpen('salteados');
+  renderStageTabs();
+}
+function makiServeClick() {
+  if (!stagedOn('makis')) { serveReadyDish('makis', 0); return; }
+  if (typeof mkServe === 'function') { mkServe(); return; }                  // estudio de Makis: calcula el proceso y pasa el maki a Emplatar
+  const roll = gameState.makiRoll, a = analyzeMakiSequence(roll.ingredients);
+  if (roll.cutState !== 'CUT' || a.status !== 'READY') return;
+  const flameNeeded = makiNeedsFlame();
+  const ok = stPassAdd('makis', { recipes: (a.recipe.candidates || [a.recipe]).map(r => r.name), result: 'PERFECTO',
+    readyAt: roll.readyAt != null ? roll.readyAt : gameState.gameClock, vis: { kind: 'img', src: 'assets/maki_roll_v2.svg', id: 38 }, meta: { spread: roll.spread || 0, flamePts: makiFlamePts(roll, flameNeeded) } });
+  if (!ok) return;
+  cleanupMakiToolDrag();
+  gameState.makiRoll = newMakiRoll();
+  renderMakiStation();
+  renderPantryGrid();
+}
+
+// Descarga la última versión: borra la caché de la app y el service worker (NO toca la cuenta ni el progreso).
+async function forceAppUpdate() {
+  try {
+    const b = document.getElementById('app-version-btn'); if (b) b.textContent = '⏳ Actualizando…';
+    if (navigator.serviceWorker) { const regs = await navigator.serviceWorker.getRegistrations(); await Promise.all(regs.map(r => r.unregister())); }
+    if (window.caches) { const keys = await caches.keys(); await Promise.all(keys.map(k => caches.delete(k))); }
+  } catch (e) {}
+  location.reload();
+}

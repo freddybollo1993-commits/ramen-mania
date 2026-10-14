@@ -16,7 +16,8 @@ Sin framework: HTML/CSS/JS clásico (scripts globales, no módulos), Vite solo c
 
 | Archivo | Contenido |
 |---|---|
-| `index.html` (~25 000 líneas) | Juego completo: HTML, CSS y casi toda la lógica (motor de cocina, recetas, ingredientes, niveles, Rash, Entrenamiento, Cocina Libre, mejoras, cuentas, ranking, modales). Versión visible en `#app-version`. |
+| `index.html` (~7 700 líneas) | HTML y CSS del juego y las etiquetas `<script>`. Versión visible en `#app-version`. |
+| `js/` (31 módulos) | **Toda la lógica del juego** (motor de cocina, recetas, niveles, Rash, Entrenamiento, Cocina Libre, mejoras, cuentas, ranking, modales) repartida por temas desde la v149; scripts clásicos con ámbito global, cargados en orden numérico. Ver `js/LEEME.md` y `node tools/verificar-modulos.cjs`. |
 | `sw.js` | Service worker, `CACHE_NAME = 'ramen-mania-v144'`. |
 | `manifest.json` | PWA. |
 | `makis-studio.js` | Estudio de Makis (esterilla, arroz, enrollado, pescado). |
