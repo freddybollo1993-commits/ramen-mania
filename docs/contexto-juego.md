@@ -1,4 +1,4 @@
-# Ramen Mania / Shimaya — Archivo de contexto del juego (estado v137)
+# Ramen Mania / Shimaya — Archivo de contexto del juego (estado v138)
 
 Documento para retomar el proyecto desde cero: qué es, cómo está construido, qué contiene cada sistema, decisiones del dueño del proyecto y cosas pendientes. Idioma del juego y de la comunicación: **español**.
 
@@ -17,7 +17,7 @@ Sin framework: HTML/CSS/JS clásico (scripts globales, no módulos), Vite solo c
 | Archivo | Contenido |
 |---|---|
 | `index.html` (~25 000 líneas) | Juego completo: HTML, CSS y casi toda la lógica (motor de cocina, recetas, ingredientes, niveles, Rash, Entrenamiento, Cocina Libre, mejoras, cuentas, ranking, modales). Versión visible en `#app-version`. |
-| `sw.js` | Service worker, `CACHE_NAME = 'ramen-mania-v137'`. |
+| `sw.js` | Service worker, `CACHE_NAME = 'ramen-mania-v138'`. |
 | `manifest.json` | PWA. |
 | `makis-studio.js` | Estudio de Makis (esterilla, arroz, enrollado, pescado). |
 | `frituras-prod.js` / `frituras-plate.js` | Producción (mandolina, licuado, gyozas) y emplatado dibujado de Frituras. |
@@ -92,25 +92,24 @@ Modo idle de restaurantes por ciudad (**9 ciudades**: Tokio, Yokohama, Osaka, Na
 ## 7. Tutorial guiado (`guia.js`)
 91 pasos data-driven (`add({seg, area, stage, title, text, target, to, setup, done, assist, info})`) divididos en **4 lecciones** (Ramen 25, Salteado 19, Makis 27, Frituras 20) que cocinan un plato de cada área (Shio, Chicken Teriyaki, Maki California, Chicken Katsu). Recuadro y manita sobre lo que hay que tocar, avance automático al hacer la acción, «Saltar paso». Recompensa en propinas **solo la primera vez**; la lección de Ramen desbloquea Campaña y Rash. Estado en `ramen_tut_areas` (sincronizado). API: `Guia.start(k)`, `Guia.menu()`, `Guia.begin()`, `Guia.flags()`, `Guia.diag()`.
 
-## 8. Inicio (v137): Arquitectura de 3 Pilares + local isométrico a pantalla completa (`inicio.js`, `aula.js`)
-Tres vistas guardadas en `ramen_inicio_vista2`: **hub** (por defecto), **iso** (local completo con todas las zonas) y **classic** (menú de botones de siempre). Se cambia desde ⚙.
+## 8. Inicio (v138): Showcase Hub lateral con submenús sobrepuestos e ilustración viva (`inicio.js`, `aula.js`)
+Sustituye por completo el inicio isométrico 2.5D tras la decisión de diseño de no saturar la pantalla con menús flotantes ni forzar vistas 3D estáticas. El inicio se estructura en una distribución horizontal ergonómica para móvil (~873×393 px):
 
-**Hub de 3 Pilares con Escena Isométrica 100% Pantalla Completa:**
-La ilustración isométrica 3D del restaurante ocupa **toda la pantalla de fondo (`inset: 0 !important`)**, mostrando el local vivo con cocineros, meseros y clientes comiendo y moviéndose sin recortes ni marcos opacos.
+- **Hub lateral izquierdo (`.hub-sidebar`, ~300–340 px):**
+  - Contiene los 3 pilares principales: **🍜 Jugar**, **🎓 Aprender**, **🏆 Mi Restaurante** y abajo **⚙️ Ajustes del Sistema**.
+  - **Submenús sobrepuestos (Slide-over):** Al pulsar cualquier pilar, sus sub-opciones se despliegan y sobreponen **únicamente dentro del panel izquierdo**, con cabecera identificativa y botón de retorno (`← Volver al Menú Principal`). La mitad derecha nunca se invade ni se obstaculiza.
+- **Vitrina viva derecha (`.hub-stage`, ~66% del ancho):**
+  - **Ilustración viva animada:** Escena SVG viva que reacciona y cambia en tiempo real con la opción activa seleccionada, con animaciones CSS continuas (wok con llamaradas vivas `@keyframes hFlame`, vapor ondeante `@keyframes hSteamRise`, farolillos tradicionales balanceándose `@keyframes hLantern`, pétalos de sakura cayendo suavemente `@keyframes hSakura`, destello en el filo del cuchillo santoku `@keyframes hGlint`, monedas doradas titilando `@keyframes hCoin` y engranajes mecánicos `@keyframes hSpin`).
+  - **Ficha y reseña ("Review"):** Muestra la categoría, título del modo, una breve reseña descriptiva de qué trata la opción, pills de características (jugadores, duración, dificultad) y un botón de llamada a la acción directo (CTA) para entrar a jugar o abrir la gestión.
 
-- **Columna flotante izquierda:** Barra delgada y translúcida (175 px) con **3 botones principales** ergonómicos para móvil (~873×393 px): **🍜 Jugar**, **🎓 Aprender**, **🏆 Mi Restaurante** y abajo **⚙️ Ajustes del Sistema**.
-- **Cero invasión al entrar:** Al iniciar el juego o volver al menú, el panel lateral arranca **cerrado** y la cámara encuadra el restaurante completo con `fit(false)`. La escena 3D se aprecia limpia e ininterrumpida.
-- **Tarjetas emergentes flotantes:** Al tocar **Jugar** o **Mi Restaurante**, se despliega una tarjeta compacta flotante en la esquina inferior derecha con botón de cierre explícito `✕`.
-- **Cierre y vista panorámica:** Tocar la `✕`, volver a pulsar el pilar activo o tocar cualquier parte del suelo del restaurante cierra la tarjeta y la cámara vuelve suavemente al encuadre panorámico completo (`fit(true)`).
-
-| Pilar | Subtítulo | Qué abre / Acciones |
+| Pilar | Sub-opciones disponibles | Ilustración y Contenido |
 |---|---|---|
-| **🍜 Jugar** | Campaña · Rash · Japón · Online | Abre tarjeta compacta con los 4 modos de servicio: **Campaña** (8 niveles), **Supervivencia Rash** (100 rondas), **Recorrido por Japón** y **Multijugador** (2-4 chefs). |
-| **🎓 Aprender** | Aula del Maestro · Retos · Práctica | Entra directamente al **Aula del Maestro** con transición de velocidad. Dentro tiene 4 pestañas: **Lecciones** (4 áreas), **Retos** (los 27 retos con medallas), **Práctica** (cocina libre por área y total) y **Repaso** (Ingredientes, Recetario, Secretos y Despensa). |
-| **🏆 Mi Restaurante** | Mejoras · Recetario · Ranking · Cuenta | Abre tarjeta compacta con las 4 opciones de progresión: **Tienda de Mejoras** (utensilios con 🧧), **Recetario Oficial** (35 recetas), **Ranking Mundial** (Leaderboard) y **Mi Cuenta** (Nube, estadísticas y ordenar despensa). |
+| **🍜 Jugar** | Campaña (8 niveles), Supervivencia Rash (100 rondas), Recorrido por Japón (9 ciudades) y Multijugador (2-4 chefs). | Wok de salteado ardiente / Olla de ramen hirviendo / Torii bajo sakura / Duelo de chefs. |
+| **🎓 Aprender** | Aula del Maestro (4 lecciones), Retos (27 desafíos), Cocina Libre (práctica libre) y Reconocer Ingredientes. | Maestro Matsuo meditando / Scroll de pergaminos / Cuchillo santoku con brillo / Despensa de ingredientes frescos. |
+| **🏆 Mi Restaurante** | Tienda de Mejoras (utensilios), Recetario Oficial (35 recetas), Ranking Mundial y Mi Cuenta (nube y perfil). | Tetera de hierro y monedas / Libro de recetas tradicionales / Trofeo dorado / Tarjeta de chef. |
+| **⚙️ Ajustes** | Sonido, Pantalla Completa, Versión, Atajos y Menú Clásico. | Taller de engranajes mecánicos. |
 
-Abajo a la izquierda: botón único `⚙️ Ajustes del Sistema` (sonido, pantalla completa, versión, atajos, vista clásica y dispositivo).
-Tocar cualquier elemento del local 3D interactúa coherentemente con su pilar (Maestro ➔ Aprender; Cocinas/Timbre/Puerta/Sala ➔ Jugar; Caja/Cuchillos/Pizarra ➔ Mi Restaurante; suelo vacío ➔ cierra panel y vista completa).
+Compatible con el Aula del Maestro (`Inicio.enterRoom('aula')` / `leaveRoom()`), modales del sistema y selector de menú clásico (`Inicio.setView('classic')`).
 
 ## 9. Guardado y nube (Supabase)
 - Local: `localStorage`/`safeStorage` (`ramen_*`). Nube: RPC `get_game` / `save_game` (progreso de Japón, Rash, tutorial, reconocer) con revisión y combinación segura entre dispositivos: libros contables aditivos frente a una base + máximo/unión para la estructura; reserva por cuenta `ramen_game_stash_<id>`; reintento e idempotencia (`sig`).
@@ -135,5 +134,5 @@ Tocar cualquier elemento del local 3D interactúa coherentemente con su pilar (M
 4. Arte final con Gemini (mapa, restaurantes, personas, objetos, local del inicio).
 5. Tutorial: solo una acción de Producción por área en Makis/Frituras; «ebi furai replica el método» sin confirmar.
 6. Makis: salmón no implementado; cobertura Amazon sin stock.
-7. Inicio isométrico: probar en el Redmi (legibilidad de etiquetas, facilidad de toque); posibles ajustes de tamaño y posición.
+7. Showcase Hub (v138): Probar en el Redmi (ergonomía de submenús sobrepuestos en pantalla táctil de 873×393 px y fluidez de animaciones SVG en la vitrina derecha).
 8. Cuando cambien mecánicas de un área, actualizar los pasos de `guia.js` (selectores e ids).
