@@ -3521,6 +3521,47 @@
   .free-dish { display: flex; justify-content: space-between; align-items: center; gap: 6px; text-align: left; border: 1.5px solid #e0b98a; border-radius: 9px; background: #fff8e1; color: #3e2723; font-size: 11px; font-weight: 800; padding: 6px 8px; cursor: pointer; min-height: 34px; }
   .free-dish:hover { background: #ffe0b2; }
   .free-dish small { font-size: 9px; color: #6d4c41; font-weight: 700; white-space: nowrap; }
+
+  /* Campaña: selector de niveles */
+  .campaign-card { max-width: min(96vw, 840px); max-height: 94vh; display: flex; flex-direction: column; }
+  .campaign-card .modal-body { overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; -webkit-overflow-scrolling: touch; }
+  .camp-summary { background: #fff3e0; border: 1.5px solid #e0b98a; border-radius: 10px; padding: 8px 10px; margin-bottom: 8px; display: flex; flex-direction: column; gap: 5px; }
+  .camp-sumline { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; font-size: 12px; color: #3e2723; }
+  .camp-bar { height: 8px; border-radius: 4px; background: #d7ccc8; overflow: hidden; }
+  .camp-bar i { display: block; height: 100%; background: linear-gradient(90deg, #ff9800, #2e7d32); }
+  .camp-filter-bar { display: flex; gap: 5px; overflow-x: auto; padding: 2px 0 6px; margin-bottom: 8px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .camp-filter-bar::-webkit-scrollbar { display: none; }
+  .camp-filter-btn { flex: none; border: 1.5px solid #d7ccc8; background: #fff8e1; color: #5d4037; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 20px; cursor: pointer; transition: all 0.15s ease; white-space: nowrap; }
+  .camp-filter-btn:hover { background: #ffe082; }
+  .camp-filter-btn.active { background: linear-gradient(135deg, #d32f2f, #f57c00); color: #fff; border-color: #b71c1c; box-shadow: 0 2px 6px rgba(211,47,47,0.35); }
+  .camp-arc-section { margin-bottom: 10px; }
+  .camp-arc-head { display: flex; justify-content: space-between; font-size: 12.5px; font-weight: 900; color: #b71c1c; margin-bottom: 4px; border-bottom: 1.5px solid #ffcc80; padding-bottom: 2px; }
+  .camp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+  .camp-card { position: relative; display: flex; flex-direction: column; gap: 3px; text-align: left; border: 1.5px solid #e0b98a; border-radius: 10px; padding: 8px 8px 8px 34px; background: #fff8e1; cursor: pointer; min-height: 64px; box-sizing: border-box; transition: transform 0.1s ease, box-shadow 0.1s ease; }
+  .camp-card:hover:not(.locked) { transform: translateY(-1px); box-shadow: 0 3px 8px rgba(0,0,0,0.15); }
+  .camp-card.done { background: #e8f5e9; border-color: #81c784; }
+  .camp-card.locked { background: #eceff1; border-color: #cfd8dc; color: #90a4ae; cursor: not-allowed; opacity: 0.7; }
+  .camp-card.next { box-shadow: 0 0 0 2.5px #ff9800; animation: iniGlow 1.4s ease-in-out infinite; }
+  .camp-num { position: absolute; left: 6px; top: 7px; width: 22px; height: 22px; border-radius: 50%; background: #b71c1c; color: #fff; font-size: 10px; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+  .camp-card.done .camp-num { background: #2e7d32; }
+  .camp-card.locked .camp-num { background: #90a4ae; }
+  .camp-title { font-size: 11.5px; font-weight: 900; line-height: 1.2; color: #3e2723; }
+  .camp-card.locked .camp-title { color: #90a4ae; }
+  .camp-stars { font-size: 13px; line-height: 1; letter-spacing: 1px; color: #ffb300; }
+  .camp-meta { font-size: 10px; font-weight: 700; color: #6d4c41; }
+  .camp-areas-tag { position: absolute; right: 6px; top: 6px; font-size: 11px; }
+  @media (max-height: 460px) {
+    .campaign-card { max-height: 98vh; }
+    .campaign-card .modal-header { padding: 4px 10px; }
+    .campaign-card .modal-header h2 { font-size: 13px; }
+    .campaign-card .modal-body { padding: 6px 8px; }
+    .camp-summary { padding: 5px 8px; gap: 3px; }
+    .camp-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 5px; }
+    .camp-card { min-height: 52px; padding: 4px 6px 4px 28px; }
+    .camp-num { width: 18px; height: 18px; font-size: 9px; left: 4px; top: 4px; }
+    .camp-title { font-size: 10.5px; }
+  }
+
   /* Entrenamiento: lista de 50 retos */
   .training-card { max-width: min(96vw, 840px); max-height: 94vh; display: flex; flex-direction: column; }
   .training-card .modal-body { overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; -webkit-overflow-scrolling: touch; }
@@ -6355,7 +6396,7 @@
               <span class="start-mode-icon">🏮</span>
               <span class="start-mode-name">CAMPAÑA</span>
             </div>
-            <span class="start-mode-badge">8 NIVELES</span>
+            <span class="start-mode-badge">20 NIVELES</span>
           </div>
           <div class="start-mode-desc">
             Campaña gastronómica por metas de venta en Soles. Desbloquea recetas e ingredientes.
@@ -6467,7 +6508,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v142</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v143</span></button></div>
     </div>
   </div>
 
@@ -7283,6 +7324,17 @@
     </div>
   </div>
 
+  <!-- CAMPAÑA: selector de niveles, arcos y estrellas -->
+  <div class="modal-overlay" id="campaign-modal" onclick="closeCampaignModal()">
+    <div class="modal-card upgrades-card campaign-card" onclick="event.stopPropagation()">
+      <div class="modal-header" style="background: linear-gradient(135deg, #c62828, #e65100);">
+        <h2 id="camp-modal-title">🏮 Campaña Gastronómica (20 Niveles)</h2>
+        <button class="btn btn-danger" style="padding: 3px 8px;" onclick="closeCampaignModal()">✕</button>
+      </div>
+      <div class="modal-body" id="camp-modal-body"></div>
+    </div>
+  </div>
+
   <!-- ENTRENAMIENTO: lista de retos, ficha y resultado -->
   <div class="modal-overlay" id="training-modal" onclick="closeTrainingModal()">
     <div class="modal-card upgrades-card training-card" onclick="event.stopPropagation()">
@@ -7404,10 +7456,16 @@
       </div>
 
       <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:8px;">
-        <button class="btn btn-ranking" style="font-size: 12.5px; padding: 8px 16px;" onclick="openLeaderboardModal()">
-          🏆 Ver Ranking Oficial
+        <button class="btn btn-ranking" style="font-size: 12px; padding: 6px 12px;" onclick="openLeaderboardModal()">
+          🏆 Ranking
         </button>
-        <button class="btn" id="btn-next-level" style="font-size: 13px; padding: 8px 16px;" onclick="handleNextLevelButton()">
+        <button class="btn btn-secondary" id="btn-replay-level" style="font-size: 12px; padding: 6px 12px; background:#fff3e0; color:#5d4037; border:1.5px solid #d7ccc8; display:none;" onclick="replayCurrentLevel()">
+          ↻ Repetir Nivel
+        </button>
+        <button class="btn btn-secondary" id="btn-campaign-map" style="font-size: 12px; padding: 6px 12px; background:#e8f5e9; color:#1b5e20; border:1.5px solid #81c784; display:none;" onclick="openCampaignModalFromEnd()">
+          ☰ Mapa de Niveles
+        </button>
+        <button class="btn" id="btn-next-level" style="font-size: 12.5px; padding: 6px 14px;" onclick="handleNextLevelButton()">
           ▶️ Continuar
         </button>
       </div>
@@ -9157,28 +9215,297 @@ function sameDish(a, b) {
 // que entra al menú. Quedan fuera los que aún no se pueden preparar: Gyozas (al vapor, necesita la
 // 2.ª hornilla con sartén) y Maki Furai (termina en Frituras).
 const AREA_DISH_UNLOCKS = {
-  salteados: [['Yakimeshi', 3, 6], ['Chicken Teriyaki', 3, 6], ['Chaufa Shimaya', 4, 10], ['Yakitori', 4, 10],
-              ['Yakiramen', 6, 18], ['Yasaitame', 6, 18], ['Batayaki Ramen', 7, 25], ['Karameshi', 7, 25], ['Omuraisu', 8, 25]],
-  makis: [['Maki California', 5, 12], ['Maki Guacamole', 5, 12], ['Maki Acevichado', 7, 20], ['Maki Hotate', 7, 20],
-          ['Maki Amazon', 7, 20], ['Maki Yama', 8, 30], ['Maki Nin Niku', 8, 30], ['Maki Digion', 8, 30]],
-  frituras: [['Alitas', 6, 22], ['Kaarage', 6, 22], ['Tonkatsu', 7, 32], ['Chicken Katsu', 7, 32],
-             ['Katsu Kare', 8, 32], ['Ebi Furai', 8, 35], ['Age Gyozas', 8, 35]]
+  salteados: [
+    ['Yakimeshi', 5, 6], ['Chicken Teriyaki', 6, 6], ['Chaufa Shimaya', 6, 10], ['Yakitori', 7, 10],
+    ['Yakiramen', 7, 18], ['Yasaitame', 8, 18], ['Batayaki Ramen', 8, 25], ['Karameshi', 8, 25], ['Omuraisu', 8, 25]
+  ],
+  makis: [
+    ['Maki California', 9, 12], ['Maki Guacamole', 10, 12], ['Maki Acevichado', 10, 20], ['Maki Hotate', 11, 20],
+    ['Maki Amazon', 11, 20], ['Maki Yama', 12, 30], ['Maki Nin Niku', 12, 30], ['Maki Digion', 12, 30]
+  ],
+  frituras: [
+    ['Alitas', 13, 22], ['Kaarage', 13, 22], ['Tonkatsu', 14, 32], ['Chicken Katsu', 14, 32],
+    ['Age Gyozas', 15, 35], ['Ebi Furai', 15, 35], ['Katsu Kare', 16, 32]
+  ]
 };
 const AREA_CATALOGS = { salteados: RECETAS_SALTEADOS, makis: RECETAS_MAKIS, frituras: RECETAS_FRITURAS };
 
-// Campaña de 8 niveles: empieza tranquila (1 pedido por cliente, mucha paciencia, clientes espaciados)
-// y sube de a poco: una área nueva cada dos niveles, más pedidos por cliente y menos paciencia.
-// Meta = pedidos a servir × precio medio (las propinas van aparte); tiempo calculado para un jugador
-// que todavía está aprendiendo (ver tools/economia-niveles.cjs).
+// Campaña de 20 niveles dividida en 5 arcos culinarios:
+// Arco 1 (L1-4): Fundamentos de Barra de Ramen (solo Ramen)
+// Arco 2 (L5-8): El Fuego del Wok (Ramen + Salteados)
+// Arco 3 (L9-12): Barra Fría y Nikkei (Ramen + Salteados + Makis)
+// Arco 4 (L13-16): El Aceite Dorado (Las 4 áreas: + Frituras)
+// Arco 5 (L17-20): Restaurante Insignia y Maestría de Japón (Carta completa)
 const NIVELES = [
-  { level: 1, name: "Nivel 1: Aprendiz de Barra", ramen_names: ["Shio","Shoyu"], max_orders: 1, max_customers: 2, goal: 160, time: 150, spawn_time: 9, patience_mult: 1.6, intro: "Solo ramen Shio y Shoyu. Sin prisa: arma el cuenco en orden y sirve." },
-  { level: 2, name: "Nivel 2: Cocinero de Turno", ramen_names: ["Shio","Shoyu","Miso","Chashu"], max_orders: 1, max_customers: 2, goal: 210, time: 170, spawn_time: 8, patience_mult: 1.4, intro: "Llegan Miso y Chashu." },
-  { level: 3, name: "Nivel 3: El Primer Wok", ramen_names: ["Shio","Shoyu","Miso","Chashu"], max_orders: 1, max_customers: 3, goal: 240, time: 190, spawn_time: 8, patience_mult: 1.3, intro: "Nueva área: SALTEADO. Tres clientes a la vez." },
-  { level: 4, name: "Nivel 4: Chef de Partida", ramen_names: ["Shio","Shoyu","Miso","Chashu","Tonkotsu","Tan tan"], max_orders: 2, max_customers: 3, goal: 280, time: 240, spawn_time: 7, patience_mult: 1.2, intro: "Tonkotsu y Tan tan; los clientes ya pueden pedir dos platos." },
-  { level: 5, name: "Nivel 5: Mesa de Makis", ramen_names: ["Shio","Shoyu","Miso","Chashu","Tonkotsu","Tan tan"], max_orders: 2, max_customers: 3, goal: 330, time: 290, spawn_time: 7, patience_mult: 1.15, intro: "Nueva área: MAKIS. Primero la base, luego enrolla y corta." },
-  { level: 6, name: "Nivel 6: La Freidora", ramen_names: ["Shio","Shoyu","Miso","Chashu","Tonkotsu","Tan tan","Ebi","Bajiru"], max_orders: 2, max_customers: 4, goal: 370, time: 260, spawn_time: 6, patience_mult: 1.1, intro: "Nueva área: FRITURAS. Empanizado, olla y corte." },
-  { level: 7, name: "Nivel 7: Sous Chef", ramen_names: ["Shio","Shoyu","Miso","Chashu","Tonkotsu","Tan tan","Ebi","Bajiru"], max_orders: 3, max_customers: 4, goal: 470, time: 350, spawn_time: 5, patience_mult: 1.05, intro: "Más platos de cada área y pedidos de hasta tres platos." },
-  { level: 8, name: "Nivel 8: Maestro del Ramen", ramen_names: ["Shio","Shoyu","Miso","Chashu","Tonkotsu","Tan tan","Ebi","Bajiru","Vegetariano"], max_orders: 3, max_customers: 4, goal: 560, time: 370, spawn_time: 4, patience_mult: 1, intro: "La carta completa. ¡A todo ritmo!" }
+  // === ARCO 1: FUNDAMENTOS DE LA BARRA DE RAMEN (Niveles 1 a 4) ===
+  {
+    level: 1,
+    name: "Nivel 1: El Primer Caldo",
+    arc: "ramen",
+    ramen_names: ["Shio"],
+    max_orders: 1,
+    max_customers: 2,
+    goal: 150,
+    time: 130,
+    spawn_time: 8,
+    patience_mult: 1.6,
+    intro: "Bienvenido a la barra. Prepara caldos Shio ligeros con precisión. Sirve los fideos al dente."
+  },
+  {
+    level: 2,
+    name: "Nivel 2: Caldo Shoyu Tradicional",
+    arc: "ramen",
+    ramen_names: ["Shio", "Shoyu"],
+    max_orders: 1,
+    max_customers: 2,
+    goal: 200,
+    time: 140,
+    spawn_time: 8,
+    patience_mult: 1.5,
+    intro: "Incorporamos Salsa Shoyu con bambú y holantao. Cuida el orden de los ingredientes."
+  },
+  {
+    level: 3,
+    name: "Nivel 3: Sabores Profundos",
+    arc: "ramen",
+    ramen_names: ["Shio", "Shoyu", "Miso", "Chashu"],
+    max_orders: 1,
+    max_customers: 2,
+    goal: 260,
+    time: 150,
+    spawn_time: 7.5,
+    patience_mult: 1.4,
+    intro: "Llega la pasta de Miso fermentada y el Chashu asado. Mantén la concentración en barra."
+  },
+  {
+    level: 4,
+    name: "Nivel 4: Maestría en Caldos",
+    arc: "ramen",
+    ramen_names: ["Shio", "Shoyu", "Miso", "Chashu", "Tonkotsu", "Tan tan"],
+    max_orders: 2,
+    max_customers: 3,
+    goal: 320,
+    time: 170,
+    spawn_time: 7,
+    patience_mult: 1.35,
+    intro: "Caldos espesos Tonkotsu y Tan tan picante. Los comensales pueden pedir hasta dos cuencos."
+  },
+
+  // === ARCO 2: EL FUEGO DEL WOK — SALTEADOS (Niveles 5 a 8) ===
+  {
+    level: 5,
+    name: "Nivel 5: ¡Fuego en la Cocina!",
+    arc: "salteado",
+    ramen_names: ["Shio", "Shoyu", "Miso", "Chashu"],
+    max_orders: 1,
+    max_customers: 3,
+    goal: 380,
+    time: 180,
+    spawn_time: 7,
+    patience_mult: 1.3,
+    intro: "¡Se abre el área de SALTEADOS! Maneja el fuego del wok y prepara arroz Yakimeshi sin quemarlo."
+  },
+  {
+    level: 6,
+    name: "Nivel 6: Pollo Teriyaki y Chaufa",
+    arc: "salteado",
+    ramen_names: ["Shio", "Shoyu", "Miso", "Chashu"],
+    max_orders: 2,
+    max_customers: 3,
+    goal: 440,
+    time: 190,
+    spawn_time: 6.5,
+    patience_mult: 1.25,
+    intro: "Chicken Teriyaki con tare dulce y Chaufa Shimaya. Alterna con agilidad entre cuencos y sartenes."
+  },
+  {
+    level: 7,
+    name: "Nivel 7: Fideos al Wok",
+    arc: "salteado",
+    ramen_names: ["Shio", "Shoyu", "Miso", "Chashu", "Tonkotsu"],
+    max_orders: 2,
+    max_customers: 3,
+    goal: 510,
+    time: 200,
+    spawn_time: 6.5,
+    patience_mult: 1.2,
+    intro: "Brochetas Yakitori y fideos Yakiramen salteados con vegetales frescos. ¡El ritmo sube!"
+  },
+  {
+    level: 8,
+    name: "Nivel 8: Sinfonía Caliente",
+    arc: "salteado",
+    ramen_names: ["Shio", "Shoyu", "Miso", "Chashu", "Tonkotsu", "Tan tan"],
+    max_orders: 2,
+    max_customers: 3,
+    goal: 580,
+    time: 210,
+    spawn_time: 6,
+    patience_mult: 1.2,
+    intro: "Toda la carta de wok activa: Yasaitame crujiente, Batayaki Ramen, Karameshi y Omuraisu."
+  },
+
+  // === ARCO 3: BARRA FRÍA Y NIKKEI — MAKIS (Niveles 9 a 12) ===
+  {
+    level: 9,
+    name: "Nivel 9: El Arte del Makisu",
+    arc: "makis",
+    ramen_names: ["Shio", "Shoyu", "Miso", "Chashu", "Tonkotsu"],
+    max_orders: 2,
+    max_customers: 3,
+    goal: 640,
+    time: 220,
+    spawn_time: 6,
+    patience_mult: 1.18,
+    intro: "¡Se abre el área de MAKIS! Coloca el nori, distribuye el arroz shari y enrolla con la esterilla."
+  },
+  {
+    level: 10,
+    name: "Nivel 10: Frescura Acevichada",
+    arc: "makis",
+    ramen_names: ["Shio", "Shoyu", "Miso", "Chashu", "Tonkotsu"],
+    max_orders: 2,
+    max_customers: 4,
+    goal: 710,
+    time: 230,
+    spawn_time: 5.8,
+    patience_mult: 1.15,
+    intro: "Makis con salsa guacamole y el aclamado Maki Acevichado coronado con atún fresco."
+  },
+  {
+    level: 11,
+    name: "Nivel 11: Conchas y Selva Nikkei",
+    arc: "makis",
+    ramen_names: ["Shio", "Shoyu", "Miso", "Chashu", "Tonkotsu", "Tan tan"],
+    max_orders: 2,
+    max_customers: 4,
+    goal: 790,
+    time: 240,
+    spawn_time: 5.5,
+    patience_mult: 1.12,
+    intro: "Conchas de abanico en Maki Hotate y cecina regional en Maki Amazon. Precisión en los cortes."
+  },
+  {
+    level: 12,
+    name: "Nivel 12: Makis Flameados al Soplete",
+    arc: "makis",
+    ramen_names: ["Shio", "Shoyu", "Miso", "Chashu", "Tonkotsu", "Tan tan"],
+    max_orders: 2,
+    max_customers: 4,
+    goal: 870,
+    time: 240,
+    spawn_time: 5.2,
+    patience_mult: 1.1,
+    intro: "Rolls de autor flameados: Yama, ajo tostado Nin Niku y Digion. ¡3 áreas coordinadas!"
+  },
+
+  // === ARCO 4: EL ACEITE DORADO — FRITURAS (Niveles 13 a 16) ===
+  {
+    level: 13,
+    name: "Nivel 13: Olla de Frituras",
+    arc: "frituras",
+    ramen_names: ["Shio", "Shoyu", "Miso", "Chashu", "Tonkotsu", "Tan tan"],
+    max_orders: 2,
+    max_customers: 4,
+    goal: 940,
+    time: 250,
+    spawn_time: 5.2,
+    patience_mult: 1.1,
+    intro: "¡Se abre el área de FRITURAS! Controla la temperatura del aceite: Alitas y Kaarage crujiente."
+  },
+  {
+    level: 14,
+    name: "Nivel 14: Crujiente de Panko",
+    arc: "frituras",
+    ramen_names: ["Shio", "Shoyu", "Miso", "Chashu", "Tonkotsu", "Tan tan"],
+    max_orders: 3,
+    max_customers: 4,
+    goal: 1020,
+    time: 260,
+    spawn_time: 5.0,
+    patience_mult: 1.08,
+    intro: "Bifes empanizados con panko japonés y cortados en tiras perfectas con salsa katsu."
+  },
+  {
+    level: 15,
+    name: "Nivel 15: Gyozas y Langostinos Furai",
+    arc: "frituras",
+    ramen_names: ["Shio", "Shoyu", "Miso", "Chashu", "Tonkotsu", "Tan tan", "Ebi"],
+    max_orders: 3,
+    max_customers: 4,
+    goal: 1110,
+    time: 270,
+    spawn_time: 4.8,
+    patience_mult: 1.05,
+    intro: "Empanadillas Age Gyozas doradas y crujientes langostinos Ebi Furai sobre ensalada fresca."
+  },
+  {
+    level: 16,
+    name: "Nivel 16: Katsu Kare Legendario",
+    arc: "frituras",
+    ramen_names: ["Shio", "Shoyu", "Miso", "Chashu", "Tonkotsu", "Tan tan", "Ebi", "Bajiru"],
+    max_orders: 3,
+    max_customers: 4,
+    goal: 1200,
+    time: 270,
+    spawn_time: 4.6,
+    patience_mult: 1.05,
+    intro: "El contundente Katsu Kare con curry aromático. Las 4 estaciones funcionan al unísono."
+  },
+
+  // === ARCO 5: RESTAURANTE INSIGNIA Y MAESTRÍA (Niveles 17 a 20) ===
+  {
+    level: 17,
+    name: "Nivel 17: Turno de Mediodía en Shibuya",
+    arc: "maestria",
+    ramen_names: ["Shio", "Shoyu", "Miso", "Chashu", "Tonkotsu", "Tan tan", "Ebi", "Bajiru"],
+    max_orders: 3,
+    max_customers: 4,
+    goal: 1300,
+    time: 280,
+    spawn_time: 4.4,
+    patience_mult: 1.02,
+    intro: "Almuerzo de alta velocidad. Comandas combinadas de 3 platos por cliente. ¡Ni un segundo que perder!"
+  },
+  {
+    level: 18,
+    name: "Nivel 18: Cena de Gala Shimaya",
+    arc: "maestria",
+    ramen_names: ["Shio", "Shoyu", "Miso", "Chashu", "Tonkotsu", "Tan tan", "Ebi", "Bajiru"],
+    max_orders: 3,
+    max_customers: 4,
+    goal: 1420,
+    time: 280,
+    spawn_time: 4.2,
+    patience_mult: 1.0,
+    intro: "Comensales gourmet y críticos de comida. Emplata con máxima calidad para ganar jugosas propinas."
+  },
+  {
+    level: 19,
+    name: "Nivel 19: Hora Pico Matsuri",
+    arc: "maestria",
+    ramen_names: ["Shio", "Shoyu", "Miso", "Chashu", "Tonkotsu", "Tan tan", "Ebi", "Bajiru", "Vegetariano"],
+    max_orders: 3,
+    max_customers: 4,
+    goal: 1540,
+    time: 290,
+    spawn_time: 4.0,
+    patience_mult: 0.98,
+    intro: "Festival en el callejón: cola interminable en la puerta. Coordinación absoluta de las 4 estaciones."
+  },
+  {
+    level: 20,
+    name: "Nivel 20: Gran Maestro de Japón",
+    arc: "maestria",
+    ramen_names: ["Shio", "Shoyu", "Miso", "Chashu", "Tonkotsu", "Tan tan", "Ebi", "Bajiru", "Vegetariano"],
+    max_orders: 3,
+    max_customers: 4,
+    goal: 1680,
+    time: 300,
+    spawn_time: 3.8,
+    patience_mult: 0.95,
+    intro: "El examen final ante el Maestro Matsuo. ¡Demuestra que eres el Chef Supremo de Shimaya!"
+  }
 ];
 
 const CUSTOMER_TEMPLATES = [
@@ -11961,7 +12288,7 @@ function newFryStation() {
 // Las etapas se activan poco a poco (ver STAGE_GATE_*): no tienen sentido en el nivel 1, y no existen en el
 // tutorial ni en multijugador.
 const STAGE_AREAS = ['ramen', 'salteados', 'makis', 'frituras'];
-const STAGE_GATE_LEVEL = { ramen: 4, salteados: 5, makis: 7, frituras: 7 };     // Campaña: nivel desde el que se activan
+const STAGE_GATE_LEVEL = { ramen: 4, salteados: 6, makis: 10, frituras: 14 };     // Campaña: nivel desde el que se activan
 const STAGE_GATE_ROUND = { ramen: 3, salteados: 9, makis: 16, frituras: 27 };   // Rash: ronda
 const ST_PASS_MAX = 3;
 const ST_EXTRA_SECONDS = { ramen: 8, salteados: 10, makis: 10, frituras: 14 };  // paciencia extra por pedido
@@ -16422,7 +16749,8 @@ const japonDishBonusSafe = n => { try { return (typeof japonDishBonus === 'funct
 
 const TRAINING_KEY = 'ramen_training';
 const STATS_KEY = 'ramen_stats';
-const accountProgress = { earned: 0, levels: {}, training: {}, stats: { d: {}, t: {}, h: {} }, statsDirty: false, loaded: false, sync: 'local', pushTimer: null };
+const CAMPAIGN_KEY = 'ramen_campaign_progress';
+const accountProgress = { earned: 0, levels: {}, training: {}, stats: { d: {}, t: {}, h: {} }, campaign: { unlockedLevel: 1, levels: {} }, statsDirty: false, loaded: false, sync: 'local', pushTimer: null };
 
 function loadAccountProgressLocal() {
   if (accountProgress.loaded) return;
@@ -16437,7 +16765,12 @@ function loadAccountProgressLocal() {
     accountProgress.training = (tr && typeof tr === 'object') ? tr : {};
     const st = JSON.parse(safeStorage.getItem(STATS_KEY) || '{}');
     accountProgress.stats = mergeStats({}, st);
-  } catch (e) { accountProgress.levels = {}; accountProgress.training = {}; accountProgress.stats = { d: {}, t: {}, h: {} }; }
+    const cmp = JSON.parse(safeStorage.getItem(CAMPAIGN_KEY) || '{"unlockedLevel":1,"levels":{}}');
+    accountProgress.campaign = (cmp && typeof cmp === 'object') ? cmp : { unlockedLevel: 1, levels: {} };
+  } catch (e) {
+    accountProgress.levels = {}; accountProgress.training = {}; accountProgress.stats = { d: {}, t: {}, h: {} };
+    accountProgress.campaign = { unlockedLevel: 1, levels: {} };
+  }
 }
 
 function saveAccountProgressLocal() {
@@ -16445,7 +16778,98 @@ function saveAccountProgressLocal() {
   safeStorage.setItem(UPGRADES_KEY, JSON.stringify(accountProgress.levels));
   safeStorage.setItem(TRAINING_KEY, JSON.stringify(accountProgress.training || {}));
   safeStorage.setItem(STATS_KEY, JSON.stringify(accountProgress.stats || { d: {}, t: {}, h: {} }));
+  safeStorage.setItem(CAMPAIGN_KEY, JSON.stringify(accountProgress.campaign || { unlockedLevel: 1, levels: {} }));
 }
+
+function loadCampaignProgress() {
+  loadAccountProgressLocal();
+  return accountProgress.campaign || { unlockedLevel: 1, levels: {} };
+}
+
+function saveCampaignProgress(data) {
+  accountProgress.campaign = data;
+  saveAccountProgressLocal();
+}
+
+function getLevelStarThresholds(cfg) {
+  const goal = cfg.goal;
+  const star2 = Math.round((goal * 1.25) / 10) * 10;
+  const star3 = Math.round((goal * 1.50) / 10) * 10;
+  return { star1: goal, star2, star3 };
+}
+
+function calculateLevelStars(cfg, money, lost) {
+  if (money < cfg.goal) return 0;
+  const th = getLevelStarThresholds(cfg);
+  if (money >= th.star3 && (lost || 0) <= 1) return 3;
+  if (money >= th.star2 && (lost || 0) <= 2) return 2;
+  return 1;
+}
+
+function recordCampaignLevelVictory(lvlNum, money, served, lost, sessionTips) {
+  const prog = loadCampaignProgress();
+  const cfg = NIVELES[lvlNum - 1];
+  if (!cfg) return { stars: 1, prevStars: 0, isNewBest: false, unlockedNext: 1 };
+
+  const stars = calculateLevelStars(cfg, money, lost);
+  prog.levels = prog.levels || {};
+  const prev = prog.levels[String(lvlNum)] || { stars: 0, bestMoney: 0 };
+  const prevStars = prev.stars || 0;
+  const isNewBest = stars > prevStars || money > (prev.bestMoney || 0);
+
+  prog.levels[String(lvlNum)] = {
+    stars: Math.max(prevStars, stars),
+    bestMoney: Math.max(prev.bestMoney || 0, money),
+    lastMoney: money,
+    served,
+    lost,
+    updatedAt: new Date().toISOString()
+  };
+
+  if (stars >= 1) {
+    prog.unlockedLevel = Math.max(prog.unlockedLevel || 1, Math.min(NIVELES.length, lvlNum + 1));
+  }
+
+  saveCampaignProgress(prog);
+  try { if (typeof accountPushSoon === 'function') accountPushSoon(true); } catch (e) {}
+
+  return { stars, prevStars, isNewBest, unlockedNext: prog.unlockedLevel };
+}
+
+function getCampaignTotalStars() {
+  const prog = loadCampaignProgress();
+  let total = 0;
+  Object.values(prog.levels || {}).forEach(l => { total += (l.stars || 0); });
+  return total;
+}
+
+function getCampaignHighestUnlocked() {
+  const prog = loadCampaignProgress();
+  return Math.min(NIVELES.length, Math.max(1, prog.unlockedLevel || 1));
+}
+
+function getCampaignStatsSummary() {
+  const prog = loadCampaignProgress();
+  const unlocked = Math.min(NIVELES.length, Math.max(1, Number(prog.unlockedLevel || 1)));
+  let stars = 0;
+  let completed = 0;
+  if (prog.levels) {
+    Object.values(prog.levels).forEach(l => {
+      const st = Number(l && l.stars) || 0;
+      stars += st;
+      if (st > 0) completed++;
+    });
+  }
+  return {
+    unlockedLevel: unlocked,
+    highestUnlocked: unlocked,
+    completedLevels: completed,
+    totalLevels: NIVELES.length,
+    stars: stars,
+    maxStars: NIVELES.length * 3
+  };
+}
+window.getCampaignStatsSummary = getCampaignStatsSummary;
 
 function upgradesSpent() {
   loadAccountProgressLocal();
@@ -18263,8 +18687,13 @@ function serveOrder(customerIndex, itemIndex, dish) {
 
   if (gameState.gameMode === 'NORMAL') {
     const cfg = getCurrentLevelConfig();
-    if (gameState.money >= cfg.goal) {
+    const th = getLevelStarThresholds(cfg);
+    if (gameState.money >= th.star3 && gameState.customersLost <= 1) {
+      showStationToast(`🌟 ¡PUNTUACIÓN MÁXIMA DE 3 ESTRELLAS ALCANZADA! (S/ ${gameState.money})`);
       winLevel();
+    } else if (gameState.money >= cfg.goal && !gameState.metaReachedNoticeShown) {
+      gameState.metaReachedNoticeShown = true;
+      showStationToast(`⭐ ¡Meta base alcanzada (S/ ${gameState.money})! Sigue cocinando para ⭐⭐ y ⭐⭐⭐`);
     }
   } else if (gameState.gameMode === 'RASH') {
     gameState.rashCustomersServed++;
@@ -19699,7 +20128,12 @@ function gameTick() {
   if (gameState.gameMode === 'NORMAL') {
     gameState.timeLeft--;
     if (gameState.timeLeft <= 0) {
-      loseLevel();
+      const cfg = getCurrentLevelConfig();
+      if (gameState.money >= cfg.goal) {
+        winLevel();
+      } else {
+        loseLevel();
+      }
       return;
     }
   } else if ((gameState.gameMode === 'JAPON' && gameState.japon)) {
@@ -19787,10 +20221,16 @@ function updateHUD() {
     }
     if (goalLabel) goalLabel.textContent = "Meta:";
     const goalEl = document.getElementById("hud-goal");
-    if (goalEl) goalEl.textContent = `S/${cfg.goal}`;
+    const th = getLevelStarThresholds(cfg);
+    const curStars = calculateLevelStars(cfg, gameState.money, gameState.customersLost);
+    const starPill = curStars === 3 ? '⭐⭐⭐' : (curStars === 2 ? '⭐⭐☆' : (curStars === 1 ? '⭐☆☆' : '☆☆☆'));
+    if (goalEl) goalEl.innerHTML = `S/${cfg.goal} <span style="font-size:11px; margin-left:3px; color:#ffd54f;" title="⭐ S/${th.star1} · ⭐⭐ S/${th.star2} · ⭐⭐⭐ S/${th.star3}">${starPill}</span>`;
     if (timerIcon) timerIcon.textContent = "⏱️";
     const timerEl = document.getElementById("hud-timer");
-    if (timerEl) timerEl.textContent = `${gameState.timeLeft}s`;
+    if (timerEl) {
+      timerEl.textContent = `${gameState.timeLeft}s`;
+      timerEl.style.color = (gameState.money >= cfg.goal) ? '#81c784' : '';
+    }
   } else if ((gameState.gameMode === 'JAPON' && gameState.japon)) {
     if (badgeEl) badgeEl.textContent = '🗾 ' + gameState.japon.cityName;
     if (modeBtn) {
@@ -19887,6 +20327,166 @@ async function recordGameScoreAutomatically(outcome = 'COMPLETED') {
   }
 }
 
+
+function renderEndStarsHtml(stars) {
+  if (stars === 3) {
+    return '<div class="level-stars-display" style="font-size:34px; line-height:1; margin:6px 0; color:#ffb300; text-shadow:0 0 10px rgba(255,179,0,0.8);">⭐⭐⭐</div>';
+  }
+  if (stars === 2) {
+    return '<div class="level-stars-display" style="font-size:34px; line-height:1; margin:6px 0; color:#ffb300;">⭐⭐<span style="opacity:0.25;">★</span></div>';
+  }
+  return '<div class="level-stars-display" style="font-size:34px; line-height:1; margin:6px 0; color:#ffb300;">⭐<span style="opacity:0.25;">★★</span></div>';
+}
+
+function replayCurrentLevel() {
+  document.getElementById("level-end-modal").classList.remove("active");
+  startLevel(currentLevelIndex);
+}
+
+function openCampaignModalFromEnd() {
+  document.getElementById("level-end-modal").classList.remove("active");
+  returnToStartMenu();
+  openCampaignModal();
+}
+
+function finishNormalShiftEarly() {
+  if (gameState.gameMode !== 'NORMAL' || gameState.isGameOver) return;
+  const cfg = getCurrentLevelConfig();
+  if (gameState.money >= cfg.goal) {
+    winLevel();
+  }
+}
+
+let campaignFilterArc = 'all';
+
+function openCampaignModal(filterArc) {
+  if (filterArc) campaignFilterArc = filterArc;
+  loadAccountProgressLocal();
+  renderCampaignModal();
+  const m = document.getElementById('campaign-modal');
+  if (m) {
+    m.style.display = '';
+    m.classList.add('active');
+  }
+}
+
+function closeCampaignModal() {
+  const m = document.getElementById('campaign-modal');
+  if (m) m.classList.remove('active');
+}
+
+const CAMPAIGN_ARCS = [
+  { id: 'ramen', icon: '🍜', name: 'Fundamentos de Ramen', levels: [1, 2, 3, 4], areas: '🍜' },
+  { id: 'salteado', icon: '🍳', name: 'El Fuego del Wok', levels: [5, 6, 7, 8], areas: '🍜 🍳' },
+  { id: 'makis', icon: '🍣', name: 'Barra de Makis Nikkei', levels: [9, 10, 11, 12], areas: '🍜 🍳 🍣' },
+  { id: 'frituras', icon: '🍤', name: 'El Aceite Dorado', levels: [13, 14, 15, 16], areas: '🍜 🍳 🍣 🍤' },
+  { id: 'maestria', icon: '🏆', name: 'Restaurante Insignia', levels: [17, 18, 19, 20], areas: '⭐ Las 4 Áreas' }
+];
+
+function setCampaignArcFilter(arcId) {
+  campaignFilterArc = arcId;
+  renderCampaignModal();
+}
+
+function playCampaignLevel(lvlIndex) {
+  closeCampaignModal();
+  setStartSelectedMode('NORMAL');
+  executeStartGame();
+  startLevel(lvlIndex);
+}
+
+function renderCampaignModal() {
+  const body = document.getElementById('camp-modal-body');
+  if (!body) return;
+  const prog = loadCampaignProgress();
+  const unlockedLvl = prog.unlockedLevel || 1;
+  const totalStars = getCampaignTotalStars();
+  const totalLevels = NIVELES.length;
+  const maxPossibleStars = totalLevels * 3;
+  const completedCount = Object.values(prog.levels || {}).filter(l => (l.stars || 0) >= 1).length;
+
+  const nextLvlIndex = Math.min(totalLevels - 1, unlockedLvl - 1);
+  const nextCfg = NIVELES[nextLvlIndex];
+
+  const filterTabs = [
+    { id: 'all', label: `⭐ Todos (${totalLevels})` },
+    ...CAMPAIGN_ARCS.map(arc => ({ id: arc.id, label: `${arc.icon} ${arc.name}` }))
+  ].map(tab => {
+    const active = campaignFilterArc === tab.id ? 'active' : '';
+    return `<button class="camp-filter-btn ${active}" onclick="setCampaignArcFilter('${tab.id}')">${tab.label}</button>`;
+  }).join('');
+
+  const activeArcs = CAMPAIGN_ARCS.filter(a => campaignFilterArc === 'all' || a.id === campaignFilterArc);
+
+  const arcsHtml = activeArcs.map(arc => {
+    const arcLevels = NIVELES.filter(lvl => arc.levels.includes(lvl.level));
+    const arcCards = arcLevels.map(cfg => {
+      const idx = cfg.level - 1;
+      const lvlData = (prog.levels && prog.levels[String(cfg.level)]) || null;
+      const isUnlocked = cfg.level <= unlockedLvl;
+      const stars = lvlData ? lvlData.stars : 0;
+      const isNext = cfg.level === unlockedLvl && stars === 0;
+
+      let starsDisplay = '';
+      if (!isUnlocked) {
+        starsDisplay = '<span style="color:#90a4ae;">🔒 Bloqueado</span>';
+      } else if (stars === 3) {
+        starsDisplay = '<span class="camp-stars" title="3 Estrellas: Perfección">⭐⭐⭐</span>';
+      } else if (stars === 2) {
+        starsDisplay = '<span class="camp-stars" title="2 Estrellas: Buen Servicio">⭐⭐<span style="opacity:0.35;">★</span></span>';
+      } else if (stars === 1) {
+        starsDisplay = '<span class="camp-stars" title="1 Estrella: Superado">⭐<span style="opacity:0.35;">★★</span></span>';
+      } else {
+        starsDisplay = '<span style="color:#e65100; font-weight:800; font-size:11px;">▶ Nuevo</span>';
+      }
+
+      const bestText = lvlData && lvlData.bestMoney ? `Récord: S/ ${lvlData.bestMoney}` : `Meta: S/ ${cfg.goal}`;
+      const stateClass = !isUnlocked ? 'locked' : (stars > 0 ? 'done' : 'open');
+
+      return `
+        <button class="camp-card ${stateClass} ${isNext ? 'next' : ''}" ${isUnlocked ? '' : 'disabled'} onclick="playCampaignLevel(${idx})">
+          <span class="camp-num">${cfg.level}</span>
+          <span class="camp-areas-tag">${arc.areas}</span>
+          <span class="camp-title">${cfg.name.replace(/Nivel \d+:\s*/, '')}</span>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:auto;">
+            <div>${starsDisplay}</div>
+            <div class="camp-meta">${bestText}</div>
+          </div>
+        </button>
+      `;
+    }).join('');
+
+    return `
+      <div class="camp-arc-section">
+        <div class="camp-arc-head">
+          <span>${arc.icon} ${arc.name} (Niveles ${arc.levels[0]}–${arc.levels[arc.levels.length - 1]})</span>
+          <span style="font-size:11px; color:#6d4c41;">${arc.areas}</span>
+        </div>
+        <div class="camp-grid">${arcCards}</div>
+      </div>
+    `;
+  }).join('');
+
+  body.innerHTML = `
+    <div class="camp-summary">
+      <div class="camp-sumline">
+        <b>Progreso de Campaña: ${completedCount}/${totalLevels} Niveles</b>
+        <span>⭐ <b>${totalStars}/${maxPossibleStars}</b> Estrellas</span>
+        <span>🧧 Saldo: ${getPropinasWallet()}</span>
+      </div>
+      <div class="camp-bar"><i style="width:${Math.round(100 * totalStars / maxPossibleStars)}%"></i></div>
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; margin-top:2px;">
+        <span style="font-size:10.5px; color:#5d4037;">Repite cualquier nivel para mejorar tus estrellas (⭐ S/ goal · ⭐⭐ +25% · ⭐⭐⭐ +50%).</span>
+        <button class="acc-btn" style="padding:4px 12px; font-size:11px;" onclick="playCampaignLevel(${nextLvlIndex})">
+          ▶ Continuar Nivel ${nextCfg.level}: ${nextCfg.name.replace(/Nivel \d+:\s*/, '')}
+        </button>
+      </div>
+    </div>
+    <div class="camp-filter-bar">${filterTabs}</div>
+    ${arcsHtml}
+  `;
+}
+
 function winLevel() {
   gameState.isGameOver = true;
   clearInterval(gameLoopInterval);
@@ -19905,19 +20505,45 @@ function winLevel() {
   const endTips = document.getElementById("end-tips");
   if (endTips) endTips.textContent = `🧧 ${gameState.propinasSession}`;
 
+  const btnReplay = document.getElementById("btn-replay-level");
+  const btnMap = document.getElementById("btn-campaign-map");
+
   if (gameState.gameMode === 'NORMAL') {
+    if (btnReplay) btnReplay.style.display = '';
+    if (btnMap) btnMap.style.display = '';
+
+    const lvlNum = currentLevelIndex + 1;
+    const cfg = NIVELES[currentLevelIndex];
+    const rec = recordCampaignLevelVictory(lvlNum, gameState.money, gameState.customersServed, gameState.customersLost, gameState.propinasSession);
+    const th = getLevelStarThresholds(cfg);
+
+    const bonusTips = rec.stars > rec.prevStars ? (rec.stars - rec.prevStars) * 10 : 0;
+    if (bonusTips > 0) addPropinas(bonusTips);
+
+    const starsHtml = renderEndStarsHtml(rec.stars);
+    const starDesc = rec.stars === 3
+      ? '⭐⭐⭐ ¡PUNTUACIÓN MÁXIMA DE 3 ESTRELLAS! Servicio impecable.'
+      : (rec.stars === 2 ? '⭐⭐ ¡Muy buen servicio! 2 Estrellas conseguidas.' : '⭐ Nivel superado a medias (1 Estrella). ¡Repite el nivel para alcanzar las 3 estrellas!');
+
+    title.textContent = `🎉 ¡${cfg.name} Superado!`;
+    desc.innerHTML = `
+      ${starsHtml}
+      <div style="font-size:12.5px; font-weight:800; color:#3e2723; margin:4px 0;">${starDesc}</div>
+      <div style="font-size:11px; color:#5d4037;">Meta base: S/ ${th.star1} · 2★: S/ ${th.star2} · 3★: S/ ${th.star3}</div>
+      ${bonusTips > 0 ? `<div style="font-size:11.5px; font-weight:900; color:#e65100; margin-top:4px;">🧧 +${bonusTips} propinas conseguidas por tus nuevas estrellas</div>` : ''}
+    `;
+    title.style.color = "#2e7d32";
+
     if (currentLevelIndex < NIVELES.length - 1) {
-      title.textContent = `🎉 ¡${NIVELES[currentLevelIndex].name} Superado!`;
-      desc.textContent = "Has alcanzado la meta de recaudación con éxito. Nuevos ramen e ingredientes serán desbloqueados.";
-      title.style.color = "#2e7d32";
       btn.textContent = `▶️ Siguiente Nivel (${currentLevelIndex + 2})`;
+      btn.style.display = '';
     } else {
-      title.textContent = "🏆 ¡ERES EL MAESTRO SUPREMO DEL RAMEN!";
-      desc.textContent = "¡Has dominado los 8 niveles: ramen, salteados, makis y frituras!";
-      title.style.color = "var(--ramen-gold)";
-      btn.textContent = "🔄 Volver a Jugar Campaña";
+      btn.textContent = "🏆 ¡Completaste toda la Campaña!";
+      btn.style.display = '';
     }
   } else {
+    if (btnReplay) btnReplay.style.display = 'none';
+    if (btnMap) btnMap.style.display = 'none';
     const curLvl = gameState.rashLevel;
     saveRashProgress(curLvl + 1);
 
@@ -19954,12 +20580,21 @@ function loseLevel() {
   const endTips = document.getElementById("end-tips");
   if (endTips) endTips.textContent = `🧧 ${gameState.propinasSession}`;
 
+  const btnReplay = document.getElementById("btn-replay-level");
+  const btnMap = document.getElementById("btn-campaign-map");
+
   if (gameState.gameMode === 'NORMAL') {
+    if (btnReplay) btnReplay.style.display = 'none';
+    if (btnMap) btnMap.style.display = '';
+
+    const cfg = getCurrentLevelConfig();
     title.textContent = "⏱️ Tiempo Agotado";
-    desc.textContent = `No lograste la meta de S/ ${getCurrentLevelConfig().goal}. ¡Puedes registrar tu puntaje o volver a intentar!`;
+    desc.innerHTML = `No lograste la meta básica de <b>S/ ${cfg.goal}</b>.<br><span style="font-size:11px; color:#5d4037;">Recaudaste S/ ${gameState.money}. ¡Repite el nivel para afinar tu ritmo de comanda!</span>`;
     title.style.color = "#c62828";
     btn.textContent = "🔄 Reintentar Nivel";
   } else {
+    if (btnReplay) btnReplay.style.display = 'none';
+    if (btnMap) btnMap.style.display = 'none';
     title.textContent = "💔 Ronda Fallida";
     desc.textContent = `Se agotaron tus vidas en la Ronda ${gameState.rashLevel}. ¡Guarda tu récord para el ranking!`;
     title.style.color = "#c62828";
@@ -25192,7 +25827,7 @@ if (document.readyState === 'loading') {
 <script src="reconocer.js?v=2"></script>
 <script src="guia.js?v=8"></script>
 <script src="japon-scene.js?v=9"></script>
-<script src="inicio.js?v=24"></script>
+<script src="inicio.js?v=25"></script>
 <script src="aula.js?v=7"></script>
 </body>
 </html>

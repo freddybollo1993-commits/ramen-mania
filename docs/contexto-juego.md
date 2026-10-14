@@ -1,4 +1,4 @@
-# Ramen Mania / Shimaya — Archivo de contexto del juego (estado v142)
+# Ramen Mania / Shimaya — Archivo de contexto del juego (estado v143)
 
 Documento para retomar el proyecto desde cero: qué es, cómo está construido, qué contiene cada sistema, decisiones del dueño del proyecto y cosas pendientes. Idioma del juego y de la comunicación: **español**.
 
@@ -17,7 +17,7 @@ Sin framework: HTML/CSS/JS clásico (scripts globales, no módulos), Vite solo c
 | Archivo | Contenido |
 |---|---|
 | `index.html` (~25 000 líneas) | Juego completo: HTML, CSS y casi toda la lógica (motor de cocina, recetas, ingredientes, niveles, Rash, Entrenamiento, Cocina Libre, mejoras, cuentas, ranking, modales). Versión visible en `#app-version`. |
-| `sw.js` | Service worker, `CACHE_NAME = 'ramen-mania-v142'`. |
+| `sw.js` | Service worker, `CACHE_NAME = 'ramen-mania-v143'`. |
 | `manifest.json` | PWA. |
 | `makis-studio.js` | Estudio de Makis (esterilla, arroz, enrollado, pescado). |
 | `frituras-prod.js` / `frituras-plate.js` | Producción (mandolina, licuado, gyozas) y emplatado dibujado de Frituras. |
@@ -36,21 +36,27 @@ Orden de carga al final de `index.html`: `multiplayer.js`, `makis-studio.js`, `f
 
 ## 3. Estructura de una partida de cocina
 ### 3.1 Cuatro áreas
-Pestañas de cocina (`KITCHEN_AREAS`): **RAMEN · SALTEADO · FRITURAS · MAKIS**. Cada una tiene un catálogo de platos (`RECETAS_RAMEN`, `AREA_CATALOGS`) y se desbloquea por nivel (Campaña), ronda (Rash) o reto (Entrenamiento) según `AREA_DISH_UNLOCKS` (plato, nivel de campaña, ronda de Rash):
+Pestañas de cocina (`KITCHEN_AREAS`): **RAMEN · SALTEADO · FRITURAS · MAKIS**. Cada una tiene un catálogo de platos (`RECETAS_RAMEN`, `AREA_CATALOGS`) y se desbloquea por nivel (Campaña de 20 niveles), ronda (Rash) o reto (Entrenamiento) según `AREA_DISH_UNLOCKS` (plato, nivel de campaña, ronda de Rash):
 
-| Área | Platos (35 recetas; 33 jugables) |
-|---|---|
-| Ramen (9) | Shio, Shoyu, Miso, Chashu, Tonkotsu, Tan tan, Ebi, Bajiru, Vegetariano |
-| Salteado (9) | Yakimeshi, Chicken Teriyaki, Chaufa Shimaya, Yakitori, Yakiramen, Yasaitame, Batayaki Ramen, Karameshi, Omuraisu |
-| Makis (9) | California, Guacamole, Acevichado, Hotate, Amazon, Yama, Nin Niku, Digion + Maki Furai (existe, aún no se puede pedir: «termina en Frituras») |
-| Frituras (8) | Alitas, Kaarage, Tonkatsu, Chicken Katsu, Katsu Kare, Ebi Furai, Age Gyozas + Gyozas al vapor/hervidas (existe, aún no se puede pedir: necesita 2.ª hornilla con sartén) |
+- **Arco 1 (Niveles 1–4):** Fundamentos de Barra de Ramen (solo Ramen).
+- **Arco 2 (Niveles 5–8):** El Fuego del Wok (Ramen + Salteados).
+- **Arco 3 (Niveles 9–12):** Barra de Makis Nikkei (Ramen + Salteados + Makis).
+- **Arco 4 (Niveles 13–16):** El Aceite Dorado (Las 4 estaciones: + Frituras).
+- **Arco 5 (Niveles 17–20):** Restaurante Insignia y Maestría de Japón (Carta completa).
+
+| Área | Platos (35 recetas; 33 jugables) | Desbloqueo Campaña |
+|---|---|---|
+| Ramen (9) | Shio, Shoyu, Miso, Chashu, Tonkotsu, Tan tan, Ebi, Bajiru, Vegetariano | Nivel 1 a 4 (Shio L1, Shoyu L2, Miso/Chashu L3, Tonkotsu/Tan tan L4, Vegetariano L19-20) |
+| Salteado (9) | Yakimeshi, Chicken Teriyaki, Chaufa Shimaya, Yakitori, Yakiramen, Yasaitame, Batayaki Ramen, Karameshi, Omuraisu | Niveles 5 a 8 |
+| Makis (9) | California, Guacamole, Acevichado, Hotate, Amazon, Yama, Nin Niku, Digion + Maki Furai | Niveles 9 a 12 |
+| Frituras (8) | Alitas, Kaarage, Tonkatsu, Chicken Katsu, Katsu Kare, Ebi Furai, Age Gyozas + Gyozas vapor | Niveles 13 a 16 |
 
 ### 3.2 Tres etapas por área («etapas», `stagedOn(area)`)
 **Producción → Cocina → Emplatar**, en ese orden fijo de pantallas (se cambia deslizando desde el borde).
 - **Producción:** existencias de insumos (stock) con tiempo de preparación; una tarea a la vez por área. Taller con tabla + cuchillo + hornillas.
 - **Cocina:** la estación propia de cada área (ver 3.3).
 - **Emplatar:** **obligatorio**, vale 25 de 100 puntos de calidad. Libre: componentes arrastrables a 2 cuencos; `stPlateEval` compara con la receta más cercana; errores penalizan (×0,45 y máx. 1★). Pase de hasta 3 platos entre cocina y emplatado (el plato se enfría).
-- **Activación gradual:** Campaña ramen nivel 4, salteado 5, makis 7, frituras 7; Rash rondas 3/9/16/27; Entrenamiento con features `st_<área>`. No hay etapas en el tutorial antiguo ni en multijugador.
+- **Activación gradual (`STAGE_GATE_LEVEL`):** Campaña ramen nivel 4, salteado 6, makis 10, frituras 14; Rash rondas 3/9/16/27; Entrenamiento con features `st_<área>`. No hay etapas en el tutorial antiguo ni en multijugador.
 - Motor: `ST_PROD[área]`, `stGet(área)` (stock, pase, slots, tabla), `setKitchenStage/getStage`, `stPassAdd`, `stPassToSlot`, `stPlateAddItem`, `stPlateServe`; tablas `FRY_PLATING`, `ST_RAMEN_PLATE`, `ST_PLATE_SAL`, `ST_PLATE_MAKI`, `SAL_STAGED`.
 
 ### 3.3 Cocina de cada área
@@ -65,7 +71,7 @@ Cortar con tajos (`shopChop`, `fryCutSlash`, `makiCutSlash`), frotar/limpiar (`s
 ## 4. Modos de juego (`gameState.gameMode`)
 | Modo | Qué es |
 |---|---|
-| **NORMAL (Campaña)** | 8 niveles con meta de ventas (S/) y tiempo (Nivel 1 «Aprendiz de Barra» … Nivel 8 «Maestro del Ramen»). Hoy **no guarda progreso**: siempre empieza en el nivel 1 (pendiente de confirmar si es intencional). |
+| **NORMAL (Campaña v143)** | **20 niveles progresivos** en 5 arcos temáticos con curva de dificultad gradual y balance económico calibrado. **Evaluación de 1 a 3 estrellas**: ⭐ Meta base alcanzada, ⭐⭐ +25% de recaudación, ⭐⭐⭐ +50% con comensales satisfechos. **Persistencia continua** en local (`ramen_campaign_progress`) y en nube Supabase (`accountProgress.campaign`). Propinas bonus (+10 🧧 por estrella nueva). **Niveles rejugables**: modal interactivo de campaña (`openCampaignModal()`) para consultar progreso (hasta 60⭐) y repetir cualquier nivel superado para mejorar puntuación. |
 | **RASH** | Rondas sin fin con vidas; se guarda la ronda alcanzada (`ramen_mania_rash_level`, sincronizada en la nube); récords al ranking. |
 | **TRAINING (Entrenamiento)** | 50 retos sin cuenta regresiva en 6 capítulos (Ramen 7, Salteado 7, Makis 7, Frituras 7, Servicio 11, Maestría 11). Se mide el tiempo; medallas 🥉🥈🥇 y propinas con escala progresiva (10 a 1500 🧧); barra de filtros ergonómica por capítulos; **cada reto desbloquea funciones** (`TRAINING_FEATURES`: segundo/tercer cuenco, estrellas, áreas, woks, etapas, mottainai, frescura…). |
 | **FREE (Cocina Libre)** | Práctica sin tiempo ni notas; elegir qué áreas piden al azar, pedir un plato concreto, pausar clientes. Desde el inicio isométrico se puede abrir **solo una área** (`window.startFreeAreas`). |
@@ -144,10 +150,9 @@ Compatible con el Aula del Maestro (`Inicio.enterRoom('aula')` / `leaveRoom()`),
 
 ## 12. Pendientes conocidos
 1. Balance: «Jugar aquí» rinde mucho más que el idle; revisar economía general.
-2. Campaña no guarda progreso (¿intencional?).
-3. Buff `fresh` de Japón sin conectar; eventos aleatorios (hora pico, inspección, apagón) no implementados.
-4. Arte final con Gemini (mapa, restaurantes, personas, objetos, local del inicio).
-5. Tutorial: solo una acción de Producción por área en Makis/Frituras; «ebi furai replica el método» sin confirmar.
-6. Makis: salmón no implementado; cobertura Amazon sin stock.
-7. Showcase Hub (v138): Probar en el Redmi (ergonomía de submenús sobrepuestos en pantalla táctil de 873×393 px y fluidez de animaciones SVG en la vitrina derecha).
-8. Cuando cambien mecánicas de un área, actualizar los pasos de `guia.js` (selectores e ids).
+2. Buff `fresh` de Japón sin conectar; eventos aleatorios (hora pico, inspección, apagón) no implementados.
+3. Arte final con Gemini (mapa, restaurantes, personas, objetos, local del inicio).
+4. Tutorial: solo una acción de Producción por área en Makis/Frituras; «ebi furai replica el método» sin confirmar.
+5. Makis: salmón no implementado; cobertura Amazon sin stock.
+6. Showcase Hub (v143): Probar en el Redmi (ergonomía de submenús sobrepuestos en pantalla táctil de 873×393 px y fluidez de animaciones SVG en la vitrina derecha).
+7. Cuando cambien mecánicas de un área, actualizar los pasos de `guia.js` (selectores e ids).

@@ -15,7 +15,7 @@ const SEC = { ramen: 13, salteados: 14, makis: 15, frituras: 24 };
 const STAGED_EXTRA = { ramen: 7, salteados: 8, makis: 9, frituras: 14 };
 const STAGE_GATE_LEVEL = { ramen: 4, salteados: 5, makis: 7, frituras: 7 };
 // Cuánto más lento es un jugador que está aprendiendo (1.8 = casi el doble) en cada nivel.
-const NOVICE = [1.8, 1.6, 1.5, 1.35, 1.25, 1.15, 1.05, 1.0];
+const NOVICE = [1.8, 1.65, 1.5, 1.4, 1.35, 1.3, 1.25, 1.2, 1.18, 1.15, 1.12, 1.1, 1.08, 1.06, 1.04, 1.02, 1.0, 1.0, 0.98, 0.95];
 
 const rows = NIVELES.map((L, i) => {
   const pool = { ramen: R.ramen.filter(r => L.ramen_names.includes(r.name)) };

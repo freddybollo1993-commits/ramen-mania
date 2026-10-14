@@ -47,8 +47,14 @@
   function getStatBadge(id) {
     switch (id) {
       case 'jugar':
-      case 'camp':
-        return tutDone() ? '🎯 Meta: S/ 160+' : '🔒 Completa lección';
+      case 'camp': {
+        if (!tutDone()) return '🔒 Completa lección';
+        if (typeof getCampaignStatsSummary === 'function') {
+          const s = getCampaignStatsSummary();
+          return `⭐ ${s.stars}/${s.maxStars} · Nivel ${s.unlockedLevel}/20`;
+        }
+        return '⭐ 20 Niveles';
+      }
       case 'rash':
         return `⚡ Récord: Ronda ${rashLvl()}`;
       case 'door':
@@ -102,8 +108,8 @@
         sub: 'Campaña · Rash · Japón · Online',
         tag: 'MODO PRINCIPAL',
         heroTitle: 'Servicio en la Cocina',
-        desc: 'Servicio en vivo: 8 niveles de Campaña, Supervivencia Rash extrema, Recorrido por Japón y Multijugador en línea.',
-        pills: ['🔥 4 Cocinas', '⏱️ Contrarreloj', '🌐 Online'],
+        desc: 'Servicio en vivo: 20 niveles de Campaña en 5 arcos, Supervivencia Rash extrema, Recorrido por Japón y Multijugador en línea.',
+        pills: ['🏮 20 Niveles', '🔥 4 Cocinas', '⏱️ Contrarreloj', '🌐 Online'],
         ctaText: 'VER MODOS DE JUEGO ▶',
         defaultItem: 'camp'
       },
@@ -150,12 +156,12 @@
         id: 'camp',
         icon: '🏮',
         title: 'Campaña Gastronómica',
-        sub: '8 niveles con metas de ventas',
+        sub: '20 niveles en 5 arcos culinarios',
         tag: 'MODO HISTORIA',
         heroTitle: 'Campaña Gastronómica',
-        desc: 'Atiende comandas a contrarreloj en 8 niveles progresivos con metas de ventas diarias y evaluación de estrellas.',
-        pills: ['⏱️ 8 Niveles', '📈 Metas Diarias', '⭐ Estrellas'],
-        ctaText: '▶ JUGAR CAMPAÑA',
+        desc: 'Atiende comandas a contrarreloj a lo largo de 20 niveles y 5 arcos temáticos. Desbloquea áreas progresivamente, gana hasta 3 estrellas por servicio impecable y repite niveles para mejorar tu récord.',
+        pills: ['🏮 20 Niveles', '⭐ 1 a 3 Estrellas', '🔁 Niveles Repetibles', '🔓 4 Áreas Progresivas'],
+        ctaText: '🏮 MAPA DE CAMPAÑA',
         act: 'camp',
         reqTut: true
       },
@@ -1159,7 +1165,14 @@
     train: ch => openTrainingModal(null, [ch]),
     tickets: () => openTrainingModal(),
     free: a => { window.startFreeAreas = a ? [a] : ['ramen']; setStartSelectedMode('FREE'); handleStartPlayClick(); },
-    camp: () => { setStartSelectedMode('NORMAL'); if (startSelectedMode === 'NORMAL') handleStartPlayClick(); },
+    camp: () => {
+      if (typeof openCampaignModal === 'function') {
+        openCampaignModal();
+      } else {
+        setStartSelectedMode('NORMAL');
+        if (startSelectedMode === 'NORMAL') handleStartPlayClick();
+      }
+    },
     rash: () => { setStartSelectedMode('RASH'); if (startSelectedMode === 'RASH') handleStartPlayClick(); },
     book: () => openRecipeModal(),
     board: () => openLeaderboardModal(),
