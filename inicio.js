@@ -871,6 +871,115 @@
     }
   }
 
+  // ---------- fondo animado continuo: cocina y cocineros corriendo ----------
+  function getKitchenRunnersSvg() {
+    return `
+      <svg class="hub-kitchen-svg" viewBox="0 0 620 130" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="kFloor" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#ffb300" stop-opacity="0.05"/>
+            <stop offset="25%" stop-color="#ffb300" stop-opacity="0.35"/>
+            <stop offset="75%" stop-color="#ff9800" stop-opacity="0.35"/>
+            <stop offset="100%" stop-color="#ffb300" stop-opacity="0.05"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Silueta de la cocina de fondo: estantes, campana, utensilios -->
+        <g stroke="#ffca28" stroke-width="1.2" stroke-linecap="round" opacity="0.35" fill="none">
+          <!-- Línea del suelo / mesada -->
+          <line x1="0" y1="114" x2="620" y2="114" stroke="url(#kFloor)" stroke-width="2.5"/>
+
+          <!-- Estante superior izquierdo con cuencos de ramen apilados -->
+          <line x1="30" y1="20" x2="170" y2="20"/>
+          <ellipse cx="50" cy="16" rx="8" ry="4"/>
+          <ellipse cx="70" cy="16" rx="8" ry="4"/>
+          <ellipse cx="90" cy="16" rx="8" ry="4"/>
+          <ellipse cx="130" cy="14" rx="10" ry="6"/>
+          <path d="M125,8 Q130,5 135,8" stroke-width="1"/>
+
+          <!-- Colgador central con utensilios tradicionales -->
+          <line x1="260" y1="14" x2="410" y2="14"/>
+          <path d="M280,14 L280,32 M276,32 A4,4 0 0,0 284,32"/> <!-- Cazo para caldo -->
+          <path d="M315,14 L315,30 M312,30 L318,30 L315,38 Z"/> <!-- Espátula wok -->
+          <path d="M350,14 L350,34 M346,34 L354,34"/> <!-- Cuchillo santoku -->
+          <path d="M385,14 L385,30 M381,30 A4,4 0 0,0 389,30"/> <!-- Colador de fideos -->
+
+          <!-- Campana extractora silueta sutil -->
+          <path d="M470,0 L490,26 L580,26 L600,0" stroke-dasharray="3,3"/>
+          <line x1="505" y1="26" x2="565" y2="26"/>
+        </g>
+
+        <!-- COCINERO 1: Chef corriendo de izquierda a derecha con tazón de ramen humeante -->
+        <g class="chef-runner-1">
+          <g class="chef-trot-1" transform="translate(0, 70)">
+            <ellipse cx="-10" cy="38" rx="6" ry="3" fill="#ffe082" opacity="0.35"/>
+            <ellipse cx="-20" cy="36" rx="4" ry="2" fill="#ffe082" opacity="0.2"/>
+            <path d="M4,36 L0,44 L-6,44 M8,36 L15,42 L22,42" stroke="#ffca28" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+            <path d="M2,18 Q14,16 16,32 L2,34 Z" fill="#ffca28"/>
+            <rect x="0" y="20" width="14" height="13" rx="2" fill="#fff9c4"/>
+            <circle cx="8" cy="12" r="7.5" fill="#ffe082"/>
+            <path d="M2,11 L14,11 M1,11 L-8,8 M1,11 L-7,14" stroke="#d32f2f" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+            <path d="M4,7 C2,1 6,-3 10,-3 C14,-3 16,1 14,7 Z" fill="#ffffff" stroke="#ffca28" stroke-width="1"/>
+            <path d="M8,22 L18,22" stroke="#ffca28" stroke-width="2.5" stroke-linecap="round"/>
+            <ellipse cx="23" cy="22" rx="7.5" ry="4.5" fill="#d32f2f" stroke="#ffca28" stroke-width="1.2"/>
+            <path d="M20,20 Q23,17 26,20" stroke="#fff176" stroke-width="1.5" fill="none"/>
+            <path d="M22,17 Q21,13 23,9" stroke="#fff" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.75"/>
+          </g>
+        </g>
+
+        <!-- COCINERO 2: Chef corriendo de derecha a izquierda con sartén Wok ardiente -->
+        <g class="chef-runner-2">
+          <g class="chef-trot-2" transform="translate(0, 70) scale(-1, 1)">
+            <ellipse cx="-8" cy="38" rx="5" ry="2.5" fill="#ffb300" opacity="0.3"/>
+            <path d="M4,36 L-2,43 L-8,43 M8,36 L13,40 L18,44" stroke="#ffb300" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+            <path d="M2,18 Q14,16 16,32 L2,34 Z" fill="#ffb300"/>
+            <rect x="0" y="20" width="14" height="13" rx="2" fill="#fff8e1"/>
+            <circle cx="8" cy="12" r="7.5" fill="#ffe082"/>
+            <path d="M2,11 L14,11 M1,11 L-7,9 M1,11 L-6,13" stroke="#1976d2" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+            <path d="M3,7 C1,0 6,-4 10,-4 C15,-4 16,0 15,7 Z" fill="#ffffff" stroke="#ffb300" stroke-width="1"/>
+            <path d="M6,22 L17,24" stroke="#ffb300" stroke-width="2.5" stroke-linecap="round"/>
+            <ellipse cx="23" cy="24" rx="8.5" ry="4" fill="#37474f"/>
+            <path d="M29,24 L36,22" stroke="#5d4037" stroke-width="2.2" stroke-linecap="round"/>
+            <path d="M21,22 Q23,14 25,22" stroke="#ff5722" stroke-width="2" fill="none"/>
+          </g>
+        </g>
+
+        <!-- COCINERO 3: Aprendiz veloz con pila de vaporeras de bambú -->
+        <g class="chef-runner-3">
+          <g class="chef-trot-3" transform="translate(0, 73) scale(0.92)">
+            <ellipse cx="-10" cy="37" rx="6" ry="3" fill="#ffe082" opacity="0.4"/>
+            <path d="M4,36 L-4,44 M8,36 L17,44" stroke="#ffd54f" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+            <path d="M2,18 Q13,16 15,32 L2,34 Z" fill="#ffd54f"/>
+            <rect x="1" y="20" width="12" height="12" rx="2" fill="#ffffff"/>
+            <circle cx="8" cy="12" r="7" fill="#ffe082"/>
+            <path d="M2,11 L13,11 M1,11 L-7,8" stroke="#f57c00" stroke-width="2" stroke-linecap="round" fill="none"/>
+            <path d="M4,7 C3,1 6,-2 9,-2 C13,-2 15,1 13,7 Z" fill="#ffffff" stroke="#ffd54f" stroke-width="1"/>
+            <path d="M4,20 L8,14 L18,14" stroke="#ffd54f" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+            <rect x="14" y="6" width="15" height="6.5" rx="2" fill="#d7ccc8" stroke="#8d6e63" stroke-width="1"/>
+            <rect x="15" y="-1" width="13" height="6.5" rx="2" fill="#d7ccc8" stroke="#8d6e63" stroke-width="1"/>
+            <rect x="16" y="-8" width="11" height="6.5" rx="2" fill="#d7ccc8" stroke="#8d6e63" stroke-width="1"/>
+          </g>
+        </g>
+
+        <!-- COCINERO 4: Chef apresurado con tetera de dashi / cazo -->
+        <g class="chef-runner-4">
+          <g class="chef-trot-4" transform="translate(0, 71) scale(-0.95, 0.95)">
+            <path d="M4,36 L-3,44 M8,36 L16,43" stroke="#ffb74d" stroke-width="2.6" stroke-linecap="round" fill="none"/>
+            <path d="M2,18 Q14,16 16,32 L2,34 Z" fill="#ffb74d"/>
+            <rect x="0" y="20" width="14" height="12" rx="2" fill="#fffde7"/>
+            <circle cx="8" cy="12" r="7.5" fill="#ffe082"/>
+            <path d="M2,11 L14,11 M1,11 L-8,9" stroke="#388e3c" stroke-width="2" stroke-linecap="round" fill="none"/>
+            <path d="M3,7 C1,0 6,-3 10,-3 C15,-3 16,0 15,7 Z" fill="#ffffff" stroke="#ffb74d" stroke-width="1"/>
+            <path d="M6,22 L16,22" stroke="#ffb74d" stroke-width="2.2" stroke-linecap="round"/>
+            <ellipse cx="22" cy="22" rx="7" ry="5" fill="#4e342e" stroke="#8d6e63" stroke-width="1"/>
+            <path d="M19,16 L25,16" stroke="#d7ccc8" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M27,20 L31,18" stroke="#4e342e" stroke-width="1.8" stroke-linecap="round"/>
+          </g>
+        </g>
+      </svg>
+    `;
+  }
+
   // ---------- estilos css del nuevo hub ----------
   const CSS = `
   #start-screen.ini-on .start-screen-content, #start-screen.ini-on .start-ambient-bg, #start-screen.ini-on .start-lantern, #start-screen.ini-on .start-steam-particles { display: none !important; }
@@ -1001,26 +1110,65 @@
   /* ESCENARIO / VITRINA DE LA ILUSTRACIÓN DERECHA */
   .hub-stage {
     flex: 1; height: 100%; position: relative; overflow: hidden; display: flex; flex-direction: column;
-    justify-content: flex-end; padding: 14px 20px 18px; box-sizing: border-box;
+    justify-content: space-between; align-items: stretch; padding: 6px 16px 10px; box-sizing: border-box;
+    gap: 6px;
   }
 
-  /* Ilustración animada viva de fondo / centro (completamente despejada) */
+  /* Ilustración animada viva en su ESPACIO FIJO SUPERIOR (100% despejada, nunca tapada) */
   .hub-art-wrap {
-    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    flex: 1 1 auto; width: 100%; min-height: 0; position: relative; display: flex;
+    align-items: center; justify-content: center; overflow: visible;
     pointer-events: none; z-index: 1; transition: opacity 0.22s ease, transform 0.22s ease;
   }
   .hub-art-wrap.fade-out { opacity: 0; transform: scale(0.96); }
+  .hub-art-wrap .h-svg {
+    width: auto; height: 100%; max-height: 100%; max-width: 100%; object-fit: contain;
+    display: block; filter: drop-shadow(0 4px 16px rgba(0,0,0,0.45));
+  }
 
-  /* Tarjeta de Reseña y Acción sobrepuesta - compacta y con fondo translúcido no sólido */
+  /* Tarjeta de Reseña y Acción sobrepuesta - compacta, translúcida y con cocineros animados en el fondo */
   .hub-meta-card {
-    position: relative; z-index: 3; max-width: min(500px, 92%);
-    background: rgba(18, 8, 4, 0.42); /* Fondo translúcido para apreciar la animación viva detrás */
-    border: 1.5px solid rgba(255, 200, 60, 0.28); border-radius: 16px; padding: 10px 16px 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.35), 0 0 12px rgba(255, 179, 0, 0.1);
-    backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+    position: relative; flex: 0 0 auto; width: 100%; max-width: min(600px, 100%); margin: 0 auto;
+    z-index: 3; background: rgba(18, 8, 4, 0.44); /* Fondo translúcido para apreciar la animación */
+    border: 1.5px solid rgba(255, 204, 80, 0.32); border-radius: 15px; padding: 7px 15px 9px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.45), 0 0 14px rgba(255, 179, 0, 0.08);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    overflow: hidden; box-sizing: border-box;
     animation: hubCardIn 0.25s cubic-bezier(0.2, 0.9, 0.3, 1);
   }
-  @keyframes hubCardIn { from { opacity: 0; transform: translateY(10px); } }
+  @keyframes hubCardIn { from { opacity: 0; transform: translateY(8px); } }
+
+  /* Capa de fondo animado de cocineros corriendo en la cocina */
+  .hub-card-kitchen-bg {
+    position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+    opacity: 0.22;
+  }
+  .hub-kitchen-svg { width: 100%; height: 100%; display: block; }
+
+  /* Pistas de carrera de los cocineros */
+  .chef-runner-1 { animation: runAcross1 7.4s linear infinite; }
+  .chef-runner-2 { animation: runAcross2 9.4s linear infinite; animation-delay: 2.5s; }
+  .chef-runner-3 { animation: runAcross3 5.8s linear infinite; animation-delay: 4.8s; }
+  .chef-runner-4 { animation: runAcross4 8.6s linear infinite; animation-delay: 6.8s; }
+
+  @keyframes runAcross1 { from { transform: translateX(-100px); } to { transform: translateX(680px); } }
+  @keyframes runAcross2 { from { transform: translateX(680px); } to { transform: translateX(-100px); } }
+  @keyframes runAcross3 { from { transform: translateX(-100px); } to { transform: translateX(680px); } }
+  @keyframes runAcross4 { from { transform: translateX(680px); } to { transform: translateX(-100px); } }
+
+  /* Trote y rebote de los cocineros */
+  .chef-trot-1 { animation: chefBob1 0.26s ease-in-out infinite alternate; transform-origin: 50% 100%; }
+  .chef-trot-2 { animation: chefBob2 0.30s ease-in-out infinite alternate; transform-origin: 50% 100%; }
+  .chef-trot-3 { animation: chefBob3 0.22s ease-in-out infinite alternate; transform-origin: 50% 100%; }
+  .chef-trot-4 { animation: chefBob4 0.28s ease-in-out infinite alternate; transform-origin: 50% 100%; }
+
+  @keyframes chefBob1 { 0% { transform: translateY(0) rotate(0deg); } 100% { transform: translateY(-3.5px) rotate(2deg); } }
+  @keyframes chefBob2 { 0% { transform: translateY(0) rotate(0deg); } 100% { transform: translateY(-4px) rotate(-3deg); } }
+  @keyframes chefBob3 { 0% { transform: translateY(0) scaleY(0.96); } 100% { transform: translateY(-4.5px) scaleY(1.04); } }
+  @keyframes chefBob4 { 0% { transform: translateY(0) rotate(0deg); } 100% { transform: translateY(-3px) rotate(-2deg); } }
+
+  /* Contenido frontal del cuadro de diálogo */
+  .hub-meta-content { position: relative; z-index: 2; }
 
   .hub-meta-header-row {
     display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 2px;
@@ -1035,21 +1183,21 @@
     padding: 1px 7px; font: 900 10px sans-serif; color: #80deea; display: inline-flex; align-items: center; gap: 4px;
   }
 
-  .hub-meta-title { margin: 0 0 2px; font: 900 18px/1.15 'Fredoka', sans-serif; color: #fff8e7; text-shadow: 0 2px 4px rgba(0,0,0,0.9); }
-  .hub-meta-desc { margin: 0 0 8px; font: 600 11px/1.35 sans-serif; color: #f5dfba; text-shadow: 0 1px 3px rgba(0,0,0,0.9); }
+  .hub-meta-title { margin: 0 0 2px; font: 900 17px/1.15 'Fredoka', sans-serif; color: #fff8e7; text-shadow: 0 2px 4px rgba(0,0,0,0.9); }
+  .hub-meta-desc { margin: 0 0 7px; font: 600 10.5px/1.32 sans-serif; color: #f5dfba; text-shadow: 0 1px 3px rgba(0,0,0,0.9); }
 
   /* Fila de acción bimanual: pills a la izquierda y CTA accesible para el pulgar derecho */
   .hub-meta-action-row {
-    display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+    display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;
   }
-  .hub-meta-pills { display: flex; flex-wrap: wrap; gap: 5px; flex: 1; min-width: 0; }
-  .hub-pill { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.16); border-radius: 6px; padding: 1.5px 6px; font: 800 10px sans-serif; color: #ffe082; }
+  .hub-meta-pills { display: flex; flex-wrap: wrap; gap: 4px; flex: 1; min-width: 0; }
+  .hub-pill { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.16); border-radius: 6px; padding: 1.5px 6px; font: 800 9.5px sans-serif; color: #ffe082; }
 
   /* Botón CTA accesible para el pulgar derecho */
   .hub-cta-btn {
-    border: 2px solid #ffe082; border-radius: 12px; padding: 8px 20px;
+    border: 2px solid #ffe082; border-radius: 12px; padding: 7px 18px;
     background: linear-gradient(135deg, #ff9800, #e64a19 65%, #c62828);
-    color: #ffffff; font: 900 13.5px/1 'Fredoka', sans-serif; cursor: pointer;
+    color: #ffffff; font: 900 13px/1 'Fredoka', sans-serif; cursor: pointer;
     box-shadow: 0 3px 0 #7f0000, 0 0 14px rgba(255, 152, 0, 0.45);
     display: inline-flex; align-items: center; justify-content: center; gap: 6px;
     text-shadow: 0 1px 2px rgba(0,0,0,0.5); transition: transform 0.12s, box-shadow 0.12s;
@@ -1137,7 +1285,7 @@
   /* Botón de volver al modo nuevo si está en clásico */
   .ini-back { position: absolute; left: 10px; bottom: 36px; z-index: 120; border: 2px solid #ffe082; border-radius: 14px; background: rgba(60,25,12,0.92); color: #ffe9b0; font: 800 12px 'Fredoka', sans-serif; padding: 4px 12px; cursor: pointer; }
 
-  /* Responsive para pantallas estrechas */
+  /* Responsive para pantallas estrechas o bajas (móvil horizontal: 873x393 px) */
   @media (max-width: 680px) {
     .hub-sidebar { width: 240px; padding: 8px 10px; }
     .hub-item { height: 60px; padding: 8px 10px; }
@@ -1145,11 +1293,21 @@
     .hub-item-text b { font-size: 13.5px; }
     .hub-item-text small { font-size: 10px; }
     .hub-list-wrap { padding-top: 68px; scroll-padding-top: 68px; }
-    .hub-stage { padding: 10px 14px 14px; }
-    .hub-meta-card { padding: 8px 12px 10px; max-width: 95%; }
-    .hub-meta-title { font-size: 16px; }
-    .hub-meta-desc { font-size: 10.5px; margin-bottom: 5px; }
-    .hub-cta-btn { padding: 6px 14px; font-size: 12.5px; }
+    .hub-stage { padding: 6px 10px 8px; }
+    .hub-meta-card { padding: 6px 12px 8px; max-width: 100%; }
+    .hub-meta-title { font-size: 15px; }
+    .hub-meta-desc { font-size: 10px; margin-bottom: 4px; }
+    .hub-cta-btn { padding: 6px 14px; font-size: 12px; }
+  }
+
+  @media (max-height: 420px) {
+    .hub-stage { padding: 4px 12px 8px; gap: 4px; }
+    .hub-meta-card { padding: 5px 12px 7px; border-radius: 13px; }
+    .hub-meta-title { font-size: 15px; margin-bottom: 1px; }
+    .hub-meta-desc { font-size: 10px; margin-bottom: 4px; line-height: 1.25; }
+    .hub-meta-action-row { gap: 6px; }
+    .hub-pill { font-size: 9px; padding: 1px 5px; }
+    .hub-cta-btn { padding: 5px 14px; font-size: 12px; }
   }
   `;
 
@@ -1210,12 +1368,22 @@
     const stage = document.createElement('div'); stage.className = 'hub-stage';
     wrap.appendChild(stage);
 
-    // Contenedor de la ilustración viva
+    // Contenedor de la ilustración viva (espacio superior fijo y despejado)
     const artWrap = document.createElement('div'); artWrap.className = 'hub-art-wrap';
     stage.appendChild(artWrap);
 
-    // Contenedor de la tarjeta meta / reseña
+    // Contenedor de la tarjeta meta / reseña (segmento inferior de información)
     const metaWrap = document.createElement('div'); metaWrap.className = 'hub-meta-card';
+
+    // Fondo animado continuo: cocina y cocineros corriendo
+    const metaBg = document.createElement('div'); metaBg.className = 'hub-card-kitchen-bg';
+    metaBg.innerHTML = getKitchenRunnersSvg();
+    metaWrap.appendChild(metaBg);
+
+    // Capa frontal para la información
+    const metaContent = document.createElement('div'); metaContent.className = 'hub-meta-content';
+    metaWrap.appendChild(metaContent);
+
     stage.appendChild(metaWrap);
 
     // Sala de transiciones (Aula, Secretos)
@@ -1225,7 +1393,7 @@
     sc.appendChild(wrap);
 
     S = {
-      wrap, side, stage, artWrap, metaWrap, room,
+      wrap, side, stage, artWrap, metaWrap, metaBg, metaContent,
       sub: null,         // null (nivel raíz pilares) | 'jugar' | 'aprender' | 'restaurante' | 'gear'
       item: 'jugar',     // clave del item actualmente seleccionado y mostrado en la vitrina
       curRoom: null,
@@ -1508,9 +1676,10 @@
       S.artWrap.classList.remove('fade-out');
     }, 120);
 
-    // Render de la tarjeta meta (reseña y botón CTA con micro-datos y acción bimanual)
+    // Render de la tarjeta meta (en la capa frontal sobre el fondo de cocineros)
     const isLocked = it.reqTut && !tutDone();
-    S.metaWrap.innerHTML = `
+    const target = S.metaContent || S.metaWrap;
+    target.innerHTML = `
       <div class="hub-meta-header-row">
         <span class="hub-meta-tag">${it.tag || 'SHIMAYA MASTER'}</span>
         <span class="hub-meta-stat-pill">${getStatBadge(it.id)}</span>
