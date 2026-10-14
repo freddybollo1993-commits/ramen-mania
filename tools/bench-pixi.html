@@ -10,7 +10,7 @@
   button { background: #ffb300; border: 0; border-radius: 8px; padding: 6px 12px; font-weight: 800; cursor: pointer; }
   #stage { position: relative; height: 260px; overflow: hidden; background: linear-gradient(#e8d29f, #c9a96b); }
   #stage canvas { position: absolute; left: 0; top: 0; }
-  .dom-s { position: absolute; left: 0; top: 0; width: 64px; height: 96px; background: url(../assets/people/cook_ramen_v1.webp) 0 0 / 256px 288px no-repeat; animation: walk 0.46s steps(4) infinite; will-change: transform; }
+  .dom-s { position: absolute; left: 0; top: 0; width: 64px; height: 96px; background: url(/assets/people/cook_ramen_v1.webp) 0 0 / 256px 288px no-repeat; animation: walk 0.46s steps(4) infinite; will-change: transform; }
   @keyframes walk { from { background-position-x: 0; } to { background-position-x: -256px; } }
   pre { margin: 8px 10px; white-space: pre-wrap; font-size: 13px; }
 </style>
@@ -56,7 +56,7 @@ async function testPixi(n) {
   stage.innerHTML = ''; const app = new PIXI.Application();
   await app.init({ width: W(), height: H, backgroundAlpha: 0, antialias: false, resolution: Math.min(window.devicePixelRatio || 1, 2), autoDensity: true, autoStart: false });
   stage.appendChild(app.canvas);
-  const base = await PIXI.Assets.load('../assets/people/cook_ramen_v1.webp');
+  const base = await PIXI.Assets.load('/assets/people/cook_ramen_v1.webp');
   const frames = [0, 1, 2, 3].map(c => new PIXI.Texture({ source: base.source, frame: new PIXI.Rectangle(c * 128, 0, 128, 192) }));
   const as = actors(n), sprites = as.map(() => { const s = new PIXI.AnimatedSprite(frames); s.scale.set(0.5); s.animationSpeed = 0.14; s.play(); app.stage.addChild(s); return s; });
   const r = await measure((t, dt) => { as.forEach((a, i) => { move(a, dt); sprites[i].position.set(a.x, a.y); }); app.ticker.update(t); app.render(); });
