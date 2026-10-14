@@ -17,6 +17,7 @@
   const served = () => gameState.customersServed || 0;
   const cust = recipe => { gameState.customerSlots = [null, null, null, null]; spawnCustomer(recipe); renderCustomers(); };
   const orderNames = ids => ids.map(nm).join(' → ');
+  const cardBtn = (name, btnSel) => () => { const c = [...document.querySelectorAll('.fp-card')].find(x => x.querySelector('.fp-card-name') && x.querySelector('.fp-card-name').textContent.toLowerCase().includes(name)); return c ? c.querySelector(btnSel || '.fp-btn') : null; };
 
   // ---------------------------------------------------------------- pasos
   const S = [];
@@ -31,10 +32,10 @@
   add({ seg: 'Ramen', area: 'ramen', title: '👤 Llega un cliente', target: '#cust-slot-card-0', setup() { cust(RECETAS_RAMEN[0]); }, text: 'Llegó un cliente y pide un <b>ramen Shio</b>. Toca su tarjeta para ver qué lleva el pedido.', done: () => gameState.selectedCustomerModalIndex === 0, assist: () => openCustomerOrderModal(0) });
   add({ seg: 'Ramen', area: 'ramen', title: '📋 El pedido', target: '#customer-order-modal .btn-danger', text: 'Aquí ves el plato y sus ingredientes. Recuerda: caldo Shio, fideos y de adorno chasu, huevo, poro, cebolla china, ajonjolí, nori y moyashi. Toca <b>✕</b> para cerrar.', done: () => gameState.selectedCustomerModalIndex == null, assist: () => closeCustomerOrderModal() });
   add({ seg: 'Ramen', area: 'ramen', stage: null, title: '🥬 Etapa 1: Producción', target: '.kitchen-stage-btn[data-stage="prod"]', text: 'Todo plato empieza preparando insumos. Toca el botón <b>🥬 Producción</b>.', done: () => stg('ramen') === 'prod', assist: () => setKitchenStage('prod') });
-  add({ seg: 'Ramen', area: 'ramen', stage: 'prod', title: '🔪 Cortar poro', target: () => sel('.fp-card .fp-btn[title="Cortar Poro"]'), text: 'Cada ficha es un insumo. Vamos a cortar <b>poro</b> (se usa en el Shio). Toca el botón <b>🔪 Cortar</b> de la ficha «Poro».', done: () => stGet('ramen').board && stGet('ramen').board.key === 'poro', assist: () => stProdStart('ramen', 'poro') });
+  add({ seg: 'Ramen', area: 'ramen', stage: 'prod', title: '🔪 Cortar poro', target: () => cardBtn('poro')() || sel('.fp-card .fp-btn[title="Cortar Poro"]'), text: 'Cada ficha es un insumo. Vamos a cortar <b>poro</b> (se usa en el Shio). Toca el botón <b>🔪 Cortar</b> de la ficha «Poro».', done: () => stGet('ramen').board && stGet('ramen').board.key === 'poro', assist: () => stProdStart('ramen', 'poro') });
   add({ seg: 'Ramen', area: 'ramen', stage: 'prod', title: '🔪 Prepara el cuchillo', target: '#shop-knife', to: '#shop-board', text: 'El poro quedó en la tabla de la izquierda. <b>Arrastra el cuchillo</b> (mantén el dedo sobre él y llévalo) hasta la tabla y suéltalo ahí.', done: () => stGet('ramen').knifeArmed || (stGet('ramen').board && stGet('ramen').board.taps > 0), assist: () => { stGet('ramen').knifeArmed = true; stRenderIfOpen('ramen'); } });
   add({ seg: 'Ramen', area: 'ramen', stage: 'prod', title: '⚡ Corta con tajos rápidos', target: '#shop-board', setup() { base.poro = stGet('ramen').stock.poro; }, text: 'Ahora desliza el dedo <b>rápido de lado a lado</b> sobre el poro, como un tajo. Haz <b>3 tajos</b> (cada vez saliendo de la tabla y volviendo a cruzar): 3 cortes = 1 porción nueva de poro.', done: () => stGet('ramen').stock.poro > base.poro, assist: async () => { stGet('ramen').knifeArmed = true; stRenderIfOpen('ramen'); for (let k = 0; k < 8 && stGet('ramen').stock.poro <= base.poro; k++) { shopChop(); await sleep(520); } } });
-  add({ seg: 'Ramen', area: 'ramen', stage: 'prod', title: '🍜 A cocinar', target: () => sel('.stage-panel-back'), text: '¡Poro listo! Los demás insumos ya están preparados para que no esperes. Toca <b>🍜 Cocinar</b> (arriba a la derecha) para pasar a la etapa 2.', done: () => stg('ramen') === 'cook', assist: () => setKitchenStage('cook') });
+  add({ seg: 'Ramen', area: 'ramen', stage: 'prod', title: '🍜 A cocinar', target: () => sel('.stage-panel-back') || sel('.kitchen-stage-btn[data-stage="cook"]'), text: '¡Poro listo! Los demás insumos ya están preparados para que no esperes. Toca <b>🍜 Cocinar</b> (arriba a la derecha) para pasar a la etapa 2.', done: () => stg('ramen') === 'cook', assist: () => setKitchenStage('cook') });
   add({ seg: 'Ramen', area: 'ramen', stage: 'cook', title: '🍜 Cocer los fideos', target: '#btn-cook-noodles', text: 'Etapa 2: aquí se cocina la base. Primero los <b>fideos</b>: toca la olla «Fideos» para empezar a cocerlos.', done: () => kitchenState.noodles.state !== 'IDLE' || kitchenState.stocks.noodles > 0, assist: () => { if (kitchenState.noodles.state === 'IDLE') handleNoodlesBtnClick(); } });
   add({ seg: 'Ramen', area: 'ramen', stage: 'cook', title: '✨ Recoge los fideos a tiempo', target: '#btn-cook-noodles', text: () => kitchenState.noodles.state === 'COOKING' ? 'Se están cociendo… espera a que la olla brille en dorado (unos 4 segundos).' : 'Los fideos están listos: toca la olla <b>otra vez</b> para recogerlos. Si te demoras, se queman.', done: () => kitchenState.stocks.noodles > 0, assist: async () => { if (kitchenState.noodles.state === 'COOKING') kitchenState.noodles.cookTimeRemaining = 0.05; await sleep(400); if (kitchenState.noodles.state === 'READY') handleNoodlesBtnClick(); } });
   add({ seg: 'Ramen', area: 'ramen', stage: 'cook', title: '🥣 Calentar el caldo Shio', target: '#btn-heat-shio', text: 'Ahora el <b>caldo Shio</b>: toca la hornilla «Caldo Shio» para encenderla. Tarda unos segundos en calentarse.', done: () => kitchenState.shio.fire || kitchenState.stocks.shio > 0, assist: () => { if (!kitchenState.shio.fire) shioToggle(); } });
@@ -55,7 +56,6 @@
   // ===== SALTEADO (Chicken Teriyaki, en sartén) =====
   const TERI = () => RECETAS_SALTEADOS.find(r => r.name === 'Chicken Teriyaki');
   const wk = () => gameState.woks[0];
-  const cardBtn = (name, btnSel) => () => { const c = [...document.querySelectorAll('.fp-card')].find(x => x.querySelector('.fp-card-name') && x.querySelector('.fp-card-name').textContent.toLowerCase().includes(name)); return c ? c.querySelector(btnSel || '.fp-btn') : null; };
   const slotItem = a => stGet(a).slots.findIndex(s => s.item);
   add({ seg: 'Salteado', title: '🥘 Lección: SALTEADO', target: '.kitchen-area-tab-btn[data-area="salteados"]', setup() { cust(TERI()); }, text: 'En esta lección cocinas un plato de Salteado. Llegó un cliente que pide un <b>Chicken Teriyaki</b> (pollo con salsa teriyaki, de acompañamiento arroz gohan y ensalada fría). Toca la pestaña <b>SALTEADO</b>.', done: () => gameState.activeArea === 'salteados', assist: () => switchKitchenArea('salteados') });
   add({ seg: 'Salteado', area: 'salteados', title: '🥬 Producción: la ensalada', target: '.kitchen-stage-btn[data-stage="prod"]', text: 'Primero un insumo del plato: la <b>ensalada fría</b>. Entra a la etapa <b>🥬 Producción</b>.', done: () => stg('salteados') === 'prod', assist: () => setKitchenStage('prod') });
@@ -83,7 +83,7 @@
   const MKT = () => RECETAS_MAKIS.find(r => r.name === 'Maki California');
   const mkb = () => mkGet().build;
   const MK_FILL_IDS = [64, 54, 72];
-  const sideBtn = rx => () => [...document.querySelectorAll('#mk2-side button')].find(b => b.offsetParent !== null && rx.test(b.textContent));
+  const sideBtn = rx => () => sel('button[data-mk-act="press"]') || sel('button[data-mk-act="press2"]') || [...document.querySelectorAll('#mk2-side button')].find(b => b.offsetParent !== null && rx.test(b.textContent));
   add({ seg: 'Makis', title: '🍣 Lección: MAKIS', target: '.kitchen-area-tab-btn[data-area="makis"]', setup() { cust(MKT()); }, text: 'En esta lección armas un maki. Un cliente pide un <b>Maki California</b>: arroz shari, nori, palta, langostino y queso crema, con ajonjolí negro encima. Toca la pestaña <b>MAKIS</b>.', done: () => gameState.activeArea === 'makis', assist: () => switchKitchenArea('makis') });
   add({ seg: 'Makis', info: true, area: 'makis', title: '🥬 Producción de Makis', target: '.kitchen-stage-btn[data-stage="prod"]', text: 'En <b>Producción</b> de Makis se prepara el <b>arroz shari</b> (lavarlo, cocerlo, aliñarlo con zu y abanicarlo), se corta la palta y el queso, se cuece el langostino y se corta el jengibre. Para no hacerte esperar, ya tienes insumos listos.' });
   add({ seg: 'Makis', area: 'makis', title: '🍣 Etapa de armado', target: '.kitchen-stage-btn[data-stage="cook"]', text: 'Entra a la etapa de armado (<b>🍣 Armar</b>): aquí enrollas el maki.', done: () => stg('makis') === 'cook', assist: () => setKitchenStage('cook') });
@@ -93,7 +93,7 @@
   add({ seg: 'Makis', area: 'makis', stage: 'cook', title: '↕️ Extiende hacia abajo', target: '#mk2-board', text: () => `Ahora <b>hacia abajo</b>: arrastra el dedo de arriba abajo, sube y repite (unas 4 pasadas). Avance: ${Math.round(100 * Math.min(1, mkb().sy))} %.`, done: () => mkb().sy >= 1, assist: () => { for (let k = 0; k < 4; k++) mkSpreadStroke('y'); } });
   add({ seg: 'Makis', area: 'makis', stage: 'cook', title: '🟩 El nori', target: () => tile(20), to: '#mk2-board', text: 'Arrastra el <b>Nori</b> sobre el arroz.', done: () => mkb().nori, assist: () => mkDropIngredient(ING(20), document.getElementById('mk2-board')) });
   add({ seg: 'Makis', area: 'makis', stage: 'cook', title: '🥑 Los rellenos', target: () => { const n = MK_FILL_IDS.find(id => !mkb().fills.includes(id)); return n ? tile(n) : null; }, to: '#mk2-board', text: () => `Arrastra al maki los rellenos (en cualquier orden): ${orderNames(MK_FILL_IDS)}. Te marco el que falta.`, done: () => MK_FILL_IDS.every(id => mkb().fills.includes(id)), assist: () => MK_FILL_IDS.forEach(id => mkDropIngredient(ING(id), document.getElementById('mk2-board'))) });
-  add({ seg: 'Makis', area: 'makis', stage: 'cook', title: '🌀 A enrollar', target: () => [...document.querySelectorAll('#game-container button')].find(b => b.offsetParent !== null && /Enrollar/.test(b.textContent)), text: 'Todo listo para enrollar. Toca <b>🌀 Enrollar</b>: verás el maki de lado.', done: () => mkb().rolling || mkGet().slots.some(Boolean), assist: () => mkStartRoll() });
+  add({ seg: 'Makis', area: 'makis', stage: 'cook', title: '🌀 A enrollar', target: () => sel('button[data-mk-act="roll"]') || [...document.querySelectorAll('#game-container button')].find(b => b.offsetParent !== null && /Enrollar/.test(b.textContent)), text: 'Todo listo para enrollar. Toca <b>🌀 Enrollar</b>: verás el maki de lado.', done: () => mkb().rolling || mkGet().slots.some(Boolean), assist: () => mkStartRoll() });
   [['↑ Enrolla (1 de 3)', 1], ['↑ Enrolla (2 de 3)', 3], ['↑ Enrolla (3 de 3)', 5]].forEach(([t, n]) => {
     add({ seg: 'Makis', area: 'makis', stage: 'cook', title: t, target: '#mk2-main', text: 'Desliza el dedo <b>hacia arriba</b> sobre la esterilla de <b>un solo movimiento</b>, ni muy rápido ni muy lento: intenta que la marca caiga en la <b>zona verde</b> de la barra.', done: () => mkGet().slots.some(Boolean) || (mkb().rolling && mkb().step >= n), assist: () => { if (mkb().rolling) mkRollGesture(0, -120, 120, 150); } });
     add({ seg: 'Makis', area: 'makis', stage: 'cook', title: '🤏 Aprieta el rollo', target: sideBtn(/Apretar/), text: 'Después de cada vuelta se <b>aprieta</b>: toca <b>🤏 Apretar</b>.', done: () => mkGet().slots.some(Boolean) || (mkb().rolling && mkb().step >= n + 1), assist: () => { if (mkb().rolling) mkPress(); } });
@@ -162,9 +162,12 @@
   .gu-ring.two { border-style: dashed; border-color: #80d8ff; box-shadow: 0 0 0 3px rgba(0,150,255,0.35), 0 0 16px 3px rgba(128,216,255,0.7); }
   .gu-ring.ok { border-color: #69f0ae; box-shadow: 0 0 22px 6px rgba(105,240,174,0.9); animation: none; }
   @keyframes guPulse { 50% { transform: scale(1.04); opacity: 0.85; } }
-  .gu-hand { position: fixed; font-size: 30px; pointer-events: none; animation: guHand 0.9s ease-in-out infinite; display: none; z-index: 2; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.6)); }
-  @keyframes guHand { 50% { transform: translateY(-9px); } }
-  .gu-card { position: fixed; width: min(380px, 52vw); background: #fff8e6; color: #3b2a1a; border: 3px solid #7a5a2a; border-radius: 14px; padding: 8px 10px 8px; pointer-events: auto; box-shadow: 0 6px 18px rgba(0,0,0,0.5); z-index: 3; transition: top 0.25s, left 0.25s; }
+  .gu-hand { position: fixed; font-size: 30px; pointer-events: none; animation: guHand 0.9s ease-in-out infinite; display: none; z-index: 3; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.6)); }
+  @keyframes guHand { 50% { transform: translateY(-7px); } }
+  .gu-drag-svg { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; display: none; }
+  #gu-drag-path { animation: guDash 1.2s linear infinite; }
+  @keyframes guDash { to { stroke-dashoffset: -24; } }
+  .gu-card { position: fixed; width: min(370px, 50vw); max-height: calc(100vh - 16px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: rgba(122, 90, 42, 0.4) transparent; background: #fff8e6; color: #3b2a1a; border: 3px solid #7a5a2a; border-radius: 14px; padding: 8px 10px 8px; pointer-events: auto; box-shadow: 0 6px 20px rgba(0,0,0,0.55); z-index: 4; transition: top 0.22s, left 0.22s; }
   .gu-head { display: flex; justify-content: space-between; font-size: 10px; font-weight: 900; color: #8a6a35; text-transform: uppercase; letter-spacing: 0.4px; }
   .gu-bar { height: 5px; background: #e6d7b0; border-radius: 3px; overflow: hidden; margin: 3px 0 4px; } .gu-bar i { display: block; height: 100%; background: linear-gradient(90deg, #ffb300, #43a047); width: 0; transition: width 0.4s; }
   .gu-title { margin: 0 0 2px; font-size: 14px; color: #7a1f1f; line-height: 1.15; }
@@ -175,16 +178,22 @@
   .gu-ok { background: #43a047; color: #fff; } .gu-skip { background: #e6d7b0; color: #5a3a12; } .gu-exit { background: #b71c1c; color: #fff; } .gu-btns .sp { flex: 1; }
   .gu-ask { display: none; font-size: 12px; font-weight: 800; margin-top: 6px; background: #ffe0e0; border-radius: 8px; padding: 5px 8px; }
   .gu-ask button { margin-left: 6px; }
-  @media (max-height: 460px) { .gu-card { width: min(350px, 47vw); padding: 6px 9px 6px; } .gu-title { font-size: 13px; } .gu-text { font-size: 11.5px; line-height: 1.25; } .gu-btns { margin-top: 4px; } .gu-btns button { padding: 4px 10px; } }
-  .gu-menuwrap { position: fixed; inset: 0; z-index: 9850; background: rgba(0,0,0,0.65); display: flex; align-items: center; justify-content: center; padding: 8px; font-family: 'Fredoka','Nunito',system-ui,sans-serif; color: #3b2a1a; }
-  .gu-menubox { width: min(640px, 100%); max-height: 100%; overflow-y: auto; background: #fff8e6; border: 3px solid #7a5a2a; border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
-  .gu-menubox h3 { margin: 0; color: #7a1f1f; font-size: 18px; } .gu-menubox p { margin: 0; font-size: 12.5px; font-weight: 600; line-height: 1.35; } .gu-menubox p b { color: #b71c1c; }
-  .gu-lessons { display: grid; grid-template-columns: repeat(auto-fit, minmax(135px, 1fr)); gap: 8px; }
-  .gu-lesson { position: relative; background: #f4ead2; border: 2px solid #c9b78a; border-radius: 12px; padding: 7px 8px 22px; cursor: pointer; display: flex; flex-direction: column; gap: 2px; min-height: 108px; }
-  .gu-lesson b { font-size: 14px; color: #7a1f1f; } .gu-lesson small { font-size: 10.5px; color: #6b5a3a; font-weight: 700; line-height: 1.2; } .gu-lesson em { font-style: normal; font-size: 11px; font-weight: 900; color: #8a6a35; margin-top: auto; }
-  .gu-lesson .rw { position: absolute; right: 6px; bottom: 4px; background: #ffe082; color: #5a3a00; border-radius: 9px; padding: 0 7px; font-size: 11px; font-weight: 900; }
+  @media (max-height: 460px) {
+    .gu-card { width: min(340px, 46vw); padding: 6px 9px 6px; max-height: calc(100vh - 10px); }
+    .gu-title { font-size: 13px; margin: 0 0 2px; }
+    .gu-text { font-size: 11px; line-height: 1.25; }
+    .gu-btns { margin-top: 4px; gap: 4px; }
+    .gu-btns button { padding: 4px 8px; font-size: 11px; }
+  }
+  .gu-menuwrap { position: fixed; inset: 0; z-index: 9850; background: rgba(0,0,0,0.65); display: flex; align-items: center; justify-content: center; padding: 8px; font-family: 'Fredoka','Nunito',system-ui,sans-serif; color: #3b2a1a; box-sizing: border-box; }
+  .gu-menubox { width: min(640px, 100%); max-height: calc(100vh - 16px); overflow-y: auto; background: #fff8e6; border: 3px solid #7a5a2a; border-radius: 16px; padding: 10px 14px; display: flex; flex-direction: column; gap: 6px; box-sizing: border-box; }
+  .gu-menubox h3 { margin: 0; color: #7a1f1f; font-size: 17px; } .gu-menubox p { margin: 0; font-size: 12px; font-weight: 600; line-height: 1.3; } .gu-menubox p b { color: #b71c1c; }
+  .gu-lessons { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 6px; }
+  .gu-lesson { position: relative; background: #f4ead2; border: 2px solid #c9b78a; border-radius: 12px; padding: 6px 8px 18px; cursor: pointer; display: flex; flex-direction: column; gap: 2px; min-height: 92px; }
+  .gu-lesson b { font-size: 13.5px; color: #7a1f1f; } .gu-lesson small { font-size: 10px; color: #6b5a3a; font-weight: 700; line-height: 1.15; } .gu-lesson em { font-style: normal; font-size: 10.5px; font-weight: 900; color: #8a6a35; margin-top: auto; }
+  .gu-lesson .rw { position: absolute; right: 5px; bottom: 3px; background: #ffe082; color: #5a3a00; border-radius: 8px; padding: 0 6px; font-size: 10px; font-weight: 900; }
   .gu-lesson.next { border-color: #43a047; background: #e8f5e0; box-shadow: 0 0 0 2px rgba(67,160,71,0.35); } .gu-lesson.next em { color: #2e7d32; } .gu-lesson.done { background: #eef3e6; } .gu-lesson.done em { color: #2e7d32; }
-  .gu-mbtns { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; } .gu-mb { border: 0; border-radius: 10px; padding: 7px 13px; font: 900 12.5px inherit; font-family: inherit; cursor: pointer; background: #c9a24a; color: #2b1a08; } .gu-mb.green { background: #43a047; color: #fff; } .gu-mb.gold { background: #ffb300; } .gu-mb.ghost { background: #e6d7b0; }
+  .gu-mbtns { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; } .gu-mb { border: 0; border-radius: 10px; padding: 6px 12px; font: 900 12px inherit; font-family: inherit; cursor: pointer; background: #c9a24a; color: #2b1a08; } .gu-mb.green { background: #43a047; color: #fff; } .gu-mb.gold { background: #ffb300; } .gu-mb.ghost { background: #e6d7b0; }
   body.guia-on #btn-free-menu { display: none !important; }
   `;
   function css() { if (document.getElementById('gu-css')) return; const s = document.createElement('style'); s.id = 'gu-css'; s.textContent = CSS; document.head.appendChild(s); }
@@ -192,11 +201,36 @@
     let el = document.getElementById('guia');
     if (!el) {
       el = document.createElement('div'); el.id = 'guia';
-      el.innerHTML = `<div class="gu-ring" id="gu-r1"></div><div class="gu-ring two" id="gu-r2"></div><div class="gu-hand" id="gu-hand">👆</div>
-        <div class="gu-card" id="gu-card"><div class="gu-head"><span id="gu-seg"></span><span id="gu-n"></span></div><div class="gu-bar"><i id="gu-bar"></i></div>
-        <h4 class="gu-title" id="gu-title"></h4><p class="gu-text" id="gu-text"></p><p class="gu-tip" id="gu-tip"></p>
-        <div class="gu-btns"><button class="gu-exit" onclick="Guia.askExit()" title="Salir del tutorial">✕</button><span class="sp"></span><button class="gu-skip" id="gu-skip" onclick="Guia.skip()">Saltar paso</button><button class="gu-ok" id="gu-ok" onclick="Guia.ok()">Entendido ▶</button></div>
-        <div class="gu-ask" id="gu-ask">¿Salir del tutorial? <button class="gu-skip" onclick="Guia.askExit(true)">Seguir</button><button class="gu-exit" onclick="Guia.exit()">Salir</button></div></div>`;
+      el.innerHTML = `
+        <div class="gu-ring" id="gu-r1"></div>
+        <div class="gu-ring two" id="gu-r2"></div>
+        <svg id="gu-drag-svg" class="gu-drag-svg">
+          <defs>
+            <linearGradient id="guLineGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#ffd54f"/>
+              <stop offset="100%" stop-color="#00e5ff"/>
+            </linearGradient>
+            <marker id="guArrowHead" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="#00e5ff"/>
+            </marker>
+          </defs>
+          <path id="gu-drag-path" stroke="url(#guLineGrad)" stroke-width="3" stroke-dasharray="6 6" fill="none" marker-end="url(#guArrowHead)"/>
+        </svg>
+        <div class="gu-hand" id="gu-hand">👆</div>
+        <div class="gu-card" id="gu-card">
+          <div class="gu-head"><span id="gu-seg"></span><span id="gu-n"></span></div>
+          <div class="gu-bar"><i id="gu-bar"></i></div>
+          <h4 class="gu-title" id="gu-title"></h4>
+          <p class="gu-text" id="gu-text"></p>
+          <p class="gu-tip" id="gu-tip"></p>
+          <div class="gu-btns">
+            <button class="gu-exit" onclick="Guia.askExit()" title="Salir del tutorial">✕</button>
+            <span class="sp"></span>
+            <button class="gu-skip" id="gu-skip" onclick="Guia.skip()">Saltar paso</button>
+            <button class="gu-ok" id="gu-ok" onclick="Guia.ok()">Entendido ▶</button>
+          </div>
+          <div class="gu-ask" id="gu-ask">¿Salir del tutorial? <button class="gu-skip" onclick="Guia.askExit(true)">Seguir</button><button class="gu-exit" onclick="Guia.exit()">Salir</button></div>
+        </div>`;
       document.body.appendChild(el);
     }
     return el;
@@ -210,15 +244,82 @@
     return null;
   }
   const rectOf = e => { if (!e) return null; const r = e.getBoundingClientRect(); return r.width > 2 && r.height > 2 ? r : null; };
-  function place(ring, r, pad) { if (!r) { ring.style.display = 'none'; return; } ring.style.display = 'block'; ring.style.left = (r.left - pad) + 'px'; ring.style.top = (r.top - pad) + 'px'; ring.style.width = (r.width + pad * 2) + 'px'; ring.style.height = (r.height + pad * 2) + 'px'; }
+  function place(ring, r, pad) {
+    if (!r) { ring.style.display = 'none'; return; }
+    ring.style.display = 'block';
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const l = Math.max(2, Math.min(vw - 24, r.left - pad));
+    const t = Math.max(2, Math.min(vh - 24, r.top - pad));
+    const w = Math.max(16, Math.min(vw - l - 2, r.width + pad * 2));
+    const h = Math.max(16, Math.min(vh - t - 2, r.height + pad * 2));
+    ring.style.left = l + 'px';
+    ring.style.top = t + 'px';
+    ring.style.width = w + 'px';
+    ring.style.height = h + 'px';
+  }
   const overlap = (a, b) => { if (!a || !b) return 0; const w = Math.min(a.right, b.right) - Math.max(a.left, b.left), h = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top); return w > 0 && h > 0 ? w * h : 0; };
   function placeCard(r1, r2) {
-    const card = document.getElementById('gu-card'), vw = innerWidth, vh = innerHeight, w = card.offsetWidth, h = card.offsetHeight, m = 8;
-    const topY = 46, botY = vh - h - m;
-    const cands = [[(vw - w) / 2, botY], [m, botY], [vw - w - m, botY], [(vw - w) / 2, topY], [m, topY], [vw - w - m, topY]];
+    const card = document.getElementById('gu-card');
+    if (!card) return;
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const w = card.offsetWidth || 340, h = card.offsetHeight || 130;
+    const m = 8;
+
+    const topY = Math.max(m, Math.min(vh - h - m, 46));
+    const botY = Math.max(m, vh - h - m);
+    const midY = Math.max(m, Math.min(vh - h - m, (vh - h) / 2));
+
+    const leftX = m;
+    const rightX = Math.max(m, vw - w - m);
+    const centerX = Math.max(m, Math.min(vw - w - m, (vw - w) / 2));
+
+    const cands = [
+      [rightX, botY],
+      [leftX, botY],
+      [centerX, botY],
+      [rightX, topY],
+      [leftX, topY],
+      [centerX, topY],
+      [rightX, midY],
+      [leftX, midY]
+    ];
+
     let best = null;
-    cands.forEach(([x, y], k) => { const c = { left: x, top: y, right: x + w, bottom: y + h }, o = overlap(c, r1) * 2 + overlap(c, r2) * 1.5 + k * 40; if (!best || o < best.o) best = { x, y, o }; });
-    card.style.left = Math.max(m, best.x) + 'px'; card.style.top = Math.max(m, best.y) + 'px';
+    for (let k = 0; k < cands.length; k++) {
+      const [x, y] = cands[k];
+      const c = { left: x, top: y, right: x + w, bottom: y + h };
+      const o1 = overlap(c, r1);
+      const o2 = overlap(c, r2);
+
+      let cost = o1 * 100 + o2 * 60;
+
+      if (r1) {
+        const r1Center = r1.left + r1.width / 2;
+        if (r1Center < vw / 2 && x === leftX) cost += 40;
+        if (r1Center >= vw / 2 && x === rightX) cost += 40;
+        if (r1.top > vh / 2 && y === botY) cost += 50;
+        if (r1.bottom < vh / 2 && y === topY) cost += 50;
+      }
+
+      if (r1 && r2) {
+        const mx = (r1.left + r2.left) / 2;
+        const my = (r1.top + r2.top) / 2;
+        if (x <= mx && mx <= x + w && y <= my && my <= y + h) {
+          cost += 35;
+        }
+      }
+
+      cost += k * 3;
+
+      if (!best || cost < best.cost) {
+        best = { x, y, cost };
+      }
+    }
+
+    const finalX = Math.max(m, Math.min(vw - w - m, best ? best.x : rightX));
+    const finalY = Math.max(m, Math.min(vh - h - m, best ? best.y : botY));
+    card.style.left = finalX + 'px';
+    card.style.top = finalY + 'px';
   }
   function wrongPlace(s) {
     if (s.area && gameState.activeArea !== s.area) return { t: `.kitchen-area-tab-btn[data-area="${s.area}"]`, msg: `Primero ve a la pestaña <b>${AREA_NAME[s.area]}</b> (arriba).` };
@@ -246,9 +347,47 @@
     const tEl = document.getElementById('gu-text'); if (tEl.dataset.k !== txt || force) { tEl.innerHTML = txt; tEl.dataset.k = txt; }
     const t1 = resolve(wp ? wp.t : s.target), t2 = wp ? null : resolve(s.to);
     const r1 = rectOf(t1), r2 = rectOf(t2);
-    place(document.getElementById('gu-r1'), r1, 5); place(document.getElementById('gu-r2'), r2, 5);
+    place(document.getElementById('gu-r1'), r1, 5);
+    place(document.getElementById('gu-r2'), r2, 5);
+
+    // Conector de trayectoria entre r1 y r2 para acciones de arrastrar
+    const dragSvg = document.getElementById('gu-drag-svg');
+    const dragPath = document.getElementById('gu-drag-path');
+    if (r1 && r2 && !s.info && dragSvg && dragPath) {
+      dragSvg.style.display = 'block';
+      const x1 = r1.left + r1.width / 2;
+      const y1 = r1.top + r1.height / 2;
+      const x2 = r2.left + r2.width / 2;
+      const y2 = r2.top + r2.height / 2;
+      const dx = x2 - x1, dy = y2 - y1;
+      const cx = (x1 + x2) / 2 - (dy * 0.15);
+      const cy = (y1 + y2) / 2 + (dx * 0.15);
+      dragPath.setAttribute('d', `M ${x1} ${y1} Q ${cx} ${cy} ${x2} ${y2}`);
+    } else if (dragSvg) {
+      dragSvg.style.display = 'none';
+    }
+
+    // Manita indicadora estrictamente acotada a la pantalla
     const hand = document.getElementById('gu-hand');
-    if (r1 && !s.info) { hand.style.display = 'block'; hand.style.left = (r1.left + r1.width / 2 - 14) + 'px'; hand.style.top = (Math.min(innerHeight - 40, r1.bottom - 6)) + 'px'; } else hand.style.display = 'none';
+    if (r1 && !s.info) {
+      hand.style.display = 'block';
+      const vw = window.innerWidth, vh = window.innerHeight;
+      const handX = Math.max(6, Math.min(vw - 38, r1.left + r1.width / 2 - 14));
+      const nearBottom = r1.bottom > vh - 68;
+      let handY;
+      if (nearBottom) {
+        hand.textContent = '👇';
+        handY = Math.max(4, r1.top - 28);
+      } else {
+        hand.textContent = '👆';
+        handY = Math.min(vh - 38, Math.max(4, r1.bottom - 6));
+      }
+      hand.style.left = handX + 'px';
+      hand.style.top = handY + 'px';
+    } else if (hand) {
+      hand.style.display = 'none';
+    }
+
     placeCard(r1, r2);
     const tip = document.getElementById('gu-tip');
     if (!s.info && Date.now() - tEnter > 28000 && s.assist) { tip.textContent = '¿Atascado? Toca «Saltar paso» y lo hago por ti.'; tip.style.display = 'block'; }

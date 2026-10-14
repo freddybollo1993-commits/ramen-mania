@@ -1122,6 +1122,7 @@
 
   /* Sala de transiciones */
   .ini-room { display: none; position: absolute; inset: 0; z-index: 48; padding-top: 44px; box-sizing: border-box; background: #1f0e08; overflow: hidden; }
+  #start-screen.ini-on .ini-room { padding-top: 0; }
   .ini-room.arrive { animation: iniArrive 0.36s cubic-bezier(.1,.7,.2,1); }
   .ini-room.leaving { animation: iniLeave 0.32s cubic-bezier(.6,0,1,.5) forwards; }
   @keyframes iniArrive { from { transform: scale(1.15); opacity: 0.2; } to { transform: none; opacity: 1; } }
@@ -1380,6 +1381,13 @@
     if (it.reqTut && !tutDone()) {
       sfx('deny');
       try { showStationToast('🔒 Completa primero la lección de Ramen con el Maestro.'); } catch (e) {}
+      setTimeout(() => {
+        if (!S) return;
+        S.sub = 'aprender';
+        S.item = 'aula';
+        renderSidebar();
+        renderShowcase();
+      }, 350);
       return;
     }
 
@@ -1501,7 +1509,7 @@
           ${(it.pills || []).map(pill => `<span class="hub-pill">${pill}</span>`).join('')}
         </div>
         <button class="hub-cta-btn ${isLocked ? 'locked' : ''}" onclick="Inicio.trigger()">
-          ${isLocked ? '🔒 BLOQUEADO' : (it.ctaText || '▶ JUGAR AHORA')}
+          ${isLocked ? '🔒 HACER LECCIÓN DE RAMEN' : (it.ctaText || '▶ JUGAR AHORA')}
         </button>
       </div>
     `;
