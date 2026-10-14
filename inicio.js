@@ -102,7 +102,12 @@
 
   // ---------- estado de la escena ----------
   let S = null;
-  const cam = { s: 1, tx: 0, ty: 0, fit: 1, focus: null };
+  const cam = { s: 1, tx: 0, ty: 0, fit: 1, focus: null, rx: 0, ry: 0, angleIdx: 0 };
+  const ANGLES = [
+    { n: 'Normal', rx: 0, ry: 0, i: '📐' },
+    { n: 'Cenital', rx: 14, ry: -6, i: '🔭' },
+    { n: 'Perspectiva', rx: -5, ry: 10, i: '🏮' }
+  ];
   const DOOR = [-0.9, 4.6];
   const STOOLS = Array.from({ length: 7 }, (_, i) => [6.0 + i * 1.78, 5.05]);
   const TABLES = [[7.4, 8.4], [10.6, 9.6], [12.0, 7.1]];
@@ -114,8 +119,8 @@
   #start-screen .ini-wrap, #start-screen .ini-back { display: none; }
   #start-screen.ini-on .ini-wrap { display: block; }
   #start-screen:not(.ini-on) .ini-back { display: block; }
-  .ini-wrap { position: absolute; left: 0; right: 0; top: 0; bottom: 0; z-index: 5; overflow: hidden; background: radial-gradient(ellipse at 50% 45%, #5a3320 0%, #2b150d 70%, #1a0b07 100%); }
-  .ini-view { position: absolute; inset: 0; touch-action: none; user-select: none; -webkit-user-select: none; overflow: hidden; }
+  .ini-view { position: absolute; inset: 0; touch-action: none; user-select: none; -webkit-user-select: none; overflow: hidden; perspective: 1200px; perspective-origin: 50% 50%; }
+  .ini-view.moving { cursor: grabbing; cursor: -webkit-grabbing; }
   .ini-tint { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: multiply; z-index: 4; transition: background 2s; }
   .ini-pin { position: absolute; transform: translate(-50%, -100%) scale(var(--pinS, 1)); transform-origin: 50% 100%; background: linear-gradient(#f4dca4, #d4a85c); border: 2px solid #6b4a24; border-radius: 8px; padding: 1px 6px 2px; font: 900 12.5px/1.15 'Fredoka', sans-serif; color: #3b2208; text-align: center; z-index: 8000; box-shadow: 0 2px 0 #6b4a24, 0 3px 6px rgba(0,0,0,0.35); white-space: nowrap; pointer-events: none; }
   .ini-pin small { display: block; font-size: 9px; font-weight: 800; color: #5b3a12; }
@@ -172,6 +177,13 @@
     .ini-hi small { display: none; }
     .ini-wrap.hub .ini-dock { right: 8px; bottom: 8px; width: min(320px, calc(100% - 156px)); padding: 8px; }
     .ini-wrap.hub .ini-dock .ini-opt { flex: 1 1 100%; min-height: 44px; }
+  }
+  .ini-cam-ctl { position: absolute; right: 14px; top: 52px; z-index: 35; display: flex; flex-direction: column; gap: 6px; pointer-events: none; }
+  .ini-cam-btn { pointer-events: auto; width: 34px; height: 34px; border-radius: 50%; border: 2.5px solid rgba(107,74,36,0.9); background: linear-gradient(135deg, rgba(255,248,230,0.95), rgba(244,226,180,0.95)); backdrop-filter: blur(8px); color: #5b3a12; font-size: 15px; font-weight: 900; box-shadow: 0 2px 0 rgba(74,50,22,0.9), 0 3px 8px rgba(0,0,0,0.35); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transition: transform 0.12s, box-shadow 0.12s; }
+  .ini-cam-btn:active { transform: translateY(1px); box-shadow: 0 1px 0 rgba(74,50,22,0.9); }
+  @media (max-width: 640px) {
+    .ini-cam-ctl { right: 8px; top: 48px; gap: 5px; }
+    .ini-cam-btn { width: 30px; height: 30px; font-size: 13px; }
   }
   /* ---- transición «entrar a la sala»: zoom que acelera, desenfoque horizontal y rayas de velocidad ---- */
   .ini-room { display: none; position: absolute; inset: 0; z-index: 48; padding-top: 44px; box-sizing: border-box; background: #1f0e08; overflow: hidden; }
@@ -491,17 +503,52 @@
 
   // ---------- cámara ----------
   const vsize = () => ({ w: S.view.clientWidth || 800, h: S.view.clientHeight || 300 });
-  function applyCam(anim) { S.world.style.setProperty('--pinS', Math.min(1, Math.pow(cam.fit / cam.s, 0.7)).toFixed(3)); S.world.classList.toggle('anim', !!anim); S.world.style.transform = `translate(${cam.tx.toFixed(1)}px, ${cam.ty.toFixed(1)}px) scale(${cam.s.toFixed(4)})`; }
+  function applyCam(anim) {
+    S.world.style.setProperty('--pinS', Math.min(1, Math.pow(cam.fit / cam.s, 0.7)).toFixed(3));
+    S.world.classList.toggle('anim', !!anim);
+    const tilt = (cam.rx || cam.ry) ? ` rotateX(${cam.rx.toFixed(2)}deg) rotateY(${cam.ry.toFixed(2)}deg)` : '';
+    S.world.style.transform = `translate(${cam.tx.toFixed(1)}px, ${cam.ty.toFixed(1)}px) scale(${cam.s.toFixed(4)})${tilt}`;
+  }
+  function clampCam() {
+    const { w, h } = vsize(), sw = WW * cam.s, sh = WH * cam.s;
+    const pad = 120;
+    cam.tx = sw <= w ? (w - sw) / 2 : Math.min(pad, Math.max(w - sw - pad, cam.tx));
+    cam.ty = sh <= h ? (h - sh) / 2 : Math.min(pad, Math.max(h - sh - pad, cam.ty));
+  }
+  function zoomAt(px, py, f) {
+    const ns = Math.min(cam.fit * 4.0, Math.max(cam.fit * 0.85, cam.s * f)), k = ns / cam.s;
+    cam.tx = px - (px - cam.tx) * k; cam.ty = py - (py - cam.ty) * k; cam.s = ns;
+    clampCam();
+    applyCam(false);
+  }
+  function zoom(f) {
+    const { w, h } = vsize();
+    zoomAt(w / 2, h / 2, f);
+  }
+  function cycleAngle() {
+    cam.angleIdx = ((cam.angleIdx || 0) + 1) % ANGLES.length;
+    const a = ANGLES[cam.angleIdx];
+    cam.rx = a.rx; cam.ry = a.ry;
+    applyCam(true);
+    const b = S && S.stage && S.stage.querySelector('.ini-cam-angle');
+    if (b) b.textContent = a.i;
+    try { if (window.showStationToast) showStationToast('Ángulo de vista: ' + a.n); } catch (e) {}
+  }
   function fit(anim) {
     const { w, h } = vsize(); S.vw = w; S.vh = h;
-    const top = Math.min(30, h * 0.08);                       // la barra superior (audio, propinas, perfil) tapa los primeros píxeles
+    const top = Math.min(30, h * 0.08);
     cam.fit = Math.min(w / WW, (h - top - 4) / (WH - 8)); cam.s = cam.fit; cam.focus = null;
+    cam.rx = 0; cam.ry = 0; cam.angleIdx = 0;
+    const b = S && S.stage && S.stage.querySelector('.ini-cam-angle');
+    if (b) b.textContent = '📐';
     cam.tx = (w - WW * cam.s) / 2; cam.ty = top - 8 * cam.s; applyCam(anim);
   }
   function focusOn(id, anim) {
     const z = ZONES[id]; if (!z) return fit(anim); const { w, h } = vsize(), f = z.foc, dock = S.hub ? 0 : Math.min(300, w * 0.4) + 6, dockH = S.hub && S.dock.classList.contains('open') ? 118 : 0;
     const s = cam.fit * f[3] * 0.62, cx = sx(f[0], f[1]), cy = sy(f[0], f[1], f[2]);
-    cam.s = s; cam.tx = (w - dock) / 2 - cx * s; cam.ty = (h - dockH) / 2 - cy * s; cam.focus = { z: id }; applyCam(anim !== false);
+    cam.s = s; cam.tx = (w - dock) / 2 - cx * s; cam.ty = (h - dockH) / 2 - cy * s; cam.focus = { z: id };
+    cam.rx = 0; cam.ry = 0;
+    applyCam(anim !== false);
   }
   function worldPt(cx, cy) { const r = S.view.getBoundingClientRect(); return [(cx - r.left - cam.tx) / cam.s, (cy - r.top - cam.ty) / cam.s]; }
   function hitZone(wx, wy) {
@@ -698,6 +745,14 @@
     const tint = document.createElement('div'); tint.className = 'ini-tint'; stage.appendChild(tint);
     const hublist = document.createElement('div'); hublist.className = 'ini-hublist'; stage.appendChild(hublist);
     const dock = document.createElement('div'); dock.className = 'ini-dock'; stage.appendChild(dock);
+    const camCtl = document.createElement('div'); camCtl.className = 'ini-cam-ctl';
+    camCtl.innerHTML = `
+      <button class="ini-cam-btn" title="Acercar vista" onclick="Inicio.zoom(1.3)">＋</button>
+      <button class="ini-cam-btn" title="Alejar vista" onclick="Inicio.zoom(0.77)">－</button>
+      <button class="ini-cam-btn ini-cam-angle" title="Cambiar ángulo: Normal / Cenital / Lateral" onclick="Inicio.cycleAngle()">📐</button>
+      <button class="ini-cam-btn" title="Centrar restaurante" onclick="Inicio.fit()">⟲</button>
+    `;
+    stage.appendChild(camCtl);
     const play = document.createElement('button'); play.className = 'ini-play'; play.onclick = () => { try { if (firstTime() && window.Guia) Guia.begin(); else handleStartPlayClick(); } catch (e) {} }; stage.appendChild(play);
     const gear = document.createElement('button'); gear.className = 'ini-gear'; gear.textContent = '⚙️'; gear.setAttribute('aria-label', 'Ajustes'); gear.onclick = () => { fit(true); openPanel(gearPanel()); }; stage.appendChild(gear);
     const hint = document.createElement('div'); hint.className = 'ini-hint'; hint.textContent = 'Toca una zona del local'; stage.appendChild(hint);
@@ -706,24 +761,79 @@
     if (!document.getElementById('ini-filters')) { const d = document.createElement('div'); d.id = 'ini-filters'; d.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden'; d.innerHTML = '<svg width="0" height="0"><filter id="iniMB1" x="-10%" y="-2%" width="120%" height="104%"><feGaussianBlur stdDeviation="4 0"/></filter><filter id="iniMB2" x="-15%" y="-2%" width="130%" height="104%"><feGaussianBlur stdDeviation="10 0"/></filter><filter id="iniMB3" x="-20%" y="-2%" width="140%" height="104%"><feGaussianBlur stdDeviation="22 0"/></filter></svg>'; document.body.appendChild(d); }
     try { if ((navigator.deviceMemory && navigator.deviceMemory <= 2) || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2)) wrap.classList.add('ini-nofx'); } catch (e) {}
     sc.appendChild(wrap);
-    S = { wrap, stage, hublist, room, fx, view, world, layers, tint, dock, play, vis: new Set(), opt: 'jugar', hub: false, cur: null, busy: false, ents: [], cooks: [], waiters: [], guests: [], shapes: [], last: performance.now(), sig: '', ptr: null, tier: 0, lit: {}, vw: 0, vh: 0 };
-    view.addEventListener('pointerdown', e => { S.ptr = { x: e.clientX, y: e.clientY, t: performance.now() }; });
-    view.addEventListener('pointerup', e => {
-      const p = S.ptr; S.ptr = null; if (!p || Math.hypot(e.clientX - p.x, e.clientY - p.y) > 10 || performance.now() - p.t > 700) return;
-      const [wx, wy] = worldPt(e.clientX, e.clientY), id = hitZone(wx, wy);
-      if (S.hub) {
-        if (!id) {
-          if (S.dock.classList.contains('open') || cam.focus) closeZone();
-          return;
-        }
-        if (id === 'maestro') Inicio.pick('aprender');
-        else if (id === 'caja' || id === 'cuchillos' || id === 'pizarra' || id === 'libro' || id === 'baul') Inicio.pick('restaurante');
-        else Inicio.pick('jugar');
-        return;
+    S = { wrap, stage, hublist, room, fx, view, world, layers, tint, dock, play, vis: new Set(), opt: 'jugar', hub: false, cur: null, busy: false, ents: [], cooks: [], waiters: [], guests: [], shapes: [], last: performance.now(), sig: '', tier: 0, lit: {}, vw: 0, vh: 0 };
+    const ptrs = new Map();
+    let drag = null, pinch = null;
+    view.addEventListener('pointerdown', e => {
+      if (e.target.closest && e.target.closest('button, .ini-cam-btn, .ini-hi, .ini-opt')) return;
+      try { view.setPointerCapture(e.pointerId); } catch (err) {}
+      ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (ptrs.size === 1) {
+        drag = { x0: e.clientX, y0: e.clientY, tx: cam.tx, ty: cam.ty, moved: false, t: performance.now() };
+      } else if (ptrs.size === 2) {
+        const [a, b] = [...ptrs.values()];
+        pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), s: cam.s };
+        if (drag) drag.moved = true;
       }
-      if (id) openZone(id); else if (cam.focus || S.dock.classList.contains('open')) closeZone();
     });
-    view.addEventListener('pointercancel', () => { S.ptr = null; });
+    view.addEventListener('pointermove', e => {
+      const p = ptrs.get(e.pointerId); if (!p) return;
+      p.x = e.clientX; p.y = e.clientY;
+      if (ptrs.size === 2 && pinch) {
+        const [a, b] = [...ptrs.values()], d = Math.hypot(a.x - b.x, a.y - b.y), r = view.getBoundingClientRect();
+        zoomAt((a.x + b.x) / 2 - r.left, (a.y + b.y) / 2 - r.top, pinch.s * d / Math.max(1, pinch.d) / cam.s);
+        cam.focus = null;
+      } else if (ptrs.size === 1 && drag) {
+        const dx = e.clientX - drag.x0, dy = e.clientY - drag.y0;
+        if (!drag.moved && Math.hypot(dx, dy) > 8) {
+          drag.moved = true;
+          view.classList.add('moving');
+          cam.focus = null;
+        }
+        if (drag.moved) {
+          cam.tx = drag.tx + dx;
+          cam.ty = drag.ty + dy;
+          if (!cam.angleIdx) {
+            cam.rx = Math.max(-10, Math.min(10, -dy * 0.05));
+            cam.ry = Math.max(-12, Math.min(12, dx * 0.05));
+          }
+          clampCam();
+          applyCam(false);
+        }
+      }
+    });
+    const up = e => {
+      if (!ptrs.has(e.pointerId)) return;
+      ptrs.delete(e.pointerId);
+      if (ptrs.size === 0) {
+        view.classList.remove('moving');
+        if (drag && drag.moved) {
+          if (!cam.angleIdx) { cam.rx = 0; cam.ry = 0; applyCam(true); }
+        } else if (drag && !drag.moved && performance.now() - drag.t < 600) {
+          const [wx, wy] = worldPt(e.clientX, e.clientY), id = hitZone(wx, wy);
+          if (S.hub) {
+            if (!id) {
+              if (S.dock.classList.contains('open') || cam.focus) closeZone();
+              return;
+            }
+            if (id === 'maestro') Inicio.pick('aprender');
+            else if (id === 'caja' || id === 'cuchillos' || id === 'pizarra' || id === 'libro' || id === 'baul') Inicio.pick('restaurante');
+            else Inicio.pick('jugar');
+            return;
+          }
+          if (id) openZone(id); else if (cam.focus || S.dock.classList.contains('open')) closeZone();
+        }
+        drag = null; pinch = null;
+      }
+    };
+    view.addEventListener('pointerup', up);
+    view.addEventListener('pointercancel', up);
+    view.addEventListener('wheel', e => {
+      e.preventDefault();
+      const r = view.getBoundingClientRect();
+      cam.focus = null;
+      zoomAt(e.clientX - r.left, e.clientY - r.top, e.deltaY < 0 ? 1.15 : 0.87);
+    }, { passive: false });
     window.addEventListener('resize', () => { if (!S) return; measure(); setTimeout(() => { if (cam.focus) focusOn(cam.focus.z, false); else fit(false); }, 60); });
     S.timer = setInterval(tick, 33);
     return true;
@@ -765,6 +875,9 @@
   const Inicio = window.Inicio = {
     act(k, arg) { try { playSound('click'); } catch (e) {} const f = ACT[k]; if (!f) return; try { f(arg); } catch (e) { console.warn('Inicio.act', k, e); } },
     close() { closeZone(); },
+    zoom(f) { zoom(f); },
+    cycleAngle() { cycleAngle(); },
+    fit() { fit(true); },
     setView(v) {
       if (v !== 'hub' && v !== 'iso') v = 'classic';
       store.set(VKEY, v); const sc = $('start-screen'); if (!sc) return;

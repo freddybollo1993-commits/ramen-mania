@@ -7,7 +7,7 @@ const CORE_SHELL = [
   './multiplayer.js',
   './multiplayer.js?v=21',
   './inicio.js',
-  './inicio.js?v=15',
+  './inicio.js?v=16',
   './aula.js',
   './aula.js?v=5',
   './manifest.json'
