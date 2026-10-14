@@ -6,8 +6,9 @@
 (function () {
   'use strict';
   const KEY = 'ramen_japon_v1';
-  const SCALE = 0.15;                                   // los precios del juego × SCALE = ingreso por plato en el local
+  const SCALE = 0.2;                                    // los precios del juego × SCALE = ingreso por plato en el local (subió de 0,15 a 0,2: el dinero pasivo del inicio era casi nulo)
   const COST_K = 3;                                      // multiplicador general de costos de mejoras (balance)
+const DAILY_BONUS = 0.25;                              // bono de la primera recolecta del día
 const MIN_LIVE = 2;                                   // minutos: por debajo se cuenta como "en vivo" (sin castigo de inactividad)
 
   // ---------- ciudades y platos (relación histórica / afinidad) ----------
@@ -57,12 +58,12 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
     cook:   { spd: [0.36, 0.48, 0.62, 0.80, 1.00], err: [0.26, 0.20, 0.14, 0.09, 0.05], wage: [0.12, 0.18, 0.28, 0.42, 0.60] },
     waiter: { spd: [0.50, 0.70, 0.95, 1.25, 1.60], err: [0.20, 0.14, 0.09, 0.05, 0.03], wage: [0.10, 0.15, 0.23, 0.35, 0.50] },
     aux:    { wage: [0.08, 0.12, 0.18, 0.27, 0.38] },
-    tiers: [{ name: 'Local pequeño', tables: 4, rent: 0.15, cooks: 2, waiters: 2, aux: 1, cost: 0 }, { name: 'Local mediano', tables: 8, rent: 0.45, cooks: 3, waiters: 4, aux: 1, cost: 600 },
+    tiers: [{ name: 'Local pequeño', tables: 4, rent: 0.1, cooks: 2, waiters: 2, aux: 1, cost: 0 }, { name: 'Local mediano', tables: 8, rent: 0.45, cooks: 3, waiters: 4, aux: 1, cost: 600 },
             { name: 'Local grande', tables: 14, rent: 1.0, cooks: 4, waiters: 6, aux: 2, cost: 2500 }, { name: 'Local amplio', tables: 18, rent: 1.9, cooks: 5, waiters: 9, aux: 2, cost: 9000 }],
     demand: 0.4,                                         // platos/min por mesa
     quality: { price: 0.12, cogs: 0.03, base: 0.26, cost: [0, 300, 900, 2400, 6000] },
     elecTable: 0.015, elecTier: 0.04, waterTable: 0.012, leak: 0.06,
-    capHours: 4, capHoursMax: 12
+    capHours: 6, capHoursMax: 16
   };
   // objetos: 3 por zona. fx = efecto en el local; buff = mejora permanente en el juego; w = consumo de luz
   const OBJECTS = {
@@ -116,6 +117,69 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
     return ds.length ? ds.reduce((s, d) => s + dishPrice(d[0], d[1]), 0) / ds.length : 40;
   }
 
+
+  // ---------- eventos aleatorios de cada local (se guardan aparte y no se sincronizan) ----------
+  // Hora pico y Crítico y Apagón duran unos minutos y cambian la economía del local; Inspección y Cliente famoso se resuelven al instante.
+  // Jugando dentro del local aparecen en vivo (hay aviso en la barra); estando fuera se liquidan al volver con su efecto esperado.
+  const EV_KEY = 'ramen_japon_ev', EV_MEAN = 90, EV_GAP = 20;       // minutos entre eventos (media) y descanso mínimo entre dos
+  const EVENTS = {
+    pico: { n: 'Hora pico', i: '🔥', dur: 12, txt: 'Llega mucha gente con prisa: +80 % de demanda y +25 % de propinas durante unos minutos.' },
+    critico: { n: 'Crítico gastronómico', i: '📝', dur: 20, txt: 'Un crítico prueba tus platos. Con calidad 3 o más y buen personal te da fama (+25 % de precio); si no, reseña mala (−12 %).' },
+    apagon: { n: 'Apagón', i: '💡', dur: 8, txt: 'Se corta la luz y la cocina rinde menos. Un local grande o mayor tiene generador (solo −20 %).' },
+    inspe: { n: 'Inspección sanitaria', i: '🧼', dur: 0, txt: 'Con baños de nivel 2 o más pasas la inspección y recibes un premio; si no, multa.' },
+    famoso: { n: 'Cliente famoso', i: '🌟', dur: 0, txt: 'Un cliente famoso deja una propina enorme.' }
+  };
+  let EVS = null;
+  const evLoad = () => { if (EVS) return EVS; try { EVS = JSON.parse(store().getItem(EV_KEY) || 'null'); } catch (e) {} if (!EVS || typeof EVS !== 'object') EVS = {}; EVS.act = EVS.act || {}; EVS.next = EVS.next || {}; EVS.log = EVS.log || []; return EVS; };
+  const evSave = () => { try { store().setItem(EV_KEY, JSON.stringify(EVS)); } catch (e) {} };
+  const evActive = id => { const e = evLoad().act[id]; return e && e.until > Date.now() ? e : null; };
+  /** Modificadores del evento activo de un local: demanda, precio y capacidad de cocina. */
+  function evMods(c, r) {
+    const e = c && c.id && EVS ? evActive(c.id) : null, m = { dem: 1, price: 1, cap: 1 };
+    if (!e) return m;
+    if (e.k === 'pico') { m.dem = 1.8; m.price = 1.25; }          // más gente y propinas por la prisa (si ya vas al límite de tu cocina, lo que ayuda es el precio)
+    else if (e.k === 'critico') m.price = e.good ? 1.25 : 0.88;
+    else if (e.k === 'apagon') m.cap = r.tier >= 3 ? 0.8 : 0.5;
+    return m;
+  }
+  const evCash = (r, d) => { const b = r.cash; r.cash = Math.max(0, r.cash + d); if (r.cash > b) r.cashIn += r.cash - b; else r.cashOut += b - r.cash; return r.cash - b; };
+  const evLog = (id, k, txt) => { const L = evLoad().log; L.unshift({ t: Date.now(), id, k, txt }); if (L.length > 12) L.length = 12; };
+  /** Resuelve un evento instantáneo o arranca uno con duración. Devuelve el mensaje para el jugador. */
+  function evStart(id, k, offlineMin) {
+    const c = CITY[id], r = S.rest[id], E = EVENTS[k], base = netOf(c, r); evLoad();
+    const pos = Math.max(0.5, base);
+    if (k === 'inspe') {
+      const ok = r.staff.banos.n > 0 && r.staff.banos.l >= 2, d = ok ? Math.max(20, 10 * pos) : -Math.max(15, 8 * pos), got = evCash(r, d);
+      const m = ok ? '🧼 Inspección superada: premio de S/ ' + fmt(got) + ' en la caja de ' + c.name + '.' : '🧼 Inspección fallida en ' + c.name + ': multa de S/ ' + fmt(-got) + '. Sube el nivel de los baños.';
+      evLog(id, k, m); return m;
+    }
+    if (k === 'famoso') { const got = evCash(r, Math.max(25, 12 * pos)); const m = '🌟 Un cliente famoso visitó ' + c.name + ' y dejó S/ ' + fmt(got) + ' de propina.'; evLog(id, k, m); return m; }
+    const good = k === 'critico' ? (r.q >= 3 && r.staff.salon.n > 0 && r.staff[c.areas[0]] && r.staff[c.areas[0]].l >= 2) : true;
+    const ev = { k, from: Date.now(), until: Date.now() + E.dur * 60000, good };
+    if (offlineMin != null) {                                           // fuera del local: se liquida con el efecto esperado de toda su duración
+      EVS.act[id] = ev; const withEv = netOf(c, r); delete EVS.act[id];
+      const got = evCash(r, (withEv - base) * E.dur * actMult());
+      const m = E.i + ' ' + E.n + ' en ' + c.name + (k === 'critico' ? (good ? ' (buena reseña)' : ' (mala reseña)') : '') + ': ' + (got >= 0 ? '+' : '−') + 'S/ ' + fmt(Math.abs(got)) + ' en la caja.';
+      evLog(id, k, m); return m;
+    }
+    EVS.act[id] = ev; const m = E.i + ' ' + E.n + ' en ' + c.name + ': ' + E.txt; evLog(id, k, m); return m;
+  }
+  const evPick = r => { const ks = Object.keys(EVENTS), w = [3, 2, 2, r && r.tier >= 2 ? 2 : 0, 1]; let t = Math.random() * w.reduce((a, b) => a + b, 0), i = 0; for (; i < ks.length - 1; i++) { t -= w[i]; if (t < 0) break; } return ks[i]; };
+  /** Llamado cada segundo dentro de un local: puede arrancar un evento y avisa cuando termina el activo. @returns {string|null} aviso */
+  function evTick(id) {
+    evLoad(); const e = EVS.act[id], now = Date.now();
+    if (e && e.until <= now) { delete EVS.act[id]; EVS.next[id] = now + EV_GAP * 60000; evSave(); return EVENTS[e.k].i + ' Terminó: ' + EVENTS[e.k].n + '.'; }
+    if (e || now < (EVS.next[id] || 0)) return null;
+    if (Math.random() > 1 - Math.exp(-(1 / 60) / EV_MEAN)) return null;
+    const k = evPick(S.rest[id]), m = evStart(id, k); EVS.next[id] = now + EV_GAP * 60000; evSave(); return m;
+  }
+  /** Eventos ocurridos mientras el jugador estaba fuera (hasta 3 por local, según el tiempo acumulado). */
+  function evAway(id, minutes) {
+    evLoad(); const out = [], n = Math.min(3, Math.floor(minutes / EV_MEAN) + (Math.random() < (minutes % EV_MEAN) / EV_MEAN ? 1 : 0));
+    for (let i = 0; i < n; i++) out.push(evStart(id, evPick(S.rest[id]), minutes));
+    EVS.act[id] && delete EVS.act[id]; if (n) { EVS.next[id] = Date.now() + EV_GAP * 60000; evSave(); } return out;
+  }
+
   // ---------- economía ----------
   const objFx = (r, z, key) => (OBJECTS[z] || []).reduce((s, o) => s + (r.objs[o[0] + '@' + z] && o[3][key] ? o[3][key] : 0), 0);
   const allFx = (r, key) => ZONES.reduce((s, z) => s + objFx(r, z, key), 0);
@@ -126,15 +190,15 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
   }
   function capHours(r) { return clamp(T.capHours + allFx(r, 'cap') + (r.staff.caja.n > 0 ? 0.4 * r.staff.caja.l : 0), T.capHours, T.capHoursMax); }
   function evalRest(c, r) {
-    const tier = T.tiers[r.tier - 1], R = reputation(r), q = r.q;
-    const demand = r.tables * T.demand * R;
+    const tier = T.tiers[r.tier - 1], R = reputation(r), q = r.q, em = evMods(c, r);
+    const demand = r.tables * T.demand * R * em.dem;
     const act = KITCHENS.filter(a => c.areas.includes(a) && r.areas[a]);
     const w = r.staff.salon, wCap = w.n * T.waiter.spd[lvIdx(w.l)] * (1 + objFx(r, 'salon', 'spd'));
     const wErr = clamp(T.waiter.err[lvIdx(w.l)] - objFx(r, 'salon', 'err'), 0.01, 0.5);
     const cogsRate = T.quality.base + T.quality.cogs * (q - 1) - allFx(r, 'cogs') - (r.staff.depo.n > 0 ? 0.008 * r.staff.depo.l : 0);
-    const pm = 1 + T.quality.price * (q - 1);
+    const pm = (1 + T.quality.price * (q - 1)) * em.price;
     const per = act.map(a => {
-      const s = r.staff[a], cap = s.n * T.cook.spd[lvIdx(s.l)] * (1 + objFx(r, a, 'spd'));
+      const s = r.staff[a], cap = s.n * T.cook.spd[lvIdx(s.l)] * (1 + objFx(r, a, 'spd')) * em.cap;
       const err = clamp(T.cook.err[lvIdx(s.l)] - objFx(r, a, 'err') - allFx(r, 'errAll'), 0.02, 0.6);
       const price = areaPrice(c, a) * SCALE;
       return { a, cap, err, price, dem: demand / Math.max(1, act.length), served: 0 };
@@ -161,7 +225,7 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
     load();
     const k = dayKey(); let m = 0;
     for (let i = 0; i < 3; i++) m += S.act[k - i] || 0;
-    return 0.25 + 0.75 * Math.min(1, m / 60);
+    return 0.5 + 0.5 * Math.min(1, m / 45);
   }
   function accrue(id, minutes, live) {
     const r = S.rest[id]; if (!r) return 0;
@@ -177,16 +241,16 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
   }
   function catchUp() {
     load();
-    const now = Date.now(); let total = 0, away = 0;
+    const now = Date.now(); let total = 0, away = 0; const evs = [];
     Object.keys(S.rest).forEach(id => {
       const r = S.rest[id], el = Math.max(0, (now - r.t) / 60000);
       r.t = now;
       if (el <= 0) return;
       total += accrue(id, el, el <= MIN_LIVE);
-      if (el > MIN_LIVE) away = Math.max(away, el);
+      if (el > MIN_LIVE) { away = Math.max(away, el); evs.push(...evAway(id, Math.min(el, capHours(r) * 60))); }
     });
     save();
-    return { total, away };
+    return { total, away, evs };
   }
 
   // ---------- costos de mejoras ----------
@@ -241,7 +305,15 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
     area(a) { const r = rs(), id = S.cur, k = Object.values(r.areas).filter(Boolean).length; if (!pay(costArea(id, k))) return; r.areas[a] = true; r.staff[a].n = Math.max(1, r.staff[a].n); refresh(); },
     qual() { const r = rs(), id = S.cur; if (r.q >= 5) return; if (!pay(costQual(id, r.q))) return; r.q++; refresh(); },
     obj(z, i) { const r = rs(), id = S.cur, o = OBJECTS[z][i], k = o[0] + '@' + z; if (r.objs[k]) return; if (!pay(costObj(id, i))) return; r.objs[k] = true; refresh(); },
-    collect() { const r = rs(); const g = Math.floor(r.cash); if (g < 1) return toast('La caja está vacía.'); S.fondo += g; S.lifetime += g; r.cash -= g; r.cashOut += g; r.since = 0; try { playSound('match'); } catch (e) {} toast('💴 +S/ ' + fmt(g) + ' al Fondo'); refresh(); },
+    collect() {
+      const r = rs(); const g = Math.floor(r.cash); if (g < 1) return toast('La caja está vacía.');
+      const hoy = dayKey(), bono = S.bonusDay !== hoy ? Math.floor(g * DAILY_BONUS) : 0;       // la primera recolecta de cada día rinde +25 %
+      if (bono > 0) S.bonusDay = hoy;
+      S.fondo += g + bono; S.lifetime += g + bono; r.cash -= g; r.cashOut += g; r.since = 0;
+      try { playSound('match'); } catch (e) {}
+      toast('💴 +S/ ' + fmt(g) + ' al Fondo' + (bono > 0 ? ' · ☀️ bono diario +S/ ' + fmt(bono) : ''));
+      refresh();
+    },
     open(id) { const c = CITY[id]; if (S.open[id]) { A.go(id); return; } if (!pay(c.cost)) return; S.open[id] = true; S.rest[id] = newRest(c); A.go(id); },
     go(id) { S.cur = id; S.view = 'rest'; refresh(); },
     map() { S.view = 'map'; S.sel = S.sel || S.cur; if (window.JPScene) window.JPScene.destroy(); refresh(); },
@@ -263,10 +335,17 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
   let timer = null;
   function stop() { if (timer) { clearInterval(timer); timer = null; } }
   let liveTicks = 0;
-  function start() { stop(); timer = setInterval(() => { if (S.view === 'rest' && S.cur) { accrue(S.cur, 1 / 60, true); S.rest[S.cur].t = Date.now(); liveUi(); if (++liveTicks % 15 === 0) persist(); } }, 1000); }
+  function start() { stop(); timer = setInterval(() => { if (S.view === 'rest' && S.cur) { accrue(S.cur, 1 / 60, true); S.rest[S.cur].t = Date.now(); const aviso = evTick(S.cur); if (aviso) { toast(aviso); render(); } liveUi(); if (++liveTicks % 15 === 0) persist(); } }, 1000); }
+  /** Chip de la barra superior con el evento activo y su cuenta atrás. */
+  function evChip() {
+    const e = S.cur ? evActive(S.cur) : null; if (!e) return '<span id="jp-ev"></span>';
+    const E = EVENTS[e.k], sec = Math.max(0, Math.round((e.until - Date.now()) / 1000));
+    return `<span class="jp-chip" id="jp-ev" style="background:${e.k === 'critico' && !e.good || e.k === 'apagon' ? '#8e2a20' : '#2e7d32'}" title="${E.txt}">${E.i} ${E.n} · ${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}</span>`;
+  }
   function liveUi() {
     const r = rs(); if (!r) return;
     const q = id => document.getElementById(id);
+    const evEl = q('jp-ev'); if (evEl && S.cur) { const e = evActive(S.cur); if (e) { const sec = Math.max(0, Math.round((e.until - Date.now()) / 1000)); evEl.textContent = EVENTS[e.k].i + ' ' + EVENTS[e.k].n + ' · ' + Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0'); } }
     if (q('jp-cash')) q('jp-cash').textContent = 'S/ ' + fmt(r.cash);
     if (q('jp-net')) { q('jp-net').textContent = (r.net >= 0 ? '+' : '') + fmt1(r.net * 60) + '/h'; q('jp-net').className = r.net >= 0 ? 'pos' : 'neg'; }
     if (window.JPScene) window.JPScene.update();
@@ -413,6 +492,7 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
       <table>${row('Ventas (platos bien servidos)', ev.rev, false)}${row('Pérdidas de cobro', ev.leak, true)}${row('Ingredientes (incluye los de platos con error)', ev.ing, true)}${row('Planilla (sueldos)', ev.wages, true)}${row('Renta del local', ev.rent, true)}${row('Luz (mesas, local, aparatos)', ev.elec, true)}${row('Agua', ev.water, true)}
       <tr><td><b>Neto</b></td><td class="${ev.net >= 0 ? 'pos' : 'neg'}"><b>${ev.net >= 0 ? '+' : '−'}${fmt1(Math.abs(ev.net) * h)}</b></td></tr></table>
       <small>Errores: se pierden S/ ${fmt1(ev.lost * h)}/h en platos mal hechos o mal servidos. Demanda ${(ev.demand * 60).toFixed(0)} platos/h, atendidos ${(ev.served * 60).toFixed(0)}/h. Reputación ×${ev.R.toFixed(2)}.</small>
+      ${evLoad().log.filter(x => x.id === c.id).slice(0, 4).map(x => `<small>${x.txt}</small>`).join('')}
       <small>Offline: acumulas hasta ${capHours(r).toFixed(1)} h; tu actividad reciente rinde al ${Math.round(actMult() * 100)}% (juega Campaña, Rash o Retos para subirla).</small>
       <h3 style="font-size:14px">🏆 Maestría ${m.done}/${m.total}</h3><div class="jp-mast">${m.checks.map(x => `<span class="${x.ok ? 'ok' : 'no'}">${x.ok ? '✔' : '○'} ${x.t}</span>`).join('')}</div>
       <small>Al completar la Maestría ganas la mejora de sus platos (+8 % de pago al servirlos): ${c.dishes.map(d => d[0]).join(', ')}.</small></div></div>`;
@@ -443,7 +523,7 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
     const inRest = S.view === 'rest' && S.cur && S.rest[S.cur];
     const title = inRest ? `🏮 ${CITY[S.cur].name}` : '🗾 Recorrido por Japón';
     const top = `<div class="jp-top"><button class="jp-btn ghost" onclick="${inRest ? 'JP.map()' : 'JP.exit()'}">${inRest ? '← Mapa' : '← Menú'}</button><h2>${title}</h2>
-      ${inRest ? `<span class="jp-chip">Caja <b id="jp-cash">S/ ${fmt(rs().cash)}</b></span><span class="jp-chip ${rs().net >= 0 ? 'pos' : 'neg'}"><b id="jp-net" class="${rs().net >= 0 ? 'pos' : 'neg'}">${rs().net >= 0 ? '+' : ''}${fmt1(rs().net * 60)}/h</b></span>` : ''}
+      ${inRest ? evChip() + `<span class="jp-chip">Caja <b id="jp-cash">S/ ${fmt(rs().cash)}</b></span><span class="jp-chip ${rs().net >= 0 ? 'pos' : 'neg'}"><b id="jp-net" class="${rs().net >= 0 ? 'pos' : 'neg'}">${rs().net >= 0 ? '+' : ''}${fmt1(rs().net * 60)}/h</b></span>` : ''}
       <span class="jp-chip" id="jp-cloud" style="font-size:11px"></span><span class="jp-chip" title="Fondo: soles de Campaña, Rash, Retos y de las cajas">💴 Fondo <b>S/ ${fmt(S.fondo)}</b></span></div>`;
     el.innerHTML = top + (inRest ? renderRest() : renderMap()) + (inRest && S.zone ? renderZone() : '') + (inRest && S.fin ? renderFin() : '') + (inRest && S.playOpen ? renderPlay() : '');
     syncUi();
@@ -460,6 +540,7 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
     render(); start();
     if (res.away > MIN_LIVE && res.total > 0) toast(`🏮 Mientras no estabas (${Math.round(res.away / 60 * 10) / 10} h) tus locales sumaron S/ ${fmt(res.total)} en caja (al ${Math.round(actMult() * 100)}% por tu actividad).`);
     else if (res.away > MIN_LIVE && res.total < 0) toast('⚠️ Tus locales perdieron dinero mientras no estabas.');
+    if (res.evs && res.evs.length) setTimeout(() => toast(res.evs.slice(0, 3).join('\n')), 1800);
   }
 
   // ---------- jugar aquí: una jornada en el local (elige dificultad y cuántas áreas abrir) ----------
@@ -701,7 +782,7 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
   window.japonOpen = open;
   window.japonBuff = japonBuff;
   window.japonDishBonus = japonDishBonus;
-  window.JP_TEST = { reload() { S = null; syncing = false; return load(); }, syncNow, getS: () => S, mergeGame, snapshot, ledgers, A, CITIES, T, evalRest, newRest, mastery, costHire, costLevel, costObj, costTable, costTier, costQual, costArea, OBJECTS, staffMax };
+  window.JP_TEST = { EV: { EVENTS, evStart, evAway, evTick, evMods, evActive, evLoad }, reload() { S = null; syncing = false; return load(); }, syncNow, getS: () => S, mergeGame, snapshot, ledgers, A, CITIES, T, evalRest, newRest, mastery, costHire, costLevel, costObj, costTable, costTier, costQual, costArea, OBJECTS, staffMax };
   if (typeof document !== 'undefined') {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install); else install();
   }

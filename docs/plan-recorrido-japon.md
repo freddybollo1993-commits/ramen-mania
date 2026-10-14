@@ -92,3 +92,14 @@ Las 34 recetas del juego quedan repartidas una sola vez. Costo de abrir cada ciu
 3. Arte final (Gemini): mapa, restaurante con personas reales, objetos y personal por nivel (la escena ya admite reemplazar los sprites).
 4. Conectar `fresh`, eventos aleatorios (hora pico, inspección, apagón), reputación por ciudad y ranking.
 5. Revisar el equilibrio con la economía general (`tools/economia-niveles.cjs`).
+
+## Actualización v147: ingresos pasivos, buff `fresh` y eventos aleatorios
+- **Ingresos pasivos más generosos:** `SCALE` 0,15 → 0,2 (ingreso por plato), renta del local pequeño 0,15 → 0,10, tope de caja 4 h → **6 h** (máx. 12 → 16 h) y actividad mínima 25 % → **50 %** (llega al 100 % con 45 min de juego en 3 días). El local inicial pasa de ~7,6 S/h a **~23 S/h** (primera contratación en ~6 h), y un local de nivel medio de ~243 a ~375 S/h. **Bono diario:** la primera recolecta de cada día rinde +25 %.
+- **Buff `fresh`:** los objetos de Depósito que lo dan alargan el tiempo antes de que un plato se enfríe (se multiplica con la «Bandeja caliente», tope +150 %), en `stFreshPts` y `evalFreshness` de `index.html`.
+- **Eventos aleatorios** (por local, ~1 cada 90 min con descanso mínimo de 20 min; se guardan en `ramen_japon_ev` y no se sincronizan):
+  - 🔥 **Hora pico** (12 min): +80 % de demanda y +25 % de propinas.
+  - 📝 **Crítico gastronómico** (20 min): +25 % de precio si hay calidad ≥ 3, mozos y cocineros de nivel ≥ 2; si no, −12 %.
+  - 💡 **Apagón** (8 min): la cocina rinde la mitad (80 % con local grande o mayor, que tiene generador).
+  - 🧼 **Inspección sanitaria** (instantánea, solo locales medianos o mayores): premio si los baños son de nivel ≥ 2; si no, multa.
+  - 🌟 **Cliente famoso** (instantáneo): propina grande.
+  Dentro del local aparecen en vivo (chip con cuenta atrás en la barra superior y registro en Finanzas); fuera se liquidan al volver con el efecto esperado de su duración.

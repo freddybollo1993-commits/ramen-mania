@@ -6508,7 +6508,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v146</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v147</span></button></div>
     </div>
   </div>
 
@@ -12688,7 +12688,7 @@ function stReadyDishes(area) {
 function stFreshPts(area, item) {
   if (!QUALITY_FRESHNESS_ON || isFree() || (isTraining() && !trainingFeature('q_fresh'))) return 20;
   const pts = FRESHNESS_CURVES[area + '_plated'] || FRESHNESS_CURVES[area];
-  const t = Math.max(0, gameState.gameClock - item.readyAt) / (1 + [0, 0.3, 0.6, 1][getUpgradeLevel('bandeja')]);
+  const t = Math.max(0, gameState.gameClock - item.readyAt) / ((1 + [0, 0.3, 0.6, 1][getUpgradeLevel('bandeja')]) * (1 + Math.min(1.5, japonBuffSafe('fresh'))));
   for (let i = 1; i < pts.length; i++) {
     if (t <= pts[i][0]) { const [t0, p0] = pts[i - 1], [t1, p1] = pts[i]; return Math.round(p0 + (p1 - p0) * (t - t0) / (t1 - t0)); }
   }
@@ -18428,7 +18428,7 @@ function evalProcess(dish) {
 function evalFreshness(dish) {
   if (!QUALITY_FRESHNESS_ON || isFree() || (isTraining() && !trainingFeature('q_fresh'))) return 20;
   const m = dish.meta || {};
-  const warmth = 1 + [0, 0.3, 0.6, 1][getUpgradeLevel('bandeja')];
+  const warmth = (1 + [0, 0.3, 0.6, 1][getUpgradeLevel('bandeja')]) * (1 + Math.min(1.5, japonBuffSafe('fresh')));   // la bandeja caliente y los objetos de Japón (buff «fresh») alargan el tiempo antes de enfriarse
   const t = m.readyAt == null ? 0 : Math.max(0, gameState.gameClock - m.readyAt) / warmth;
   const pts = (dish.meta && dish.meta.plate && FRESHNESS_CURVES[dish.area + '_plated']) || FRESHNESS_CURVES[dish.area] || FRESHNESS_CURVES.ramen;
   for (let i = 1; i < pts.length; i++) {
@@ -25823,7 +25823,7 @@ if (document.readyState === 'loading') {
 <script src="makis-studio.js?v=118"></script>
 <script src="frituras-prod.js?v=2"></script>
 <script src="frituras-plate.js?v=2"></script>
-<script src="japon.js?v=14"></script>
+<script src="japon.js?v=16"></script>
 <script src="reconocer.js?v=2"></script>
 <script src="guia.js?v=8"></script>
 <script src="japon-scene.js?v=9"></script>
