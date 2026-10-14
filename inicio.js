@@ -23,6 +23,67 @@
   const rashLvl = () => parseInt(store.get('ramen_mania_rash_level') || '1') || 1;
   const wallet = () => { try { return getPropinasWallet(); } catch (e) { return 0; } };
   const retosHechos = () => { try { return trainingDoneCount(); } catch (e) { return 0; } };
+  const chefName = () => {
+    try {
+      if (window.DeviceManager && DeviceManager.currentPlayer) {
+        const n = DeviceManager.currentPlayer.playerName || DeviceManager.currentPlayer.name;
+        if (n) return String(n).replace(/^Chef\s+/i, '');
+      }
+      const el = $('start-pill-name');
+      if (el && el.textContent) return el.textContent.replace(/^Chef\s+/i, '').trim();
+    } catch (e) {}
+    return 'Invitado';
+  };
+  const chefAvatar = () => {
+    try {
+      if (window.DeviceManager && DeviceManager.currentPlayer && DeviceManager.currentPlayer.avatar) {
+        return DeviceManager.currentPlayer.avatar;
+      }
+      const av = $('start-pill-avatar');
+      if (av && av.textContent) return av.textContent.trim();
+    } catch (e) {}
+    return '👤';
+  };
+  function getStatBadge(id) {
+    switch (id) {
+      case 'jugar':
+      case 'camp':
+        return tutDone() ? '🎯 Meta: S/ 160+' : '🔒 Completa lección';
+      case 'rash':
+        return `⚡ Récord: Ronda ${rashLvl()}`;
+      case 'door':
+        return '🗾 9 Ciudades 24/7';
+      case 'room':
+        return '⚔️ Matchmaking Realtime';
+      case 'aprender':
+      case 'aula':
+        return `🎓 Lecciones ${(window.Guia && Guia.doneCount ? Guia.doneCount() : (tutDone() ? 4 : 0))}/4`;
+      case 'tickets':
+        return `🎫 ${retosHechos()}/27 Completados`;
+      case 'free':
+        return '🌿 Sin reloj · Zen';
+      case 'pantry':
+        return '🍱 35 Recetas';
+      case 'restaurante':
+      case 'knives':
+        return `🧧 ${wallet()} Propinas`;
+      case 'book':
+        return '📖 35 Platos Reales';
+      case 'board':
+        return '🏆 Ranking Mundial';
+      case 'acct':
+        return '☁️ Progreso en Nube';
+      case 'gear':
+      case 'sound':
+      case 'full':
+      case 'update':
+      case 'keys':
+      case 'classic':
+        return '⚙️ Sistema v140';
+      default:
+        return '⭐ Shimaya Master';
+    }
+  }
 
   // ---------- salas (Aula, Secretos) ----------
   const ROOMS = {};
@@ -808,8 +869,7 @@
   const CSS = `
   #start-screen.ini-on .start-screen-content, #start-screen.ini-on .start-ambient-bg, #start-screen.ini-on .start-lantern, #start-screen.ini-on .start-steam-particles { display: none !important; }
   #start-screen.ini-on .start-footer-bar { display: none !important; }
-  #start-screen.ini-on .start-screen-top-bar { pointer-events: none; }
-  #start-screen.ini-on .start-screen-top-bar > *, #start-screen.ini-on .start-screen-top-bar button { pointer-events: auto; }
+  #start-screen.ini-on .start-screen-top-bar { display: none !important; }
   #start-screen .ini-wrap, #start-screen .ini-back { display: none; }
   #start-screen.ini-on .ini-wrap { display: flex; }
   #start-screen:not(.ini-on) .ini-back { display: block; }
@@ -826,24 +886,42 @@
     width: clamp(290px, 35%, 350px); height: 100%; flex: none; display: flex; flex-direction: column;
     background: linear-gradient(180deg, rgba(34, 16, 9, 0.98), rgba(18, 8, 4, 0.98));
     border-right: 2.5px solid rgba(138, 90, 43, 0.5); box-shadow: 6px 0 24px rgba(0,0,0,0.6);
-    padding: 10px 12px 10px; box-sizing: border-box; z-index: 10; position: relative;
+    padding: 8px 10px 10px; box-sizing: border-box; z-index: 10; position: relative;
   }
 
-  /* Cabecera del sidebar */
-  .hub-side-header { flex: none; margin-bottom: 6px; }
-  .hub-brand { display: flex; align-items: center; justify-content: space-between; padding-bottom: 6px; border-bottom: 1.5px solid rgba(138,90,43,0.3); }
-  .hub-brand-logo { font: 900 15px/1 'Fredoka', sans-serif; color: #ffe082; display: flex; align-items: center; gap: 6px; letter-spacing: 0.5px; }
-  .hub-brand-logo span { color: #ffab91; font-size: 11px; font-weight: 700; }
-  .hub-wallet-badge { background: rgba(0,0,0,0.4); border: 1.5px solid #ffb300; border-radius: 12px; padding: 2px 8px; font: 900 11px sans-serif; color: #ffd54f; }
+  /* Cabecera del sidebar integrada */
+  .hub-side-header { flex: none; margin-bottom: 4px; }
+  .hub-brand-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding-bottom: 5px; border-bottom: 1.5px solid rgba(138,90,43,0.3); }
+  .hub-brand-logo { font: 900 13.5px/1 'Fredoka', sans-serif; color: #ffe082; display: flex; align-items: center; gap: 4px; letter-spacing: 0.5px; }
+  .hub-brand-logo span { color: #ffab91; font-size: 10px; font-weight: 700; }
 
-  /* Botón de volver en submenú */
+  .hub-header-actions { display: flex; align-items: center; gap: 4px; }
+  .hub-hdr-btn {
+    width: 26px; height: 26px; border-radius: 8px; border: 1.5px solid rgba(138,90,43,0.5);
+    background: rgba(30, 14, 8, 0.85); color: #ffd54f; font-size: 12px; display: inline-flex;
+    align-items: center; justify-content: center; cursor: pointer; padding: 0;
+    transition: transform 0.12s, border-color 0.12s;
+  }
+  .hub-hdr-btn:active { transform: scale(0.92); }
+  .hub-hdr-chip {
+    height: 26px; border-radius: 13px; border: 1.5px solid #ffb300; background: rgba(26, 12, 6, 0.9);
+    color: #ffd54f; font: 900 10.5px sans-serif; display: inline-flex; align-items: center; gap: 4px;
+    padding: 0 7px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    transition: transform 0.12s;
+  }
+  .hub-hdr-chip:active { transform: scale(0.95); }
+  .hub-hdr-chip.profile { border-color: rgba(255, 179, 0, 0.45); color: #fff8e7; }
+  .hub-prof-name { max-width: 60px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 10px; font-weight: 800; }
+
+  /* Submenú header con fila compacta */
+  .hub-submenu-top-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 3px; }
   .hub-back-btn {
-    width: 100%; border: 2px solid #8a5a00; border-radius: 10px; background: linear-gradient(#ffe082, #ffb300);
-    color: #3b2208; font: 900 12.5px/1 'Fredoka', sans-serif; padding: 7px 10px; display: flex; align-items: center; gap: 6px;
-    cursor: pointer; box-shadow: 0 2px 0 #8a5a00; margin-bottom: 4px; transition: transform 0.12s, box-shadow 0.12s;
+    flex: 1; border: 2px solid #8a5a00; border-radius: 10px; background: linear-gradient(#ffe082, #ffb300);
+    color: #3b2208; font: 900 12px/1 'Fredoka', sans-serif; padding: 6px 10px; display: flex; align-items: center; gap: 6px;
+    cursor: pointer; box-shadow: 0 2px 0 #8a5a00; transition: transform 0.12s, box-shadow 0.12s;
   }
   .hub-back-btn:active { transform: translateY(1px); box-shadow: 0 1px 0 #8a5a00; }
-  .hub-sub-title { font: 900 10.5px 'Fredoka', sans-serif; text-transform: uppercase; letter-spacing: 0.8px; color: #ffcc80; padding: 0 2px 2px; }
+  .hub-sub-title { font: 900 10px 'Fredoka', sans-serif; text-transform: uppercase; letter-spacing: 0.8px; color: #ffcc80; padding: 0 2px; }
 
   /* Lista de opciones con scroll vertical y snapping en Posición 2 */
   .hub-list-wrap {
@@ -858,6 +936,11 @@
     scrollbar-color: rgba(255, 200, 60, 0.3) transparent;
     mask-image: linear-gradient(to bottom, transparent 0px, black 24px, black calc(100% - 28px), transparent 100%);
     -webkit-mask-image: linear-gradient(to bottom, transparent 0px, black 24px, black calc(100% - 28px), transparent 100%);
+    animation: hubListFadeIn 0.22s cubic-bezier(0.2, 0.9, 0.3, 1);
+  }
+  @keyframes hubListFadeIn {
+    from { opacity: 0; transform: translateX(8px); }
+    to { opacity: 1; transform: translateX(0); }
   }
 
   /* Opciones del menú: amplias, con altura de 68px y padding ergonómico */
@@ -870,11 +953,11 @@
     cursor: pointer; text-align: left;
     font-family: inherit;
     /* Estado desenfocado por defecto (Posiciones 1, 3 o 4) */
-    opacity: 0.38;
+    opacity: 0.35;
     transform: scale(0.95);
-    background: rgba(32, 14, 8, 0.72);
+    background: rgba(30, 13, 7, 0.72);
     border: 1.5px solid rgba(138, 90, 43, 0.3);
-    color: #cbb393;
+    color: #bfa787;
     box-shadow: none;
     transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.2, 0.9, 0.3, 1), background 0.22s, border-color 0.22s, box-shadow 0.22s;
   }
@@ -883,11 +966,11 @@
   /* SOLO UNA OPCIÓN SE RESALTA: La que está en Posición 2 */
   .hub-item.sel {
     opacity: 1;
-    transform: scale(1.02) translateX(4px);
-    background: linear-gradient(135deg, #ffe9a8, #ffc84a);
-    border: 2.5px solid #ffb300;
-    color: #2c1605;
-    box-shadow: 0 4px 18px rgba(255, 179, 0, 0.55), 0 0 12px rgba(255, 215, 0, 0.35);
+    transform: scale(1.025) translateX(4px);
+    background: linear-gradient(135deg, #fff4cc 0%, #ffd666 45%, #ffb300 100%);
+    border: 2.5px solid #ff9100;
+    color: #261203;
+    box-shadow: 0 4px 20px rgba(255, 145, 0, 0.45), 0 0 14px rgba(255, 215, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.6);
   }
   .hub-item-icon { font-size: 26px; width: 32px; text-align: center; flex: none; line-height: 1; }
   .hub-item-text { flex: 1; min-width: 0; }
@@ -896,13 +979,13 @@
 
   .hub-item:not(.sel) .hub-item-text b { color: #e0ccb4; }
   .hub-item:not(.sel) .hub-item-text small { color: #9c8065; }
-  .hub-item.sel .hub-item-text b { color: #2c1605; }
-  .hub-item.sel .hub-item-text small { color: #6d4810; font-weight: 800; }
+  .hub-item.sel .hub-item-text b { color: #261203; }
+  .hub-item.sel .hub-item-text small { color: #6b3e05; font-weight: 800; }
 
   /* Badge indicador y flecha de acción */
   .hub-item-badge {
     display: none; font: 900 9px 'Fredoka', sans-serif; padding: 2px 6px; border-radius: 6px;
-    background: rgba(44, 22, 5, 0.15); border: 1px solid rgba(44, 22, 5, 0.3); color: #2c1605;
+    background: rgba(44, 22, 5, 0.15); border: 1px solid rgba(44, 22, 5, 0.3); color: #261203;
   }
   .hub-item.sel .hub-item-badge { display: inline-block; }
   .hub-item-arrow { font-style: normal; font-weight: 900; color: #b71c1c; font-size: 15px; opacity: 0; transition: opacity 0.18s; }
@@ -924,7 +1007,7 @@
 
   /* Tarjeta de Reseña y Acción sobrepuesta - compacta y con fondo translúcido no sólido */
   .hub-meta-card {
-    position: relative; z-index: 3; max-width: min(440px, 88%);
+    position: relative; z-index: 3; max-width: min(500px, 92%);
     background: rgba(18, 8, 4, 0.42); /* Fondo translúcido para apreciar la animación viva detrás */
     border: 1.5px solid rgba(255, 200, 60, 0.28); border-radius: 16px; padding: 10px 16px 12px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.35), 0 0 12px rgba(255, 179, 0, 0.1);
@@ -933,25 +1016,38 @@
   }
   @keyframes hubCardIn { from { opacity: 0; transform: translateY(10px); } }
 
+  .hub-meta-header-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 2px;
+  }
   .hub-meta-tag {
     display: inline-block; background: rgba(255, 179, 0, 0.15); border: 1px solid rgba(255, 179, 0, 0.6);
     border-radius: 6px; padding: 1px 6px; font: 900 9px 'Fredoka', sans-serif; color: #ffd54f;
-    letter-spacing: 0.6px; margin-bottom: 2px; text-transform: uppercase;
+    letter-spacing: 0.6px; text-transform: uppercase;
   }
+  .hub-meta-stat-pill {
+    background: rgba(0, 229, 255, 0.12); border: 1px solid rgba(0, 229, 255, 0.35); border-radius: 6px;
+    padding: 1px 7px; font: 900 10px sans-serif; color: #80deea; display: inline-flex; align-items: center; gap: 4px;
+  }
+
   .hub-meta-title { margin: 0 0 2px; font: 900 18px/1.15 'Fredoka', sans-serif; color: #fff8e7; text-shadow: 0 2px 4px rgba(0,0,0,0.9); }
   .hub-meta-desc { margin: 0 0 8px; font: 600 11px/1.35 sans-serif; color: #f5dfba; text-shadow: 0 1px 3px rgba(0,0,0,0.9); }
 
-  .hub-meta-pills { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
+  /* Fila de acción bimanual: pills a la izquierda y CTA accesible para el pulgar derecho */
+  .hub-meta-action-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+  }
+  .hub-meta-pills { display: flex; flex-wrap: wrap; gap: 5px; flex: 1; min-width: 0; }
   .hub-pill { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.16); border-radius: 6px; padding: 1.5px 6px; font: 800 10px sans-serif; color: #ffe082; }
 
-  /* Botón CTA de acción compacto */
+  /* Botón CTA accesible para el pulgar derecho */
   .hub-cta-btn {
-    border: 2px solid #ffe082; border-radius: 10px; padding: 7px 18px;
+    border: 2px solid #ffe082; border-radius: 12px; padding: 8px 20px;
     background: linear-gradient(135deg, #ff9800, #e64a19 65%, #c62828);
     color: #ffffff; font: 900 13.5px/1 'Fredoka', sans-serif; cursor: pointer;
     box-shadow: 0 3px 0 #7f0000, 0 0 14px rgba(255, 152, 0, 0.45);
     display: inline-flex; align-items: center; justify-content: center; gap: 6px;
     text-shadow: 0 1px 2px rgba(0,0,0,0.5); transition: transform 0.12s, box-shadow 0.12s;
+    flex-shrink: 0;
   }
   .hub-cta-btn:active { transform: translateY(1.5px); box-shadow: 0 1.5px 0 #7f0000; }
   .hub-cta-btn.locked { background: #616161; border-color: #9e9e9e; box-shadow: none; cursor: default; }
@@ -1308,9 +1404,18 @@
       // NIVEL RAÍZ: 4 Pilares principales en lista deslizable
       html += `
         <div class="hub-side-header">
-          <div class="hub-brand">
-            <div class="hub-brand-logo">🏮 SHIMAYA <span>RAMEN MANIA</span></div>
-            <div class="hub-wallet-badge">${wallet()} 🧧</div>
+          <div class="hub-brand-row">
+            <div class="hub-brand-logo">🏮 SHIMAYA <span>RAMEN</span></div>
+            <div class="hub-header-actions">
+              <button class="hub-hdr-btn" onclick="toggleAudioMute(); this.textContent = window.isSoundMuted ? '🔇' : '🔊';" title="Audio (M)">${window.isSoundMuted ? '🔇' : '🔊'}</button>
+              <button class="hub-hdr-btn" onclick="toggleFullScreen()" title="Pantalla completa (F)">⛶</button>
+              <button class="hub-hdr-chip wallet" onclick="openUpgradesModal()" title="Cartera de propinas">
+                🧧 <b>${wallet()}</b>
+              </button>
+              <button class="hub-hdr-chip profile" onclick="openProfileModal()" title="Perfil de Chef">
+                <span>${chefAvatar()}</span> <b class="hub-prof-name">${chefName()}</b>
+              </button>
+            </div>
           </div>
         </div>
         <div class="hub-list-wrap">
@@ -1334,9 +1439,16 @@
 
       html += `
         <div class="hub-side-header">
-          <button class="hub-back-btn" onclick="Inicio.back()">
-            <span>←</span> Volver al Menú Principal
-          </button>
+          <div class="hub-submenu-top-row">
+            <button class="hub-back-btn" onclick="Inicio.back()">
+              <span>←</span> Volver al Menú Principal
+            </button>
+            <div class="hub-header-actions">
+              <button class="hub-hdr-chip wallet" onclick="openUpgradesModal()" title="Cartera de propinas">
+                🧧 <b>${wallet()}</b>
+              </button>
+            </div>
+          </div>
           <div class="hub-sub-title">${groupName}</div>
         </div>
         <div class="hub-list-wrap">
@@ -1375,18 +1487,21 @@
       S.artWrap.classList.remove('fade-out');
     }, 120);
 
-    // Render de la tarjeta meta (reseña y botón CTA)
+    // Render de la tarjeta meta (reseña y botón CTA con micro-datos y acción bimanual)
     const isLocked = it.reqTut && !tutDone();
     S.metaWrap.innerHTML = `
-      <div class="hub-meta-tag">${it.tag || 'SHIMAYA MASTER'}</div>
+      <div class="hub-meta-header-row">
+        <span class="hub-meta-tag">${it.tag || 'SHIMAYA MASTER'}</span>
+        <span class="hub-meta-stat-pill">${getStatBadge(it.id)}</span>
+      </div>
       <h2 class="hub-meta-title">${it.icon} ${it.heroTitle || it.title}</h2>
       <p class="hub-meta-desc">${it.desc || it.sub}</p>
-      <div class="hub-meta-pills">
-        ${(it.pills || []).map(pill => `<span class="hub-pill">${pill}</span>`).join('')}
-      </div>
-      <div>
+      <div class="hub-meta-action-row">
+        <div class="hub-meta-pills">
+          ${(it.pills || []).map(pill => `<span class="hub-pill">${pill}</span>`).join('')}
+        </div>
         <button class="hub-cta-btn ${isLocked ? 'locked' : ''}" onclick="Inicio.trigger()">
-          ${isLocked ? '🔒 LECCIÓN DE RAMEN REQUERIDA' : (it.ctaText || '▶ JUGAR AHORA')}
+          ${isLocked ? '🔒 BLOQUEADO' : (it.ctaText || '▶ JUGAR AHORA')}
         </button>
       </div>
     `;
@@ -1517,6 +1632,35 @@
       window.returnToStartMenu = function () {
         const r = _r.apply(this, arguments);
         try { Inicio.refresh(); } catch (e) {}
+        return r;
+      };
+    }
+
+    // Sincronización en vivo de propinas
+    const _upHUD = window.updatePropinasHUD;
+    if (typeof _upHUD === 'function') {
+      window.updatePropinasHUD = function () {
+        const r = _upHUD.apply(this, arguments);
+        try {
+          const wEls = document.querySelectorAll('.hub-hdr-chip.wallet b');
+          const val = wallet();
+          wEls.forEach(el => el.textContent = val);
+        } catch (e) {}
+        return r;
+      };
+    }
+
+    // Sincronización en vivo del perfil
+    const _syncBar = window.syncLinkedUserBar;
+    if (typeof _syncBar === 'function') {
+      window.syncLinkedUserBar = function () {
+        const r = _syncBar.apply(this, arguments);
+        try {
+          const nameEl = document.querySelector('.hub-prof-name');
+          if (nameEl) nameEl.textContent = chefName();
+          const avEl = document.querySelector('.hub-hdr-chip.profile span');
+          if (avEl) avEl.textContent = chefAvatar();
+        } catch (e) {}
         return r;
       };
     }

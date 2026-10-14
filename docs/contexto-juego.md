@@ -1,4 +1,4 @@
-# Ramen Mania / Shimaya — Archivo de contexto del juego (estado v139)
+# Ramen Mania / Shimaya — Archivo de contexto del juego (estado v140)
 
 Documento para retomar el proyecto desde cero: qué es, cómo está construido, qué contiene cada sistema, decisiones del dueño del proyecto y cosas pendientes. Idioma del juego y de la comunicación: **español**.
 
@@ -17,7 +17,7 @@ Sin framework: HTML/CSS/JS clásico (scripts globales, no módulos), Vite solo c
 | Archivo | Contenido |
 |---|---|
 | `index.html` (~25 000 líneas) | Juego completo: HTML, CSS y casi toda la lógica (motor de cocina, recetas, ingredientes, niveles, Rash, Entrenamiento, Cocina Libre, mejoras, cuentas, ranking, modales). Versión visible en `#app-version`. |
-| `sw.js` | Service worker, `CACHE_NAME = 'ramen-mania-v139'`. |
+| `sw.js` | Service worker, `CACHE_NAME = 'ramen-mania-v140'`. |
 | `manifest.json` | PWA. |
 | `makis-studio.js` | Estudio de Makis (esterilla, arroz, enrollado, pescado). |
 | `frituras-prod.js` / `frituras-plate.js` | Producción (mandolina, licuado, gyozas) y emplatado dibujado de Frituras. |
@@ -92,17 +92,20 @@ Modo idle de restaurantes por ciudad (**9 ciudades**: Tokio, Yokohama, Osaka, Na
 ## 7. Tutorial guiado (`guia.js`)
 91 pasos data-driven (`add({seg, area, stage, title, text, target, to, setup, done, assist, info})`) divididos en **4 lecciones** (Ramen 25, Salteado 19, Makis 27, Frituras 20) que cocinan un plato de cada área (Shio, Chicken Teriyaki, Maki California, Chicken Katsu). Recuadro y manita sobre lo que hay que tocar, avance automático al hacer la acción, «Saltar paso». Recompensa en propinas **solo la primera vez**; la lección de Ramen desbloquea Campaña y Rash. Estado en `ramen_tut_areas` (sincronizado). API: `Guia.start(k)`, `Guia.menu()`, `Guia.begin()`, `Guia.flags()`, `Guia.diag()`.
 
-## 8. Inicio (v139): Showcase Hub con navegación por scroll, foco en Posición 2 y vitrina viva (`inicio.js`, `aula.js`)
+## 8. Inicio (v140): Showcase Hub con cabecera integrada, ergonomía bimanual y micro-datos en vivo (`inicio.js`, `aula.js`)
 Evolución ergonómica del Showcase Hub adaptada a gestos táctiles y ratón en horizontal (~873×393 px):
 
 - **Hub lateral izquierdo con Scroll Picker (`.hub-sidebar`, ~290–350 px):**
+  - **Cabecera integrada (`.hub-side-header`):** Contiene el logo de Shimaya Ramen, botones de acceso rápido (🔊 sonido, ⛶ pantalla completa), chip de cartera de propinas (🧧 saldo reactivo) y chip de perfil de chef (👤 avatar + alias con apertura a modal de perfil). La barra superior flotante original (`.start-screen-top-bar`) queda completamente oculta en el Showcase Hub, eliminando widgets duplicados.
   - **Opciones más amplias:** Tarjetas de 68 px de altura con padding espacioso (`10px 14px`), tipografía reforzada y badge de acción.
   - **Navegación por scroll con una sola opción resaltada:** Se navega deslizando la lista verticalmente (rueda de ratón, swipe táctil o flechas del teclado). Whichever opción se sitúa en la **Posición 2 de arriba hacia abajo** es la **única que se resalta** (`.hub-item.sel`), recibiendo gradiente dorado cálido, borde iluminado, escala y brillo exterior.
   - **Click para entrar en opciones adicionales:** Al hacer click en la opción resaltada (o pulsar Enter), se entra directamente en sus sub-opciones (en pilares principales) o se ejecuta la partida (en submodos). Si se pulsa una opción en otra posición, se desplaza suavemente hasta la Posición 2 para resaltarse.
-  - **Submenús sobrepuestos (Slide-over):** Al entrar en un pilar, las sub-opciones se despliegan dentro del mismo panel lateral con botón `[← Volver al Menú Principal]`, manteniendo la vitrina derecha 100% limpia.
-- **Vitrina viva derecha (`.hub-stage`):**
-  - **Ilustración viva animada continua:** Animaciones vectoriales SVG en tiempo real (wok ardiente, vapores ondulantes, farolillos balanceándose, pétalos de sakura cayendo, brillo en cuchillos, monedas titilando y engranajes girando).
-  - **Ficha y reseña translúcida compacta:** Tarjeta reducida (`max-width: 440px`, padding compacto) con fondo translúcido (`rgba(18, 8, 4, 0.42)` y leve desenfoque) para permitir ver la animación viva moviéndose por detrás sin bloquear el arte.
+  - **Submenús sobrepuestos (Slide-over):** Al entrar en un pilar, las sub-opciones se despliegan dentro del mismo panel lateral con botón `[← Volver al Menú Principal]` y chip de propinas accesible, manteniendo la vitrina derecha 100% limpia.
+- **Vitrina viva derecha (`.hub-stage`) con ergonomía bimanual:**
+  - **Ilustración viva animada continua:** Animaciones vectoriales SVG en tiempo real (wok ardiente, vapores ondulantes, farolillos balanceándose, pétalos de sakura cayendo, brillo en cuchillos, monedas titilando y engranajes girando) completamente despejada.
+  - **Ficha y reseña translúcida compacta:** Tarjeta reducida (`max-width: 500px`, padding compacto) con fondo translúcido (`rgba(18, 8, 4, 0.42)` y leve desenfoque) para permitir ver la animación viva moviéndose por detrás sin bloquear el arte.
+  - **Micro-datos en vivo (`.hub-meta-stat-pill`):** Muestra el avance y récord en tiempo real (metas de venta de Campaña, rondas alcanzadas en Rash, 4 disciplinas del Aula, ciudades activas en Japón, etc.).
+  - **Disposición bimanual tipo gamepad:** Pulgar izquierdo navega el scroll picker en el sidebar y pulgar derecho activa cómodamente el botón de acción principal (`.hub-cta-btn`) alineado a la derecha.
 
 | Pilar | Sub-opciones disponibles | Ilustración y Contenido |
 |---|---|---|
