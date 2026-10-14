@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ramen-mania-v150';
+const CACHE_NAME = 'ramen-mania-v151';
 
 // Shell del juego para instalar y abrir sin conexión: la página y todos sus scripts (js/ + archivos de apoyo)
 const CORE_SHELL = [
@@ -114,6 +114,14 @@ self.addEventListener('fetch', event => {
   // La copia guardada se abre AL INSTANTE (antes se esperaba hasta 4 s a la red antes de usarla: la app instalada tardaba en
   // iniciar). La red solo actualiza la copia en segundo plano; cada despliegue cambia CACHE_NAME, así que la versión nueva se
   // instala sola y la página se recarga en el menú de inicio (ver 'controllerchange' en index.html).
+  // Otras páginas HTML del sitio (panel /dashboard, /admin, /tools/*.html): no son el juego, van a la red (si no hay conexión, se abre el juego)
+  try {
+    const u = new URL(req.url);
+    if (u.origin === self.location.origin && req.mode === 'navigate' && (u.pathname === '/dashboard' || u.pathname === '/admin' || u.pathname.startsWith('/tools/') || (/\.html$/.test(u.pathname) && !/\/index\.html$/.test(u.pathname)))) {
+      event.respondWith(fetch(req).catch(async () => (await caches.match('./index.html', { ignoreSearch: true })) || new Response('Sin conexión', { status: 503 })));
+      return;
+    }
+  } catch (e) {}
   if (req.mode === 'navigate' || (req.headers.get('accept') && req.headers.get('accept').includes('text/html'))) {
     event.respondWith(
       (async () => {

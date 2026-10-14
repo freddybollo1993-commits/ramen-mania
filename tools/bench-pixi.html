@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prueba DOM contra PixiJS</title>
+<style>
+  html, body { margin: 0; background: #2b1810; color: #ffe9b0; font: 14px/1.35 system-ui, sans-serif; }
+  #bar { padding: 6px 10px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; background: #3e2410; position: relative; z-index: 5; }
+  button { background: #ffb300; border: 0; border-radius: 8px; padding: 6px 12px; font-weight: 800; cursor: pointer; }
+  #stage { position: relative; height: 260px; overflow: hidden; background: linear-gradient(#e8d29f, #c9a96b); }
+  #stage canvas { position: absolute; left: 0; top: 0; }
+  .dom-s { position: absolute; left: 0; top: 0; width: 64px; height: 96px; background: url(../assets/people/cook_ramen_v1.webp) 0 0 / 256px 288px no-repeat; animation: walk 0.46s steps(4) infinite; will-change: transform; }
+  @keyframes walk { from { background-position-x: 0; } to { background-position-x: -256px; } }
+  pre { margin: 8px 10px; white-space: pre-wrap; font-size: 13px; }
+</style>
+</head>
+<body>
+<div id="bar">
+  <b>Prueba de rendimiento</b>
+  Personas animadas: <select id="n"><option>40</option><option selected>80</option><option>150</option><option>300</option></select>
+  <button id="go">Empezar (≈ 14 s)</button> <span id="st"></span>
+</div>
+<div id="stage"></div>
+<pre id="out">Pulsa «Empezar». Se mide el mismo conjunto de personas animadas (el sprite del Maestro andando y moviéndose por la pantalla) primero con DOM + CSS, que es como funciona hoy el juego, y luego con PixiJS (WebGL). Mantén la pantalla encendida y no toques nada mientras corre.
+Cuando termine, mándame una captura de este texto.</pre>
+<script src="https://cdn.jsdelivr.net/npm/pixi.js@8.6.6/dist/pixi.min.js"></script>
+<script>
+const $ = id => document.getElementById(id), stage = $('stage'), out = $('out');
+const W = () => stage.clientWidth, H = 260, SECS = 6;
+
+/** Ejecuta `step(t, dt)` en cada fotograma durante SECS segundos y devuelve fps medios, peor fotograma y fotogramas lentos. */
+function measure(step) {
+  return new Promise(res => {
+    const frames = []; let last = 0, start = 0;
+    function f(now) {
+      if (!start) { start = now; last = now; requestAnimationFrame(f); return; }
+      const dt = now - last; last = now; frames.push(dt); step(now, dt);
+      if (now - start < SECS * 1000) requestAnimationFrame(f); else {
+        const s = frames.slice(3), avg = s.reduce((a, b) => a + b, 0) / s.length, sorted = s.slice().sort((a, b) => a - b);
+        res({ fps: +(1000 / avg).toFixed(1), p95: +sorted[Math.floor(sorted.length * 0.95)].toFixed(1), worst: +sorted[sorted.length - 1].toFixed(1), slow: s.filter(x => x > 25).length, n: s.length });
+      }
+    }
+    requestAnimationFrame(f);
+  });
+}
+const actors = n => Array.from({ length: n }, (_, i) => ({ x: Math.random() * 600, y: 20 + Math.random() * 200, vx: (Math.random() - 0.5) * 120, vy: (Math.random() - 0.5) * 60 }));
+function move(a, dt) { const s = dt / 1000; a.x += a.vx * s; a.y += a.vy * s; if (a.x < 0 || a.x > W() - 64) a.vx *= -1; if (a.y < 0 || a.y > H - 96) a.vy *= -1; }
+
+async function testDom(n) {
+  stage.innerHTML = ''; const as = actors(n), els = as.map(a => { const e = document.createElement('div'); e.className = 'dom-s'; stage.appendChild(e); return e; });
+  const r = await measure((t, dt) => { as.forEach((a, i) => { move(a, dt); els[i].style.transform = `translate(${a.x.toFixed(1)}px, ${a.y.toFixed(1)}px)`; }); });
+  stage.innerHTML = ''; return r;
+}
+async function testPixi(n) {
+  stage.innerHTML = ''; const app = new PIXI.Application();
+  await app.init({ width: W(), height: H, backgroundAlpha: 0, antialias: false, resolution: Math.min(window.devicePixelRatio || 1, 2), autoDensity: true, autoStart: false });
+  stage.appendChild(app.canvas);
+  const base = await PIXI.Assets.load('../assets/people/cook_ramen_v1.webp');
+  const frames = [0, 1, 2, 3].map(c => new PIXI.Texture({ source: base.source, frame: new PIXI.Rectangle(c * 128, 0, 128, 192) }));
+  const as = actors(n), sprites = as.map(() => { const s = new PIXI.AnimatedSprite(frames); s.scale.set(0.5); s.animationSpeed = 0.14; s.play(); app.stage.addChild(s); return s; });
+  const r = await measure((t, dt) => { as.forEach((a, i) => { move(a, dt); sprites[i].position.set(a.x, a.y); }); app.ticker.update(t); app.render(); });
+  const info = { renderer: app.renderer.name || (app.renderer.type === 1 ? 'webgl' : 'webgpu/otro') }; app.destroy(true, { children: true, texture: true }); stage.innerHTML = ''; return { ...r, ...info };
+}
+$('go').onclick = async () => {
+  const n = +$('n').value; $('go').disabled = true; out.textContent = 'Midiendo con ' + n + ' personas…'; $('st').textContent = 'DOM + CSS (como hoy)…';
+  let d, p, err = '';
+  try { d = await testDom(n); } catch (e) { err += 'DOM: ' + e.message + '\n'; }
+  $('st').textContent = 'PixiJS…';
+  try { p = await testPixi(n); } catch (e) { err += 'Pixi: ' + e.message + '\n'; }
+  $('st').textContent = ''; $('go').disabled = false;
+  const row = (t, r) => r ? `${t.padEnd(14)} ${String(r.fps).padStart(5)} fps · fotograma p95 ${r.p95} ms · peor ${r.worst} ms · lentos (>25 ms) ${r.slow}/${r.n}` : t + ' sin datos';
+  const win = d && p ? (p.fps > d.fps * 1.15 ? 'PixiJS rinde claramente más aquí.' : (d.fps > p.fps * 1.15 ? 'El DOM rinde más aquí.' : 'Rinden parecido: no compensa cambiar.')) : '';
+  out.textContent = `${n} personas animadas · ${innerWidth}×${innerHeight} · ${navigator.hardwareConcurrency || '?'} núcleos · ${(navigator.deviceMemory || '?')} GB\n${row('DOM + CSS', d)}\n${row('PixiJS ' + (PIXI.VERSION || ''), p)}${p && p.renderer ? ' (' + p.renderer + ')' : ''}\n${win}\n${err}\nAyuda: por encima de 55 fps y sin fotogramas lentos el DOM basta; si el DOM baja de 45 fps con el número de personas que usaremos, Pixi vale la pena.`;
+};
+</script>
+</body>
+</html>
