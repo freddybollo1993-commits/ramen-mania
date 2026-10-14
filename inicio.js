@@ -59,7 +59,7 @@
       case 'aula':
         return `🎓 Lecciones ${(window.Guia && Guia.doneCount ? Guia.doneCount() : (tutDone() ? 4 : 0))}/4`;
       case 'tickets':
-        return `🎫 ${retosHechos()}/27 Completados`;
+        return `🎫 ${retosHechos()}/${window.TRAINING_CHALLENGES ? window.TRAINING_CHALLENGES.length : 50} Completados`;
       case 'free':
         return '🌿 Sin reloj · Zen';
       case 'pantry':
@@ -79,7 +79,7 @@
       case 'update':
       case 'keys':
       case 'classic':
-        return '⚙️ Sistema v140';
+        return '⚙️ Sistema v142';
       default:
         return '⭐ Shimaya Master';
     }
@@ -114,8 +114,8 @@
         sub: 'Aula · Retos · Cocina Libre',
         tag: 'ESCUELA CULINARIA',
         heroTitle: 'El Dojo del Maestro',
-        desc: 'Academia tradicional: 4 disciplinas guiadas por el Maestro, 27 retos de técnica y práctica libre zen sin reloj.',
-        pills: ['🎓 4 Lecciones', '🥋 27 Retos', '🌿 Práctica Zen'],
+        desc: 'Academia tradicional: 4 disciplinas guiadas por el Maestro, 50 retos de técnica y práctica libre zen sin reloj.',
+        pills: ['🎓 4 Lecciones', '🥋 50 Retos', '🌿 Práctica Zen'],
         ctaText: 'VER LECCIONES Y RETOS ▶',
         defaultItem: 'aula'
       },
@@ -216,11 +216,11 @@
         id: 'tickets',
         icon: '🎫',
         title: 'Retos del Chef',
-        sub: '27 desafíos con medallas',
+        sub: '50 desafíos con medallas',
         tag: 'DESAFÍOS TÉCNICOS',
-        heroTitle: '27 Retos del Chef',
+        heroTitle: '50 Retos del Chef',
         desc: 'Comprueba tu velocidad y técnica bajo presión: comandas a ciegas y cortes express con medallas y propinas.',
-        pills: [`🎫 ${retosHechos()}/27 Listos`, '🥇 Medallas', '🧧 Propinas'],
+        pills: [`🎫 ${retosHechos()}/${window.TRAINING_CHALLENGES ? window.TRAINING_CHALLENGES.length : 50} Listos`, '🥇 Medallas', '🧧 Propinas'],
         ctaText: '🎫 VER LISTA DE RETOS',
         act: 'tickets'
       },
@@ -629,7 +629,7 @@
               <circle cx="-120" cy="20" r="14" fill="#180b06"/>
               <circle cx="120" cy="20" r="14" fill="#180b06"/>
               <text x="0" y="-30" font-size="28" font-weight="900" fill="#f57f17" text-anchor="middle" font-family="'Fredoka',sans-serif">CHEF CHALLENGE</text>
-              <text x="0" y="0" font-size="15" font-weight="800" fill="#5d4037" text-anchor="middle">27 RETOS DE TÉCNICA</text>
+              <text x="0" y="0" font-size="15" font-weight="800" fill="#5d4037" text-anchor="middle">50 RETOS DE TÉCNICA</text>
               <text x="0" y="52" font-size="18" font-weight="900" fill="#c62828" text-anchor="middle">★ PREMIOS EN PROPINAS ★</text>
             </g>
             <!-- Medallas flotantes: Oro, Plata, Bronce -->

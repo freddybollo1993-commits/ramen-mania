@@ -1,4 +1,4 @@
-# Ramen Mania / Shimaya — Archivo de contexto del juego (estado v141)
+# Ramen Mania / Shimaya — Archivo de contexto del juego (estado v142)
 
 Documento para retomar el proyecto desde cero: qué es, cómo está construido, qué contiene cada sistema, decisiones del dueño del proyecto y cosas pendientes. Idioma del juego y de la comunicación: **español**.
 
@@ -17,7 +17,7 @@ Sin framework: HTML/CSS/JS clásico (scripts globales, no módulos), Vite solo c
 | Archivo | Contenido |
 |---|---|
 | `index.html` (~25 000 líneas) | Juego completo: HTML, CSS y casi toda la lógica (motor de cocina, recetas, ingredientes, niveles, Rash, Entrenamiento, Cocina Libre, mejoras, cuentas, ranking, modales). Versión visible en `#app-version`. |
-| `sw.js` | Service worker, `CACHE_NAME = 'ramen-mania-v141'`. |
+| `sw.js` | Service worker, `CACHE_NAME = 'ramen-mania-v142'`. |
 | `manifest.json` | PWA. |
 | `makis-studio.js` | Estudio de Makis (esterilla, arroz, enrollado, pescado). |
 | `frituras-prod.js` / `frituras-plate.js` | Producción (mandolina, licuado, gyozas) y emplatado dibujado de Frituras. |
@@ -67,7 +67,7 @@ Cortar con tajos (`shopChop`, `fryCutSlash`, `makiCutSlash`), frotar/limpiar (`s
 |---|---|
 | **NORMAL (Campaña)** | 8 niveles con meta de ventas (S/) y tiempo (Nivel 1 «Aprendiz de Barra» … Nivel 8 «Maestro del Ramen»). Hoy **no guarda progreso**: siempre empieza en el nivel 1 (pendiente de confirmar si es intencional). |
 | **RASH** | Rondas sin fin con vidas; se guarda la ronda alcanzada (`ramen_mania_rash_level`, sincronizada en la nube); récords al ranking. |
-| **TRAINING (Entrenamiento)** | 27 retos sin cuenta regresiva en 6 capítulos (Ramen, Salteado, Makis, Frituras, Servicio completo, Maestría). Se mide el tiempo; medallas 🥉🥈🥇 y propinas; **cada reto desbloquea funciones** (`TRAINING_FEATURES`: segundo/tercer cuenco, estrellas, áreas, woks, etapas, mottainai, frescura…). |
+| **TRAINING (Entrenamiento)** | 50 retos sin cuenta regresiva en 6 capítulos (Ramen 7, Salteado 7, Makis 7, Frituras 7, Servicio 11, Maestría 11). Se mide el tiempo; medallas 🥉🥈🥇 y propinas con escala progresiva (10 a 1500 🧧); barra de filtros ergonómica por capítulos; **cada reto desbloquea funciones** (`TRAINING_FEATURES`: segundo/tercer cuenco, estrellas, áreas, woks, etapas, mottainai, frescura…). |
 | **FREE (Cocina Libre)** | Práctica sin tiempo ni notas; elegir qué áreas piden al azar, pedir un plato concreto, pausar clientes. Desde el inicio isométrico se puede abrir **solo una área** (`window.startFreeAreas`). |
 | **Multijugador** | 2–4 jugadores, Realtime: partida global (matchmaking), privada con código/enlace, VS (arrebato de clientes) y cooperativo (bloqueo de estaciones). Ranking **MMR** por ligas (Novato, Bronce, Plata, Oro, Platino, Diamante…). |
 | **JAPON (Jugar aquí)** | Jornada con tiempo fijo dentro de un restaurante del Recorrido por Japón. |
@@ -120,7 +120,7 @@ Evolución ergonómica del Showcase Hub adaptada a gestos táctiles y ratón en 
 | Pilar | Sub-opciones disponibles | Ilustración y Contenido |
 |---|---|---|
 | **🍜 Jugar** | Campaña (8 niveles), Supervivencia Rash (100 rondas), Recorrido por Japón (9 ciudades) y Multijugador (2-4 chefs). | Wok de salteado ardiente / Olla de ramen hirviendo / Torii bajo sakura / Duelo de chefs. |
-| **🎓 Aprender** | Aula del Maestro (4 lecciones), Retos (27 desafíos), Cocina Libre (práctica libre) y Reconocer Ingredientes. | Maestro Matsuo meditando / Scroll de pergaminos / Cuchillo santoku con brillo / Despensa de ingredientes frescos. |
+| **🎓 Aprender** | Aula del Maestro (4 lecciones), Retos (50 desafíos), Cocina Libre (práctica libre) y Reconocer Ingredientes. | Maestro Matsuo meditando / Scroll de pergaminos / Cuchillo santoku con brillo / Despensa de ingredientes frescos. |
 | **🏆 Mi Restaurante** | Tienda de Mejoras (utensilios), Recetario Oficial (35 recetas), Ranking Mundial y Mi Cuenta (nube y perfil). | Tetera de hierro y monedas / Libro de recetas tradicionales / Trofeo dorado / Tarjeta de chef. |
 | **⚙️ Ajustes** | Sonido, Pantalla Completa, Versión, Atajos y Menú Clásico. | Taller de engranajes mecánicos. |
 

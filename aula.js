@@ -59,6 +59,11 @@
   .au-wide { grid-column: 1 / -1; } .au-sum { grid-column: 1 / -1; font: 800 12px sans-serif; background: #fff3cf; border: 2px dashed #c9a24a; border-radius: 10px; padding: 5px 9px; }
   .au-chap { grid-column: 1 / -1; font: 900 13px 'Fredoka', sans-serif; border-bottom: 2px solid #c9a24a; padding-top: 4px; display: flex; justify-content: space-between; }
   .au-card .num { font: 900 11px sans-serif; color: #b71c1c; }
+  .au-filter-bar { grid-column: 1 / -1; display: flex; gap: 4px; overflow-x: auto; padding: 2px 0 6px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .au-filter-bar::-webkit-scrollbar { display: none; }
+  .au-filter-pill { flex: none; border: 1.5px solid #8a6330; border-radius: 14px; background: #fff8e1; color: #5d4037; font: 800 11px sans-serif; padding: 3px 8px; cursor: pointer; transition: all 0.15s ease; white-space: nowrap; }
+  .au-filter-pill:hover { background: #ffe082; }
+  .au-filter-pill.active { background: linear-gradient(#ffb300, #e65100); color: #fff; border-color: #8a3b00; }
   /* ---- bodega de los secretos ---- */
   .sc { background: radial-gradient(ellipse at 62% 62%, #6b4a2a 0%, #2a160c 55%, #120905 100%); overflow: hidden; }
   .sc-shelf { position: absolute; left: 0; right: 0; height: 12px; background: #3b2210; box-shadow: 0 6px 10px rgba(0,0,0,0.5); } .sc-shelf::before { content: ''; position: absolute; left: 6%; bottom: 12px; width: 88%; height: 34px; background: repeating-linear-gradient(90deg, #5a3a1c 0 26px, transparent 26px 40px, #7a4a22 40px 64px, transparent 64px 80px); opacity: 0.75; border-radius: 3px; }
@@ -104,16 +109,27 @@
     const fl = api.flags(), nxt = ORDER.find(k => !fl[k]);
     return ORDER.map(k => { const L = LES[k]; return `<button class="au-card ${fl[k] ? 'done' : (k === nxt ? 'next' : '')}" data-les="${k}"><i>${L.i}</i><b>Lección de ${L.n}</b><small>${L.dish} · ${L.min}</small><small>${fl[k] ? '✓ Hecha · repetir' : '+' + L.reward + ' 🧧 la primera vez'}</small><small>${L.note}</small></button>`; }).join('');
   }
+  let auRetosFilter = 'all';
   function retosHtml() {
     const chs = safe(() => TRAINING_CHAPTERS, []), all = safe(() => TRAINING_CHALLENGES, []);
     const done = safe(() => trainingDoneCount(), 0), nx = safe(() => trainingNextChallenge(), null);
-    let h = `<div class="au-sum"><b>Retos ${done}/${all.length}</b> · 🥇 ${safe(() => trainingMedalCount(3), 0)} · 🥈 ${safe(() => trainingMedalCount(2), 0)} · 🥉 ${safe(() => trainingMedalCount(1), 0)} · 🧧 ${safe(() => getPropinasWallet(), 0)}</div>`;
-    chs.forEach(c => {
+    const filterPills = [
+      { id: 'all', n: `⭐ Todos (${all.length})` },
+      ...chs.map(c => {
+        const cnt = all.filter(x => x.ch === c.id).length;
+        return { id: c.id, n: `${c.icon} ${c.name.split(':')[0]} (${cnt})` };
+      })
+    ].map(f => `<button class="au-filter-pill ${auRetosFilter === f.id ? 'active' : ''}" data-au-filter="${f.id}">${f.n}</button>`).join('');
+
+    let h = `<div class="au-sum"><b>Retos ${done}/${all.length}</b> · 🥇 ${safe(() => trainingMedalCount(3), 0)} · 🥈 ${safe(() => trainingMedalCount(2), 0)} · 🥉 ${safe(() => trainingMedalCount(1), 0)} · 🧧 ${safe(() => getPropinasWallet(), 0)}</div>
+      <div class="au-filter-bar">${filterPills}</div>`;
+    const filteredChs = auRetosFilter === 'all' ? chs : chs.filter(c => c.id === auRetosFilter);
+    filteredChs.forEach(c => {
       const list = all.filter(x => x.ch === c.id), dn = list.filter(x => safe(() => (trainingProgressOf(x.id) || {}).m > 0, false)).length;
       h += `<div class="au-chap"><span>${c.icon} ${c.name}</span><span>${dn}/${list.length}</span></div>`;
       list.forEach(x => {
         const open = safe(() => trainingIsOpen(x), true), p = safe(() => trainingProgressOf(x.id) || {}, {}), isNext = nx && nx.id === x.id;
-        const meta = !open ? '🔒 Bloqueado' : (p.m > 0 ? safe(() => trainingMedalIcon(p.m) + ' ' + formatTrainingTime(p.t), '✓') : '▶ Nuevo');
+        const meta = !open ? '🔒 Bloqueado' : (p.m > 0 ? safe(() => trainingMedalIcon(p.m) + ' ' + formatTrainingTime(p.t) + ' · +' + x.reward + '🧧', '✓') : `▶ +${x.reward}🧧`);
         h += `<button class="au-card ${!open ? 'off' : (p.m > 0 ? 'done' : '')} ${isNext ? 'next' : ''}" data-reto="${open ? x.id : ''}"><span class="num">Reto ${x.num}</span><b>${x.title}</b><small>${meta}</small></button>`;
       });
     });
@@ -136,7 +152,7 @@
     mount(el, api) {
       css(); au = { api, tabName: store.get('ramen_aula_tab') || 'lecciones', timers: [] };
       const fl = api.flags(), les = ORDER.filter(k => fl[k]).length;
-      el.innerHTML = `<div class="au"><div class="au-top"><button class="au-back" data-back>← Salir</button><h2>🎓 Aula del Maestro</h2><div class="au-stats">Lecciones ${les}/4 · Retos ${safe(() => trainingDoneCount(), 0)}/${safe(() => TRAINING_CHALLENGES.length, 27)}</div></div>
+      el.innerHTML = `<div class="au"><div class="au-top"><button class="au-back" data-back>← Salir</button><h2>🎓 Aula del Maestro</h2><div class="au-stats">Lecciones ${les}/4 · Retos ${safe(() => trainingDoneCount(), 0)}/${safe(() => TRAINING_CHALLENGES.length, 50)}</div></div>
         <div class="au-body"><aside class="au-side"><div class="au-bub" id="au-bub"></div><div class="au-m work" id="au-m" title="Toca al Maestro para un consejo"></div></aside>
         <section class="au-main"><nav class="au-tabs">${TABS.map(t => `<button data-tab="${t[0]}">${t[1]}</button>`).join('')}</nav><div class="au-pane" id="au-pane"></div></section></div></div>`;
       const root = $('.au', el), pane = $('#au-pane', el), bub = $('#au-bub', el), m = $('#au-m', el);
@@ -144,7 +160,8 @@
       const say = (html, btn, fn) => { bub.style.animation = 'none'; void bub.offsetWidth; bub.style.animation = ''; bub.innerHTML = html + (btn ? `<button data-go>${btn}</button>` : ''); bub._fn = fn || null; };
       const rec = () => { const n = nextStep(api); say(n.t, n.btn, n.fn); };
       root.addEventListener('click', e => {
-        const t = e.target.closest('[data-back],[data-tab],[data-les],[data-reto],[data-free],[data-do],[data-go],#au-m'); if (!t) return;
+        const t = e.target.closest('[data-back],[data-tab],[data-les],[data-reto],[data-free],[data-do],[data-go],[data-au-filter],#au-m'); if (!t) return;
+        if (t.dataset.auFilter) { sfx('click'); auRetosFilter = t.dataset.auFilter; pane.innerHTML = retosHtml(); return; }
         if (t.hasAttribute('data-back')) return api.leave();
         if (t.dataset.tab) return au.tab(t.dataset.tab);
         if (t.hasAttribute('data-go')) { sfx('click'); if (bub._fn) bub._fn(); return; }
