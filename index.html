@@ -6508,7 +6508,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v147</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v148</span></button></div>
     </div>
   </div>
 
@@ -8348,6 +8348,9 @@
               <button type="button" class="mp-opt-btn mp-target-btn" data-target="180" onclick="MultiplayerManager.setRoomRules(null, null, 180)">🏆 180s (Maratón)</button>
             </div>
 
+            <label style="font-size:11px; font-weight:800; color:#ffccbc; display:block; margin-bottom:3px;">4. Áreas de cocina (las que juegan):</label>
+            <div class="mp-btn-group" id="mp-areas-group"></div>
+
             <button type="button" class="btn" onclick="MultiplayerManager.createPrivateRoom()" style="width:100%; justify-content:center; background:linear-gradient(135deg, #e53935, #c62828); color:#fff; font-weight:900; font-size:13px; padding:10px; margin-top:6px; box-shadow:0 3px 0 #b71c1c;">
               ✨ Crear Sala Privada y Generar Código
             </button>
@@ -9925,12 +9928,17 @@ function isMultiplayerSession() {
   return typeof MultiplayerManager !== 'undefined' && (MultiplayerManager.isGameActive || MultiplayerManager.isInMultiplayer);
 }
 
+// Áreas de cocina que eligió el anfitrión de la sala (todas si no hay sala).
+function mpAreas() {
+  return (typeof MultiplayerManager !== 'undefined' && Array.isArray(MultiplayerManager.areas) && MultiplayerManager.areas.length) ? MultiplayerManager.areas : KITCHEN_AREAS.map(a => a.id);
+}
+
 // Solo los ramen del menú actual (cuencos, ingredientes de la pestaña Ramen).
 function getUnlockedRamenRecipes() {
   if (isTraining()) return trainingPoolRecipes(gameState.training.challenge, 'ramen');
   if (isFree()) return RECETAS_RAMEN;
   if ((gameState.gameMode === 'JAPON' && gameState.japon)) return RECETAS_RAMEN.filter(r => japonRunDishes().has(r.name));
-  if (isMultiplayerSession()) return RECETAS_RAMEN;
+  if (isMultiplayerSession()) return mpAreas().includes('ramen') ? RECETAS_RAMEN : [];
   const cfg = getCurrentLevelConfig();
   return RECETAS_RAMEN.filter(r => cfg.ramen_names.includes(r.name));
 }
@@ -9954,6 +9962,7 @@ function getUnlockedRecipes() {
   Object.keys(AREA_DISH_UNLOCKS).forEach(area => {
     AREA_DISH_UNLOCKS[area].forEach(([name, campLvl, rashLvl]) => {
       if (!mp && lvl < (campaign ? campLvl : rashLvl)) return;
+      if (mp && !mpAreas().includes(area)) return;                // sala multijugador: solo las áreas que eligió el anfitrión
       const r = AREA_CATALOGS[area].find(x => x.name === name);
       if (r) list.push(r);
     });
@@ -12298,6 +12307,7 @@ function stagedOn(area) {
   if (isMultiplayerSession()) return false;
   if (typeof TutorialManager !== 'undefined' && TutorialManager.isActive) return false;
   if (isFree()) return true;
+  if (isMultiplayerSession()) return mpAreas().includes(area);
   if ((gameState.gameMode === 'JAPON' && gameState.japon)) return japonRunAreas().includes(area);
   if (isTraining()) return trainingFeature('st_' + area);
   if (gameState.gameMode === 'NORMAL') return (currentLevelIndex + 1) >= (STAGE_GATE_LEVEL[area] || 99);
@@ -14969,6 +14979,7 @@ function renderFryStation() {
 // Un área se abre cuando ya hay algún plato suyo en el menú del nivel (o ronda) actual.
 function isAreaUnlocked(area) {
   if (isFree()) return true;
+  if (isMultiplayerSession()) return mpAreas().includes(area);
   if ((gameState.gameMode === 'JAPON' && gameState.japon)) return japonRunAreas().includes(area);
   if (isTraining() && area !== 'ramen' && !trainingFeature('area_' + area)) return false;
   return area === 'ramen' || getUnlockedRecipes().some(r => r.area === area);
@@ -14986,7 +14997,7 @@ function areaUnlockHint(area) {
 function renderAreaTabs() {
   const container = document.getElementById('kitchen-area-tabs');
   if (!container) return;
-  container.innerHTML = KITCHEN_AREAS.map(area => {
+  container.innerHTML = KITCHEN_AREAS.filter(area => !isMultiplayerSession() || mpAreas().includes(area.id)).map(area => {
     const unlocked = isAreaUnlocked(area.id);
     return `<button class="kitchen-area-tab-btn ${gameState.activeArea === area.id ? 'active' : ''} ${unlocked ? '' : 'locked'}" data-area="${area.id}" data-alert="${unlocked ? getAreaAlert(area.id) : ''}" ${unlocked ? '' : `title="Se desbloquea en ${areaUnlockHint(area.id)}" aria-disabled="true"`} onclick="switchKitchenArea('${area.id}')">${unlocked ? '' : '🔒 '}${area.label}<i class="area-dot"></i></button>`;
   }).join('');
@@ -20716,7 +20727,7 @@ function startLevel(lvlIndex) {
   renderBowls();
   renderCustomers();
   gameState.activeArea = (gameState.gameMode === 'JAPON' && gameState.japon) ? japonFirstArea()
-    : ((gameState.gameMode === 'FREE' && gameState.free && gameState.free.areas.length === 1) ? gameState.free.areas[0] : 'ramen');   // cocina libre de una sola área: empieza en ella
+    : ((gameState.gameMode === 'FREE' && gameState.free && gameState.free.areas.length === 1) ? gameState.free.areas[0] : (isMultiplayerSession() ? (mpAreas()[0] || 'ramen') : 'ramen'));   // cocina libre de una sola área: empieza en ella
   gameState.stages = { ramen: 'cook', salteados: 'cook', makis: 'cook', frituras: 'cook' };
   cleanupMakiToolDrag();
   gameState.makiRoll = newMakiRoll();
@@ -25819,7 +25830,7 @@ if (document.readyState === 'loading') {
   bootGameUI();
 }
 </script>
-<script src="multiplayer.js?v=21"></script>
+<script src="multiplayer.js?v=22"></script>
 <script src="makis-studio.js?v=118"></script>
 <script src="frituras-prod.js?v=2"></script>
 <script src="frituras-plate.js?v=2"></script>

@@ -47,6 +47,9 @@
     
     // Reglas de la sala
     gameMode: 'VS', // 'VS' (Arrebato) o 'COOP' (Cocina Compartida)
+    // Áreas de cocina activas en la sala (las elige el anfitrión): solo se piden platos de esas áreas y solo existen sus pestañas.
+    areas: ['ramen', 'salteados', 'makis', 'frituras'],
+    AREA_OPTS: [['ramen', '🍜', 'Ramen'], ['salteados', '🥘', 'Salteado'], ['makis', '🍣', 'Makis'], ['frituras', '🍤', 'Frituras']],
     winCondition: {
       type: 'TIME', // 'TIME', 'MONEY', 'CUSTOMERS'
       target: 120    // 120s, $600, o 10 clientes
@@ -528,7 +531,8 @@
           if (this.isHost) {
             this.broadcastEvent('CONFIG_UPDATE', {
               gameMode: this.gameMode,
-              winCondition: this.winCondition
+              winCondition: this.winCondition,
+              areas: this.areas
             });
           }
         }
@@ -568,7 +572,8 @@
           if (this.isHost) {
             this.broadcastEvent('CONFIG_UPDATE', {
               gameMode: this.gameMode,
-              winCondition: this.winCondition
+              winCondition: this.winCondition,
+              areas: this.areas
             });
           }
         }
@@ -712,11 +717,37 @@
       if (this.isInMultiplayer && this.isHost) {
         this.broadcastEvent('CONFIG_UPDATE', {
           gameMode: this.gameMode,
-          winCondition: this.winCondition
+          winCondition: this.winCondition,
+          areas: this.areas
         });
         this.showLobbyToast(`⚙️ Reglas actualizadas: Modo ${this.gameMode} (${this.getWinConditionText()})`, '#ff9800');
       }
     },
+
+    /** Devuelve una lista válida de áreas (sin repetidas ni desconocidas y con al menos una). @param {string[]} [list] @returns {string[]} */
+    sanitizeAreas(list) {
+      const ok = this.AREA_OPTS.map(o => o[0]), out = ok.filter(a => Array.isArray(list) && list.includes(a));
+      return out.length ? out : ok.slice();
+    },
+
+    /** El anfitrión activa o desactiva un área de cocina de la sala (siempre queda al menos una). @param {string} area */
+    toggleRoomArea(area) {
+      if (this.isInMultiplayer && !this.isHost) {
+        this.showLobbyToast('ℹ️ Solo el anfitrión de la sala puede elegir las áreas.', '#ff9800');
+        return;
+      }
+      const has = this.areas.includes(area);
+      if (has && this.areas.length === 1) { this.showLobbyToast('⚠️ La sala necesita al menos un área de cocina.', '#c62828'); return; }
+      this.areas = this.sanitizeAreas(has ? this.areas.filter(a => a !== area) : [...this.areas, area]);
+      this.renderRulesUI();
+      if (this.isInMultiplayer && this.isHost) {
+        this.broadcastEvent('CONFIG_UPDATE', { gameMode: this.gameMode, winCondition: this.winCondition, areas: this.areas });
+        this.showLobbyToast('🍳 Áreas de la sala: ' + this.getAreasText(), '#ff9800');
+      }
+    },
+
+    /** Texto corto con los íconos de las áreas activas. @returns {string} */
+    getAreasText() { return this.AREA_OPTS.filter(o => this.areas.includes(o[0])).map(o => o[1] + ' ' + o[2]).join(' · '); },
 
     getWinConditionText() {
       if (this.winCondition.type === 'TIME') return `Tiempo: ${this.winCondition.target}s`;
@@ -1002,6 +1033,7 @@
         case 'CONFIG_UPDATE':
           this.gameMode = data.gameMode || this.gameMode;
           this.winCondition = data.winCondition || this.winCondition;
+          this.areas = this.sanitizeAreas(data.areas);
           this.renderRulesUI();
           break;
 
@@ -1212,9 +1244,16 @@
         });
       }
 
+      const areasGroup = document.getElementById('mp-areas-group');
+      if (areasGroup) {
+        areasGroup.innerHTML = this.AREA_OPTS.map(o => `
+          <button type="button" class="mp-opt-btn mp-area-btn ${this.areas.includes(o[0]) ? 'active' : ''}" data-area="${o[0]}"
+                  onclick="MultiplayerManager.toggleRoomArea('${o[0]}')">${o[1]} ${o[2]}</button>`).join('');
+      }
+
       const badge = document.getElementById('mp-room-rule-badge');
       if (badge) {
-        badge.textContent = `Modo ${this.gameMode} • ${this.getWinConditionText()}`;
+        badge.textContent = `Modo ${this.gameMode} • ${this.getWinConditionText()} • ${this.areas.map(a => (this.AREA_OPTS.find(o => o[0] === a) || [])[1]).join('')}`;
       }
     },
 
