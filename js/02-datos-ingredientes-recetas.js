@@ -184,10 +184,9 @@ const RECETAS_RAMEN = [
   {"id": 9, "name": "Bajiru", "price": 48, "desc": "Salsa bajiru (albahaca), brisket laminado, alga wanji, nori y zanahoria", "ingredients": [1, 2, 10, 12, 15, 17, 19, 20, 21, 30]}
 ];
 
-// --- Frituras: cada receta usa un timer de punto óptimo (fase de mecánicas, pendiente de implementar) ---
+// --- Frituras: cada receta usa un temporizador de punto óptimo (ver la estación de Frituras) ---
 // Nota: "Gyozas" y "Age Gyozas" comparten exactamente los mismos ingredientes.
-// Se distinguen por el campo "metodo" (hervido vs frito); cuando se construya la mecánica de Frituras,
-// analyzeBowl (o su equivalente para esta área) deberá comparar también "metodo" además del set de ingredientes.
+// Se distinguen por el campo "metodo" (hervido vs frito). Las Gyozas hervidas aún no se pueden pedir (necesitan la 2.ª hornilla con sartén).
 const RECETAS_FRITURAS = [
   {"id": 1, "name": "Gyozas", "metodo": "hervido", "price": 32, "desc": "Empanadillas hervidas de langostino y chancho", "ingredients": [66, 73, 32, 31, 53, 52, 74]},
   {"id": 2, "name": "Chicken Katsu", "price": 52, "desc": "Bife de pollo empanizado, col, zanahoria y salsa katsu", "ingredients": [44, 65, 58, 15, 75, 52, 30, 62, 74, 91, 57, 84]},
@@ -215,7 +214,7 @@ const RECETAS_MAKIS = [
   {"id": 9, "name": "Maki Digion", "price": 45, "baseCount": 4, "desc": "Arroz shari, nori, palta y langostino; encima cobertura de atún y salsa digión (flamear)", "ingredients": [38, 20, 64, 54, 49, 80]}
 ];
 
-// --- Salteados: se cocinan con tiempo de salteado (fase de mecánicas, pendiente de implementar) ---
+// --- Salteados: se cocinan en el wok o la sartén con tiempo de salteado (ver js/08-salteados-wok.js) ---
 const RECETAS_SALTEADOS = [
   {"id": 1, "name": "Chaufa Shimaya", "price": 40, "desc": "Arroz chaufa con huevo, chancho, champiñones y wantán", "ingredients": [15, 37, 63, 25, 79, 48, 27, 94, 41]},
   {"id": 2, "name": "Chicken Teriyaki", "price": 38, "desc": "Pollo con salsa teriyaki, arroz y ensalada fría", "ingredients": [69, 87, 37, 56]},

@@ -135,11 +135,6 @@ function getCampaignTotalStars() {
   return total;
 }
 
-function getCampaignHighestUnlocked() {
-  const prog = loadCampaignProgress();
-  return Math.min(NIVELES.length, Math.max(1, prog.unlockedLevel || 1));
-}
-
 function getCampaignStatsSummary() {
   const prog = loadCampaignProgress();
   const unlocked = Math.min(NIVELES.length, Math.max(1, Number(prog.unlockedLevel || 1)));

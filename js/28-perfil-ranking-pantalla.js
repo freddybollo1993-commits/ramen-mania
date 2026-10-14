@@ -533,38 +533,6 @@ async function handleSaveProfileChanges() {
 /* ==========================================================================
    SISTEMA DE RÉCORDS Y LEADERBOARD (SUPABASE + LOCALSTORAGE)
    ========================================================================== */
-function openSaveScoreModal() {
-  document.getElementById("record-summary-money").textContent = `S/ ${gameState.money}`;
-  document.getElementById("record-summary-served").textContent = `${gameState.customersServed} ramen`;
-  
-  const modeText = gameState.gameMode === 'NORMAL' 
-    ? `Modo Normal (Nivel ${currentLevelIndex + 1})` 
-    : `Modo Rash (Ronda ${gameState.rashLevel})`;
-  document.getElementById("record-summary-mode").textContent = modeText;
-
-  const nameInput = document.getElementById("record-player-name");
-  const contactInput = document.getElementById("record-player-contact");
-
-  if (DeviceManager.currentPlayer) {
-    nameInput.value = DeviceManager.currentPlayer.playerName;
-    nameInput.readOnly = true;
-    nameInput.style.backgroundColor = "#e8f5e9";
-    nameInput.title = "Alias verificado de este dispositivo";
-    contactInput.value = DeviceManager.currentPlayer.contact || "";
-  } else {
-    nameInput.value = safeStorage.getItem('ramen_player_name') || "";
-    nameInput.readOnly = false;
-    nameInput.style.backgroundColor = "#fff";
-    contactInput.value = safeStorage.getItem('ramen_player_contact') || "";
-  }
-
-  const statusEl = document.getElementById("save-record-status");
-  statusEl.textContent = "";
-  statusEl.style.color = "#5d4037";
-
-  document.getElementById("save-score-modal").classList.add("active");
-}
-
 function closeSaveScoreModal() {
   document.getElementById("save-score-modal").classList.remove("active");
 }
@@ -874,23 +842,6 @@ function escapeHtml(str) {
     .replace(/'/g, "&#039;");
 }
 
-function openModeSelectModal() {
-  if (!gameState.isGameOver && !gameState.isPaused) {
-    togglePause();
-  }
-  const best = parseInt(safeStorage.getItem('ramen_mania_rash_best') || '1');
-  const current = parseInt(safeStorage.getItem('ramen_mania_rash_level') || '1');
-  const statsEl = document.getElementById("mode-select-rash-stats");
-  if (statsEl) {
-    statsEl.innerHTML = `🏆 Tu Récord: <strong>Ronda ${best} / 100</strong> (Guardado: Ronda ${current})`;
-  }
-  const resumeBtn = document.getElementById("btn-resume-rash");
-  if (resumeBtn) {
-    resumeBtn.textContent = `▶️ Jugar Ronda ${current}`;
-  }
-  document.getElementById("mode-select-modal").classList.add("active");
-}
-
 function closeModeSelectModal() {
   document.getElementById("mode-select-modal").classList.remove("active");
   if (gameState.isPaused && !gameState.isGameOver) {
@@ -1026,7 +977,6 @@ let deferredInstallPrompt = null;
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredInstallPrompt = e;
-  console.log('[PWA] Evento beforeinstallprompt capturado con éxito');
   const installBtn = document.getElementById('btn-install-app');
   if (installBtn) {
     installBtn.style.display = 'inline-flex';
@@ -1034,7 +984,6 @@ window.addEventListener('beforeinstallprompt', (e) => {
 });
 
 window.addEventListener('appinstalled', (evt) => {
-  console.log('[PWA] Ramen Mania instalado con éxito');
   deferredInstallPrompt = null;
   const installBtn = document.getElementById('btn-install-app');
   if (installBtn) {
@@ -1043,38 +992,9 @@ window.addEventListener('appinstalled', (evt) => {
   }
 });
 
-function handlePwaInstallClick() {
-  playSound('click');
-  if (deferredInstallPrompt) {
-    deferredInstallPrompt.prompt();
-    deferredInstallPrompt.userChoice.then((choiceResult) => {
-      if (choiceResult.outcome === 'accepted') {
-        console.log('[PWA] Usuario aceptó la instalación');
-      } else {
-        console.log('[PWA] Usuario pospuso la instalación');
-      }
-      deferredInstallPrompt = null;
-    });
-  } else {
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-    if (isStandalone) {
-      alert('🍜 ¡Ramen Mania ya está instalado y ejecutándose como App nativa en este dispositivo!');
-      return;
-    }
-
-    if (isIOS) {
-      alert('📲 Para instalar Ramen Mania en tu iPhone o iPad:\n\n1. Toca el botón Compartir de Safari (icono cuadrado con flecha hacia arriba ⎋ en la barra de Safari).\n2. Desplaza hacia abajo y toca "Agregar a pantalla de inicio" (o "Add to Home Screen").\n3. ¡Listo! Se creará el acceso directo con el icono del Chef Shimaya para jugar a pantalla completa sin barras.');
-    } else {
-      alert('📲 Para instalar Ramen Mania desde tu navegador:\n\n1. En Google Chrome / Edge / Brave: Toca el menú de 3 puntos (⋮) o el botón de instalar ⊕ en la barra de direcciones.\n2. Toca "Instalar Ramen Mania" o "Agregar a pantalla principal".\n3. ¡Listo! Se descargará el icono oficial del Chef Shimaya y podrás jugar directamente desde tu pantalla de inicio.');
-    }
-  }
-}
-
-// Registro limpio del Service Worker (arranque silencioso y actualización automática)
-if ('serviceWorker' in navigator) {
+{
   navigator.serviceWorker.register('./sw.js')
     .then(reg => {
-      console.log('[PWA] Service Worker registrado:', reg.scope);
       // Forzar chequeo de actualización en cada apertura de la app instalada
       if (reg.update) {
         reg.update().catch(() => {});

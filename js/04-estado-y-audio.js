@@ -63,7 +63,6 @@ let gameState = {
 
 let currentLbTab = 'NORMAL';
 let gameLoopInterval = null;
-const AudioContext = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null;
 let cachedWhiteNoiseBuffer = null;
 

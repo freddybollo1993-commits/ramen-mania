@@ -341,14 +341,6 @@ function openCampaignModalFromEnd() {
   openCampaignModal();
 }
 
-function finishNormalShiftEarly() {
-  if (gameState.gameMode !== 'NORMAL' || gameState.isGameOver) return;
-  const cfg = getCurrentLevelConfig();
-  if (gameState.money >= cfg.goal) {
-    winLevel();
-  }
-}
-
 let campaignFilterArc = 'all';
 
 function openCampaignModal(filterArc) {

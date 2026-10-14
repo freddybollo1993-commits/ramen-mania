@@ -295,7 +295,6 @@ const DeviceManager = {
 
     // Si el dispositivo ya tiene una cuenta registrada, se renombra/actualiza limpiamente
     if (this.currentPlayer && this.currentPlayer.playerName.toLowerCase() !== cleanName.toLowerCase()) {
-      console.log(`Actualizando nombre de ${this.currentPlayer.playerName} a ${cleanName} en este dispositivo`);
     }
 
     // El perfil se guarda en la cuenta; el servidor garantiza que el alias sea único

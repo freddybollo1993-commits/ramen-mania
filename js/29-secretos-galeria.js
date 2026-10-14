@@ -701,10 +701,6 @@ function openSecretDetail(secretId) {
   });
 }
 
-function openTamagoSecretDetail() {
-  openSecretDetail('tamago');
-}
-
 function navigateSecret(dir) {
   playSound('click');
   currentSecretIndex = (currentSecretIndex + dir + CHEF_SECRETS.length) % CHEF_SECRETS.length;

@@ -411,11 +411,6 @@ function shopPortionFx(p) {
   board.appendChild(fx);
   setTimeout(() => fx.remove(), 700);
 }
-function shopCleanTap(e) {
-  if (e) { e.preventDefault(); e.stopPropagation(); }
-  if (gameState.isPaused || gameState.isGameOver) return;
-  shopClean();
-}
 function shopCleanFx(p) {
   const board = document.getElementById('shop-board'), heap = document.getElementById('shop-cb-item');
   if (!board) return;
