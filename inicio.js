@@ -138,31 +138,41 @@
   @keyframes iniSpr { from { background-position-x: 0; } to { background-position-x: -256px; } }
   /* ---- vista hub: lista a la izquierda y escena enfocada a la derecha ---- */
   .ini-stage { position: absolute; inset: 0; }
-  .ini-hublist { display: none; position: absolute; left: 10px; top: 46px; bottom: 10px; width: calc(36% - 14px); flex-direction: column; gap: 8px; z-index: 20; justify-content: center; }
+  .ini-hublist { display: none; position: absolute; left: 14px; top: 52px; bottom: 14px; width: 175px; flex-direction: column; gap: 8px; z-index: 25; justify-content: center; pointer-events: none; }
   .ini-wrap.hub .ini-hublist { display: flex; }
-  .ini-wrap.hub .ini-view { inset: 46px 10px 10px 36%; border: 3px solid #6b4a24; border-radius: 16px; box-shadow: 0 0 0 2px #2b1810, 0 6px 18px rgba(0,0,0,0.5); background: radial-gradient(ellipse at 50% 40%, #6b4126 0%, #351b0f 80%); }
+  .ini-wrap.hub .ini-view { inset: 0 !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important; }
   .ini-wrap.hub .ini-pin, .ini-wrap.hub .ini-ring, .ini-wrap.hub .ini-start { display: none !important; }
   .ini-wrap.hub .ini-gear, .ini-wrap.hub .ini-hint { display: none; }
-  .ini-wrap.hub .ini-play { right: 18px; bottom: 16px; }
-  .ini-hi { flex: 1; min-height: 68px; max-height: 88px; display: flex; align-items: center; gap: 12px; border: 3px solid #6b4a24; border-radius: 14px; background: linear-gradient(#fff4d6, #e9cf94); padding: 0 14px; color: #3b2208; font-family: 'Fredoka', sans-serif; cursor: pointer; box-shadow: 0 4px 0 #4a3216; text-align: left; transition: transform 0.15s, box-shadow 0.15s; }
-  .ini-hi i { font-style: normal; font-size: 28px; width: 34px; text-align: center; flex: none; }
+  .ini-wrap.hub .ini-play { display: none !important; }
+  .ini-hi { pointer-events: auto; flex: 1; min-height: 56px; max-height: 74px; display: flex; align-items: center; gap: 10px; border: 2.5px solid rgba(107,74,36,0.9); border-radius: 14px; background: linear-gradient(135deg, rgba(255,244,214,0.94), rgba(233,207,148,0.94)); backdrop-filter: blur(8px); padding: 0 12px; color: #3b2208; font-family: 'Fredoka', sans-serif; cursor: pointer; box-shadow: 0 3px 0 rgba(74,50,22,0.9), 0 6px 14px rgba(0,0,0,0.35); text-align: left; transition: transform 0.15s, box-shadow 0.15s; }
+  .ini-hi i { font-style: normal; font-size: 24px; width: 30px; text-align: center; flex: none; }
   .ini-hi span { flex: 1; min-width: 0; }
-  .ini-hi b { display: block; font: 900 16px/1.1 'Fredoka', sans-serif; }
-  .ini-hi small { display: block; font: 700 11px/1.25 sans-serif; color: #7a5a22; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .ini-hi em { font-style: normal; opacity: 0; font-weight: 900; color: #b71c1c; font-size: 16px; }
-  .ini-hi.sel { background: linear-gradient(#ffe9a8, #ffc84a); transform: translateX(6px); box-shadow: 0 4px 0 #8a5a00, 0 0 14px rgba(255,200,60,0.6); }
+  .ini-hi b { display: block; font: 900 15px/1.1 'Fredoka', sans-serif; }
+  .ini-hi small { display: block; font: 700 10px/1.15 sans-serif; color: #7a5a22; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ini-hi em { font-style: normal; opacity: 0; font-weight: 900; color: #b71c1c; font-size: 15px; }
+  .ini-hi.sel { background: linear-gradient(#ffe9a8, #ffc84a); transform: translateX(5px); box-shadow: 0 3px 0 #8a5a00, 0 0 14px rgba(255,200,60,0.65); border-color: #8a5a00; }
   .ini-hi.sel em { opacity: 1; }
   .ini-hi.first:not(.sel) { animation: iniGlow 1.2s ease-in-out infinite; }
-  .ini-hfoot { display: flex; gap: 6px; height: 38px; flex: none; margin-top: 2px; }
-  .ini-hfoot button { flex: 1; border: 2px solid #6b4a24; border-radius: 10px; background: #fff3cf; font: 900 13px 'Fredoka', sans-serif; color: #5b3a12; cursor: pointer; box-shadow: 0 2px 0 #6b4a24; padding: 0 10px; display: flex; align-items: center; justify-content: center; gap: 6px; }
-  .ini-hfoot button:active { transform: translateY(1px); box-shadow: 0 1px 0 #6b4a24; }
-  .ini-wrap.hub .ini-dock { top: auto; bottom: 14px; left: calc(36% + 12px); right: 14px; width: auto; max-height: 52%; flex-direction: row; flex-wrap: wrap; align-items: stretch; gap: 8px; padding: 10px 12px; background: linear-gradient(135deg, rgba(255,248,230,0.96), rgba(244,226,180,0.96)); backdrop-filter: blur(8px); border: 3px solid #6b4a24; border-radius: 16px; box-shadow: 0 4px 0 #4a3216, 0 8px 24px rgba(0,0,0,0.5); }
-  .ini-wrap.hub .ini-dock .ini-dt { flex: 1 1 100%; font: 900 18px/1 'Fredoka', sans-serif; padding-right: 0; }
-  .ini-wrap.hub .ini-dock .ini-dsub { flex: 1 1 100%; font: 700 11.5px/1.2 sans-serif; color: #5b3a12; margin-bottom: 2px; }
-  .ini-wrap.hub .ini-dock .ini-opt { flex: 1 1 calc(50% - 6px); min-height: 52px; padding: 6px 10px; border-radius: 12px; }
-  .ini-wrap.hub .ini-dock .ini-opt b { font-size: 14px; }
-  .ini-wrap.hub .ini-dock .ini-opt small { font-size: 10.5px; }
-  .ini-wrap.hub .ini-x { display: none; }
+  .ini-hfoot { pointer-events: auto; display: flex; gap: 6px; height: 34px; flex: none; margin-top: 2px; }
+  .ini-hfoot button { flex: 1; border: 2px solid rgba(107,74,36,0.9); border-radius: 10px; background: rgba(255,243,207,0.92); backdrop-filter: blur(8px); font: 900 12px 'Fredoka', sans-serif; color: #5b3a12; cursor: pointer; box-shadow: 0 2px 0 rgba(107,74,36,0.9); padding: 0 8px; display: flex; align-items: center; justify-content: center; gap: 5px; }
+  .ini-hfoot button:active { transform: translateY(1px); box-shadow: 0 1px 0 rgba(107,74,36,0.9); }
+  .ini-wrap.hub .ini-dock { top: auto; bottom: 14px; right: 14px; left: auto; width: min(350px, calc(100% - 210px)); max-height: calc(100% - 68px); flex-direction: row; flex-wrap: wrap; align-items: stretch; gap: 6px; padding: 10px 12px; background: linear-gradient(135deg, rgba(255,248,230,0.96), rgba(244,226,180,0.96)); backdrop-filter: blur(10px); border: 3px solid #6b4a24; border-radius: 16px; box-shadow: 0 4px 0 #4a3216, 0 10px 28px rgba(0,0,0,0.6); z-index: 40; }
+  .ini-wrap.hub .ini-dock .ini-x { display: block; position: absolute; right: 8px; top: 8px; width: 26px; height: 26px; border-radius: 50%; border: 2px solid #6b4a24; background: #fff; font: 900 13px sans-serif; color: #6b4a24; cursor: pointer; padding: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.25); }
+  .ini-wrap.hub .ini-dock .ini-dt { flex: 1 1 100%; font: 900 17px/1 'Fredoka', sans-serif; padding-right: 32px; }
+  .ini-wrap.hub .ini-dock .ini-dsub { flex: 1 1 100%; font: 700 11px/1.2 sans-serif; color: #5b3a12; margin-bottom: 2px; }
+  .ini-wrap.hub .ini-dock .ini-opt { flex: 1 1 calc(50% - 4px); min-height: 48px; padding: 5px 8px; border-radius: 10px; gap: 6px; }
+  .ini-wrap.hub .ini-dock .ini-opt i { font-size: 20px; width: 24px; }
+  .ini-wrap.hub .ini-dock .ini-opt b { font-size: 13px; }
+  .ini-wrap.hub .ini-dock .ini-opt small { font-size: 9.5px; }
+  @media (max-width: 640px) {
+    .ini-hublist { width: 140px; left: 8px; top: 48px; bottom: 8px; gap: 6px; }
+    .ini-hi { min-height: 48px; padding: 0 8px; gap: 6px; }
+    .ini-hi i { font-size: 20px; width: 24px; }
+    .ini-hi b { font-size: 13px; }
+    .ini-hi small { display: none; }
+    .ini-wrap.hub .ini-dock { right: 8px; bottom: 8px; width: min(320px, calc(100% - 156px)); padding: 8px; }
+    .ini-wrap.hub .ini-dock .ini-opt { flex: 1 1 100%; min-height: 44px; }
+  }
   /* ---- transición «entrar a la sala»: zoom que acelera, desenfoque horizontal y rayas de velocidad ---- */
   .ini-room { display: none; position: absolute; inset: 0; z-index: 48; padding-top: 44px; box-sizing: border-box; background: #1f0e08; overflow: hidden; }
   .ini-room.arrive { animation: iniArrive 0.36s cubic-bezier(.1,.7,.2,1); } .ini-room.leaving { animation: iniLeave 0.32s cubic-bezier(.6,0,1,.5) forwards; }
@@ -509,7 +519,7 @@
     body += opt(ok ? 'go' : 'off', '⚡', 'Supervivencia Rash', ok ? 'Rondas sin fin con vidas · vas por ronda ' + rashLvl() : '🔒 Bloqueado hasta la lección de Ramen', 'rash', '', ok ? '▶' : '🔒');
     body += opt('go', '🗾', 'Recorrido por Japón', 'Restaurantes que generan soles y «Jugar aquí»', 'door');
     body += opt('go', '👥', 'Multijugador', 'Salas con amigos o matchmaking global (2 a 4 chefs)', 'room');
-    return `<div class="ini-dt"><span>🍜</span>Jugar</div><div class="ini-dsub">Elige tu modo de servicio y empieza a cocinar.</div>${body}`;
+    return `<button class="ini-x" onclick="Inicio.close()" aria-label="Cerrar">✕</button><div class="ini-dt"><span>🍜</span>Jugar</div><div class="ini-dsub">Elige tu modo de servicio y empieza a cocinar.</div>${body}`;
   }
   function restaurantePanel() {
     const wallet = (() => { try { return getPropinasWallet(); } catch (e) { return 0; } })();
@@ -518,7 +528,7 @@
     body += opt('go', '📖', 'Recetario Oficial', '35 recetas: ingredientes, montaje y precios', 'book');
     body += opt('go', '🏆', 'Ranking Mundial', 'Líderes de Campaña, Rash y Ligas MMR', 'board');
     body += opt('go', '🔐', 'Mi Cuenta y Progreso', 'Clave en la nube ☁️, estadísticas y despensa', 'acct');
-    return `<div class="ini-dt"><span>🏆</span>Mi Restaurante</div><div class="ini-dsub">Progresión, recetas, clasificación y gestión de tu cuenta.</div>${body}`;
+    return `<button class="ini-x" onclick="Inicio.close()" aria-label="Cerrar">✕</button><div class="ini-dt"><span>🏆</span>Mi Restaurante</div><div class="ini-dsub">Progresión, recetas, clasificación y gestión de tu cuenta.</div>${body}`;
   }
   function panel(id) {
     if (id === 'jugar') return jugarPanel();
@@ -579,15 +589,15 @@
       ${opt('', '🔊', 'Sonido', 'Activar o silenciar efectos', 'sound')}${opt('', '⛶', 'Pantalla completa', 'Atajo: F', 'full')}${S.hub ? opt('', '🏮', 'Local completo', 'Vista isométrica con todas las zonas', 'iso') : opt('', '🏮', 'Vista hub', 'Lista a la izquierda y local a la derecha', 'hubview')}${opt('', '📋', 'Menú clásico', 'Vuelve a la lista de botones de antes', 'classic')}
       ${opt('', '🔄', 'Actualizar juego', 'Descarga la última versión ' + ver, 'update')}${opt('', '⌨️', 'Atajos de teclado', '', 'keys')}${opt('', '🛡️', 'Dispositivo', 'Identificador para vincular récords', 'device')}`;
   }
-  function openPanel(html) { S.dock.innerHTML = html; S.dock.classList.add('open'); S.dock.scrollTop = 0; S.wrap.classList.add('focus'); }
-  function closePanel() { if (!S) return; S.dock.classList.remove('open'); S.wrap.classList.remove('focus'); S.layers.ui.querySelectorAll('.ini-pin.focus').forEach(p => p.classList.remove('focus')); }
+  function openPanel(html) { S.dock.innerHTML = html; S.dock.classList.add('open'); S.dock.scrollTop = 0; S.wrap.classList.add('focus'); if (S.hub) renderHub(); }
+  function closePanel() { if (!S) return; S.dock.classList.remove('open'); S.wrap.classList.remove('focus'); S.layers.ui.querySelectorAll('.ini-pin.focus').forEach(p => p.classList.remove('focus')); if (S.hub) renderHub(); }
   function openZone(id) {
     try { playSound('add'); } catch (e) {}
     S.layers.ui.querySelectorAll('.ini-pin.focus').forEach(p => p.classList.remove('focus'));
     const p = S.layers.ui.querySelector(`.ini-pin[data-z="${id}"]`); if (p) p.classList.add('focus');
     focusOn(id, true); openPanel(panel(id));
   }
-  function closeZone() { closePanel(); if (S.hub) frameOpt(true); else fit(true); }
+  function closeZone() { closePanel(); fit(true); }
 
   // ---------- acciones ----------
   const ACT = {
@@ -608,7 +618,8 @@
   // ---------- hub: lista de opciones (3 Pilares) ----------
   function renderHub() {
     if (!S || !S.hublist) return;
-    S.hublist.innerHTML = HUB.map(h => `<button class="ini-hi ${S.opt === h.id ? 'sel' : ''} ${firstTime() && h.id === 'aprender' ? 'first' : ''}" onclick="Inicio.pick('${h.id}')"><i>${h.i}</i><span><b>${h.n}</b><small>${h.s}</small></span><em>▶</em></button>`).join('')
+    const isDockOpen = S.dock && S.dock.classList.contains('open');
+    S.hublist.innerHTML = HUB.map(h => `<button class="ini-hi ${isDockOpen && S.opt === h.id ? 'sel' : ''} ${firstTime() && h.id === 'aprender' ? 'first' : ''}" onclick="Inicio.pick('${h.id}')"><i>${h.i}</i><span><b>${h.n}</b><small>${h.s}</small></span><em>▶</em></button>`).join('')
       + '<div class="ini-hfoot"><button onclick="Inicio.gear()" aria-label="Ajustes">⚙️ <span>Ajustes del Sistema</span></button></div>';
   }
   function applyHubVis() {
@@ -621,12 +632,20 @@
   /** Elige un pilar del hub: encuadra la cámara y abre sus opciones directas. @param {string} id clave de HUB */
   function pickOpt(id) {
     if (!S || !HUBO[id]) return; try { playSound('add'); } catch (e) {}
-    S.opt = id; store.set('ramen_inicio_opt', id); renderHub(); applyHubVis();
-    frameOpt(true);
     if (id === 'aprender') {
+      S.opt = id; store.set('ramen_inicio_opt', id); renderHub();
       closePanel();
       setTimeout(() => { if (S && S.opt === 'aprender') enterRoom('aula'); }, 140);
-    } else if (id === 'jugar') {
+      return;
+    }
+    // Si ya estaba abierto este pilar y el panel está visible, al tocarlo de nuevo se cierra y vuelve la vista completa
+    if (S.opt === id && S.dock.classList.contains('open')) {
+      closeZone();
+      return;
+    }
+    S.opt = id; store.set('ramen_inicio_opt', id);
+    frameOpt(true);
+    if (id === 'jugar') {
       openPanel(jugarPanel());
     } else if (id === 'restaurante') {
       openPanel(restaurantePanel());
@@ -693,7 +712,10 @@
       const p = S.ptr; S.ptr = null; if (!p || Math.hypot(e.clientX - p.x, e.clientY - p.y) > 10 || performance.now() - p.t > 700) return;
       const [wx, wy] = worldPt(e.clientX, e.clientY), id = hitZone(wx, wy);
       if (S.hub) {
-        if (!id) return;
+        if (!id) {
+          if (S.dock.classList.contains('open') || cam.focus) closeZone();
+          return;
+        }
         if (id === 'maestro') Inicio.pick('aprender');
         else if (id === 'caja' || id === 'cuchillos' || id === 'pizarra' || id === 'libro' || id === 'baul') Inicio.pick('restaurante');
         else Inicio.pick('jugar');
@@ -714,9 +736,8 @@
     if (!S.built) {
       measure(); build();
       if (S.hub) {
-        renderHub(); applyHubVis(); fit(false); frameOpt(false);
-        if (S.opt === 'jugar') openPanel(jugarPanel());
-        else if (S.opt === 'restaurante') openPanel(restaurantePanel());
+        renderHub(); applyHubVis(); fit(false);
+        closePanel();
       } else fit(false);
       S.built = true; updatePlay();
     }
