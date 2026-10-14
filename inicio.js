@@ -1393,7 +1393,7 @@
     sc.appendChild(wrap);
 
     S = {
-      wrap, side, stage, artWrap, metaWrap, metaBg, metaContent,
+      wrap, side, stage, artWrap, metaWrap, metaBg, metaContent, room,
       sub: null,         // null (nivel raíz pilares) | 'jugar' | 'aprender' | 'restaurante' | 'gear'
       item: 'jugar',     // clave del item actualmente seleccionado y mostrado en la vitrina
       curRoom: null,
@@ -1703,21 +1703,29 @@
   }
 
   // ---------- salas (Aula, Secretos): velocidad y retorno limpio ----------
+  /** Entra a una sala (Aula, Secretos) con el efecto de velocidad. Si la sala falla, el menú vuelve a quedar utilizable. @param {string} name clave registrada con registerRoom */
   function enterRoom(name) {
-    const R = ROOMS[name]; if (!S || !R || S.busy) return;
+    const R = ROOMS[name]; if (!S || !S.room || !R || S.busy) return;
     S.busy = true; sfx('serve');
     const ms = reduced() ? 30 : 350;
     S.wrap.classList.add('zoomout');
     setTimeout(() => {
-      S.curRoom = name;
-      S.room.style.display = 'block'; S.room.className = 'ini-room arrive'; S.room.innerHTML = '';
-      try { R.mount(S.room, roomApi()); } catch (e) { console.warn('sala', name, e); }
+      try {
+        S.curRoom = name;
+        S.room.style.display = 'block'; S.room.className = 'ini-room arrive'; S.room.innerHTML = '';
+        R.mount(S.room, roomApi());
+      } catch (e) {
+        console.warn('sala', name, e);
+        S.curRoom = null; S.room.style.display = 'none'; S.room.className = 'ini-room'; S.room.innerHTML = '';
+        S.wrap.classList.remove('zoomout'); S.busy = false;
+      }
     }, ms);
-    setTimeout(() => { S.room.classList.remove('arrive'); S.busy = false; }, ms + (reduced() ? 30 : 300));
+    setTimeout(() => { if (S.room) S.room.classList.remove('arrive'); S.busy = false; }, ms + (reduced() ? 30 : 300));
   }
 
+  /** Sale de la sala actual con la transición al revés y vuelve a pintar el menú. */
   function leaveRoom() {
-    if (!S || !S.curRoom || S.busy) return;
+    if (!S || !S.room || !S.curRoom || S.busy) return;
     const R = ROOMS[S.curRoom]; S.busy = true; sfx('click');
     try { R && R.unmount && R.unmount(); } catch (e) {}
     S.room.classList.add('leaving');

@@ -13,7 +13,7 @@ const UNLOCKS = eval('(' + src.match(/const AREA_DISH_UNLOCKS = (\{[\s\S]*?\n\})
 const SEC = { ramen: 13, salteados: 14, makis: 15, frituras: 24 };
 // Con las etapas de Producción y Emplatar activas (desde el nivel indicado) cada pedido lleva más trabajo.
 const STAGED_EXTRA = { ramen: 7, salteados: 8, makis: 9, frituras: 14 };
-const STAGE_GATE_LEVEL = { ramen: 4, salteados: 5, makis: 7, frituras: 7 };
+const STAGE_GATE_LEVEL = eval('(' + src.match(/const STAGE_GATE_LEVEL = ({[^}]*})/)[1] + ')');   // se lee del juego para no desactualizarse
 // Cuánto más lento es un jugador que está aprendiendo (1.8 = casi el doble) en cada nivel.
 const NOVICE = [1.8, 1.65, 1.5, 1.4, 1.35, 1.3, 1.25, 1.2, 1.18, 1.15, 1.12, 1.1, 1.08, 1.06, 1.04, 1.02, 1.0, 1.0, 0.98, 0.95];
 

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ramen-mania-v144';
+const CACHE_NAME = 'ramen-mania-v145';
 
 // Solo el shell esencial para instalación instantánea (< 50ms)
 const CORE_SHELL = [
@@ -7,9 +7,9 @@ const CORE_SHELL = [
   './multiplayer.js',
   './multiplayer.js?v=21',
   './inicio.js',
-  './inicio.js?v=26',
+  './inicio.js?v=27',
   './aula.js',
-  './aula.js?v=6',
+  './aula.js?v=7',
   './guia.js',
   './guia.js?v=8',
   './manifest.json'
