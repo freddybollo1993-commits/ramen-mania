@@ -1,0 +1,152 @@
+{
+ "cols": 4,
+ "rows": 3,
+ "frame": [
+  128,
+  192
+ ],
+ "pivot": [
+  64,
+  182
+ ],
+ "sets": [
+  {
+   "name": "caminar_se",
+   "frames": 4,
+   "scale": 0.6148
+  },
+  {
+   "name": "trabajo_se",
+   "frames": 4,
+   "scale": 0.2885
+  },
+  {
+   "name": "caminar_ne",
+   "frames": 4,
+   "scale": 0.625
+  }
+ ],
+ "frames": [
+  {
+   "row": 0,
+   "col": 0,
+   "set": "caminar_se",
+   "x": 0,
+   "y": 0,
+   "w": 128,
+   "h": 192,
+   "empty": false
+  },
+  {
+   "row": 0,
+   "col": 1,
+   "set": "caminar_se",
+   "x": 128,
+   "y": 0,
+   "w": 128,
+   "h": 192,
+   "empty": false
+  },
+  {
+   "row": 0,
+   "col": 2,
+   "set": "caminar_se",
+   "x": 256,
+   "y": 0,
+   "w": 128,
+   "h": 192,
+   "empty": false
+  },
+  {
+   "row": 0,
+   "col": 3,
+   "set": "caminar_se",
+   "x": 384,
+   "y": 0,
+   "w": 128,
+   "h": 192,
+   "empty": false
+  },
+  {
+   "row": 1,
+   "col": 0,
+   "set": "trabajo_se",
+   "x": 0,
+   "y": 192,
+   "w": 128,
+   "h": 192,
+   "empty": false
+  },
+  {
+   "row": 1,
+   "col": 1,
+   "set": "trabajo_se",
+   "x": 128,
+   "y": 192,
+   "w": 128,
+   "h": 192,
+   "empty": false
+  },
+  {
+   "row": 1,
+   "col": 2,
+   "set": "trabajo_se",
+   "x": 256,
+   "y": 192,
+   "w": 128,
+   "h": 192,
+   "empty": false
+  },
+  {
+   "row": 1,
+   "col": 3,
+   "set": "trabajo_se",
+   "x": 384,
+   "y": 192,
+   "w": 128,
+   "h": 192,
+   "empty": false
+  },
+  {
+   "row": 2,
+   "col": 0,
+   "set": "caminar_ne",
+   "x": 0,
+   "y": 384,
+   "w": 128,
+   "h": 192,
+   "empty": false
+  },
+  {
+   "row": 2,
+   "col": 1,
+   "set": "caminar_ne",
+   "x": 128,
+   "y": 384,
+   "w": 128,
+   "h": 192,
+   "empty": false
+  },
+  {
+   "row": 2,
+   "col": 2,
+   "set": "caminar_ne",
+   "x": 256,
+   "y": 384,
+   "w": 128,
+   "h": 192,
+   "empty": false
+  },
+  {
+   "row": 2,
+   "col": 3,
+   "set": "caminar_ne",
+   "x": 384,
+   "y": 384,
+   "w": 128,
+   "h": 192,
+   "empty": false
+  }
+ ],
+ "note": "Maestro de Ramen. Filas: 0 caminar SE, 1 trabajar SE (de frente), 2 caminar NE (de espaldas). SW y NW = reflejo horizontal de SE y NE. Pivote en los pies."
+}

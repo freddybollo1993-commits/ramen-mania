@@ -44,37 +44,57 @@ function quitarMagenta(ctx, w, h, thr) {
   }
   ctx.putImageData(d, 0, 0);
 }
-function cajaVisible(ctx, w, h) {
+function medir(ctx, w, h) {                                    // caja visible del personaje y posición X de sus pies (para anclar por los pies, no por el centro del cuerpo)
   const p = ctx.getImageData(0, 0, w, h).data; let x0 = w, y0 = h, x1 = -1, y1 = -1;
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (p[(y * w + x) * 4 + 3] > 24) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
-  return x1 < 0 ? null : { x: x0, y: y0, w: x1 - x0 + 1, h: y1 - y0 + 1 };
+  if (x1 < 0) return null;
+  const bh = y1 - y0 + 1, fy = y1 - Math.max(2, Math.round(bh * 0.1)); let fx0 = w, fx1 = -1;     // «pies» = franja del 10 % inferior
+  for (let y = fy; y <= y1; y++) for (let x = x0; x <= x1; x++) if (p[(y * w + x) * 4 + 3] > 24) { if (x < fx0) fx0 = x; if (x > fx1) fx1 = x; }
+  return { x: x0, y: y0, w: x1 - x0 + 1, h: bh, feetX: (fx0 + fx1) / 2 };
 }
-function procesarHoja(img, o) {
-  const W = img.naturalWidth || img.width, H = img.naturalHeight || img.height, cellW = W / o.cols, cellH = H / o.rows;
-  const work = document.createElement('canvas'); work.width = W; work.height = H;
-  const wc = work.getContext('2d', { willReadFrequently: true }); wc.drawImage(img, 0, 0); quitarMagenta(wc, W, H, o.thr);
-  const cells = [];
-  for (let r = 0; r < o.rows; r++) for (let c = 0; c < o.cols; c++) {
+function limpiarHoja(img, thr) {
+  const W = img.naturalWidth || img.width, H = img.naturalHeight || img.height, work = document.createElement('canvas'); work.width = W; work.height = H;
+  const wc = work.getContext('2d', { willReadFrequently: true }); wc.drawImage(img, 0, 0); quitarMagenta(wc, W, H, thr); return work;
+}
+function cortarCeldas(work, cols, rows, sel) {
+  const W = work.width, H = work.height, cellW = W / cols, cellH = H / rows, out = [];
+  (sel || Array.from({ length: cols * rows }, (_, i) => [Math.floor(i / cols), i % cols])).forEach(([r, c]) => {
     const sx = Math.round(c * cellW), sy = Math.round(r * cellH), sw = Math.round(cellW), sh = Math.round(cellH);
     const cc = document.createElement('canvas'); cc.width = sw; cc.height = sh; const cx = cc.getContext('2d', { willReadFrequently: true });
-    cx.drawImage(work, sx, sy, sw, sh, 0, 0, sw, sh);
-    cells.push({ r, c, cv: cc, box: cajaVisible(cx, sw, sh) });
-  }
-  const alturas = cells.filter(k => k.box).map(k => k.box.h), maxH = Math.max(...alturas);   // misma escala para todos los cuadros: manda el más alto
-  const k = o.th / maxH;
-  const atlas = document.createElement('canvas'); atlas.width = o.cols * o.cw; atlas.height = o.rows * o.ch;
-  const ax = atlas.getContext('2d'); ax.imageSmoothingQuality = 'high';
-  const frames = [];
-  cells.forEach(cell => {
-    const ox = cell.c * o.cw, oy = cell.r * o.ch;
-    if (cell.box) {
-      const b = cell.box, dw = b.w * k, dh = b.h * k, dx = ox + o.cw / 2 - dw / 2, dy = oy + o.base - dh;   // pies sobre la línea base, centrado en el cuadro
-      ax.drawImage(cell.cv, b.x, b.y, b.w, b.h, dx, dy, dw, dh);
-    }
-    frames.push({ row: cell.r, col: cell.c, x: ox, y: oy, w: o.cw, h: o.ch, empty: !cell.box });
+    cx.drawImage(work, sx, sy, sw, sh, 0, 0, sw, sh); out.push({ r, c, cv: cc, box: medir(cx, sw, sh) });
   });
-  return { canvas: atlas, meta: { cols: o.cols, rows: o.rows, frame: [o.cw, o.ch], pivot: [o.cw / 2, o.base], scale: +k.toFixed(4), sourceMaxHeight: maxH, frames } };
+  return out;
 }
+/* Arma un atlas con una fila por «juego» de cuadros. sets: [{ img, cols, rows, cells: [[fila, col], ...] (omitir = todas), name }].
+   Cada juego se escala con un solo factor (manda su cuadro más alto) para que el personaje no cambie de tamaño dentro de la animación.
+   o: { cw, ch, th, base, thr }. Devuelve { canvas, meta, avisos }. */
+function armarAtlas(sets, o) {
+  const nc = Math.max(...sets.map(s => (s.cells ? s.cells.length : s.cols * s.rows)));
+  const atlas = document.createElement('canvas'); atlas.width = nc * o.cw; atlas.height = sets.length * o.ch;
+  const ax = atlas.getContext('2d'); ax.imageSmoothingQuality = 'high'; const frames = [], avisos = [], rows = [];
+  sets.forEach((st, ri) => {
+    const cells = cortarCeldas(limpiarHoja(st.img, o.thr), st.cols, st.rows, st.cells), maxH = Math.max(...cells.filter(k => k.box).map(k => k.box.h)), k = o.th / maxH;
+    rows.push({ name: st.name || ('fila' + ri), frames: cells.length, scale: +k.toFixed(4) });
+    cells.forEach((cell, ci) => {
+      const ox = ci * o.cw, oy = ri * o.ch;
+      if (cell.box) {
+        const b = cell.box, dw = b.w * k, dh = b.h * k, dx = ox + o.cw / 2 - (b.feetX - b.x) * k, dy = oy + o.base - dh;     // pies centrados en el cuadro y sobre la línea base
+        if (dx < ox - 0.5 || dx + dw > ox + o.cw + 0.5) avisos.push((st.name || ri) + ' cuadro ' + ci + ' se sale del ancho del cuadro');
+        ax.drawImage(cell.cv, b.x, b.y, b.w, b.h, dx, dy, dw, dh);
+      }
+      frames.push({ row: ri, col: ci, set: st.name || ('fila' + ri), x: ox, y: oy, w: o.cw, h: o.ch, empty: !cell.box });
+    });
+  });
+  return { canvas: atlas, meta: { cols: nc, rows: sets.length, frame: [o.cw, o.ch], pivot: [o.cw / 2, o.base], sets: rows, frames }, avisos };
+}
+function procesarHoja(img, o) {
+  // la hoja simple se devuelve con la misma cuadrícula que la original
+  const at = document.createElement('canvas'); at.width = o.cols * o.cw; at.height = o.rows * o.ch; const x = at.getContext('2d');
+  const set = cortarCeldas(limpiarHoja(img, o.thr), o.cols, o.rows), maxH = Math.max(...set.filter(k => k.box).map(k => k.box.h)), k = o.th / maxH, frames = [];
+  set.forEach(cell => { const ox = cell.c * o.cw, oy = cell.r * o.ch; if (cell.box) { const b = cell.box, dw = b.w * k, dh = b.h * k; x.drawImage(cell.cv, b.x, b.y, b.w, b.h, ox + o.cw / 2 - (b.feetX - b.x) * k, oy + o.base - dh, dw, dh); } frames.push({ row: cell.r, col: cell.c, x: ox, y: oy, w: o.cw, h: o.ch, empty: !cell.box }); });
+  return { canvas: at, meta: { cols: o.cols, rows: o.rows, frame: [o.cw, o.ch], pivot: [o.cw / 2, o.base], scale: +k.toFixed(4), sourceMaxHeight: maxH, frames } };
+}
+window.armarAtlas = armarAtlas;
 window.procesarHoja = procesarHoja;
 let last = null, imgEl = null;
 const $ = id => document.getElementById(id);

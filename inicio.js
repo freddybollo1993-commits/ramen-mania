@@ -119,6 +119,12 @@
   .ini-paw { transform-origin: 20% 80%; animation: iniPaw 1.2s ease-in-out infinite; } @keyframes iniPaw { 50% { transform: rotate(-26deg); } }
   .ini-koi { animation: iniKoi 3.4s ease-in-out infinite; transform-origin: 0 50%; } @keyframes iniKoi { 50% { transform: rotate(7deg); } }
   .ini-flame { animation: jpFire 0.5s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: 50% 100%; }
+  /* sprites de personas (atlas de 4 columnas × 3 filas de 128×192 a la mitad de tamaño): fila 0 caminar de frente, 1 trabajar, 2 caminar de espaldas; el reflejo horizontal da las otras dos direcciones */
+  .ini-sp { position: absolute; left: -18px; top: -37px; width: 64px; height: 96px; background-size: 256px 288px; background-repeat: no-repeat; background-position: 0 0; pointer-events: none; }
+  .jp-p.flip .ini-sp { transform: scaleX(-1); }
+  .jp-p.walk .ini-sp { animation: iniSpr 0.46s steps(4) infinite; } .jp-p.walk.up .ini-sp { background-position-y: -192px; }
+  .jp-p.work .ini-sp { background-position-y: -96px; animation: iniSpr calc(var(--wk, 0.8s) * 1.1) steps(4) infinite; }
+  @keyframes iniSpr { from { background-position-x: 0; } to { background-position-x: -256px; } }
   .ini-play { position: absolute; right: 10px; bottom: 10px; z-index: 30; border: 3px solid #ffe082; border-radius: 16px; padding: 7px 18px 8px; background: linear-gradient(135deg, #ff9800, #d32f2f 65%, #b71c1c); color: #fff; font: 900 16px/1.1 'Fredoka', sans-serif; box-shadow: 0 4px 0 #5f0000, 0 0 16px rgba(255,152,0,0.55); cursor: pointer; text-shadow: 0 1px 0 rgba(0,0,0,0.4); }
   .ini-play small { display: block; font-size: 10px; font-weight: 700; opacity: 0.9; }
   .ini-gear { position: absolute; left: 10px; bottom: 10px; z-index: 30; width: 40px; height: 40px; border-radius: 50%; border: 2px solid #6b4a24; background: #fff3cf; font-size: 20px; box-shadow: 0 2px 0 #6b4a24; cursor: pointer; padding: 0; }
@@ -298,6 +304,16 @@
   }
 
   // ---------- personas ----------
+  // Arte final por sprites (si el archivo no carga, se queda la figura vectorial provisional)
+  const SPR = { cook_ramen: { url: 'assets/people/cook_ramen_v1.webp', ok: false } };
+  let sprDirty = false;
+  Object.values(SPR).forEach(sp => { const im = new Image(); im.onload = () => { sp.ok = true; sprDirty = true; }; im.src = sp.url; });
+  /** Cambia la figura vectorial de una persona por su sprite. @param {object} e entidad de la escena @param {string} key clave en SPR */
+  function useSprite(e, key) {
+    const sp = SPR[key]; if (!sp || !sp.ok) return;
+    const fl = e.el.querySelector('.fl'); if (fl) fl.style.display = 'none';
+    const d = document.createElement('div'); d.className = 'ini-sp'; d.style.backgroundImage = 'url(' + sp.url + ')'; e.el.appendChild(d); e.sprite = true;
+  }
   function place(e, x, y) { e.x = x; e.y = y; e.el.style.transform = `translate(${(sx(x, y) - 14).toFixed(1)}px, ${(sy(x, y) - 54 - (e.lift || 0)).toFixed(1)}px)`; e.el.style.zIndex = dz(x, y, e.zoff || 0); }
   function addEnt(role, x, y, opt) {
     const el = mkPerson(role, opt); S.layers.ents.appendChild(el);
@@ -315,9 +331,10 @@
     AREAS.forEach((a, i) => {
       if (!lit[a.id]) return;
       const cx = (a.x[0] + a.x[1]) / 2;
-      [-0.9, 0.9].slice(0, a.id === 'ramen' ? 2 : 1).forEach((dx, k) => {
-        const e = addEnt('cook', cx + (a.id === 'ramen' ? dx : 0), 0.55, { lvl: 0, band: LV[Math.min(4, i + 1)], cloth: ['#37474f', '#5d4037', '#455a64', '#4e342e'][i % 4] });
+      [0].forEach((dx, k) => {
+        const e = addEnt('cook', cx + dx, 0.55, { lvl: 0, band: LV[Math.min(4, i + 1)], cloth: ['#37474f', '#5d4037', '#455a64', '#4e342e'][i % 4] });
         e.el.classList.add('work'); e.el.style.setProperty('--wk', (0.8 + 0.15 * i).toFixed(2) + 's'); e.el.style.animationDelay = (k * 0.2) + 's'; e.home = [e.x, e.y]; e.area = a.id; e.t = rnd(4, 9); S.cooks.push(e);
+        if (a.id === 'ramen') useSprite(e, 'cook_ramen');
       });
     });
     const dep = addEnt('depo', 1.9, 1.7, {}); stand(dep, true); dep.home = [1.9, 1.7]; S.cooks.push(dep); dep.t = rnd(5, 9); dep.area = 'depo';
@@ -352,7 +369,7 @@
       if (e.path && e.path.length) {
         const [tx, ty] = e.path[0], dx = tx - e.x, dy = ty - e.y, d = Math.hypot(dx, dy), st = e.speed * dt;
         if (d <= st) { e.x = tx; e.y = ty; e.path.shift(); if (!e.path.length) { place(e, e.x, e.y); const f = e.done; e.done = null; if (f) f(); continue; } }
-        else { e.x += dx / d * st; e.y += dy / d * st; const sd = dx - dy; if (Math.abs(sd) > 0.05) e.el.classList.toggle('flip', sd < 0); }
+        else { e.x += dx / d * st; e.y += dy / d * st; const sd = dx - dy; if (Math.abs(sd) > 0.05) e.el.classList.toggle('flip', sd < 0); e.el.classList.toggle('up', dx + dy < 0); }
         place(e, e.x, e.y);
       }
     }
@@ -546,6 +563,7 @@
     const w = S.view.clientWidth, h = S.view.clientHeight;
     if (w !== S.vw || h !== S.vh) { if (cam.focus) focusOn(cam.focus.z, false); else fit(false); S.vw = w; S.vh = h; }
     if (document.hidden) return;                              // pestaña oculta: se detiene la animación
+    if (sprDirty) { sprDirty = false; buildPeople(S.lit); }
     tickPeople(dt);
     S.chk = (S.chk || 0) + dt;
     if (S.chk > 1.2) { S.chk = 0; updatePlay(); if (infoSig() !== S.sig) { build(); if (S.dock.classList.contains('open') && cam.focus) S.dock.innerHTML = panel(cam.focus.z); } }
