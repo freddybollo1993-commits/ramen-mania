@@ -8,7 +8,7 @@
   const K = window.JPKit;
   if (!K) return;
   const { TW, TH, GW, GD, OX, OY, WW, WH, WALL, sx, sy, P, mkPerson, boxHtml, bill, EQUIP, lamp, WOODC, TABLEC, LV, rnd, pick } = K;
-  const VKEY = 'ramen_inicio_vista';
+  const VKEY = 'ramen_inicio_vista2';          // 'hub' (por defecto) | 'iso' | 'classic'
   const dz = (x, y, o = 0) => Math.round((x + y) * 10) + 8 + o;
   const store = { get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} } };
   const $ = id => document.getElementById(id);
@@ -29,7 +29,9 @@
     makis: { n: 'Makis', i: '🍣', area: true, pin: [17.2, 0.3, WALL + 10], boxes: [[15.2, 0.1, 19.2, 2.0, 0, 64]], foc: [17.2, 1.2, 24, 2.2] },
     timbre: { n: 'Timbre', i: '🔔', s: 'Campaña · Rash', pin: [10.2, 3.6, 52], boxes: [[9.5, 3.2, 11.7, 4.4, 0, 36]], foc: [10.6, 3.8, 20, 2.4] },
     libro: { n: 'Recetario', i: '📖', pin: [13.6, 3.9, 34], boxes: [[12.0, 3.2, 13.6, 4.4, 0, 30]], foc: [12.8, 3.8, 20, 2.6] },
-    maestro: { n: 'Maestro', i: '🎓', pin: [3.6, 3.3, 80], boxes: [[2.9, 2.7, 4.4, 3.9, 0, 58]], foc: [3.6, 3.3, 26, 2.4] },
+    maestro: { n: 'Maestro', i: '🎓', pin: [4.6, 0.6, 96], boxes: [[4.5, 0.2, 5.9, 1.1, 0, 66]], foc: [5.2, 1.0, 30, 2.4] },
+    camp: { n: 'Campaña', i: '▶️', hubOnly: true, pin: [9.5, 3.6, 56], boxes: [[9.3, 3.2, 10.5, 4.4, 0, 36]], foc: [10.6, 3.8, 20, 2.4] },
+    rash: { n: 'Rash', i: '⚡', hubOnly: true, pin: [11.9, 3.6, 40], boxes: [[10.6, 3.2, 11.8, 4.4, 0, 36]], foc: [10.6, 3.8, 20, 2.4] },
     tickets: { n: 'Retos', i: '🎫', pin: [0.8, 9.6, 56], boxes: [[0.1, 8.8, 1.6, 10.3, 0, 44]], foc: [0.8, 9.5, 24, 2.5] },
     caja: { n: 'Caja', i: '💴', pin: [1.0, 11.5, 40], boxes: [[0.2, 10.3, 2.1, 11.9, 0, 34]], foc: [1.1, 11.0, 14, 2.5] },
     pizarra: { n: 'Ranking', i: '🏆', pin: [0.2, 2.0, 60], boxes: [[0, 0.3, 0.3, 3.1, 20, 58]], foc: [0.2, 1.6, 38, 2.4] },
@@ -39,6 +41,18 @@
     sala: { n: 'Sala privada', i: '🚪', pin: [16.5, 7.2, 56], boxes: [[14.0, 6.4, 19.9, 11.8, 0, 44]], foc: [17.0, 8.8, 16, 1.9] }
   };
   const FIRST_ZONE = 'maestro';
+  // Opciones del hub (lista de la izquierda): qué etiquetas se ven en la escena y cómo se encuadra la cámara. room = sala a la que se entra.
+  const HUB = [
+    { id: 'cocinar', i: '🍜', n: 'Cocinar', s: 'Campaña · Rash', zones: ['camp', 'rash'], frame: 'timbre' },
+    { id: 'aprender', i: '🎓', n: 'Aprender', s: 'Lecciones · Retos', zones: ['maestro'], frame: 'maestro' },
+    { id: 'japon', i: '🗾', n: 'Japón', s: 'Recorrido', zones: ['puerta'], frame: 'puerta' },
+    { id: 'multi', i: '👥', n: 'Multijugador', s: '2 a 4 chefs', zones: ['sala'], frame: 'sala' },
+    { id: 'tienda', i: '🧧', n: 'Tienda', s: 'Mejoras', zones: ['cuchillos'], frame: 'cuchillos' },
+    { id: 'coleccion', i: '📖', n: 'Colección', s: 'Recetario · Ranking', zones: ['libro', 'pizarra', 'caja'], frame: null },
+    { id: 'secretos', i: '📜', n: 'Secretos', s: 'El baúl del Maestro', zones: ['baul'], frame: 'baul' }
+  ];
+  const HUBO = Object.fromEntries(HUB.map(h => [h.id, h]));
+  const ROOMS = {};                                          // salas registradas por aula.js: { mount(el, api), unmount() }
   const ORDER_LES = ['ramen', 'salteados', 'makis', 'frituras'];
   const LES_NAME = { ramen: 'Ramen', salteados: 'Salteado', makis: 'Makis', frituras: 'Frituras' };
   const LES_ICON = { ramen: '🍜', salteados: '🥘', makis: '🍣', frituras: '🍤' };
@@ -125,6 +139,38 @@
   .jp-p.walk .ini-sp { animation: iniSpr 0.46s steps(4) infinite; } .jp-p.walk.up .ini-sp { background-position-y: -192px; }
   .jp-p.work .ini-sp { background-position-y: -96px; animation: iniSpr calc(var(--wk, 0.8s) * 1.1) steps(4) infinite; }
   @keyframes iniSpr { from { background-position-x: 0; } to { background-position-x: -256px; } }
+  /* ---- vista hub: lista a la izquierda y escena enfocada a la derecha ---- */
+  .ini-stage { position: absolute; inset: 0; }
+  .ini-hublist { display: none; position: absolute; left: 8px; top: 46px; bottom: 8px; width: calc(36% - 14px); flex-direction: column; gap: 4px; z-index: 20; }
+  .ini-wrap.hub .ini-hublist { display: flex; }
+  .ini-wrap.hub .ini-view { inset: 46px 8px 8px 36%; border: 3px solid #6b4a24; border-radius: 14px; box-shadow: 0 0 0 2px #2b1810, 0 6px 18px rgba(0,0,0,0.5); background: radial-gradient(ellipse at 50% 40%, #6b4126 0%, #351b0f 80%); }
+  .ini-wrap.hub .ini-pin { display: none; } .ini-wrap.hub .ini-pin.hv { display: block; } .ini-wrap.hub.meas .ini-pin { display: block !important; visibility: hidden; }
+  .ini-wrap.hub .ini-ring, .ini-wrap.hub .ini-start { display: none; } .ini-wrap.hub .ini-ring.hv, .ini-wrap.hub .ini-start.hv { display: block; }
+  .ini-wrap.hub .ini-pin { font-size: 14.5px; } .ini-wrap.hub .ini-gear, .ini-wrap.hub .ini-hint { display: none; } .ini-wrap.hub .ini-play { right: 18px; bottom: 16px; }
+  .ini-hi { flex: 1; min-height: 0; display: flex; align-items: center; gap: 8px; border: 2px solid #6b4a24; border-radius: 12px; background: linear-gradient(#fff4d6, #e9cf94); padding: 0 10px; color: #3b2208; font-family: 'Fredoka', sans-serif; cursor: pointer; box-shadow: 0 3px 0 #4a3216; text-align: left; transition: transform 0.15s; }
+  .ini-hi i { font-style: normal; font-size: 22px; width: 28px; text-align: center; flex: none; } .ini-hi span { flex: 1; min-width: 0; }
+  .ini-hi b { display: block; font: 900 15px/1.05 'Fredoka', sans-serif; } .ini-hi small { display: block; font: 700 10px/1.1 sans-serif; color: #7a5a22; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ini-hi em { font-style: normal; opacity: 0; font-weight: 900; color: #b71c1c; } .ini-hi.sel { background: linear-gradient(#ffe9a8, #ffc84a); transform: translateX(8px); box-shadow: 0 3px 0 #8a5a00, 0 0 12px rgba(255,200,60,0.6); } .ini-hi.sel em { opacity: 1; }
+  .ini-hi.first:not(.sel) { animation: iniGlow 1.2s ease-in-out infinite; }
+  .ini-hfoot { display: flex; gap: 6px; height: 34px; flex: none; } .ini-hfoot button { flex: 1; border: 2px solid #6b4a24; border-radius: 10px; background: #fff3cf; font-size: 17px; cursor: pointer; box-shadow: 0 2px 0 #6b4a24; padding: 0; }
+  .ini-wrap.hub .ini-dock { top: auto; bottom: 16px; left: calc(36% + 14px); right: 16px; width: auto; max-height: 48%; flex-direction: row; flex-wrap: wrap; align-items: stretch; gap: 5px 8px; padding: 8px 10px; }
+  .ini-wrap.hub .ini-dock .ini-dt, .ini-wrap.hub .ini-dock .ini-dsub { flex: 1 1 100%; } .ini-wrap.hub .ini-dock .ini-opt { flex: 1 1 44%; }
+  /* ---- transición «entrar a la sala»: zoom que acelera, desenfoque horizontal y rayas de velocidad ---- */
+  .ini-room { display: none; position: absolute; inset: 0; z-index: 48; padding-top: 44px; box-sizing: border-box; background: #1f0e08; overflow: hidden; }
+  .ini-room.arrive { animation: iniArrive 0.36s cubic-bezier(.1,.7,.2,1); } .ini-room.leaving { animation: iniLeave 0.32s cubic-bezier(.6,0,1,.5) forwards; }
+  .ini-stage.zoomout { animation: iniWarpOut 0.4s cubic-bezier(.55,0,1,.45) forwards; } .ini-stage.arrive { animation: iniArrive2 0.36s cubic-bezier(.1,.7,.2,1); }
+  @keyframes iniWarpOut { 0% { transform: none; filter: none; } 30% { filter: url(#iniMB1); } 65% { filter: url(#iniMB2); } 100% { transform: scale(2.6); filter: url(#iniMB3); opacity: 0.1; } }
+  @keyframes iniArrive { from { transform: scale(1.35); filter: url(#iniMB2); opacity: 0.2; } 55% { filter: url(#iniMB1); opacity: 1; } to { transform: none; filter: none; } }
+  @keyframes iniLeave { to { transform: scale(0.6); filter: url(#iniMB2); opacity: 0; } }
+  @keyframes iniArrive2 { from { transform: scale(0.7); filter: url(#iniMB2); opacity: 0.1; } to { transform: none; filter: none; opacity: 1; } }
+  .ini-fx { position: absolute; inset: 0; z-index: 60; pointer-events: none; opacity: 0; overflow: hidden; }
+  .ini-fx::before { content: ''; position: absolute; inset: -25%; background: repeating-conic-gradient(from 0deg at 50% 50%, rgba(255,255,255,0) 0 2.4deg, rgba(255,255,255,0.85) 2.8deg 3.1deg, rgba(255,255,255,0) 3.5deg 7deg); -webkit-mask-image: radial-gradient(circle at 50% 50%, transparent 16%, #000 72%); mask-image: radial-gradient(circle at 50% 50%, transparent 16%, #000 72%); }
+  .ini-fx::after { content: ''; position: absolute; inset: 0; background: #fff6dc; opacity: 0; }
+  .ini-fx.on { animation: iniStreaks 0.6s ease-in-out; } .ini-fx.on::after { animation: iniFlash 0.6s ease-in-out; }
+  @keyframes iniStreaks { 0% { opacity: 0; transform: scale(0.8); } 35% { opacity: 1; } 75% { opacity: 1; transform: scale(1.5); } 100% { opacity: 0; transform: scale(1.9); } }
+  @keyframes iniFlash { 0%, 55% { opacity: 0; } 68% { opacity: 0.85; } 100% { opacity: 0; } }
+  .ini-nofx.ini-stage.zoomout, .ini-nofx .ini-room { filter: none !important; }
+  @media (prefers-reduced-motion: reduce) { .ini-stage.zoomout, .ini-stage.arrive, .ini-room.arrive, .ini-room.leaving, .ini-fx.on, .ini-fx.on::after { animation-duration: 0.01s; } }
   .ini-play { position: absolute; right: 10px; bottom: 10px; z-index: 30; border: 3px solid #ffe082; border-radius: 16px; padding: 7px 18px 8px; background: linear-gradient(135deg, #ff9800, #d32f2f 65%, #b71c1c); color: #fff; font: 900 16px/1.1 'Fredoka', sans-serif; box-shadow: 0 4px 0 #5f0000, 0 0 16px rgba(255,152,0,0.55); cursor: pointer; text-shadow: 0 1px 0 rgba(0,0,0,0.4); }
   .ini-play small { display: block; font-size: 10px; font-weight: 700; opacity: 0.9; }
   .ini-gear { position: absolute; left: 10px; bottom: 10px; z-index: 30; width: 40px; height: 40px; border-radius: 50%; border: 2px solid #6b4a24; background: #fff3cf; font-size: 20px; box-shadow: 0 2px 0 #6b4a24; cursor: pointer; padding: 0; }
@@ -282,21 +328,21 @@
     if (tier >= 4) h += bill(7.0, 0.3, 66, 60, 22, koiSvg('#ef5350'), 9) + bill(11.0, 0.3, 62, 60, 22, koiSvg('#42a5f5'), 9) + bill(15.0, 0.3, 66, 60, 22, koiSvg('#ffb300'), 9);
     L.st.innerHTML = h;
     // pins
-    const pins = Object.entries(ZONES).map(([id, z]) => {
+    const pins = Object.entries(ZONES).filter(([id, z]) => S.hub || !z.hubOnly).map(([id, z]) => {
       const dim = (z.area && !lit[id]) || (S.first && id !== FIRST_ZONE);
       const hint = '';
-      return `<div class="ini-pin ${dim ? 'dim' : ''} ${S.first && id === FIRST_ZONE ? 'glow' : ''} ${cam.focus && cam.focus.z === id ? 'focus' : ''}" data-z="${id}" style="left:${sx(z.pin[0], z.pin[1]).toFixed(1)}px;top:${sy(z.pin[0], z.pin[1], z.pin[2]).toFixed(1)}px">${z.i} ${z.n}${z.s ? `<small>${z.s}</small>` : ''}${hint}</div>`;
+      return `<div class="ini-pin ${S.hub && S.vis && S.vis.has(id) ? 'hv' : ''} ${dim ? 'dim' : ''} ${S.first && id === FIRST_ZONE ? 'glow' : ''} ${cam.focus && cam.focus.z === id ? 'focus' : ''}" data-z="${id}" style="left:${sx(z.pin[0], z.pin[1]).toFixed(1)}px;top:${sy(z.pin[0], z.pin[1], z.pin[2]).toFixed(1)}px">${z.i} ${z.n}${z.s ? `<small>${z.s}</small>` : ''}${hint}</div>`;
     }).join('');
     const mz = ZONES[FIRST_ZONE];
-    L.ui.innerHTML = pins + (S.first ? `<div class="ini-ring" style="left:${sx(3.6, 3.3).toFixed(1)}px;top:${sy(3.6, 3.3).toFixed(1)}px"></div><div class="ini-start" style="left:${sx(2.9, 4.2).toFixed(1)}px;top:${sy(2.9, 4.2).toFixed(1)}px">👆 ¡Empieza aquí!</div>` : '');
+    L.ui.innerHTML = pins + (S.first ? `<div class="ini-ring ${S.hub && S.vis && S.vis.has('maestro') ? 'hv' : ''}" data-z="maestro" style="left:${sx(5.2, 0.9).toFixed(1)}px;top:${sy(5.2, 0.9).toFixed(1)}px"></div><div class="ini-start ${S.hub && S.vis && S.vis.has('maestro') ? 'hv' : ''}" data-z="maestro" style="left:${sx(4.3, 2.5).toFixed(1)}px;top:${sy(4.3, 2.5).toFixed(1)}px">👆 ¡Empieza aquí!</div>` : '');
     // zonas tocables (casco del objeto + etiqueta)
-    S.shapes = [];
+    S.shapes = []; S.wrap.classList.add('meas');            // las etiquetas ocultas del hub se miden igual para saber dónde tocar
     Object.entries(ZONES).forEach(([id, z]) => {
       z.boxes.forEach(b => S.shapes.push({ z: id, p: boxHull(b) }));
       const el = L.ui.querySelector(`.ini-pin[data-z="${id}"]`);
       if (el) { const w = el.offsetWidth, hh = el.offsetHeight, l = el.offsetLeft - w / 2, t = el.offsetTop - hh; S.shapes.push({ z: id, p: [[l, t], [l + w, t], [l + w, t + hh], [l, t + hh]] }); }
     });
-    S.shapes.forEach(s => { s.a = polyArea(s.p); });
+    S.wrap.classList.remove('meas'); S.shapes.forEach(s => { s.a = polyArea(s.p); });
     // personas
     buildPeople(lit);
     S.sig = infoSig();
@@ -340,9 +386,6 @@
     const dep = addEnt('depo', 1.9, 1.7, {}); stand(dep, true); dep.home = [1.9, 1.7]; S.cooks.push(dep); dep.t = rnd(5, 9); dep.area = 'depo';
     for (let i = 0; i < 2; i++) { const w = addEnt('waiter', 5.0 + i * 8, 2.6, { lvl: 0 }); w.speed = 1.7; w.home = [5.0 + i * 8, 2.6]; w.state = 'idle'; w.wait = rnd(0.5, 2); S.waiters.push(w); }
     const ck = addEnt('cash', 2.7, 11.1, {}); stand(ck, true); ck.el.style.setProperty('--wk', '0.9s');
-    const sen = addEnt('cust', 3.6, 3.3, { cloth: '#37474f', hair: '#e0e0e0', skin: '#efc29b' }); sen.el.classList.add('chat');
-    const cap = document.createElement('div'); cap.className = 'ini-cap'; cap.textContent = '🎓'; sen.el.appendChild(cap); sen.zoff = 6; place(sen, 3.6, 3.3);
-    S.sensei = sen;
     // sala privada: gente conversando
     [[15.3, 9.0], [18.9, 9.0], [17.1, 7.6], [17.1, 10.6]].forEach(([x, y], i) => { const e = addEnt('cust', x, y, {}); sit(e, x, y, 3, y < 9 ? -8 : 6); e.el.style.animationDelay = (i * 0.3) + 's'; if (i === 2) e.flipTo = true; });
     // clientes en las mesas del salón
@@ -351,7 +394,6 @@
     // clientes de la barra al azar
     S.spawn = 0.2; S.guestsWanted = 4;
     STOOLS.forEach((st, i) => { if (Math.random() < 0.55 && S.guests.length < 4) seatGuest(i, true); });
-    S.sensei.noRelease = true;
   }
   function seatGuest(i, instant) {
     const [x, y] = STOOLS[i], e = addEnt('cust', instant ? x : DOOR[0], instant ? y : DOOR[1] + rnd(-0.3, 0.3), {});
@@ -439,14 +481,14 @@
     cam.tx = (w - WW * cam.s) / 2; cam.ty = top - 8 * cam.s; applyCam(anim);
   }
   function focusOn(id, anim) {
-    const z = ZONES[id]; if (!z) return fit(anim); const { w, h } = vsize(), f = z.foc, dock = Math.min(300, w * 0.4) + 6;
+    const z = ZONES[id]; if (!z) return fit(anim); const { w, h } = vsize(), f = z.foc, dock = S.hub ? 0 : Math.min(300, w * 0.4) + 6, dockH = S.hub && S.dock.classList.contains('open') ? 118 : 0;
     const s = cam.fit * f[3] * 0.62, cx = sx(f[0], f[1]), cy = sy(f[0], f[1], f[2]);
-    cam.s = s; cam.tx = (w - dock) / 2 - cx * s; cam.ty = h / 2 - cy * s; cam.focus = { z: id }; applyCam(anim !== false);
+    cam.s = s; cam.tx = (w - dock) / 2 - cx * s; cam.ty = (h - dockH) / 2 - cy * s; cam.focus = { z: id }; applyCam(anim !== false);
   }
   function worldPt(cx, cy) { const r = S.view.getBoundingClientRect(); return [(cx - r.left - cam.tx) / cam.s, (cy - r.top - cam.ty) / cam.s]; }
   function hitZone(wx, wy) {
     let best = null;
-    for (const s of S.shapes) if (inPoly(wx, wy, s.p) && (!best || s.a < best.a)) best = s;
+    for (const s of S.shapes) if ((!S.hub || S.vis.has(s.z)) && inPoly(wx, wy, s.p) && (!best || s.a < best.a)) best = s;
     return best ? best.z : null;
   }
 
@@ -467,6 +509,16 @@
       sub = ok ? 'Toca el timbre y empieza el servicio.' : 'Primero haz la lección de Ramen con el Maestro.';
       body += opt(ok ? 'go' : 'off', '▶️', 'Campaña', ok ? 'Niveles con meta de ventas y tiempo' : '🔒 Bloqueado hasta la lección de Ramen', 'camp', '', ok ? '▶' : '🔒');
       body += opt(ok ? 'go' : 'off', '⚡', 'Rash', ok ? 'Rondas sin fin · vas por la ronda ' + rashLvl() : '🔒 Bloqueado hasta la lección de Ramen', 'rash', '', ok ? '▶' : '🔒');
+    } else if (S.hub && (id === 'camp' || id === 'rash')) {
+      const ok = tutDone(), camp = id === 'camp';
+      sub = ok ? (camp ? 'Niveles con meta de ventas y tiempo, de Aprendiz a Maestro del Ramen.' : 'Rondas sin fin con vidas: llega lo más lejos que puedas.') : 'Primero haz la lección de Ramen con el Maestro.';
+      body += opt(ok ? 'go' : 'off', camp ? '▶️' : '⚡', camp ? 'Jugar Campaña' : 'Jugar Rash', ok ? (camp ? '8 niveles · propinas y recetas nuevas' : 'Vas por la ronda ' + rashLvl()) : '🔒 Bloqueado hasta la lección de Ramen', camp ? 'camp' : 'rash', '', ok ? '▶' : '🔒');
+    } else if (S.hub && id === 'maestro') {
+      sub = firstTime() ? '¡Empieza aquí! El Maestro te enseñará paso a paso.' : 'El Maestro te espera en el aula: lecciones, retos, práctica y repaso.';
+      body += opt('go', '🎓', 'Entrar al Aula', 'Lecciones · Retos · Práctica · Repaso', 'enter', 'aula');
+    } else if (S.hub && id === 'baul') {
+      sub = 'El Maestro lleva rato buscando algo en este baúl antiguo…';
+      body += opt('go', '📜', 'Entrar a la bodega', 'Secretos del Chef: cuchillos, ingredientes y recetas legendarias', 'enter', 'secretos');
     } else if (id === 'maestro') {
       const nxt = ORDER_LES.find(k => !fl[k]);
       sub = firstTime() ? '¡Empieza aquí! La primera lección es la de Ramen.' : `Lecciones ${ORDER_LES.filter(k => fl[k]).length}/4 · cada una da propinas la primera vez.`;
@@ -494,7 +546,7 @@
   function gearPanel() {
     const ver = (() => { const v = $('app-version'); return v ? v.textContent : ''; })();
     return `<button class="ini-x" onclick="Inicio.close()" aria-label="Cerrar">✕</button><div class="ini-dt"><span>⚙️</span>Ajustes</div>
-      ${opt('', '🔊', 'Sonido', 'Activar o silenciar efectos', 'sound')}${opt('', '⛶', 'Pantalla completa', 'Atajo: F', 'full')}${opt('', '📋', 'Menú clásico', 'Vuelve a la lista de botones de antes', 'classic')}
+      ${opt('', '🔊', 'Sonido', 'Activar o silenciar efectos', 'sound')}${opt('', '⛶', 'Pantalla completa', 'Atajo: F', 'full')}${S.hub ? opt('', '🏮', 'Local completo', 'Vista isométrica con todas las zonas', 'iso') : opt('', '🏮', 'Vista hub', 'Lista a la izquierda y local a la derecha', 'hubview')}${opt('', '📋', 'Menú clásico', 'Vuelve a la lista de botones de antes', 'classic')}
       ${opt('', '🔄', 'Actualizar juego', 'Descarga la última versión ' + ver, 'update')}${opt('', '⌨️', 'Atajos de teclado', '', 'keys')}${opt('', '🛡️', 'Dispositivo', 'Identificador para vincular récords', 'device')}`;
   }
   function openPanel(html) { S.dock.innerHTML = html; S.dock.classList.add('open'); S.dock.scrollTop = 0; S.wrap.classList.add('focus'); }
@@ -505,7 +557,7 @@
     const p = S.layers.ui.querySelector(`.ini-pin[data-z="${id}"]`); if (p) p.classList.add('focus');
     focusOn(id, true); openPanel(panel(id));
   }
-  function closeZone() { closePanel(); fit(true); }
+  function closeZone() { closePanel(); if (S.hub) frameOpt(true); else fit(true); }
 
   // ---------- acciones ----------
   const ACT = {
@@ -519,8 +571,57 @@
     pantry: () => reconOpen(), door: () => japonOpen(), room: () => MultiplayerManager.openLobbyModal(),
     acct: () => openAccountModal(), stats: () => openStatsModal(), order: () => openIngredientOrderModal(),
     sound: () => toggleAudioMute(), full: () => toggleFullScreen(), keys: () => openShortcutsModal(), update: () => forceAppCacheUpdate(), device: () => showDeviceInfoModal(),
-    classic: () => Inicio.setView('classic')
+    classic: () => Inicio.setView('classic'), iso: () => Inicio.setView('iso'), hubview: () => Inicio.setView('hub'),
+    enter: n => Inicio.enterRoom(n)
   };
+
+  // ---------- hub: lista de opciones ----------
+  function renderHub() {
+    if (!S || !S.hublist) return;
+    S.hublist.innerHTML = HUB.map(h => `<button class="ini-hi ${S.opt === h.id ? 'sel' : ''} ${firstTime() && h.id === 'aprender' ? 'first' : ''}" onclick="Inicio.pick('${h.id}')"><i>${h.i}</i><span><b>${h.n}</b><small>${h.s}</small></span><em>▶</em></button>`).join('')
+      + '<div class="ini-hfoot"><button onclick="Inicio.gear()" aria-label="Ajustes">⚙️</button><button onclick="Inicio.act(\'acct\')" aria-label="Cuenta">🔐</button><button onclick="Inicio.act(\'stats\')" aria-label="Estadísticas">📊</button></div>';
+  }
+  function applyHubVis() {
+    if (!S) return; const h = HUBO[S.opt], set = new Set(h ? h.zones : []); S.vis = set;
+    S.layers.ui.querySelectorAll('[data-z]').forEach(p => p.classList.toggle('hv', set.has(p.dataset.z)));
+  }
+  /** Encuadra la escena en la opción elegida (sin abrir tarjeta). */
+  function frameOpt(anim) { const h = HUBO[S.opt]; if (!h || !h.frame) { fit(anim); return; } focusOn(h.frame, anim); }
+  /** Elige una opción del hub: muestra solo sus etiquetas y lleva la cámara hasta ella. @param {string} id clave de HUB */
+  function pickOpt(id) {
+    if (!S || !HUBO[id]) return; try { playSound('add'); } catch (e) {}
+    S.opt = id; store.set('ramen_inicio_opt', id); closePanel(); renderHub(); applyHubVis();
+    const h = HUBO[id]; frameOpt(true);
+    if (h.zones.length === 1) setTimeout(() => { if (S && S.opt === id) openZone(h.zones[0]); }, 180);
+  }
+
+  // ---------- salas (Aula, Secretos): entrar con efecto de velocidad ----------
+  const reduced = () => { try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } };
+  function roomApi() { return { leave: () => Inicio.leaveRoom(), act: (k, a) => Inicio.act(k, a), flags, firstTime, tutDone, rashLvl, retosHechos }; }
+  /** Entra a una sala: el local se acerca a toda velocidad, se desenfoca y aparece la sala nueva. @param {string} name clave en ROOMS */
+  function enterRoom(name) {
+    const R = ROOMS[name]; if (!S || !R || S.busy) return; S.busy = true; closePanel();
+    try { playSound('serve'); } catch (e) {}
+    const ms = reduced() ? 30 : 400;
+    S.stage.classList.remove('arrive'); S.stage.classList.add('zoomout'); S.fx.classList.remove('on'); void S.fx.offsetWidth; S.fx.classList.add('on');
+    setTimeout(() => {
+      S.stage.style.visibility = 'hidden'; S.cur = name; S.room.style.display = 'block'; S.room.className = 'ini-room arrive'; S.room.innerHTML = '';
+      try { R.mount(S.room, roomApi()); } catch (e) { console.warn('sala', name, e); }
+    }, ms);
+    setTimeout(() => { S.room.classList.remove('arrive'); S.fx.classList.remove('on'); S.busy = false; }, ms + (reduced() ? 30 : 360));
+  }
+  /** Sale de la sala actual con la transición al revés. */
+  function leaveRoom() {
+    if (!S || !S.cur || S.busy) return; const R = ROOMS[S.cur]; S.busy = true;
+    try { playSound('click'); } catch (e) {}
+    try { R && R.unmount && R.unmount(); } catch (e) {}
+    S.room.classList.remove('arrive'); S.room.classList.add('leaving'); const ms = reduced() ? 30 : 330;
+    setTimeout(() => {
+      S.room.style.display = 'none'; S.room.className = 'ini-room'; S.room.innerHTML = ''; S.cur = null;
+      S.stage.style.visibility = ''; S.stage.classList.remove('zoomout'); S.stage.classList.add('arrive');
+    }, ms);
+    setTimeout(() => { S.stage.classList.remove('arrive'); S.busy = false; }, ms + (reduced() ? 30 : 380));
+  }
 
   // ---------- montaje ----------
   function updatePlay() {
@@ -532,17 +633,23 @@
     css(); K.css();
     const sc = $('start-screen'); if (!sc) return false;
     const wrap = document.createElement('div'); wrap.className = 'ini-wrap';
-    const view = document.createElement('div'); view.className = 'ini-view'; wrap.appendChild(view);
+    const stage = document.createElement('div'); stage.className = 'ini-stage'; wrap.appendChild(stage);
+    const view = document.createElement('div'); view.className = 'ini-view'; stage.appendChild(view);
     const world = document.createElement('div'); world.className = 'jp-world'; view.appendChild(world);
     const mk = (n, zi) => { const d = document.createElement('div'); d.className = 'abs'; d.style.cssText = `left:0;top:0;width:${WW}px;height:${WH}px;` + (zi != null ? `z-index:${zi}` : ''); d.dataset.l = n; world.appendChild(d); return d; };
     const layers = { bg: mk('bg'), st: mk('st'), ents: mk('ents'), ui: mk('ui', 8000), fx: mk('fx', 9000) };
-    const tint = document.createElement('div'); tint.className = 'ini-tint'; wrap.appendChild(tint);
-    const dock = document.createElement('div'); dock.className = 'ini-dock'; wrap.appendChild(dock);
-    const play = document.createElement('button'); play.className = 'ini-play'; play.onclick = () => { try { if (firstTime() && window.Guia) Guia.begin(); else handleStartPlayClick(); } catch (e) {} }; wrap.appendChild(play);
-    const gear = document.createElement('button'); gear.className = 'ini-gear'; gear.textContent = '⚙️'; gear.setAttribute('aria-label', 'Ajustes'); gear.onclick = () => { fit(true); openPanel(gearPanel()); }; wrap.appendChild(gear);
-    const hint = document.createElement('div'); hint.className = 'ini-hint'; hint.textContent = 'Toca una zona del local'; wrap.appendChild(hint);
+    const tint = document.createElement('div'); tint.className = 'ini-tint'; stage.appendChild(tint);
+    const hublist = document.createElement('div'); hublist.className = 'ini-hublist'; stage.appendChild(hublist);
+    const dock = document.createElement('div'); dock.className = 'ini-dock'; stage.appendChild(dock);
+    const play = document.createElement('button'); play.className = 'ini-play'; play.onclick = () => { try { if (firstTime() && window.Guia) Guia.begin(); else handleStartPlayClick(); } catch (e) {} }; stage.appendChild(play);
+    const gear = document.createElement('button'); gear.className = 'ini-gear'; gear.textContent = '⚙️'; gear.setAttribute('aria-label', 'Ajustes'); gear.onclick = () => { fit(true); openPanel(gearPanel()); }; stage.appendChild(gear);
+    const hint = document.createElement('div'); hint.className = 'ini-hint'; hint.textContent = 'Toca una zona del local'; stage.appendChild(hint);
+    const room = document.createElement('div'); room.className = 'ini-room'; wrap.appendChild(room);
+    const fx = document.createElement('div'); fx.className = 'ini-fx'; wrap.appendChild(fx);
+    if (!document.getElementById('ini-filters')) { const d = document.createElement('div'); d.id = 'ini-filters'; d.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden'; d.innerHTML = '<svg width="0" height="0"><filter id="iniMB1" x="-10%" y="-2%" width="120%" height="104%"><feGaussianBlur stdDeviation="4 0"/></filter><filter id="iniMB2" x="-15%" y="-2%" width="130%" height="104%"><feGaussianBlur stdDeviation="10 0"/></filter><filter id="iniMB3" x="-20%" y="-2%" width="140%" height="104%"><feGaussianBlur stdDeviation="22 0"/></filter></svg>'; document.body.appendChild(d); }
+    try { if ((navigator.deviceMemory && navigator.deviceMemory <= 2) || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2)) wrap.classList.add('ini-nofx'); } catch (e) {}
     sc.appendChild(wrap);
-    S = { wrap, view, world, layers, tint, dock, play, ents: [], cooks: [], waiters: [], guests: [], shapes: [], last: performance.now(), sig: '', ptr: null, tier: 0, lit: {}, vw: 0, vh: 0 };
+    S = { wrap, stage, hublist, room, fx, view, world, layers, tint, dock, play, vis: new Set(), opt: 'cocinar', hub: false, cur: null, busy: false, ents: [], cooks: [], waiters: [], guests: [], shapes: [], last: performance.now(), sig: '', ptr: null, tier: 0, lit: {}, vw: 0, vh: 0 };
     view.addEventListener('pointerdown', e => { S.ptr = { x: e.clientX, y: e.clientY, t: performance.now() }; });
     view.addEventListener('pointerup', e => {
       const p = S.ptr; S.ptr = null; if (!p || Math.hypot(e.clientX - p.x, e.clientY - p.y) > 10 || performance.now() - p.t > 700) return;
@@ -559,14 +666,14 @@
     if (!S) return; const now = performance.now();
     if (!visible()) { S.last = now; return; }
     const dt = Math.min(0.1, (now - S.last) / 1000); S.last = now;
-    if (!S.built) { measure(); build(); fit(false); S.built = true; updatePlay(); }
+    if (!S.built) { measure(); build(); if (S.hub) { renderHub(); applyHubVis(); fit(false); frameOpt(false); const h0 = HUBO[S.opt]; if (h0 && h0.zones.length === 1) openZone(h0.zones[0]); } else fit(false); S.built = true; updatePlay(); }
     const w = S.view.clientWidth, h = S.view.clientHeight;
     if (w !== S.vw || h !== S.vh) { if (cam.focus) focusOn(cam.focus.z, false); else fit(false); S.vw = w; S.vh = h; }
-    if (document.hidden) return;                              // pestaña oculta: se detiene la animación
+    if (document.hidden || S.cur) return;                    // pestaña oculta o dentro de una sala: se detiene la animación
     if (sprDirty) { sprDirty = false; buildPeople(S.lit); }
     tickPeople(dt);
     S.chk = (S.chk || 0) + dt;
-    if (S.chk > 1.2) { S.chk = 0; updatePlay(); if (infoSig() !== S.sig) { build(); if (S.dock.classList.contains('open') && cam.focus) S.dock.innerHTML = panel(cam.focus.z); } }
+    if (S.chk > 1.2) { S.chk = 0; updatePlay(); if (infoSig() !== S.sig) { build(); if (S.dock.classList.contains('open') && cam.focus) S.dock.innerHTML = panel(cam.focus.z); renderHub(); applyHubVis(); } }
   }
 
   // ---------- API ----------
@@ -574,11 +681,20 @@
     act(k, arg) { try { playSound('click'); } catch (e) {} const f = ACT[k]; if (!f) return; try { f(arg); } catch (e) { console.warn('Inicio.act', k, e); } },
     close() { closeZone(); },
     setView(v) {
+      if (v !== 'hub' && v !== 'iso') v = 'classic';
       store.set(VKEY, v); const sc = $('start-screen'); if (!sc) return;
-      sc.classList.toggle('ini-on', v === 'iso');
-      if (v === 'iso') { if (!S) create(); else { closePanel(); S.built = false; } setTimeout(() => { if (S) { measure(); } }, 0); } else if (S) closePanel();
+      sc.classList.toggle('ini-on', v !== 'classic'); sc.classList.toggle('ini-hub', v === 'hub');
+      if (v !== 'classic') {
+        if (!S) create();
+        S.hub = v === 'hub'; S.wrap.classList.toggle('hub', S.hub); closePanel(); S.built = false; cam.focus = null;
+        if (S.hub) { const first = firstTime(), last = store.get('ramen_inicio_opt'); S.opt = first ? 'aprender' : (HUBO[last] ? last : 'cocinar'); }
+        setTimeout(() => { if (S) measure(); }, 0);
+      } else if (S) closePanel();
       try { updateStartModesDisplay(); } catch (e) {}
     },
+    pick: pickOpt, gear() { if (!S) return; try { playSound('click'); } catch (e) {} openPanel(gearPanel()); },
+    enterRoom, leaveRoom, registerRoom(name, room) { ROOMS[name] = room; },
+    view() { return S && S.hub ? 'hub' : (S ? 'iso' : 'classic'); },
     refresh() { if (S) { S.built = false; closePanel(); } },
     zoneAt(cx, cy) { if (!S) return null; const [wx, wy] = worldPt(cx, cy); return hitZone(wx, wy); },
     open(id) { if (S && ZONES[id]) openZone(id); },
@@ -586,10 +702,10 @@
   };
   function init() {
     const sc = $('start-screen'); if (!sc) return;
-    const v = store.get(VKEY) || 'iso';
+    const v = store.get(VKEY) || 'hub';
     css();
-    const back = document.createElement('button'); back.className = 'ini-back'; back.textContent = '🏮 Ver el local'; back.onclick = () => Inicio.setView('iso'); sc.appendChild(back);
-    if (v === 'iso') { sc.classList.add('ini-on'); create(); }
+    const back = document.createElement('button'); back.className = 'ini-back'; back.textContent = '🏠 Volver al inicio nuevo'; back.onclick = () => Inicio.setView('hub'); sc.appendChild(back);
+    if (v !== 'classic') Inicio.setView(v);
     const _r = window.returnToStartMenu;
     if (typeof _r === 'function') window.returnToStartMenu = function () { const r = _r.apply(this, arguments); try { Inicio.refresh(); } catch (e) {} return r; };
   }

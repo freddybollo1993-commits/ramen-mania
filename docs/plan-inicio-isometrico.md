@@ -68,3 +68,6 @@ Primero vectorial provisional; luego piezas de Gemini sin tocar la lógica.
 4. Habitación privada y Multijugador.
 5. Evolución del local, primera vez guiada, día/noche.
 6. Pulido y prueba en pantalla real.
+
+## Actualización v135: hub + salas
+Se añadió la vista **hub** (por defecto): lista de 7 opciones a la izquierda y el local enfocado a la derecha, con solo las etiquetas de la opción elegida. «Aprender» y «Secretos» abren **salas** con una transición de velocidad (Aula del Maestro y bodega del baúl). El local completo sigue disponible como vista «iso» y el menú clásico como «classic». Detalle en docs/contexto-juego.md (sección 8).

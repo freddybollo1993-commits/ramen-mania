@@ -1,4 +1,4 @@
-# Ramen Mania / Shimaya — Archivo de contexto del juego (estado v133)
+# Ramen Mania / Shimaya — Archivo de contexto del juego (estado v135)
 
 Documento para retomar el proyecto desde cero: qué es, cómo está construido, qué contiene cada sistema, decisiones del dueño del proyecto y cosas pendientes. Idioma del juego y de la comunicación: **español**.
 
@@ -17,7 +17,7 @@ Sin framework: HTML/CSS/JS clásico (scripts globales, no módulos), Vite solo c
 | Archivo | Contenido |
 |---|---|
 | `index.html` (~25 000 líneas) | Juego completo: HTML, CSS y casi toda la lógica (motor de cocina, recetas, ingredientes, niveles, Rash, Entrenamiento, Cocina Libre, mejoras, cuentas, ranking, modales). Versión visible en `#app-version`. |
-| `sw.js` | Service worker, `CACHE_NAME = 'ramen-mania-v133'`. |
+| `sw.js` | Service worker, `CACHE_NAME = 'ramen-mania-v135'`. |
 | `manifest.json` | PWA. |
 | `makis-studio.js` | Estudio de Makis (esterilla, arroz, enrollado, pescado). |
 | `frituras-prod.js` / `frituras-plate.js` | Producción (mandolina, licuado, gyozas) y emplatado dibujado de Frituras. |
@@ -25,14 +25,14 @@ Sin framework: HTML/CSS/JS clásico (scripts globales, no módulos), Vite solo c
 | `japon.js` / `japon-scene.js` | Recorrido por Japón (economía idle) y escena isométrica animada de los restaurantes. `japon-scene.js` exporta `window.JPKit` (proyección, personas, cajas, estilos) que reutiliza el inicio. |
 | `reconocer.js` | Modo «Ingredientes» (reconocer qué lleva cada plato, sin reloj en contra). |
 | `guia.js` | Tutorial guiado interactivo por áreas (4 lecciones, 91 pasos). |
-| `inicio.js` | Pantalla de inicio isométrica (el ramen-ya como menú). |
+| `inicio.js` / `aula.js` | Pantalla de inicio (hub + local isométrico + menú clásico) y las salas Aula del Maestro y bodega de Secretos. |
 | `dashboard.html` | Panel de administración (`/dashboard`, `/admin`). |
 | `assets/` | Íconos de ingredientes (`ingredients/v2/*.webp`, 106), SVG de estaciones (wok, olla, esterilla…), fondos, fuentes, íconos PWA. |
 | `tools/` | `economia-niveles.cjs` (recalcula metas/tiempos de niveles), generadores de íconos. |
 | `supabase/` | `migrations/*.sql` (12), `SEGURIDAD.md`, `config.toml`. |
 | `docs/` | `plan-etapas-areas.md`, `plan-recorrido-japon.md`, `plan-inicio-isometrico.md`, `guia-iconos-gemini.md`, este archivo. |
 
-Orden de carga al final de `index.html`: `multiplayer.js`, `makis-studio.js`, `frituras-prod.js`, `frituras-plate.js`, `japon.js`, `reconocer.js`, `guia.js`, `japon-scene.js`, `inicio.js`.
+Orden de carga al final de `index.html`: `multiplayer.js`, `makis-studio.js`, `frituras-prod.js`, `frituras-plate.js`, `japon.js`, `reconocer.js`, `guia.js`, `japon-scene.js`, `inicio.js`, `aula.js`.
 
 ## 3. Estructura de una partida de cocina
 ### 3.1 Cuatro áreas
@@ -92,27 +92,28 @@ Modo idle de restaurantes por ciudad (**9 ciudades**: Tokio, Yokohama, Osaka, Na
 ## 7. Tutorial guiado (`guia.js`)
 91 pasos data-driven (`add({seg, area, stage, title, text, target, to, setup, done, assist, info})`) divididos en **4 lecciones** (Ramen 25, Salteado 19, Makis 27, Frituras 20) que cocinan un plato de cada área (Shio, Chicken Teriyaki, Maki California, Chicken Katsu). Recuadro y manita sobre lo que hay que tocar, avance automático al hacer la acción, «Saltar paso». Recompensa en propinas **solo la primera vez**; la lección de Ramen desbloquea Campaña y Rash. Estado en `ramen_tut_areas` (sincronizado). API: `Guia.start(k)`, `Guia.menu()`, `Guia.begin()`, `Guia.flags()`, `Guia.diag()`.
 
-## 8. Inicio isométrico (`inicio.js`, v133)
-La pantalla de inicio es un **ramen-ya isométrico**; tocar una zona acerca la cámara y abre un panel a la derecha. Solo toques. Mapa decidido por el dueño:
+## 8. Inicio (v135): hub + local isométrico + salas (`inicio.js`, `aula.js`)
+Tres vistas guardadas en `ramen_inicio_vista2`: **hub** (por defecto), **iso** (local completo con todas las zonas) y **classic** (menú de botones de siempre). Se cambia desde ⚙.
 
-| Zona | Abre |
-|---|---|
-| 4 áreas de cocina | Lección · Entrenamiento (retos de su capítulo) · Cocina libre solo de esa área |
-| Timbre en la barra | Campaña · Rash |
-| Maestro | Las 4 lecciones |
-| Libro (junto al timbre) | Recetario |
-| Máquina de tickets | Lista de los 27 retos |
-| Pizarra | Ranking |
-| Baúl antiguo | Secretos del Chef |
-| Cuchillos en la pared | Mejoras |
-| Despensa | Ingredientes |
-| Puerta a la calle | Recorrido por Japón |
-| Caja (+ libro de cuentas) | Cuenta · Estadísticas · Ordenar ingredientes |
-| Sala privada (con gente) | Multijugador |
-| ⚙ (fijo) | Sonido, pantalla completa, menú clásico, actualizar, atajos, dispositivo |
-| ▶ JUGAR (fijo) | Repite el último modo (primera vez: lección de Ramen) |
+**Hub:** lista de 7 opciones a la izquierda y, a la derecha, el local isométrico encuadrado en la zona de la opción elegida, con solo sus etiquetas (la tarjeta de abajo explica el modo y lo abre).
 
-El local **evoluciona** (`tierOf()`: retos + 4·lecciones + rondas de Rash + mejoras/2 → rango 0–4 con plantas, farolas, cerezo, carpas, barra dorada), las cocinas se **apagan** hasta aprender/desbloquear el área, los cuchillos de la pared crecen con las mejoras y la luz cambia según la hora. En la primera vez solo brilla el Maestro. **El menú clásico se conserva** (`Inicio.setView('classic'|'iso')`, clave `ramen_inicio_vista`). Pruebas: `window.__iniTier=N`, `Inicio.open(id)`, `Inicio.zoneAt(x,y)`. Detalle: `docs/plan-inicio-isometrico.md`.
+| Opción | Escena / etiquetas | Al entrar |
+|---|---|---|
+| Cocinar | Barra y timbre: ▶️ Campaña · ⚡ Rash | Empieza el modo (bloqueado hasta la lección de Ramen) |
+| Aprender | El Maestro de Ramen (sprite) | **Sala: Aula del Maestro** |
+| Japón | Puerta y calle | Recorrido por Japón |
+| Multijugador | Sala privada | Lobby |
+| Tienda | Cuchillos de la pared | Mejoras |
+| Colección | Libro, pizarra y caja: Recetario · Ranking · Cuenta/Estadísticas | Modales de siempre |
+| Secretos | Baúl | **Sala: bodega de los Secretos** |
+
+Abajo a la izquierda: ⚙ ajustes, 🔐 cuenta, 📊 estadísticas. ▶ JUGAR repite el último modo (primera vez: lección de Ramen, y Aprender brilla).
+
+**Entrada a las salas:** el local se acerca a toda velocidad con desenfoque horizontal (filtros SVG `#iniMB1-3`), rayas de velocidad y destello, y la sala aparece nítida; salir lo hace al revés (`Inicio.enterRoom` / `Inicio.leaveRoom`). Respeta «reducir movimiento»; con ≤2 GB o ≤2 núcleos se omite el desenfoque.
+- **Aula del Maestro:** pestañas Lecciones · Retos (los 27) · Práctica (cocina libre por área) · Repaso (Ingredientes, Recetario, Ordenar). El Maestro habla en un globo y recomienda el siguiente paso (primera lección → siguiente lección → siguiente reto → practicar); tocarlo da un consejo.
+- **Bodega de los Secretos:** el Maestro rebusca desesperado en un baúl (papeles que vuelan, frases, polvo y lámpara); «Ayudarle a buscar» abre el baúl y saca un secreto de `CHEF_SECRETS` (23; los nuevos primero, guardados en `ramen_secretos_hallados`), con «Ver detalle» (modelo 3D) y «Buscar otro».
+- Las salas se registran con `Inicio.registerRoom(nombre, { mount(el, api), unmount() })` (ver `aula.js`). El Maestro es el sprite `assets/people/cook_ramen_v1.webp` (fila 0 caminar, 1 trabajar, 2 caminar de espaldas; SW y NW = reflejo).
+- Detalle del local isométrico y del hub: `docs/plan-inicio-isometrico.md`. Pruebas: `window.__iniTier=N`, `Inicio.open(id)`, `Inicio.pick(opción)`, `Inicio.zoneAt(x,y)`.
 
 ## 9. Guardado y nube (Supabase)
 - Local: `localStorage`/`safeStorage` (`ramen_*`). Nube: RPC `get_game` / `save_game` (progreso de Japón, Rash, tutorial, reconocer) con revisión y combinación segura entre dispositivos: libros contables aditivos frente a una base + máximo/unión para la estructura; reserva por cuenta `ramen_game_stash_<id>`; reintento e idempotencia (`sig`).
