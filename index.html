@@ -6508,7 +6508,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v145</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v146</span></button></div>
     </div>
   </div>
 
@@ -16793,8 +16793,8 @@ function saveCampaignProgress(data) {
 
 function getLevelStarThresholds(cfg) {
   const goal = cfg.goal;
-  const star2 = Math.round((goal * 1.25) / 10) * 10;
-  const star3 = Math.round((goal * 1.50) / 10) * 10;
+  const star2 = Math.round((goal * 1.20) / 10) * 10;
+  const star3 = Math.round((goal * 1.35) / 10) * 10;
   return { star1: goal, star2, star3 };
 }
 
@@ -20476,7 +20476,7 @@ function renderCampaignModal() {
       </div>
       <div class="camp-bar"><i style="width:${Math.round(100 * totalStars / maxPossibleStars)}%"></i></div>
       <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; margin-top:2px;">
-        <span style="font-size:10.5px; color:#5d4037;">Repite cualquier nivel para mejorar tus estrellas (⭐ S/ goal · ⭐⭐ +25% · ⭐⭐⭐ +50%).</span>
+        <span style="font-size:10.5px; color:#5d4037;">Repite cualquier nivel para mejorar tus estrellas (⭐ S/ goal · ⭐⭐ +20% · ⭐⭐⭐ +35%).</span>
         <button class="acc-btn" style="padding:4px 12px; font-size:11px;" onclick="playCampaignLevel(${nextLvlIndex})">
           ▶ Continuar Nivel ${nextCfg.level}: ${nextCfg.name.replace(/Nivel \d+:\s*/, '')}
         </button>
