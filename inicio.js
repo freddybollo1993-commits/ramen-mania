@@ -373,6 +373,8 @@
 
   // ---------- arte vectorial animado y vivo ----------
   function getArtworkSvg(key) {
+    // Escenas vivas con arte final (escena-cocina.js); el resto sigue con los SVG de abajo
+    if (window.EscenaCocina && EscenaCocina.has(key)) return EscenaCocina.html(key);
     switch (key) {
       case 'jugar':
       case 'camp':
