@@ -26,8 +26,8 @@
       counterY: 672,                                   // la barra empieza aquí: los cocineros se cortan en esta línea
       cell: [344, 384],                                // tamaño de un fotograma sobre la placa
       actors: [                                        // x = centro del cocinero sobre la placa; ph = desfase de fase (ms)
-        { sheet: 'zona1_ramen.webp', x: 300, ph: 300, dur: [125, 125, 100, 110, 140, 140, 100, 125] },
-        { sheet: 'zona1_wok.webp', video: 'zona1_wok_video.webm', vw: 395, vh: 384, x: 640, ph: 0, dur: [125, 125, 150, 70, 110, 80, 100, 125, 125, 140, 160, 125, 125, 150, 200, 140] },
+        { sheet: 'zona1_ramen.webp', video: 'zona1_ramen_video.webm', vw: 429, vh: 384, vc: 0.476, vph: 2.7, x: 300, ph: 300, dur: [125, 125, 100, 110, 140, 140, 100, 125] },
+        { sheet: 'zona1_wok.webp', video: 'zona1_wok_video.webm', vw: 395, vh: 384, vc: 0.494, vph: 0, x: 640, ph: 0, dur: [125, 125, 150, 70, 110, 80, 100, 125, 125, 140, 160, 125, 125, 150, 200, 140] },
         { sheet: 'zona1_freidora.webp', x: 975, ph: 500, dur: [125, 125, 120, 90, 100, 100, 140, 140] }
       ],
       fxBack: [                                        // fila de la hoja de efectos: 0 vapor, 1 fuego, 2 chispas, 3 pétalos
@@ -84,7 +84,7 @@
     const fx = e => `<i class="ec-fx${e.screen ? ' screen' : ''}" style="left:${cqw(e.x - e.s / 2)};top:${cqw(e.y - e.s / 2)};width:${cqw(e.s)};height:${cqw(e.s)};opacity:${e.op};background-image:${img('zona1_efectos.webp')};background-position-y:${e.row * 33.3333}%;animation-delay:calc(-${(e.off * 0.13).toFixed(2)}s / var(--spd))"></i>`;
     // capa A = fotograma actual; capa B = fotograma siguiente que se funde por encima (lo mueve tick())
     const actor = (a, i) => {
-      if (a.video && VIDEO_OK) return `<div class="ec-actor" data-i="${i}" style="left:${cqw(a.x - a.vw / 2)};top:${cqw(z.counterY - a.vh)};width:${cqw(a.vw)};height:${cqw(a.vh)}"><video class="ec-vid" src="${DIR}${a.video}" muted loop playsinline autoplay preload="auto" disablepictureinpicture></video></div>`;
+      if (a.video && VIDEO_OK) return `<div class="ec-actor" data-i="${i}" style="left:${cqw(a.x - a.vw * (a.vc || 0.5))};top:${cqw(z.counterY - a.vh)};width:${cqw(a.vw)};height:${cqw(a.vh)}"><video class="ec-vid" src="${DIR}${a.video}" muted loop playsinline autoplay preload="auto" disablepictureinpicture></video></div>`;
       return `<div class="ec-actor" data-i="${i}" style="left:${cqw(a.x - cw / 2)};top:${cqw(z.counterY - ch)};width:${cqw(cw)};height:${cqw(ch)}">${atlasInner(a)}</div>`; };
     const glow = g => `<i class="ec-glow" style="left:${cqw(g[0] - 150)};top:${cqw(g[1] - 150)};width:${cqw(300)};height:${cqw(300)};animation-delay:-${(g[0] % 7 * 0.3).toFixed(1)}s"></i>`;
     wake();
@@ -110,7 +110,12 @@
     return z.actors.map((a, i) => {
       const el = scene.querySelector('.ec-actor[data-i="' + i + '"]'); if (!el) return null;
       const t = []; let acc = 0; a.dur.forEach(d => { t.push(acc); acc += d; });
-      const vid = el.querySelector('video'); if (vid) vid.muted = true;
+      const vid = el.querySelector('video');
+      if (vid) {                                       // los videos arrancan en puntos distintos para que los cocineros no vayan sincronizados
+        vid.muted = true;
+        const ph = () => { try { if (a.vph && vid.duration) vid.currentTime = a.vph % vid.duration; } catch (e) {} };
+        if (vid.readyState >= 1) ph(); else vid.addEventListener('loadedmetadata', ph, { once: true });
+      }
       return { el, vid, z, a: vid ? null : el.children[0], b: vid ? null : el.children[1], cfg: a, t, total: acc, n: a.dur.length, rows: Math.max(1, Math.ceil(a.dur.length / 4)), cur: -1, curB: -1 };
     }).filter(Boolean);
   }
