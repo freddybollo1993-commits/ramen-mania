@@ -33,8 +33,8 @@
         { sheet: 'zona1_wok.webp', video: 'zona1_wok_video.webm', poster: 'zona1_wok_poster.webp', vw: 395, vh: 384, vc: 0.494, vph: 0, x: 1012, ph: 0, dur: [125, 125, 150, 70, 110, 80, 100, 125, 125, 140, 160, 125, 125, 150, 200, 140] },
         { sheet: 'zona1_freidora.webp', video: 'zona1_freidora_video.webm', poster: 'zona1_freidora_poster.webp', vw: 440, vh: 384, vc: 0.515, vph: 5.3, x: 1312, ph: 500, dur: [125, 125, 120, 90, 100, 100, 140, 140] }
       ],
-      walkers: [                                       // personajes que cruzan la cocina detrás de los cocineros (video que camina en el sitio; el código lo desplaza)
-        { video: 'zona1_mozo_video.webm', vw: 300, vh: 318, vc: 0.5, vph: 0, s: 0.98, x0: 1760, x1: 230, cycle: 36, start: 4 }
+      walkers: [                                       // personajes que cruzan la escena (video que camina en el sitio; el código lo desplaza). front: por delante de todo; si no, por detrás de los cocineros
+        { video: 'zona1_mozo_video.webm', vw: 300, vh: 318, vc: 0.5, vph: 0, s: 1.12, x0: 2160, x1: -160, cycle: 32, start: 7, front: true }   // front = pasa por delante de la barra (lado del cliente), con la cintura fuera de cuadro
       ],
       fxBack: [                                        // fila de la hoja de efectos: 0 vapor, 1 fuego, 2 chispas, 3 pétalos
         { row: 0, x: 700, y: 330, s: 190, op: 0.7, off: 0 },        // olla de caldo
@@ -69,6 +69,7 @@
     .ec-actor img.ec-poster { width: 100%; height: 100%; }
     .ec-actor.vr img.ec-poster { display: none; }
     .ec-walker { position: absolute; opacity: 0; will-change: transform, opacity; animation: ecWalk calc(var(--cycle, 36s) / var(--spd)) linear infinite; }
+    .ec-walker.fw { filter: drop-shadow(0 5px 7px rgba(0,0,0,.45)); }
     .ec-vid { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; pointer-events: none; }
     .ec-dbg { position: absolute; left: 4px; top: 4px; z-index: 5; font: 700 10px/1.25 monospace; color: #9f9; background: rgba(0,0,0,.7); padding: 3px 5px; border-radius: 4px; pointer-events: none; white-space: pre; }
     .ec-fx { position: absolute; background-repeat: no-repeat; background-size: 400% 400%; animation: ecF calc(.52s / var(--spd)) step-end infinite; pointer-events: none; }
@@ -124,14 +125,15 @@
       if (a.video && VIDEO_OK) return `<div class="ec-actor" data-i="${i}" style="left:${cqw(a.x + ox - a.vw * cs * (a.vc || 0.5))};top:${cqw(z.counterY - a.vh * cs)};width:${cqw(a.vw * cs)};height:${cqw(a.vh * cs)}"><img class="ec-poster" src="${DIR}${a.poster}" alt="" draggable="false"></div>`;
       return `<div class="ec-actor" data-i="${i}" style="left:${cqw(a.x + ox - cw / 2)};top:${cqw(z.counterY - ch)};width:${cqw(cw)};height:${cqw(ch)}">${atlasInner(a)}</div>`; };
     const walker = (w, i) => { const ww = w.vw * w.s, wh = w.vh * w.s;
-      return `<div class="ec-walker" data-w="${i}" style="left:${cqw(w.x0 + ox - ww * (w.vc || 0.5))};top:${cqw(z.counterY - wh)};width:${cqw(ww)};height:${cqw(wh)};--wx:${cqw(w.x1 - w.x0)};--cycle:${w.cycle}s;animation-delay:calc(-${w.start}s / var(--spd))"></div>`; };
+      return `<div class="ec-walker${w.front ? ' fw' : ''}" data-w="${i}" style="left:${cqw(w.x0 + ox - ww * (w.vc || 0.5))};top:${cqw(w.front ? z.h - wh + 4 : z.counterY - wh)};width:${cqw(ww)};height:${cqw(wh)};--wx:${cqw(w.x1 - w.x0)};--cycle:${w.cycle}s;animation-delay:calc(-${w.start}s / var(--spd))"></div>`; };
     const glow = g => `<i class="ec-glow" style="left:${cqw(g[0] + ox - 130)};top:${cqw(g[1] - 130)};width:${cqw(260)};height:${cqw(260)};animation-delay:-${(g[0] % 7 * 0.3).toFixed(1)}s"></i>`;
     preload(); wake();
     return `<div class="ec-wrap"><div class="ec-fill" style="background-image:${img(z.plate)}"></div><div class="ec-scene${rash ? ' rash' : ''}" data-zone="${zid}" data-spd="${rash ? 1.8 : 1}" style="--spd:${rash ? 1.8 : 1};--asp:${(z.w / z.h).toFixed(4)}"><div class="ec-cam">`
       + `<img class="ec-plate" src="${DIR}${z.plate}" alt="" draggable="false">`
       + z.fxBack.map(fx).join('')
-      + `<div class="ec-cast" style="height:${(z.counterY / z.h * 100).toFixed(3)}%">${VIDEO_OK ? (z.walkers || []).map((w, i) => w.off ? '' : walker(w, i)).join('') : ''}${z.actors.map(actor).join('')}</div>`
+      + `<div class="ec-cast" style="height:${(z.counterY / z.h * 100).toFixed(3)}%">${VIDEO_OK ? (z.walkers || []).map((w, i) => w.off || w.front ? '' : walker(w, i)).join('') : ''}${z.actors.map(actor).join('')}</div>`
       + z.fxFront.map(fx).join('')
+      + (VIDEO_OK ? (z.walkers || []).map((w, i) => w.off || !w.front ? '' : walker(w, i)).join('') : '')
       + z.glows.map(glow).join('')
       + `</div></div></div>`;
   }
