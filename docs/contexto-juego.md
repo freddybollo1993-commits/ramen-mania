@@ -57,7 +57,7 @@ Pestañas de cocina (`KITCHEN_AREAS`): **RAMEN · SALTEADO · FRITURAS · MAKIS*
 - **Producción:** existencias de insumos (stock) con tiempo de preparación; una tarea a la vez por área. Taller con tabla + cuchillo + hornillas.
 - **Cocina:** la estación propia de cada área (ver 3.3).
 - **Emplatar:** **obligatorio**, vale 25 de 100 puntos de calidad. Libre: componentes arrastrables a 2 cuencos; `stPlateEval` compara con la receta más cercana; errores penalizan (×0,45 y máx. 1★). Pase de hasta 3 platos entre cocina y emplatado (el plato se enfría).
-- **Activación gradual (`STAGE_GATE_LEVEL`):** Campaña ramen nivel 4, salteado 6, makis 10, frituras 14; Rash rondas 3/9/16/27; Entrenamiento con features `st_<área>`. No hay etapas en el tutorial antiguo ni en multijugador.
+- **Activación:** **Campaña 2.0 (v166): siempre activas en las áreas de cada nivel** (`NIVEL_EXTRA.rules.stages`, un área abre con todas sus mecánicas; `STAGE_GATE_LEVEL` ya no se usa en Campaña); Rash rondas 3/9/16/27 (`STAGE_GATE_ROUND`); Entrenamiento con features `st_<área>`. No hay etapas en el tutorial antiguo ni en multijugador.
 - Motor: `ST_PROD[área]`, `stGet(área)` (stock, pase, slots, tabla), `setKitchenStage/getStage`, `stPassAdd`, `stPassToSlot`, `stPlateAddItem`, `stPlateServe`; tablas `FRY_PLATING`, `ST_RAMEN_PLATE`, `ST_PLATE_SAL`, `ST_PLATE_MAKI`, `SAL_STAGED`.
 
 ### 3.3 Cocina de cada área

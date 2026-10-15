@@ -50,10 +50,10 @@ function newFryStation() {
 //    'cook' = se gasta al agregarlo a la estación; 'plate' = se gasta al servir un plato que lo lleva.
 //  · COCINAR: la estación de siempre (cuenco, wok, tabla de makis, olla). Al terminar el plato pasa al "pase".
 //  · EMPLATAR: se elige un plato del pase y se arma con sus componentes. Es obligatorio y vale 25 de 100 puntos.
-// Las etapas se activan poco a poco (ver STAGE_GATE_*): no tienen sentido en el nivel 1, y no existen en el
-// tutorial ni en multijugador.
+// Rash y Entrenamiento las activan poco a poco (STAGE_GATE_ROUND / features); la Campaña las tiene siempre (NIVEL_EXTRA.rules.stages).
+// No existen en el tutorial antiguo ni en multijugador.
 const STAGE_AREAS = ['ramen', 'salteados', 'makis', 'frituras'];
-const STAGE_GATE_LEVEL = { ramen: 4, salteados: 6, makis: 10, frituras: 14 };     // Campaña: nivel desde el que se activan
+const STAGE_GATE_LEVEL = { ramen: 4, salteados: 6, makis: 10, frituras: 14 };     // (ya no se usa en la Campaña 2.0: allí las etapas están activas en todos los niveles; ver NIVEL_EXTRA)
 const STAGE_GATE_ROUND = { ramen: 3, salteados: 9, makis: 16, frituras: 27 };   // Rash: ronda
 const ST_PASS_MAX = 3;
 const ST_EXTRA_SECONDS = { ramen: 8, salteados: 10, makis: 10, frituras: 14 };  // paciencia extra por pedido
@@ -66,7 +66,7 @@ function stagedOn(area) {
   if (isMultiplayerSession()) return mpAreas().includes(area);
   if ((gameState.gameMode === 'JAPON' && gameState.japon)) return japonRunAreas().includes(area);
   if (isTraining()) return trainingFeature('st_' + area);
-  if (gameState.gameMode === 'NORMAL') return (currentLevelIndex + 1) >= (STAGE_GATE_LEVEL[area] || 99);
+  if (gameState.gameMode === 'NORMAL') { const c = NIVELES[currentLevelIndex]; return !!(c && c.areas && c.areas.includes(area) && (!c.rules || c.rules.stages !== false)); }   // Campaña 2.0: Producción → Cocina → Emplatar en todos los niveles
   if (gameState.gameMode === 'RASH') return (gameState.rashLevel || 1) >= (STAGE_GATE_ROUND[area] || 999);
   return false;
 }

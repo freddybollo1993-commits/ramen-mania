@@ -613,6 +613,29 @@ function handleNextLevelButton() {
   }
 }
 
+/** Ficha del Maestro: se abre sola la primera vez que se juega un nivel que presenta algo nuevo (cfg.brief.card) y pausa la partida hasta cerrarla.
+ *  Devuelve true si la abrió (entonces no hace falta el aviso corto). */
+function showLevelBrief(cfg) {
+  const b = cfg.brief; if (!b || !b.card) return false;
+  let seen = {}; try { seen = JSON.parse(safeStorage.getItem('ramen_camp_brief_seen') || '{}') || {}; } catch (e) {}
+  if (seen[cfg.level]) return false;
+  const old = document.getElementById('level-brief'); if (old) old.remove();
+  const html = t => String(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+  const el = document.createElement('div'); el.id = 'level-brief';
+  el.innerHTML = '<div class="lb-card"><div class="lb-tag">🏮 Nivel ' + cfg.level + ' · ' + html(cfg.name.replace(/Nivel \d+:\s*/, '')) + '</div>'
+    + '<h2>' + html(b.title) + '</h2>' + b.lines.map(l => '<p>' + html(l) + '</p>').join('')
+    + '<div class="lb-focus">Mecánica del nivel: ' + html(cfg.focus.mechanic) + '</div>'
+    + '<div class="lb-hint">📚 Puedes repasarla en Aprender → Aula.</div>'
+    + '<button class="lb-go" type="button">▶ ¡Empezar!</button></div>';
+  (document.getElementById('game-container') || document.body).appendChild(el);
+  gameState.isPaused = true;
+  el.querySelector('.lb-go').onclick = () => {
+    seen[cfg.level] = 1; try { safeStorage.setItem('ramen_camp_brief_seen', JSON.stringify(seen)); } catch (e) {}
+    el.remove(); gameState.isPaused = false; try { playSound('click'); } catch (e) {}
+  };
+  return true;
+}
+
 function startLevel(lvlIndex) {
   if (!DeviceManager.currentPlayer) {
     const guestNum = Math.floor(1000 + Math.random() * 9000);
@@ -729,7 +752,7 @@ function startLevel(lvlIndex) {
   clearInterval(gameLoopInterval);
   gameLoopInterval = setInterval(gameTick, 1000);
   if (gameState.gameMode === 'NORMAL' && cfg.intro && !isMultiplayerSession()) {
-    setTimeout(() => showStationToast(`🏮 ${cfg.name}<br>${cfg.intro}`), 400);
+    if (!showLevelBrief(cfg)) setTimeout(() => showStationToast(`🏮 ${cfg.name}<br>${cfg.intro}`), 400);
   }
   if (isFree()) {
     setTimeout(() => showStationToast('🌿 Cocina libre: todo el catálogo, sin tiempo y sin perder clientes.<br>Toca 🍽️ para pedir el plato que quieras practicar.'), 400);
