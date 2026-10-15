@@ -16,7 +16,9 @@
   const W = 1184, H = 912;
   const cqw = px => (px / W * 100).toFixed(3) + 'cqw';
   const DIR = 'assets/menu/';
-  const XF = 0.85;                                     // opacidad máxima del fotograma siguiente al final de su turno
+  const XF = 0.85;
+  // video con transparencia (WebM VP9 con alfa): si el navegador no lo reproduce, el cocinero usa su atlas de fotogramas
+  const VIDEO_OK = (() => { try { const v = document.createElement('video'); return !!v.canPlayType && /probably|maybe/.test(v.canPlayType('video/webm; codecs="vp9"')) && !matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } })();                                     // opacidad máxima del fotograma siguiente al final de su turno
 
   const ZONES = {
     z1: {
@@ -25,7 +27,7 @@
       cell: [344, 384],                                // tamaño de un fotograma sobre la placa
       actors: [                                        // x = centro del cocinero sobre la placa; ph = desfase de fase (ms)
         { sheet: 'zona1_ramen.webp', x: 300, ph: 300, dur: [125, 125, 100, 110, 140, 140, 100, 125] },
-        { sheet: 'zona1_wok.webp', x: 640, ph: 0, dur: [125, 125, 150, 70, 110, 80, 100, 125, 125, 140, 160, 125, 125, 150, 200, 140] },
+        { sheet: 'zona1_wok.webp', video: 'zona1_wok_video.webm', vw: 395, vh: 384, x: 640, ph: 0, dur: [125, 125, 150, 70, 110, 80, 100, 125, 125, 140, 160, 125, 125, 150, 200, 140] },
         { sheet: 'zona1_freidora.webp', x: 975, ph: 500, dur: [125, 125, 120, 90, 100, 100, 140, 140] }
       ],
       fxBack: [                                        // fila de la hoja de efectos: 0 vapor, 1 fuego, 2 chispas, 3 pétalos
@@ -56,6 +58,7 @@
     .ec-actor { position: absolute; overflow: hidden; transform-origin: 50% 100%; animation: ecBreath calc(1.7s / var(--spd)) ease-in-out infinite alternate; }
     .ec-actor img { position: absolute; left: 0; top: 0; max-width: none; pointer-events: none; will-change: transform, opacity; backface-visibility: hidden; }
     .ec-actor img.nx { opacity: 0; }
+    .ec-vid { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; pointer-events: none; }
     .ec-dbg { position: absolute; left: 4px; top: 4px; z-index: 5; font: 700 10px/1.25 monospace; color: #9f9; background: rgba(0,0,0,.7); padding: 3px 5px; border-radius: 4px; pointer-events: none; white-space: pre; }
     .ec-fx { position: absolute; background-repeat: no-repeat; background-size: 400% 400%; animation: ecF calc(.52s / var(--spd)) step-end infinite; pointer-events: none; }
     .ec-fx.screen { mix-blend-mode: screen; }
@@ -80,8 +83,9 @@
     const img = f => `url('${DIR}${f}')`;
     const fx = e => `<i class="ec-fx${e.screen ? ' screen' : ''}" style="left:${cqw(e.x - e.s / 2)};top:${cqw(e.y - e.s / 2)};width:${cqw(e.s)};height:${cqw(e.s)};opacity:${e.op};background-image:${img('zona1_efectos.webp')};background-position-y:${e.row * 33.3333}%;animation-delay:calc(-${(e.off * 0.13).toFixed(2)}s / var(--spd))"></i>`;
     // capa A = fotograma actual; capa B = fotograma siguiente que se funde por encima (lo mueve tick())
-    const actor = (a, i) => { const rows = Math.max(1, Math.ceil(a.dur.length / 4)), st = `width:400%;height:${rows * 100}%`, src = DIR + a.sheet;
-      return `<div class="ec-actor" data-i="${i}" style="left:${cqw(a.x - cw / 2)};top:${cqw(z.counterY - ch)};width:${cqw(cw)};height:${cqw(ch)}"><img src="${src}" alt="" draggable="false" decoding="async" style="${st}"><img class="nx" src="${src}" alt="" draggable="false" decoding="async" style="${st}"></div>`; };
+    const actor = (a, i) => {
+      if (a.video && VIDEO_OK) return `<div class="ec-actor" data-i="${i}" style="left:${cqw(a.x - a.vw / 2)};top:${cqw(z.counterY - a.vh)};width:${cqw(a.vw)};height:${cqw(a.vh)}"><video class="ec-vid" src="${DIR}${a.video}" muted loop playsinline autoplay preload="auto" disablepictureinpicture></video></div>`;
+      return `<div class="ec-actor" data-i="${i}" style="left:${cqw(a.x - cw / 2)};top:${cqw(z.counterY - ch)};width:${cqw(cw)};height:${cqw(ch)}">${atlasInner(a)}</div>`; };
     const glow = g => `<i class="ec-glow" style="left:${cqw(g[0] - 150)};top:${cqw(g[1] - 150)};width:${cqw(300)};height:${cqw(300)};animation-delay:-${(g[0] % 7 * 0.3).toFixed(1)}s"></i>`;
     wake();
     return `<div class="ec-wrap"><div class="ec-fill" style="background-image:${img(z.plate)}"></div><div class="ec-scene${rash ? ' rash' : ''}" data-zone="${zid}" data-spd="${rash ? 1.8 : 1}" style="--spd:${rash ? 1.8 : 1}"><div class="ec-cam">`
@@ -93,6 +97,10 @@
       + `</div></div></div>`;
   }
 
+  /** Las dos capas de un cocinero hecho con atlas: fotograma actual y el siguiente que se funde por encima. */
+  function atlasInner(a) { const rows = Math.max(1, Math.ceil(a.dur.length / 4)), st = `width:400%;height:${rows * 100}%`, src = DIR + a.sheet;
+    return `<img src="${src}" alt="" draggable="false" decoding="async" style="${st}"><img class="nx" src="${src}" alt="" draggable="false" decoding="async" style="${st}">`; }
+
   // ---------- motor de fotogramas (un solo requestAnimationFrame para todas las escenas) ----------
   const cache = new WeakMap();                         // escena -> actores con sus capas y duraciones acumuladas
   let raf = 0, last = 0, slowN = 0, fade = true, avgDt = 16, dbg = false, dbgT = 0, taps = [];
@@ -102,9 +110,17 @@
     return z.actors.map((a, i) => {
       const el = scene.querySelector('.ec-actor[data-i="' + i + '"]'); if (!el) return null;
       const t = []; let acc = 0; a.dur.forEach(d => { t.push(acc); acc += d; });
-      return { a: el.children[0], b: el.children[1], cfg: a, t, total: acc, n: a.dur.length, rows: Math.max(1, Math.ceil(a.dur.length / 4)), cur: -1, curB: -1 };
+      const vid = el.querySelector('video'); if (vid) vid.muted = true;
+      return { el, vid, z, a: vid ? null : el.children[0], b: vid ? null : el.children[1], cfg: a, t, total: acc, n: a.dur.length, rows: Math.max(1, Math.ceil(a.dur.length / 4)), cur: -1, curB: -1 };
     }).filter(Boolean);
   }
+  /** Si el video falla, el cocinero vuelve a su atlas de fotogramas. */
+  function toAtlas(A) {
+    const a = A.cfg, z = A.z, cw = z.cell[0], ch = z.cell[1], st = A.el.style;
+    st.left = cqw(a.x - cw / 2); st.top = cqw(z.counterY - ch); st.width = cqw(cw); st.height = cqw(ch);
+    A.el.innerHTML = atlasInner(a); A.vid = null; A.a = A.el.children[0]; A.b = A.el.children[1]; A.cur = A.curB = -1;
+  }
+  function pauseVideos(root) { (root || document).querySelectorAll('.ec-scene video').forEach(v => { try { v.pause(); } catch (e) {} }); }
   function put(layer, k, A) {                          // fotograma k del atlas (4 columnas)
     layer.style.transform = 'translate3d(' + (-(k % 4) * 25) + '%,' + (-Math.floor(k / 4) / A.rows * 100) + '%,0)';
   }
@@ -123,10 +139,18 @@
       if (d) d.textContent = [(1000 / avgDt).toFixed(0) + ' fps (' + avgDt.toFixed(1) + ' ms)', 'fundido: ' + (fade ? 'sí' : 'NO (lento)'), 'lentos: ' + slowN + '/120', 'DPR ' + devicePixelRatio].join('\n');
     }
     scenes.forEach(sc => {
-      if (!sc.offsetParent) return;                    // oculta (pantalla de inicio cerrada): no se gasta nada
+      if (!sc.offsetParent) { pauseVideos(sc.parentNode); return; }                    // oculta (pantalla de inicio cerrada): no se gasta nada
       let actors = cache.get(sc); if (!actors) { actors = build(sc) || []; cache.set(sc, actors); }
       const spd = +sc.dataset.spd || 1;
       actors.forEach(A => {
+        if (A.vid) {
+          if (A.vid.error) toAtlas(A);
+          else {
+            if (A.vid.playbackRate !== spd) A.vid.playbackRate = spd;
+            if (A.vid.paused) { const p = A.vid.play(); if (p && p.catch) p.catch(() => {}); }
+            return;
+          }
+        }
         const t = (now * spd + A.cfg.ph) % A.total;
         let k = A.n - 1; for (let j = 1; j < A.n; j++) if (A.t[j] > t) { k = j - 1; break; }
         if (k !== A.cur) { A.cur = k; put(A.a, k, A); }
@@ -140,7 +164,7 @@
     raf = requestAnimationFrame(tick);
   }
   function wake() { if (!raf) { last = performance.now(); raf = requestAnimationFrame(() => { raf = 0; raf = requestAnimationFrame(tick); }); } }
-  function stop() { if (raf) { cancelAnimationFrame(raf); raf = 0; } }
+  function stop() { if (raf) { cancelAnimationFrame(raf); raf = 0; } pauseVideos(); }
   document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); else if (document.querySelector('.ec-scene')) wake(); });
 
   // 5 toques seguidos sobre la escena muestran u ocultan el medidor de fps (para revisar el rendimiento en el celular)

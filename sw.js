@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ramen-mania-v155';
+const CACHE_NAME = 'ramen-mania-v156';
 
 // Shell del juego para instalar y abrir sin conexión: la página y todos sus scripts (js/ + archivos de apoyo)
 const CORE_SHELL = [
@@ -91,6 +91,7 @@ self.addEventListener('activate', event => {
           './assets/menu/zona1_wok.webp',
           './assets/menu/zona1_freidora.webp',
           './assets/menu/zona1_efectos.webp',
+          './assets/menu/zona1_wok_video.webm',
           './assets/icons/icon-192.png',
           './assets/icons/favicon-32x32.png',
           './assets/icons/favicon-16x16.png'
@@ -113,6 +114,19 @@ self.addEventListener('fetch', event => {
 
   // No interceptar llamadas a la API de Supabase
   if (req.url.includes('supabase.co')) {
+    return;
+  }
+
+  // Videos (WebM de la cocina): el navegador pide trozos (Range). Si el archivo está guardado se responde con 206 y el trozo pedido
+  if (req.headers.has('range')) {
+    event.respondWith((async () => {
+      const cached = await caches.match(req.url, { ignoreSearch: true });
+      if (!cached) return fetch(req);
+      const buf = await cached.arrayBuffer();
+      const m = /bytes=(d*)-(d*)/.exec(req.headers.get('range')) || [];
+      const start = m[1] ? +m[1] : 0, end = m[2] ? Math.min(+m[2], buf.byteLength - 1) : buf.byteLength - 1;
+      return new Response(buf.slice(start, end + 1), { status: 206, statusText: 'Partial Content', headers: { 'Content-Type': cached.headers.get('Content-Type') || 'video/webm', 'Content-Range': 'bytes ' + start + '-' + end + '/' + buf.byteLength, 'Content-Length': String(end - start + 1), 'Accept-Ranges': 'bytes' } });
+    })());
     return;
   }
 
