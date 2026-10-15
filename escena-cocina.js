@@ -34,7 +34,7 @@
         { sheet: 'zona1_freidora.webp', video: 'zona1_freidora_video.webm', poster: 'zona1_freidora_poster.webp', vw: 440, vh: 384, vc: 0.515, vph: 5.3, x: 1312, ph: 500, dur: [125, 125, 120, 90, 100, 100, 140, 140] }
       ],
       walkers: [                                       // personajes que cruzan la cocina detrás de los cocineros (video que camina en el sitio; el código lo desplaza)
-        { off: true, video: 'zona1_mozo_video.webm', vw: 420, vh: 432, vc: 0.5, vph: 0, s: 0.72, x0: 1760, x1: 230, cycle: 36, start: 4 }
+        { video: 'zona1_mozo_video.webm', vw: 300, vh: 318, vc: 0.5, vph: 0, s: 0.98, x0: 1760, x1: 230, cycle: 36, start: 4 }
       ],
       fxBack: [                                        // fila de la hoja de efectos: 0 vapor, 1 fuego, 2 chispas, 3 pétalos
         { row: 0, x: 700, y: 330, s: 190, op: 0.7, off: 0 },        // olla de caldo
