@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ramen-mania-v166';
+const CACHE_NAME = 'ramen-mania-v167';
 
 // Shell del juego para instalar y abrir sin conexión: la página y todos sus scripts (js/ + archivos de apoyo)
 const CORE_SHELL = [
@@ -119,6 +119,9 @@ self.addEventListener('fetch', event => {
   if (req.url.includes('supabase.co')) {
     return;
   }
+
+  // Herramientas de desarrollo (/tools/*): siempre desde la red, nunca desde la copia guardada (si no, una prueba editada sigue sirviendo la versión vieja)
+  try { if (new URL(req.url).pathname.indexOf('/tools/') === 0) return; } catch (e) {}
 
   // Videos (WebM de la cocina): el navegador pide trozos (Range). Si el archivo está guardado se responde con 206 y el trozo pedido
   if (req.headers.has('range')) {
