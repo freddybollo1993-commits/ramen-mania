@@ -28,7 +28,7 @@
       actors: [                                        // x = centro del cocinero sobre la placa; ph = desfase de fase (ms)
         { sheet: 'zona1_ramen.webp', video: 'zona1_ramen_video.webm', vw: 429, vh: 384, vc: 0.476, vph: 2.7, x: 300, ph: 300, dur: [125, 125, 100, 110, 140, 140, 100, 125] },
         { sheet: 'zona1_wok.webp', video: 'zona1_wok_video.webm', vw: 395, vh: 384, vc: 0.494, vph: 0, x: 640, ph: 0, dur: [125, 125, 150, 70, 110, 80, 100, 125, 125, 140, 160, 125, 125, 150, 200, 140] },
-        { sheet: 'zona1_freidora.webp', x: 975, ph: 500, dur: [125, 125, 120, 90, 100, 100, 140, 140] }
+        { sheet: 'zona1_freidora.webp', video: 'zona1_freidora_video.webm', vw: 440, vh: 384, vc: 0.515, vph: 5.3, x: 975, ph: 500, dur: [125, 125, 120, 90, 100, 100, 140, 140] }
       ],
       fxBack: [                                        // fila de la hoja de efectos: 0 vapor, 1 fuego, 2 chispas, 3 pétalos
         { row: 0, x: 215, y: 330, s: 210, op: 0.7, off: 0 },
