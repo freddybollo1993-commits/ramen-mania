@@ -33,6 +33,9 @@
         { sheet: 'zona1_wok.webp', video: 'zona1_wok_video.webm', poster: 'zona1_wok_poster.webp', vw: 395, vh: 384, vc: 0.494, vph: 0, x: 1012, ph: 0, dur: [125, 125, 150, 70, 110, 80, 100, 125, 125, 140, 160, 125, 125, 150, 200, 140] },
         { sheet: 'zona1_freidora.webp', video: 'zona1_freidora_video.webm', poster: 'zona1_freidora_poster.webp', vw: 440, vh: 384, vc: 0.515, vph: 5.3, x: 1312, ph: 500, dur: [125, 125, 120, 90, 100, 100, 140, 140] }
       ],
+      walkers: [                                       // personajes que cruzan la cocina detrás de los cocineros (video que camina en el sitio; el código lo desplaza)
+        { off: true, video: 'zona1_mozo_video.webm', vw: 420, vh: 432, vc: 0.5, vph: 0, s: 0.72, x0: 1760, x1: 230, cycle: 36, start: 4 }
+      ],
       fxBack: [                                        // fila de la hoja de efectos: 0 vapor, 1 fuego, 2 chispas, 3 pétalos
         { row: 0, x: 700, y: 330, s: 190, op: 0.7, off: 0 },        // olla de caldo
         { row: 0, x: 300, y: 430, s: 150, op: 0.6, off: 3 },        // arrocera
@@ -65,6 +68,7 @@
     .ec-actor img.nx { opacity: 0; }
     .ec-actor img.ec-poster { width: 100%; height: 100%; }
     .ec-actor.vr img.ec-poster { display: none; }
+    .ec-walker { position: absolute; opacity: 0; will-change: transform, opacity; animation: ecWalk calc(var(--cycle, 36s) / var(--spd)) linear infinite; }
     .ec-vid { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; pointer-events: none; }
     .ec-dbg { position: absolute; left: 4px; top: 4px; z-index: 5; font: 700 10px/1.25 monospace; color: #9f9; background: rgba(0,0,0,.7); padding: 3px 5px; border-radius: 4px; pointer-events: none; white-space: pre; }
     .ec-fx { position: absolute; background-repeat: no-repeat; background-size: 400% 400%; animation: ecF calc(.52s / var(--spd)) step-end infinite; pointer-events: none; }
@@ -73,11 +77,13 @@
       animation: ecGlow calc(2.4s / var(--spd)) ease-in-out infinite alternate; }
     .ec-scene.rash::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 50% 55%, rgba(255,60,30,0) 25%, rgba(200,20,10,.6) 100%); box-shadow: inset 0 0 9cqw 1cqw rgba(235,30,20,.9);
       animation: ecAlarm .7s ease-in-out infinite alternate; }
+    @keyframes ecWalk { 0% { transform: translateX(0) scaleX(-1); opacity: 0; } 3% { opacity: 1; } 42% { transform: translateX(var(--wx)) scaleX(-1); opacity: 1; } 45% { transform: translateX(var(--wx)) scaleX(-1); opacity: 0; }
+      50% { transform: translateX(var(--wx)) scaleX(1); opacity: 0; } 53% { opacity: 1; } 92% { transform: translateX(0) scaleX(1); opacity: 1; } 95%, 100% { transform: translateX(0) scaleX(1); opacity: 0; } }
     @keyframes ecF { 0% { background-position-x: 0; } 25% { background-position-x: 33.3333%; } 50% { background-position-x: 66.6667%; } 75% { background-position-x: 100%; } }
     @keyframes ecBreath { from { transform: scale(1, 1); } to { transform: scale(.994, 1.02); } }
     @keyframes ecGlow { from { opacity: .35; } to { opacity: .9; } }
     @keyframes ecAlarm { from { opacity: .25; } to { opacity: .9; } }
-    @media (prefers-reduced-motion: reduce) { .ec-glow, .ec-actor, .ec-scene.rash::after { animation: none; } .ec-actor img.nx { display: none; } }
+    @media (prefers-reduced-motion: reduce) { .ec-glow, .ec-actor, .ec-scene.rash::after { animation: none; } .ec-walker { display: none; } .ec-actor img.nx { display: none; } }
     `;
     document.head.appendChild(st);
   }
@@ -99,7 +105,7 @@
     return v;
   }
   /** Descarga los videos antes de que se abra la escena (se llama al abrir el juego, cuando el navegador está libre). */
-  function preload() { Object.keys(ZONES).forEach(k => ZONES[k].actors.forEach(pool)); }
+  function preload() { Object.keys(ZONES).forEach(k => { ZONES[k].actors.forEach(pool); (ZONES[k].walkers || []).forEach(w => { if (!w.off) pool(w); }); }); }
   (function schedule() {
     const go = () => { try { preload(); } catch (e) {} };
     const later = () => setTimeout(go, 700);                                   // poco después de que la página termine de cargar
@@ -117,12 +123,14 @@
     const actor = (a, i) => {
       if (a.video && VIDEO_OK) return `<div class="ec-actor" data-i="${i}" style="left:${cqw(a.x + ox - a.vw * cs * (a.vc || 0.5))};top:${cqw(z.counterY - a.vh * cs)};width:${cqw(a.vw * cs)};height:${cqw(a.vh * cs)}"><img class="ec-poster" src="${DIR}${a.poster}" alt="" draggable="false"></div>`;
       return `<div class="ec-actor" data-i="${i}" style="left:${cqw(a.x + ox - cw / 2)};top:${cqw(z.counterY - ch)};width:${cqw(cw)};height:${cqw(ch)}">${atlasInner(a)}</div>`; };
+    const walker = (w, i) => { const ww = w.vw * w.s, wh = w.vh * w.s;
+      return `<div class="ec-walker" data-w="${i}" style="left:${cqw(w.x0 + ox - ww * (w.vc || 0.5))};top:${cqw(z.counterY - wh)};width:${cqw(ww)};height:${cqw(wh)};--wx:${cqw(w.x1 - w.x0)};--cycle:${w.cycle}s;animation-delay:calc(-${w.start}s / var(--spd))"></div>`; };
     const glow = g => `<i class="ec-glow" style="left:${cqw(g[0] + ox - 130)};top:${cqw(g[1] - 130)};width:${cqw(260)};height:${cqw(260)};animation-delay:-${(g[0] % 7 * 0.3).toFixed(1)}s"></i>`;
     preload(); wake();
     return `<div class="ec-wrap"><div class="ec-fill" style="background-image:${img(z.plate)}"></div><div class="ec-scene${rash ? ' rash' : ''}" data-zone="${zid}" data-spd="${rash ? 1.8 : 1}" style="--spd:${rash ? 1.8 : 1};--asp:${(z.w / z.h).toFixed(4)}"><div class="ec-cam">`
       + `<img class="ec-plate" src="${DIR}${z.plate}" alt="" draggable="false">`
       + z.fxBack.map(fx).join('')
-      + `<div class="ec-cast" style="height:${(z.counterY / z.h * 100).toFixed(3)}%">${z.actors.map(actor).join('')}</div>`
+      + `<div class="ec-cast" style="height:${(z.counterY / z.h * 100).toFixed(3)}%">${VIDEO_OK ? (z.walkers || []).map((w, i) => w.off ? '' : walker(w, i)).join('') : ''}${z.actors.map(actor).join('')}</div>`
       + z.fxFront.map(fx).join('')
       + z.glows.map(glow).join('')
       + `</div></div></div>`;
@@ -138,13 +146,18 @@
 
   function build(scene) {
     const z = ZONES[scene.dataset.zone]; if (!z) return null;
+    const walkers = (z.walkers || []).map((w, i) => {
+      const el = scene.querySelector('.ec-walker[data-w="' + i + '"]'); if (!el) return null;
+      const vid = pool(w); if (vid && vid.parentNode !== el) el.appendChild(vid);
+      return { el, vid, z, walker: true, cfg: w, t: [], total: 1, n: 1, rows: 1, cur: -1, curB: -1, shown: true };
+    }).filter(Boolean);
     return z.actors.map((a, i) => {
       const el = scene.querySelector('.ec-actor[data-i="' + i + '"]'); if (!el) return null;
       const t = []; let acc = 0; a.dur.forEach(d => { t.push(acc); acc += d; });
       const vid = el.querySelector('.ec-poster') ? pool(a) : null;
       if (vid && vid.parentNode !== el) el.appendChild(vid);                   // el video ya cargado se mueve a esta escena
       return { el, vid, z, a: vid ? null : el.children[0], b: vid ? null : el.children[1], cfg: a, t, total: acc, n: a.dur.length, rows: Math.max(1, Math.ceil(a.dur.length / 4)), cur: -1, curB: -1, shown: false };
-    }).filter(Boolean);
+    }).filter(Boolean).concat(walkers);
   }
   /** Si el video falla, el cocinero vuelve a su atlas de fotogramas. */
   function toAtlas(A) {
@@ -176,7 +189,7 @@
       const spd = +sc.dataset.spd || 1;
       actors.forEach(A => {
         if (A.vid) {
-          if (A.vid.error) toAtlas(A);
+          if (A.vid.error) { if (A.walker) { A.el.style.display = 'none'; A.vid = null; return; } toAtlas(A); }
           else {
             if (A.vid.playbackRate !== spd) A.vid.playbackRate = spd;
             if (A.vid.paused) { const p = A.vid.play(); if (p && p.catch) p.catch(() => {}); }
