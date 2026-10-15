@@ -1,172 +1,146 @@
 # Arte del menú de inicio: guía de prompts para Gemini (Nano Banana)
 
-Hoy cada entrada del menú (`inicio.js`, función `getArtworkSvg`) se muestra con una ilustración SVG de **520×400** dibujada a mano en código. Esta guía sustituye esos SVG por ilustraciones finales y añade íconos para la lista lateral.
+**Idea:** el lado derecho del menú es una **ventana a la cocina vista desde la barra**, como si el jugador fuera un cliente sentado mirando cómo trabajan. Todo se mueve: cocineros saltean, cortan, afilan, escriben; sale vapor, parpadea el fuego, pasa gente por la ventana. Al elegir una opción del menú, la cámara se desliza a la zona de la cocina donde ocurre esa acción.
 
-## Qué se pide (3 paquetes)
+Hoy cada entrada usa un SVG fijo de 520×400 (`getArtworkSvg` en `inicio.js`). Esto lo sustituye.
 
-| Paquete | Qué es | Piezas | Formato final | Tamaño máx. |
-|---|---|---|---|---|
-| **A. Escenas de vitrina** | Una ilustración por entrada del menú (lado derecho) | 13 | WebP 1040×800 (se muestra a 520×400) | 70 KB cada una |
-| **B. Íconos de lista** | Sustituyen los emojis del panel izquierdo | 21 (2 hojas) | WebP 128×128, fondo transparente | 6 KB cada uno |
-| **C. Efectos animables** | Vapor, llama, brillo, moneda: el código los anima encima de la escena | 12 (1 hoja) | WebP 4 fotogramas por fila | 40 KB la hoja |
+## Cómo se construye una escena (capas)
 
-Orden recomendado: **A primero** (es lo que más se ve), luego C y al final B.
+```
+ capa 4  efectos        vapor, llamas, chispas, pétalos (hoja de efectos, los anima el código)
+ capa 3  actores        cocineros y ayudantes: hojas de 8 fotogramas, de la cintura para arriba
+ capa 2  placa          la cocina de fondo CON la barra dibujada abajo (imagen fija, sin personajes)
+ capa 1  luz            parpadeo cálido de las linternas y leve balanceo de cámara (lo hace el código)
+```
+
+- Los actores se cortan por código justo en el borde de la barra, así que **solo hace falta dibujarlos de la cintura para arriba** (menos trabajo y menos errores entre fotogramas).
+- El código controla la velocidad: en **Rash** todo va ×1,8 más rápido con luz roja; en **Zen** va más lento.
+- Pantalla: 873×393, cada escena se muestra a 520×400.
+
+## Las 5 zonas de la cocina (en vez de 13 escenas sueltas)
+
+| Zona | Qué se ve | Entradas del menú que la usan |
+|---|---|---|
+| **Z1 Línea de fuego** | Wok con llamas, caldero de ramen, freidora; 3 cocineros trabajando | Jugar, Campaña, Rash (misma zona, más rápido y rojizo) |
+| **Z2 Rincón del Maestro** | Tatami elevado, pizarra, té; el Maestro enseña a un aprendiz | Aprender, Aula, Cocina Libre (más lento, con té) |
+| **Z3 Despensa y cuchillos** | Pared de cuchillos, estantes de frascos, gato de la suerte; un afilador y un cocinero que elige ingredientes | Mi Restaurante, Mejoras, Modo Ingredientes |
+| **Z4 Pase y caja** | Máquina de tickets, riel de comandas, libro de recetas, pizarra del ranking, baúl con nube | Retos, Recetario, Ranking, Cuenta y Nube, Ajustes |
+| **Z5 Ventana y puerta** | Ventana al callejón con gente pasando y puerta shoji que se abre | Recorrido por Japón, Multijugador |
+
+Ventaja: la cocina es una sola, así que menú, juego y Japón se ven del mismo mundo. Son **5 placas + 12 hojas de actores**, no 13 escenas independientes.
 
 ## Reglas comunes
 
-- **Estilo:** el mismo de los 106 ingredientes (contorno marrón grueso, cel shading de 3 tonos, luz arriba a la izquierda), para que menú, ingredientes y Japón parezcan del mismo juego.
-- **Perspectiva:** diorama isométrico **2:1 (dimétrico)**, igual que la escena de Japón. Cada escena es una **plataforma flotante** (suelo de madera/tatami con borde visible) sobre fondo liso. Así todas se leen como piezas de la misma colección.
-- **Fondo de las escenas:** color liso `#2b1810` (el del panel). El código pone encima el degradado y las partículas; no pidas fondo con detalles.
-- **Sin texto dentro de la imagen** (los rótulos los pone el juego en español). Excepción: números sueltos como «1», «2», «3» en el ranking.
-- **Personajes:** el Maestro, los cocineros y los clientes **no van** en estas escenas (ya tienen su propio sprite y el código los coloca). Si una escena necesita «alguien», se deja el hueco libre.
-- **Cada escena deja libre el 25 % izquierdo** (zona donde se superpone el texto en pantallas pequeñas) con poco detalle.
+- **Estilo:** el de los 106 ingredientes y del Maestro (contorno marrón grueso `#2b1810`, tres tonos de sombreado, luz cálida de las linternas arriba).
+- **Cámara:** vista frontal desde el asiento del cliente, ligeramente por encima de la barra, **sin puntos de fuga marcados** (proyección casi ortográfica, como el fondo de *Cook, Serve, Delicious!* o *Diner Dash*). La barra ocupa el 25 % inferior de la imagen.
+- **Sin texto** en las imágenes (los rótulos los pone el juego). Excepción: números sueltos.
+- **Los cocineros son los del juego:** subir `assets/people/cook_ramen_v1.webp` y la imagen del Maestro como referencia, pedir «same character design, now front view».
+- **Mismo punto de vista, mismas proporciones y misma ropa en todos los fotogramas.** Solo cambian los brazos, la herramienta y el ingrediente.
 
-## Bloque ESTILO (pegar siempre antes de cada prompt)
+## Bloque ESTILO (pegar siempre)
 
 ```
-STYLE (use exactly the same for every illustration):
-- cute polished mobile-game diorama, 2:1 isometric (dimetric) projection, orthographic, no perspective vanishing points
-- the scene sits on a floating square platform (wood planks or tatami, visible thick side edge), centered, with empty space around it
+STYLE (use exactly the same for every image):
+- cute polished mobile-game 2D art, FRONT VIEW as seen by a customer sitting at the ramen bar counter, camera slightly above the counter, almost no perspective distortion
 - chunky dark-brown outline (#2b1810), uniform thickness; soft cel shading with 3 tones (light, mid, shadow); small white highlights
-- single light source from the top-left: left faces lighter than right faces, soft contact shadow only on the platform itself
-- warm Japanese ramen-shop palette: vermilion red #C8372D, lantern orange #F2A33A, cream #F6E7C1, wood brown #8A5A33, deep indigo #2E3A59, matcha green #7FA650, nori black #1F1A17
+- warm light from paper lanterns above, slightly from the top-left; cozy evening ramen-ya mood
+- palette: vermilion red #C8372D, lantern orange #F2A33A, cream #F6E7C1, wood brown #8A5A33, deep indigo #2E3A59, matcha green #7FA650, nori black #1F1A17
 - vibrant, appetizing, clean vector-like look; no text, no letters, no logos, no watermark
-- solid flat background color #2b1810 everywhere outside the platform (no gradient, no vignette, no stars)
-- output aspect ratio 13:10 (landscape), the platform fills about 70% of the width
 ```
-
-Cómo trabajar: conversación **nueva** por escena (o «Editar imagen» sobre la misma), subir 2 íconos del juego como referencia de estilo (por ejemplo `assets/ingredients/v2/ing_1_ramen.webp`) y pedir **una escena por mensaje**. Si algo sale mal: *«Redo only the [elemento], keep everything else identical»*.
 
 ---
 
-## Paquete A: 13 escenas de vitrina
+## Paquete A1: las 5 placas de fondo (cocina vacía, sin personajes)
 
-Cada prompt va **después** del bloque ESTILO. La columna «Se anima con el código» indica qué quedará separado en el paquete C para no hornearlo en la imagen.
+Cada placa: **1040×800, imagen opaca**, aspecto 13:10. Misma barra de madera en el 25 % inferior, mismos pilares y la misma pared trasera para que se pueda deslizar de una zona a la otra. **Sin personas ni vapor**: eso lo ponen las capas 3 y 4. Subir la placa Z1 como referencia al generar las demás.
 
-### A1 · Campaña (`camp`, también la usa «Jugar»)
-Qué transmite: servicio en vivo, 5 arcos, 3 estrellas.
-
+### Z1 · Línea de fuego
 ```
-SCENE: a small ramen-ya counter diorama. A long wooden counter with three steaming ramen bowls in different stages, a rail above it holding five paper order tickets, and a row of FIVE hanging paper lanterns in five different colors (red, orange, green, blue, purple) representing five story chapters. Three golden stars float above the center lantern. A small noren curtain hangs at the back. Leave the steam off the bowls (drawn separately).
+SCENE: the back of a busy ramen kitchen seen from the bar, NO people. At the center a big black iron wok on a stove with the burner flame area left empty (flames drawn separately), left of it a large stock pot (ramen broth) on a second burner with a ladle hanging, right of it a deep fryer with a basket hanging on its hook. Hanging pots and utensils on a rail above, a wooden pass-through shelf with empty bowls, three paper lanterns hanging from the ceiling, a tile backsplash in indigo. In the bottom 25% a long wooden bar counter top (slightly visible top surface) with chopsticks holder, soy sauce, a tea cup and two empty ramen bowls. The space behind the counter, where cooks will stand (waist up), is left empty.
 ```
-Se anima: vapor de los cuencos, parpadeo de las linternas, brillo de las estrellas.
 
-### A2 · Supervivencia Rash (`rash`)
-Qué transmite: caos, velocidad, 3 vidas.
+### Z2 · Rincón del Maestro
+```
+SCENE: a raised tatami teaching nook seen from the bar, NO people. A wooden blackboard/wall panel with abstract brush-stroke diagrams (no letters), a low shelf with four display items on wooden stands (a ramen bowl, a wok, a maki roll, a tempura shrimp), a small tea set and an iron teapot on a charcoal brazier (steam drawn separately), a hanging scroll with a red seal, two cushions, a shoji screen on one side. Same bar counter in the bottom 25% as the other scenes. Empty space where the master (standing, waist up) and an apprentice will be.
+```
 
+### Z3 · Despensa y cuchillos
 ```
-SCENE: a hectic kitchen corner diorama. A large iron wok on a roaring stove with exaggerated flames (flames drawn as solid shapes, stylized), a red alarm clock-timer at the back, a stack of overflowing order tickets, and THREE heart-shaped red paper lanterns hanging in a row as lives (the third slightly cracked). Dynamic, tense mood, a few chopped vegetables flying mid-air above the wok.
+SCENE: pantry and knife wall seen from the bar, NO people. Left: a tall wooden shelf with three shelves of glass jars and crates (noodles, eggs, nori, shrimp, scallions, mushrooms, tofu, pickled ginger). Right: a wall panel with a magnetic rack holding six different Japanese knives with different handle colors, a whetstone on a wooden stand with a water bowl, a maneki-neko lucky cat on a shelf with its paw empty-slot (paw drawn separately, leave the arm down). Same bar counter in the bottom 25%. Empty space for two cooks (waist up).
 ```
-Se anima: llamas, vegetales saltando, latido de los corazones.
 
-### A3 · Recorrido por Japón (`door`)
-Qué transmite: franquicia en 9 ciudades, ingresos pasivos.
+### Z4 · Pase y caja
+```
+SCENE: the order pass and cashier area seen from the bar, NO people. A brass-and-wood ticket machine, an order ticket rail above with a few blank tickets with small pictograms only, an open large recipe book on a lectern (pages with illustrated dishes, no letters), a wooden ranking board with three blank name plaques in gold, silver, bronze and a small trophy shaped like a ramen bowl, a treasure chest with a golden key and a cloud-shaped lantern hanging above it, a small radio and a wind chime. Same bar counter in the bottom 25%. Empty space for a cook who stamps tickets and a waiter with a ledger (waist up).
+```
 
+### Z5 · Ventana y puerta
 ```
-SCENE: a miniature stylized island of Japan as the floating platform (simplified silhouette, green land, blue sea edge), with Mount Fuji with a snow cap at the back, and NINE tiny ramen-shop buildings (red roofs, lanterns) placed along a winding dirt path from north to south, connected by the path. A red torii gate at the entrance of the path, two cherry blossom trees, a few golden yen coins stacked at the front. The platform is the island itself (visible thick side).
+SCENE: the front of the shop seen from the bar, NO people. A large wooden-framed window on the left looking out to a lantern-lit Japanese alley at dusk (cobblestones, a red torii in the far distance, Mount Fuji silhouette, cherry blossom tree), the alley is empty. On the right a sliding shoji door frame (paper panels closed) leading to a private room, a noren curtain, a small world map hanging on the wall with nine small red pins (no text). Same bar counter in the bottom 25%.
 ```
-Se anima: pétalos, monedas girando, luces de las tiendas.
-
-### A4 · Multijugador (`room`)
-Qué transmite: sala privada con amigos, 2–4 chefs.
-
-```
-SCENE: a private tatami room diorama with sliding shoji paper doors on the two back walls, one half open showing a night garden. A low wooden table in the center with FOUR seat cushions (zabuton) in four colors and four ramen bowls facing each other, four small chef hats resting on the cushions, a paper lantern hanging above. A small wooden sign post at the entrance. Warm cozy light.
-```
-Se anima: vapor, luz de la linterna.
-
-### A5 · Aula del Maestro (`aula`, también «Aprender»)
-Qué transmite: academia tradicional, 4 disciplinas.
-
-```
-SCENE: a traditional dojo-style classroom diorama on a tatami floor. At the back a wooden shelf with FOUR labeled-by-object display items (no text): a ramen bowl, a wok, a sushi maki roll, and a tempura shrimp, each on its own small wooden stand. In front, a low teacher's desk with an open scroll, a calligraphy brush and ink stone, a small tea set, and an empty cushion where the master sits (leave the cushion empty). A hanging scroll with a red seal on the back wall (no writing, abstract brush strokes only).
-```
-Se anima: vapor del té, balanceo del pergamino.
-
-### A6 · Retos del Chef (`tickets`)
-Qué transmite: 50 desafíos con medallas.
-
-```
-SCENE: an old brass-and-wood ticket machine (printer) on a counter, with a long curling paper ticket strip coming out and folding onto the platform; on the strip small pictograms only (knife, flame, clock, star; no letters). Next to it three medals on ribbons lying on a small wooden tray: gold, silver, bronze. A small stopwatch in front.
-```
-Se anima: la tira de papel saliendo, brillo de las medallas.
-
-### A7 · Cocina Libre Zen (`free`)
-Qué transmite: práctica sin reloj, calma.
-
-```
-SCENE: a calm zen kitchen nook diorama. A wooden cutting board with neatly arranged fresh ingredients (sliced cucumber, a carrot, a block of tofu, green onions), a small bonsai tree, a tiny raked sand garden square with three stones, a steaming teapot with a cup, a hanging empty clock-less wall (no clock anywhere). Soft pastel greens and warm wood, very peaceful mood.
-```
-Se anima: vapor del té, hojas del bonsái.
-
-### A8 · Modo Ingredientes (`pantry`)
-Qué transmite: memoria visual de ingredientes.
-
-```
-SCENE: a pantry diorama: a tall wooden shelf unit with three shelves full of glass jars and crates of colorful ingredients (noodles, eggs, nori sheets, shrimp, scallions, mushrooms, tofu, pickled ginger), seen from the front-left. In front on the floor, a small round table with FOUR face-down wooden memory cards and one card flipped showing a simple egg illustration. A small basket of vegetables.
-```
-Se anima: una tarjeta que se voltea, brillo en un frasco.
-
-### A9 · Mi Restaurante / Tienda de Mejoras (`knives`, también «Mi Restaurante»)
-Qué transmite: cuchillos de Sakai, utensilios y mejoras.
-
-```
-SCENE: a display wall diorama: a wooden wall panel with a magnetic rack holding SIX different Japanese kitchen knives (gyuto, santoku, yanagiba, deba, nakiri, petty), each with a different handle color, blades shining. Below, a wooden counter with a whetstone with water, a small lucky cat (maneki-neko) with raised paw, and a pile of gold coins. A little price tag shaped like a paper tag with no text.
-```
-Se anima: destellos en las hojas, la pata del gato.
-
-### A10 · Recetario Oficial (`book`)
-Qué transmite: 35 recetas, orden de montaje.
-
-```
-SCENE: a large open recipe book on a wooden lectern, thick pages with a red ribbon bookmark, the two pages showing simple illustrated dishes (a ramen bowl on the left page, sushi on the right page) with decorative borders and NO letters. Beside it a brush pen and ink stone, a small stack of closed books, a hanging paper lantern, and a few loose recipe cards with food pictograms.
-```
-Se anima: las páginas, el brillo del lazo.
-
-### A11 · Ranking Mundial (`board`)
-Qué transmite: líderes mundiales, ligas.
-
-```
-SCENE: a wooden ranking board diorama: a large wooden board with THREE hanging name plates (blank wood plaques, no text) in gold, silver and bronze, large numerals 1, 2, 3 carved on them. On top a golden trophy shaped like a ramen bowl, beside it a small globe on a stand and a red flag. Confetti ribbons on the platform.
-```
-Se anima: confeti, brillo del trofeo.
-
-### A12 · Mi Cuenta y Nube (`acct`)
-Qué transmite: guardar progreso con una clave.
-
-```
-SCENE: a small treasure chest with a big golden key in its lock, from which a fluffy white cloud rises; a cloud-shaped paper lantern hangs above it; beside it a scroll with a red wax seal (no writing) and a tiny wooden stamp. A thin glowing golden thread connects the chest to the cloud. Soft blue and gold accents.
-```
-Se anima: la nube flotando, brillo del hilo.
-
-### A13 · Ajustes (`gear`)
-Qué transmite: sonido, pantalla, atajos.
-
-```
-SCENE: a small workshop shelf diorama with a big brass gear mechanism, a cluster of three round dials/knobs, a paper lantern shaped like a speaker (sound), a tiny framed screen icon, a wind chime (furin) and a mug of tea. Calm, tidy, slightly industrial wood-and-brass look.
-```
-Se anima: engranaje girando, campanilla.
 
 ---
 
-## Paquete C: efectos animables (1 hoja)
+## Paquete A2: actores animados (12 hojas)
 
-Hoja de 3 filas × 4 columnas, cada fila es un efecto de 4 fotogramas (se anima de izquierda a derecha). Fondo magenta para recortarlo.
+Cada hoja es **un bucle de 8 fotogramas**: **2 filas × 4 columnas**, se lee de izquierda a derecha y arriba abajo, **fondo magenta liso** (`#FF00FF`), personaje de la cintura para arriba, cortado plano en el borde inferior de cada celda. El código los reproduce a 10 fotogramas por segundo (ciclo de 0,8 s).
+
+Plantilla (cambiar solo la línea ACCIÓN):
 
 ```
-Create one sprite sheet: 3 rows x 4 columns, each row is a 4-frame animation loop of a game effect, each frame centered in its own cell with generous space, nothing overlapping.
-Row 1: soft white steam wisps curling upward (4 frames, the shape drifts and changes smoothly).
-Row 2: a stylized orange-yellow flame with red core (4 frames, flickering).
-Row 3: a golden four-point sparkle star twinkling (4 frames, growing then shrinking).
+Create ONE animation sprite sheet: 2 rows x 4 columns = 8 frames of the SAME loop, read left-to-right then top-to-bottom, each frame centered in its own equal cell, nothing overlapping.
+CHARACTER: [descripción del cocinero], same design as the attached reference (front view). Waist-up only, the bottom edge of each cell is a flat horizontal cut at the waist.
+SAME camera, same position, same size, same clothes and same colors in all 8 frames. Only the arms, the tool and the food move.
+ACTION (a smooth seamless loop, frame 8 flows back into frame 1): [ACCIÓN]
+STYLE: chunky dark-brown outline (#2b1810), soft cel shading with 3 tones, vector-like game art, solid flat magenta background (#FF00FF), pure magenta must not appear inside the character, no text.
+```
+
+| # | Zona | Actor | ACCIÓN (8 fotogramas) |
+|---|---|---|---|
+| 1 | Z1 | Cocinero de wok | holds the wok handle with the left hand and a spatula with the right; frames 1-3 pull the wok back, frame 4 tosses the vegetables up in an arc (a few vegetable pieces in the air), frames 5-7 catch them, frame 8 stirs and returns |
+| 2 | Z1 | Cocinero de ramen | ladles broth into a bowl: ladle goes up from the pot (1-3), swings over the bowl (4-5), pours (6-7), returns (8); the other hand holds the bowl |
+| 3 | Z1 | Cocinero de freidora | lowers the fry basket into the oil (1-3), holds and shakes it (4-6), lifts it to drain (7-8) |
+| 4 | Z2 | El Maestro (enseñando) | the master with white beard and apron: points to the board (1-2), looks at the viewer and gestures with an open hand (3-5), nods and strokes his beard (6-8) |
+| 5 | Z2 | Aprendiz | young apprentice listening: slight nod (1-3), takes notes in a small notebook (4-6), nods again (7-8) |
+| 6 | Z3 | Afilador | sharpens a knife on a whetstone: push stroke away (1-4), pull stroke back (5-8) |
+| 7 | Z3 | Cocinero de despensa | reaches to the shelf (1-2), takes a jar (3-4), shows it to the viewer (5-6), puts it back (7-8) |
+| 8 | Z3 | Gato de la suerte | maneki-neko paw waving up and down (8 frames, only the arm moves) |
+| 9 | Z4 | Cocinero de tickets | tears a ticket from the machine (1-3), slams it on the rail with a stamp (4-5), checks it (6-8) |
+| 10 | Z4 | Mozo con libreta | writes in a ledger (1-4), flips a page (5-6), looks up (7-8) |
+| 11 | Z5 | Gente de la calle | two walking people seen from the front-side crossing the window from left to right (walk cycle, 8 frames; full body, this one is NOT cut at the waist) |
+| 12 | Z5 | Puerta shoji | the sliding paper door opening and closing, 8 frames: closed (1), sliding open (2-4), open with a chef silhouette in the doorway (5-6), closing (7-8) |
+
+> **Si Gemini no mantiene al personaje igual de un fotograma al otro:** generar primero el fotograma 1 y pedir cada siguiente con *«Edit: same image, only move [el brazo] [un poco]»*, o bien hacer solo **3 poses clave** (inicio, acción, final) y yo interpolo en código con balanceo y rebote. Revisar siempre que la cabeza y el cuerpo no se muevan entre fotogramas: lo corrijo alineando por el punto de la cintura.
+
+---
+
+## Paquete A3: efectos (1 a 2 hojas)
+
+Mismo formato (2×4 = 8 fotogramas por efecto, fondo magenta). Los efectos se colocan en los puntos que yo marco en cada placa.
+
+```
+Create ONE effects sprite sheet with 4 rows x 4 columns (each row is a 4-frame seamless loop of a game effect, read left to right), each frame centered in its own cell, nothing overlapping.
+Row 1: soft white steam wisps curling upward, shape drifting smoothly.
+Row 2: stylized orange-yellow flame with red core, flickering (tall version).
+Row 3: golden sparks and small embers flying up from a hot wok, fading.
+Row 4: pale pink cherry blossom petals falling and rotating.
 STYLE: chunky dark-brown outline (#2b1810) except the steam which has a soft pale outline; soft cel shading, vector-like; each effect fills 80% of its cell; solid flat magenta background (#FF00FF), pure magenta must not appear inside any effect; no text.
 ```
-Pedir después una segunda hoja con **moneda dorada girando**, **pétalo de cerezo cayendo** y **confeti** (mismo bloque).
+Segunda hoja (misma plantilla): chorro de agua/caldo, destello dorado de 4 puntas, luciérnaga/luz de linterna, polvo de harina.
+
+---
+
+## Alternativa rápida: bucles de video (para probar)
+
+Si quieres ver el efecto «cocina viva» sin esperar las hojas: generar con Veo/Gemini un **video corto en bucle de 4 s** de cada placa, cámara fija, mismas reglas de estilo. Se reproduce en el menú como `<video muted loop playsinline>` (WebM de 300–500 KB cada uno).
+- Ventajas: se ve vivo desde el primer día.
+- Desventajas: no se puede acelerar en Rash ni separar los actores, el corte del bucle suele notarse, pesa más y consume más batería. **Recomiendo las capas** como solución final y el video solo como prueba de concepto de Z1.
 
 ---
 
 ## Paquete B: íconos de lista (2 hojas)
 
-Mismo formato que las hojas de ingredientes (4×3, fondo magenta, una hoja por mensaje). Estilo igual, pero **vista frontal** (no de arriba) y un solo objeto con silueta clara a 40 px.
+Sustituyen los emojis del panel izquierdo. Mismo formato que las hojas de ingredientes (4×3, fondo magenta, una hoja por mensaje). Vista frontal, un solo objeto con silueta clara a 40 px.
 
 | Hoja | Íconos (izquierda a derecha, arriba a abajo) |
 |---|---|
@@ -174,7 +148,7 @@ Mismo formato que las hojas de ingredientes (4×3, fondo magenta, una hoja por m
 | B2 | Mejoras (cuchillo de cocina), Recetario (libro con lazo), Ranking (trofeo), Cuenta y Nube (nube con llave), Sonido (bocina con ondas), Pantalla completa (marco con flechas hacia fuera), Actualizar (flechas circulares), Atajos (tecla con una flecha), Menú clásico (lista con tres líneas) |
 
 ```
-Create one game icon sheet: a grid of 3 rows x 4 columns (12 separate icons), each icon centered in its own cell, nothing overlapping. Front view (not top-down), one object per icon with a very clear silhouette readable at 40 px.
+Create one game icon sheet: a grid of 3 rows x 4 columns (12 separate icons), each icon centered in its own cell, nothing overlapping. Front view, one object per icon with a very clear silhouette readable at 40 px.
 Items in reading order: [pegar la fila de la tabla anterior, uno por celda]
 STYLE: chunky dark-brown outline (#2b1810), soft cel shading with 3 tones, small white highlight top-left, vibrant colors from the ramen-shop palette, no text or numbers, solid flat magenta background (#FF00FF), pure magenta must not appear inside any icon.
 ```
@@ -183,18 +157,20 @@ STYLE: chunky dark-brown outline (#2b1810), soft cel shading with 3 tones, small
 
 ## Entrega e integración (lo hago yo)
 
-1. Guardar cada imagen como PNG en `assets/gen/menu/` con el nombre de la tabla (`escena_camp.png`, `escena_rash.png`… `iconos_b1.png`, `efectos_c1.png`).
-2. Yo recorto las hojas, quito el magenta, exporto a WebP y los pongo en `assets/menu/`.
-3. `getArtworkSvg` pasa a poner `<img>` de la escena y las capas animadas (vapor, llamas, brillo) encima con CSS, como en el Maestro (`steps()` sobre la hoja de efectos).
-4. Los nombres de archivo van **nuevos** (el service worker ignora el `?v=`), se añaden a `CORE_SHELL` solo si son del primer pantallazo; el resto se precargan al abrir el menú para no inflar la instalación (13 escenas ≈ 0,9 MB).
-5. El menú se queda con el SVG actual como respaldo mientras la imagen carga o si falla.
+1. Guardar los PNG en `assets/gen/menu/`: `placa_z1.png`…`placa_z5.png`, `actor_01.png`…`actor_12.png`, `efectos_1.png`, `iconos_b1.png`, `iconos_b2.png`.
+2. Yo recorto, quito el magenta, alineo cada fotograma por la cintura, exporto a WebP y los pongo en `assets/menu/`.
+3. `inicio.js` monta la escena por capas: placa → actores (`steps(8)` sobre la hoja, recortados en el borde de la barra) → efectos → luz. Cada opción del menú desliza la cámara a su zona (≈0,5 s) y anima solo lo que se ve para ahorrar batería (se pausa si la pestaña no está visible).
+4. Estados por código: **Rash** acelera ×1,8 y tiñe de rojo, **Zen** va lento y con té, **Japón** cambia la luz de la ventana a hora del día real.
+5. Archivos con **nombre nuevo** (el service worker ignora el `?v=`); las placas Z1 y Z2 al instalar, el resto se precarga al abrir el menú. Peso total estimado: 5 placas ≈ 0,4 MB + 12 hojas ≈ 0,5 MB.
+6. Mientras cargan o si falla algo, queda el SVG actual como respaldo.
 
-## Estimación y orden de trabajo
+## Orden de trabajo
 
-| Paso | Cantidad | Mensajes a Gemini |
+| Paso | Qué | Mensajes a Gemini |
 |---|---|---|
-| Escenas A | 13 | 13 (+ retoques) |
-| Efectos C | 2 hojas | 2 |
-| Íconos B | 2 hojas | 2 |
+| 1 | Placa Z1 + los 3 actores de Z1 + hoja de efectos | 5 |
+| 2 | Yo monto Z1 en el menú y lo ves en el Redmi | — |
+| 3 | Si convence: Z2, Z3, Z4, Z5 (placa + actores) | 14 |
+| 4 | Íconos B1 y B2 | 2 |
 
-Empezar por **A1 (Campaña)**: si ese diorama convence, el resto sigue el mismo estilo y solo se ajusta el bloque ESTILO una vez.
+Empezar por **Z1 (Línea de fuego)**: es la zona de Jugar/Campaña/Rash, la más vista, y sirve de prueba de que el estilo y la animación por fotogramas funcionan antes de pedir el resto.
