@@ -22,25 +22,28 @@
 
   const ZONES = {
     z1: {
-      plate: 'zona1_placa.webp',
-      w: 1184, h: 912,                                 // tamaño de la placa; ox = desplazamiento horizontal de todo lo de abajo si se amplía
+      plate: 'zona1_placa_ancha.webp',
+      w: 1999, h: 848,                                 // tamaño de la placa (21:9); ox = desplazamiento horizontal de todo lo de abajo
       ox: 0,
-      counterY: 672,                                   // la barra empieza aquí: los cocineros se cortan en esta línea
-      cell: [344, 384],                                // tamaño de un fotograma sobre la placa
+      cs: 0.95,                                        // escala de los cocineros respecto a su tamaño original (344×384)
+      counterY: 612,                                   // la barra empieza aquí: los cocineros se cortan en esta línea
+      cell: [344, 384],
       actors: [                                        // x = centro del cocinero sobre la placa; ph = desfase de fase (ms); vph = punto de inicio del video (s)
-        { sheet: 'zona1_ramen.webp', video: 'zona1_ramen_video.webm', poster: 'zona1_ramen_poster.webp', vw: 429, vh: 384, vc: 0.476, vph: 2.7, x: 300, ph: 300, dur: [125, 125, 100, 110, 140, 140, 100, 125] },
-        { sheet: 'zona1_wok.webp', video: 'zona1_wok_video.webm', poster: 'zona1_wok_poster.webp', vw: 395, vh: 384, vc: 0.494, vph: 0, x: 640, ph: 0, dur: [125, 125, 150, 70, 110, 80, 100, 125, 125, 140, 160, 125, 125, 150, 200, 140] },
-        { sheet: 'zona1_freidora.webp', video: 'zona1_freidora_video.webm', poster: 'zona1_freidora_poster.webp', vw: 440, vh: 384, vc: 0.515, vph: 5.3, x: 975, ph: 500, dur: [125, 125, 120, 90, 100, 100, 140, 140] }
+        { sheet: 'zona1_ramen.webp', video: 'zona1_ramen_video.webm', poster: 'zona1_ramen_poster.webp', vw: 429, vh: 384, vc: 0.476, vph: 2.7, x: 735, ph: 300, dur: [125, 125, 100, 110, 140, 140, 100, 125] },
+        { sheet: 'zona1_wok.webp', video: 'zona1_wok_video.webm', poster: 'zona1_wok_poster.webp', vw: 395, vh: 384, vc: 0.494, vph: 0, x: 1012, ph: 0, dur: [125, 125, 150, 70, 110, 80, 100, 125, 125, 140, 160, 125, 125, 150, 200, 140] },
+        { sheet: 'zona1_freidora.webp', video: 'zona1_freidora_video.webm', poster: 'zona1_freidora_poster.webp', vw: 440, vh: 384, vc: 0.515, vph: 5.3, x: 1312, ph: 500, dur: [125, 125, 120, 90, 100, 100, 140, 140] }
       ],
       fxBack: [                                        // fila de la hoja de efectos: 0 vapor, 1 fuego, 2 chispas, 3 pétalos
-        { row: 0, x: 215, y: 330, s: 210, op: 0.7, off: 0 },
-        { row: 0, x: 1120, y: 380, s: 150, op: 0.55, off: 2 },
-        { row: 1, x: 812, y: 522, s: 120, op: 0.95, off: 1 }
+        { row: 0, x: 700, y: 330, s: 190, op: 0.7, off: 0 },        // olla de caldo
+        { row: 0, x: 300, y: 430, s: 150, op: 0.6, off: 3 },        // arrocera
+        { row: 0, x: 1585, y: 395, s: 210, op: 0.75, off: 1 },      // vaporera
+        { row: 0, x: 1330, y: 330, s: 150, op: 0.5, off: 2 },       // freidora
+        { row: 1, x: 1168, y: 520, s: 110, op: 0.95, off: 1 }       // hornilla libre
       ],
       fxFront: [
-        { row: 2, x: 700, y: 500, s: 230, op: 0.85, off: 0, screen: true }
+        { row: 2, x: 1010, y: 440, s: 230, op: 0.85, off: 0, screen: true }
       ],
-      glows: [[165, 115], [590, 115], [1020, 115]]    // linternas que parpadean
+      glows: [[318, 170], [665, 175], [1000, 175], [1335, 170], [1865, 170]]    // linternas que parpadean
     }
   };
   const MAP = { jugar: 'z1', camp: 'z1', rash: 'z1' };
@@ -107,14 +110,14 @@
   function html(key) {
     const zid = MAP[key]; if (!zid) return '';
     css();
-    const z = ZONES[zid], cw = z.cell[0], ch = z.cell[1], rash = key === 'rash', ox = z.ox || 0;
+    const z = ZONES[zid], cs = z.cs || 1, cw = z.cell[0] * cs, ch = z.cell[1] * cs, rash = key === 'rash', ox = z.ox || 0;
     const cqw = px => (px / z.w * 100).toFixed(3) + 'cqw';
     const img = f => `url('${DIR}${f}')`;
     const fx = e => `<i class="ec-fx${e.screen ? ' screen' : ''}" style="left:${cqw(e.x + ox - e.s / 2)};top:${cqw(e.y - e.s / 2)};width:${cqw(e.s)};height:${cqw(e.s)};opacity:${e.op};background-image:${img('zona1_efectos.webp')};background-position-y:${e.row * 33.3333}%;animation-delay:calc(-${(e.off * 0.13).toFixed(2)}s / var(--spd))"></i>`;
     const actor = (a, i) => {
-      if (a.video && VIDEO_OK) return `<div class="ec-actor" data-i="${i}" style="left:${cqw(a.x + ox - a.vw * (a.vc || 0.5))};top:${cqw(z.counterY - a.vh)};width:${cqw(a.vw)};height:${cqw(a.vh)}"><img class="ec-poster" src="${DIR}${a.poster}" alt="" draggable="false"></div>`;
+      if (a.video && VIDEO_OK) return `<div class="ec-actor" data-i="${i}" style="left:${cqw(a.x + ox - a.vw * cs * (a.vc || 0.5))};top:${cqw(z.counterY - a.vh * cs)};width:${cqw(a.vw * cs)};height:${cqw(a.vh * cs)}"><img class="ec-poster" src="${DIR}${a.poster}" alt="" draggable="false"></div>`;
       return `<div class="ec-actor" data-i="${i}" style="left:${cqw(a.x + ox - cw / 2)};top:${cqw(z.counterY - ch)};width:${cqw(cw)};height:${cqw(ch)}">${atlasInner(a)}</div>`; };
-    const glow = g => `<i class="ec-glow" style="left:${cqw(g[0] + ox - 150)};top:${cqw(g[1] - 150)};width:${cqw(300)};height:${cqw(300)};animation-delay:-${(g[0] % 7 * 0.3).toFixed(1)}s"></i>`;
+    const glow = g => `<i class="ec-glow" style="left:${cqw(g[0] + ox - 130)};top:${cqw(g[1] - 130)};width:${cqw(260)};height:${cqw(260)};animation-delay:-${(g[0] % 7 * 0.3).toFixed(1)}s"></i>`;
     preload(); wake();
     return `<div class="ec-wrap"><div class="ec-fill" style="background-image:${img(z.plate)}"></div><div class="ec-scene${rash ? ' rash' : ''}" data-zone="${zid}" data-spd="${rash ? 1.8 : 1}" style="--spd:${rash ? 1.8 : 1};--asp:${(z.w / z.h).toFixed(4)}"><div class="ec-cam">`
       + `<img class="ec-plate" src="${DIR}${z.plate}" alt="" draggable="false">`
@@ -145,7 +148,7 @@
   }
   /** Si el video falla, el cocinero vuelve a su atlas de fotogramas. */
   function toAtlas(A) {
-    const a = A.cfg, z = A.z, cw = z.cell[0], ch = z.cell[1], st = A.el.style, ox = z.ox || 0, cqw = px => (px / z.w * 100).toFixed(3) + 'cqw';
+    const a = A.cfg, z = A.z, cs = z.cs || 1, cw = z.cell[0] * cs, ch = z.cell[1] * cs, st = A.el.style, ox = z.ox || 0, cqw = px => (px / z.w * 100).toFixed(3) + 'cqw';
     st.left = cqw(a.x + ox - cw / 2); st.top = cqw(z.counterY - ch); st.width = cqw(cw); st.height = cqw(ch);
     A.el.classList.remove('vr'); A.el.innerHTML = atlasInner(a); A.vid = null; A.a = A.el.children[0]; A.b = A.el.children[1]; A.cur = A.curB = -1;
   }

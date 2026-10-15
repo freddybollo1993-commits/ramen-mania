@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ramen-mania-v159';
+const CACHE_NAME = 'ramen-mania-v161';
 
 // Shell del juego para instalar y abrir sin conexión: la página y todos sus scripts (js/ + archivos de apoyo)
 const CORE_SHELL = [
@@ -86,7 +86,7 @@ self.addEventListener('activate', event => {
         const bgAssets = [
           './assets/ramen_bg.webp',
           './assets/ramen_bg.jpg',
-          './assets/menu/zona1_placa.webp',
+          './assets/menu/zona1_placa_ancha.webp',
           './assets/menu/zona1_efectos.webp',
           './assets/menu/zona1_wok_poster.webp',
           './assets/menu/zona1_ramen_poster.webp',
