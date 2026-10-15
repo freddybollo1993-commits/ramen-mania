@@ -18,3 +18,14 @@ Abre `https://ramen-mania.vercel.app/tools/bench-pixi` en el celular, elige 80 y
 - Si el DOM baja de ~45 fps y Pixi se mantiene → **se migra solo la escena de Japón** (capa de dibujo nueva, la lógica de `japon-scene.js` no cambia), con Pixi copiado a `assets/vendor/`.
 
 Nota técnica: las páginas de `/tools/` y `/dashboard` ya no las intercepta el service worker (antes devolvía siempre el juego).
+
+## Resultado de la medición en el Redmi Note 15 Pro+ (2026-10-14) — decisión: se queda el DOM
+Mismo sprite del Maestro andando, 8 núcleos, 8 GB, viewport 759×291:
+
+| Personas | DOM (actual) | DOM optimizado | PixiJS 8.6.6 (WebGL) |
+|---|---|---|---|
+| 40 | 58,8 fps · 4/351 lentos | 60 fps · 0/357 | 60,1 fps · 1/358 |
+| 80 | 58,4 fps · 6/349 | 59,1 fps · 4/352 | 60 fps · 0/352 |
+
+Las tres opciones rinden igual para el uso real (Japón mueve 10–25 personas). **No se adopta PixiJS.** Volver a medir si una escena pasa de ~150 personas animadas o se añaden partículas/luces en cantidad (`tools/bench-pixi.html`).
+Recomendación barata si se añaden más sprites: animar los fotogramas con `transform` (desplazar la hoja dentro de un contenedor con `overflow: hidden`, variante «DOM optimizado» de la prueba) en vez de `background-position`; hoy el Maestro usa `background-position` y con una o dos instancias no importa.
