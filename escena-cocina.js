@@ -50,24 +50,24 @@
     .ec-fill { position: absolute; inset: 0; border-radius: 14px; background-size: cover; background-position: 50% 60%; filter: blur(14px) brightness(.5) saturate(1.15); transform: scale(1.08); overflow: hidden; }
     .ec-scene { position: relative; z-index: 1; height: 100%; aspect-ratio: ${W} / ${H}; max-width: 100%; container-type: inline-size; overflow: hidden; border-radius: 14px;
       background: #2b1810; box-shadow: 0 6px 22px rgba(0,0,0,.55); --spd: 1; }
-    .ec-cam { position: absolute; inset: 0; transform-origin: 50% 70%; animation: ecCam 16s ease-in-out infinite alternate; }
+    .ec-cam { position: absolute; inset: 0; }
     .ec-plate { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
     .ec-cast { position: absolute; left: 0; top: 0; width: 100%; overflow: hidden; }
-    .ec-actor { position: absolute; transform-origin: 50% 100%; animation: ecBreath calc(1.7s / var(--spd)) ease-in-out infinite alternate; }
-    .ec-actor i { position: absolute; inset: 0; background-repeat: no-repeat; will-change: background-position, opacity; }
-    .ec-actor i.nx { opacity: 0; }
+    .ec-actor { position: absolute; overflow: hidden; transform-origin: 50% 100%; animation: ecBreath calc(1.7s / var(--spd)) ease-in-out infinite alternate; }
+    .ec-actor img { position: absolute; left: 0; top: 0; max-width: none; pointer-events: none; will-change: transform, opacity; backface-visibility: hidden; }
+    .ec-actor img.nx { opacity: 0; }
+    .ec-dbg { position: absolute; left: 4px; top: 4px; z-index: 5; font: 700 10px/1.25 monospace; color: #9f9; background: rgba(0,0,0,.7); padding: 3px 5px; border-radius: 4px; pointer-events: none; white-space: pre; }
     .ec-fx { position: absolute; background-repeat: no-repeat; background-size: 400% 400%; animation: ecF calc(.52s / var(--spd)) step-end infinite; pointer-events: none; }
     .ec-fx.screen { mix-blend-mode: screen; }
-    .ec-glow { position: absolute; border-radius: 50%; background: radial-gradient(circle, rgba(255,176,64,.55), rgba(255,140,40,0) 65%); mix-blend-mode: screen; pointer-events: none;
+    .ec-glow { position: absolute; border-radius: 50%; background: radial-gradient(circle, rgba(255,176,64,.55), rgba(255,140,40,0) 65%); pointer-events: none; will-change: opacity;
       animation: ecGlow calc(2.4s / var(--spd)) ease-in-out infinite alternate; }
     .ec-scene.rash::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 50% 55%, rgba(255,60,30,0) 25%, rgba(200,20,10,.6) 100%); box-shadow: inset 0 0 9cqw 1cqw rgba(235,30,20,.9);
       animation: ecAlarm .7s ease-in-out infinite alternate; }
     @keyframes ecF { 0% { background-position-x: 0; } 25% { background-position-x: 33.3333%; } 50% { background-position-x: 66.6667%; } 75% { background-position-x: 100%; } }
     @keyframes ecBreath { from { transform: scale(1, 1); } to { transform: scale(.994, 1.02); } }
-    @keyframes ecGlow { from { opacity: .45; transform: scale(.92); } to { opacity: 1; transform: scale(1.06); } }
+    @keyframes ecGlow { from { opacity: .35; } to { opacity: .9; } }
     @keyframes ecAlarm { from { opacity: .25; } to { opacity: .9; } }
-    @keyframes ecCam { from { transform: scale(1) translateX(0); } to { transform: scale(1.035) translateX(-.6%); } }
-    @media (prefers-reduced-motion: reduce) { .ec-cam, .ec-glow, .ec-actor, .ec-scene.rash::after { animation: none; } .ec-actor i.nx { display: none; } }
+    @media (prefers-reduced-motion: reduce) { .ec-glow, .ec-actor, .ec-scene.rash::after { animation: none; } .ec-actor img.nx { display: none; } }
     `;
     document.head.appendChild(st);
   }
@@ -80,8 +80,8 @@
     const img = f => `url('${DIR}${f}')`;
     const fx = e => `<i class="ec-fx${e.screen ? ' screen' : ''}" style="left:${cqw(e.x - e.s / 2)};top:${cqw(e.y - e.s / 2)};width:${cqw(e.s)};height:${cqw(e.s)};opacity:${e.op};background-image:${img('zona1_efectos.webp')};background-position-y:${e.row * 33.3333}%;animation-delay:calc(-${(e.off * 0.13).toFixed(2)}s / var(--spd))"></i>`;
     // capa A = fotograma actual; capa B = fotograma siguiente que se funde por encima (lo mueve tick())
-    const actor = (a, i) => { const rows = Math.max(1, Math.ceil(a.dur.length / 4)), bg = `background-image:${img(a.sheet)};background-size:400% ${rows * 100}%`;
-      return `<div class="ec-actor" data-i="${i}" style="left:${cqw(a.x - cw / 2)};top:${cqw(z.counterY - ch)};width:${cqw(cw)};height:${cqw(ch)}"><i style="${bg}"></i><i class="nx" style="${bg}"></i></div>`; };
+    const actor = (a, i) => { const rows = Math.max(1, Math.ceil(a.dur.length / 4)), st = `width:400%;height:${rows * 100}%`, src = DIR + a.sheet;
+      return `<div class="ec-actor" data-i="${i}" style="left:${cqw(a.x - cw / 2)};top:${cqw(z.counterY - ch)};width:${cqw(cw)};height:${cqw(ch)}"><img src="${src}" alt="" draggable="false" decoding="async" style="${st}"><img class="nx" src="${src}" alt="" draggable="false" decoding="async" style="${st}"></div>`; };
     const glow = g => `<i class="ec-glow" style="left:${cqw(g[0] - 150)};top:${cqw(g[1] - 150)};width:${cqw(300)};height:${cqw(300)};animation-delay:-${(g[0] % 7 * 0.3).toFixed(1)}s"></i>`;
     wake();
     return `<div class="ec-wrap"><div class="ec-fill" style="background-image:${img(z.plate)}"></div><div class="ec-scene${rash ? ' rash' : ''}" data-zone="${zid}" data-spd="${rash ? 1.8 : 1}" style="--spd:${rash ? 1.8 : 1}"><div class="ec-cam">`
@@ -95,7 +95,7 @@
 
   // ---------- motor de fotogramas (un solo requestAnimationFrame para todas las escenas) ----------
   const cache = new WeakMap();                         // escena -> actores con sus capas y duraciones acumuladas
-  let raf = 0, last = 0, slowN = 0, fade = true, avgDt = 16;
+  let raf = 0, last = 0, slowN = 0, fade = true, avgDt = 16, dbg = false, dbgT = 0, taps = [];
 
   function build(scene) {
     const z = ZONES[scene.dataset.zone]; if (!z) return null;
@@ -106,7 +106,7 @@
     }).filter(Boolean);
   }
   function put(layer, k, A) {                          // fotograma k del atlas (4 columnas)
-    layer.style.backgroundPosition = ((k % 4) * 33.3333) + '% ' + (A.rows > 1 ? Math.floor(k / 4) / (A.rows - 1) * 100 : 0) + '%';
+    layer.style.transform = 'translate3d(' + (-(k % 4) * 25) + '%,' + (-Math.floor(k / 4) / A.rows * 100) + '%,0)';
   }
   function tick(now) {
     raf = 0;
@@ -115,8 +115,12 @@
     const dt = now - last; last = now;
     if (dt > 0 && dt < 200) {                          // si el dispositivo va justo se quita el fundido (queda solo el fotograma actual)
       avgDt = avgDt * 0.95 + dt * 0.05;
-      slowN = avgDt > 22 ? Math.min(slowN + 1, 120) : Math.max(slowN - 1, 0);
+      slowN = avgDt > 30 ? Math.min(slowN + 1, 120) : Math.max(slowN - 1, 0);
       fade = slowN < 60;
+    }
+    if (dbg && now - dbgT > 500) {
+      dbgT = now; const d = document.querySelector('.ec-dbg');
+      if (d) d.textContent = [(1000 / avgDt).toFixed(0) + ' fps (' + avgDt.toFixed(1) + ' ms)', 'fundido: ' + (fade ? 'sí' : 'NO (lento)'), 'lentos: ' + slowN + '/120', 'DPR ' + devicePixelRatio].join('\n');
     }
     scenes.forEach(sc => {
       if (!sc.offsetParent) return;                    // oculta (pantalla de inicio cerrada): no se gasta nada
@@ -138,6 +142,14 @@
   function wake() { if (!raf) { last = performance.now(); raf = requestAnimationFrame(() => { raf = 0; raf = requestAnimationFrame(tick); }); } }
   function stop() { if (raf) { cancelAnimationFrame(raf); raf = 0; } }
   document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); else if (document.querySelector('.ec-scene')) wake(); });
+
+  // 5 toques seguidos sobre la escena muestran u ocultan el medidor de fps (para revisar el rendimiento en el celular)
+  document.addEventListener('pointerdown', ev => {
+    const sc = document.querySelector('.ec-scene'); if (!sc) return; const r = sc.getBoundingClientRect();
+    if (ev.clientX < r.left || ev.clientX > r.right || ev.clientY < r.top || ev.clientY > r.bottom) return;
+    const n = performance.now(); taps = taps.filter(t => n - t < 2000); taps.push(n);
+    if (taps.length >= 5) { taps = []; dbg = !dbg; const old = sc.querySelector('.ec-dbg'); if (old) old.remove(); if (dbg) { const d = document.createElement('div'); d.className = 'ec-dbg'; sc.appendChild(d); } }
+  }, true);
 
   window.EscenaCocina = { has: key => !!MAP[key], html, stop };
 })();
