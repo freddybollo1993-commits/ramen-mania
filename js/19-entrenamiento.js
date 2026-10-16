@@ -33,7 +33,7 @@ const TRAINING_CHAPTERS = [
 const TRN_RAMEN = ['Shio', 'Shoyu', 'Miso', 'Chashu', 'Tonkotsu', 'Tan tan', 'Ebi', 'Bajiru', 'Vegetariano'];
 const TRN_SAL = ['Yakimeshi', 'Chicken Teriyaki', 'Chaufa Shimaya', 'Yakitori', 'Yakiramen', 'Yasaitame', 'Batayaki Ramen', 'Karameshi', 'Omuraisu'];
 const TRN_MAKI = ['Maki California', 'Maki Guacamole', 'Maki Acevichado', 'Maki Hotate', 'Maki Amazon', 'Maki Yama', 'Maki Nin Niku', 'Maki Digion'];
-const TRN_FRY = ['Alitas', 'Kaarage', 'Tonkatsu', 'Chicken Katsu', 'Katsu Kare', 'Ebi Furai', 'Age Gyozas'];
+const TRN_FRY = ['Alitas Acevichadas', 'Alitas Digión', 'Kaarage', 'Tonkatsu', 'Chicken Katsu', 'Katsu Kare', 'Ebi Furai', 'Age Gyozas'];
 // c = id, ch = capítulo, r = pedidos exigidos por área, M = clientes a la vez, O = pedidos por cliente,
 // spawn = segundos entre clientes, pm = multiplicador de paciencia, reward = propinas (medalla de oro)
 const TRAINING_CHALLENGES = [
@@ -65,10 +65,10 @@ const TRAINING_CHALLENGES = [
   { id: 'c21', ch: 'makis', title: 'Itamae experto', r: { makis: 6 }, minStars: 2, pool: { makis: TRN_MAKI }, M: 3, O: 2, spawn: 5.0, pm: 2.2, reward: 110, unlocks: ['area_frituras'] },
 
   // --- Capítulo 4: Frituras (7 retos) ---
-  { id: 'c22', ch: 'frituras', title: 'Tu primera fritura', r: { frituras: 1 }, pool: { frituras: ['Alitas'] }, M: 1, O: 1, spawn: 6, pm: 3.0, reward: 35, unlocks: [] },
-  { id: 'c23', ch: 'frituras', title: 'El punto de la olla', r: { frituras: 2 }, pool: { frituras: ['Alitas', 'Kaarage'] }, M: 1, O: 2, spawn: 6, pm: 3.0, reward: 45, unlocks: [] },
+  { id: 'c22', ch: 'frituras', title: 'Tu primera fritura', r: { frituras: 1 }, pool: { frituras: ['Alitas Acevichadas'] }, M: 1, O: 1, spawn: 6, pm: 3.0, reward: 35, unlocks: [] },
+  { id: 'c23', ch: 'frituras', title: 'El punto de la olla', r: { frituras: 2 }, pool: { frituras: ['Alitas Acevichadas', 'Kaarage'] }, M: 1, O: 2, spawn: 6, pm: 3.0, reward: 45, unlocks: [] },
   { id: 'c24', ch: 'frituras', title: 'Empanizado y corte', r: { frituras: 2 }, minStars: 2, pool: { frituras: ['Tonkatsu', 'Chicken Katsu'] }, M: 1, O: 2, spawn: 6, pm: 2.8, reward: 58, unlocks: ['st_frituras'] },
-  { id: 'c25', ch: 'frituras', title: 'Gyozas y crujientes', r: { frituras: 4 }, pool: { frituras: ['Age Gyozas', 'Ebi Furai', 'Alitas', 'Kaarage'] }, M: 2, O: 2, spawn: 6, pm: 2.5, reward: 72, unlocks: ['q_fresh'] },
+  { id: 'c25', ch: 'frituras', title: 'Gyozas y crujientes', r: { frituras: 4 }, pool: { frituras: ['Age Gyozas', 'Ebi Furai', 'Alitas Acevichadas', 'Kaarage'] }, M: 2, O: 2, spawn: 6, pm: 2.5, reward: 72, unlocks: ['q_fresh'] },
   { id: 'c26', ch: 'frituras', title: 'Katsu Kare y tonkatsu', r: { frituras: 4 }, minStars: 2, pool: { frituras: ['Katsu Kare', 'Tonkatsu', 'Chicken Katsu', 'Ebi Furai'] }, M: 2, O: 2, spawn: 5.5, pm: 2.4, reward: 88, unlocks: [] },
   { id: 'c27', ch: 'frituras', title: 'Cocina caliente combinada', r: { frituras: 3, salteados: 3 }, minStars: 2, pool: { frituras: TRN_FRY, salteados: TRN_SAL }, M: 3, O: 2, spawn: 5.5, pm: 2.3, reward: 108, unlocks: [] },
   { id: 'c28', ch: 'frituras', title: 'Maestro del Panko', r: { frituras: 5 }, minStars: 2, pool: { frituras: TRN_FRY }, M: 2, O: 2, spawn: 5.0, pm: 2.2, reward: 130, unlocks: [] },

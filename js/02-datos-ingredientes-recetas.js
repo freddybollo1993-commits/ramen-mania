@@ -114,8 +114,25 @@ const INGREDIENTES = [
   {"id": 107, "name": "pollo yakitori", "cat": "proteinas", "areas": ["salteados"], "icon": "🍢", "display": "Pollo Yakitori", "img": null},
   {"id": 109, "name": "frutos secos", "cat": "otros", "areas": ["salteados"], "icon": "🥜", "display": "Frutos Secos", "img": null},
   {"id": 110, "name": "atún (pieza)", "cat": "proteinas", "areas": ["makis"], "icon": "🐟", "display": "Atún (pieza)", "img": null},
-  {"id": 111, "name": "conchas de abanico", "cat": "proteinas", "areas": ["makis"], "icon": "🦪", "display": "Conchas de abanico", "img": null}
+  {"id": 111, "name": "conchas de abanico", "cat": "proteinas", "areas": ["makis"], "icon": "🦪", "display": "Conchas de abanico", "img": null},
+  // Recetas v176 (ingredientes nuevos; sin arte propio todavía: usan su emoji)
+  {"id": 112, "name": "pichikata", "cat": "otros", "areas": ["frituras"], "icon": "🧂", "display": "Pichikata", "img": null},
+  {"id": 113, "name": "culantro", "cat": "vegetales", "areas": ["frituras"], "icon": "🌿", "display": "Culantro", "img": null},
+  {"id": 114, "name": "camote", "cat": "vegetales", "areas": ["frituras", "makis"], "icon": "🍠", "display": "Camote", "img": null},
+  {"id": 115, "name": "chuño", "cat": "otros", "areas": ["frituras"], "icon": "🥔", "display": "Chuño", "img": null},
+  {"id": 116, "name": "chifle", "cat": "otros", "areas": ["makis"], "icon": "🍌", "display": "Chifle", "img": null},
+  {"id": 117, "name": "kiury", "cat": "vegetales", "areas": ["salteados"], "icon": "🥒", "display": "Kiury", "img": null},
+  {"id": 118, "name": "salsa poke de atún", "cat": "salsas", "areas": ["salteados"], "icon": "🍣", "display": "Salsa Poke de Atún", "short": "Poke Atún", "img": null},
+  {"id": 119, "name": "layu", "cat": "salsas", "areas": ["makis"], "icon": "🌶️", "display": "Layu", "img": null},
+  {"id": 120, "name": "tar tar de atún", "cat": "proteinas", "areas": ["makis"], "icon": "🐟", "display": "Tar Tar de Atún", "short": "Tar Tar Atún", "img": null},
+  {"id": 121, "name": "rodaja de limón", "cat": "vegetales", "areas": ["makis"], "icon": "🍋", "display": "Rodaja de Limón", "short": "Rod. Limón", "img": null}
 ];
+// Un ingrediente que se usa en otra área también debe figurar en ella (despensa y Reconocer)
+[[5, 'makis'], [18, 'salteados', 'frituras', 'makis'], [21, 'salteados'], [34, 'frituras'], [35, 'frituras'], [62, 'salteados'], [74, 'ramen'],
+ [77, 'frituras'], [80, 'frituras'], [87, 'makis', 'frituras'], [91, 'makis'], [98, 'frituras']].forEach(([id, ...as]) => {
+  const i = INGREDIENTES.find(x => x.id === id);
+  if (i) as.forEach(a => { if (!i.areas.includes(a)) i.areas.push(a); });
+});
 // Nombre corto para las fichas del panel (en pantallas angostas el nombre completo se cortaba) y
 // iconos propios donde dos ingredientes de la misma área compartían el mismo.
 // Arte generado con tools/gen-ingredient-icons.mjs (id -> SVG 64x64). Los emoji quedan solo de respaldo.
@@ -173,27 +190,28 @@ INGREDIENTES.forEach(i => {
 
 
 const RECETAS_RAMEN = [
-  {"id": 1, "name": "Shio", "price": 38, "desc": "Caldo Shio ligero, Chasu Asado, moyashi, nori y Ajonjolí Blanco", "ingredients": [1, 2, 11, 15, 17, 18, 19, 20, 25]},
-  {"id": 2, "name": "Shoyu", "price": 40, "desc": "Caldo Shio con Salsa Shoyu, Chasu Asado, bambú, holantao y nori", "ingredients": [1, 2, 5, 11, 15, 17, 18, 19, 20, 22, 23]},
-  {"id": 3, "name": "Miso", "price": 42, "desc": "Caldo Shio con salsa miso intensa, Chasu Asado, bambú, holantao y nori", "ingredients": [1, 2, 6, 11, 15, 17, 18, 19, 20, 22, 23]},
-  {"id": 4, "name": "Tonkotsu", "price": 46, "desc": "Caldo Tonkotsu espeso, col cocida, moyashi, Chasu Asado y nori", "ingredients": [1, 3, 11, 15, 17, 18, 19, 20, 24, 25]},
-  {"id": 5, "name": "Chashu", "price": 48, "desc": "Foco en Chasu Asado con caldo tonkotsu, nori y Huevo", "ingredients": [1, 3, 11, 15, 17, 18, 19, 20]},
-  {"id": 6, "name": "Ebi", "price": 50, "desc": "Langostinos, salsa ebi ramen, champiñones, Espárrago y nori", "ingredients": [1, 2, 7, 14, 15, 17, 18, 19, 20, 27, 29]},
-  {"id": 7, "name": "Tan tan", "price": 45, "desc": "Chancho molido picante, salsa tan tan, moyashi y nori", "ingredients": [1, 2, 8, 13, 15, 17, 18, 19, 20, 25]},
-  {"id": 8, "name": "Vegetariano", "price": 42, "desc": "Base de agua, shitake, champiñones, Espárrago, tofu, nori y salsa vegetariana", "ingredients": [1, 4, 9, 16, 17, 18, 19, 20, 22, 27, 28, 29]},
-  {"id": 9, "name": "Bajiru", "price": 48, "desc": "Salsa bajiru (albahaca), brisket laminado, alga wanji, nori y zanahoria", "ingredients": [1, 2, 10, 12, 15, 17, 19, 20, 21, 30]}
+  {"id": 1, "name": "Shio", "price": 38, "desc": "Caldo Shio ligero, Chasu Asado, moyashi, nori y Ajonjolí Blanco", "ingredients": [1, 2, 11, 15, 17, 18, 19, 20, 25, 74]},
+  {"id": 2, "name": "Shoyu", "price": 40, "desc": "Caldo Shio con Salsa Shoyu, Chasu Asado, bambú, holantao y nori", "ingredients": [1, 2, 5, 11, 15, 17, 18, 19, 20, 22, 23, 74]},
+  {"id": 3, "name": "Miso", "price": 42, "desc": "Caldo Shio con salsa miso intensa, Chasu Asado, bambú, holantao y nori", "ingredients": [1, 2, 6, 11, 15, 17, 18, 19, 20, 22, 23, 74]},
+  {"id": 4, "name": "Tonkotsu", "price": 46, "desc": "Caldo Tonkotsu espeso, col cocida, moyashi, Chasu Asado y nori", "ingredients": [1, 3, 11, 15, 17, 18, 19, 20, 24, 25, 74]},
+  {"id": 5, "name": "Chashu", "price": 48, "desc": "Foco en Chasu Asado con caldo tonkotsu, nori y Huevo", "ingredients": [1, 3, 11, 15, 17, 18, 19, 20, 74]},
+  {"id": 6, "name": "Ebi", "price": 50, "desc": "Langostinos, salsa ebi ramen, champiñones, Espárrago y nori", "ingredients": [1, 2, 7, 14, 15, 17, 18, 19, 20, 27, 29, 74]},
+  {"id": 7, "name": "Tan tan", "price": 45, "desc": "Chancho molido picante, salsa tan tan, moyashi y nori", "ingredients": [1, 2, 8, 13, 15, 17, 18, 19, 20, 25, 74]},
+  {"id": 8, "name": "Vegetariano", "price": 42, "desc": "Base de agua, shitake, champiñones, Espárrago, tofu, nori y salsa vegetariana", "ingredients": [1, 4, 9, 16, 17, 18, 19, 20, 22, 27, 28, 29, 74]},
+  {"id": 9, "name": "Bajiru", "price": 48, "desc": "Salsa bajiru (albahaca), brisket laminado, alga wanji, nori y zanahoria", "ingredients": [1, 2, 10, 12, 15, 17, 19, 20, 21, 30, 74]}
 ];
 
 // --- Frituras: cada receta usa un temporizador de punto óptimo (ver la estación de Frituras) ---
 // Nota: "Gyozas" y "Age Gyozas" comparten exactamente los mismos ingredientes.
 // Se distinguen por el campo "metodo" (hervido vs frito). Las Gyozas hervidas aún no se pueden pedir (necesitan la 2.ª hornilla con sartén).
 const RECETAS_FRITURAS = [
-  {"id": 1, "name": "Gyozas", "metodo": "hervido", "price": 32, "desc": "Empanadillas hervidas de langostino y chancho", "ingredients": [66, 73, 32, 31, 53, 52, 74]},
-  {"id": 2, "name": "Chicken Katsu", "price": 52, "desc": "Bife de pollo empanizado, col, zanahoria y salsa katsu", "ingredients": [44, 65, 58, 15, 75, 52, 30, 62, 74, 91, 57, 84]},
-  {"id": 3, "name": "Age Gyozas", "metodo": "frito", "price": 36, "desc": "Empanadillas fritas de langostino y chancho, sobre col y betarraga con salsa teriyaki", "ingredients": [66, 73, 32, 31, 53, 52, 42, 74, 91, 87]},
-  {"id": 4, "name": "Alitas", "price": 30, "desc": "Alitas de pollo fritas con salsa y toping", "ingredients": [36, 53, 76, 92]},
-  {"id": 5, "name": "Ebi Furai", "price": 44, "desc": "Langostinos empanizados con ensalada y salsa teriyaki", "ingredients": [60, 65, 58, 15, 52, 30, 62, 74, 91, 87]},
-  {"id": 6, "name": "Kaarage", "price": 38, "desc": "Pollo frito estilo karaage con mayonesa de la casa", "ingredients": [70, 53, 52, 30, 62, 91, 74]},
+  {"id": 1, "name": "Gyozas", "metodo": "hervido", "price": 32, "desc": "Empanadillas hervidas de langostino y chancho", "ingredients": [66, 73, 32, 31, 53, 52, 74, 18, 42, 91, 98]},
+  {"id": 2, "name": "Chicken Katsu", "price": 52, "desc": "Bife de pollo empanizado, col, zanahoria y salsa katsu", "ingredients": [44, 65, 58, 15, 112, 52, 30, 62, 74, 91, 57, 84]},
+  {"id": 3, "name": "Age Gyozas", "metodo": "frito", "price": 36, "desc": "Empanadillas fritas de langostino y chancho, sobre col y betarraga con salsa teriyaki", "ingredients": [66, 73, 32, 31, 53, 52, 42, 18, 74, 91, 87, 98]},
+  {"id": 4, "name": "Alitas Acevichadas", "price": 34, "desc": "Alitas fritas bañadas en salsa acevichada con camote, culantro, ají limo y togarashi", "ingredients": [36, 77, 114, 113, 35, 91]},
+  {"id": 9, "name": "Alitas Digión", "price": 34, "desc": "Alitas fritas con salsa digión, ajonjolí negro y cebolla china", "ingredients": [36, 80, 34, 18]},
+  {"id": 5, "name": "Ebi Furai", "price": 44, "desc": "Langostinos empanizados con ensalada y salsa teriyaki", "ingredients": [60, 65, 58, 15, 52, 42, 62, 18, 74, 91, 87]},
+  {"id": 6, "name": "Kaarage", "price": 38, "desc": "Pollo frito estilo karaage con mayonesa de la casa", "ingredients": [70, 115, 52, 30, 62, 91, 74]},
   {"id": 7, "name": "Katsu Kare", "price": 56, "desc": "Bife de cerdo empanizado con salsa kare", "ingredients": [43, 65, 58, 15, 75, 52, 42, 62, 74, 91, 57, 83]},
   {"id": 8, "name": "Tonkatsu", "price": 54, "desc": "Bife de cerdo empanizado con salsa katsu", "ingredients": [43, 65, 58, 15, 75, 52, 42, 62, 74, 91, 57, 84]}
 ];
@@ -203,28 +221,28 @@ const RECETAS_FRITURAS = [
 // completarla ya se puede enrollar el maki. El resto (coberturas, salsas, ajonjolí) se agrega
 // encima, DESPUÉS de enrollar.
 const RECETAS_MAKIS = [
-  {"id": 1, "name": "Maki Acevichado", "price": 46, "baseCount": 4, "desc": "Arroz shari, nori, palta y langostino; encima cobertura de atún y salsa acevichada", "ingredients": [38, 20, 64, 54, 49, 77]},
-  {"id": 2, "name": "Maki Furai", "price": 44, "baseCount": 5, "desc": "Arroz shari, nori, palta, langostino y queso crema (se termina en Frituras)", "ingredients": [38, 20, 64, 54, 72]},
-  {"id": 3, "name": "Maki Hotate", "price": 48, "baseCount": 4, "desc": "Arroz shari, nori, palta y langostino; encima conchas de abanico y salsa hotate", "ingredients": [38, 20, 64, 54, 50, 82]},
-  {"id": 4, "name": "Maki California", "price": 42, "baseCount": 5, "desc": "Arroz shari, nori, palta, langostino y queso crema; encima ajonjolí negro", "ingredients": [38, 20, 64, 54, 72, 34]},
-  {"id": 5, "name": "Maki Guacamole", "price": 40, "baseCount": 4, "desc": "Arroz shari, nori, atún y wantán frito; encima salsa guacamole", "ingredients": [38, 20, 39, 59, 81]},
-  {"id": 6, "name": "Maki Yama", "price": 45, "baseCount": 4, "desc": "Arroz shari, nori, palta y langostino; encima salsa yama (flamear)", "ingredients": [38, 20, 64, 54, 89]},
-  {"id": 7, "name": "Maki Nin Niku", "price": 45, "baseCount": 4, "desc": "Arroz shari, nori, palta y langostino; encima salsa nin niku (flamear)", "ingredients": [38, 20, 64, 54, 85]},
-  {"id": 8, "name": "Maki Amazon", "price": 43, "baseCount": 4, "desc": "Arroz shari, nori, palta y cecina; encima cobertura amazon", "ingredients": [38, 20, 64, 47, 51]},
-  {"id": 9, "name": "Maki Digion", "price": 45, "baseCount": 4, "desc": "Arroz shari, nori, palta y langostino; encima cobertura de atún y salsa digión (flamear)", "ingredients": [38, 20, 64, 54, 49, 80]}
+  {"id": 1, "name": "Maki Acevichado", "price": 46, "baseCount": 4, "desc": "Arroz shari, nori, palta y langostino; encima cobertura de atún y salsa acevichada", "ingredients": [38, 20, 64, 54, 49, 77, 114, 91]},
+  {"id": 2, "name": "Maki Furai", "price": 44, "baseCount": 5, "desc": "Arroz shari, nori, palta, langostino y queso crema (se termina en Frituras)", "ingredients": [38, 20, 64, 54, 72, 34]},
+  {"id": 3, "name": "Maki Hotate", "price": 48, "baseCount": 4, "desc": "Arroz shari, nori, palta y langostino; encima conchas de abanico y salsa hotate", "ingredients": [38, 20, 64, 54, 50, 82, 91, 121]},
+  {"id": 4, "name": "Maki California", "price": 42, "baseCount": 5, "desc": "Arroz shari, nori, palta, langostino y queso crema; encima ajonjolí negro", "ingredients": [38, 20, 64, 54, 72, 34, 5]},
+  {"id": 5, "name": "Maki Guacamole", "price": 40, "baseCount": 4, "desc": "Arroz shari, nori, atún y wantán frito; encima salsa guacamole", "ingredients": [38, 20, 39, 59, 81, 119, 18, 91]},
+  {"id": 6, "name": "Maki Yama", "price": 45, "baseCount": 4, "desc": "Arroz shari, nori, palta y langostino; encima salsa yama (flamear)", "ingredients": [38, 20, 64, 54, 89, 87, 120, 18, 91]},
+  {"id": 7, "name": "Maki Nin Niku", "price": 45, "baseCount": 4, "desc": "Arroz shari, nori, palta y langostino; encima cobertura de atún, salsa nin niku (flamear) y togarashi", "ingredients": [38, 20, 64, 54, 49, 85, 91]},
+  {"id": 8, "name": "Maki Amazon", "price": 43, "baseCount": 4, "desc": "Arroz shari, nori, palta y cecina; encima cobertura amazon", "ingredients": [38, 20, 64, 47, 51, 116]},
+  {"id": 9, "name": "Maki Digion", "price": 45, "baseCount": 4, "desc": "Arroz shari, nori, palta y langostino; encima cobertura de atún y salsa digión (flamear)", "ingredients": [38, 20, 64, 54, 49, 80, 34]}
 ];
 
 // --- Salteados: se cocinan en el wok o la sartén con tiempo de salteado (ver js/08-salteados-wok.js) ---
 const RECETAS_SALTEADOS = [
-  {"id": 1, "name": "Chaufa Shimaya", "price": 40, "desc": "Arroz chaufa con huevo, chancho, champiñones y wantán", "ingredients": [15, 37, 63, 25, 79, 48, 27, 94, 41]},
-  {"id": 2, "name": "Chicken Teriyaki", "price": 38, "desc": "Pollo con salsa teriyaki, arroz y ensalada fría", "ingredients": [69, 87, 37, 56]},
-  {"id": 3, "name": "Batayaki Ramen", "price": 44, "desc": "Lomo, champiñones y holantao en wok y fideos en sartén, ambos con salsa batayaki; al otro lado poro frito (pasado por harina) con salsa ponzu", "ingredients": [61, 27, 23, 1, 78, 98, 71]},
+  {"id": 1, "name": "Chaufa Shimaya", "price": 40, "desc": "Arroz chaufa con huevo, chancho, champiñones y wantán", "ingredients": [15, 37, 18, 25, 79, 48, 27, 94, 41]},
+  {"id": 2, "name": "Chicken Teriyaki", "price": 38, "desc": "Pollo con salsa teriyaki, arroz y ensalada fría", "ingredients": [69, 87, 99, 37, 56, 52, 30, 62]},
+  {"id": 3, "name": "Batayaki Ramen", "price": 44, "desc": "Lomo, champiñones y holantao en wok y fideos en sartén, ambos con salsa batayaki; al otro lado poro frito (pasado por harina) con salsa ponzu", "ingredients": [61, 27, 23, 1, 78, 98, 71, 35]},
   {"id": 4, "name": "Yakimeshi", "price": 39, "desc": "Arroz salteado con huevo, pollo, zanahoria y holantao", "ingredients": [15, 69, 37, 30, 67, 23, 40]},
   {"id": 5, "name": "Yakiramen", "price": 43, "desc": "Fideo ramen salteado con pollo y vegetales variados", "ingredients": [69, 46, 52, 95, 45, 68, 1, 25, 42]},
   {"id": 6, "name": "Yasaitame", "price": 37, "desc": "Salteado de vegetales con lomo y salsa yasaitame", "ingredients": [61, 46, 95, 52, 25, 45, 68, 90, 33]},
-  {"id": 7, "name": "Yakitori", "price": 35, "desc": "Pollo a la parrilla con salsa yakitori y ensalada", "ingredients": [69, 88, 55]},
+  {"id": 7, "name": "Yakitori", "price": 35, "desc": "Brochetas de pollo yakitori con ensalada de col, zanahoria, betarraga, kiury y alga wanji con salsa poke de atún", "ingredients": [69, 52, 30, 42, 117, 21, 118]},
   {"id": 8, "name": "Karameshi", "price": 41, "desc": "Arroz salteado picante con salsa tan tan y ajonjolí", "ingredients": [15, 69, 37, 23, 52, 25, 8, 33, 35, 63]},
-  {"id": 9, "name": "Omuraisu", "price": 42, "desc": "Arroz envuelto en tortilla con salsa katsu y omuraisu", "ingredients": [69, 37, 46, 30, 29, 93, 84, 86]}
+  {"id": 9, "name": "Omuraisu", "price": 42, "desc": "Arroz envuelto en tortilla con salsa katsu y omuraisu", "ingredients": [69, 37, 46, 30, 29, 93, 84, 86, 62]}
 ];
 
 // Cada receta lleva su área: así sobrevive a la sincronización JSON del modo cooperativo, y los ids
@@ -249,7 +267,7 @@ const AREA_DISH_UNLOCKS = {
     ['Maki Amazon', 11, 20], ['Maki Yama', 12, 30], ['Maki Nin Niku', 12, 30], ['Maki Digion', 12, 30]
   ],
   frituras: [
-    ['Alitas', 13, 22], ['Kaarage', 13, 22], ['Tonkatsu', 14, 32], ['Chicken Katsu', 14, 32],
+    ['Alitas Acevichadas', 13, 22], ['Kaarage', 13, 22], ['Alitas Digión', 14, 28], ['Tonkatsu', 14, 32], ['Chicken Katsu', 14, 32],
     ['Age Gyozas', 15, 35], ['Ebi Furai', 15, 35], ['Katsu Kare', 16, 32]
   ]
 };

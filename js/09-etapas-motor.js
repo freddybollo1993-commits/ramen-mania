@@ -89,6 +89,7 @@ const ST_PROD = {
     { key: 'holantao', label: 'Holantao',       icon: 23, covers: [23], use: 'plate', how: 'cut', then: 'blanch', time: 5,  batch: 6, max: 12, start: 6 },
     { key: 'col',      label: 'Col cocida',     icon: 24, covers: [24], use: 'plate', how: 'cut', then: 'blanch', time: 7,  batch: 6, max: 12, start: 6 },
     { key: 'moyashi',  label: 'Moyashi',        icon: 25, covers: [25], cookIds: [25], use: 'plate', how: 'clean', then: 'blanch', time: 4,  batch: 6, max: 12, start: 6 },
+    { key: 'rulos',    label: 'Rulos de cebolla china', short: 'Rulos', icon: 74, covers: [74], use: 'plate', how: 'cut', binWord: 'en juliana', then: 'curl', time: 6, batch: 6, max: 12, start: 6 },
     { key: 'zanahoria', label: 'Zanahoria',     icon: 30, covers: [30], use: 'plate', how: 'cut',    time: 5,  batch: 6, max: 12, start: 6 },
     { key: 'champi',   label: 'Champiñones',    icon: 27, covers: [27], use: 'plate', how: 'cut',    time: 4,  batch: 4, max: 8,  start: 4 },
     { key: 'shitake',  label: 'Shitake',        icon: 28, covers: [28], use: 'plate', how: 'cut',    time: 5,  batch: 4, max: 8,  start: 4 },
@@ -172,12 +173,13 @@ const FRY_PLATING = {
   'Chicken Katsu': { protein: 44, parts: [57, 52, 62, 30, 84, 74, 91] },      // arriba: arroz (izq.) · ensalada con mayonesa y zanahoria (centro) · salsa katsu (der.); abajo: 5 rodajas; decoran rulos y togarashi
   'Katsu Kare':    { protein: 43, parts: [57, 52, 62, 42, 74, 91] },          // ensalada con betarraga; sin salsa de acompañamiento (la kare ya baña el bife)
   'Tonkatsu':      { protein: 43, parts: [57, 52, 62, 42, 84, 74, 91] },      // betarraga en lugar de zanahoria
-  'Ebi Furai':     { protein: 60, parts: [52, 62, 30, 87, 74, 91] },          // sin arroz; teriyaki de acompañamiento; 6 langostinos
+  'Ebi Furai':     { protein: 60, parts: [52, 62, 42, 87, 18, 74, 91] },      // sin arroz; ensalada con betarraga; teriyaki de acompañamiento; 6 langostinos
   'Kaarage':       { protein: 70, parts: [52, 62, 30, 74, 91] },              // sin arroz; la mayonesa es también la salsa de acompañamiento; 7 piezas
-  'Alitas':        { protein: 36, parts: [76, 92] },
-  'Age Gyozas':    { protein: 73, parts: [52, 42, 87, 74, 91] }
+  'Alitas Acevichadas': { protein: 36, parts: [77, 114, 35, 113, 91] },     // alitas bañadas en acevichada; camote, ají limo, culantro y togarashi encima
+  'Alitas Digión': { protein: 36, parts: [80, 34, 18] },                    // salsa digión, ajonjolí negro y cebolla china
+  'Age Gyozas':    { protein: 73, parts: [52, 42, 87, 98, 18, 74, 91] }
 };
-const ST_RAMEN_PLATE = new Set([11, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 27, 28, 29, 30]);
+const ST_RAMEN_PLATE = new Set([11, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 27, 28, 29, 30, 74]);
 const RAMEN_COOK_EXTRA = { 'Tan tan': [25] };   // piezas "de emplatado" que en esa receta se ponen en el cuenco durante la cocción
 const ST_PLATE_SAL = {
   'Chaufa Shimaya':   [94, 41, 63, 33],
@@ -191,11 +193,12 @@ const ST_PLATE_SAL = {
   'Omuraisu':         [84, 52, 30]
 };
 const ST_PLATE_MAKI = {
-  'Maki Acevichado': [77, 97, 96], 'Maki Hotate': [82, 97, 96], 'Maki California': [34, 97, 96],
-  'Maki Guacamole': [81, 97, 96], 'Maki Yama': [89, 97, 96], 'Maki Nin Niku': [85, 97, 96],
-  'Maki Amazon': [97, 96], 'Maki Digion': [80, 97, 96], 'Maki Furai': [97, 96]
+  'Maki Acevichado': [77, 114, 91, 97, 96], 'Maki Hotate': [82, 91, 121, 97, 96], 'Maki California': [34, 5, 97, 96],
+  'Maki Guacamole': [81, 119, 18, 91, 97, 96], 'Maki Yama': [89, 87, 120, 18, 91, 97, 96], 'Maki Nin Niku': [85, 91, 97, 96],
+  'Maki Amazon': [116, 97, 96], 'Maki Digion': [80, 34, 97, 96], 'Maki Furai': [34, 97, 96]
 };
-const FRY_PLATE_GROUP = { 57: 'Base', 52: 'Ensalada', 30: 'Ensalada', 42: 'Ensalada', 84: 'Salsa', 83: 'Salsa', 87: 'Salsa', 62: 'Salsa', 76: 'Salsa', 74: 'Decoración', 91: 'Decoración', 92: 'Decoración' };
+const ST_OPTIONAL = { makis: [96, 97] };       // el gari y el wasabi los pone el jugador si quiere: ni suman ni restan
+const FRY_PLATE_GROUP = { 57: 'Base', 52: 'Ensalada', 30: 'Ensalada', 42: 'Ensalada', 114: 'Ensalada', 84: 'Salsa', 83: 'Salsa', 87: 'Salsa', 62: 'Salsa', 76: 'Salsa', 77: 'Salsa', 80: 'Salsa', 98: 'Salsa', 74: 'Decoración', 91: 'Decoración', 92: 'Decoración', 18: 'Decoración', 34: 'Decoración', 35: 'Decoración', 113: 'Decoración' };
 const ST_GROUPS = {
   ramen: ['Proteína', 'Verdeos', 'Toppings', 'Verduras', 'Hongos'],
   salteados: ['Ensalada', 'Salsa', 'Decoración'],
@@ -204,8 +207,8 @@ const ST_GROUPS = {
 };
 function stGroupOf(area, id) {
   if (area === 'frituras') return FRY_PLATE_GROUP[id] || 'Decoración';
-  if (area === 'ramen') return [11, 15, 16].includes(id) ? 'Proteína' : ([17, 18].includes(id) ? 'Verdeos' : ([19, 20, 21].includes(id) ? 'Toppings' : ([27, 28, 29].includes(id) ? 'Hongos' : 'Verduras')));
-  if (area === 'salteados') { const i = INGREDIENTES.find(x => x.id === id); return [55, 56].includes(id) ? 'Ensalada' : (i && i.cat === 'salsas' ? 'Salsa' : 'Decoración'); }
+  if (area === 'ramen') return [11, 15, 16].includes(id) ? 'Proteína' : ([17, 18, 74].includes(id) ? 'Verdeos' : ([19, 20, 21].includes(id) ? 'Toppings' : ([27, 28, 29].includes(id) ? 'Hongos' : 'Verduras')));
+  if (area === 'salteados') { const i = INGREDIENTES.find(x => x.id === id); return [55, 56, 117, 21].includes(id) ? 'Ensalada' : (i && i.cat === 'salsas' ? 'Salsa' : 'Decoración'); }
   const i = INGREDIENTES.find(x => x.id === id);
   return i && i.cat === 'salsas' ? 'Salsa' : 'Guarnición';
 }
@@ -420,15 +423,15 @@ function stSlotDiscard(area, slotIdx) {
 
 // Evalúa lo que hay en un cuenco contra la receta más parecida de su base. Faltan / sobran componentes = plato equivocado.
 function stPlateEval(area, item, items) {
-  const cands = stCandidates(area, item), have = new Set(items);
+  const cands = stCandidates(area, item), have = new Set(items), opt = ST_OPTIONAL[area] || [];
   let best = null, bestWrong = 1e9, bestParts = [];
   cands.forEach(r => {
-    const p = stParts(area, r);
-    const w = p.filter(x => !have.has(x)).length + items.filter(x => !p.includes(x)).length;
+    const p = stParts(area, r).filter(x => !opt.includes(x));
+    const w = p.filter(x => !have.has(x)).length + items.filter(x => !p.includes(x) && !opt.includes(x)).length;
     if (w < bestWrong) { bestWrong = w; best = r; bestParts = p; }
   });
   if (!best) return null;
-  const missing = bestParts.filter(x => !have.has(x)), extra = items.filter(x => !bestParts.includes(x)), wrong = missing.length + extra.length;
+  const missing = bestParts.filter(x => !have.has(x)), extra = items.filter(x => !bestParts.includes(x) && !opt.includes(x)), wrong = missing.length + extra.length;
   let inv = 0;                                                       // orden de colocación (solo de los componentes que sí lleva)
   const mine = items.filter(x => bestParts.includes(x));
   for (let i = 0; i < mine.length; i++) for (let j = i + 1; j < mine.length; j++) if (bestParts.indexOf(mine[i]) > bestParts.indexOf(mine[j])) inv++;

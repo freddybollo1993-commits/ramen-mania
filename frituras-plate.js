@@ -74,7 +74,8 @@
     'Katsu Kare': { kind: 'katsu', meat: '#f2cfae', n: 5 },
     'Ebi Furai': { kind: 'ebi', n: 6 },
     'Kaarage': { kind: 'kaarage', n: 7 },
-    'Alitas': { kind: 'alitas', n: 6 },
+    'Alitas Acevichadas': { kind: 'alitas', n: 6 },
+    'Alitas Digión': { kind: 'alitas', n: 6 },
     'Age Gyozas': { kind: 'gyoza', n: 6 }
   };
 
@@ -104,7 +105,7 @@
     if (d.kind === 'katsu') prot = slices(d.meat, d.n) + (kare ? kareOver() : '');
     else if (d.kind === 'ebi') prot = shrimp(d.n);
     else if (d.kind === 'kaarage') prot = nuggets(d.n);
-    else if (d.kind === 'alitas') prot = '<g transform="translate(-14 -34) scale(1.25)">' + wings(d.n, has(76)) + (has(76) ? pop(76, '<path d="M 36,63 q 4,5 0,9 M 58,62 q 4,5 0,10 M 72,66 q 3,4 0,8" fill="none" stroke="#7d2a12" stroke-width="2" stroke-linecap="round" opacity="0.8"/>') : '') + '</g>';
+    else if (d.kind === 'alitas') prot = '<g transform="translate(-14 -34) scale(1.25)">' + wings(d.n, has(76) || has(77) || has(80)) + (has(76) || has(77) || has(80) ? pop(has(77) ? 77 : (has(80) ? 80 : 76), '<path d="M 36,63 q 4,5 0,9 M 58,62 q 4,5 0,10 M 72,66 q 3,4 0,8" fill="none" stroke="#7d2a12" stroke-width="2" stroke-linecap="round" opacity="0.8"/>') : '') + '</g>';
     else prot = gyozas(d.n);
     // decoración: rulos de cebolla china + cebolla picada y togarashi
     if (has(74)) over += pop(74, d.kind === 'gyoza' ? coils([[30, 40], [46, 39], [62, 40], [77, 41]]) + onionBits(95, 55, 60, 30, 8) : coils([[40, 50], [56, 48], [71, 50]]) + onionBits(96, 55, 66, 32, 6));

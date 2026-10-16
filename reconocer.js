@@ -30,7 +30,7 @@
       const s = new Set(r.ingredients);
       if (typeof stParts === 'function') stParts(item.area, r).forEach(i => s.add(i));
       if (item.area === 'frituras' && typeof FRY_PLATING !== 'undefined' && FRY_PLATING[r.name]) s.add(FRY_PLATING[r.name].protein);
-      return [...s].filter(id => ing(id));
+      return [...s].filter(id => ing(id) && !(item.area === 'makis' && (id === 96 || id === 97)));      // gari y wasabi son opcionales
     } catch (e) { return [...new Set(r.ingredients)]; }
   }
   function options(item) {

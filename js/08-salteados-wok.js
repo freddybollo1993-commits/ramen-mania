@@ -231,7 +231,7 @@ const WOK_VIRTUAL = { crudo: 1, perfecto: 3, quemado: 4.5 };   // ventana "virtu
 //  · timed:n     → se cocina por tiempo (n s), sin saltear (tortilla del Omuraisu)
 //  · un plato con 2 partes que van al plato se combina con el botón "Combinar"
 const SAL_STAGED = {
-  'Chaufa Shimaya': { plate: [94, 41, 63, 33], how: 'El chancho glaseado se sirve sobre el arroz chaufa.', parts: [
+  'Chaufa Shimaya': { plate: [94, 41, 18, 33], how: 'El chancho glaseado se sirve sobre el arroz chaufa.', parts: [
     { key: 'arroz',   label: 'arroz',             tool: 'wok', rounds: [{ a: [15] }, { a: [37] }, { a: [79] }, { a: [25] }, { a: [18, 31] }] },
     { key: 'chancho', label: 'chancho glaseado',  tool: 'wok', rounds: [{ a: [48, 27] }, { a: [87] }, { a: [99] }] } ] },
   'Yakimeshi': { plate: [94, 109, 33, 18, 42, 30], parts: [
@@ -243,14 +243,14 @@ const SAL_STAGED = {
     { key: 'verduras', label: 'verduras', tool: 'wok', rounds: [{ a: [90, 46, 45, 23, 95] }, { a: [90, 52, 1] }, { a: [90, 25, 68] }] } ] },
   'Karameshi': { plate: [33, 34, 18, 35, 74], parts: [
     { key: 'main', label: '', tool: 'wok', rounds: [{ a: [15, 52, 23] }, { a: [104] }, { a: [37] }, { a: [8] }, { a: [25, 18, 31] }] } ] },
-  'Chicken Teriyaki': { plate: [37, 56], parts: [
-    { key: 'main', label: '', tool: 'pan', rounds: [{ a: [106] }, { a: [87] }] } ] },
-  'Yakitori': { plate: [55], how: 'Las brochetas salen con la salsa encima desde la cocina; en el plato, 3 a cada lado y la ensalada en medio.', parts: [
-    { key: 'main', label: '', tool: 'pan', rounds: [{ a: [107] }, { a: [] }, { a: [101] }, { a: [88], toss: false }] } ] },
-  'Batayaki Ramen': { plate: [71, 98], how: 'Fideos al centro, estirados de punta a punta, y a un lado el lomo con champiñones y holantao.', parts: [
+  'Chicken Teriyaki': { plate: [37, 56, 52, 30, 62], parts: [
+    { key: 'main', label: '', tool: 'pan', rounds: [{ a: [106] }, { a: [87] }, { a: [99] }] } ] },
+  'Yakitori': { plate: [52, 30, 42, 117, 21, 118], how: 'En el plato, 3 brochetas a cada lado y la ensalada de col, zanahoria, betarraga, kiury y alga wanji en medio, con la salsa poke de atún.', parts: [
+    { key: 'main', label: '', tool: 'pan', rounds: [{ a: [107] }, { a: [] }, { a: [101] }] } ] },
+  'Batayaki Ramen': { plate: [71, 98, 35], how: 'Fideos al centro, estirados de punta a punta, y a un lado el lomo con champiñones y holantao.', parts: [
     { key: 'wok', label: 'lomo, champiñones y holantao', tool: 'wok', rounds: [{ a: [61, 75] }, { a: [] }, { a: [27, 23] }, { a: [78], toss: false }] },
     { key: 'pan', label: 'fideos',                       tool: 'pan', rounds: [{ a: [78, 4] }, { a: [1] }, { a: [102], toss: false }] } ] },
-  'Omuraisu': { plate: [84, 52, 30], how: 'El arroz con pollo va envuelto en la tortilla.', parts: [
+  'Omuraisu': { plate: [84, 52, 30, 62], how: 'El arroz con pollo va envuelto en la tortilla.', parts: [
     { key: 'wok', label: 'arroz con pollo', tool: 'wok', rounds: [{ a: [23, 30, 103, 104] }, { a: [37] }, { a: [86] }, { a: [] }] },
     { key: 'pan', label: 'tortilla',        tool: 'pan', timed: 6, whisk: 4, rounds: [{ a: [15, 15, 75], toss: false }] } ] }       // tortilla = 2 huevos + sal, por tiempo
 };

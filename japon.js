@@ -25,7 +25,7 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
       dishes: [['Yakiramen', 'salteados', 'Plancha (teppan) y fideos salteados de Naniwa'], ['Yasaitame', 'salteados', 'Verduras al wok de las cocinas populares'], ['Maki Furai', 'makis', 'Fritura al estilo kushikatsu de Shinsekai']] },
     { id: 'nagoya', name: 'Nagoya', region: 'Chūbu', x: 342, y: 184, cost: 4000, cm: 2,
       story: 'Capital del «nagoya-meshi»: platos intensos, fritos y picantes.',
-      dishes: [['Alitas', 'frituras', 'Tebasaki: las alitas fritas de Nagoya'], ['Ebi Furai', 'frituras', 'El langostino frito es plato emblema de Nagoya'], ['Chicken Katsu', 'frituras', 'Katsu con salsa oscura al estilo de Nagoya'], ['Karameshi', 'salteados', 'Picante con carácter: el sabor de Nagoya']] },
+      dishes: [['Alitas Acevichadas', 'frituras', 'Tebasaki: las alitas fritas de Nagoya'], ['Ebi Furai', 'frituras', 'El langostino frito es plato emblema de Nagoya'], ['Chicken Katsu', 'frituras', 'Katsu con salsa oscura al estilo de Nagoya'], ['Karameshi', 'salteados', 'Picante con carácter: el sabor de Nagoya']] },
     { id: 'sapporo', name: 'Sapporo', region: 'Hokkaidō', x: 528, y: 52, cost: 6000, cm: 2.4,
       story: 'El norte frío: mantequilla, mariscos y el miso ramen nacido en 1955.',
       dishes: [['Miso', 'ramen', 'Creado en Sapporo en 1955'], ['Shio', 'ramen', 'El ramen de sal de Hakodate, Hokkaidō'], ['Ebi', 'ramen', 'Camarones del mar de Hokkaidō'], ['Batayaki Ramen', 'salteados', 'Mantequilla (bata) y vegetales a la plancha de Hokkaidō'], ['Maki Hotate', 'makis', 'Las vieiras de Hokkaidō']] },
