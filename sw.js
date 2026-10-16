@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ramen-mania-v177';
+const CACHE_NAME = 'ramen-mania-v178';
 
 // Shell del juego para instalar y abrir sin conexión: la página y todos sus scripts (js/ + archivos de apoyo)
 const CORE_SHELL = [
@@ -131,7 +131,7 @@ self.addEventListener('fetch', event => {
   }
 
   // Herramientas de desarrollo (/tools/*): siempre desde la red, nunca desde la copia guardada (si no, una prueba editada sigue sirviendo la versión vieja)
-  try { if (new URL(req.url).pathname.indexOf('/tools/') === 0) return; } catch (e) {}
+  try { const pth = new URL(req.url).pathname; if (pth.indexOf('/tools/') === 0 || pth === '/panel' || pth.indexOf('/panel/') === 0) return; } catch (e) {}      // /panel/ tiene su propio service worker (panel/sw.js)
 
   // Videos (WebM de la cocina): el navegador pide trozos (Range). Si el archivo está guardado se responde con 206 y el trozo pedido
   if (req.headers.has('range')) {

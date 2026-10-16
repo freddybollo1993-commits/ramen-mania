@@ -1,11 +1,20 @@
 {
   "cleanUrls": true,
   "framework": null,
-  "rewrites": [
-    { "source": "/dashboard", "destination": "/dashboard.html" },
-    { "source": "/admin", "destination": "/dashboard.html" }
+  "redirects": [
+    { "source": "/dashboard", "destination": "/panel/", "permanent": false },
+    { "source": "/dashboard.html", "destination": "/panel/", "permanent": false },
+    { "source": "/admin", "destination": "/panel/", "permanent": false }
   ],
   "headers": [
+    {
+      "source": "/panel/sw.js",
+      "headers": [{ "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate, max-age=0" }]
+    },
+    {
+      "source": "/panel/manifest.json",
+      "headers": [{ "key": "Cache-Control", "value": "no-cache, must-revalidate" }]
+    },
     {
       "source": "/sw.js",
       "headers": [

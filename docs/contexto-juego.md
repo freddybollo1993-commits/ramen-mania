@@ -27,7 +27,7 @@ Sin framework: HTML/CSS/JS clásico (scripts globales, no módulos), Vite solo c
 | `reconocer.js` | Modo «Ingredientes» (reconocer qué lleva cada plato, sin reloj en contra). |
 | `guia.js` | Tutorial guiado interactivo por áreas (4 lecciones, 91 pasos). |
 | `inicio.js` / `aula.js` | Pantalla de inicio (hub + local isométrico + menú clásico) y las salas Aula del Maestro y bodega de Secretos. |
-| `dashboard.html` | Panel de administración (`/dashboard`, `/admin`). |
+| `panel/` | Shimaya Panel: panel de administración instalable aparte (`/panel/`; `/dashboard` y `/admin` redirigen). Seguimiento, Campaña, Jugador y Platos; datos del juego en `panel/datos-juego.js` (regenerar con `tools/exportar-datos-panel.js`). |
 | `assets/` | Íconos de ingredientes (`ingredients/v2/*.webp`, 106), SVG de estaciones (wok, olla, esterilla…), fondos, fuentes, íconos PWA. |
 | `tools/` | `economia-niveles.cjs` (recalcula metas/tiempos de niveles), generadores de íconos. |
 | `supabase/` | `migrations/*.sql` (12), `SEGURIDAD.md`, `config.toml`. |

@@ -2,12 +2,21 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#140a08">
-<title>Dashboard Ejecutivo | Ramen Mania Arcade Analytics</title>
+<title>Shimaya Panel</title>
+<meta name="description" content="Panel de seguimiento de jugadores y curva de aprendizaje de Ramen Mania">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Shimaya Panel">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="robots" content="noindex, nofollow">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
-  @font-face { font-family: 'Fredoka One'; font-style: normal; font-weight: 400; font-display: swap; src: url('assets/fonts/fredoka-one-latin-400-normal.woff2') format('woff2'); }
-  @font-face { font-family: 'Nunito'; font-style: normal; font-weight: 200 1000; font-display: swap; src: url('assets/fonts/nunito-latin-wght-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'Fredoka One'; font-style: normal; font-weight: 400; font-display: swap; src: url('/assets/fonts/fredoka-one-latin-400-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'Nunito'; font-style: normal; font-weight: 200 1000; font-display: swap; src: url('/assets/fonts/nunito-latin-wght-normal.woff2') format('woff2'); }
 </style>
 <!-- SUPABASE JS SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -478,9 +487,78 @@
     .table-header-row { flex-direction: column; align-items: flex-start; }
     .search-input { width: 100%; }
   }
+  /* ===== Panel Shimaya: instalable, accesible desde el celular ===== */
+  [hidden] { display: none !important; }
+  body.pnl-locked { overflow: hidden; }
+  body.pnl-locked .dash-container, body.pnl-locked header.dash-header { filter: blur(8px); pointer-events: none; user-select: none; }
+  #pnl-gate { position: fixed; inset: 0; z-index: 10000; background: radial-gradient(circle at 50% 20%, #2a1510 0%, #0d0605 70%); display: flex; align-items: center; justify-content: center; padding: max(16px, env(safe-area-inset-top)) 16px; overflow-y: auto; }
+  .pnl-gate-card { width: min(380px, 100%); background: rgba(28,14,10,0.96); border: 1.5px solid var(--border-color); border-radius: 18px; padding: 22px 20px; box-shadow: 0 12px 40px rgba(0,0,0,0.6); display: flex; flex-direction: column; gap: 10px; text-align: center; }
+  .pnl-gate-logo { border-radius: 20px; align-self: center; }
+  .pnl-gate-card h1 { font-family: 'Fredoka One', cursive; font-weight: 400; font-size: 26px; color: var(--ramen-gold); margin: 0; }
+  .pnl-gate-card p { color: var(--text-muted); font-size: 13px; margin: 0 0 6px; }
+  .pnl-gate-card label { text-align: left; font-size: 12px; font-weight: 800; color: #ffd699; }
+  .pnl-gate-card input[type=password] { background: #1f0e0a; border: 1.5px solid #4a241a; color: #fff8f0; border-radius: 10px; padding: 12px; font-size: 16px; width: 100%; }
+  .pnl-gate-card input[type=password]:focus { outline: 2px solid var(--ramen-gold); }
+  .pnl-gate-check { display: flex; align-items: center; gap: 8px; font-weight: 700 !important; color: var(--text-muted) !important; }
+  .pnl-gate-card .btn-action { justify-content: center; padding: 12px; font-size: 15px; }
+  #pnl-gate-msg { min-height: 18px; font-size: 12.5px; color: #ef9a9a; font-weight: 800; }
+  .pnl-gate-demo { background: none; border: none; color: #81d4fa; font-size: 12.5px; text-decoration: underline; cursor: pointer; padding: 6px; font-family: inherit; }
+  #pnl-demo-banner { background: #4a148c; color: #fff; text-align: center; font-size: 12.5px; padding: calc(6px + env(safe-area-inset-top)) 10px 6px; display: flex; gap: 10px; justify-content: center; align-items: center; flex-wrap: wrap; position: sticky; top: 0; z-index: 200; }
+  #pnl-demo-banner .btn-action { padding: 3px 10px; font-size: 11px; }
+  header.dash-header { padding-top: calc(12px + env(safe-area-inset-top)); padding-left: max(24px, env(safe-area-inset-left)); padding-right: max(24px, env(safe-area-inset-right)); }
+  .nav-tabs-bar { position: sticky; top: 0; z-index: 90; }
+  .pnl-note { font-size: 13px; color: var(--text-muted); margin-bottom: 12px; }
+  .pnl-foot { margin-top: 14px; font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+  .pnl-empty { padding: 18px; text-align: center; color: var(--text-muted); font-size: 13px; }
+  .pnl-empty.small { padding: 6px 0; text-align: left; font-size: 12px; }
+  .pnl-dim { color: var(--text-muted); } .pnl-dimrow td { opacity: 0.55; }
+  .pnl-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 14px; margin-bottom: 14px; }
+  .pnl-card { background: rgba(0,0,0,0.25); border-radius: 10px; padding: 12px; min-width: 0; }
+  .pnl-card-t { font-size: 13px; font-weight: 800; } .pnl-card-s { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; }
+  .pnl-list { margin: 0; padding-left: 18px; font-size: 12.5px; line-height: 1.7; } .pnl-list a { color: #81d4fa; font-size: 11px; margin-left: 4px; }
+  .pnl-kv { display: flex; justify-content: space-between; gap: 10px; font-size: 12.5px; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.06); } .pnl-kv span { color: var(--text-muted); } .pnl-kv b { text-align: right; word-break: break-all; }
+  .pnl-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 12.5px; margin: 8px 0; }
+  .pnl-pill { display: inline-block; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 10px; white-space: nowrap; background: rgba(255,255,255,0.1); }
+  .pnl-pill.red { background: rgba(239,83,80,0.25); color: #ef9a9a; } .pnl-pill.orange { background: rgba(255,152,0,0.25); color: #ffcc80; } .pnl-pill.green { background: rgba(102,187,106,0.25); color: #a5d6a7; } .pnl-pill.purple { background: rgba(171,71,188,0.25); color: #ce93d8; } .pnl-pill.dim { color: var(--text-muted); }
+  .pnl-bar { display: inline-block; width: 44px; height: 7px; border-radius: 4px; background: rgba(255,255,255,0.1); vertical-align: middle; overflow: hidden; position: relative; }
+  .pnl-bar::after { content: ''; position: absolute; inset: 0 auto 0 0; width: calc(var(--p) * 1%); background: linear-gradient(90deg, #ef5350, #ffb300 50%, #66bb6a); background-size: 44px 100%; }
+  .pnl-heat { display: inline-block; min-width: 40px; text-align: center; padding: 1px 6px; border-radius: 6px; font-weight: 800; background: hsl(calc(var(--p) * 1.2) 55% 28%); }
+  .pnl-prof { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; } .pnl-av { font-size: 38px; } .pnl-name { font-family: 'Fredoka One', cursive; font-size: 22px; color: var(--ramen-gold); }
+  .pnl-alert { background: rgba(255,179,0,0.1); border: 1px solid rgba(255,179,0,0.35); border-radius: 10px; padding: 9px 12px; font-size: 12.5px; margin: 6px 0 10px; line-height: 1.5; }
+  .pnl-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+  .pnl-chip { width: 30px; height: 30px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; background: rgba(255,255,255,0.08); color: var(--text-muted); }
+  .pnl-chip.m1 { background: #8d5524; color: #fff; } .pnl-chip.m2 { background: #9e9e9e; color: #111; } .pnl-chip.m3 { background: #ffb300; color: #190e0c; }
+  .pnl-fchip { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); color: var(--text-light); border-radius: 16px; padding: 6px 14px; font-size: 12.5px; font-weight: 800; cursor: pointer; font-family: inherit; }
+  .pnl-fchip.on { background: var(--ramen-gold); color: #190e0c; border-color: var(--ramen-gold); }
+  .pl-picker { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; } .pl-picker .search-input { flex: 1 1 200px; min-width: 0; }
+  @media (max-width: 640px) {
+    header.dash-header { padding-left: max(12px, env(safe-area-inset-left)); padding-right: max(12px, env(safe-area-inset-right)); gap: 8px; }
+    .brand-titles p { display: none; } .brand-titles h1 { font-size: 17px; } .brand-logo { font-size: 26px; }
+    header.dash-header { position: static; }
+    .header-actions { gap: 6px; } .header-actions .btn-action span { display: none; } .header-actions .btn-action { padding: 8px 10px; }
+    .status-badge { padding: 4px 8px; font-size: 10px; }
+    .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; } .kpi-card { padding: 10px; gap: 8px; } .kpi-icon { font-size: 22px; } .kpi-value { font-size: 20px; }
+    .data-table { font-size: 12px; } .tab-btn { padding: 8px 12px; font-size: 12.5px; }
+    .dash-container { padding-left: max(10px, env(safe-area-inset-left)); padding-right: max(10px, env(safe-area-inset-right)); }
+  }
 </style>
 </head>
 <body>
+
+<!-- ACCESO: el panel no muestra nada hasta validar el secreto de administrador -->
+<div id="pnl-gate" hidden>
+  <div class="pnl-gate-card">
+    <img src="icon-192.png" alt="" width="84" height="84" class="pnl-gate-logo">
+    <h1>Shimaya Panel</h1>
+    <p>Seguimiento de jugadores y curva de aprendizaje de Ramen Mania.</p>
+    <label for="pnl-gate-secret">Secreto de administrador</label>
+    <input type="password" id="pnl-gate-secret" autocomplete="current-password" placeholder="••••••••" enterkeyhint="go">
+    <label class="pnl-gate-check"><input type="checkbox" id="pnl-gate-remember"> Recordar en este aparato</label>
+    <button id="pnl-gate-btn" class="btn-action btn-primary" onclick="panelLogin()">Entrar</button>
+    <div id="pnl-gate-msg" role="alert"></div>
+    <button class="pnl-gate-demo" onclick="panelStartDemo()">Ver con datos de demostración</button>
+  </div>
+</div>
 
 <!-- LOADING OVERLAY -->
 <div class="loading-overlay" id="loading-overlay">
@@ -493,8 +571,8 @@
   <div class="header-brand">
     <div class="brand-logo">🍜</div>
     <div class="brand-titles">
-      <h1>RAMEN MANIA - ANALYTICS</h1>
-      <p>Centro de Control, Telemetría y Gestión de Jugadores</p>
+      <h1>SHIMAYA PANEL</h1>
+      <p>Seguimiento de jugadores y curva de aprendizaje</p>
     </div>
   </div>
 
@@ -503,23 +581,31 @@
       <span class="status-dot"></span>
       <span id="conn-status-text">Conectando...</span>
     </div>
-    <button class="btn-action" onclick="adminUnlockPrivateData()" title="Los contactos ya no son públicos: requiere el secreto de administrador">
-      🔑 Datos privados
-    </button>
-    <button class="btn-action" onclick="fetchLiveMetrics(true)" title="Forzar actualización de datos en tiempo real">
-      🔄 <span>Actualizar</span>
-    </button>
-    <button class="btn-action btn-primary" onclick="exportDataToCSV()" title="Exportar métricas y contactos a Excel / CSV">
-      📥 <span>Exportar CSV</span>
-    </button>
-    <a href="/" class="btn-action" title="Abrir y jugar Ramen Mania Arcade">
-      🎮 <span>Ir al Juego</span>
-    </a>
+    <button class="btn-action btn-primary" id="btn-install" onclick="panelInstall()" hidden title="Instalar el panel como app">📲 <span>Instalar</span></button>
+    <button class="btn-action" onclick="fetchLiveMetrics(true)" title="Actualizar los datos ahora">🔄 <span>Actualizar</span></button>
+    <button class="btn-action" onclick="panelLogout()" title="Cerrar sesión">🔒 <span>Salir</span></button>
   </div>
 </header>
 
 <div class="dash-container">
 
+  <!-- NAVEGACIÓN POR PESTAÑAS -->
+  <div class="nav-tabs-bar" id="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('tab-overview')">📊 Resumen</button>
+    <button class="tab-btn" onclick="switchTab('tab-follow')">🧭 Seguimiento</button>
+    <button class="tab-btn" onclick="switchTab('tab-learning')">🎓 Aprendizaje</button>
+    <button class="tab-btn" onclick="switchTab('tab-campaign')">🪜 Campaña</button>
+    <button class="tab-btn" onclick="switchTab('tab-profile')">👤 Jugador</button>
+    <button class="tab-btn" onclick="switchTab('tab-dishes')">🍲 Platos</button>
+    <button class="tab-btn" onclick="switchTab('tab-stats')">📈 Cocina</button>
+    <button class="tab-btn" onclick="switchTab('tab-players')">👥 Cuentas (<span id="tab-count-players">0</span>)</button>
+    <button class="tab-btn" onclick="switchTab('tab-leaderboard')">🏆 Ranking (<span id="tab-count-lb">0</span>)</button>
+    <button class="tab-btn" onclick="switchTab('tab-sessions')">📜 Partidas (<span id="tab-count-sessions">0</span>)</button>
+    <button class="tab-btn" onclick="switchTab('tab-settings')">⚙️ Ajustes</button>
+  </div>
+
+  <!-- PESTAÑA 1: RESUMEN Y GRÁFICOS -->
+  <div class="tab-pane active" id="tab-overview">
   <!-- KPI CARDS (RESUMEN EJECUTIVO) -->
   <div class="kpi-grid">
     <!-- 1. Jugadores Registrados -->
@@ -583,20 +669,6 @@
     </div>
   </div>
 
-  <!-- NAVEGACIÓN POR PESTAÑAS -->
-  <div class="nav-tabs-bar">
-    <button class="tab-btn active" onclick="switchTab('tab-overview')">📊 Resumen & Gráficos</button>
-    <button class="tab-btn" onclick="switchTab('tab-players')">👥 Jugadores & Contactos (<span id="tab-count-players">0</span>)</button>
-    <button class="tab-btn" onclick="switchTab('tab-leaderboard')">🏆 Ranking & Leaderboard (<span id="tab-count-lb">0</span>)</button>
-    <button class="tab-btn" onclick="switchTab('tab-sessions')">📜 Historial de Partidas (<span id="tab-count-sessions">0</span>)</button>
-    <button class="tab-btn" onclick="switchTab('tab-stats')">📈 Estadísticas de cocina</button>
-    <button class="tab-btn" onclick="switchTab('tab-learning')">🎓 Curva de aprendizaje</button>
-    <button class="tab-btn" onclick="switchTab('tab-recipes')">🍲 Análisis de Ramen & Dificultad</button>
-    <button class="tab-btn" onclick="switchTab('tab-settings')">⚙️ Base de Datos & SQL</button>
-  </div>
-
-  <!-- PESTAÑA 1: RESUMEN Y GRÁFICOS -->
-  <div class="tab-pane active" id="tab-overview">
     <div class="charts-grid">
       <!-- Gráfico 1: Puntuación de Mejores Jugadores -->
       <div class="chart-card">
@@ -782,154 +854,39 @@
     </div>
   </div>
 
-  <div class="tab-pane" id="tab-recipes">
+  <!-- PESTAÑAS NUEVAS DEL PANEL -->
+  <div class="tab-pane" id="tab-follow">
     <div class="table-card">
-      <div class="table-title" style="margin-bottom:14px;">
-        <span>🍲 Análisis de Pedidos de Ramen y Retención</span>
-      </div>
-      <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">
-        Esta métrica identifica cuáles recetas generan mayores cuellos de botella para los clientes y dónde se producen mayores cancelaciones o clientes enojados.
-      </p>
-
-      <div class="table-wrap">
-        <table class="data-table" id="table-recipes-analysis">
-          <thead>
-            <tr>
-              <th>Tipo de Ramen</th>
-              <th>Ingredientes Requeridos</th>
-              <th>Precio Venta</th>
-              <th>Complejidad</th>
-              <th>Estado de Balance</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong style="color:#ffb300;">Shio Ramen</strong></td>
-              <td>Fideos, Caldo Shio, Chasu Asado, Huevo, Poro, Cebolla China, Ajonjolí Blanco, Nori, Moyashi</td>
-              <td><span style="color:#81c784; font-weight:800;">S/ 38</span></td>
-              <td><span class="badge-tag badge-normal">Básico (9 ing.)</span></td>
-              <td><span style="color:#81c784;">✓ Óptimo para aprendizaje</span></td>
-            </tr>
-            <tr>
-              <td><strong style="color:#ffb300;">Shoyu Ramen</strong></td>
-              <td>Fideos, Caldo Shio, Salsa Shoyu, Chasu Asado, Huevo, Poro, Cebolla China, Ajonjolí Blanco, Nori, Bambú, Holantao</td>
-              <td><span style="color:#81c784; font-weight:800;">S/ 40</span></td>
-              <td><span class="badge-tag badge-normal">Medio (11 ing.)</span></td>
-              <td><span style="color:#81c784;">✓ Excelente ritmo</span></td>
-            </tr>
-            <tr>
-              <td><strong style="color:#ffb300;">Miso Ramen</strong></td>
-              <td>Fideos, Caldo Shio, Salsa Miso, Chasu Asado, Huevo, Poro, Cebolla China, Ajonjolí Blanco, Nori, Bambú, Holantao</td>
-              <td><span style="color:#81c784; font-weight:800;">S/ 42</span></td>
-              <td><span class="badge-tag badge-normal">Medio (11 ing.)</span></td>
-              <td><span style="color:#81c784;">✓ Popular</span></td>
-            </tr>
-            <tr>
-              <td><strong style="color:#ffb300;">Tonkotsu Ramen</strong></td>
-              <td>Fideos, Caldo Tonkotsu, Chasu Asado, Huevo, Poro, Cebolla China, Ajonjolí Blanco, Nori, Col Cocida, Moyashi</td>
-              <td><span style="color:#81c784; font-weight:800;">S/ 46</span></td>
-              <td><span class="badge-tag badge-rash">Avanzado (10 ing.)</span></td>
-              <td><span style="color:#ffb74d;">⚡ Requiere calentar Tonkotsu</span></td>
-            </tr>
-            <tr>
-              <td><strong style="color:#ffb300;">Chashu Ramen</strong></td>
-              <td>Fideos, Caldo Tonkotsu, Chasu Asado, Huevo, Poro, Cebolla China, Ajonjolí Blanco, Nori</td>
-              <td><span style="color:#81c784; font-weight:800;">S/ 48</span></td>
-              <td><span class="badge-tag badge-rash">Avanzado (8 ing.)</span></td>
-              <td><span style="color:#ffb74d;">⚡ Alto consumo de Chasu Asado</span></td>
-            </tr>
-            <tr>
-              <td><strong style="color:#ffb300;">Ebi Ramen</strong></td>
-              <td>Fideos, Caldo Shio, Salsa Ebi, Langostinos, Huevo, Poro, Cebolla China, Ajonjolí Blanco, Nori, Champiñones, Espárrago</td>
-              <td><span style="color:#81c784; font-weight:800;">S/ 50</span></td>
-              <td><span class="badge-tag badge-rash">Supremo (11 ing.)</span></td>
-              <td><span style="color:#81d4fa;">★ Mayor rentabilidad</span></td>
-            </tr>
-            <tr>
-              <td><strong style="color:#ffb300;">Tan Tan Ramen</strong></td>
-              <td>Fideos, Caldo Shio, Salsa Tan Tan, Chancho Molido, Huevo, Poro, Cebolla China, Ajonjolí Blanco, Nori, Moyashi</td>
-              <td><span style="color:#81c784; font-weight:800;">S/ 45</span></td>
-              <td><span class="badge-tag badge-rash">Picante (10 ing.)</span></td>
-              <td><span style="color:#81c784;">✓ Buen flujo</span></td>
-            </tr>
-            <tr>
-              <td><strong style="color:#ffb300;">Vegetariano</strong></td>
-              <td>Agua, Salsa Vegetariana, Tofu, Poro, Cebolla China, Ajonjolí Blanco, Nori, Bambú, Champiñones, Shitake, Espárrago</td>
-              <td><span style="color:#81c784; font-weight:800;">S/ 42</span></td>
-              <td><span class="badge-tag badge-normal">Vegetal (11 ing.)</span></td>
-              <td><span style="color:#81c784;">✓ Sin caldo animal</span></td>
-            </tr>
-            <tr>
-              <td><strong style="color:#ffb300;">Bajiru Ramen</strong></td>
-              <td>Fideos, Caldo Shio, Salsa Bajiru, Brisket, Huevo, Poro, Ajonjolí Blanco, Nori, Alga Wanji, Zanahoria</td>
-              <td><span style="color:#81c784; font-weight:800;">S/ 48</span></td>
-              <td><span class="badge-tag badge-rash">Gourmet (10 ing.)</span></td>
-              <td><span style="color:#81d4fa;">★ Receta de Maestro</span></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <div class="table-title" style="margin-bottom:10px;"><span>🧭 Seguimiento: ¿quién juega, quién vuelve y quién necesita ayuda?</span></div>
+      <p class="pnl-note">Actividad, retención y alertas por jugador. Sirve para saber si el juego engancha y a quién escribirle.</p>
+      <div id="follow-content"><div class="pnl-empty">Cargando…</div></div>
     </div>
   </div>
-
-  <!-- PESTAÑA 6: CONFIGURACIÓN & BASE DE DATOS -->
+  <div class="tab-pane" id="tab-campaign">
+    <div class="table-card">
+      <div class="table-title" style="margin-bottom:10px;"><span>🪜 Campaña: dónde fluye y dónde se atasca</span></div>
+      <p class="pnl-note">Embudo, tasa de victoria e intentos por nivel, para calibrar la dificultad con datos reales.</p>
+      <div id="campaign-content"><div class="pnl-empty">Cargando…</div></div>
+    </div>
+  </div>
+  <div class="tab-pane" id="tab-profile">
+    <div class="table-card">
+      <div class="table-title" style="margin-bottom:10px;"><span>👤 Ficha de un jugador</span></div>
+      <div class="pl-picker"><input type="text" class="search-input" id="pl-search" placeholder="🔍 Buscar jugador…"><select class="search-input" id="pl-select"></select></div>
+      <div id="player-content"><div class="pnl-empty">Cargando…</div></div>
+    </div>
+  </div>
+  <div class="tab-pane" id="tab-dishes">
+    <div class="table-card">
+      <div class="table-title" style="margin-bottom:10px;"><span>🍲 Platos: complejidad, calidad y aprendizaje</span></div>
+      <p class="pnl-note">Cada plato con su receta completa de Campaña y cómo les va a los jugadores al cocinarlo.</p>
+      <div id="dishes-content"><div class="pnl-empty">Cargando…</div></div>
+    </div>
+  </div>
   <div class="tab-pane" id="tab-settings">
     <div class="table-card">
-      <div class="table-title" style="margin-bottom:10px;">
-        <span>⚙️ Estado de Conexión y Configuración de Supabase</span>
-      </div>
-      <p style="font-size:12px; color:var(--text-muted); margin-bottom:14px;">
-        Este panel se conecta directamente a la nube de Supabase. A continuación puedes ver el estado del endpoint y copiar el script de base de datos para crear las tablas adicionales si aún no las tienes creadas.
-      </p>
-
-      <div style="background:#1f0e0a; border:1px solid #4a241a; border-radius:10px; padding:14px; margin-bottom:16px;">
-        <div style="font-size:12px; font-weight:800; color:#ffd699; margin-bottom:6px;">URL de Proyecto Supabase:</div>
-        <div style="font-family:'Courier New', monospace; font-size:13px; color:#81d4fa; word-break:break-all;">https://byfvmwupbimvocmxrgab.supabase.co</div>
-        <div style="font-size:11px; color:#81c784; margin-top:4px;">● Conexión activa y autenticada mediante clave pública anónima.</div>
-      </div>
-
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
-        <div style="font-weight:800; font-size:13px; color:var(--ramen-gold);">Script SQL para Supabase Editor (Creación de Tablas 'players' y 'game_sessions'):</div>
-        <button class="btn-action btn-primary" onclick="copySqlSchema()">📋 Copiar SQL</button>
-      </div>
-
-      <div class="sql-box" id="sql-schema-box">-- 1. Tabla de Jugadores Únicos
-create table if not exists public.players (
-  id uuid default gen_random_uuid() primary key,
-  device_id text unique not null,
-  device_fingerprint text,
-  device_info text,
-  player_name text not null,
-  contact text,
-  avatar text default '🍜',
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
-  last_login timestamp with time zone default timezone('utc'::text, now()) not null
-);
-
--- 2. Tabla de Sesiones y Telemetría
-create table if not exists public.game_sessions (
-  id uuid default gen_random_uuid() primary key,
-  device_id text not null,
-  player_name text not null,
-  game_mode text not null default 'NORMAL',
-  level_number integer not null default 1,
-  duration_seconds integer not null default 0,
-  customers_served integer not null default 0,
-  customers_lost integer not null default 0,
-  failed_recipes jsonb default '[]'::jsonb,
-  outcome text default 'COMPLETED',
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null
-);
-
--- Políticas RLS
-alter table public.players enable row level security;
-alter table public.game_sessions enable row level security;
-create policy "Permitir lectura publica de jugadores" on public.players for select to anon, authenticated using (true);
-create policy "Permitir registro de jugador por dispositivo" on public.players for insert to anon, authenticated with check (length(player_name) >= 2);
-create policy "Permitir actualizar datos de jugador" on public.players for update to anon, authenticated using (true);
-create policy "Permitir lectura publica de sesiones" on public.game_sessions for select to anon, authenticated using (true);
-create policy "Permitir insertar sesiones" on public.game_sessions for insert to anon, authenticated with check (true);
-</div>
+      <div class="table-title" style="margin-bottom:10px;"><span>⚙️ Ajustes del panel</span></div>
+      <div id="settings-content"></div>
     </div>
   </div>
 
@@ -986,6 +943,7 @@ function statsNotice(html) {
 }
 
 async function loadKitchenStats() {
+  if (window.PANEL_DEMO || (window.allStats && window.allStats.length && Date.now() - (window.__panelStamp || 0) < 120000)) { renderKitchenStats(window.allStats || []); return; }    // ya se cargaron con el resto de los datos
   let secret = null;
   try { secret = sessionStorage.getItem('ramen_admin_secret'); } catch (e) {}
   if (!secret) {
@@ -1098,6 +1056,7 @@ function learnNotice(html) {
 }
 
 async function loadLearning() {
+  if (window.PANEL_DEMO || (window.allStats && window.allStats.length && Date.now() - (window.__panelStamp || 0) < 120000)) { renderLearning(window.allStats || []); return; }    // ya se cargaron con el resto de los datos
   let secret = null;
   try { secret = sessionStorage.getItem('ramen_admin_secret'); } catch (e) {}
   if (!secret) {
@@ -1353,6 +1312,10 @@ function switchTab(tabId) {
 
   if (tabId === 'tab-stats') loadKitchenStats();
   if (tabId === 'tab-learning') loadLearning();
+  if (typeof panelRenderTab === 'function') panelRenderTab(tabId);
+  if (tabId === 'tab-settings' && typeof panelRenderSettings === 'function') panelRenderSettings();
+  window.scrollTo({ top: 0 });
+  try { if (activeBtn && activeBtn.scrollIntoView) activeBtn.scrollIntoView({ inline: 'center', block: 'nearest' }); } catch (e) {}
   if (tabId === 'tab-overview') {
     renderCharts();
   }
@@ -1439,6 +1402,8 @@ async function fetchLiveMetrics(showLoader = false) {
   const badgeText = document.getElementById("conn-status-text");
   const badgeDot = document.querySelector(".status-dot");
 
+  if (window.PANEL_DEMO) { panelLoadDemo(); return; }
+  if (!sessionStorage.getItem('ramen_admin_secret')) { if (loader) loader.style.display = "none"; if (typeof panelShowGate === 'function') panelShowGate(''); return; }
   try {
     if (!supabaseClient) initSupabase();
 
@@ -1501,9 +1466,22 @@ async function fetchLiveMetrics(showLoader = false) {
       playersData = Object.values(uniqueChefs);
     }
 
+    // 4. Estadísticas por cuenta (platos, historial diario, retos): base de la curva de aprendizaje
+    let statsData = [];
+    try {
+      const secretS = sessionStorage.getItem('ramen_admin_secret');
+      if (secretS) {
+        const resStats = await supabaseClient.rpc('admin_stats', { p_secret: secretS });
+        if (resStats.data && resStats.data.ok) statsData = resStats.data.rows || [];
+        else if (resStats.data && resStats.data.error === 'no_autorizado') { sessionStorage.removeItem('ramen_admin_secret'); panelShowGate('El secreto ya no es válido.'); return; }
+      }
+    } catch (e) {}
+
     allLeaderboard = lbData;
     allPlayers = playersData;
     allSessions = sessionsData;
+    window.allStats = statsData;
+    window.__panelStamp = Date.now();
 
     // Actualizar indicador de conexión
     if (badgeText) badgeText.textContent = "Supabase Conectado";
@@ -1515,6 +1493,7 @@ async function fetchLiveMetrics(showLoader = false) {
     renderLeaderboardTable(allLeaderboard);
     renderSessionsTable(allSessions);
     renderCharts();
+    if (typeof panelAfterLoad === 'function') panelAfterLoad();
 
   } catch (err) {
     console.error("Error cargando métricas:", err);
@@ -2007,16 +1986,10 @@ function copySqlSchema() {
   });
 }
 
-// INICIALIZACIÓN
-window.addEventListener("DOMContentLoaded", () => {
-  initSupabase();
-  fetchLiveMetrics(true);
-
-  // Auto-recarga en segundo plano cada 30 segundos
-  setInterval(() => {
-    fetchLiveMetrics(false);
-  }, 30000);
-});
+// La inicialización (acceso, carga y actualización periódica) está en app.js
 </script>
+<script src="datos-juego.js"></script>
+<script src="seguimiento.js"></script>
+<script src="app.js"></script>
 </body>
 </html>

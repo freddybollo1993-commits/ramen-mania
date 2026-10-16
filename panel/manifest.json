@@ -1,0 +1,18 @@
+{
+  "id": "/panel/",
+  "name": "Shimaya Panel",
+  "short_name": "Shimaya Panel",
+  "description": "Seguimiento de jugadores y curva de aprendizaje de Ramen Mania",
+  "start_url": "/panel/",
+  "scope": "/panel/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#140a08",
+  "theme_color": "#140a08",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
