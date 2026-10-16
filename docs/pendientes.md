@@ -34,9 +34,9 @@ Fuentes: sección 12 de `contexto-juego.md` (con lo ya resuelto tachado), memori
 ## C. Audio (nuevo, skill `game-audio-director`)
 | # | Tarea | Quién |
 |---|---|---|
-| C1 | Auditoría de sonidos actuales y brief por modo | YO |
-| C2 | Módulo `audio-ambiente.js`: buses, limitador, volumen, suspensión al ocultar | YO |
-| C3 | Modelo de tensión (paciencia, clientes, tiempo, dificultad) y capas por tramo | YO |
+| C1 | ~~Auditoría de sonidos actuales y brief por modo~~ → hecho (v172, ver `audio-ambiente.js`: PERFIL por modo y ARCO) | YO ✔ |
+| C2 | ~~Módulo `audio-ambiente.js`: buses, limitador, volumen, suspensión al ocultar~~ → hecho en v172 (panel de volumen en Ajustes → Sonido) | YO ✔ |
+| C3 | ~~Modelo de tensión (paciencia, clientes, tiempo, dificultad) y capas por tramo~~ → hecho en v172 (sintetizado; `AUDIO_TENSION`, `CAPAS`) | YO ✔ |
 | C4 | Generar ambientes y música (Lyria y pistas de audio de Veo) y reutilizar el audio de los cocineros del menú | TÚ |
 | C5 | Probar en el celular si da paz o tensión | TÚ |
 
