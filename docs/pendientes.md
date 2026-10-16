@@ -16,7 +16,7 @@ Fuentes: sección 12 de `contexto-juego.md` (con lo ya resuelto tachado), memori
 | A1 | **Probar los niveles 1, 4, 9 y 13** en el Redmi y pasarme dinero final, clientes perdidos y estrellas | TÚ | — | 20 min |
 | A2 | **Calibrar el simulador** (`--cap`) con A1 y decidir si se relajan 2★/3★ en los niveles 10-20 | YO | A1 | Corto |
 | A3 | ~~**Fase 2:** pantalla del Maestro por arco/área, mapa de campaña nuevo~~ → hecha en v168 (con el arte actual; ilustraciones finales en B5) | YO | — | ✔ |
-| A4 | **Fase 3:** partida con escena viva, tickets y HUD nuevos, clientes dibujados. **Hecho en v169:** clientes dibujados con 4 poses según la paciencia y cara contenta al servir, fondo de la partida con la cocina nueva y linternas que parpadean. **Falta:** tickets y HUD con el estilo nuevo, cocineros reactivos, fondo por arco, y reemplazar por hojas en alta resolución las de Aoi, Akemi, Yuki y Ren | AMBOS | Arte (B1 parcial) | Grande |
+| A4 | **Fase 3:** partida con escena viva, tickets y HUD nuevos, clientes dibujados. **Hecho en v169:** clientes dibujados con 4 poses según la paciencia y cara contenta al servir, fondo de la partida con la cocina nueva y linternas que parpadean. **Hecho en v170:** HUD con estilo del menú (meta con 3 estrellas, reloj que presiona, nombre del nivel) y comandas de papel. **Falta:** cocineros reactivos, fondo por arco, y reemplazar por hojas en alta resolución las de Aoi, Akemi, Yuki y Ren | AMBOS | Arte (B1 parcial) | Grande |
 | A5 | **Fase 4:** zonas por arco (wok, barra fría, freidora, insignia) con cocineros en video | AMBOS | Arte (B2) | Grande |
 
 ## B. Arte pendiente (Gemini / Flow)

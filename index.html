@@ -1085,6 +1085,33 @@
   #level-brief .lb-hint { margin-top: 6px; font-size: 11px; color: #c9a77e; }
   #level-brief .lb-go { display: block; margin: 10px auto 0; background: linear-gradient(#ffb300, #ff8f00); color: #2b1810; border: 2px solid #2b1810; border-radius: 12px; padding: 8px 26px; font: 400 16px 'Fredoka One', cursive, system-ui; cursor: pointer; box-shadow: 0 3px 0 #8a4b00; }
   @keyframes lbIn { from { opacity: 0; transform: translateY(10px) scale(.97); } }
+  /* Campaña 2.0 (fase 3b): HUD y comandas con el estilo del menú (madera oscura, contorno grueso y filo dorado) */
+  .hud-capsule-left, .hud-capsule-horizontal { background: linear-gradient(#4a2a14, #2b1810); border: 2px solid #1a0e07; box-shadow: 0 3px 0 rgba(0,0,0,.45), inset 0 0 0 1.5px rgba(255, 179, 0, .5), 0 6px 14px rgba(0,0,0,.5); }
+  .hud-capsule-btn { background: linear-gradient(#6b3d1f, #3b2415); border: 2px solid #1a0e07; box-shadow: 0 2px 0 #140a05, inset 0 0 0 1px rgba(255, 179, 0, .4); }
+  .hud-capsule-title { max-width: 150px; overflow: hidden; text-overflow: ellipsis; }
+  .hud-top-btn { border: 2px solid #1a0e07; box-shadow: 0 2px 0 #140a05, inset 0 0 0 1px rgba(255, 179, 0, .35); }
+  .hud-top-btn.btn-exit { background: linear-gradient(#d64a3b, #8e1d17); }
+  .hud-side-btn { border: 2px solid #1a0e07 !important; box-shadow: 0 2px 0 #140a05, inset 0 0 0 1px rgba(255, 179, 0, .4) !important; }
+  /* reloj que presiona en los últimos segundos */
+  .stat-val-timer.urgent { color: #ff5252 !important; display: inline-block; animation: hudTick .5s ease-in-out infinite alternate; }
+  .stat-val-timer.crisis { animation-duration: .24s; text-shadow: 0 0 8px rgba(255, 60, 60, .9); }
+  @keyframes hudTick { from { transform: scale(1); } to { transform: scale(1.22); } }
+  /* meta con tres estrellas */
+  .gm { display: inline-flex; align-items: center; gap: 5px; vertical-align: middle; }
+  .gm-bar { position: relative; display: inline-block; width: 74px; height: 9px; margin-top: 7px; background: #140a05; border: 1.5px solid #1a0e07; border-radius: 6px; box-shadow: inset 0 0 0 1px rgba(255, 179, 0, .25); }
+  .gm-bar i { position: absolute; left: 0; top: 0; bottom: 0; background: linear-gradient(#ffd54f, #ff9800); border-radius: 5px; transition: width .3s ease; }
+  .gm-k { position: absolute; top: -9px; transform: translateX(-50%); font-size: 10px; line-height: 1; font-weight: 400; color: rgba(255, 233, 176, .35); text-shadow: 0 1px 0 #1a0e07; transition: color .2s, transform .2s; }
+  .gm-k.on { color: #ffd54f; transform: translateX(-50%) scale(1.3); }
+  .gm-t { font-size: 11px; color: #ffd54f; }
+  /* comandas: papel de cocina con borde dentado y pin */
+  .cust-order-pill { position: relative; background: linear-gradient(#fff6dc, #f1dfae); color: #3b2415; border: 1.5px solid #2b1810; border-radius: 3px 3px 0 0; font-size: 9.5px; padding: 2px 6px 5px 11px;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 3px), 92% 100%, 84% calc(100% - 3px), 76% 100%, 68% calc(100% - 3px), 60% 100%, 52% calc(100% - 3px), 44% 100%, 36% calc(100% - 3px), 28% 100%, 20% calc(100% - 3px), 12% 100%, 4% calc(100% - 3px), 0 100%); }
+  .cust-order-pill::before { content: ''; position: absolute; left: 3px; top: 3px; width: 5px; height: 5px; border-radius: 50%; background: #c8372d; box-shadow: 0 1px 0 #7a1d17; }
+  .cust-order-pill:nth-child(odd) { transform: rotate(-1.2deg); } .cust-order-pill:nth-child(even) { transform: rotate(1.2deg); }
+  .cust-order-pill.ready-deliver { background: linear-gradient(#e6fbe7, #9fd7a2); color: #0f3f15; border-color: #0f3f15; box-shadow: none; animation: tkPulse .8s ease-in-out infinite alternate; }
+  .cust-order-pill.ready-deliver::before { background: #2e7d32; box-shadow: 0 1px 0 #0f3f15; }
+  @keyframes tkPulse { from { transform: rotate(-1.2deg) scale(1); } to { transform: rotate(1.2deg) scale(1.1); } }
+  @media (prefers-reduced-motion: reduce) { .stat-val-timer.urgent, .cust-order-pill.ready-deliver { animation: none; } }
 
   .pantry-mini-filter {
     display: flex;
@@ -6534,7 +6561,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v169</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v170</span></button></div>
     </div>
   </div>
 
@@ -6551,7 +6578,7 @@
           <span>🏠</span>
         </button>
         <div class="hud-capsule-brand-block">
-          <div class="hud-capsule-title">🍜 RAMEN MANIA</div>
+          <div class="hud-capsule-title" id="hud-title">🍜 RAMEN MANIA</div>
           <div class="hud-capsule-level" id="hud-level-badge">LVL 1</div>
         </div>
         <button class="hud-capsule-btn" onclick="openGameProfileModal()" title="Mi Perfil / Ajustes">
@@ -8492,37 +8519,37 @@
   </div>
 </div> <!-- CIERRE DE #game-container (INCLUYE OVERLAYS Y MODALES PARA PANTALLA COMPLETA TOTAL) -->
 
-<script src="js/01-nucleo-supabase-dispositivo.js?v=153"></script>
-<script src="js/02-datos-ingredientes-recetas.js?v=153"></script>
-<script src="js/03-datos-niveles-campana.js?v=153"></script>
-<script src="js/04-estado-y-audio.js?v=153"></script>
-<script src="js/05-menu-recetas-areas.js?v=153"></script>
-<script src="js/06-etapas-navegacion.js?v=153"></script>
-<script src="js/07-makis-estacion.js?v=153"></script>
-<script src="js/08-salteados-wok.js?v=153"></script>
-<script src="js/09-etapas-motor.js?v=153"></script>
-<script src="js/10-produccion-taller-gestos.js?v=153"></script>
-<script src="js/11-emplatado-platos-salteado.js?v=153"></script>
-<script src="js/12-frituras-estacion.js?v=153"></script>
-<script src="js/13-areas-despensa-arrastre.js?v=153"></script>
-<script src="js/14-cuencos-estado-cocina.js?v=153"></script>
-<script src="js/15-ramen-fideos-clientes.js?v=153"></script>
-<script src="js/16-cooperativo-estaciones.js?v=153"></script>
-<script src="js/17-propinas-mejoras-progreso.js?v=153"></script>
-<script src="js/18-nube-cuenta.js?v=153"></script>
-<script src="js/19-entrenamiento.js?v=153"></script>
-<script src="js/20-estadisticas.js?v=153"></script>
-<script src="js/21-cocina-libre-mejoras-vfx.js?v=153"></script>
-<script src="js/22-calidad-servir.js?v=153"></script>
-<script src="js/23-ramen-sartenes-herramientas.js?v=153"></script>
-<script src="js/24-ramen-sartenes-shio-fideos.js?v=153"></script>
-<script src="js/25-partida-campana.js?v=153"></script>
-<script src="js/26-inicio-menu-modales.js?v=153"></script>
-<script src="js/27-tutorial-antiguo.js?v=153"></script>
-<script src="js/28-perfil-ranking-pantalla.js?v=153"></script>
-<script src="js/29-secretos-galeria.js?v=153"></script>
-<script src="js/30-secretos-3d.js?v=153"></script>
-<script src="js/31-orientacion-admin-arranque.js?v=153"></script>
+<script src="js/01-nucleo-supabase-dispositivo.js?v=154"></script>
+<script src="js/02-datos-ingredientes-recetas.js?v=154"></script>
+<script src="js/03-datos-niveles-campana.js?v=154"></script>
+<script src="js/04-estado-y-audio.js?v=154"></script>
+<script src="js/05-menu-recetas-areas.js?v=154"></script>
+<script src="js/06-etapas-navegacion.js?v=154"></script>
+<script src="js/07-makis-estacion.js?v=154"></script>
+<script src="js/08-salteados-wok.js?v=154"></script>
+<script src="js/09-etapas-motor.js?v=154"></script>
+<script src="js/10-produccion-taller-gestos.js?v=154"></script>
+<script src="js/11-emplatado-platos-salteado.js?v=154"></script>
+<script src="js/12-frituras-estacion.js?v=154"></script>
+<script src="js/13-areas-despensa-arrastre.js?v=154"></script>
+<script src="js/14-cuencos-estado-cocina.js?v=154"></script>
+<script src="js/15-ramen-fideos-clientes.js?v=154"></script>
+<script src="js/16-cooperativo-estaciones.js?v=154"></script>
+<script src="js/17-propinas-mejoras-progreso.js?v=154"></script>
+<script src="js/18-nube-cuenta.js?v=154"></script>
+<script src="js/19-entrenamiento.js?v=154"></script>
+<script src="js/20-estadisticas.js?v=154"></script>
+<script src="js/21-cocina-libre-mejoras-vfx.js?v=154"></script>
+<script src="js/22-calidad-servir.js?v=154"></script>
+<script src="js/23-ramen-sartenes-herramientas.js?v=154"></script>
+<script src="js/24-ramen-sartenes-shio-fideos.js?v=154"></script>
+<script src="js/25-partida-campana.js?v=154"></script>
+<script src="js/26-inicio-menu-modales.js?v=154"></script>
+<script src="js/27-tutorial-antiguo.js?v=154"></script>
+<script src="js/28-perfil-ranking-pantalla.js?v=154"></script>
+<script src="js/29-secretos-galeria.js?v=154"></script>
+<script src="js/30-secretos-3d.js?v=154"></script>
+<script src="js/31-orientacion-admin-arranque.js?v=154"></script>
 <script src="multiplayer.js?v=22"></script>
 <script src="makis-studio.js?v=118"></script>
 <script src="frituras-prod.js?v=2"></script>

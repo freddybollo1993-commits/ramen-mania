@@ -201,6 +201,10 @@ function updateHUD() {
 
   const moneyEl = document.getElementById("hud-money");
   if (moneyEl) moneyEl.textContent = gameState.money;
+  const titleEl = document.getElementById("hud-title");
+  if (titleEl) titleEl.textContent = gameState.gameMode === 'NORMAL' ? '🏮 ' + cfg.name.replace(/Nivel \d+:\s*/, '') : '🍜 RAMEN MANIA';
+  const tEl0 = document.getElementById("hud-timer");
+  if (tEl0 && gameState.gameMode !== 'NORMAL') tEl0.classList.remove('urgent', 'crisis');
 
   const servedEl = document.getElementById("hud-served");
   if (servedEl) servedEl.textContent = gameState.customersServed;
@@ -215,13 +219,17 @@ function updateHUD() {
     const goalEl = document.getElementById("hud-goal");
     const th = getLevelStarThresholds(cfg);
     const curStars = calculateLevelStars(cfg, gameState.money, gameState.customersLost);
-    const starPill = curStars === 3 ? '⭐⭐⭐' : (curStars === 2 ? '⭐⭐☆' : (curStars === 1 ? '⭐☆☆' : '☆☆☆'));
-    if (goalEl) goalEl.innerHTML = `S/${cfg.goal} <span style="font-size:11px; margin-left:3px; color:#ffd54f;" title="⭐ S/${th.star1} · ⭐⭐ S/${th.star2} · ⭐⭐⭐ S/${th.star3}">${starPill}</span>`;
+    const pos = v => (100 * v / th.star3).toFixed(1), fill = Math.min(100, 100 * gameState.money / th.star3).toFixed(1);
+    if (goalEl) goalEl.innerHTML = `<span class="gm" title="⭐ S/${th.star1} · ⭐⭐ S/${th.star2} · ⭐⭐⭐ S/${th.star3}"><span class="gm-bar"><i style="width:${fill}%"></i>`
+      + [[th.star1, 1], [th.star2, 2], [th.star3, 3]].map(([v, k]) => `<b class="gm-k ${curStars >= k ? 'on' : ''}" style="left:${pos(v)}%">★</b>`).join('') + `</span><span class="gm-t">S/${cfg.goal}</span></span>`;
     if (timerIcon) timerIcon.textContent = "⏱️";
     const timerEl = document.getElementById("hud-timer");
     if (timerEl) {
       timerEl.textContent = `${gameState.timeLeft}s`;
       timerEl.style.color = (gameState.money >= cfg.goal) ? '#81c784' : '';
+      const apuro = gameState.money < cfg.goal;
+      timerEl.classList.toggle('urgent', apuro && gameState.timeLeft <= 20);
+      timerEl.classList.toggle('crisis', apuro && gameState.timeLeft <= 10);
     }
   } else if ((gameState.gameMode === 'JAPON' && gameState.japon)) {
     if (badgeEl) badgeEl.textContent = '🗾 ' + gameState.japon.cityName;
