@@ -21,17 +21,17 @@
     return keys.flatMap(k => cat[k][1].map(r => ({ r, area: k })));
   }
   // Receta COMPLETA como se cocina en la Campaña: la lista base + la parte de cocción de Salteado (SAL_STAGED) + las piezas de emplatado de cada área.
-  // Las formas ya procesadas del pollo (cuadrado, en tiras, teriyaki, yakitori) se cuentan como «Pollo»: es el mismo ingrediente en otro estado.
-  const POLLO_PROCESADO = new Set([104, 105, 106, 107]);
+  // En Salteado manda el guion de la Campaña (SAL_STAGED: cocción + emplatado) y NO la lista base antigua: cada plato lleva SU corte de pollo
+  // (cuadrado, en tiras, teriyaki, yakitori), que son ingredientes distintos y no se pueden confundir con el «Pollo» crudo.
   function ingredientsOf(item) {
-    const s = new Set(item.r.ingredients), r = item.r;
+    const r = item.r;
     try {
-      if (item.area === 'salteados' && typeof SAL_STAGED !== 'undefined' && SAL_STAGED[r.name]) { salCookIds(r.name).forEach(i => s.add(i)); SAL_STAGED[r.name].plate.forEach(i => s.add(i)); }
-      else if (typeof stParts === 'function') stParts(item.area, r).forEach(i => s.add(i));
+      if (item.area === 'salteados' && typeof SAL_STAGED !== 'undefined' && SAL_STAGED[r.name]) return [...new Set([...salCookIds(r.name), ...SAL_STAGED[r.name].plate])].filter(id => ing(id));
+      const s = new Set(r.ingredients);
+      if (typeof stParts === 'function') stParts(item.area, r).forEach(i => s.add(i));
       if (item.area === 'frituras' && typeof FRY_PLATING !== 'undefined' && FRY_PLATING[r.name]) s.add(FRY_PLATING[r.name].protein);
-    } catch (e) {}
-    POLLO_PROCESADO.forEach(id => { if (s.delete(id)) s.add(69); });
-    return [...s].filter(id => ing(id));
+      return [...s].filter(id => ing(id));
+    } catch (e) { return [...new Set(r.ingredients)]; }
   }
   function options(item) {
     const need = ingredientsOf(item), all = INGREDIENTES.filter(i => i.areas && i.areas.includes(item.area) && !need.includes(i.id));
