@@ -15,7 +15,7 @@ Fuentes: sección 12 de `contexto-juego.md` (con lo ya resuelto tachado), memori
 |---|---|---|---|---|
 | A1 | **Probar los niveles 1, 4, 9 y 13** en el Redmi y pasarme dinero final, clientes perdidos y estrellas | TÚ | — | 20 min |
 | A2 | **Calibrar el simulador** (`--cap`) con A1 y decidir si se relajan 2★/3★ en los niveles 10-20 | YO | A1 | Corto |
-| A3 | **Fase 2:** pantalla del Maestro por arco/área, mapa de campaña nuevo (versión provisional con el arte actual) | YO | — | Medio |
+| A3 | ~~**Fase 2:** pantalla del Maestro por arco/área, mapa de campaña nuevo~~ → hecha en v168 (con el arte actual; ilustraciones finales en B5) | YO | — | ✔ |
 | A4 | **Fase 3:** partida con escena viva, tickets y HUD nuevos, clientes dibujados | AMBOS | Arte de clientes (B1) | Grande |
 | A5 | **Fase 4:** zonas por arco (wok, barra fría, freidora, insignia) con cocineros en video | AMBOS | Arte (B2) | Grande |
 

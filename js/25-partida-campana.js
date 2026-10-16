@@ -344,6 +344,8 @@ function openCampaignModalFromEnd() {
 let campaignFilterArc = 'all';
 
 function openCampaignModal(filterArc) {
+  // Campaña 2.0: el mapa ilustrado (campana-mapa.js) sustituye a la lista; el modal de abajo queda solo como respaldo si ese archivo no cargó
+  if (window.CampMapa) { loadAccountProgressLocal(); CampMapa.open(filterArc); return; }
   if (filterArc) campaignFilterArc = filterArc;
   loadAccountProgressLocal();
   renderCampaignModal();
@@ -373,10 +375,15 @@ function setCampaignArcFilter(arcId) {
 }
 
 function playCampaignLevel(lvlIndex) {
-  closeCampaignModal();
-  setStartSelectedMode('NORMAL');
-  executeStartGame();
-  startLevel(lvlIndex);
+  const go = () => {
+    closeCampaignModal(); if (window.CampMapa) CampMapa.close();
+    setStartSelectedMode('NORMAL');
+    executeStartGame();
+    startLevel(lvlIndex);
+  };
+  // primera vez en un nivel que presenta algo nuevo: el Maestro lo explica antes de empezar (campana-mapa.js)
+  if (window.CampMapa && CampMapa.needsBrief(NIVELES[lvlIndex])) { CampMapa.brief(NIVELES[lvlIndex], go); return; }
+  go();
 }
 
 function renderCampaignModal() {

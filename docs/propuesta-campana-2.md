@@ -1,6 +1,6 @@
 # Propuesta: Campaña 2.0
 
-> **Estado:** Fase 1 (datos y mecánicas) hecha en v166: `NIVEL_EXTRA` con áreas, mecánica de enfoque, ficha del Maestro y reglas por nivel; etapas activas en todos los niveles; tiempos y metas recalibrados con `tools/economia-niveles.cjs`; verificador `tools/verificar-campana.cjs`. Faltan las fases 2 (presentación / mapa), 3 (rostro vivo) y 4 (zonas por arco).
+> **Estado:** Fase 1 (datos y mecánicas) hecha en v166: `NIVEL_EXTRA` con áreas, mecánica de enfoque, ficha del Maestro y reglas por nivel; etapas activas en todos los niveles; tiempos y metas recalibrados con `tools/economia-niveles.cjs`; verificador `tools/verificar-campana.cjs`. Fase 2 (presentación y mapa) hecha en v168: `campana-mapa.js` (mapa de linternas con los 20 niveles, torii entre arcos, exámenes, Maestro en tu nivel y ficha de detalle) y presentación del Maestro antes de los niveles 1, 5, 9, 13 y 17 con acceso a su lección. Faltan las fases 3 (rostro vivo) y 4 (zonas por arco), y las ilustraciones finales del mapa y del Maestro (B5).
 
 Objetivo del dueño: (1) que la Campaña tenga **el rostro renovado y vivo del menú de inicio**; (2) que **las mecánicas de cada área se respeten en todos los niveles**, sin diseños viejos como el de la captura (fondo `ramen_bg`, paneles de madera de antes, tarjetas con nombre y sin personajes).
 
