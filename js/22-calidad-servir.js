@@ -282,6 +282,7 @@ function serveOrder(customerIndex, itemIndex, dish) {
   pay = Math.round(pay * (1 + japonBuffSafe('price') + japonDishBonusSafe(orderItem.recipe.name)));
   serveVfx(customerIndex, pay, tier);
   orderItem.served = true;
+  c._happyUntil = Date.now() + 1500; setTimeout(() => { try { renderCustomers(); } catch (e) {} }, 1600);   // cara contenta un instante (retrato dibujado)
   orderItem.quality = dish.quality;
   orderItem.stars = tier;
   orderItem.score = ev.score;

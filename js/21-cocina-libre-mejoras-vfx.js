@@ -214,13 +214,34 @@ const CUSTOMER_LOOKS = {
   Aoi:     { hair: '#b9532a', style: 'long',     skin: '#f9dcc4', shirt: '#1e88c9' }
 };
 
-function customerMood(ratio) {
-  return ratio > 0.6 ? 'happy' : (ratio > 0.3 ? 'neutral' : 'angry');
+// Campaña 2.0 (fase 3): clientes dibujados. Cada uno tiene una hoja assets/menu/cliente_<nombre>.webp de 4 columnas × 2 filas = 4 poses × 2 fotogramas.
+// Poses: wait (paciencia > 40 %), impatient (10-40 %), angry (≤ 10 %) y happy (1,5 s tras servirle un plato). Si la hoja aún no cargó se usa el retrato SVG de siempre.
+const CLIENTE_ART = {};                                   // nombre -> true cuando su hoja ya está en memoria
+function preloadClientesArt() {
+  Object.keys(CUSTOMER_LOOKS).forEach(n => {
+    const im = new Image();
+    im.onload = () => { CLIENTE_ART[n] = true; };
+    im.src = 'assets/menu/cliente_' + n.toLowerCase() + '.webp';
+    if (im.decode) im.decode().then(() => { CLIENTE_ART[n] = true; }).catch(() => {});
+  });
+}
+window.addEventListener('load', () => setTimeout(preloadClientesArt, 1200));
+
+function customerMood(ratio, c) {
+  if (c && c._happyUntil && Date.now() < c._happyUntil) return 'happy';
+  return ratio > 0.4 ? 'wait' : (ratio > 0.1 ? 'impatient' : 'angry');
+}
+
+function clientePortraitSprite(name, mood) {
+  const p = { wait: [0, 0], impatient: [0, 2], happy: [1, 0], angry: [1, 2] }[mood] || [0, 0];   // [fila, columna del primer fotograma]
+  return '<i class="cust-sp ' + mood + '" style="background-image:url(\'assets/menu/cliente_' + name.toLowerCase() + '.webp\');background-position-y:' + (p[0] * 100) + '%;--xa:' + (p[1] / 3 * 100).toFixed(2) + '%;--xb:' + ((p[1] + 1) / 3 * 100).toFixed(2) + '%"></i>';
 }
 
 function customerPortraitHtml(c, mood) {
   const L = CUSTOMER_LOOKS[c.name];
   if (!L) return c.avatar;
+  if (CLIENTE_ART[c.name]) return clientePortraitSprite(c.name, mood);
+  mood = ({ wait: 'happy', impatient: 'neutral' })[mood] || mood;      // retrato SVG de respaldo: solo conoce happy / neutral / angry
   const O = '#2b1810', W = 2;
   const hairBack = {
     short: '',

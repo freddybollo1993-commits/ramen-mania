@@ -133,7 +133,8 @@
     height: -webkit-fill-available;
     height: 100dvh;
     max-width: 1200px;
-    background: url('assets/ramen_bg.webp') center center / cover no-repeat, url('assets/ramen_bg.jpg') center center / cover no-repeat, #190e0c;
+    background: linear-gradient(rgba(14, 7, 4, .52), rgba(14, 7, 4, .78)), url('assets/menu/zona1_placa_ancha.webp') center bottom / cover no-repeat, url('assets/ramen_bg.webp') center center / cover no-repeat, url('assets/ramen_bg.jpg') center center / cover no-repeat, #190e0c;
+    isolation: isolate;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -148,6 +149,14 @@
     box-shadow: 0 0 50px rgba(0, 0, 0, 0.8), inset 0 0 80px rgba(0, 0, 0, 0.55);
     box-sizing: border-box;
   }
+
+  /* linternas de la cocina de fondo que parpadean (la imagen no se mueve: solo la luz) */
+  #game-container::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; mix-blend-mode: screen;
+    background: radial-gradient(circle at 14% 20%, rgba(255, 160, 50, .42), transparent 9%), radial-gradient(circle at 33% 20%, rgba(255, 160, 50, .42), transparent 9%), radial-gradient(circle at 50% 20%, rgba(255, 160, 50, .42), transparent 9%),
+      radial-gradient(circle at 67% 20%, rgba(255, 160, 50, .42), transparent 9%), radial-gradient(circle at 95% 20%, rgba(255, 160, 50, .42), transparent 9%);
+    animation: gcGlow 2.6s ease-in-out infinite alternate; }
+  @keyframes gcGlow { from { opacity: .45; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { #game-container::before { animation: none; } }
 
   /* 1. BARRA SUPERIOR: HUD UNIFICADO (IZQUIERDA Y DERECHA) */
   .game-hud-overlay {
@@ -472,12 +481,12 @@
     cursor: pointer;
     background: rgba(28, 14, 10, 0.92);
     border: 1.5px solid rgba(255, 179, 0, 0.4);
-    border-radius: 24px;
-    padding: 3px 10px 3px 4px;
+    border-radius: 28px;
+    padding: 3px 12px 3px 4px;
     box-shadow: 0 3px 12px rgba(0,0,0,0.6);
     backdrop-filter: blur(4px);
     transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
-    height: 44px;
+    height: 54px;
     user-select: none;
     flex-shrink: 0;
   }
@@ -511,8 +520,8 @@
 
   .cust-portrait-box {
     position: relative;
-    width: 38px;
-    height: 38px;
+    width: 50px;
+    height: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -528,8 +537,9 @@
   }
 
   .cust-face-circle {
-    width: 29px;
-    height: 29px;
+    position: relative;
+    width: 41px;
+    height: 41px;
     border-radius: 50%;
     background: radial-gradient(circle, #fff3e0 30%, #ffcc80 100%);
     border: 1.5px solid #5d2e22;
@@ -542,6 +552,11 @@
   }
 
   .cust-portrait-svg { width: 100%; height: 100%; display: block; }
+  /* Cliente dibujado: la hoja de 4×2 fotogramas se recorta a cabeza y hombros; los dos fotogramas de cada pose se alternan */
+  .cust-sp { position: absolute; left: -46%; top: -5%; width: 192%; aspect-ratio: 258 / 288; background-repeat: no-repeat; background-size: 400% 200%; background-position-x: var(--xa); animation: custSp 1.4s steps(1) infinite; pointer-events: none; }
+  .cust-sp.impatient { animation-duration: .7s; } .cust-sp.happy { animation-duration: .6s; } .cust-sp.angry { animation-duration: .45s; }
+  @keyframes custSp { 0% { background-position-x: var(--xa); } 50% { background-position-x: var(--xb); } }
+  @media (prefers-reduced-motion: reduce) { .cust-sp { animation: none; } }
   .cust-info-column {
     display: flex;
     flex-direction: column;
@@ -6519,7 +6534,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v168</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v169</span></button></div>
     </div>
   </div>
 
@@ -8477,37 +8492,37 @@
   </div>
 </div> <!-- CIERRE DE #game-container (INCLUYE OVERLAYS Y MODALES PARA PANTALLA COMPLETA TOTAL) -->
 
-<script src="js/01-nucleo-supabase-dispositivo.js?v=152"></script>
-<script src="js/02-datos-ingredientes-recetas.js?v=152"></script>
-<script src="js/03-datos-niveles-campana.js?v=152"></script>
-<script src="js/04-estado-y-audio.js?v=152"></script>
-<script src="js/05-menu-recetas-areas.js?v=152"></script>
-<script src="js/06-etapas-navegacion.js?v=152"></script>
-<script src="js/07-makis-estacion.js?v=152"></script>
-<script src="js/08-salteados-wok.js?v=152"></script>
-<script src="js/09-etapas-motor.js?v=152"></script>
-<script src="js/10-produccion-taller-gestos.js?v=152"></script>
-<script src="js/11-emplatado-platos-salteado.js?v=152"></script>
-<script src="js/12-frituras-estacion.js?v=152"></script>
-<script src="js/13-areas-despensa-arrastre.js?v=152"></script>
-<script src="js/14-cuencos-estado-cocina.js?v=152"></script>
-<script src="js/15-ramen-fideos-clientes.js?v=152"></script>
-<script src="js/16-cooperativo-estaciones.js?v=152"></script>
-<script src="js/17-propinas-mejoras-progreso.js?v=152"></script>
-<script src="js/18-nube-cuenta.js?v=152"></script>
-<script src="js/19-entrenamiento.js?v=152"></script>
-<script src="js/20-estadisticas.js?v=152"></script>
-<script src="js/21-cocina-libre-mejoras-vfx.js?v=152"></script>
-<script src="js/22-calidad-servir.js?v=152"></script>
-<script src="js/23-ramen-sartenes-herramientas.js?v=152"></script>
-<script src="js/24-ramen-sartenes-shio-fideos.js?v=152"></script>
-<script src="js/25-partida-campana.js?v=152"></script>
-<script src="js/26-inicio-menu-modales.js?v=152"></script>
-<script src="js/27-tutorial-antiguo.js?v=152"></script>
-<script src="js/28-perfil-ranking-pantalla.js?v=152"></script>
-<script src="js/29-secretos-galeria.js?v=152"></script>
-<script src="js/30-secretos-3d.js?v=152"></script>
-<script src="js/31-orientacion-admin-arranque.js?v=152"></script>
+<script src="js/01-nucleo-supabase-dispositivo.js?v=153"></script>
+<script src="js/02-datos-ingredientes-recetas.js?v=153"></script>
+<script src="js/03-datos-niveles-campana.js?v=153"></script>
+<script src="js/04-estado-y-audio.js?v=153"></script>
+<script src="js/05-menu-recetas-areas.js?v=153"></script>
+<script src="js/06-etapas-navegacion.js?v=153"></script>
+<script src="js/07-makis-estacion.js?v=153"></script>
+<script src="js/08-salteados-wok.js?v=153"></script>
+<script src="js/09-etapas-motor.js?v=153"></script>
+<script src="js/10-produccion-taller-gestos.js?v=153"></script>
+<script src="js/11-emplatado-platos-salteado.js?v=153"></script>
+<script src="js/12-frituras-estacion.js?v=153"></script>
+<script src="js/13-areas-despensa-arrastre.js?v=153"></script>
+<script src="js/14-cuencos-estado-cocina.js?v=153"></script>
+<script src="js/15-ramen-fideos-clientes.js?v=153"></script>
+<script src="js/16-cooperativo-estaciones.js?v=153"></script>
+<script src="js/17-propinas-mejoras-progreso.js?v=153"></script>
+<script src="js/18-nube-cuenta.js?v=153"></script>
+<script src="js/19-entrenamiento.js?v=153"></script>
+<script src="js/20-estadisticas.js?v=153"></script>
+<script src="js/21-cocina-libre-mejoras-vfx.js?v=153"></script>
+<script src="js/22-calidad-servir.js?v=153"></script>
+<script src="js/23-ramen-sartenes-herramientas.js?v=153"></script>
+<script src="js/24-ramen-sartenes-shio-fideos.js?v=153"></script>
+<script src="js/25-partida-campana.js?v=153"></script>
+<script src="js/26-inicio-menu-modales.js?v=153"></script>
+<script src="js/27-tutorial-antiguo.js?v=153"></script>
+<script src="js/28-perfil-ranking-pantalla.js?v=153"></script>
+<script src="js/29-secretos-galeria.js?v=153"></script>
+<script src="js/30-secretos-3d.js?v=153"></script>
+<script src="js/31-orientacion-admin-arranque.js?v=153"></script>
 <script src="multiplayer.js?v=22"></script>
 <script src="makis-studio.js?v=118"></script>
 <script src="frituras-prod.js?v=2"></script>

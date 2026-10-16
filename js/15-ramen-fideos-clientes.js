@@ -653,7 +653,7 @@ function renderCustomers() {
               style="filter: drop-shadow(0 0 3px ${glowColor}); transition: stroke-dashoffset 0.3s ease, stroke 0.3s ease;"
               transform="rotate(-90 19 19)" />
           </svg>
-          <div class="cust-face-circle">${customerPortraitHtml(c, customerMood(pct / 100))}</div>
+          <div class="cust-face-circle">${customerPortraitHtml(c, customerMood(pct / 100, c))}</div>
         </div>
         <div class="cust-info-column">
           <div class="cust-name-label">${c.name}</div>
@@ -666,7 +666,7 @@ function renderCustomers() {
       const ringSvg = card.querySelector(".cust-patience-ring-svg");
       if (ringSvg) ringSvg.classList.toggle("urgent-ring", isUrgent);
       const faceEl = card.querySelector('.cust-face-circle');
-      const moodNow = customerMood(pct / 100);
+      const moodNow = customerMood(pct / 100, c);
       if (faceEl && card._mood !== moodNow) { card._mood = moodNow; faceEl.innerHTML = customerPortraitHtml(c, moodNow); }
       const circleEl = card.querySelector(".cust-patience-circle");
       if (circleEl) {

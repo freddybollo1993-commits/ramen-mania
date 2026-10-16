@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ramen-mania-v168';
+const CACHE_NAME = 'ramen-mania-v169';
 
 // Shell del juego para instalar y abrir sin conexión: la página y todos sus scripts (js/ + archivos de apoyo)
 const CORE_SHELL = [
@@ -96,6 +96,14 @@ self.addEventListener('activate', event => {
           './assets/menu/zona1_ramen_video.webm',
           './assets/menu/zona1_freidora_video.webm',
           './assets/menu/zona1_mozo_video.webm',
+          './assets/menu/cliente_kenji.webp',
+          './assets/menu/cliente_sakura.webp',
+          './assets/menu/cliente_hiroshi.webp',
+          './assets/menu/cliente_akemi.webp',
+          './assets/menu/cliente_takeshi.webp',
+          './assets/menu/cliente_yuki.webp',
+          './assets/menu/cliente_ren.webp',
+          './assets/menu/cliente_aoi.webp',
           './assets/icons/icon-192.png',
           './assets/icons/favicon-32x32.png',
           './assets/icons/favicon-16x16.png'
