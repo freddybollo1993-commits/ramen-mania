@@ -207,13 +207,13 @@ const RECETAS_RAMEN = [
 const RECETAS_FRITURAS = [
   {"id": 1, "name": "Gyozas", "metodo": "hervido", "price": 32, "desc": "Empanadillas hervidas de langostino y chancho", "ingredients": [66, 73, 32, 31, 53, 52, 74, 18, 42, 91, 98]},
   {"id": 2, "name": "Chicken Katsu", "price": 52, "desc": "Bife de pollo empanizado, col, zanahoria y salsa katsu", "ingredients": [44, 65, 58, 15, 112, 52, 30, 62, 74, 91, 57, 84]},
-  {"id": 3, "name": "Age Gyozas", "metodo": "frito", "price": 36, "desc": "Empanadillas fritas de langostino y chancho, sobre col y betarraga con salsa teriyaki", "ingredients": [66, 73, 32, 31, 53, 52, 42, 18, 74, 91, 87, 98]},
+  {"id": 3, "name": "Age Gyozas", "metodo": "frito", "price": 36, "desc": "Empanadillas fritas de langostino y chancho, sobre col y betarraga con salsa teriyaki", "ingredients": [66, 73, 32, 31, 53, 52, 42, 18, 74, 91, 87]},
   {"id": 4, "name": "Alitas Acevichadas", "price": 34, "desc": "Alitas fritas bañadas en salsa acevichada con camote, culantro, ají limo y togarashi", "ingredients": [36, 77, 114, 113, 35, 91]},
   {"id": 9, "name": "Alitas Digión", "price": 34, "desc": "Alitas fritas con salsa digión, ajonjolí negro y cebolla china", "ingredients": [36, 80, 34, 18]},
   {"id": 5, "name": "Ebi Furai", "price": 44, "desc": "Langostinos empanizados con ensalada y salsa teriyaki", "ingredients": [60, 65, 58, 15, 52, 42, 62, 18, 74, 91, 87]},
   {"id": 6, "name": "Kaarage", "price": 38, "desc": "Pollo frito estilo karaage con mayonesa de la casa", "ingredients": [70, 115, 52, 30, 62, 91, 74]},
-  {"id": 7, "name": "Katsu Kare", "price": 56, "desc": "Bife de cerdo empanizado con salsa kare", "ingredients": [43, 65, 58, 15, 75, 52, 42, 62, 74, 91, 57, 83]},
-  {"id": 8, "name": "Tonkatsu", "price": 54, "desc": "Bife de cerdo empanizado con salsa katsu", "ingredients": [43, 65, 58, 15, 75, 52, 42, 62, 74, 91, 57, 84]}
+  {"id": 7, "name": "Katsu Kare", "price": 56, "desc": "Bife de cerdo empanizado con salsa kare", "ingredients": [43, 65, 58, 15, 112, 52, 42, 62, 74, 91, 57, 83]},
+  {"id": 8, "name": "Tonkatsu", "price": 54, "desc": "Bife de cerdo empanizado con salsa katsu", "ingredients": [43, 65, 58, 15, 112, 52, 42, 62, 74, 91, 57, 84]}
 ];
 
 // --- Makis: el orden de armado importa ---

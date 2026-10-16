@@ -177,7 +177,7 @@ const FRY_PLATING = {
   'Kaarage':       { protein: 70, parts: [52, 62, 30, 74, 91] },              // sin arroz; la mayonesa es también la salsa de acompañamiento; 7 piezas
   'Alitas Acevichadas': { protein: 36, parts: [77, 114, 35, 113, 91] },     // alitas bañadas en acevichada; camote, ají limo, culantro y togarashi encima
   'Alitas Digión': { protein: 36, parts: [80, 34, 18] },                    // salsa digión, ajonjolí negro y cebolla china
-  'Age Gyozas':    { protein: 73, parts: [52, 42, 87, 98, 18, 74, 91] }
+  'Age Gyozas':    { protein: 73, parts: [52, 42, 87, 18, 74, 91] }
 };
 const ST_RAMEN_PLATE = new Set([11, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 27, 28, 29, 30, 74]);
 const RAMEN_COOK_EXTRA = { 'Tan tan': [25] };   // piezas "de emplatado" que en esa receta se ponen en el cuenco durante la cocción
