@@ -85,7 +85,7 @@ function initAudio() {
   try {
     if (!audioCtx) {
       const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
-      if (AudioCtxClass) { audioCtx = new AudioCtxClass(); if (window.Ambiente) Ambiente.conectar(audioCtx); }   // ambiente y música (audio-ambiente.js): los efectos pasan por su bus
+      if (AudioCtxClass) { { try { audioCtx = new AudioCtxClass({ latencyHint: 'playback' }); } catch (e) { audioCtx = new AudioCtxClass(); } } if (window.Ambiente) Ambiente.conectar(audioCtx); }   // ambiente y música (audio-ambiente.js): los efectos pasan por su bus
     }
     if (audioCtx && audioCtx.state === 'suspended') {
       audioCtx.resume().then(() => { audioUnlocked = true; }).catch(() => {});

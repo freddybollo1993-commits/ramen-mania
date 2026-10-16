@@ -41,7 +41,7 @@
     maestria: { room: 1,   boil: .8,  fire: .7,  oil: .7 }
   };
   const BUS_BASE = { sfx: 1, amb: 1.0, mus: 1.0 };
-  const GAN = { room: 0.09, boil: 0.12, fire: 0.09, oil: 0.06, crowd: 0.07, street: 0.10 };      // ganancia máxima de cada capa continua
+  const GAN = { room: 0.12, boil: 0.17, fire: 0.13, oil: 0.08, crowd: 0.07, street: 0.12 };      // ganancia máxima de cada capa continua
   const MAX_VOCES = 28;
   const VOL_KEY = 'ramen_audio_vol';
   const store = { get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} } };
@@ -58,12 +58,28 @@
     const eng = { ctx, offline: !!opt.offline, voces: 0, capas: {}, T: 0, Tobj: 0, estres: 0, modo: 'menu', arco: 'ramen', n: 0, minPat: 1, muted: false, pausa: false, t: { }, vol: { sfx: 1, amb: 1, mus: 1 } };
     try { const v = JSON.parse(store.get(VOL_KEY) || '{}'); ['sfx', 'amb', 'mus'].forEach(k => { if (typeof v[k] === 'number') eng.vol[k] = clamp(v[k], 0, 1); }); } catch (e) {}
     const sr = ctx.sampleRate;
-    // ruido de 3 s (se reutiliza en todas las capas)
+    // ruido blanco corto (solo para golpes y chasquidos puntuales)
     const nb = ctx.createBuffer(1, sr * 3, sr), d = nb.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
     eng.noise = nb;
-    // reverberación corta de cocina con azulejos
-    const rl = Math.floor(sr * 1.1), ir = ctx.createBuffer(2, rl, sr);
-    for (let c = 0; c < 2; c++) { const ch = ir.getChannelData(c); for (let i = 0; i < rl; i++) ch[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / rl, 2.6); }
+    // lechos continuos: ruido MARRÓN (rumor grave, sin siseo) y ROSA de 8 s con empalme fundido, para que no suene a estática ni se note el bucle
+    const lecho = (tipo, seg) => {
+      const N = Math.floor(sr * seg), X = Math.floor(sr * 1.2), M = N + X, g = new Float32Array(M);
+      let b = 0, b0 = 0, b1 = 0, b2 = 0, pico = 0;
+      for (let i = 0; i < M; i++) {
+        const w = Math.random() * 2 - 1;
+        if (tipo === 'marron') { b = (b + 0.02 * w) / 1.02; g[i] = b; }
+        else { b0 = 0.99765 * b0 + w * 0.0990460; b1 = 0.96300 * b1 + w * 0.2965164; b2 = 0.57000 * b2 + w * 1.0526913; g[i] = b0 + b1 + b2 + w * 0.1848; }
+      }
+      const buf = ctx.createBuffer(1, N, sr), o = buf.getChannelData(0);
+      for (let i = 0; i < N; i++) o[i] = g[i];
+      for (let i = 0; i < X; i++) { const a = i / X; o[i] = g[i] * Math.sin(a * Math.PI / 2) + g[N + i] * Math.cos(a * Math.PI / 2); }   // el final se funde con el principio (potencia constante)
+      for (let i = 0; i < N; i++) pico = Math.max(pico, Math.abs(o[i])); const k = 0.9 / (pico || 1); for (let i = 0; i < N; i++) o[i] *= k;
+      return buf;
+    };
+    eng.marron = lecho('marron', 8); eng.rosa = lecho('rosa', 8);
+    // reverberación corta de cocina con azulejos (cola suavizada: sin siseo)
+    const rl = Math.floor(sr * 0.7), ir = ctx.createBuffer(2, rl, sr);
+    for (let c = 0; c < 2; c++) { const ch = ir.getChannelData(c); let p = 0; for (let i = 0; i < rl; i++) { p = p * 0.7 + (Math.random() * 2 - 1) * 0.3; ch[i] = p * Math.pow(1 - i / rl, 3); } }
     // buses
     const g = (v) => { const n = ctx.createGain(); n.gain.value = v; return n; };
     eng.sfx = g(BUS_BASE.sfx * eng.vol.sfx); eng.amb = g(BUS_BASE.amb * eng.vol.amb); eng.mus = g(BUS_BASE.mus * eng.vol.mus);
@@ -72,35 +88,31 @@
     eng.sendAmb = g(0.18); eng.sendMus = g(0.35);
     eng.amb.connect(eng.sendAmb); eng.mus.connect(eng.sendMus); eng.sendAmb.connect(eng.conv); eng.sendMus.connect(eng.conv); eng.conv.connect(eng.wet); eng.wet.connect(eng.master);
     eng.lp = ctx.createBiquadFilter(); eng.lp.type = 'lowpass'; eng.lp.frequency.value = 20000; eng.lp.Q.value = 0.4;
-    eng.comp = ctx.createDynamicsCompressor(); eng.comp.threshold.value = -14; eng.comp.knee.value = 12; eng.comp.ratio.value = 10; eng.comp.attack.value = 0.004; eng.comp.release.value = 0.25;
+    eng.comp = ctx.createDynamicsCompressor(); eng.comp.threshold.value = -10; eng.comp.knee.value = 24; eng.comp.ratio.value = 4; eng.comp.attack.value = 0.01; eng.comp.release.value = 0.4;   // suave: solo evita recortes, sin «bombeo»
     eng.sfx.connect(eng.master); eng.amb.connect(eng.master); eng.mus.connect(eng.master);
     eng.master.connect(eng.lp); eng.lp.connect(eng.comp);
     eng.out = opt.salida || opt.destino || ctx.destination; eng.comp.connect(eng.out);
 
     // capas continuas: ruido filtrado con su ganancia
-    const capa = (nombre, tipo, f, q, dest, mod) => {
-      const s = ctx.createBufferSource(); s.buffer = nb; s.loop = true;
+    const capa = (nombre, tipo, f, q, dest, mod, buf) => {
+      const s = ctx.createBufferSource(); s.buffer = buf || eng.marron; s.loop = true;
       const fl = ctx.createBiquadFilter(); fl.type = tipo; fl.frequency.value = f; fl.Q.value = q;
       const m = ctx.createGain(); m.gain.value = mod ? 0.7 : 1;
       const ga = ctx.createGain(); ga.gain.value = 0;
       s.connect(fl); fl.connect(m); m.connect(ga); ga.connect(dest);
       if (mod) { const lfo = ctx.createOscillator(); lfo.frequency.value = mod.f; const dp = ctx.createGain(); dp.gain.value = mod.d; lfo.connect(dp); dp.connect(m.gain); lfo.start(); eng.fuentes.push(lfo); }
-      s.start(0, Math.random() * 2); eng.fuentes.push(s);
+      s.start(0, Math.random() * 6); eng.fuentes.push(s);
       eng.capas[nombre] = { g: ga, nivel: 0, techo: 0 };
       return fl;
     };
     eng.fuentes = [];
-    capa('room', 'lowpass', 380, 0.5, eng.amb, { f: 0.09, d: 0.12 });
-    const rumble = capa('boil', 'lowpass', 260, 0.7, eng.amb, { f: 0.23, d: 0.15 });
-    capa('fire', 'lowpass', 950, 0.6, eng.amb, { f: 0.31, d: 0.25 });
-    capa('oil', 'highpass', 3600, 0.7, eng.amb, { f: 0.5, d: 0.2 });
-    // murmullo: dos formantes
-    const cs = ctx.createBufferSource(); cs.buffer = nb; cs.loop = true; const f1 = ctx.createBiquadFilter(), f2 = ctx.createBiquadFilter();
-    f1.type = f2.type = 'bandpass'; f1.frequency.value = 470; f1.Q.value = 1.2; f2.frequency.value = 1450; f2.Q.value = 1.6;
-    const cg = ctx.createGain(); cg.gain.value = 0; const cm = ctx.createGain(); cm.gain.value = 0.7; const l2 = ctx.createOscillator(); l2.frequency.value = 0.41; const d2 = ctx.createGain(); d2.gain.value = 0.35; l2.connect(d2); d2.connect(cm.gain); l2.start();
-    cs.connect(f1); cs.connect(f2); f1.connect(cm); f2.connect(cm); cm.connect(cg); cg.connect(eng.amb); cs.start(0, Math.random() * 2); eng.fuentes.push(cs, l2);
-    eng.capas.crowd = { g: cg, nivel: 0, techo: 0 };
-    capa('street', 'bandpass', 620, 0.5, eng.amb, { f: 0.07, d: 0.3 });
+    // todo lo continuo es rumor grave (ruido marrón filtrado): el siseo agudo se evita porque suena a interferencia
+    capa('room', 'lowpass', 330, 0.5, eng.amb, { f: 0.09, d: 0.12 });                       // extractor / cuarto
+    capa('boil', 'lowpass', 650, 0.8, eng.amb, { f: 0.23, d: 0.15 }, eng.rosa);                        // hervor profundo
+    capa('fire', 'bandpass', 700, 0.5, eng.amb, { f: 0.31, d: 0.25 }, eng.rosa);                       // gas
+    capa('oil', 'lowpass', 1500, 0.5, eng.amb, { f: 0.5, d: 0.2 }, eng.rosa);                // aceite: lecho rosa, apagado arriba (los chasquidos van aparte)
+    eng.capas.crowd = { g: null, nivel: 0, techo: 0 };                                       // el murmullo son voces puntuales (mmm...) programadas por pump()
+    capa('street', 'lowpass', 450, 0.5, eng.amb, { f: 0.07, d: 0.3 }, eng.rosa);                        // calle lejana
     ['musCalm', 'musTens', 'heart', 'taps'].forEach(n => { eng.capas[n] = { g: null, nivel: 0, techo: 0 }; });   // estas son voces puntuales programadas por pump()
     return eng;
   }
@@ -120,7 +132,16 @@
       else { const s = c.createBufferSource(); s.buffer = eng.noise; const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = rnd(350, 1100); bp.Q.value = 4; const ga = c.createGain(); env(c, ga, t, 0.003, g, rnd(0.03, 0.08)); s.connect(bp); bp.connect(ga); ga.connect(eng.amb); s.start(t, rnd(0, 2), 0.14); }
     });
   }
-  function chisporroteo(eng, t, g) { const c = eng.ctx; voz(eng, t, 0.05, () => { const s = c.createBufferSource(); s.buffer = eng.noise; const hp = c.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = rnd(2800, 5500); const ga = c.createGain(); env(c, ga, t, 0.001, g, rnd(0.008, 0.02)); s.connect(hp); hp.connect(ga); ga.connect(eng.amb); s.start(t, rnd(0, 2), 0.04); }); }
+  function chisporroteo(eng, t, g) { const c = eng.ctx; voz(eng, t, 0.06, () => { const s = c.createBufferSource(); s.buffer = eng.noise; const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = rnd(1400, 2800); bp.Q.value = 1.6; const ga = c.createGain(); env(c, ga, t, 0.002, g, rnd(0.012, 0.03)); s.connect(bp); bp.connect(ga); ga.connect(eng.amb); s.start(t, rnd(0, 2), 0.05); }); }
+  function murmullo(eng, t, g) {                                     // «mmm…» de un cliente lejano: voz grave con dos formantes, sube y baja despacio
+    const c = eng.ctx, f0 = rnd(95, 210), dur = rnd(0.5, 1.1);
+    voz(eng, t, dur + 0.3, () => {
+      const o = c.createOscillator(), a = c.createBiquadFilter(), b = c.createBiquadFilter(), ga = c.createGain(); o.type = 'sawtooth'; o.frequency.setValueAtTime(f0, t); o.frequency.linearRampToValueAtTime(f0 * rnd(0.88, 1.15), t + dur);
+      a.type = 'bandpass'; a.frequency.value = rnd(380, 560); a.Q.value = 3; b.type = 'lowpass'; b.frequency.value = 1100;
+      ga.gain.setValueAtTime(0.0001, t); ga.gain.linearRampToValueAtTime(g, t + dur * 0.35); ga.gain.linearRampToValueAtTime(0.0001, t + dur);
+      o.connect(a); a.connect(b); b.connect(ga); ga.connect(eng.amb); o.start(t); o.stop(t + dur + 0.05);
+    });
+  }
   function campana(eng, t, f, g, dec, dest) {                       // campanilla / furin: parcial fundamental + inarmónico
     const c = eng.ctx;
     voz(eng, t, dec + 0.1, () => { [[f, 1], [f * 2.76, 0.28], [f * 5.4, 0.1]].forEach(([fr, k]) => { const o = c.createOscillator(), ga = c.createGain(); o.type = 'sine'; o.frequency.value = fr * rnd(0.998, 1.002); env(c, ga, t, 0.002, g * k, dec * (k === 1 ? 1 : 0.5)); o.connect(ga); ga.connect(dest || eng.amb); o.start(t); o.stop(t + dec + 0.1); }); });
@@ -135,8 +156,8 @@
   }
   function pulsado(eng, t, f, g) {                                   // koto: cuerda pulsada
     const c = eng.ctx;
-    voz(eng, t, 1.6, () => { const o = c.createOscillator(), o2 = c.createOscillator(), lp = c.createBiquadFilter(), ga = c.createGain(); o.type = 'sawtooth'; o2.type = 'triangle'; o.frequency.value = f; o2.frequency.value = f * 2.003;
-      lp.type = 'lowpass'; lp.frequency.setValueAtTime(3200, t); lp.frequency.exponentialRampToValueAtTime(700, t + 0.9); env(c, ga, t, 0.004, g, 1.2);
+    voz(eng, t, 1.6, () => { const o = c.createOscillator(), o2 = c.createOscillator(), lp = c.createBiquadFilter(), ga = c.createGain(); o.type = 'triangle'; o2.type = 'sine'; o.frequency.value = f; o2.frequency.value = f * 2.003;   // triángulo + sinusoide: cuerda suave sin zumbido de diente de sierra
+      lp.type = 'lowpass'; lp.frequency.setValueAtTime(2400, t); lp.frequency.exponentialRampToValueAtTime(600, t + 0.9); env(c, ga, t, 0.006, g, 1.2);
       o.connect(lp); o2.connect(lp); lp.connect(ga); ga.connect(eng.mus); o.start(t); o2.start(t); o.stop(t + 1.5); o2.stop(t + 1.5); });
   }
   function shaku(eng, t, f, dur, g) {                                // shakuhachi: tono con vibrato y aire
@@ -173,6 +194,8 @@
     while (S.oil > 0.02 && sig('crk', rnd(0, .3)) < fin) { chisporroteo(eng, eng.t.crk, 0.05 * S.oil); eng.t.crk += 1 / (4 + 22 * S.oil) * rnd(0.3, 1.8); }
     // encendedor del gas (cocina del wok)
     while (S.fire > 0.5 && sig('ign', rnd(4, 12)) < fin) { encendedor(eng, eng.t.ign, 0.05); eng.t.ign += rnd(14, 28); }
+    // murmullo de los clientes: más voces cuantos más clientes y más tensión
+    while (S.crowd > 0.03 && sig('mur', rnd(0, 1)) < fin) { murmullo(eng, eng.t.mur, 0.05 * S.crowd); eng.t.mur += rnd(0.5, 1.8) / Math.max(0.3, S.crowd + 0.3); }
     // campanilla de viento y lejanía (calma)
     while (S.street > 0.05 && sig('furin', rnd(2, 6)) < fin) { campana(eng, eng.t.furin, rnd(2100, 3200), 0.018 * S.street, rnd(1.2, 2.2), eng.amb); eng.t.furin += rnd(5, 11) / Math.max(0.3, S.street); }
     // koto suave (música de calma): notas sueltas de la escala hirajoshi con huecos
@@ -301,9 +324,9 @@
     Object.keys(eng.capas).forEach(k => { const c = eng.capas[k]; if (c.g) { const gan = GAN[k]; c.g.gain.value = eng.s[k] * gan; } });
     pump(eng, opt.seg, 0);
     const buf = await oc.startRendering(), ch = [buf.getChannelData(0), buf.getChannelData(1)]; let pico = 0, sum = 0, n = 0;
-    ch.forEach(d => { for (let i = 0; i < d.length; i++) { const a = Math.abs(d[i]); if (a > pico) pico = a; sum += d[i] * d[i]; n++; } });
+    let dif = 0; ch.forEach(d => { for (let i = 0; i < d.length; i++) { const a = Math.abs(d[i]); if (a > pico) pico = a; sum += d[i] * d[i]; n++; if (i) dif += (d[i] - d[i - 1]) * (d[i] - d[i - 1]); } });
     const db = v => (v > 0 ? 20 * Math.log10(v) : -120);
-    return { modo: opt.modo, T: opt.T, picoDb: +db(pico).toFixed(1), rmsDb: +db(Math.sqrt(sum / n)).toFixed(1), vocesProgramadas: (eng.v || []).length };
+    return { modo: opt.modo, T: opt.T, picoDb: +db(pico).toFixed(1), rmsDb: +db(Math.sqrt(sum / n)).toFixed(1), agudos: +(Math.sqrt(dif / n) / Math.sqrt(sum / n)).toFixed(2), /* 1,4 = ruido blanco (siseo); < 0,3 = grave y suave */ vocesProgramadas: (eng.v || []).length };
   }
 
   // ---------- enganche con el resto del juego (sin editar los otros archivos) ----------
