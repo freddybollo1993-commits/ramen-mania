@@ -217,11 +217,13 @@ const CUSTOMER_LOOKS = {
 // Campaña 2.0 (fase 3): clientes dibujados. Cada uno tiene una hoja assets/menu/cliente_<nombre>.webp de 4 columnas × 2 filas = 4 poses × 2 fotogramas.
 // Poses: wait (paciencia > 40 %), impatient (10-40 %), angry (≤ 10 %) y happy (1,5 s tras servirle un plato). Si la hoja aún no cargó se usa el retrato SVG de siempre.
 const CLIENTE_ART = {};                                   // nombre -> true cuando su hoja ya está en memoria
+// Las 8 hojas están reordenadas en celdas uniformes de 258×288 (cabeza del mismo tamaño en las dos filas, cintura abajo). Sufijo _2 = archivo nuevo: el service worker ignora el ?v=
+const clienteSrc = n => 'assets/menu/cliente_' + n.toLowerCase() + '_2.webp';
 function preloadClientesArt() {
   Object.keys(CUSTOMER_LOOKS).forEach(n => {
     const im = new Image();
     im.onload = () => { CLIENTE_ART[n] = true; };
-    im.src = 'assets/menu/cliente_' + n.toLowerCase() + '.webp';
+    im.src = clienteSrc(n);
     if (im.decode) im.decode().then(() => { CLIENTE_ART[n] = true; }).catch(() => {});
   });
 }
@@ -234,7 +236,7 @@ function customerMood(ratio, c) {
 
 function clientePortraitSprite(name, mood) {
   const p = { wait: [0, 0], impatient: [0, 2], happy: [1, 0], angry: [1, 2] }[mood] || [0, 0];   // [fila, columna del primer fotograma]
-  return '<i class="cust-sp ' + mood + '" style="background-image:url(\'assets/menu/cliente_' + name.toLowerCase() + '.webp\');background-position-y:' + (p[0] * 100) + '%;--xa:' + (p[1] / 3 * 100).toFixed(2) + '%;--xb:' + ((p[1] + 1) / 3 * 100).toFixed(2) + '%"></i>';
+  return '<i class="cust-sp ' + mood + '" style="background-image:url(\'' + clienteSrc(name) + '\');background-position-y:' + (p[0] * 100) + '%;--xa:' + (p[1] / 3 * 100).toFixed(2) + '%;--xb:' + ((p[1] + 1) / 3 * 100).toFixed(2) + '%"></i>';
 }
 
 function customerPortraitHtml(c, mood) {
