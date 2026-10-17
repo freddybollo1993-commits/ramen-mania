@@ -9,8 +9,8 @@
   'use strict';
   const SPRITE = 'assets/people/cook_ramen_v1.webp';         // sprite del Maestro: 512×576, fotograma 128×192 (fila 0 caminar, fila 1 trabajar)
   const SEEN_KEY = 'ramen_camp_brief_seen';
-  const SEC = 520, NODE_DX = 120, NODE_X0 = 78;               // ancho de un arco, separación entre niveles y primer nivel
-  const NODE_Y = [58, 72, 56, 70];                        // vaivén vertical del camino dentro de un arco
+  const NODE_X0 = 78;                                         // posición del primer nivel
+  const NODE_Y = [78, 112, 76, 114];                        // vaivén vertical del camino dentro de un arco
   const ARC_TINT = ['#c8372d', '#e0701a', '#2e6f95', '#c99a1e', '#7a4aa0'];
   const AREA_ICON = { ramen: '🍜', salteados: '🍳', makis: '🍣', frituras: '🍤' };
   const AREA_NAME = { ramen: 'Ramen', salteados: 'Salteado', makis: 'Makis', frituras: 'Frituras' };
@@ -35,7 +35,7 @@
     .cm-pill { background: rgba(255, 179, 0, .16); border: 1.5px solid rgba(255, 179, 0, .5); border-radius: 999px; padding: 2px 9px; font-weight: 800; font-size: 12px; white-space: nowrap; }
     .cm-scroll { flex: 1 1 auto; min-height: 0; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; scrollbar-width: none; position: relative; touch-action: pan-x; }
     .cm-scroll::-webkit-scrollbar { display: none; }
-    .cm-world { position: relative; height: 100%; min-height: 238px; }
+    .cm-world { position: relative; height: 100%; min-height: 225px; }
     .cm-arc { position: absolute; top: 8px; height: 40px; display: flex; align-items: center; gap: 8px; padding: 0 12px 0 8px; border-radius: 12px; border: 2px solid #2b1810; box-shadow: 0 3px 0 rgba(0,0,0,.4); }
     .cm-arc i { font-style: normal; font-size: 22px; } .cm-arc b { display: block; font: 400 14px/1 'Fredoka One', cursive, system-ui; color: #fff7dc; } .cm-arc small { display: block; font-size: 10.5px; font-weight: 800; color: #ffe9b0; opacity: .9; }
     .cm-svg { position: absolute; left: 0; top: 0; pointer-events: none; }
@@ -62,7 +62,7 @@
     .cm-st { display: block; margin-top: 8px; font-size: 12px; line-height: 1; letter-spacing: 1px; white-space: nowrap; }
     .cm-st b { color: #ffcf2e; text-shadow: 0 1px 0 #2b1810; font-weight: 400; } .cm-st s { color: rgba(255, 233, 176, .28); text-decoration: none; }
     .cm-nm { display: block; margin-top: 2px; font-size: 10px; font-weight: 800; color: #f6e7c1; text-shadow: 0 1px 2px #000; line-height: 1.05; max-height: 22px; overflow: hidden; }
-    .cm-m { position: absolute; width: 128px; height: 192px; transform-origin: 50% 100%; transform: scale(.42); background: url(${SPRITE}) 0 0 / 512px 576px no-repeat; animation: cmSpr .9s steps(4) infinite; pointer-events: none; filter: drop-shadow(0 3px 2px rgba(0,0,0,.5)); }
+    .cm-m { position: absolute; width: 128px; height: 192px; transform-origin: 50% 100%; transform: scale(.34); background: url(${SPRITE}) 0 0 / 512px 576px no-repeat; animation: cmSpr .9s steps(4) infinite; pointer-events: none; filter: drop-shadow(0 3px 2px rgba(0,0,0,.5)); }
     .cm-sheet { flex: none; margin: 0 8px 8px; padding: 7px 10px; background: linear-gradient(#4a2a14, #2b1810); border: 2px solid #1a0e07; outline: 1.5px solid #ffb300; border-radius: 12px; display: flex; gap: 12px; align-items: center; min-height: 74px; box-sizing: border-box; }
     .cm-sheet .cm-info { flex: 1; min-width: 0; } .cm-sheet h3 { margin: 0 0 2px; font: 400 16px/1.1 'Fredoka One', cursive, system-ui; color: #fff3d0; }
     .cm-sheet .cm-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 3px; } .cm-chip { background: rgba(255, 233, 176, .1); border: 1px solid rgba(255, 233, 176, .28); border-radius: 8px; padding: 1px 7px; font-size: 11px; font-weight: 800; color: #f6e7c1; white-space: nowrap; }
@@ -71,15 +71,15 @@
     .cm-sheet .cm-lock { color: #b9c0c9; font-weight: 800; font-size: 13px; }
     .cm-sheet .cm-acts .cm-row { display: flex; gap: 5px; } .cm-sheet .cm-acts .cm-row .cm-btn { flex: 1; padding-left: 8px; padding-right: 8px; white-space: nowrap; }
     .cm-btn.teal { background: linear-gradient(#26a69a, #00796b); color: #fff; }
-    .cm-tok { position: absolute; width: 32px; height: 32px; margin: -16px 0 0 -16px; padding: 0; border-radius: 50%; border: 2.5px solid #0a1412; cursor: pointer; color: #fff; display: flex; align-items: center; justify-content: center; font: 400 13px 'Fredoka One', cursive, system-ui; text-shadow: 0 1px 0 rgba(0,0,0,.55);
+    .cm-tok { position: absolute; width: 26px; height: 26px; margin: -13px 0 0 -13px; padding: 0; border-radius: 50%; border: 2.5px solid #0a1412; cursor: pointer; color: #fff; display: flex; align-items: center; justify-content: center; font: 400 11px 'Fredoka One', cursive, system-ui; text-shadow: 0 1px 0 rgba(0,0,0,.55);
       background: radial-gradient(circle at 35% 30%, #5ee0cf, #1a9a8a 60%, #0b5f55); box-shadow: 0 3px 0 rgba(0,0,0,.5), inset 0 2px 0 rgba(255,255,255,.35); transition: transform .18s cubic-bezier(.34, 1.56, .64, 1); -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
-    .cm-tok::after { content: ''; position: absolute; inset: -6px; border-radius: 50%; }
+    .cm-tok::after { content: ''; position: absolute; inset: -9px; border-radius: 50%; }
     .cm-tok:active { transform: translateY(3px) scale(.92); box-shadow: 0 0 0 rgba(0,0,0,.5), inset 0 2px 0 rgba(255,255,255,.25); transition-duration: .05s; }
     @media (hover: hover) { .cm-tok:hover { filter: brightness(1.1); transform: translateY(-2px) scale(1.06); } }
-    .cm-tok.done { background: radial-gradient(circle at 35% 30%, #ffe08a, #f2a33a 60%, #b8650f); font-size: 16px; }
-    .cm-tok.locked { background: radial-gradient(circle at 35% 30%, #78808a, #4b525a 60%, #30353b); opacity: .8; font-size: 12px; box-shadow: none; }
+    .cm-tok.done { background: radial-gradient(circle at 35% 30%, #b8f1e8, #2bb3a2 60%, #0f6b60); font-size: 14px; }
+    .cm-tok.locked { background: radial-gradient(circle at 35% 30%, #78808a, #4b525a 60%, #30353b); opacity: .8; font-size: 10px; box-shadow: none; }
     .cm-tok.sel { outline: 3px solid #fff3d0; outline-offset: 2px; }
-    .cm-tok.next::before { content: ''; position: absolute; inset: -5px; border-radius: 50%; border: 2px solid #8ff0e0; pointer-events: none; animation: cmTok 1.1s ease-out infinite; }
+    .cm-tok.next::before { content: ''; position: absolute; inset: -4px; border-radius: 50%; border: 2px solid #8ff0e0; pointer-events: none; animation: cmTok 1.1s ease-out infinite; }
     @keyframes cmTok { from { transform: scale(.85); opacity: .9; } to { transform: scale(1.4); opacity: 0; } }
     .cm-tok i { font-style: normal; pointer-events: none; }
     @keyframes cmSpr { to { background-position-x: -512px; } }
@@ -116,52 +116,47 @@
   const needsBrief = cfg => !!(cfg && cfg.brief && cfg.brief.card && !seenMap()[cfg.level]);
 
   // ---------- mapa ----------
-  // posiciones: el hueco entre linternas crece según lo ancho que sea el ramal de retos del nivel (para que no pise la etiqueta de la siguiente)
-  const TOK_X0 = 36, TOK_P = 36, ROW_P = 34;
-  const colsOf = k => (k <= 3 ? k : (k === 4 ? 2 : (k <= 6 ? 3 : 4)));
-  const branchEdge = lvl => { const k = retosOf(lvl).length; return k ? TOK_X0 + (colsOf(k) - 1) * TOK_P + 16 : 40; };
-  let LAY = null;
-  function layout() {
-    if (LAY) return LAY;
-    const pos = {}, arcX = []; let x = 0;
-    CAMPAIGN_ARCS.forEach((arc, a) => {
-      arcX[a] = x; let nx = x + NODE_X0, last = nx;
-      arc.levels.forEach((lvl, k) => {
-        pos[lvl] = { x: nx, y: NODE_Y[k] }; last = nx;
-        const next = arc.levels[k + 1];
-        if (next) nx += Math.max(NODE_DX, branchEdge(lvl) + (next % 4 === 0 ? 37 : 30) + 8);
-      });
-      x = Math.max(x + SEC, last + Math.max(branchEdge(arc.levels[arc.levels.length - 1]), 40) + 60);
-    });
-    return (LAY = { pos, arcX, W: x + 40 });
-  }
-  const nodePos = lvl => layout().pos[lvl];
-
   // ---------- retos: subniveles de cada nivel ----------
   const retosOf = lvl => { try { return trainingOfLevel(lvl); } catch (e) { return []; } };
   const retoDone = c => { try { return (trainingProgressOf(c.id) || {}).m > 0; } catch (e) { return false; } };
-  // ramal de retos: parte del camino principal, junto a la linterna que los abre, y baja a una fila de fichas (en serpentina si son varias)
-  function branchOf(lvl) {
-    const list = retosOf(lvl); if (!list.length) return null;
-    const p = nodePos(lvl), boss = lvl % 4 === 0, k = list.length, cols = colsOf(k);
-    const x0 = p.x + TOK_X0, y0 = p.y + (boss ? 116 : 108);
-    const pts = list.map((c, i) => { const r = Math.floor(i / cols), cc = i % cols; return { c, x: x0 + (r % 2 ? cols - 1 - cc : cc) * TOK_P, y: y0 + r * ROW_P }; });
-    return { pts, sx: p.x + (boss ? 28 : 21), sy: p.y + (boss ? 40 : 34) };
+  // Los retos de un nivel van sobre la ruta, entre su linterna y la siguiente: el hueco entre niveles crece con la cantidad de retos.
+  const TOK_START = 62, TOK_P = 38, GATE = 70;
+  let LAY = null;
+  function layout() {
+    if (LAY) return LAY;
+    const pos = {}, arcX = []; let x = NODE_X0, W = 0;
+    NIVELES.forEach((cfg, i) => {
+      const lvl = cfg.level, a = arcOf(lvl), k = CAMPAIGN_ARCS[a].levels.indexOf(lvl), n = retosOf(lvl).length, tail = Math.max(0, n - 1) * TOK_P;
+      pos[lvl] = { x, y: NODE_Y[k] }; if (k === 0) arcX[a] = x - NODE_X0;
+      if (i < NIVELES.length - 1) x += 122 + tail + (k === CAMPAIGN_ARCS[a].levels.length - 1 ? GATE : 0); else W = x + TOK_START + tail + 110;
+    });
+    return (LAY = { pos, arcX, W });
   }
-  function branchSvg(lvl, beaten) {
-    const b = branchOf(lvl); if (!b) return '';
-    const f = b.pts[0], col = beaten ? '#26a69a' : '#5a4a3e';
-    let d = 'M' + b.sx + ',' + b.sy + ' C' + (b.sx + 26) + ',' + b.sy + ' ' + f.x + ',' + (f.y - 44) + ' ' + f.x + ',' + f.y;
-    b.pts.slice(1).forEach(q => { d += ' L' + q.x + ',' + q.y; });
-    return '<path d="' + d + '" fill="none" stroke="' + col + '" stroke-width="' + (beaten ? 3.5 : 3) + '" stroke-dasharray="' + (beaten ? '7 6' : '2 7') + '" stroke-linecap="round" stroke-linejoin="round" opacity="' + (beaten ? .95 : .7) + '"/>'
-      + '<circle cx="' + b.sx + '" cy="' + b.sy + '" r="4.5" fill="' + col + '" stroke="#1a0e07" stroke-width="2"/>';
+  const nodePos = lvl => layout().pos[lvl];
+  const smooth = t => t * t * (3 - 2 * t);
+  // altura de la ruta entre dos linternas en la posición x (curva suave)
+  function routeY(a, b, x) { if (!b) return a.y + 34; const t = Math.max(0, Math.min(1, (x - a.x) / (b.x - a.x))); return a.y + 34 + (b.y - a.y) * smooth(t); }
+  function routePath(a, b, x1, x2) { let d = ''; for (let x = x1; x < x2 + 5; x += 5) { const xx = Math.min(x, x2); d += (d ? ' L' : 'M') + xx.toFixed(1) + ',' + routeY(a, b, xx).toFixed(1); } return d; }
+  function tokPos(lvl, i) { const a = nodePos(lvl), b = nodePos(lvl + 1), x = a.x + TOK_START + i * TOK_P; return { x, y: routeY(a, b, x) }; }
+  // ruta completa: dorada entre niveles; el tramo de retos de cada nivel va en verde azulado
+  function routeSvg(cur) {
+    let out = '';
+    NIVELES.forEach((cfg, i) => {
+      const lvl = cfg.level, a = nodePos(lvl), b = nodePos(lvl + 1), n = retosOf(lvl).length, open = b ? lvl + 1 <= cur : lvl <= cur, beaten = starsOf(lvl) > 0;
+      const gold = (x1, x2) => '<path d="' + routePath(a, b, x1, x2) + '" fill="none" stroke="' + (open ? '#ffb300' : '#5a4a3e') + '" stroke-width="' + (open ? 4 : 3) + '" stroke-dasharray="' + (open ? '10 7' : '3 8') + '" stroke-linecap="round" stroke-linejoin="round" opacity="' + (open ? .95 : .7) + '"/>';
+      if (!b) { if (n) out += '<path d="' + routePath(a, null, a.x + 22, a.x + TOK_START + (n - 1) * TOK_P + 14) + '" fill="none" stroke="' + (beaten ? '#26a69a' : '#5a4a3e') + '" stroke-width="3" stroke-dasharray="' + (beaten ? '6 6' : '2 7') + '" stroke-linecap="round" opacity="' + (beaten ? .95 : .7) + '"/>'; return; }
+      if (!n) { out += gold(a.x, b.x); return; }
+      const t1 = a.x + TOK_START - 16, t2 = a.x + TOK_START + (n - 1) * TOK_P + 16;
+      out += gold(a.x, t1) + gold(t2, b.x);
+      out += '<path d="' + routePath(a, b, t1, t2) + '" fill="none" stroke="' + (beaten ? '#26a69a' : '#5a4a3e') + '" stroke-width="3" stroke-dasharray="' + (beaten ? '6 6' : '2 7') + '" stroke-linecap="round" stroke-linejoin="round" opacity="' + (beaten ? .95 : .7) + '"/>';
+    });
+    return out;
   }
-  function branchTokens(lvl) {
-    const b = branchOf(lvl); if (!b) return '';
-    const nx = retosOf(lvl).find(c => trainingIsOpen(c) && !retoDone(c));
-    return b.pts.map(q => {
-      const c = q.c, p = trainingProgressOf(c.id) || {}, open = trainingIsOpen(c), st = !open ? 'locked' : (p.m > 0 ? 'done' : 'open');
-      return '<button class="cm-tok ' + st + (nx && nx.id === c.id ? ' next' : '') + '" data-rt="' + c.id + '" style="left:' + q.x + 'px;top:' + q.y + 'px" aria-label="Reto ' + c.num + ': ' + c.title + '"><i>' + (!open ? '🔒' : (p.m > 0 ? trainingMedalIcon(p.m) : c.num)) + '</i></button>';
+  function routeTokens(lvl) {
+    const list = retosOf(lvl), nx = list.find(c => trainingIsOpen(c) && !retoDone(c));
+    return list.map((c, i) => {
+      const q = tokPos(lvl, i), p = trainingProgressOf(c.id) || {}, open = trainingIsOpen(c), st = !open ? 'locked' : (p.m > 0 ? 'done' : 'open');
+      return '<button class="cm-tok ' + st + (nx && nx.id === c.id ? ' next' : '') + '" data-rt="' + c.id + '" style="left:' + q.x.toFixed(1) + 'px;top:' + q.y.toFixed(1) + 'px" aria-label="Reto ' + c.num + ': ' + c.title + '"><i>' + (!open ? '🔒' : (p.m > 0 ? trainingMedalIcon(p.m) : c.num)) + '</i></button>';
     }).join('');
   }
   let selReto = null;
@@ -180,22 +175,16 @@
     selReto = id; selected = c.lvl;
     $$('.cm-node', root).forEach(n => n.classList.toggle('sel', +n.dataset.l === c.lvl)); $$('.cm-tok', root).forEach(t => t.classList.toggle('sel', t.dataset.rt === id));
     retoSheet(id);
-    if (scroll) { const q = branchOf(c.lvl).pts.find(z => z.c.id === id), sc = $('#cm-scroll', root); sc.scrollTo({ left: Math.max(0, q.x - sc.clientWidth / 2), behavior: 'smooth' }); }
+    if (scroll) { const q = tokPos(c.lvl, retosOf(c.lvl).findIndex(z => z.id === id)), sc = $('#cm-scroll', root); sc.scrollTo({ left: Math.max(0, q.x - sc.clientWidth / 2), behavior: 'smooth' }); }
   }
   function buildWorld() {
     const L = layout(), W = L.W, cur = unlocked();
     let svg = '', nodes = '', arcs = '', gates = '';
-    // camino: curva suave por todos los niveles; tramo recorrido dorado, tramo bloqueado apagado
-    const pts = NIVELES.map(n => nodePos(n.level));
-    for (let i = 0; i < pts.length - 1; i++) {
-      const a = pts[i], b = pts[i + 1], mx = (a.x + b.x) / 2, open = NIVELES[i + 1].level <= cur;
-      svg += `<path d="M${a.x},${a.y + 34} C${mx},${a.y + 34} ${mx},${b.y + 34} ${b.x},${b.y + 34}" fill="none" stroke="${open ? '#ffb300' : '#5a4a3e'}" stroke-width="${open ? 4 : 3}" stroke-dasharray="${open ? '10 7' : '3 8'}" stroke-linecap="round" opacity="${open ? .95 : .7}"/>`;
-    }
-    NIVELES.forEach(cfg => { svg += branchSvg(cfg.level, starsOf(cfg.level) > 0); });
+    svg += routeSvg(cur);
     CAMPAIGN_ARCS.forEach((arc, a) => {
       const lv = arc.levels, done = lv.reduce((t, n) => t + starsOf(n), 0);
       arcs += `<div class="cm-arc" style="left:${L.arcX[a] + 14}px;background:${ARC_TINT[a]}"><i>${arc.icon}</i><div><b>${arc.name}</b><small>Niveles ${lv[0]}–${lv[lv.length - 1]} · ${arc.areas} · ⭐ ${done}/${lv.length * 3}</small></div></div>`;
-      if (a > 0) gates += `<div class="cm-torii" style="left:${L.arcX[a] - 24}px"><i></i><i></i></div>`;
+      if (a > 0) gates += `<div class="cm-torii" style="left:${L.arcX[a] - 17}px"><i></i><i></i></div>`;
     });
     NIVELES.forEach(cfg => {
       const p = nodePos(cfg.level), st = starsOf(cfg.level), lock = cfg.level > cur, boss = cfg.level % 4 === 0, isCur = cfg.level === cur && st === 0 || (cfg.level === NIVELES.length && cur === NIVELES.length && st === 0);
@@ -203,12 +192,12 @@
         + `<span class="cm-lan"><em>${lock ? '🔒' : cfg.level}</em></span>`
         + `<span class="cm-st">${[1, 2, 3].map(k => k <= st ? '<b>★</b>' : '<s>★</s>').join('')}</span>`
         + `<span class="cm-nm">${cfg.name.replace(/Nivel \d+:\s*/, '')}</span></button>`;
-      nodes += branchTokens(cfg.level);
+      nodes += routeTokens(cfg.level);
     });
     // el Maestro espera en tu nivel actual (a la izquierda de su linterna)
     const cp = nodePos(Math.min(cur, NIVELES.length));
-    const maestro = `<div class="cm-m" style="left:${cp.x - 98}px;top:${cp.y + 56 - 192 + 8}px;transform-origin:50% 100%"></div>`;
-    return { W, html: `<div class="cm-string"></div>${gates}${arcs}<svg class="cm-svg" width="${W}" height="290" viewBox="0 0 ${W} 290">${svg}</svg>${nodes}${maestro}` };
+    const maestro = `<div class="cm-m" style="left:${cp.x - 107}px;top:${cp.y - 80}px"></div>`;
+    return { W, html: `<div class="cm-string"></div>${gates}${arcs}<svg class="cm-svg" width="${W}" height="250" viewBox="0 0 ${W} 250">${svg}</svg>${nodes}${maestro}` };
   }
 
   function sheet(i) {
