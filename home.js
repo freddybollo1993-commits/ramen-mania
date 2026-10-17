@@ -90,6 +90,7 @@
   .hp-card { border: 3px solid #0e0805; border-radius: 10px; overflow: hidden; background: #1c0f09; box-shadow: 0 3px 0 rgba(0,0,0,.5); }
   .hp-card .hd { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 5px 9px; background: var(--c, #6d4c41); } .hp-card .hd b { font: 900 13px 'Fredoka', sans-serif; text-shadow: 0 2px 0 rgba(0,0,0,.5); } .hp-card .hd span { font: 900 11px 'Fredoka', sans-serif; background: rgba(0,0,0,.45); border-radius: 8px; padding: 2px 8px; }
   .hp-card .bd { padding: 6px 9px 8px; font: 700 12px/1.35 'Fredoka', sans-serif; color: #e9d5b0; } .hp-card .bd i { font-style: normal; margin-right: 10px; } .hp-card .bd small { display: block; color: #a98c68; margin-top: 3px; font-size: 10.5px; }
+  .hp-sets { display: flex; flex-direction: column; gap: 7px; } .hp-set { position: relative; display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; cursor: pointer; background: rgba(0,0,0,.3); border: 2px solid rgba(255,255,255,.12); border-radius: 12px; padding: 8px 12px; color: #fff3d6; font-family: 'Fredoka', sans-serif; -webkit-tap-highlight-color: transparent; } .hp-set:active { transform: scale(.985); background: rgba(255,179,0,.12); } .hp-set .ic { flex: none; width: 40px; height: 40px; border-radius: 10px; background: rgba(255,255,255,.08); display: flex; align-items: center; justify-content: center; font-size: 24px; } .hp-set .tx { flex: 1; min-width: 0; display: flex; flex-direction: column; } .hp-set b { font: 900 13px 'Fredoka', sans-serif; } .hp-set small { font: 700 11.5px/1.3 'Fredoka', sans-serif; color: #c9b79a; } .hp-set em { flex: none; font: 900 10px 'Fredoka', sans-serif; font-style: normal; background: rgba(255,179,0,.18); border: 1.5px solid rgba(255,204,80,.5); color: #ffd978; border-radius: 8px; padding: 2px 8px; } .hp-set i { flex: none; color: #ffb300; font-style: normal; } .hp-set .hm-flag { top: -.55em; right: .6em; font-size: 10px; } .hp-hint { margin: 8px 2px 0; font: 700 11.5px/1.35 'Fredoka', sans-serif; color: #a98c68; text-align: center; }
   .hp-news { display: flex; gap: 10px; align-items: flex-start; background: rgba(0,0,0,.3); border: 2px solid rgba(255,255,255,.1); border-radius: 12px; padding: 8px 10px; margin-bottom: 7px; } .hp-news .ic { flex: none; font-size: 26px; width: 40px; height: 40px; border-radius: 10px; background: rgba(255,255,255,.08); display: flex; align-items: center; justify-content: center; }
   .hp-news b { font: 900 13px 'Fredoka', sans-serif; color: #fff3d6; } .hp-news em { font: 900 10px 'Fredoka', sans-serif; font-style: normal; background: #e53935; color: #fff; border-radius: 6px; padding: 1px 6px; margin-left: 6px; } .hp-news p { margin: 2px 0 0; font: 700 12px/1.35 'Fredoka', sans-serif; color: #c9b79a; }
   .hp-empty { text-align: center; color: #a98c68; font: 700 13px 'Fredoka', sans-serif; padding: 30px 10px; }
@@ -101,7 +102,7 @@
 
   // ---------- menú ☰: información, reportes y ajustes (no son modos de juego) ----------
   const MENU = [
-    { id: 'ajustes', ic: '⚙️', label: 'AJUSTES', flag: 'gear' },
+    { id: 'ajustes', ic: '⚙️', label: 'AJUSTES', flag: 'sound' },
     { id: 'stats', ic: '📊', label: 'ESTADÍSTICAS' },
     { id: 'registro', ic: '📜', label: 'REGISTRO DE SERVICIO' },
     { id: 'cuenta', ic: '👤', label: 'MI CUENTA Y NUBE' },
@@ -111,6 +112,7 @@
   ];
   // lo último que cambió, en lenguaje del jugador (lo más nuevo primero)
   const NEWS = [
+    ['v189', '⚙️', 'Ajustes nuevos', 'Sonido y música, silenciar, pantalla completa, orden de ingredientes y datos del dispositivo ahora están en el menú ☰ → Ajustes. Desaparece la pantalla vieja de configuración.'],
     ['v187', '🗝️', 'Secretos del Chef', 'Mejoras y secretos en un solo lugar, todo con propinas: pasivas que se activan al comprarlas y 6 técnicas activas (llevas 3 a la vez, se equipan desde tu Perfil). Cocina libre y Reconocer pasan a los modos de juego como «Sin estrés».'],
     ['v185', '🏠', 'Pantalla principal nueva', 'La cocina viva a pantalla completa, JUGAR entra directo al modo elegido y el botón de al lado abre la selección de modos.'],
     ['v184', '🎮', 'Modos de juego', 'Desliza por Campaña, Rash, Recorrido por Japón y Online y elige tu modo.'],
@@ -151,6 +153,21 @@
     sfx('click'); paint();
     page('NOVEDADES', NEWS.map((n, i) => '<div class="hp-news"><div class="ic">' + n[1] + '</div><div><b>' + n[2] + '</b><em>' + n[0].toUpperCase() + '</em><p>' + n[3] + '</p></div></div>').join(''));
   }
+  function ajustes() {
+    const muted = (() => { try { return !!isSoundMuted; } catch (e) { return false; } })();
+    const full = !!(document.fullscreenElement || document.webkitFullscreenElement);
+    const row = (id, ic, t, d, st, fl) => '<button class="hp-set" onclick="Home.set(\'' + id + '\')">' + (fl || '') + '<span class="ic">' + ic + '</span><span class="tx"><b>' + t + '</b><small>' + d + '</small></span>' + (st ? '<em>' + st + '</em>' : '<i>▶</i>') + '</button>';
+    const sound = flag('sound');
+    page('AJUSTES',
+      '<div class="hp-sets">'
+      + row('sound', '🔊', 'Sonido y música', 'Efectos, ambiente de la cocina y música por separado', '', sound)
+      + row('mute', muted ? '🔇' : '🔈', 'Silenciar todo', 'Corta efectos, ambiente y música a la vez', muted ? 'SILENCIADO' : 'CON SONIDO')
+      + row('full', '⛶', 'Pantalla completa', 'Juega sin barras del navegador (tecla F en PC)', full ? 'ACTIVADA' : 'NORMAL')
+      + row('order', '🥢', 'Orden de ingredientes', 'Acomoda la despensa como te quede más cómodo', '')
+      + row('device', '🛡️', 'Este dispositivo', 'Ver su identificador seguro', '')
+      + '</div>'
+      + '<p class="hp-hint">Para actualizar el juego o ver los atajos de teclado usa ACTUALIZAR y AYUDA Y ATAJOS en el menú ☰.</p>');
+  }
   function acerca() {
     const v = (document.getElementById('app-version') || {}).textContent || '';
     page('ACERCA DE', '<div class="hp-news"><div class="ic">🍜</div><div><b>Shimaya · Ramen Mania</b><em>' + v.toUpperCase() + '</em><p>Un juego de cocina japonesa para aprender jugando: ramen, salteados, makis y frituras, con sus técnicas y sus platos reales.</p></div></div>'
@@ -181,7 +198,7 @@
         <button class="hm-prog hm-plate" onclick="Inicio.act('camp')" aria-label="Progreso de Campaña"><span>⭐ ${cs.stars}/${cs.maxStars}</span><i class="hm-bar"><u style="width:${pct}%"></u></i><small>Campaña · nivel ${L} de 20</small></button>
         <span class="hm-gap"></span>
         <button class="hm-cur hm-plate" onclick="Inicio.act('knives')" aria-label="Propinas"><i>🧧</i><span class="hm-wallet">${h.wallet()}</span></button>
-        <button class="hm-menu hm-plate" onclick="Home.menu()" aria-label="Menú">☰${flag('gear')}</button>
+        <button class="hm-menu hm-plate" onclick="Home.menu()" aria-label="Menú">☰${flag('sound')}</button>
       </div>
       <div class="hm-col l">
         ${btn('📖', 'RECETARIO', "Recetario.open()", 'book')}
@@ -228,7 +245,7 @@
     item(id) {
       this.menu(false);
       try {
-        if (id === 'ajustes') Inicio.openSub('gear', 'sound');
+        if (id === 'ajustes') ajustes();
         else if (id === 'stats') Inicio.act('stats');
         else if (id === 'registro') registro();
         else if (id === 'cuenta') Inicio.act('acct');
@@ -237,7 +254,17 @@
         else if (id === 'acerca') acerca();
       } catch (e) { console.warn('[Home] menú', id, e); }
     },
-    novedades, registro, acerca,
+    novedades, registro, acerca, ajustes,
+    /** Acciones de las filas de Ajustes (la página se repinta para mostrar el estado nuevo). */
+    set(id) {
+      try {
+        if (id === 'sound') { Inicio.seen('sound'); if (window.Ambiente && Ambiente.panel) Ambiente.panel(); else toggleAudioMute(); paint(); }
+        else if (id === 'mute') { toggleAudioMute(); ajustes(); }
+        else if (id === 'full') { toggleFullScreen(); setTimeout(ajustes, 350); }
+        else if (id === 'order') openIngredientOrderModal();
+        else if (id === 'device') showDeviceInfoModal();
+      } catch (e) { console.warn('[Home] ajustes', id, e); }
+    },
     closePage() { const p = $('hp'); if (p) p.remove(); sfx('click'); paint(); },
     play() {
       const h = H(); if (!h) return;

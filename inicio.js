@@ -102,13 +102,6 @@
         return '🏆 Ranking Mundial';
       case 'acct':
         return '☁️ Progreso en Nube';
-      case 'gear':
-      case 'sound':
-      case 'full':
-      case 'update':
-      case 'keys':
-      case 'classic':
-        return '⚙️ Sistema v142';
       default:
         return '⭐ Shimaya Master';
     }
@@ -159,18 +152,6 @@
         pills: ['🧧 10 Mejoras', '📖 35 Recetas', '☁️ Nube y Perfil'],
         ctaText: 'VER MEJORAS Y RECETAS ▶',
         defaultItem: 'knives'
-      },
-      {
-        id: 'gear',
-        icon: '⚙️',
-        title: 'Ajustes',
-        sub: 'Sonido · Pantalla · Atajos',
-        tag: 'SISTEMA Y AJUSTES',
-        heroTitle: 'Ajustes del Sistema',
-        desc: 'Configuración: audio y efectos de cocina, pantalla completa inmersiva, actualizaciones y atajos rápidos de PC.',
-        pills: ['🔊 Audio', '⛶ Pantalla Completa', '🔄 Actualizar'],
-        ctaText: 'CONFIGURAR SISTEMA ▶',
-        defaultItem: 'sound'
       }
     ],
 
@@ -327,69 +308,6 @@
         pills: ['☁️ Nube Segura', '📊 Estadísticas', '🍱 Despensa'],
         ctaText: '🔐 GESTIONAR CUENTA',
         act: 'acct'
-      }
-    ],
-
-    gear: [
-      {
-        id: 'sound',
-        icon: '🔊',
-        title: 'Sonido y Música',
-        sub: 'Volumen, ambiente y música',
-        tag: 'AJUSTES DE AUDIO',
-        heroTitle: 'Audio y Efectos Sonoros',
-        desc: 'Ajusta por separado los efectos, el ambiente de la cocina (hervor, fuego, aceite, clientes) y la música, que cambian con la paciencia de los clientes y la dificultad.',
-        pills: ['🥢 Efectos', '🍲 Ambiente', '🎵 Música'],
-        ctaText: '🔊 AJUSTAR SONIDO',
-        act: 'sound'
-      },
-      {
-        id: 'full',
-        icon: '⛶',
-        title: 'Pantalla Completa',
-        sub: 'Modo inmersivo (Atajo: F)',
-        tag: 'PANTALLA',
-        heroTitle: 'Pantalla Completa',
-        desc: 'Experiencia inmersiva total sin barras del navegador para cocinar con gestos táctiles precisos y fluidos.',
-        pills: ['⛶ Inmersivo', '⌨️ Tecla F'],
-        ctaText: '⛶ PANTALLA COMPLETA',
-        act: 'full'
-      },
-      {
-        id: 'update',
-        icon: '🔄',
-        title: 'Actualizar Juego',
-        sub: 'Descarga la última versión',
-        tag: 'SISTEMA',
-        heroTitle: 'Actualización del Sistema',
-        desc: 'Descarga la última versión del juego con mejoras y correcciones sin borrar tu cuenta ni tu progreso.',
-        pills: ['⚡ Sin perder datos', '🔄 Descarga directa'],
-        ctaText: '🔄 ACTUALIZAR AHORA',
-        act: 'update'
-      },
-      {
-        id: 'keys',
-        icon: '⌨️',
-        title: 'Atajos de Teclado',
-        sub: 'Teclas rápidas para PC',
-        tag: 'CONTROLES',
-        heroTitle: 'Atajos de Teclado',
-        desc: 'Teclas rápidas para PC: Espacio para jugar, 1-5 para áreas de cocina, M para silenciar y F para pantalla completa.',
-        pills: ['🕹️ Espacio: Jugar', '🔢 Teclas 1-5'],
-        ctaText: '⌨️ VER ATAJOS',
-        act: 'keys'
-      },
-      {
-        id: 'classic',
-        icon: '📋',
-        title: 'Menú Clásico',
-        sub: 'Volver a botones de lista',
-        tag: 'VISTA ALTERNATIVA',
-        heroTitle: 'Menú Clásico',
-        desc: 'Si prefieres el diseño anterior de botones apilados en lista simple, puedes volver a él cuando quieras.',
-        pills: ['📋 Lista Simple', '🏠 Alternable'],
-        ctaText: '📋 ACTIVAR MENÚ CLÁSICO',
-        act: 'classic'
       }
     ]
   };
@@ -863,7 +781,6 @@
           </svg>
         `;
 
-      case 'gear':
       default:
         return `
           <svg viewBox="0 0 520 400" width="100%" height="100%" class="h-svg">
@@ -1382,7 +1299,6 @@
     keys: () => openShortcutsModal(),
     update: () => forceAppCacheUpdate(),
     device: () => showDeviceInfoModal(),
-    classic: () => Inicio.setView('classic'),
     hubview: () => Inicio.setView('hub'),
     enter: n => Inicio.enterRoom(n)
   };
@@ -1429,7 +1345,7 @@
 
     S = {
       wrap, side, stage, artWrap, metaWrap, metaBg, metaContent, room,
-      sub: null,         // null (nivel raíz pilares) | 'jugar' | 'aprender' | 'restaurante' | 'gear'
+      sub: null,         // null (nivel raíz pilares) | 'jugar' | 'aprender' | 'restaurante'
       item: 'jugar',     // clave del item actualmente seleccionado y mostrado en la vitrina
       curRoom: null,
       busy: false
@@ -1445,7 +1361,7 @@
     const p = DATA.pillars.find(x => x.id === key);
     if (p) return p;
     // Busca en submenús
-    for (const group of ['jugar', 'aprender', 'restaurante', 'gear']) {
+    for (const group of ['jugar', 'aprender', 'restaurante']) {
       const it = (DATA[group] || []).find(x => x.id === key);
       if (it) return it;
     }
@@ -1810,7 +1726,7 @@
     pick(id) { selectOption(id); },
     onItemClick(id, el) { handleItemClick(id, el); },
     back() { goBack(); },
-    openSub(sub, item) {                                // desde la pantalla principal: abre un submenú (Aprender, Mi Restaurante, Ajustes) con el menú anterior
+    openSub(sub, item) {                                // desde la pantalla principal: abre un submenú (Aprender, Mi Restaurante) con el menú anterior
       if (!S) return; sfx('click');
       S.sub = sub; S.item = item || ((DATA[sub] && DATA[sub][0]) ? DATA[sub][0].id : S.item);
       renderSidebar(); renderShowcase();
@@ -1820,14 +1736,6 @@
       if (!tutDone()) return triggerActiveItem();
       sfx('serve'); markSeen('camp');
       try { playCampaignLevel(Math.max(0, unlockedLevel() - 1)); } catch (e) { console.warn('Inicio.play', e); triggerActiveItem(); }
-    },
-    gear() {
-      if (!S) return;
-      sfx('click');
-      S.sub = 'gear';
-      S.item = 'sound';
-      renderSidebar();
-      renderShowcase();
     },
     enterRoom,
     leaveRoom,
@@ -1851,6 +1759,7 @@
       try { updateStartModesDisplay(); } catch (e) {}
     },
     view() { return S ? 'hub' : 'classic'; },
+    seen: id => markSeen(id),                           // marca como vista una función «NUEVO» (la usa la pantalla principal)
     _S: () => S,
     _h: { alertOf: id => itemAlert(id), tutDone, wallet, chefName, chefAvatar, retosHechos }
   };
