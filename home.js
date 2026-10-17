@@ -121,37 +121,11 @@
   const MENU = [
     { id: 'ajustes', ic: '⚙️', label: 'AJUSTES', flag: 'sound' },
     { id: 'stats', ic: '📊', label: 'ESTADÍSTICAS' },
-    { id: 'novedades', ic: '📣', label: 'NOVEDADES', news: true },
     { id: 'registro', ic: '📜', label: 'REGISTRO DE SERVICIO' },
     { id: 'cuenta', ic: '👤', label: 'MI CUENTA Y NUBE' },
-    { id: 'ayuda', ic: '❓', label: 'AYUDA Y ATAJOS' },
     { id: 'actualizar', ic: '🔄', label: 'ACTUALIZAR' },
     { id: 'acerca', ic: 'ℹ️', label: 'ACERCA DE' }
   ];
-  // lo último que cambió, en lenguaje del jugador (lo más nuevo primero)
-  const NEWS = [
-    ['v203', '🎯', 'Misiones', 'Nueva pantalla de Misiones: diarias (con su cofre y racha), especiales de la semana y de temporada, todas con barra de progreso y su premio. El botón está abajo a la izquierda; JUGAR y el modo elegido ahora son más discretos.'],
-    ['v202', '🎨', 'Todas las ventanas con el estilo nuevo', 'Perfil, estadísticas, cuenta, ranking, atajos, ordenar ingredientes, sala online, resultados, Japón, Reconocer ingredientes y el tutorial del Maestro ahora usan el mismo estilo (fondo oscuro, marco dorado y botones en placa). Se quitó mucho código viejo: el juego carga más ligero.'],
-    ['v200', '🧹', 'Secretos del Maestro, en la Tienda', 'Se quitó la bodega de Secretos del Maestro y sus modelos 3D: los secretos viven solo como ítems de la Tienda, con su bono permanente.'],
-    ['v199', '🎓', 'Aula del Maestro por tarjetas', 'El Aula se organiza como los modos de juego: dos secciones, Lecciones y Repaso, con tarjetas grandes que explican qué es cada cosa. Práctica y Retos viven en Aprender.'],
-    ['v198', '🎓', 'Aula del Maestro renovada', 'El Aula pasa al estilo nuevo (fondo oscuro, placas y dorado), sin el Maestro animado: el siguiente paso y un consejo del día arriba, y los retos enlazan con el mapa de la Campaña.'],
-    ['v197', '🎓', 'Aprender renovado', 'Aprender ahora usa la misma pantalla que los modos de juego: Lecciones del Aula, Práctica sin reloj, Retos de la Campaña y Repaso (Recetario y despensa).'],
-    ['v195', '🏪', 'Tienda del Chef', 'Mejoras, secretos y técnicas ahora están en la Tienda. Nueva pestaña 🗾 Japón con todo lo que se compra en el Recorrido (ciudades, local, personal, objetos y maestría): precio de referencia, niveles y qué necesitas. El botón Retos se fue: ahora están en el mapa de la Campaña.'],
-    ['v194', '⭐', 'Calidad en los retos', 'Los retos se superan con la calidad media de tus platos (con un pequeño margen) y dan de 1 a 3 estrellas que suman a tu contador de Campaña. Si no llegas al mínimo, el reto queda incompleto.'],
-    ['v193', '🛤️', 'Retos en la ruta', 'Los retos van directo sobre la ruta de la Campaña, después de la linterna que los abre: fichas pequeñas de otro color para distinguirlos del contenido principal. Más espacio entre niveles.'],
-    ['v190', '🎫', 'Retos dentro de la Campaña', 'Los 50 retos ahora son subniveles: se abren al superar el nivel de Campaña donde ya conoces sus platos. Míralos en el mapa (botón 🎫 Retos de cada nivel).'],
-    ['v189', '⚙️', 'Ajustes nuevos', 'Sonido y música, silenciar, pantalla completa, orden de ingredientes y datos del dispositivo ahora están en el menú ☰ → Ajustes. Desaparece la pantalla vieja de configuración.'],
-    ['v187', '🗝️', 'Secretos del Chef', 'Mejoras y secretos en un solo lugar, todo con propinas: pasivas que se activan al comprarlas y 6 técnicas activas (llevas 3 a la vez, se equipan desde tu Perfil). Cocina libre y Reconocer pasan a los modos de juego como «Sin estrés».'],
-    ['v185', '🏠', 'Pantalla principal nueva', 'La cocina viva a pantalla completa, JUGAR entra directo al modo elegido y el botón de al lado abre la selección de modos.'],
-    ['v184', '🎮', 'Modos de juego', 'Desliza por Campaña, Rash, Recorrido por Japón y Online y elige tu modo.'],
-    ['v182', '🎯', 'Servicio del día', 'Tres metas diarias con premios en propinas, racha y el Cofre del Maestro.'],
-    ['v181', '📖', 'Recetario', 'Los 35 platos como colección: estrellas de dominio, qué falta para desbloquearlos y su receta completa.'],
-    ['v176', '🍱', 'Recetas actualizadas', 'Nuevos ingredientes, las Alitas se dividen en Acevichadas y Digión, y gari y wasabi pasan a ser opcionales en los makis.'],
-    ['v172', '🔊', 'Sonido y música', 'Ambiente de cocina y música que cambian con la paciencia de los clientes. Ajusta cada volumen en Ajustes.']
-  ];
-  const SEEN_NEWS = 'ramen_novedades_seen';
-  const newsSeen = () => { try { return localStorage.getItem(SEEN_NEWS); } catch (e) { return null; } };
-  const newsFlag = () => (newsSeen() === NEWS[0][0] ? '' : '<i class="hm-flag">NUEVO</i>');
 
   function page(title, body) {
     let p = $('hp'); if (p) p.remove();
@@ -176,11 +150,6 @@
     }).join('');
     page('REGISTRO DE SERVICIO', list.length ? chips + '<div class="hp-grid">' + cards + '</div>' : '<div class="hp-empty">Aún no hay partidas registradas en este aparato.<br>Juega un servicio y aparecerá aquí con su resultado.</div>');
   }
-  function novedades() {
-    try { localStorage.setItem(SEEN_NEWS, NEWS[0][0]); } catch (e) {}
-    sfx('click'); paint();
-    page('NOVEDADES', NEWS.map((n, i) => '<div class="hp-news"><div class="ic">' + n[1] + '</div><div><b>' + n[2] + '</b><em>' + n[0].toUpperCase() + '</em><p>' + n[3] + '</p></div></div>').join(''));
-  }
   function ajustes() {
     const muted = (() => { try { return !!isSoundMuted; } catch (e) { return false; } })();
     const full = !!(document.fullscreenElement || document.webkitFullscreenElement);
@@ -194,7 +163,7 @@
       + row('order', '🥢', 'Orden de ingredientes', 'Acomoda la despensa como te quede más cómodo', '')
       + row('device', '🛡️', 'Este dispositivo', 'Ver su identificador seguro', '')
       + '</div>'
-      + '<p class="hp-hint">Para actualizar el juego o ver los atajos de teclado usa ACTUALIZAR y AYUDA Y ATAJOS en el menú ☰.</p>');
+      + '<p class="hp-hint">Para actualizar el juego usa ACTUALIZAR en el menú ☰.</p>');
   }
   function acerca() {
     const v = (document.getElementById('app-version') || {}).textContent || '';
@@ -229,8 +198,9 @@
         <button class="hm-prof hm-plate" onclick="openProfileModal()" aria-label="Perfil"><span class="av">${h.chefAvatar()}</span><span><b>${h.chefName()}</b><small>Chef · Nivel ${L}</small></span></button>
         <button class="hm-prog hm-plate" onclick="Inicio.act('camp')" aria-label="Progreso de Campaña"><span>⭐ ${cs.stars}/${cs.maxStars}</span><i class="hm-bar"><u style="width:${pct}%"></u></i><small>Campaña · nivel ${L} de 20</small></button>
         <span class="hm-gap"></span>
+        <button class="hm-menu hm-fs hm-plate" onclick="Inicio.act('full')" aria-label="Pantalla completa">⛶</button>
         <button class="hm-cur hm-plate" onclick="Inicio.act('knives')" aria-label="Propinas"><i>🧧</i><span class="hm-wallet">${h.wallet()}</span></button>
-        <button class="hm-menu hm-plate" onclick="Home.menu()" aria-label="Menú">☰${flag('sound') || newsFlag()}</button>
+        <button class="hm-menu hm-plate" onclick="Home.menu()" aria-label="Menú">☰${flag('sound')}</button>
       </div>
       <div class="hm-col l">
         ${btn('📖', 'RECETARIO', "Recetario.open()", 'book')}
@@ -241,7 +211,7 @@
         ${btn('🏆', 'RANKING', "Inicio.act('board')", null, true)}
       </div>
       <button class="hm-scrim" onclick="Home.menu(false)" aria-label="Cerrar el menú"></button>
-      <div class="hm-drop">${MENU.map((m, i) => `<button style="--i:${i}" onclick="Home.item('${m.id}')">${m.flag ? flag(m.flag) : (m.news ? newsFlag() : '')}<span class="ic">${m.ic}</span>${m.label}</button>`).join('')}</div>
+      <div class="hm-drop">${MENU.map((m, i) => `<button style="--i:${i}" onclick="Home.item('${m.id}')">${m.flag ? flag(m.flag) : ''}<span class="ic">${m.ic}</span>${m.label}</button>`).join('')}</div>
       ${tut && window.Servicio ? (() => { const al = h.alertOf('misiones'), sm = Servicio.summary(); return `<div class="hm-bl"><button class="hm-mis hm-plate ${sm.done === sm.total ? 'all' : ''}" onclick="Servicio.open()" aria-label="Misiones"><span class="mic">${MISIONES}</span><b>MISIONES</b>${al ? `<i class="mbadge ${al.k}">${al.t}</i>` : ''}</button></div>`; })() : ''}
       <div class="hm-br">
         <div class="hm-row">
@@ -275,15 +245,13 @@
       try {
         if (id === 'ajustes') ajustes();
         else if (id === 'stats') Inicio.act('stats');
-        else if (id === 'novedades') novedades();
         else if (id === 'registro') registro();
         else if (id === 'cuenta') Inicio.act('acct');
-        else if (id === 'ayuda') Inicio.act('keys');
         else if (id === 'actualizar') Inicio.act('update');
         else if (id === 'acerca') acerca();
       } catch (e) { console.warn('[Home] menú', id, e); }
     },
-    novedades, registro, acerca, ajustes,
+    registro, acerca, ajustes,
     /** Acciones de las filas de Ajustes (la página se repinta para mostrar el estado nuevo). */
     set(id) {
       try {

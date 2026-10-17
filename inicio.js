@@ -71,7 +71,6 @@
     order: () => openIngredientOrderModal(),
     sound: () => (window.Ambiente && Ambiente.panel ? Ambiente.panel() : toggleAudioMute()),
     full: () => toggleFullScreen(),
-    keys: () => openShortcutsModal(),
     update: () => forceAppCacheUpdate(),
     device: () => showDeviceInfoModal(),
     enter: n => { if (n === 'aula') Modos.aula(); }

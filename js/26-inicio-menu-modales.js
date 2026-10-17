@@ -40,18 +40,6 @@ function setStartSelectedMode(mode) {
   }
 }
 
-function openShortcutsModal() {
-  try { playSound('click'); } catch(e) {}
-  const m = document.getElementById("shortcuts-modal");
-  if (m) m.style.display = "flex";
-}
-
-function closeShortcutsModal() {
-  try { playSound('click'); } catch(e) {}
-  const m = document.getElementById("shortcuts-modal");
-  if (m) m.style.display = "none";
-}
-
 function showDeviceInfoModal() {
   try { playSound('click'); } catch(e) {}
   const devId = (typeof DeviceManager !== 'undefined' && DeviceManager.deviceId) ? DeviceManager.deviceId : "DEV-LOCAL";
@@ -106,8 +94,6 @@ window.addEventListener("keydown", (e) => {
       if (window.Recetario) Recetario.open();
     } else if (e.key === "o" || e.key === "O") {
       openIngredientOrderModal();
-    } else if (e.key === "?" || e.key === "h" || e.key === "H") {
-      openShortcutsModal();
     }
   }
 });
