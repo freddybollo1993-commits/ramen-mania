@@ -33,8 +33,8 @@
   .hm-prog span { font: 900 1.25em/1 'Fredoka', sans-serif; color: #ffe082; text-shadow: 0 .1em 0 #000; } .hm-prog small { font: 800 .85em 'Fredoka', sans-serif; color: #c9b79a; }
   .hm-bar { display: block; height: .7em; border-radius: .4em; background: #120905; overflow: hidden; border: .1em solid #000; } .hm-bar u { display: block; height: 100%; background: linear-gradient(90deg, #ff8f00, #ffd54f); }
   .hm-gap { flex: 1; }
-  .hm-cur { display: flex; align-items: center; gap: .4em; padding: .3em .9em .3em .5em; font: 900 1.3em/1 'Fredoka', sans-serif; text-shadow: 0 .1em 0 #000; } .hm-cur i { font-style: normal; font-size: 1.3em; }
-  .hm-menu { position: relative; width: calc(var(--u) * 3.9); height: calc(var(--u) * 3.4); font-size: 1.3em; display: flex; align-items: center; justify-content: center; font-weight: 900; }
+  .hm-cur { display: flex; align-items: center; gap: .4em; min-height: calc(var(--u) * 4.4); padding: .3em .9em .3em .5em; font: 900 1.3em/1 'Fredoka', sans-serif; text-shadow: 0 .1em 0 #000; } .hm-cur i { font-style: normal; font-size: 1.3em; }
+  .hm-menu { position: relative; width: calc(var(--u) * 4.6); height: calc(var(--u) * 4.4); font-size: 1.3em; display: flex; align-items: center; justify-content: center; font-weight: 900; }
   /* botones laterales */
   .hm-col { position: absolute; display: flex; flex-direction: column; gap: .5em; top: 5.4em; }
   .hm-col.l { left: max(.8em, env(safe-area-inset-left)); } .hm-col.r { right: max(.8em, env(safe-area-inset-right)); }
@@ -70,7 +70,7 @@
   .hm-col.r, .hm-daily, .hm-play { transition: opacity .18s, transform .18s; }
   .hm-drop { position: absolute; right: max(.8em, env(safe-area-inset-right)); top: 5em; width: 17em; display: none; flex-direction: column; gap: .35em; }
   #hm.menu-open .hm-drop { display: flex; }
-  .hm-drop button { position: relative; display: flex; align-items: center; gap: .7em; width: 100%; padding: .5em .8em; border: .15em solid rgba(0,0,0,.6); border-radius: .5em; background: linear-gradient(90deg, rgba(36,24,16,.94), rgba(52,34,22,.9)); color: #fff3d6; text-align: left; font: 900 .95em/1 'Fredoka', sans-serif; letter-spacing: .2px;
+  .hm-drop button { position: relative; display: flex; align-items: center; gap: .7em; width: 100%; padding: 1em .8em; border: .15em solid rgba(0,0,0,.6); border-radius: .5em; background: linear-gradient(90deg, rgba(36,24,16,.94), rgba(52,34,22,.9)); color: #fff3d6; text-align: left; font: 900 .95em/1 'Fredoka', sans-serif; letter-spacing: .2px;
     box-shadow: 0 .2em 0 rgba(0,0,0,.45); animation: hmDrop .22s ease-out both; animation-delay: calc(var(--i) * 35ms); }
   .hm-drop button .ic { flex: none; width: 1.7em; text-align: center; font-size: 1.5em; line-height: 1; }
   .hm-drop button:active { transform: translateY(.1em); }
