@@ -162,6 +162,7 @@ function upgradesSpent() {
   loadAccountProgressLocal();
   let spent = 0;
   UPGRADES.forEach(u => { for (let i = 0; i < (accountProgress.levels[u.id] || 0); i++) spent += u.costs[i] || 0; });
+  try { if (window.Taller) spent += Taller.spent(); } catch (e) {}      // técnicas activas y secretos del chef (taller.js)
   return spent;
 }
 

@@ -161,7 +161,7 @@ function closeUpgradesModal() {
 // --- Efectos de las mejoras en la partida ---
 const stockCap = () => [4, 5, 6][Math.min(2, getUpgradeLevel('estante'))];
 const noodleCap = () => [4, 5, 6][Math.min(2, getUpgradeLevel('olla'))];
-function cutSeconds() { return [MAKI_CUT_SECONDS, 2.5, 2, 1.5][getUpgradeLevel('cuchillo')]; }
+function cutSeconds() { return Math.max(1, [MAKI_CUT_SECONDS, 2.5, 2, 1.5][getUpgradeLevel('cuchillo')] - (window.Taller ? Taller.cutBonus() : 0)); }
 
 // "Mise en place": se empieza el nivel con parte de la cocina ya preparada.
 function applyMiseEnPlace() {

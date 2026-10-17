@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ramen-mania-v186';
+const CACHE_NAME = 'ramen-mania-v187';
 
 // Shell del juego para instalar y abrir sin conexión: la página y todos sus scripts (js/ + archivos de apoyo)
 const CORE_SHELL = [
@@ -44,6 +44,7 @@ const CORE_SHELL = [
   './reconocer.js',
   './recetario.js',
   './servicio.js',
+  './taller.js',
   './modos.js',
   './home.js',
   './guia.js',

@@ -320,7 +320,7 @@ function serveOrder(customerIndex, itemIndex, dish) {
     const tipRate = ratio > 0.5 ? TIP_RATE_HAPPY : (ratio > 0.25 ? TIP_RATE_OK : 0);
     if (c.worstTier >= 2 && tipRate > 0 && !isTraining() && !isFree()) { // en el entrenamiento solo dan propina los retos
       const orderTotal = c.orders.reduce((t, o) => t + o.recipe.price, 0);
-      const tip = Math.max(1, Math.round(orderTotal * tipRate * (c.worstTier === 3 ? 2 : 1) * (1 + japonBuffSafe('tips'))));
+      const tip = Math.max(1, Math.round(orderTotal * tipRate * (c.worstTier === 3 ? 2 : 1) * (1 + japonBuffSafe('tips')) * (window.Taller ? Taller.tipMult() : 1)));      // secretos del chef y Propina de la casa
       addPropinas(tip);
       const card = document.getElementById(`cust-slot-card-${customerIndex}`);
       const cr = card ? card.getBoundingClientRect() : null;

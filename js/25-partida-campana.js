@@ -116,6 +116,7 @@ function gameTick() {
   gameState.gameClock++;
   statsAddTime();
   stTick();
+  try { if (window.Taller) Taller.tick(); } catch (e) {}      // técnicas activas: enfriamientos y pausa de paciencia
 
   if (gameState.gameMode === 'NORMAL') {
     gameState.timeLeft--;
@@ -138,7 +139,7 @@ function gameTick() {
   for (let i = 0; i < gameState.customerSlots.length; i++) {
     const c = gameState.customerSlots[i];
     if (c) {
-      if (!isFree()) c.patience -= 1; // en cocina libre los clientes esperan siempre
+      if (!isFree() && !(window.Taller && Taller.frozen())) c.patience -= 1; // en cocina libre los clientes esperan siempre; la Pausa del Maestro detiene la paciencia
       if (c.patience <= 0) {
         if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP' && !MultiplayerManager.isHost) {
           continue;

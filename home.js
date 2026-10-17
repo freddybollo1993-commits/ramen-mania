@@ -105,13 +105,13 @@
     { id: 'stats', ic: '📊', label: 'ESTADÍSTICAS' },
     { id: 'registro', ic: '📜', label: 'REGISTRO DE SERVICIO' },
     { id: 'cuenta', ic: '👤', label: 'MI CUENTA Y NUBE' },
-    { id: 'secretos', ic: '🗝️', label: 'SECRETOS' },
     { id: 'ayuda', ic: '❓', label: 'AYUDA Y ATAJOS' },
     { id: 'actualizar', ic: '🔄', label: 'ACTUALIZAR' },
     { id: 'acerca', ic: 'ℹ️', label: 'ACERCA DE' }
   ];
   // lo último que cambió, en lenguaje del jugador (lo más nuevo primero)
   const NEWS = [
+    ['v187', '🗝️', 'Secretos del Chef', 'Mejoras y secretos en un solo lugar, todo con propinas: pasivas que se activan al comprarlas y 6 técnicas activas (llevas 3 a la vez, se equipan desde tu Perfil). Cocina libre y Reconocer pasan a los modos de juego como «Sin estrés».'],
     ['v185', '🏠', 'Pantalla principal nueva', 'La cocina viva a pantalla completa, JUGAR entra directo al modo elegido y el botón de al lado abre la selección de modos.'],
     ['v184', '🎮', 'Modos de juego', 'Desliza por Campaña, Rash, Recorrido por Japón y Online y elige tu modo.'],
     ['v182', '🎯', 'Servicio del día', 'Tres metas diarias con premios en propinas, racha y el Cofre del Maestro.'],
@@ -185,7 +185,7 @@
       </div>
       <div class="hm-col l">
         ${btn('📖', 'RECETARIO', "Recetario.open()", 'book')}
-        ${btn('🛠️', 'MEJORAS', "Inicio.act('knives')", 'knives', true)}
+        ${btn('🗝️', 'SECRETOS', "Inicio.act('knives')", 'knives', true)}
         ${btn('🎓', 'APRENDER', "Inicio.openSub('aprender','aula')", 'aprender', true)}
       </div>
       <div class="hm-col r">
@@ -196,7 +196,6 @@
       <div class="hm-drop">${MENU.map((m, i) => `<button style="--i:${i}" onclick="Home.item('${m.id}')">${m.flag ? flag(m.flag) : ''}<span class="ic">${m.ic}</span>${m.label}</button>`).join('')}</div>
       <div class="hm-bl">
         <button class="hm-mini hm-plate" onclick="Inicio.act('tickets')"><span class="ic">🎫</span><span><b>RETOS</b><small>${h.retosHechos()}/${window.TRAINING_CHALLENGES ? TRAINING_CHALLENGES.length : 50}</small></span></button>
-        <button class="hm-mini hm-plate" onclick="Inicio.openSub('aprender','free')"><span class="ic">🌿</span><span><b>LIBRE</b><small>Sin reloj</small></span></button>
       </div>
       <div class="hm-br">
         ${tut && window.Servicio ? `<div class="hm-daily" onclick="Servicio.open()">${Servicio.strip()}${Servicio.summary().chestReady ? '<i class="hm-flag buy">¡COFRE!</i>' : ''}</div>` : ''}
@@ -233,7 +232,6 @@
         else if (id === 'stats') Inicio.act('stats');
         else if (id === 'registro') registro();
         else if (id === 'cuenta') Inicio.act('acct');
-        else if (id === 'secretos') Inicio.act('chest');
         else if (id === 'ayuda') Inicio.act('keys');
         else if (id === 'actualizar') Inicio.act('update');
         else if (id === 'acerca') acerca();

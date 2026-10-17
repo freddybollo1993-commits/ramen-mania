@@ -37,7 +37,7 @@
     try {
       if (id === 'camp') { const L = unlockedLevel(); return tutDone() && L > 1 && seenMap().camp !== 'L' + L ? { t: 'NIVEL ' + L, k: 'new' } : null; }
       if (NUEVO_V[id]) return seenMap()[id] === NUEVO_V[id] ? null : { t: 'NUEVO', k: 'new' };
-      if (id === 'knives') { const c = cheapestUpgrade(); return c != null && wallet() >= c ? { t: '¡MEJORA!', k: 'buy' } : null; }
+      if (id === 'knives') { if (window.Taller) return Taller.canBuyAny() ? { t: '¡NUEVO!', k: 'buy' } : null; const c = cheapestUpgrade(); return c != null && wallet() >= c ? { t: '¡MEJORA!', k: 'buy' } : null; }
       if (id === 'aula') return tutDone() ? null : { t: '¡EMPIEZA!', k: 'go' };
       if (id === 'jugar' && window.Servicio && Servicio.summary().chestReady) return { t: '¡COFRE!', k: 'buy' };
       if (id === 'book' && window.Recetario) { const n = Recetario.summary().fresh; return n > 0 && tutDone() ? { t: n + ' POR PROBAR', k: 'new' } : null; }
@@ -1369,8 +1369,8 @@
     rash: () => { setStartSelectedMode('RASH'); if (startSelectedMode === 'RASH') handleStartPlayClick(); },
     book: () => (window.Recetario ? Recetario.open() : openRecipeModal()),
     board: () => openLeaderboardModal(),
-    chest: () => openSecretosModal(),
-    knives: () => openUpgradesModal(),
+    chest: () => (window.Taller ? Taller.open('secretos') : openSecretosModal()),
+    knives: () => (window.Taller ? Taller.open('mejoras') : openUpgradesModal()),
     pantry: () => reconOpen(),
     door: () => japonOpen(),
     room: () => MultiplayerManager.openLobbyModal(),

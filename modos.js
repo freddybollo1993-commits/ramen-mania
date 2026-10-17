@@ -48,6 +48,15 @@
         cards: cities.map(c => ({ col: c.open ? '#ec407a' : '#6d4c6e', icon: '⛩️', title: c.name.toUpperCase(), sub: c.region, meta: c.open ? '✔ Abierta' : '🔒 S/ ' + Number(c.cost).toLocaleString('es-PE'), locked: !c.open, art: '<span>' + (c.open ? '🏯' : '🔒') + '</span>', info: c.story || c.name, go: ['japon', c.id] }))
       };
     } },
+    { id: 'zen', name: 'SIN ESTRÉS', col: '#43a047', build() {
+      const A = [['ramen', '🍜', 'RAMEN', '#ff9800'], ['salteados', '🍳', 'SALTEADO', '#ef5350'], ['makis', '🍣', 'MAKIS', '#26a69a'], ['frituras', '🍤', 'FRITURAS', '#ffb300']];
+      let best = null; try { const b = (window.reconGet && reconGet().best) || {}; const k = Object.keys(b); if (k.length) best = Math.min.apply(null, k.map(x => b[x].t)); } catch (e) {}
+      return {
+        feat: { title: 'SIN ESTRÉS', art: 'zen', panels: ['Practica a tu ritmo: sin reloj y sin clientes que se vayan.', 'Cocina libre por área y Reconocer ingredientes de cada plato.'], cta: '✔ ELEGIR SIN ESTRÉS', go: ['zen', 'free:ramen'], meta: 'Sin reloj' },
+        cards: A.map(a => ({ col: a[3], icon: a[1], title: 'LIBRE · ' + a[2], sub: 'Cocina libre', meta: 'Sin reloj', art: '<span>' + a[1] + '</span>', info: 'Cocina libre de ' + a[2].toLowerCase() + ': los clientes esperan siempre y no hay meta que cumplir.', go: ['zen', 'free:' + a[0]] }))
+          .concat([{ col: '#8e24aa', icon: '🔍', title: 'RECONOCER INGREDIENTES', sub: 'Sin reloj en contra', meta: best ? 'Mejor marca ' + Math.round(best) + ' s' : 'Mide tu tiempo', art: '<span>🔍</span>', info: 'Marca los ingredientes de cada plato entre varios. Un contador mide cuánto demoras en reconocerlos.', go: ['zen', 'recon'] }])
+      };
+    } },
     { id: 'online', name: 'ONLINE', col: '#1e88e5', build() {
       return {
         feat: { title: 'MULTIJUGADOR', art: 'online', panels: ['Juega con amigos en línea, en sala privada.', 'Compite por quitarte los clientes o cocina junto a tu equipo.'], cta: '✔ ELEGIR ONLINE', go: ['online', 'VS'], meta: 'Tiempo real' },
@@ -104,6 +113,7 @@
     camp: `linear-gradient(180deg, rgba(0,0,0,.1), rgba(0,0,0,.2)), url('assets/menu/zona1_placa_ancha.webp') 55% 40% / cover`,
     rash: 'linear-gradient(160deg, #e53935 0%, #7a1010 60%, #2a0808 100%)',
     japon: 'linear-gradient(160deg, #f48fb1 0%, #8e2a58 55%, #2d1a3a 100%)',
+    zen: 'linear-gradient(160deg, #81c784 0%, #2e7d32 55%, #0f2f14 100%)',
     online: 'linear-gradient(160deg, #42a5f5 0%, #12408a 60%, #0b1f40 100%)'
   };
   const esc = s => String(s).replace(/"/g, '&quot;');
@@ -139,11 +149,12 @@
 
   // ---------- modo elegido (lo juega el botón JUGAR de la pantalla principal) ----------
   const SEL_KEY = 'ramen_modo_sel';
-  const readSel = () => { try { const v = JSON.parse(store.get(SEL_KEY) || 'null'); if (v && ['camp', 'rash', 'japon', 'online'].includes(v.id)) return v; } catch (e) {} return { id: 'camp', arg: null }; };
+  const readSel = () => { try { const v = JSON.parse(store.get(SEL_KEY) || 'null'); if (v && ['camp', 'rash', 'japon', 'online', 'zen'].includes(v.id)) return v; } catch (e) {} return { id: 'camp', arg: null }; };
   function current() {
     const v = readSel();
     if (v.id === 'rash') return { id: 'rash', icon: '⚡', title: 'RASH', top: 'Supervivencia', sub: 'Récord: ronda ' + rashBest(), tag: '', col: '#e53935' };
     if (v.id === 'japon') { const c = japonCities(), n = c.filter(x => x.open).length; return { id: 'japon', icon: '🗾', title: 'JAPÓN', top: 'Recorrido', sub: c.length ? n + '/' + c.length + ' ciudades' : 'Restaurantes por ciudad', tag: '', col: '#ec407a' }; }
+    if (v.id === 'zen') { const rec = v.arg === 'recon', ar = String(v.arg || '').replace('free:', ''), ic = { ramen: '🍜', salteados: '🍳', makis: '🍣', frituras: '🍤' }[ar] || '🌿'; return { id: 'zen', icon: rec ? '🔍' : ic, title: rec ? 'RECONOCER' : 'COCINA LIBRE', top: 'Sin estrés', sub: rec ? 'Ingredientes de cada plato' : ({ ramen: 'Ramen', salteados: 'Salteado', makis: 'Makis', frituras: 'Frituras' }[ar] || 'Sin reloj'), tag: '', col: '#43a047' }; }
     if (v.id === 'online') return { id: 'online', icon: v.arg === 'COOP' ? '🤝' : '⚔️', title: v.arg === 'COOP' ? 'COCINA COMPARTIDA' : 'ARREBATO', top: 'Online', sub: v.arg === 'COOP' ? 'Cooperativo' : 'Versus 1 contra 1', tag: '', col: '#1e88e5' };
     const cs = campStats(), L = Math.min(20, cs.unlockedLevel || 1);
     return { id: 'camp', icon: '🏮', title: 'CAMPAÑA', top: 'Gastronómica', sub: 'Nivel ' + L + ' · ⭐ ' + cs.stars + '/' + cs.maxStars, tag: L > 1 ? 'NIVEL ' + L : '¡NUEVO!', col: '#ff9800' };
@@ -162,6 +173,7 @@
       try {
         if (v.id === 'rash') Inicio.act('rash');
         else if (v.id === 'japon') Inicio.act('door');
+        else if (v.id === 'zen') { if (v.arg === 'recon') Inicio.act('pantry'); else Inicio.act('free', String(v.arg || 'free:ramen').replace('free:', '')); }
         else if (v.id === 'online') { try { if (window.MultiplayerManager && v.arg) MultiplayerManager.gameMode = v.arg; } catch (e) {} Inicio.act('room'); }
         else if (window.Inicio) Inicio.play();
       } catch (e) { console.warn('Modos.play', e); }
