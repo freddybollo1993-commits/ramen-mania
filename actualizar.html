@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Actualizar Ramen Mania</title>
+<style>
+  body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #1c0e08; color: #ffe9b0; font: 700 16px/1.5 system-ui, sans-serif; text-align: center; padding: 20px; box-sizing: border-box; }
+  .c { max-width: 380px; } h1 { font-size: 22px; margin: 0 0 8px; color: #ffd978; } p { margin: 6px 0; color: #d6c4a4; }
+  a.b { display: inline-block; margin-top: 14px; padding: 12px 22px; border-radius: 12px; background: linear-gradient(135deg, #ff9800, #e64a19); color: #fff; text-decoration: none; font-weight: 900; }
+</style>
+</head>
+<body>
+<div class="c">
+  <h1>🍜 Actualizando…</h1>
+  <p id="m">Borrando la copia guardada del juego para traer la versión nueva.</p>
+  <a class="b" id="go" href="/" hidden>Abrir el juego</a>
+</div>
+<script>
+(async function () {
+  var m = document.getElementById('m'), go = document.getElementById('go');
+  try {
+    var regs = (navigator.serviceWorker && await navigator.serviceWorker.getRegistrations()) || [];
+    for (var i = 0; i < regs.length; i++) await regs[i].unregister();
+    var keys = (window.caches && await caches.keys()) || [];
+    for (var j = 0; j < keys.length; j++) await caches.delete(keys[j]);
+    m.textContent = '¡Listo! Se borraron ' + regs.length + ' servicio(s) y ' + keys.length + ' copia(s) guardada(s). Entrando al juego…';
+    setTimeout(function () { location.replace('/?r=' + Date.now()); }, 1200);
+  } catch (e) {
+    m.textContent = 'No se pudo limpiar automáticamente. Toca el botón para abrir el juego.';
+  }
+  go.hidden = false;
+})();
+</script>
+</body>
+</html>
