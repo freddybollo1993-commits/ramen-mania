@@ -219,3 +219,9 @@
 .prof-sk-list button { min-height: 40px; padding: 8px 12px !important; }
 .svc-x { min-width: 44px; }
 .hm-daily { position: relative; } .hm-daily::before { content: ''; position: absolute; left: 0; right: 0; top: -8px; bottom: -8px; }
+
+/* ---------- deslizar desde cualquier punto de las tiras horizontales ----------
+   index.html deja los <button> con «touch-action: pan-y» (solo vertical): en una tira que se desliza de lado, un dedo que empieza sobre una tarjeta-botón no la movía.
+   Dentro de esas tiras los botones aceptan el gesto en ambos ejes (el desplazamiento lo decide el contenedor). */
+.mds-strip button, .mds-strip .mds-card, .mds-strip .mds-i, .sv-strip button, .sv-strip .sv-card,
+.cm-scroll button, .tl-tabs button, .rcb-tabs button, .tl-grid button, .hp-body button { touch-action: pan-x pan-y; }
