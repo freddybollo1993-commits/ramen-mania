@@ -144,6 +144,12 @@
   .tl-pips { display: flex; gap: 3px; } .tl-pips i { width: 14px; height: 6px; border-radius: 3px; background: rgba(255,255,255,.18); } .tl-pips i.on { background: #ffb300; }
   .tl-fx { font: 700 11.5px/1.3 'Fredoka', sans-serif; color: #e9d5b0; } .tl-fx.nx { color: #9fd49f; }
   .tl-meta { font: 800 10px 'Fredoka', sans-serif; color: #a98c68; }
+  .tl-card.jp { border-color: #ad1457; background: linear-gradient(#5a2a40, #2e1220); }
+  .tl-tag.jp { background: #ec407a; color: #fff; }
+  .tl-jpp { font: 800 12px/1.3 'Fredoka', sans-serif; color: #ffd978; } .tl-jpp small { font: 700 10px 'Fredoka', sans-serif; color: #e6b8c8; }
+  .tl-lvls { display: flex; flex-direction: column; gap: 2px; background: rgba(0,0,0,.28); border-radius: 8px; padding: 4px 7px; }
+  .tl-lvls div { display: flex; align-items: baseline; gap: 6px; font: 700 10.5px/1.25 'Fredoka', sans-serif; color: #e9d5b0; } .tl-lvls span { flex: 1; min-width: 0; } .tl-lvls b { color: #ffd978; font-weight: 900; white-space: nowrap; } .tl-lvls em { font-style: normal; color: #e6b8c8; white-space: nowrap; font-size: 9.5px; }
+  .tl-req { font: 700 10.5px/1.3 'Fredoka', sans-serif; color: #f4b6c8; }
   .tl-btns { display: flex; gap: 6px; margin-top: 2px; flex-wrap: wrap; }
   .tl-buy { flex: 1; min-width: 96px; border: 2px solid #ffe082; border-radius: 10px; padding: 6px 8px; background: linear-gradient(135deg, #ff9800, #e64a19 65%, #c62828); color: #fff; font: 900 12px/1 'Fredoka', sans-serif; box-shadow: 0 3px 0 #7f0000; cursor: pointer; }
   .tl-buy[data-poor] { filter: grayscale(.6) brightness(.8); } .tl-buy:disabled { background: #2e7d32; border-color: #a5d6a7; box-shadow: none; cursor: default; }
@@ -190,14 +196,40 @@
         + '<div class="tl-btns"><button class="tl-buy" ' + (maxed ? 'disabled' : (w >= nx.price ? '' : 'data-poor="1"')) + ' onclick="Taller.buyActive(\'' + a.id + '\')">' + (maxed ? '✔ Nivel máximo' : '🧧 ' + nx.price + ' · ' + (lv ? 'Mejorar' : 'Comprar')) + '</button>'
         + (lv ? '<button class="tl-buy ghost" onclick="Taller.equip(\'' + a.id + '\')">' + (on ? 'Quitar' : 'Equipar') + '</button>' : '') + '</div></div>'; }).join('');
   }
+  // ---------- pestaña JAPÓN: catálogo de referencia del Recorrido por Japón (se compra dentro de cada restaurante) ----------
+  const SHOP_IC = '<svg viewBox="0 0 64 64" width="1em" height="1em" style="vertical-align:-.12em"><ellipse cx="32" cy="58" rx="26" ry="3.5" fill="rgba(0,0,0,.35)"/><rect x="7" y="30" width="50" height="26" rx="2" fill="#8a5a30" stroke="#2b1810" stroke-width="2.5"/><rect x="13" y="34" width="38" height="13" fill="#2a170c" stroke="#2b1810" stroke-width="2"/><circle cx="21" cy="42" r="4.2" fill="#ffd978" stroke="#2b1810" stroke-width="1.6"/><circle cx="32" cy="42" r="4.2" fill="#ef5350" stroke="#2b1810" stroke-width="1.6"/><circle cx="43" cy="42" r="4.2" fill="#8bc34a" stroke="#2b1810" stroke-width="1.6"/><rect x="10" y="46" width="44" height="9" rx="2" fill="#ffb300" stroke="#2b1810" stroke-width="2.2"/><path d="M5 12h54l3 17H2z" fill="#fff3d6" stroke="#2b1810" stroke-width="2.5" stroke-linejoin="round"/><path d="M5 12h9.3l-2.3 17H2zM23.6 12h9.3l-.8 17h-9.5zM42.2 12h9.3l3.5 17h-9.6z" fill="#c8372d"/><path d="M5 12h54l3 17H2z" fill="none" stroke="#2b1810" stroke-width="2.5" stroke-linejoin="round"/></svg>';
+  const money = n => Math.round(n).toLocaleString('es-PE');
+  let jpSec = 'ciudades';
+  const jpCat = () => { try { return window.JP && JP.catalog ? JP.catalog() : null; } catch (e) { console.warn('[Taller] catálogo Japón', e); return null; } };
+  const jpFondo = () => { const c = jpCat(); return c ? c.fondo : 0; };
+  function jpNote() {
+    const c = jpCat(), sec = c && (c.sections.find(x => x.id === jpSec) || c.sections[0]);
+    return '🗾 Solo modo Japón: se pagan con el Fondo 💴 dentro de cada restaurante, no con propinas. Precio de referencia = Tokio; la flecha → es el de Nagasaki (el más caro).' + (sec && sec.note ? ' ' + sec.note : '');
+  }
+  function jpChips() {
+    const c = jpCat(); if (!c) return '';
+    return '<div class="tl-tabs">' + c.sections.map(x => '<button class="tl-tab ' + (x.id === jpSec ? 'on' : '') + '" onclick="Taller.jpSec(\'' + x.id + '\')">' + x.ic + ' ' + x.name + '</button>').join('') + '</div>';
+  }
+  function cardJp(it) {
+    const price = it.price != null ? '<div class="tl-jpp">💴 Referencia: <b>S/ ' + money(it.price) + '</b>' + (it.max && it.max > it.price ? ' <small>· hasta S/ ' + money(it.max) + ' en Nagasaki</small>' : '') + '</div>' : '';
+    const lv = it.levels ? '<div class="tl-lvls">' + it.levels.map(l => '<div><span>' + l[0] + '</span><b>S/ ' + money(l[1]) + '</b>' + (l[2] > l[1] ? '<em>→ ' + money(l[2]) + '</em>' : '') + '</div>').join('') + '</div>' : '';
+    return '<div class="tl-card jp ' + (it.own ? 'maxed' : '') + '"><div class="tl-h"><div class="tl-ic">' + it.ic + '</div><div><b>' + it.name + '</b><small>' + (it.sub || '') + '</small></div><span class="tl-tag jp">SOLO JAPÓN</span></div>'
+      + (it.pips ? pips(it.pips.n, it.pips.max) + '<div class="tl-meta">Tu mejor local: nivel ' + it.pips.n + ' de ' + it.pips.max + '</div>' : '') + (it.fx ? '<div class="tl-fx">' + it.fx + '</div>' : '') + price + lv
+      + '<div class="tl-req">🔒 ' + it.req + '</div>' + (it.have ? '<div class="tl-meta">📍 ' + it.have + '</div>' : '') + (it.own ? '<div class="tl-meta" style="color:#9fd49f">✔ Ya lo tienes</div>' : '') + '</div>';
+  }
+  function cardsJapon() {
+    const c = jpCat(); if (!c) return '<div class="tl-note">El Recorrido por Japón aún no está disponible.</div>';
+    const sec = c.sections.find(x => x.id === jpSec) || c.sections[0];
+    return sec.items.map(cardJp).join('');
+  }
   function render() {
     let host = $('tll'); if (!host) { host = document.createElement('div'); host.id = 'tll'; document.body.appendChild(host); }
     const eq = eqList();
-    const tabs = [['mejoras', '🛠️ PASIVAS · MEJORAS'], ['secretos', '🗝️ PASIVAS · SECRETOS'], ['activas', '⚡ ACTIVAS']].map(([k, n]) => '<button class="tl-tab ' + (tab === k ? 'on' : '') + '" onclick="Taller.tab(\'' + k + '\')">' + n + '</button>').join('');
-    const note = { mejoras: 'Pasivas: se activan solas al comprarlas.', secretos: 'Pasivas: desbloquea la ficha 3D de cada secreto y gana un pequeño bono permanente.', activas: 'Activas: úsalas durante el servicio con los botones redondos. Solo puedes llevar ' + MAX_EQ + ' a la vez (también se equipan desde tu Perfil). Más poder, más precio.' }[tab];
-    const slots = tab === 'activas' ? '<div class="tl-eq"><b>EQUIPADAS</b>' + Array.from({ length: MAX_EQ }, (_, i) => '<div class="tl-slot ' + (eq[i] ? 'on' : '') + '" title="' + (eq[i] ? ACT[eq[i]].name : 'Vacía') + '">' + (eq[i] ? ACT[eq[i]].ic : '') + '</div>').join('') + '</div>' : '';
-    host.innerHTML = '<div class="tl-top"><button class="tl-back" onclick="Taller.close()" aria-label="Volver">◀</button><h2>🗝️ SECRETOS DEL CHEF</h2><span class="tl-chip">🧧 ' + wallet() + '</span></div><div class="tl-tabs">' + tabs + '</div><div class="tl-note">' + note + '</div>' + slots
-      + '<div class="tl-grid">' + (tab === 'mejoras' ? cardsMejoras() : tab === 'secretos' ? cardsSecretos() : cardsActivas()) + '</div>';
+    const tabs = [['mejoras', '🛠️ PASIVAS · MEJORAS'], ['secretos', '🗝️ PASIVAS · SECRETOS'], ['activas', '⚡ ACTIVAS'], ['japon', '🗾 JAPÓN']].map(([k, n]) => '<button class="tl-tab ' + (tab === k ? 'on' : '') + '" onclick="Taller.tab(\'' + k + '\')">' + n + '</button>').join('');
+    const note = { mejoras: 'Pasivas: se activan solas al comprarlas.', secretos: 'Pasivas: desbloquea la ficha 3D de cada secreto y gana un pequeño bono permanente.', activas: 'Activas: úsalas durante el servicio con los botones redondos. Solo puedes llevar ' + MAX_EQ + ' a la vez (también se equipan desde tu Perfil). Más poder, más precio.', japon: jpNote() }[tab];
+    const slots = tab === 'japon' ? jpChips() : tab === 'activas' ? '<div class="tl-eq"><b>EQUIPADAS</b>' + Array.from({ length: MAX_EQ }, (_, i) => '<div class="tl-slot ' + (eq[i] ? 'on' : '') + '" title="' + (eq[i] ? ACT[eq[i]].name : 'Vacía') + '">' + (eq[i] ? ACT[eq[i]].ic : '') + '</div>').join('') + '</div>' : '';
+    host.innerHTML = '<div class="tl-top"><button class="tl-back" onclick="Taller.close()" aria-label="Volver">◀</button><h2>' + SHOP_IC + ' TIENDA DEL CHEF</h2>' + (tab === 'japon' ? '<span class="tl-chip" title="Fondo del Recorrido por Japón">💴 S/ ' + money(jpFondo()) + '</span><button class="tl-buy ghost" onclick="Taller.goJapon()">🗾 Ir al Recorrido</button>' : '') + '<span class="tl-chip">🧧 ' + wallet() + '</span></div><div class="tl-tabs">' + tabs + '</div><div class="tl-note">' + note + '</div>' + slots
+      + '<div class="tl-grid">' + (tab === 'mejoras' ? cardsMejoras() : tab === 'secretos' ? cardsSecretos() : tab === 'japon' ? cardsJapon() : cardsActivas()) + '</div>';
   }
 
   // ---------- perfil: equipar las técnicas activas ----------
@@ -230,6 +262,8 @@
     open(t) { css(); if (t) tab = t; sfx('click'); render(); },
     close() { const h = $('tll'); if (h) h.remove(); sfx('click'); try { if (window.Home) Home.refresh(); } catch (e) {} },
     tab(k) { tab = k; sfx('click'); render(); },
+    jpSec(k) { jpSec = k; sfx('click'); render(); },
+    goJapon() { sfx('click'); Taller.close(); setTimeout(() => { try { Inicio.act('door'); } catch (e) { try { japonOpen(); } catch (e2) {} } }, 60); },
     buyUp, buyActive, buySecret, equip, use, spent, snap, mergeSnap, apply, reset, cheapest, renderProfile,
     ver(id) { const h = $('tll'); if (h) h.remove(); try { openSecretDetail(id); } catch (e) { console.warn('[Taller] ficha', e); } },
     canBuyAny() { const c = cheapest(); return c != null && wallet() >= c; }

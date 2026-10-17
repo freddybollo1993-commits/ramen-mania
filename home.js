@@ -34,6 +34,7 @@
   .hm-bar { display: block; height: .7em; border-radius: .4em; background: #120905; overflow: hidden; border: .1em solid #000; } .hm-bar u { display: block; height: 100%; background: linear-gradient(90deg, #ff8f00, #ffd54f); }
   .hm-gap { flex: 1; }
   .hm-cur { display: flex; align-items: center; gap: .4em; min-height: calc(var(--u) * 4.4); padding: .3em .9em .3em .5em; font: 900 1.3em/1 'Fredoka', sans-serif; text-shadow: 0 .1em 0 #000; } .hm-cur i { font-style: normal; font-size: 1.3em; }
+  .hm-btn .ic svg { width: 1em; height: 1em; display: block; }
   .hm-menu { position: relative; width: calc(var(--u) * 4.6); height: calc(var(--u) * 4.4); font-size: 1.3em; display: flex; align-items: center; justify-content: center; font-weight: 900; }
   /* botones laterales */
   .hm-col { position: absolute; display: flex; flex-direction: column; gap: .5em; top: 5.4em; }
@@ -112,6 +113,7 @@
   ];
   // lo último que cambió, en lenguaje del jugador (lo más nuevo primero)
   const NEWS = [
+    ['v195', '🏪', 'Tienda del Chef', 'Mejoras, secretos y técnicas ahora están en la Tienda. Nueva pestaña 🗾 Japón con todo lo que se compra en el Recorrido (ciudades, local, personal, objetos y maestría): precio de referencia, niveles y qué necesitas. El botón Retos se fue: ahora están en el mapa de la Campaña.'],
     ['v194', '⭐', 'Calidad en los retos', 'Los retos se superan con la calidad media de tus platos (con un pequeño margen) y dan de 1 a 3 estrellas que suman a tu contador de Campaña. Si no llegas al mínimo, el reto queda incompleto.'],
     ['v193', '🛤️', 'Retos en la ruta', 'Los retos van directo sobre la ruta de la Campaña, después de la linterna que los abre: fichas pequeñas de otro color para distinguirlos del contenido principal. Más espacio entre niveles.'],
     ['v190', '🎫', 'Retos dentro de la Campaña', 'Los 50 retos ahora son subniveles: se abren al superar el nivel de Campaña donde ya conoces sus platos. Míralos en el mapa (botón 🎫 Retos de cada nivel).'],
@@ -188,6 +190,8 @@
     return true;
   }
   const flag = id => { const h = H(); const a = h && h.alertOf(id); return a ? `<i class="hm-flag ${a.k}">${a.t}</i>` : ''; };
+  // imagen de la tienda (toldo rojo y crema, mostrador y platos): reemplaza al ícono de Secretos
+  const SHOP = '<svg viewBox="0 0 64 64"><ellipse cx="32" cy="58" rx="26" ry="3.5" fill="rgba(0,0,0,.35)"/><rect x="7" y="30" width="50" height="26" rx="2" fill="#8a5a30" stroke="#2b1810" stroke-width="2.5"/><rect x="13" y="34" width="38" height="13" fill="#2a170c" stroke="#2b1810" stroke-width="2"/><circle cx="21" cy="42" r="4.2" fill="#ffd978" stroke="#2b1810" stroke-width="1.6"/><circle cx="32" cy="42" r="4.2" fill="#ef5350" stroke="#2b1810" stroke-width="1.6"/><circle cx="43" cy="42" r="4.2" fill="#8bc34a" stroke="#2b1810" stroke-width="1.6"/><rect x="10" y="46" width="44" height="9" rx="2" fill="#ffb300" stroke="#2b1810" stroke-width="2.2"/><path d="M5 12h54l3 17H2z" fill="#fff3d6"/><path d="M5 12h9.3l-2.3 17H2zM23.6 12h9.3l-.8 17h-9.5zM42.2 12h9.3l3.5 17h-9.6z" fill="#c8372d"/><path d="M5 12h54l3 17H2z" fill="none" stroke="#2b1810" stroke-width="2.5" stroke-linejoin="round"/></svg>';
   const btn = (ic, label, onclick, id, dark) => `<button class="hm-btn hm-plate ${dark ? 'dark' : ''}" onclick="${onclick}">${id ? flag(id) : ''}<span class="ic">${ic}</span><b>${label}</b></button>`;
 
   function ui() {
@@ -205,7 +209,7 @@
       </div>
       <div class="hm-col l">
         ${btn('📖', 'RECETARIO', "Recetario.open()", 'book')}
-        ${btn('🗝️', 'SECRETOS', "Inicio.act('knives')", 'knives', true)}
+        ${btn(SHOP, 'TIENDA', "Inicio.act('knives')", 'knives', true)}
         ${btn('🎓', 'APRENDER', "Inicio.openSub('aprender','aula')", 'aprender', true)}
       </div>
       <div class="hm-col r">
@@ -214,9 +218,6 @@
       </div>
       <button class="hm-scrim" onclick="Home.menu(false)" aria-label="Cerrar el menú"></button>
       <div class="hm-drop">${MENU.map((m, i) => `<button style="--i:${i}" onclick="Home.item('${m.id}')">${m.flag ? flag(m.flag) : ''}<span class="ic">${m.ic}</span>${m.label}</button>`).join('')}</div>
-      <div class="hm-bl">
-        <button class="hm-mini hm-plate" onclick="Inicio.act('tickets')"><span class="ic">🎫</span><span><b>RETOS</b><small>${h.retosHechos()}/${window.TRAINING_CHALLENGES ? TRAINING_CHALLENGES.length : 50}</small></span></button>
-      </div>
       <div class="hm-br">
         ${tut && window.Servicio ? `<div class="hm-daily" onclick="Servicio.open()">${Servicio.strip()}${Servicio.summary().chestReady ? '<i class="hm-flag buy">¡COFRE!</i>' : ''}</div>` : ''}
         <div class="hm-row">

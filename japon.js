@@ -297,7 +297,42 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
     if (S.fondo < cost) { toast('💴 Te faltan S/ ' + fmt(cost - S.fondo) + ' en el Fondo.'); try { playSound('error'); } catch (e) {} return false; }
     S.fondo -= cost; S.spent += cost; try { playSound('stock_add'); } catch (e) {} return true;
   }
+  // Catálogo de todo lo que se compra en el Recorrido por Japón, para mostrarlo en la Tienda (solo lectura).
+  // Precios de referencia = Tokio; en cada ciudad se multiplican por su coeficiente (Yokohama ×1,3 … Nagasaki ×4). Se pagan con el Fondo (S/), no con propinas.
+  function catalog() {
+    load();
+    const TK = 'tokio', MX = 'nagasaki', rests = Object.keys(S.rest).map(id => S.rest[id]);
+    const best = f => rests.reduce((m, r) => Math.max(m, f(r)), 0), cnt = f => rests.filter(f).length, n = rests.length;
+    const both = f => ({ price: f(TK), max: f(MX) });
+    const pct = v => Math.round(v * 100);
+    const bonusTxt = (fx, b) => [fx.spd && '+' + pct(fx.spd) + '% de velocidad', fx.err && '−' + pct(fx.err) + ' pts de errores', fx.cogs && '−' + pct(fx.cogs) + ' pts de costo de ingredientes', fx.rep && '+' + pct(fx.rep) + '% de reputación', fx.cap && '+' + fx.cap + ' h de tope de caja', fx.leak && '−' + pct(fx.leak) + ' pts de pérdidas de cobro'].filter(Boolean).join(' · ') + ' · 🔓 En el juego, permanente: +' + (b.v * 100).toFixed(b.v < 0.01 ? 1 : 0) + '% ' + BUFF_NAMES[b.k];
+    const sec = [];
+    sec.push({ id: 'ciudades', ic: '🗾', name: 'Ciudades', items: CITIES.map(c => ({ ic: '🏮', name: 'Local de ' + c.name, sub: c.region + ' · ' + c.dishes.length + ' platos', price: c.cost, fx: c.story, req: c.cost ? 'Se abre desde el mapa del Recorrido, pagando con el Fondo.' : 'Es tu primer local: ya lo tienes desde el inicio.', own: !!S.open[c.id] })) });
+    const lt = T.tiers;
+    sec.push({ id: 'local', ic: '🏠', name: 'Local', items: [
+      Object.assign({ ic: '🏯', name: 'Ampliar el local', sub: 'Nivel de local 1 a 4', pips: { n: best(r => r.tier), max: 4 }, fx: 'Más mesas y más puestos de personal, pero sube la renta y la luz.', req: 'Un tamaño después de otro: pequeño → mediano → grande → amplio.',
+        levels: lt.slice(1).map((t, k) => [t.name + ' · ' + t.tables + ' mesas, ' + t.cooks + ' cocineros, ' + t.waiters + ' mozos', costTier(TK, k + 1), costTier(MX, k + 1)]) }),
+      { ic: '🪑', name: 'Mesas', sub: 'De 4 hasta 18 mesas', pips: null, have: best(r => r.tables) ? 'Tu mejor local: ' + best(r => r.tables) + ' mesas' : null, fx: 'Cada mesa trae clientes y consume luz y agua.', req: 'Caben 4, 8, 14 o 18 mesas según el tamaño del local: amplíalo para más.',
+        levels: [['4.ª mesa', costTable(TK, 3), costTable(MX, 3)], ['8.ª mesa', costTable(TK, 7), costTable(MX, 7)], ['14.ª mesa', costTable(TK, 13), costTable(MX, 13)], ['18.ª mesa', costTable(TK, 17), costTable(MX, 17)]] },
+      { ic: '🍳', name: 'Abrir más cocinas', sub: 'Ramen · Salteados · Frituras · Makis', pips: null, fx: 'Cada cocina abierta vende los platos de la ciudad que le tocan.', req: 'Solo se abren las cocinas de las que la ciudad tiene platos (las 4 solo donde hay de todas).',
+        levels: [['2.ª cocina', costArea(TK, 1), costArea(MX, 1)], ['3.ª cocina', costArea(TK, 2), costArea(MX, 2)], ['4.ª cocina', costArea(TK, 3), costArea(MX, 3)]] },
+      { ic: '⭐', name: 'Calidad de ingredientes', sub: 'Nivel 1 a 5', pips: { n: best(r => r.q), max: 5 }, fx: 'Cada nivel sube ~' + pct(T.quality.price) + '% el precio de venta y ~' + pct(T.quality.cogs) + ' pts el costo de ingredientes.', req: 'Se compra en el Depósito, un nivel tras otro.',
+        levels: [1, 2, 3, 4].map(q => ['Nivel ' + (q + 1), costQual(TK, q), costQual(MX, q)]) }
+    ] });
+    const staff = [['ramen', 'Cocineros', '👨‍🍳', T.cook, 5], ['salon', 'Mozos', '🧑‍🍳', T.waiter, 9], ['caja', 'Cajeros', '💴', null, 2], ['depo', 'Almaceneros', '📦', null, 2], ['banos', 'Limpieza', '🧹', null, 2]];
+    sec.push({ id: 'personal', ic: '👥', name: 'Personal', items: staff.map(([z, role, ic, tb, mx]) => ({ ic, name: role, sub: 'Contratar y subir de nivel (1 a 5)', pips: { n: best(r => r.staff[z].l), max: 5 }, have: best(r => r.staff[z].n) ? 'Tu mejor local: ' + best(r => r.staff[z].n) + ' contratados' : null,
+      fx: tb ? 'Nivel 1 → 5: velocidad ' + tb.spd[0].toFixed(2) + ' → ' + tb.spd[4].toFixed(2) + ' platos/min · errores ' + pct(tb.err[0]) + '% → ' + pct(tb.err[4]) + '% · sueldo ' + tb.wage[0].toFixed(2) + ' → ' + tb.wage[4].toFixed(2) + '/min' : (z === 'caja' ? 'Cuanto más nivel, más horas aguanta la caja sin llenarse.' : (z === 'depo' ? 'Ahorran ingredientes: menos costo por plato.' : 'Suben la reputación del local.')) + ' Sueldo ' + T.aux.wage[0].toFixed(2) + ' → ' + T.aux.wage[4].toFixed(2) + '/min.',
+      req: 'Los puestos dependen del tamaño del local (hasta ' + mx + '). Para subir de nivel hay que haber contratado antes.',
+      levels: [['Contratar al 1.º', costHire(TK, z, 0), costHire(MX, z, 0)], ['Contratar al último puesto', costHire(TK, z, mx - 1), costHire(MX, z, mx - 1)], ['Subir a nivel 2 (con 1 persona)', costLevel(TK, z, 1, 1), costLevel(MX, z, 1, 1)], ['Subir a nivel 5 (con 1 persona)', costLevel(TK, z, 4, 1), costLevel(MX, z, 4, 1)]] })) });
+    const objs = [];
+    ZONES.forEach(z => OBJECTS[z].forEach((o, i) => { const k = o[0] + '@' + z; objs.push({ ic: o[1], name: o[2], sub: ZONE_INFO[z].name, ...both(t => costObj(t, i)), fx: bonusTxt(o[3], o[4]), req: KITCHENS.includes(z) ? 'Requiere la cocina de ' + ZONE_INFO[z].name + ' abierta en ese local.' : 'Se compra en la zona de ' + ZONE_INFO[z].name + ' del local.', own: n ? cnt(r => r.objs[k]) > 0 : false, have: n ? cnt(r => r.objs[k]) + ' de ' + n + ' locales' : null }); }));
+    sec.push({ id: 'objetos', ic: '🎍', name: 'Objetos', note: 'Decoración y equipo del local: mejoran el restaurante y además dan un bono permanente en el juego normal.', items: objs });
+    sec.push({ id: 'maestria', ic: '🏆', name: 'Maestría', items: [{ ic: '🏆', name: 'Maestría de una ciudad', sub: '6 metas por local', fx: 'Al completarla, cada plato de esa ciudad paga +' + pct(DISH_BONUS) + '% al servirlo en cualquier modo.',
+      req: 'Local grande o mayor · calidad 5 · todas las cocinas abiertas · cocineros nivel 4 · mozos nivel 4 (1 por cada 3 mesas) · los 24 objetos.', own: CITIES.some(c => S.rest[c.id] && mastery(c, S.rest[c.id]).complete), have: CITIES.filter(c => S.rest[c.id] && mastery(c, S.rest[c.id]).complete).length + ' de ' + CITIES.length + ' ciudades' }] });
+    return { sections: sec, fondo: Math.floor(S.fondo || 0), open: n, cm: CITIES.map(c => [c.name, c.cm]) };
+  }
   const A = {
+    catalog,
     cities() { load(); return CITIES.map(c => ({ id: c.id, name: c.name, region: c.region, cost: c.cost, story: c.story, open: c.id === 'tokio' || !!(S.open && S.open[c.id]) })); },      // para la pantalla de Modos de juego
     hire(z) { const r = rs(), id = S.cur, s = r.staff[z]; if (s.n >= staffMax(r, z)) return toast('🏠 Tu local no tiene más puestos: amplíalo.'); if (!pay(costHire(id, z, s.n))) return; s.n++; refresh(); },
     level(z) { const r = rs(), id = S.cur, s = r.staff[z]; if (s.n < 1) return toast('Contrata primero a alguien.'); if (s.l >= 5) return; if (!pay(costLevel(id, z, s.l, s.n))) return; s.l++; refresh(); },
