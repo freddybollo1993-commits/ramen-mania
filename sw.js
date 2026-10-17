@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ramen-mania-v199';
+const CACHE_NAME = 'ramen-mania-v200';
 
 // Shell del juego para instalar y abrir sin conexión: la página y todos sus scripts (js/ + archivos de apoyo)
 const CORE_SHELL = [
@@ -32,8 +32,7 @@ const CORE_SHELL = [
   './js/26-inicio-menu-modales.js',
   './js/27-tutorial-antiguo.js',
   './js/28-perfil-ranking-pantalla.js',
-  './js/29-secretos-galeria.js',
-  './js/30-secretos-3d.js',
+  './js/29-secretos-datos.js',
   './js/31-orientacion-admin-arranque.js',
   './multiplayer.js',
   './makis-studio.js',
@@ -50,7 +49,6 @@ const CORE_SHELL = [
   './guia.js',
   './escena-cocina.js',
   './inicio.js',
-  './aula.js',
   './campana-mapa.js',
   './audio-ambiente.js',
   './manifest.json'

@@ -26,7 +26,7 @@ Sin framework: HTML/CSS/JS clásico (scripts globales, no módulos), Vite solo c
 | `japon.js` / `japon-scene.js` | Recorrido por Japón (economía idle) y escena isométrica animada de los restaurantes. `japon-scene.js` exporta `window.JPKit` (proyección, personas, cajas, estilos) que reutiliza el inicio. |
 | `reconocer.js` | Modo «Ingredientes» (reconocer qué lleva cada plato, sin reloj en contra). |
 | `guia.js` | Tutorial guiado interactivo por áreas (4 lecciones, 91 pasos). |
-| `inicio.js` / `aula.js` | Pantalla de inicio (hub + local isométrico + menú clásico) y las salas Aula del Maestro y bodega de Secretos. |
+| `inicio.js` | Pantalla de inicio (hub + local isométrico + menú clásico). Desde v199 el Aula del Maestro es una pantalla de tarjetas de `modos.js`; en v200 se eliminaron `aula.js` (bodega de Secretos) y los modelos 3D de secretos (`js/30-secretos-3d.js`): los secretos son solo ítems de la Tienda (`taller.js`, datos en `js/29-secretos-datos.js`). |
 | `panel/` | Shimaya Panel: panel de administración instalable aparte (`https://shimaya-panel.vercel.app/panel/`, dominio propio para poder instalarlo aparte del juego; `/dashboard` y `/admin` redirigen). Seguimiento, Campaña, Jugador y Platos; datos del juego en `panel/datos-juego.js` (regenerar con `tools/exportar-datos-panel.js`). |
 | `assets/` | Íconos de ingredientes (`ingredients/v2/*.webp`, 106), SVG de estaciones (wok, olla, esterilla…), fondos, fuentes, íconos PWA. |
 | `tools/` | `economia-niveles.cjs` (recalcula metas/tiempos de niveles), generadores de íconos. |

@@ -1,6 +1,6 @@
 /* Secretos del Chef: un solo apartado para todo lo que se compra con propinas.
    · PASIVAS · MEJORAS  – las 10 mejoras de la cocina (varios niveles); se activan al comprarlas.
-   · PASIVAS · SECRETOS – los secretos del chef (platos, ingredientes, cuchillos y herramientas): al comprarlos se abre su ficha 3D y dan un pequeño bono permanente.
+   · PASIVAS · SECRETOS – los secretos del chef (platos, ingredientes, cuchillos y herramientas): dan un pequeño bono permanente al comprarlos.
    · ACTIVAS            – técnicas que se usan durante el servicio (tienen enfriamiento). Solo se pueden llevar 3 a la vez; se equipan desde el Perfil (o aquí).
      Cuanto más poderosa es la técnica y su nivel, más cuesta.
    Todo se paga con propinas. Script clásico. Las compras de este módulo se guardan en el aparato (ramen_taller_v1) y viajan con el progreso de la cuenta (japon.js → snapshot). */
@@ -185,7 +185,7 @@
     return secretos().map(x => { const own = sabOwned(x.id);
       return '<div class="tl-card ' + (own ? 'maxed' : '') + '"><div class="tl-h"><div class="tl-ic">' + x.ic + '</div><div><b>' + x.name + '</b><small>' + (x.sub || '') + '</small></div><span class="tl-tag">PASIVA</span></div>'
         + '<div class="tl-fx ' + (own ? '' : 'nx') + '">' + (own ? '✔ ' : '') + x.text + '</div>'
-        + '<div class="tl-btns">' + (own ? '<button class="tl-buy" disabled>✔ Desbloqueado</button><button class="tl-buy ghost" onclick="Taller.ver(\'' + x.id + '\')">Ver ficha 3D</button>'
+        + '<div class="tl-btns">' + (own ? '<button class="tl-buy" disabled>✔ Desbloqueado</button>'
           : '<button class="tl-buy" ' + (w >= x.price ? '' : 'data-poor="1"') + ' onclick="Taller.buySecret(\'' + x.id + '\')">🧧 ' + x.price + ' · Desbloquear</button>') + '</div></div>'; }).join('');
   }
   function cardsActivas() {
@@ -226,7 +226,7 @@
     let host = $('tll'); if (!host) { host = document.createElement('div'); host.id = 'tll'; document.body.appendChild(host); }
     const eq = eqList();
     const tabs = [['mejoras', '🛠️ PASIVAS · MEJORAS'], ['secretos', '🗝️ PASIVAS · SECRETOS'], ['activas', '⚡ ACTIVAS'], ['japon', '🗾 JAPÓN']].map(([k, n]) => '<button class="tl-tab ' + (tab === k ? 'on' : '') + '" onclick="Taller.tab(\'' + k + '\')">' + n + '</button>').join('');
-    const note = { mejoras: 'Pasivas: se activan solas al comprarlas.', secretos: 'Pasivas: desbloquea la ficha 3D de cada secreto y gana un pequeño bono permanente.', activas: 'Activas: úsalas durante el servicio con los botones redondos. Solo puedes llevar ' + MAX_EQ + ' a la vez (también se equipan desde tu Perfil). Más poder, más precio.', japon: jpNote() }[tab];
+    const note = { mejoras: 'Pasivas: se activan solas al comprarlas.', secretos: 'Pasivas: cada secreto que compras da un pequeño bono permanente.', activas: 'Activas: úsalas durante el servicio con los botones redondos. Solo puedes llevar ' + MAX_EQ + ' a la vez (también se equipan desde tu Perfil). Más poder, más precio.', japon: jpNote() }[tab];
     const slots = tab === 'japon' ? jpChips() : tab === 'activas' ? '<div class="tl-eq"><b>EQUIPADAS</b>' + Array.from({ length: MAX_EQ }, (_, i) => '<div class="tl-slot ' + (eq[i] ? 'on' : '') + '" title="' + (eq[i] ? ACT[eq[i]].name : 'Vacía') + '">' + (eq[i] ? ACT[eq[i]].ic : '') + '</div>').join('') + '</div>' : '';
     host.innerHTML = '<div class="tl-top"><button class="tl-back" onclick="Taller.close()" aria-label="Volver">◀</button><h2>' + SHOP_IC + ' TIENDA DEL CHEF</h2>' + (tab === 'japon' ? '<span class="tl-chip" title="Fondo del Recorrido por Japón">💴 S/ ' + money(jpFondo()) + '</span><button class="tl-buy ghost" onclick="Taller.goJapon()">🗾 Ir al Recorrido</button>' : '') + '<span class="tl-chip">🧧 ' + wallet() + '</span></div><div class="tl-tabs">' + tabs + '</div><div class="tl-note">' + note + '</div>' + slots
       + '<div class="tl-grid">' + (tab === 'mejoras' ? cardsMejoras() : tab === 'secretos' ? cardsSecretos() : tab === 'japon' ? cardsJapon() : cardsActivas()) + '</div>';
@@ -265,7 +265,6 @@
     jpSec(k) { jpSec = k; sfx('click'); render(); },
     goJapon() { sfx('click'); Taller.close(); setTimeout(() => { try { Inicio.act('door'); } catch (e) { try { japonOpen(); } catch (e2) {} } }, 60); },
     buyUp, buyActive, buySecret, equip, use, spent, snap, mergeSnap, apply, reset, cheapest, renderProfile,
-    ver(id) { const h = $('tll'); if (h) h.remove(); try { openSecretDetail(id); } catch (e) { console.warn('[Taller] ficha', e); } },
     canBuyAny() { const c = cheapest(); return c != null && wallet() >= c; }
   }, API);
 

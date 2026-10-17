@@ -4367,16 +4367,6 @@
     transform: translateY(1px);
     box-shadow: 0 1px 3px rgba(0,0,0,0.5);
   }
-  .btn-start-sec.btn-secretos {
-    background: linear-gradient(135deg, #4a148c, #7b1fa2);
-    border-color: #ba68c8;
-    color: #f3e5f5;
-  }
-  .btn-start-sec.btn-secretos:hover {
-    background: linear-gradient(135deg, #6a1b9a, #8e24aa);
-    border-color: #e1bee7;
-    box-shadow: 0 4px 12px rgba(186, 104, 200, 0.4);
-  }
 
   /* PIE DE PÁGINA */
   .start-footer-bar {
@@ -5162,388 +5152,6 @@
     opacity: 0.85;
   }
 
-  /* SECRETOS DEL CHEF MODAL */
-  .secretos-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 10px;
-    margin-top: 8px;
-  }
-
-  .secret-card {
-    background: linear-gradient(145deg, #1f112e, #12091d);
-    border: 2px solid #512da8;
-    border-radius: 12px;
-    padding: 10px 8px;
-    text-align: center;
-    position: relative;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    min-height: 135px;
-  }
-
-  .secret-pedestal-preview {
-    width: 54px;
-    height: 54px;
-    background: radial-gradient(circle, rgba(123, 31, 162, 0.4) 0%, rgba(18, 9, 29, 0.8) 70%);
-    border: 2px dashed #7e57c2;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    margin: 4px 0;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
-  }
-
-  .secret-req-badge {
-    background: #311b92;
-    border: 1px solid #7e57c2;
-    color: #e1bee7;
-    font-size: 9px;
-    font-weight: 800;
-    padding: 2px 6px;
-    border-radius: 6px;
-    line-height: 1.2;
-    margin-top: 4px;
-  }
-
-  @keyframes pulse {
-    0%, 100% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.18); opacity: 0.8; }
-  }
-
-  /* ESTILOS Y ANIMACIONES PARA SECRETO DESBLOQUEADO (TAMAGO 3D) */
-  @keyframes floatPedestal {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-4px); }
-  }
-
-  @keyframes pulseGlow {
-    0%, 100% { box-shadow: 0 0 6px rgba(255, 179, 0, 0.4); }
-    50% { box-shadow: 0 0 16px rgba(255, 179, 0, 0.9); }
-  }
-
-  /* TABS Y FILTROS DE CATEGORÍA DE SECRETOS */
-  .secretos-tabs-bar {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 10px;
-    overflow-x: auto;
-    padding-bottom: 4px;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .secret-tab-btn {
-    background: rgba(37, 18, 54, 0.85);
-    border: 1px solid #7e57c2;
-    color: #e1bee7;
-    font-family: 'Nunito', sans-serif;
-    font-size: 11px;
-    font-weight: 800;
-    padding: 4px 12px;
-    border-radius: 20px;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all 0.2s ease;
-  }
-
-  .secret-tab-btn:hover {
-    border-color: #ffd54f;
-    color: #fff8e1;
-    background: rgba(74, 20, 140, 0.9);
-  }
-
-  .secret-tab-btn.active {
-    background: linear-gradient(135deg, #ffd54f, #ffb300);
-    border-color: #ffe082;
-    color: #211000;
-    font-weight: 900;
-    box-shadow: 0 2px 8px rgba(255, 179, 0, 0.4);
-  }
-
-  .secret-card-unlocked {
-    cursor: pointer !important;
-    border: 2px solid #ffd54f !important;
-    background: linear-gradient(145deg, #2b1338, #180824) !important;
-    box-shadow: 0 0 16px rgba(255, 213, 79, 0.35) !important;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease !important;
-  }
-
-  .secret-card-unlocked:hover {
-    transform: translateY(-2px) scale(1.03) !important;
-    border-color: #ffe082 !important;
-    box-shadow: 0 0 22px rgba(255, 213, 79, 0.6) !important;
-  }
-
-  /* MODAL DE VISTA DETALLADA 3D Y RESEÑA (50% / 50%) */
-  #secreto-detail-modal {
-    z-index: 9600;
-  }
-
-  .secreto-detail-card {
-    width: 96%;
-    max-width: 1060px;
-    height: 92%;
-    max-height: 560px;
-    background: #150d1e;
-    border: 3px solid #ffb300;
-    border-radius: 16px;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    box-shadow: 0 0 35px rgba(0, 0, 0, 0.95), 0 0 18px rgba(255, 179, 0, 0.45);
-  }
-
-  .secreto-split-layout {
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-    height: calc(100% - 40px);
-    overflow: hidden;
-  }
-
-  /* MITAD IZQUIERDA: VISOR 3D (50%) */
-  .secreto-3d-half {
-    flex: 0 0 50%;
-    width: 50%;
-    height: 100%;
-    position: relative;
-    background: radial-gradient(circle at 50% 45%, #251936 0%, #130b1e 70%, #0a0510 100%);
-    border-right: 2px solid rgba(255, 179, 0, 0.3);
-    overflow: hidden;
-  }
-
-  #tamago-3d-canvas-container {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-  }
-
-  #tamago-3d-canvas-container canvas {
-    width: 100% !important;
-    height: 100% !important;
-    display: block;
-    touch-action: none;
-  }
-
-  .secreto-3d-hud {
-    position: absolute;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    pointer-events: none;
-    z-index: 10;
-    width: 90%;
-  }
-
-  .secreto-3d-hint {
-    background: rgba(16, 9, 26, 0.9);
-    border: 1px solid rgba(255, 213, 79, 0.5);
-    color: #ffecb3;
-    font-size: 10.5px;
-    font-weight: 700;
-    padding: 3px 12px;
-    border-radius: 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.6);
-    text-align: center;
-    backdrop-filter: blur(4px);
-    letter-spacing: 0.3px;
-  }
-
-  .secreto-3d-btn-group {
-    display: flex;
-    gap: 8px;
-    pointer-events: auto;
-  }
-
-  .btn-3d-ctrl {
-    background: rgba(28, 16, 44, 0.92);
-    color: #ffd54f;
-    border: 1px solid #ffd54f;
-    padding: 4px 12px;
-    border-radius: 8px;
-    font-size: 10px;
-    font-weight: 800;
-    cursor: pointer;
-    font-family: 'Nunito', sans-serif;
-    transition: all 0.15s ease;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.5);
-  }
-
-  .btn-3d-ctrl:hover {
-    background: #ffd54f;
-    color: #1a0f2b;
-  }
-
-  /* MITAD DERECHA: RESEÑA CULINARIA (50%) */
-  .secreto-lore-half {
-    flex: 0 0 50%;
-    width: 50%;
-    height: 100%;
-    background: #fffdf9;
-    color: #212121;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    padding: 14px 18px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .lore-badge-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    background: #fff8e1;
-    color: #b78103;
-    border: 1px solid #ffe082;
-    font-size: 9px;
-    font-weight: 900;
-    padding: 2px 8px;
-    border-radius: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    width: fit-content;
-  }
-
-  .lore-title-area h3 {
-    font-family: 'Fredoka One', cursive;
-    font-size: 20px;
-    color: #4a148c;
-    line-height: 1.1;
-    margin: 2px 0;
-  }
-
-  .lore-subtitle {
-    font-size: 11px;
-    color: #6a1b9a;
-    font-weight: 700;
-  }
-
-  .lore-section-box {
-    background: #fbf5ed;
-    border-left: 3px solid #ab47bc;
-    border-radius: 4px 8px 8px 4px;
-    padding: 8px 10px;
-    font-size: 11px;
-    line-height: 1.45;
-    color: #3e2723;
-  }
-
-  .lore-section-box h4 {
-    font-size: 11px;
-    font-weight: 900;
-    color: #4a148c;
-    margin-bottom: 4px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-
-  .lore-tare-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6px;
-  }
-
-  .tare-item {
-    background: #fff;
-    border: 1px solid #eeddc8;
-    border-radius: 6px;
-    padding: 5px 7px;
-    font-size: 10px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .tare-icon {
-    font-size: 15px;
-  }
-
-  .tare-name {
-    font-weight: 800;
-    color: #5d4037;
-    font-size: 10px;
-  }
-
-  .tare-desc {
-    font-size: 8.5px;
-    color: #795548;
-  }
-
-  .lore-stats-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 6px;
-    background: #f3e5f5;
-    border: 1px solid #e1bee7;
-    border-radius: 8px;
-    padding: 8px;
-    font-size: 10px;
-  }
-
-  .stat-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 2px 4px;
-  }
-
-  .stat-label {
-    font-weight: 700;
-    color: #4a148c;
-  }
-
-  .stat-val {
-    font-weight: 900;
-    color: #ff6f00;
-  }
-
-  .lore-buff-card {
-    background: linear-gradient(135deg, #fff8e1, #ffecb3);
-    border: 2px solid #ffb300;
-    border-radius: 10px;
-    padding: 8px 12px;
-    box-shadow: 0 2px 8px rgba(255, 179, 0, 0.2);
-  }
-
-  .lore-buff-card h4 {
-    font-family: 'Fredoka One', cursive;
-    font-size: 12px;
-    color: #e65100;
-    margin-bottom: 4px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-
-  .lore-buff-list {
-    list-style: none;
-    font-size: 10.5px;
-    color: #3e2723;
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-  }
-
-  .lore-buff-list li {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-weight: 800;
-  }
-
   .btn-install-pwa {
     background: linear-gradient(135deg, #e65100, #ff8f00) !important;
     border-color: #ffe082 !important;
@@ -5564,25 +5172,6 @@
     100% { box-shadow: 0 0 14px rgba(255, 143, 0, 0.85); }
   }
 
-  @media (max-width: 680px) {
-    .secreto-split-layout {
-      flex-direction: column;
-    }
-    .secreto-3d-half {
-      flex: 0 0 45%;
-      width: 100%;
-      height: 45%;
-      border-right: none;
-      border-bottom: 2px solid rgba(255, 179, 0, 0.3);
-    }
-    .secreto-lore-half {
-      flex: 0 0 55%;
-      width: 100%;
-      height: 55%;
-      padding: 10px;
-    }
-    .tare-desc { display: none; }
-  }
 
   @media (max-width: 800px) {
     .admin-kpi-grid { grid-template-columns: repeat(3, 1fr); }
@@ -6541,7 +6130,6 @@
           </button>
           <div class="start-more-menu" id="start-more-menu">
             <button onclick="openStatsModal(); toggleStartMoreMenu()">📊 Mis estadísticas</button>
-            <button onclick="openSecretosModal(); toggleStartMoreMenu()">✨ Secretos del Chef</button>
             <button onclick="openIngredientOrderModal(); toggleStartMoreMenu()">🍱 Ordenar ingredientes</button>
             <button onclick="openShortcutsModal(); toggleStartMoreMenu()">⌨️ Atajos de teclado</button>
             <button id="btn-start-fullscreen" onclick="toggleFullScreen(); toggleStartMoreMenu()">⛶ Pantalla completa</button>
@@ -6561,7 +6149,7 @@
       <div class="start-footer-center desktop-only">
         <span class="footer-shortcut-hint">🕹️ <strong>[Espacio]</strong> Jugar · <strong>[1-5]</strong> Modos · <strong>[M]</strong> Audio · <strong>[F]</strong> Pantalla completa</span>
       </div>
-      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v199</span></button></div>
+      <div class="start-footer-right"><button class="app-version-btn" id="app-version-btn" onclick="forceAppUpdate()" title="Versión del juego. Toca para descargar la última versión (no borra tu cuenta ni tu progreso)">🔄 <span id="app-version">v200</span></button></div>
     </div>
   </div>
 
@@ -7976,129 +7564,6 @@
     </div>
   </div>
 
-  <!-- MODAL DE SECRETOS DEL CHEF -->
-  <div class="modal-overlay" id="secretos-modal" onclick="closeSecretosModal()">
-    <div class="modal-card" onclick="event.stopPropagation()" style="max-width: 580px; border-color: #ab47bc;">
-      <div class="modal-header" style="background: linear-gradient(90deg, #4a148c, #7b1fa2, #ab47bc);">
-        <div style="display:flex; align-items:center; gap:8px;">
-          <span style="font-size: 20px;">✨</span>
-          <h2 style="font-family: 'Fredoka One', cursive; font-size: 16px; color: #f3e5f5;">SECRETOS DEL CHEF • GALERÍA 3D</h2>
-        </div>
-        <button class="btn btn-danger" style="padding: 2px 8px;" onclick="closeSecretosModal()">✕</button>
-      </div>
-      <div class="modal-body" style="padding: 14px; max-height: 70vh; overflow-y: auto;">
-        <div style="background: linear-gradient(135deg, rgba(74, 20, 140, 0.2), rgba(123, 31, 162, 0.15)); border: 1px solid #ba68c8; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; font-size: 11px; color: #f3e5f5; line-height: 1.4;">
-          🌟 <strong>Secretos Culinarios Legendarios:</strong> Descubre las tarjetas informativas y modelos 3D en Pixel Art con rotación 360° sobre pedestal. Se desbloquean al completar hitos y niveles en el juego.
-        </div>
-
-        <!-- TABS DE CATEGORÍAS DE SECRETOS -->
-        <div class="secretos-tabs-bar" id="secretos-tabs-container">
-          <button class="secret-tab-btn active" onclick="filterSecretosCategory('todos', this)">⭐ Todos (23)</button>
-          <button class="secret-tab-btn" onclick="filterSecretosCategory('ramen', this)">🍜 Tazones Ramen (9)</button>
-          <button class="secret-tab-btn" onclick="filterSecretosCategory('ingredientes', this)">🥚 Ingredientes (8)</button>
-          <button class="secret-tab-btn" onclick="filterSecretosCategory('cuchillos', this)">🔪 Cuchillos (5)</button>
-          <button class="secret-tab-btn" onclick="filterSecretosCategory('herramientas', this)">🛠️ Herramientas (1)</button>
-        </div>
-
-        <div class="secretos-grid" id="secretos-cards-container">
-          <!-- Las tarjetas de todos los secretos desbloqueados se generan dinámicamente -->
-        </div>
-
-        <div style="margin-top: 14px; text-align: center;">
-          <button class="btn" onclick="closeSecretosModal()" style="background: linear-gradient(135deg, #7b1fa2, #4a148c); color: #fff; font-size: 12px; padding: 6px 20px; margin: 0 auto;">
-            Cerrar Galería
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL DE DETALLE Y RESEÑA 3D DEL SECRETO (50% 3D / 50% RESEÑA) -->
-  <div class="modal-overlay" id="secreto-detail-modal" onclick="closeTamagoSecretDetail()">
-    <div class="secreto-detail-card" onclick="event.stopPropagation()">
-      <!-- Header -->
-      <div class="modal-header" style="background: linear-gradient(90deg, #4a148c, #6a1b9a, #ab47bc); padding: 6px 14px; border-bottom: 2px solid #ffd54f;">
-        <div style="display:flex; align-items:center; gap:8px;">
-          <span style="font-size: 18px;" id="secreto-modal-icon">✨</span>
-          <h2 id="secreto-modal-title" style="font-family: 'Fredoka One', cursive; font-size: 15px; color: #fff8e1;">SECRETO DEL CHEF • AJITSUKE TAMAGO 3D</h2>
-          <span id="secreto-modal-badge" style="background: linear-gradient(90deg, #ff8f00, #ffb300); color: #211000; font-size: 9px; font-weight: 900; padding: 2px 7px; border-radius: 8px;">DESBLOQUEADO</span>
-        </div>
-        <div style="display:flex; gap:5px; align-items:center;">
-          <button class="btn" style="background: #311b92; color: #e1bee7; padding: 3px 8px; font-size: 10px; font-weight: 800;" onclick="navigateSecret(-1)" title="Anterior secreto">◀ Ant.</button>
-          <button class="btn" style="background: #311b92; color: #e1bee7; padding: 3px 8px; font-size: 10px; font-weight: 800;" onclick="navigateSecret(1)" title="Siguiente secreto">Sig. ▶</button>
-          <button class="btn" style="background: #f3e5f5; color: #4a148c; padding: 3px 10px; font-size: 10px; font-weight: 900;" onclick="backToSecretosGallery()">Galería</button>
-          <button class="btn btn-danger" style="padding: 2px 8px;" onclick="closeTamagoSecretDetail()">✕</button>
-        </div>
-      </div>
-
-      <!-- Split Layout: 50% Visor 3D / 50% Reseña Culinaria -->
-      <div class="secreto-split-layout">
-        <!-- 50% Izquierda: Visor 3D Interactivo con OrbitControls -->
-        <div class="secreto-3d-half">
-          <div id="tamago-3d-canvas-container"></div>
-          <div class="secreto-3d-hud">
-            <div class="secreto-3d-hint">
-              🖱️ Arrastra libremente para girar 360° | 🔍 Rueda o pellizco para Zoom
-            </div>
-            <div class="secreto-3d-btn-group">
-              <button class="btn-3d-ctrl" id="btn-toggle-autorotate" onclick="toggleTamagoAutoRotate()">
-                🔄 Auto-Giro: <span id="autorotate-status" style="color:#69f0ae;">ON</span>
-              </button>
-              <button class="btn-3d-ctrl" onclick="resetTamagoCamera()">
-                🎯 Centrar Ángulo
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 50% Derecha: Reseña Culinaria del Producto -->
-        <div class="secreto-lore-half" id="secreto-lore-container">
-          <div class="lore-title-area">
-            <div class="lore-badge-tag" id="lore-badge-tag">⭐ Topping Maestro • Nivel Legendario</div>
-            <h3 id="lore-main-title">🥚 Ajitsuke Tamago (味付け玉子)</h3>
-            <div class="lore-subtitle" id="lore-subtitle">Huevo Marinado Semi-Líquido estilo Ramen Bar Tokyo</div>
-          </div>
-
-          <!-- Reseña del Chef -->
-          <div class="lore-section-box">
-            <h4 id="lore-story-header">📖 Reseña del Chef & Técnica Secreta</h4>
-            <div id="lore-story-content">
-              <p>
-                El <strong>Ajitsuke Tamago</strong> es el alma y la prueba de fuego de todo maestro ramen. El secreto artesanal comienza con una rigurosa selección de huevos frescos a temperatura ambiente para evitar microfisuras al contacto con el agua en ebullición.
-              </p>
-              <p style="margin-top: 6px;">
-                La cocción se cronometra con precisión absoluta a <strong>6 minutos y 15 segundos</strong>, logrando el estado sagrado <em>'Hanjuku'</em>: clara firme pero tierna y sedosa, y una yema cremosa, dorada y de consistencia casi gelatinosa que se funde delicadamente al tocar el caldo hirviendo.
-              </p>
-            </div>
-          </div>
-
-          <!-- Ingredientes del Tare / Forja -->
-          <div>
-            <div id="lore-tare-title" style="font-size: 11px; font-weight: 900; color: #4a148c; margin-bottom: 4px; display:flex; align-items:center; gap:4px;">
-              🧂 Tare Secreto de Marinado (Salmuera Fría)
-            </div>
-            <div class="lore-tare-grid" id="lore-tare-grid">
-              <!-- Cargado dinámicamente -->
-            </div>
-          </div>
-
-          <!-- Ficha de Degustación / Especificaciones -->
-          <div class="lore-stats-grid" id="lore-stats-grid">
-            <!-- Cargado dinámicamente -->
-          </div>
-
-          <!-- Buff de Juego -->
-          <div class="lore-buff-card">
-            <h4>⚡ Efecto Culinario Activo en Ramen Mania:</h4>
-            <ul class="lore-buff-list" id="lore-buff-list">
-              <!-- Cargado dinámicamente -->
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- NOTIFICACIÓN DE BIENVENIDA A CUENTA VINCULADA -->
   <div id="welcome-user-toast" class="welcome-user-toast">
     <span id="welcome-toast-avatar" style="font-size: 22px;">🍜</span>
@@ -8519,37 +7984,36 @@
   </div>
 </div> <!-- CIERRE DE #game-container (INCLUYE OVERLAYS Y MODALES PARA PANTALLA COMPLETA TOTAL) -->
 
-<script src="js/01-nucleo-supabase-dispositivo.js?v=162"></script>
-<script src="js/02-datos-ingredientes-recetas.js?v=162"></script>
-<script src="js/03-datos-niveles-campana.js?v=162"></script>
-<script src="js/04-estado-y-audio.js?v=162"></script>
-<script src="js/05-menu-recetas-areas.js?v=162"></script>
-<script src="js/06-etapas-navegacion.js?v=162"></script>
-<script src="js/07-makis-estacion.js?v=162"></script>
-<script src="js/08-salteados-wok.js?v=162"></script>
-<script src="js/09-etapas-motor.js?v=162"></script>
-<script src="js/10-produccion-taller-gestos.js?v=162"></script>
-<script src="js/11-emplatado-platos-salteado.js?v=162"></script>
-<script src="js/12-frituras-estacion.js?v=162"></script>
-<script src="js/13-areas-despensa-arrastre.js?v=162"></script>
-<script src="js/14-cuencos-estado-cocina.js?v=162"></script>
-<script src="js/15-ramen-fideos-clientes.js?v=162"></script>
-<script src="js/16-cooperativo-estaciones.js?v=162"></script>
-<script src="js/17-propinas-mejoras-progreso.js?v=162"></script>
-<script src="js/18-nube-cuenta.js?v=162"></script>
-<script src="js/19-entrenamiento.js?v=162"></script>
-<script src="js/20-estadisticas.js?v=162"></script>
-<script src="js/21-cocina-libre-mejoras-vfx.js?v=162"></script>
-<script src="js/22-calidad-servir.js?v=162"></script>
-<script src="js/23-ramen-sartenes-herramientas.js?v=162"></script>
-<script src="js/24-ramen-sartenes-shio-fideos.js?v=162"></script>
-<script src="js/25-partida-campana.js?v=162"></script>
-<script src="js/26-inicio-menu-modales.js?v=162"></script>
-<script src="js/27-tutorial-antiguo.js?v=162"></script>
-<script src="js/28-perfil-ranking-pantalla.js?v=162"></script>
-<script src="js/29-secretos-galeria.js?v=162"></script>
-<script src="js/30-secretos-3d.js?v=162"></script>
-<script src="js/31-orientacion-admin-arranque.js?v=162"></script>
+<script src="js/01-nucleo-supabase-dispositivo.js?v=163"></script>
+<script src="js/02-datos-ingredientes-recetas.js?v=163"></script>
+<script src="js/03-datos-niveles-campana.js?v=163"></script>
+<script src="js/04-estado-y-audio.js?v=163"></script>
+<script src="js/05-menu-recetas-areas.js?v=163"></script>
+<script src="js/06-etapas-navegacion.js?v=163"></script>
+<script src="js/07-makis-estacion.js?v=163"></script>
+<script src="js/08-salteados-wok.js?v=163"></script>
+<script src="js/09-etapas-motor.js?v=163"></script>
+<script src="js/10-produccion-taller-gestos.js?v=163"></script>
+<script src="js/11-emplatado-platos-salteado.js?v=163"></script>
+<script src="js/12-frituras-estacion.js?v=163"></script>
+<script src="js/13-areas-despensa-arrastre.js?v=163"></script>
+<script src="js/14-cuencos-estado-cocina.js?v=163"></script>
+<script src="js/15-ramen-fideos-clientes.js?v=163"></script>
+<script src="js/16-cooperativo-estaciones.js?v=163"></script>
+<script src="js/17-propinas-mejoras-progreso.js?v=163"></script>
+<script src="js/18-nube-cuenta.js?v=163"></script>
+<script src="js/19-entrenamiento.js?v=163"></script>
+<script src="js/20-estadisticas.js?v=163"></script>
+<script src="js/21-cocina-libre-mejoras-vfx.js?v=163"></script>
+<script src="js/22-calidad-servir.js?v=163"></script>
+<script src="js/23-ramen-sartenes-herramientas.js?v=163"></script>
+<script src="js/24-ramen-sartenes-shio-fideos.js?v=163"></script>
+<script src="js/25-partida-campana.js?v=163"></script>
+<script src="js/26-inicio-menu-modales.js?v=163"></script>
+<script src="js/27-tutorial-antiguo.js?v=163"></script>
+<script src="js/28-perfil-ranking-pantalla.js?v=163"></script>
+<script src="js/29-secretos-datos.js?v=163"></script>
+<script src="js/31-orientacion-admin-arranque.js?v=163"></script>
 <script src="multiplayer.js?v=22"></script>
 <script src="makis-studio.js?v=118"></script>
 <script src="frituras-prod.js?v=2"></script>
@@ -8558,14 +8022,13 @@
 <script src="reconocer.js?v=6"></script>
 <script src="recetario.js?v=2"></script>
 <script src="servicio.js?v=4"></script>
-<script src="taller.js?v=5"></script>
-<script src="modos.js?v=9"></script>
-<script src="home.js?v=19"></script>
+<script src="taller.js?v=6"></script>
+<script src="modos.js?v=10"></script>
+<script src="home.js?v=20"></script>
 <script src="guia.js?v=8"></script>
 <script src="japon-scene.js?v=10"></script>
 <script src="escena-cocina.js?v=16"></script>
 <script src="inicio.js?v=38"></script>
-<script src="aula.js?v=9"></script>
 <script src="campana-mapa.js?v=9"></script>
 <script src="audio-ambiente.js?v=10"></script>
 </body>

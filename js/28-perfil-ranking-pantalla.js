@@ -1042,19 +1042,9 @@ function closeRecipeModal() {
   document.getElementById("recipe-modal").classList.remove("active");
 }
 
-function openSecretosModal() {
+function openSecretosModal() {      // los secretos del chef ahora se compran en la Tienda (taller.js)
   playSound('click');
-  const modal = document.getElementById("secretos-modal");
-  if (modal) {
-    modal.classList.add("active");
-    renderSecretosCards(currentSecretFilter || 'todos');
-  }
-}
-
-function closeSecretosModal() {
-  playSound('click');
-  const modal = document.getElementById("secretos-modal");
-  if (modal) modal.classList.remove("active");
+  if (window.Taller) Taller.open('secretos');
 }
 
 /* ==========================================================================

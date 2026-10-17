@@ -118,6 +118,7 @@
   ];
   // lo último que cambió, en lenguaje del jugador (lo más nuevo primero)
   const NEWS = [
+    ['v200', '🧹', 'Secretos del Maestro, en la Tienda', 'Se quitó la bodega de Secretos del Maestro y sus modelos 3D: los secretos viven solo como ítems de la Tienda, con su bono permanente.'],
     ['v199', '🎓', 'Aula del Maestro por tarjetas', 'El Aula se organiza como los modos de juego: dos secciones, Lecciones y Repaso, con tarjetas grandes que explican qué es cada cosa. Práctica y Retos viven en Aprender.'],
     ['v198', '🎓', 'Aula del Maestro renovada', 'El Aula pasa al estilo nuevo (fondo oscuro, placas y dorado), sin el Maestro animado: el siguiente paso y un consejo del día arriba, y los retos enlazan con el mapa de la Campaña.'],
     ['v197', '🎓', 'Aprender renovado', 'Aprender ahora usa la misma pantalla que los modos de juego: Lecciones del Aula, Práctica sin reloj, Retos de la Campaña y Repaso (Recetario y despensa).'],

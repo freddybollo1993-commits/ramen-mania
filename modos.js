@@ -112,7 +112,6 @@
         cards: [
           { col: '#8e24aa', icon: '🔍', title: 'MODO INGREDIENTES', sub: 'Qué lleva cada plato', meta: 'Mide tu tiempo', art: '<span>🔍</span>', desc: 'Marca los ingredientes de cada plato y mide tu tiempo.', info: 'Sin reloj en contra: tu tiempo es tu marca.', go: ['pantry'] },
           { col: '#ff9800', icon: '📖', title: 'RECETARIO OFICIAL', sub: 'Los 35 platos', meta: rs ? '🍽️ ' + rs.tried + '/' + rs.total : 'Colección', art: '<span>📖</span>', desc: 'Ingredientes, pasos y estrellas de los 35 platos.', info: 'Tu colección de platos.', go: ['book'] },
-          { col: '#ab47bc', icon: '📜', title: 'SECRETOS DEL MAESTRO', sub: 'Técnicas y trucos', meta: 'El baúl del Maestro', art: '<span>📜</span>', desc: 'Técnicas avanzadas y trucos que guarda el Maestro.', info: 'Ayuda al Maestro a buscar en su baúl.', go: ['secretos'] },
           { col: '#26a69a', icon: '🥢', title: 'ORDENAR DESPENSA', sub: 'Tu orden de ingredientes', meta: 'Personalizable', art: '<span>🥢</span>', desc: 'Cambia el orden de los ingredientes en la cocina.', info: 'Personaliza la despensa.', go: ['order'] }] }; } }
     ];
   }
@@ -250,7 +249,6 @@
       try {
         if (kind === 'lesson') Guia.start(arg);
         else if (kind === 'enter') { if (arg === 'aula') Modos.aula('learn'); else Inicio.act('enter', arg); }
-        else if (kind === 'secretos') Inicio.enterRoom('secretos');
         else if (kind === 'free') { if (arg === 'all') { window.startFreeAreas = null; setStartSelectedMode('FREE'); handleStartPlayClick(); } else Inicio.act('free', arg); }
         else if (kind === 'pantry') Inicio.act('pantry');
         else if (kind === 'retos') openLevelRetos(arg ? +arg : undefined);
