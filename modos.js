@@ -25,16 +25,16 @@
       const cs = campStats(), L = Math.min(20, cs.unlockedLevel || 1), arcs = (typeof CAMPAIGN_ARCS !== 'undefined' ? CAMPAIGN_ARCS : []);
       return {
         feat: { title: 'CAMPAÑA', art: 'camp', panels: ['20 niveles en 5 arcos: del primer caldo a la cocina completa.', 'Gana hasta 3 ⭐ por servicio impecable y repite niveles para mejorar.'],
-          cta: tutDone() ? `▶ CONTINUAR · NIVEL ${L}` : '🔒 HAZ LA LECCIÓN DE RAMEN', go: ['play'], meta: `⭐ ${cs.stars}/${cs.maxStars}` },
+          cta: '✔ ELEGIR CAMPAÑA', go: ['camp'], meta: `⭐ ${cs.stars}/${cs.maxStars}` },
         cards: arcs.map((a, i) => { const open = a.levels[0] <= (cs.unlockedLevel || 1), st = arcStars(a);
           return { col: ARC_COL[a.id] || '#ff9800', icon: a.icon, title: a.name.toUpperCase(), sub: `Niveles ${a.levels[0]}–${a.levels[a.levels.length - 1]}`, meta: open ? `⭐ ${st}/${a.levels.length * 3}` : `🔒 Llega al nivel ${a.levels[0]}`, locked: !open,
-            art: ARC_ART[a.id] != null ? imgOf(ARC_ART[a.id]) : '<span>🏆</span>', info: `${a.name}: ${a.areas}. Niveles ${a.levels.join(', ')}.`, go: ['camp'] }; })
+            art: ARC_ART[a.id] != null ? imgOf(ARC_ART[a.id]) : '<span>🏆</span>', info: `${a.name}: ${a.areas}. Niveles ${a.levels.join(', ')}.`, go: ['camp', a.id] }; })
       };
     } },
     { id: 'rash', name: 'RASH', col: '#e53935', build() {
       const b = rashBest();
       return {
-        feat: { title: 'RASH', art: 'rash', panels: ['Supervivencia extrema: los clientes llegan cada vez más rápido.', 'Tienes 3 vidas. Cada ronda desbloquea platos y cocinas nuevas.'], cta: '⚡ JUGAR RASH', go: ['rash'], meta: `Récord: ronda ${b}` },
+        feat: { title: 'RASH', art: 'rash', panels: ['Supervivencia extrema: los clientes llegan cada vez más rápido.', 'Tienes 3 vidas. Cada ronda desbloquea platos y cocinas nuevas.'], cta: '✔ ELEGIR RASH', go: ['rash'], meta: `Récord: ronda ${b}` },
         cards: [
           { col: '#e53935', icon: '🏆', title: 'TU RÉCORD', sub: 'Ronda ' + b, meta: 'Mejor marca', art: '<span>🏆</span>', info: 'Tu ronda más alta en Rash.', go: ['rash'] },
           { col: '#8e24aa', icon: '🔓', title: 'ETAPAS', sub: 'Por rondas', meta: 'Ramen, wok, makis y frituras', art: '<span>🔥</span>', info: 'Las cocinas se activan poco a poco: Ramen desde la ronda 3, Salteado 9, Makis 16 y Frituras 27.', go: ['rash'] }
@@ -44,16 +44,16 @@
     { id: 'japon', name: 'RECORRIDO POR JAPÓN', col: '#ec407a', build() {
       const cities = japonCities();
       return {
-        feat: { title: 'RECORRIDO POR JAPÓN', art: 'japon', panels: ['Abre un restaurante en cada ciudad: producen soles aunque estés fuera.', 'Mejora cocineros, mesas y objetos; domina la ciudad para desbloquear sus platos.'], cta: '🗾 ABRIR EL MAPA', go: ['door'], meta: cities.length ? `${cities.filter(c => c.open).length}/${cities.length} ciudades` : '' },
-        cards: cities.map(c => ({ col: c.open ? '#ec407a' : '#6d4c6e', icon: '⛩️', title: c.name.toUpperCase(), sub: c.region, meta: c.open ? '✔ Abierta' : '🔒 S/ ' + Number(c.cost).toLocaleString('es-PE'), locked: !c.open, art: '<span>' + (c.open ? '🏯' : '🔒') + '</span>', info: c.story || c.name, go: ['door'] }))
+        feat: { title: 'RECORRIDO POR JAPÓN', art: 'japon', panels: ['Abre un restaurante en cada ciudad: producen soles aunque estés fuera.', 'Mejora cocineros, mesas y objetos; domina la ciudad para desbloquear sus platos.'], cta: '✔ ELEGIR EL RECORRIDO', go: ['japon'], meta: cities.length ? `${cities.filter(c => c.open).length}/${cities.length} ciudades` : '' },
+        cards: cities.map(c => ({ col: c.open ? '#ec407a' : '#6d4c6e', icon: '⛩️', title: c.name.toUpperCase(), sub: c.region, meta: c.open ? '✔ Abierta' : '🔒 S/ ' + Number(c.cost).toLocaleString('es-PE'), locked: !c.open, art: '<span>' + (c.open ? '🏯' : '🔒') + '</span>', info: c.story || c.name, go: ['japon', c.id] }))
       };
     } },
     { id: 'online', name: 'ONLINE', col: '#1e88e5', build() {
       return {
-        feat: { title: 'MULTIJUGADOR', art: 'online', panels: ['Juega con amigos en línea, en sala privada.', 'Compite por quitarte los clientes o cocina junto a tu equipo.'], cta: '🌐 ENTRAR A UNA SALA', go: ['room', 'VS'], meta: 'Tiempo real' },
+        feat: { title: 'MULTIJUGADOR', art: 'online', panels: ['Juega con amigos en línea, en sala privada.', 'Compite por quitarte los clientes o cocina junto a tu equipo.'], cta: '✔ ELEGIR ONLINE', go: ['online', 'VS'], meta: 'Tiempo real' },
         cards: [
-          { col: '#e53935', icon: '⚔️', title: 'ARREBATO', sub: 'Versus', meta: '1 contra 1', art: '<span>⚔️</span>', info: 'Versus: compites por los clientes con tu rival (MMR).', go: ['room', 'VS'] },
-          { col: '#43a047', icon: '🤝', title: 'COCINA COMPARTIDA', sub: 'Cooperativo', meta: 'En equipo', art: '<span>🤝</span>', info: 'Cooperativo: cada uno atiende una estación y la meta es del equipo.', go: ['room', 'COOP'] }
+          { col: '#e53935', icon: '⚔️', title: 'ARREBATO', sub: 'Versus', meta: '1 contra 1', art: '<span>⚔️</span>', info: 'Versus: compites por los clientes con tu rival (MMR).', go: ['online', 'VS'] },
+          { col: '#43a047', icon: '🤝', title: 'COCINA COMPARTIDA', sub: 'Cooperativo', meta: 'En equipo', art: '<span>🤝</span>', info: 'Cooperativo: cada uno atiende una estación y la meta es del equipo.', go: ['online', 'COOP'] }
         ]
       };
     } }
@@ -112,10 +112,10 @@
     return `<div class="mds-feat" style="--bg:${BG[f.art]}; background: ${BG[f.art]}">
       ${f.meta ? `<span class="mds-fmeta">${f.meta}</span>` : '<span></span>'}
       <div><h3 class="mds-ft">${f.title}</h3>${f.panels.map(p => `<div class="mds-panel"><span>${p}</span></div>`).join('')}
-      <button class="mds-cta" onclick="Modos.go('${f.go.join("','")}')">${f.cta}</button></div></div>`;
+      <button class="mds-cta" onclick="Modos.pick('${f.go.join("','")}')">${f.cta}</button></div></div>`;
   }
   function card(c) {
-    return `<button class="mds-card ${c.locked ? 'locked' : ''}" style="--c:${c.col}" onclick="Modos.go('${c.go.join("','")}')" aria-label="${esc(c.title)}">
+    return `<button class="mds-card ${c.locked ? 'locked' : ''}" style="--c:${c.col}" onclick="Modos.pick('${c.go.join("','")}')" aria-label="${esc(c.title)}">
       <div class="mds-meta"><span>${c.meta || ''}</span><i class="mds-i" onclick="event.stopPropagation();Modos.info(this.dataset.t)" data-t="${esc(c.info || c.title)}">i</i></div>
       <div class="mds-head"><span class="ic">${c.icon}</span><div><b>${c.title}</b><small>${c.sub || ''}</small></div></div>
       <div class="mds-art">${c.art}</div></button>`;
@@ -137,9 +137,37 @@
   }
   const onKey = e => { if (e.key === 'Escape' && $('mds')) Modos.close(); };
 
+  // ---------- modo elegido (lo juega el botón JUGAR de la pantalla principal) ----------
+  const SEL_KEY = 'ramen_modo_sel';
+  const readSel = () => { try { const v = JSON.parse(store.get(SEL_KEY) || 'null'); if (v && ['camp', 'rash', 'japon', 'online'].includes(v.id)) return v; } catch (e) {} return { id: 'camp', arg: null }; };
+  function current() {
+    const v = readSel();
+    if (v.id === 'rash') return { id: 'rash', icon: '⚡', title: 'RASH', top: 'Supervivencia', sub: 'Récord: ronda ' + rashBest(), tag: '', col: '#e53935' };
+    if (v.id === 'japon') { const c = japonCities(), n = c.filter(x => x.open).length; return { id: 'japon', icon: '🗾', title: 'JAPÓN', top: 'Recorrido', sub: c.length ? n + '/' + c.length + ' ciudades' : 'Restaurantes por ciudad', tag: '', col: '#ec407a' }; }
+    if (v.id === 'online') return { id: 'online', icon: v.arg === 'COOP' ? '🤝' : '⚔️', title: v.arg === 'COOP' ? 'COCINA COMPARTIDA' : 'ARREBATO', top: 'Online', sub: v.arg === 'COOP' ? 'Cooperativo' : 'Versus 1 contra 1', tag: '', col: '#1e88e5' };
+    const cs = campStats(), L = Math.min(20, cs.unlockedLevel || 1);
+    return { id: 'camp', icon: '🏮', title: 'CAMPAÑA', top: 'Gastronómica', sub: 'Nivel ' + L + ' · ⭐ ' + cs.stars + '/' + cs.maxStars, tag: L > 1 ? 'NIVEL ' + L : '¡NUEVO!', col: '#ff9800' };
+  }
+
   window.Modos = {
+    current,
+    pick(id, arg) {
+      try { localStorage.setItem(SEL_KEY, JSON.stringify({ id, arg: arg || null })); } catch (e) {}
+      const h = $('mds'); if (h) h.remove(); document.removeEventListener('keydown', onKey); sfx('serve');
+      try { if (window.Home) Home.refresh(); } catch (e) {}
+      toast('✔ Modo elegido: ' + current().title + ' · toca JUGAR');
+    },
+    play() {
+      const v = readSel();
+      try {
+        if (v.id === 'rash') Inicio.act('rash');
+        else if (v.id === 'japon') Inicio.act('door');
+        else if (v.id === 'online') { try { if (window.MultiplayerManager && v.arg) MultiplayerManager.gameMode = v.arg; } catch (e) {} Inicio.act('room'); }
+        else if (window.Inicio) Inicio.play();
+      } catch (e) { console.warn('Modos.play', e); }
+    },
     open() { css(); sfx('click'); render(); document.addEventListener('keydown', onKey); },
-    close() { const h = $('mds'); if (h) h.remove(); document.removeEventListener('keydown', onKey); sfx('click'); },
+    close() { const h = $('mds'); if (h) h.remove(); document.removeEventListener('keydown', onKey); sfx('click'); try { if (window.Home) Home.refresh(); } catch (e) {} },
     tab(id) { sfx('click'); const strip = $('mds-strip'), s = strip && strip.querySelector('.mds-sec[data-id="' + id + '"]'); if (s) strip.scrollTo({ left: Math.max(0, s.offsetLeft - 18), behavior: 'smooth' }); },
     info(t) { toast('ℹ️ ' + t); },
     go(act, arg) {

@@ -397,7 +397,7 @@
   // ---------- arte vectorial animado y vivo ----------
   function getArtworkSvg(key) {
     // Escenas vivas con arte final (escena-cocina.js); el resto sigue con los SVG de abajo
-    if (window.EscenaCocina && EscenaCocina.has(key)) return EscenaCocina.html(key);
+    if (window.EscenaCocina && EscenaCocina.has(key) && !window.Home) return EscenaCocina.html(key);      // con la pantalla principal (home.js) la escena viva es solo de ella: no se comparten los videos
     switch (key) {
       case 'jugar':
       case 'camp':
@@ -1698,6 +1698,7 @@
 
     S.side.innerHTML = html;
     bindListScroll();
+    try { if (window.Home) Home.sync(S); } catch (e) {}                        // la pantalla principal se muestra solo en la raíz del menú
   }
 
   // Las escenas vivas (cocina) se crean UNA vez y se conservan ocultas: volver a «Jugar» ya no reconstruye la placa, ni reposiciona los videos
@@ -1771,7 +1772,7 @@
     S.wrap.classList.add('zoomout');
     setTimeout(() => {
       try {
-        S.curRoom = name;
+        S.curRoom = name; try { if (window.Home) Home.sync(S); } catch (e) {}
         S.room.style.display = 'block'; S.room.className = 'ini-room arrive'; S.room.innerHTML = '';
         R.mount(S.room, roomApi());
       } catch (e) {
@@ -1809,6 +1810,11 @@
     pick(id) { selectOption(id); },
     onItemClick(id, el) { handleItemClick(id, el); },
     back() { goBack(); },
+    openSub(sub, item) {                                // desde la pantalla principal: abre un submenú (Aprender, Mi Restaurante, Ajustes) con el menú anterior
+      if (!S) return; sfx('click');
+      S.sub = sub; S.item = item || ((DATA[sub] && DATA[sub][0]) ? DATA[sub][0].id : S.item);
+      renderSidebar(); renderShowcase();
+    },
     trigger() { triggerActiveItem(); },
     play() {                                           // CONTINUAR: entra directo al siguiente nivel de Campaña (con la explicación del Maestro si es la primera vez)
       if (!tutDone()) return triggerActiveItem();
@@ -1845,7 +1851,8 @@
       try { updateStartModesDisplay(); } catch (e) {}
     },
     view() { return S ? 'hub' : 'classic'; },
-    _S: () => S
+    _S: () => S,
+    _h: { alertOf: id => itemAlert(id), tutDone, wallet, chefName, chefAvatar, retosHechos }
   };
 
   // Teclas rápidas de teclado para navegación en PC
@@ -1908,6 +1915,7 @@
           const wEls = document.querySelectorAll('.hub-hdr-chip.wallet b');
           const val = wallet();
           wEls.forEach(el => el.textContent = val);
+          document.querySelectorAll('.hm-wallet').forEach(el => el.textContent = val);
         } catch (e) {}
         return r;
       };
