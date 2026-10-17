@@ -298,6 +298,7 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
     S.fondo -= cost; S.spent += cost; try { playSound('stock_add'); } catch (e) {} return true;
   }
   const A = {
+    cities() { load(); return CITIES.map(c => ({ id: c.id, name: c.name, region: c.region, cost: c.cost, story: c.story, open: c.id === 'tokio' || !!(S.open && S.open[c.id]) })); },      // para la pantalla de Modos de juego
     hire(z) { const r = rs(), id = S.cur, s = r.staff[z]; if (s.n >= staffMax(r, z)) return toast('🏠 Tu local no tiene más puestos: amplíalo.'); if (!pay(costHire(id, z, s.n))) return; s.n++; refresh(); },
     level(z) { const r = rs(), id = S.cur, s = r.staff[z]; if (s.n < 1) return toast('Contrata primero a alguien.'); if (s.l >= 5) return; if (!pay(costLevel(id, z, s.l, s.n))) return; s.l++; refresh(); },
     table() { const r = rs(), id = S.cur; if (r.tables >= T.tiers[r.tier - 1].tables) return toast('🏠 No caben más mesas: amplía el local.'); if (!pay(costTable(id, r.tables))) return; r.tables++; refresh(); },

@@ -1585,6 +1585,7 @@
     if (!S.sub) {
       const pilar = DATA.pillars.find(p => p.id === S.item);
       if (pilar) {
+        if (pilar.id === 'jugar' && window.Modos && tutDone()) { sfx('serve'); Modos.open(); return; }      // Jugar abre la pantalla de Modos de juego
         sfx('serve');
         S.sub = pilar.id;
         S.item = pilar.defaultItem || pilar.id;
