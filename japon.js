@@ -361,7 +361,7 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
     },
     close() { S.zone = null; refresh(); if (window.JPScene) window.JPScene.focus(null); },
     fin() { S.fin = !S.fin; refresh(); },
-    exit() { persist(); stop(); if (window.JPScene) window.JPScene.destroy(); const el = document.getElementById('jp-screen'); if (el) el.remove(); S.view = null; save(); updateChip(); }
+    exit() { persist(); stop(); if (window.JPScene) window.JPScene.destroy(); const el = document.getElementById('jp-screen'); if (el) el.remove(); S.view = null; save(); }
   };
   const rs = () => S.rest[S.cur];
   const dockW = () => Math.min(330, Math.round(window.innerWidth * 0.46));
@@ -762,7 +762,7 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
           if (i === 2) { m2.status = 'error'; return; }
         }
       } else { m2.rev = rev; m2.base = ledgers(merged); m2.dirty = false; m2.status = 'ok'; }
-      persist(); updateChip(); if (S.view === 'rest' || S.view === 'map') { try { render(); } catch (e) {} }
+      persist(); if (S.view === 'rest' || S.view === 'map') { try { render(); } catch (e) {} }
     } catch (e) { syncMeta().status = 'error'; }
     finally { syncing = false; if (syncMeta().status === 'error') syncMeta().failAt = Date.now(); persist(); syncUi(); }
   }
@@ -788,7 +788,7 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
       S.fondo += money; S.lifetime += money;
       S.act[dayKey()] = (S.act[dayKey()] || 0) + mins;
       Object.keys(S.act).forEach(k => { if (+k < dayKey() - 7) delete S.act[k]; });
-      save(); updateChip();
+      save();
     } catch (e) {}
   }
   function install() {
@@ -806,18 +806,7 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
       w._jp = true; window.returnToStartMenu = w;
     }
     wrap('recordGameScoreAutomatically', onRunEnd);
-    // botón en la barra superior del menú
-    const wal = document.querySelector('.start-top-right .start-wallet-chip');
-    if (wal && !document.getElementById('jp-menu-btn')) {
-      const btn = document.createElement('button');
-      btn.className = 'start-wallet-chip'; btn.id = 'jp-menu-btn'; btn.setAttribute('onclick', 'japonOpen()');
-      btn.title = 'Recorrido por Japón: restaurantes que producen aunque no juegues';
-      btn.innerHTML = '🗾 <span id="jp-menu-fondo">Japón</span>';
-      wal.parentNode.insertBefore(btn, wal);
-    }
-    updateChip();
   }
-  function updateChip() { load(); const st = document.getElementById('jp-menu-fondo'); if (st) st.textContent = 'Japón · S/ ' + fmt(S.fondo); }
   window.JP = Object.assign({}, A);
   window.japonOpen = open;
   window.japonBuff = japonBuff;

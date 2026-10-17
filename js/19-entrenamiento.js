@@ -3,33 +3,8 @@
 
 // ================= MODO ENTRENAMIENTO =================
 // Sin cuenta regresiva: el reloj sube y mide cuánto tardas en completar cada reto. Los retos van de lo
-// corto y fácil a lo largo y exigente, recorren las 4 áreas y, al completarlos, desbloquean las funciones
-// de la cocina (cuencos, woks, áreas, estrellas, rechazos, frescura, mottainai). Cada reto da propinas
+// corto y fácil a lo largo y exigente, recorren las 4 áreas y son subniveles de la Campaña (se abren al superar su nivel). Cada reto da propinas
 // según la medalla de tiempo (bronce 60 %, plata 85 %, oro 100 %) y solo se cobra la diferencia al mejorar.
-const TRAINING_FEATURES = {
-  bowls2: { icon: '🥣', name: 'Segundo cuenco de ramen' },
-  bowls3: { icon: '🥣', name: 'Tercer cuenco de ramen' },
-  q_stars: { icon: '⭐', name: 'Estrellas de calidad' },
-  area_salteados: { icon: '🍳', name: 'Área Salteado' },
-  wok2: { icon: '🍳', name: 'Segundo wok' },
-  q_reject: { icon: '🚫', name: 'Los clientes rechazan platos malos' },
-  area_makis: { icon: '🍣', name: 'Área Makis' },
-  mottainai: { icon: '♻️', name: 'Mottainai: recortes y dashi' },
-  area_frituras: { icon: '🍤', name: 'Área Frituras' },
-  q_fresh: { icon: '♨️', name: 'Frescura: los platos se enfrían' },
-  st_ramen: { icon: '🥬', name: 'Ramen: Producción y Emplatar' },
-  st_salteados: { icon: '🥬', name: 'Salteado: Producción y Emplatar' },
-  st_makis: { icon: '🥬', name: 'Makis: Producción y Emplatar' },
-  st_frituras: { icon: '🥬', name: 'Frituras: Producción y Emplatar' }
-};
-const TRAINING_CHAPTERS = [
-  { id: 'ramen', icon: '🍜', name: 'Ramen: los fundamentos' },
-  { id: 'salteado', icon: '🍳', name: 'Salteado: el wok' },
-  { id: 'makis', icon: '🍣', name: 'Makis: orden y enrollado' },
-  { id: 'frituras', icon: '🍤', name: 'Frituras: aceite y empanizado' },
-  { id: 'servicio', icon: '🏮', name: 'Servicio completo' },
-  { id: 'maestria', icon: '🏆', name: 'Maestría' }
-];
 const TRN_RAMEN = ['Shio', 'Shoyu', 'Miso', 'Chashu', 'Tonkotsu', 'Tan tan', 'Ebi', 'Bajiru', 'Vegetariano'];
 const TRN_SAL = ['Yakimeshi', 'Chicken Teriyaki', 'Chaufa Shimaya', 'Yakitori', 'Yakiramen', 'Yasaitame', 'Batayaki Ramen', 'Karameshi', 'Omuraisu'];
 const TRN_MAKI = ['Maki California', 'Maki Guacamole', 'Maki Acevichado', 'Maki Hotate', 'Maki Amazon', 'Maki Yama', 'Maki Nin Niku', 'Maki Digion'];
@@ -51,66 +26,66 @@ const TRAINING_LEVEL = {
 // spawn = segundos entre clientes, pm = multiplicador de paciencia, reward = propinas (medalla de oro)
 const TRAINING_CHALLENGES = [
   // --- Capítulo 1: Ramen (7 retos) ---
-  { id: 'c01', ch: 'ramen', title: 'Tu primer ramen', r: { ramen: 1 }, pool: { ramen: ['Shio'] }, M: 1, O: 1, spawn: 6, pm: 3.0, reward: 10, unlocks: [] },
-  { id: 'c02', ch: 'ramen', title: 'Dos pedidos de caldo', r: { ramen: 2 }, pool: { ramen: ['Shio', 'Shoyu'] }, M: 1, O: 1, spawn: 6, pm: 3.0, reward: 14, unlocks: ['bowls2'] },
-  { id: 'c03', ch: 'ramen', title: 'Dos cuencos a la vez', r: { ramen: 3 }, pool: { ramen: ['Shio', 'Shoyu', 'Miso'] }, M: 2, O: 1, spawn: 6, pm: 2.5, reward: 18, unlocks: ['q_stars'] },
-  { id: 'c04', ch: 'ramen', title: 'Cuida el punto y chashu', r: { ramen: 4 }, minStars: 2, pool: { ramen: ['Shio', 'Shoyu', 'Miso', 'Chashu'] }, M: 2, O: 1, spawn: 6, pm: 2.5, reward: 24, unlocks: ['bowls3'] },
-  { id: 'c05', ch: 'ramen', title: 'Caldos espesos y picantes', r: { ramen: 5 }, pool: { ramen: ['Miso', 'Chashu', 'Tonkotsu', 'Tan tan'] }, M: 2, O: 2, spawn: 6, pm: 2.5, reward: 30, unlocks: ['area_salteados', 'st_ramen'] },
-  { id: 'c06', ch: 'ramen', title: 'Fusión e innovación', r: { ramen: 5 }, minStars: 2, pool: { ramen: ['Ebi', 'Bajiru', 'Vegetariano', 'Shio'] }, M: 2, O: 2, spawn: 6, pm: 2.3, reward: 38, unlocks: [] },
-  { id: 'c07', ch: 'ramen', title: 'Maestría en Ramen', r: { ramen: 6 }, minStars: 2, pool: { ramen: TRN_RAMEN }, M: 3, O: 2, spawn: 5.5, pm: 2.2, reward: 48, unlocks: ['area_salteados', 'st_ramen'] },
+  { id: 'c01', ch: 'ramen', title: 'Tu primer ramen', r: { ramen: 1 }, pool: { ramen: ['Shio'] }, M: 1, O: 1, spawn: 6, pm: 3.0, reward: 10 },
+  { id: 'c02', ch: 'ramen', title: 'Dos pedidos de caldo', r: { ramen: 2 }, pool: { ramen: ['Shio', 'Shoyu'] }, M: 1, O: 1, spawn: 6, pm: 3.0, reward: 14 },
+  { id: 'c03', ch: 'ramen', title: 'Dos cuencos a la vez', r: { ramen: 3 }, pool: { ramen: ['Shio', 'Shoyu', 'Miso'] }, M: 2, O: 1, spawn: 6, pm: 2.5, reward: 18 },
+  { id: 'c04', ch: 'ramen', title: 'Cuida el punto y chashu', r: { ramen: 4 }, minStars: 2, pool: { ramen: ['Shio', 'Shoyu', 'Miso', 'Chashu'] }, M: 2, O: 1, spawn: 6, pm: 2.5, reward: 24 },
+  { id: 'c05', ch: 'ramen', title: 'Caldos espesos y picantes', r: { ramen: 5 }, pool: { ramen: ['Miso', 'Chashu', 'Tonkotsu', 'Tan tan'] }, M: 2, O: 2, spawn: 6, pm: 2.5, reward: 30 },
+  { id: 'c06', ch: 'ramen', title: 'Fusión e innovación', r: { ramen: 5 }, minStars: 2, pool: { ramen: ['Ebi', 'Bajiru', 'Vegetariano', 'Shio'] }, M: 2, O: 2, spawn: 6, pm: 2.3, reward: 38 },
+  { id: 'c07', ch: 'ramen', title: 'Maestría en Ramen', r: { ramen: 6 }, minStars: 2, pool: { ramen: TRN_RAMEN }, M: 3, O: 2, spawn: 5.5, pm: 2.2, reward: 48 },
 
   // --- Capítulo 2: Salteado (7 retos) ---
-  { id: 'c08', ch: 'salteado', title: 'Tu primer wok', r: { salteados: 1 }, pool: { salteados: ['Yakimeshi'] }, M: 1, O: 1, spawn: 6, pm: 3.0, reward: 20, unlocks: [] },
-  { id: 'c09', ch: 'salteado', title: 'El punto del wok', r: { salteados: 2 }, minStars: 2, pool: { salteados: ['Yakimeshi', 'Chicken Teriyaki'] }, M: 1, O: 1, spawn: 6, pm: 3.0, reward: 26, unlocks: ['wok2'] },
-  { id: 'c10', ch: 'salteado', title: 'Dos woks en paralelo', r: { salteados: 4 }, pool: { salteados: ['Yakimeshi', 'Chicken Teriyaki', 'Chaufa Shimaya', 'Yakitori'] }, M: 2, O: 2, spawn: 6, pm: 2.5, reward: 34, unlocks: ['st_salteados', 'area_makis'] },
-  { id: 'c11', ch: 'salteado', title: 'Fideos al wok', r: { salteados: 4 }, minStars: 2, pool: { salteados: ['Yakiramen', 'Batayaki Ramen', 'Yasaitame'] }, M: 2, O: 2, spawn: 6, pm: 2.4, reward: 42, unlocks: [] },
-  { id: 'c12', ch: 'salteado', title: 'Ramen y wok', r: { ramen: 3, salteados: 3 }, pool: { ramen: ['Shio', 'Shoyu', 'Miso', 'Chashu'], salteados: ['Yakimeshi', 'Chicken Teriyaki', 'Chaufa Shimaya', 'Yakitori'] }, M: 3, O: 2, spawn: 6, pm: 2.4, reward: 52, unlocks: ['q_reject'] },
-  { id: 'c13', ch: 'salteado', title: 'Sartenes especiales', r: { salteados: 5 }, minStars: 2, pool: { salteados: ['Karameshi', 'Omuraisu', 'Chaufa Shimaya', 'Batayaki Ramen'] }, M: 2, O: 2, spawn: 5.5, pm: 2.3, reward: 64, unlocks: [] },
-  { id: 'c14', ch: 'salteado', title: 'Carta completa de wok', r: { salteados: 6 }, minStars: 2, pool: { salteados: TRN_SAL }, M: 3, O: 2, spawn: 5.5, pm: 2.2, reward: 78, unlocks: ['area_makis'] },
+  { id: 'c08', ch: 'salteado', title: 'Tu primer wok', r: { salteados: 1 }, pool: { salteados: ['Yakimeshi'] }, M: 1, O: 1, spawn: 6, pm: 3.0, reward: 20 },
+  { id: 'c09', ch: 'salteado', title: 'El punto del wok', r: { salteados: 2 }, minStars: 2, pool: { salteados: ['Yakimeshi', 'Chicken Teriyaki'] }, M: 1, O: 1, spawn: 6, pm: 3.0, reward: 26 },
+  { id: 'c10', ch: 'salteado', title: 'Dos woks en paralelo', r: { salteados: 4 }, pool: { salteados: ['Yakimeshi', 'Chicken Teriyaki', 'Chaufa Shimaya', 'Yakitori'] }, M: 2, O: 2, spawn: 6, pm: 2.5, reward: 34 },
+  { id: 'c11', ch: 'salteado', title: 'Fideos al wok', r: { salteados: 4 }, minStars: 2, pool: { salteados: ['Yakiramen', 'Batayaki Ramen', 'Yasaitame'] }, M: 2, O: 2, spawn: 6, pm: 2.4, reward: 42 },
+  { id: 'c12', ch: 'salteado', title: 'Ramen y wok', r: { ramen: 3, salteados: 3 }, pool: { ramen: ['Shio', 'Shoyu', 'Miso', 'Chashu'], salteados: ['Yakimeshi', 'Chicken Teriyaki', 'Chaufa Shimaya', 'Yakitori'] }, M: 3, O: 2, spawn: 6, pm: 2.4, reward: 52 },
+  { id: 'c13', ch: 'salteado', title: 'Sartenes especiales', r: { salteados: 5 }, minStars: 2, pool: { salteados: ['Karameshi', 'Omuraisu', 'Chaufa Shimaya', 'Batayaki Ramen'] }, M: 2, O: 2, spawn: 5.5, pm: 2.3, reward: 64 },
+  { id: 'c14', ch: 'salteado', title: 'Carta completa de wok', r: { salteados: 6 }, minStars: 2, pool: { salteados: TRN_SAL }, M: 3, O: 2, spawn: 5.5, pm: 2.2, reward: 78 },
 
   // --- Capítulo 3: Makis (7 retos) ---
-  { id: 'c15', ch: 'makis', title: 'Tu primer maki', r: { makis: 1 }, pool: { makis: ['Maki California'] }, M: 1, O: 1, spawn: 6, pm: 3.0, reward: 30, unlocks: ['area_frituras'] },
-  { id: 'c16', ch: 'makis', title: 'Dos makis clásicos', r: { makis: 2 }, pool: { makis: ['Maki California', 'Maki Guacamole'] }, M: 1, O: 2, spawn: 6, pm: 3.0, reward: 38, unlocks: [] },
-  { id: 'c17', ch: 'makis', title: 'Coberturas y salsas', r: { makis: 3 }, minStars: 2, pool: { makis: ['Maki Acevichado', 'Maki Hotate', 'Maki Amazon'] }, M: 2, O: 2, spawn: 6, pm: 2.5, reward: 48, unlocks: ['st_makis'] },
-  { id: 'c18', ch: 'makis', title: 'La barra completa', r: { ramen: 2, salteados: 2, makis: 3 }, pool: { ramen: ['Shio', 'Shoyu', 'Miso', 'Chashu'], salteados: ['Yakimeshi', 'Chicken Teriyaki', 'Chaufa Shimaya', 'Yakitori'], makis: ['Maki California', 'Maki Guacamole', 'Maki Acevichado'] }, M: 3, O: 2, spawn: 6, pm: 2.4, reward: 60, unlocks: ['mottainai'] },
-  { id: 'c19', ch: 'makis', title: 'Makis flameados', r: { makis: 4 }, minStars: 2, pool: { makis: ['Maki Yama', 'Maki Nin Niku', 'Maki Digion'] }, M: 2, O: 2, spawn: 5.5, pm: 2.3, reward: 74, unlocks: ['q_fresh'] },
-  { id: 'c20', ch: 'makis', title: 'Fusión nikkei', r: { makis: 5 }, minStars: 2, pool: { makis: ['Maki Acevichado', 'Maki Amazon', 'Maki Furai', 'Maki Hotate'] }, M: 2, O: 2, spawn: 5.5, pm: 2.2, reward: 90, unlocks: [] },
-  { id: 'c21', ch: 'makis', title: 'Itamae experto', r: { makis: 6 }, minStars: 2, pool: { makis: TRN_MAKI }, M: 3, O: 2, spawn: 5.0, pm: 2.2, reward: 110, unlocks: ['area_frituras'] },
+  { id: 'c15', ch: 'makis', title: 'Tu primer maki', r: { makis: 1 }, pool: { makis: ['Maki California'] }, M: 1, O: 1, spawn: 6, pm: 3.0, reward: 30 },
+  { id: 'c16', ch: 'makis', title: 'Dos makis clásicos', r: { makis: 2 }, pool: { makis: ['Maki California', 'Maki Guacamole'] }, M: 1, O: 2, spawn: 6, pm: 3.0, reward: 38 },
+  { id: 'c17', ch: 'makis', title: 'Coberturas y salsas', r: { makis: 3 }, minStars: 2, pool: { makis: ['Maki Acevichado', 'Maki Hotate', 'Maki Amazon'] }, M: 2, O: 2, spawn: 6, pm: 2.5, reward: 48 },
+  { id: 'c18', ch: 'makis', title: 'La barra completa', r: { ramen: 2, salteados: 2, makis: 3 }, pool: { ramen: ['Shio', 'Shoyu', 'Miso', 'Chashu'], salteados: ['Yakimeshi', 'Chicken Teriyaki', 'Chaufa Shimaya', 'Yakitori'], makis: ['Maki California', 'Maki Guacamole', 'Maki Acevichado'] }, M: 3, O: 2, spawn: 6, pm: 2.4, reward: 60 },
+  { id: 'c19', ch: 'makis', title: 'Makis flameados', r: { makis: 4 }, minStars: 2, pool: { makis: ['Maki Yama', 'Maki Nin Niku', 'Maki Digion'] }, M: 2, O: 2, spawn: 5.5, pm: 2.3, reward: 74 },
+  { id: 'c20', ch: 'makis', title: 'Fusión nikkei', r: { makis: 5 }, minStars: 2, pool: { makis: ['Maki Acevichado', 'Maki Amazon', 'Maki Furai', 'Maki Hotate'] }, M: 2, O: 2, spawn: 5.5, pm: 2.2, reward: 90 },
+  { id: 'c21', ch: 'makis', title: 'Itamae experto', r: { makis: 6 }, minStars: 2, pool: { makis: TRN_MAKI }, M: 3, O: 2, spawn: 5.0, pm: 2.2, reward: 110 },
 
   // --- Capítulo 4: Frituras (7 retos) ---
-  { id: 'c22', ch: 'frituras', title: 'Tu primera fritura', r: { frituras: 1 }, pool: { frituras: ['Alitas Acevichadas'] }, M: 1, O: 1, spawn: 6, pm: 3.0, reward: 35, unlocks: [] },
-  { id: 'c23', ch: 'frituras', title: 'El punto de la olla', r: { frituras: 2 }, pool: { frituras: ['Alitas Acevichadas', 'Kaarage'] }, M: 1, O: 2, spawn: 6, pm: 3.0, reward: 45, unlocks: [] },
-  { id: 'c24', ch: 'frituras', title: 'Empanizado y corte', r: { frituras: 2 }, minStars: 2, pool: { frituras: ['Tonkatsu', 'Chicken Katsu'] }, M: 1, O: 2, spawn: 6, pm: 2.8, reward: 58, unlocks: ['st_frituras'] },
-  { id: 'c25', ch: 'frituras', title: 'Gyozas y crujientes', r: { frituras: 4 }, pool: { frituras: ['Age Gyozas', 'Ebi Furai', 'Alitas Acevichadas', 'Kaarage'] }, M: 2, O: 2, spawn: 6, pm: 2.5, reward: 72, unlocks: ['q_fresh'] },
-  { id: 'c26', ch: 'frituras', title: 'Katsu Kare y tonkatsu', r: { frituras: 4 }, minStars: 2, pool: { frituras: ['Katsu Kare', 'Tonkatsu', 'Chicken Katsu', 'Ebi Furai'] }, M: 2, O: 2, spawn: 5.5, pm: 2.4, reward: 88, unlocks: [] },
-  { id: 'c27', ch: 'frituras', title: 'Cocina caliente combinada', r: { frituras: 3, salteados: 3 }, minStars: 2, pool: { frituras: TRN_FRY, salteados: TRN_SAL }, M: 3, O: 2, spawn: 5.5, pm: 2.3, reward: 108, unlocks: [] },
-  { id: 'c28', ch: 'frituras', title: 'Maestro del Panko', r: { frituras: 5 }, minStars: 2, pool: { frituras: TRN_FRY }, M: 2, O: 2, spawn: 5.0, pm: 2.2, reward: 130, unlocks: [] },
+  { id: 'c22', ch: 'frituras', title: 'Tu primera fritura', r: { frituras: 1 }, pool: { frituras: ['Alitas Acevichadas'] }, M: 1, O: 1, spawn: 6, pm: 3.0, reward: 35 },
+  { id: 'c23', ch: 'frituras', title: 'El punto de la olla', r: { frituras: 2 }, pool: { frituras: ['Alitas Acevichadas', 'Kaarage'] }, M: 1, O: 2, spawn: 6, pm: 3.0, reward: 45 },
+  { id: 'c24', ch: 'frituras', title: 'Empanizado y corte', r: { frituras: 2 }, minStars: 2, pool: { frituras: ['Tonkatsu', 'Chicken Katsu'] }, M: 1, O: 2, spawn: 6, pm: 2.8, reward: 58 },
+  { id: 'c25', ch: 'frituras', title: 'Gyozas y crujientes', r: { frituras: 4 }, pool: { frituras: ['Age Gyozas', 'Ebi Furai', 'Alitas Acevichadas', 'Kaarage'] }, M: 2, O: 2, spawn: 6, pm: 2.5, reward: 72 },
+  { id: 'c26', ch: 'frituras', title: 'Katsu Kare y tonkatsu', r: { frituras: 4 }, minStars: 2, pool: { frituras: ['Katsu Kare', 'Tonkatsu', 'Chicken Katsu', 'Ebi Furai'] }, M: 2, O: 2, spawn: 5.5, pm: 2.4, reward: 88 },
+  { id: 'c27', ch: 'frituras', title: 'Cocina caliente combinada', r: { frituras: 3, salteados: 3 }, minStars: 2, pool: { frituras: TRN_FRY, salteados: TRN_SAL }, M: 3, O: 2, spawn: 5.5, pm: 2.3, reward: 108 },
+  { id: 'c28', ch: 'frituras', title: 'Maestro del Panko', r: { frituras: 5 }, minStars: 2, pool: { frituras: TRN_FRY }, M: 2, O: 2, spawn: 5.0, pm: 2.2, reward: 130 },
 
   // --- Capítulo 5: Servicio (11 retos) ---
-  { id: 'c29', ch: 'servicio', title: 'Apertura de salón', r: { ramen: 2, salteados: 2, makis: 2, frituras: 1 }, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 3, O: 2, spawn: 6.0, pm: 2.4, reward: 150, unlocks: [] },
-  { id: 'c30', ch: 'servicio', title: 'Menú ejecutivo', r: { ramen: 2, salteados: 2, makis: 2, frituras: 2 }, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 3, O: 2, spawn: 5.8, pm: 2.3, reward: 175, unlocks: [] },
-  { id: 'c31', ch: 'servicio', title: 'El almuerzo popular', r: { ramen: 3, salteados: 3, makis: 2, frituras: 2 }, minStars: 2, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 3, O: 2, spawn: 5.5, pm: 2.2, reward: 205, unlocks: [] },
-  { id: 'c32', ch: 'servicio', title: 'Sincronía de comandas', r: { ramen: 3, salteados: 3, makis: 3, frituras: 2 }, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 3, O: 2, spawn: 5.2, pm: 2.1, reward: 240, unlocks: [] },
-  { id: 'c33', ch: 'servicio', title: 'Servicio de tarde ágil', r: { ramen: 3, salteados: 3, makis: 3, frituras: 3 }, minStars: 2, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 4, O: 2, spawn: 5.0, pm: 2.0, reward: 280, unlocks: [] },
-  { id: 'c34', ch: 'servicio', title: 'Mesas familiares', r: { ramen: 4, salteados: 3, makis: 3, frituras: 3 }, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 4, O: 3, spawn: 4.8, pm: 1.9, reward: 325, unlocks: [] },
-  { id: 'c35', ch: 'servicio', title: 'Hora pico en el callejón', r: { ramen: 4, salteados: 4, makis: 3, frituras: 3 }, minStars: 2, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 4, O: 3, spawn: 4.6, pm: 1.85, reward: 375, unlocks: [] },
-  { id: 'c36', ch: 'servicio', title: 'Comensales con prisa', r: { ramen: 4, salteados: 4, makis: 4, frituras: 3 }, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 4, O: 3, spawn: 4.4, pm: 1.8, reward: 430, unlocks: [] },
-  { id: 'c37', ch: 'servicio', title: 'Cena concurrida', r: { ramen: 4, salteados: 4, makis: 4, frituras: 4 }, minStars: 2, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 4, O: 3, spawn: 4.2, pm: 1.75, reward: 490, unlocks: [] },
-  { id: 'c38', ch: 'servicio', title: 'Doble turno sin descanso', r: { ramen: 5, salteados: 4, makis: 4, frituras: 4 }, minStars: 2, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 4, O: 3, spawn: 4.0, pm: 1.7, reward: 560, unlocks: [] },
-  { id: 'c39', ch: 'servicio', title: 'Noche de festival Matsuri', r: { ramen: 5, salteados: 5, makis: 5, frituras: 5 }, minStars: 2, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 4, O: 3, spawn: 3.8, pm: 1.6, reward: 640, unlocks: [] },
+  { id: 'c29', ch: 'servicio', title: 'Apertura de salón', r: { ramen: 2, salteados: 2, makis: 2, frituras: 1 }, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 3, O: 2, spawn: 6.0, pm: 2.4, reward: 150 },
+  { id: 'c30', ch: 'servicio', title: 'Menú ejecutivo', r: { ramen: 2, salteados: 2, makis: 2, frituras: 2 }, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 3, O: 2, spawn: 5.8, pm: 2.3, reward: 175 },
+  { id: 'c31', ch: 'servicio', title: 'El almuerzo popular', r: { ramen: 3, salteados: 3, makis: 2, frituras: 2 }, minStars: 2, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 3, O: 2, spawn: 5.5, pm: 2.2, reward: 205 },
+  { id: 'c32', ch: 'servicio', title: 'Sincronía de comandas', r: { ramen: 3, salteados: 3, makis: 3, frituras: 2 }, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 3, O: 2, spawn: 5.2, pm: 2.1, reward: 240 },
+  { id: 'c33', ch: 'servicio', title: 'Servicio de tarde ágil', r: { ramen: 3, salteados: 3, makis: 3, frituras: 3 }, minStars: 2, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 4, O: 2, spawn: 5.0, pm: 2.0, reward: 280 },
+  { id: 'c34', ch: 'servicio', title: 'Mesas familiares', r: { ramen: 4, salteados: 3, makis: 3, frituras: 3 }, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 4, O: 3, spawn: 4.8, pm: 1.9, reward: 325 },
+  { id: 'c35', ch: 'servicio', title: 'Hora pico en el callejón', r: { ramen: 4, salteados: 4, makis: 3, frituras: 3 }, minStars: 2, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 4, O: 3, spawn: 4.6, pm: 1.85, reward: 375 },
+  { id: 'c36', ch: 'servicio', title: 'Comensales con prisa', r: { ramen: 4, salteados: 4, makis: 4, frituras: 3 }, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 4, O: 3, spawn: 4.4, pm: 1.8, reward: 430 },
+  { id: 'c37', ch: 'servicio', title: 'Cena concurrida', r: { ramen: 4, salteados: 4, makis: 4, frituras: 4 }, minStars: 2, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 4, O: 3, spawn: 4.2, pm: 1.75, reward: 490 },
+  { id: 'c38', ch: 'servicio', title: 'Doble turno sin descanso', r: { ramen: 5, salteados: 4, makis: 4, frituras: 4 }, minStars: 2, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 4, O: 3, spawn: 4.0, pm: 1.7, reward: 560 },
+  { id: 'c39', ch: 'servicio', title: 'Noche de festival Matsuri', r: { ramen: 5, salteados: 5, makis: 5, frituras: 5 }, minStars: 2, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 4, O: 3, spawn: 3.8, pm: 1.6, reward: 640 },
 
   // --- Capítulo 6: Maestría (11 retos) ---
-  { id: 'c40', ch: 'maestria', title: 'Perfección de caldos y wok', r: { ramen: 3, salteados: 3 }, minStars: 3, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL }, M: 3, O: 2, spawn: 5.0, pm: 1.6, reward: 450, unlocks: [] },
-  { id: 'c41', ch: 'maestria', title: 'Perfección nikkei y crujiente', r: { makis: 3, frituras: 3 }, minStars: 3, pool: { makis: TRN_MAKI, frituras: TRN_FRY }, M: 3, O: 2, spawn: 5.0, pm: 1.6, reward: 500, unlocks: [] },
-  { id: 'c42', ch: 'maestria', title: 'Cuarteto de oro', r: { ramen: 2, salteados: 2, makis: 2, frituras: 2 }, minStars: 3, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 3, O: 2, spawn: 4.6, pm: 1.5, reward: 560, unlocks: [] },
-  { id: 'c43', ch: 'maestria', title: 'Maratón de cuatro fuegos', r: { ramen: 6, salteados: 6, makis: 6, frituras: 6 }, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 4, O: 3, spawn: 3.8, pm: 1.5, reward: 630, unlocks: [] },
-  { id: 'c44', ch: 'maestria', title: 'Degustación Gourmet', r: { ramen: 3, salteados: 3, makis: 3, frituras: 3 }, minStars: 3, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 4, O: 2, spawn: 4.2, pm: 1.4, reward: 710, unlocks: [] },
-  { id: 'c45', ch: 'maestria', title: 'Críticos gastronómicos', r: { ramen: 4, salteados: 4, makis: 4, frituras: 4 }, minStars: 3, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 4, O: 2, spawn: 4.0, pm: 1.35, reward: 800, unlocks: [] },
-  { id: 'c46', ch: 'maestria', title: 'Tormenta de comandas', r: { ramen: 8, salteados: 8, makis: 7, frituras: 7 }, minStars: 2, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 4, O: 3, spawn: 3.6, pm: 1.35, reward: 900, unlocks: [] },
-  { id: 'c47', ch: 'maestria', title: 'Disciplina Zen', r: { ramen: 5, salteados: 5, makis: 5, frituras: 5 }, minStars: 3, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 4, O: 2, spawn: 3.8, pm: 1.25, reward: 1020, unlocks: [] },
-  { id: 'c48', ch: 'maestria', title: 'El Gran Banquete Shimaya', r: { ramen: 8, salteados: 8, makis: 8, frituras: 8 }, minStars: 2, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 4, O: 3, spawn: 3.4, pm: 1.2, reward: 1160, unlocks: [] },
-  { id: 'c49', ch: 'maestria', title: 'Sinfonía Culinaria Impecable', r: { ramen: 6, salteados: 6, makis: 6, frituras: 6 }, minStars: 3, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 4, O: 3, spawn: 3.4, pm: 1.2, reward: 1320, unlocks: [] },
-  { id: 'c50', ch: 'maestria', title: 'Leyenda Viviente del Sol Naciente', r: { ramen: 7, salteados: 7, makis: 7, frituras: 7 }, minStars: 3, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 4, O: 3, spawn: 3.2, pm: 1.1, reward: 1500, unlocks: [] }
+  { id: 'c40', ch: 'maestria', title: 'Perfección de caldos y wok', r: { ramen: 3, salteados: 3 }, minStars: 3, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL }, M: 3, O: 2, spawn: 5.0, pm: 1.6, reward: 450 },
+  { id: 'c41', ch: 'maestria', title: 'Perfección nikkei y crujiente', r: { makis: 3, frituras: 3 }, minStars: 3, pool: { makis: TRN_MAKI, frituras: TRN_FRY }, M: 3, O: 2, spawn: 5.0, pm: 1.6, reward: 500 },
+  { id: 'c42', ch: 'maestria', title: 'Cuarteto de oro', r: { ramen: 2, salteados: 2, makis: 2, frituras: 2 }, minStars: 3, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 3, O: 2, spawn: 4.6, pm: 1.5, reward: 560 },
+  { id: 'c43', ch: 'maestria', title: 'Maratón de cuatro fuegos', r: { ramen: 6, salteados: 6, makis: 6, frituras: 6 }, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 4, O: 3, spawn: 3.8, pm: 1.5, reward: 630 },
+  { id: 'c44', ch: 'maestria', title: 'Degustación Gourmet', r: { ramen: 3, salteados: 3, makis: 3, frituras: 3 }, minStars: 3, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 4, O: 2, spawn: 4.2, pm: 1.4, reward: 710 },
+  { id: 'c45', ch: 'maestria', title: 'Críticos gastronómicos', r: { ramen: 4, salteados: 4, makis: 4, frituras: 4 }, minStars: 3, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 4, O: 2, spawn: 4.0, pm: 1.35, reward: 800 },
+  { id: 'c46', ch: 'maestria', title: 'Tormenta de comandas', r: { ramen: 8, salteados: 8, makis: 7, frituras: 7 }, minStars: 2, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 4, O: 3, spawn: 3.6, pm: 1.35, reward: 900 },
+  { id: 'c47', ch: 'maestria', title: 'Disciplina Zen', r: { ramen: 5, salteados: 5, makis: 5, frituras: 5 }, minStars: 3, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 4, O: 2, spawn: 3.8, pm: 1.25, reward: 1020 },
+  { id: 'c48', ch: 'maestria', title: 'El Gran Banquete Shimaya', r: { ramen: 8, salteados: 8, makis: 8, frituras: 8 }, minStars: 2, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 4, O: 3, spawn: 3.4, pm: 1.2, reward: 1160 },
+  { id: 'c49', ch: 'maestria', title: 'Sinfonía Culinaria Impecable', r: { ramen: 6, salteados: 6, makis: 6, frituras: 6 }, minStars: 3, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 4, O: 3, spawn: 3.4, pm: 1.2, reward: 1320 },
+  { id: 'c50', ch: 'maestria', title: 'Leyenda Viviente del Sol Naciente', r: { ramen: 7, salteados: 7, makis: 7, frituras: 7 }, minStars: 3, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 4, O: 3, spawn: 3.2, pm: 1.1, reward: 1500 }
 ].map((c, i) => ({ ...c, num: i + 1, index: i, lvl: TRAINING_LEVEL[c.id] || 1, reqs: Object.entries(c.r).map(([area, n]) => ({ area, n })) }));
 const TRAINING_BY_ID = Object.fromEntries(TRAINING_CHALLENGES.map(c => [c.id, c]));
 const TRAINING_SEC = { ramen: 20, salteados: 22, makis: 24, frituras: 38 };   // segundos por pedido (jugador que ya conoce el juego)
@@ -166,12 +141,6 @@ function openLevelRetos(lvl) {
   if (window.CampMapa) CampMapa.retos(lvl || trainingFocusLevel()); else openTrainingModal();
 }
 
-// Funciones de la cocina abiertas por los retos ya completados.
-function trainingFeaturesUnlocked() {
-  const set = new Set();
-  TRAINING_CHALLENGES.forEach(c => { if ((trainingProgressOf(c.id) || {}).m > 0) c.unlocks.forEach(f => set.add(f)); });
-  return set;
-}
 function trainingFeature(id) { return true; }   // los retos son subniveles de la Campaña: ya se aprendió lo necesario antes de abrirlos
 const bowlLimit = () => Math.min(stagedOn('ramen') ? 2 : 3, !isTraining() ? 3 : (trainingFeature('bowls3') ? 3 : (trainingFeature('bowls2') ? 2 : 1)));   // con etapas el ramen usa 2 cuencos
 const wokLimit = () => (!isTraining() ? 2 : (trainingFeature('wok2') ? 2 : 1));
@@ -260,13 +229,12 @@ function trainingComplete() {
 // Guarda el tiempo, la medalla y cobra solo la parte de propinas que aún no se había cobrado.
 function trainingRecord(ch, time, avg) {
   loadAccountProgressLocal();
-  const featuresBefore = trainingFeaturesUnlocked();
   const prev = (accountProgress.training || {})[ch.id] || {};
   const stars = trainingStarsFor(ch, avg == null ? 3 : avg), minQ = trainingMinQ(ch), prevStars = trainingStarsOf(prev);
   if (stars === 0) {      // calidad por debajo del mínimo: el reto queda incompleto (se guarda el intento, sin medalla, propinas ni estrellas)
     accountProgress.training[ch.id] = { t: prev.t || 0, ...(prev.f ? { f: prev.f } : {}), l: time, m: prev.m || 0, n: (prev.n || 0) + 1, paid: prev.paid || 0, ...(prev.s ? { s: prev.s } : {}) };
     saveAccountProgressLocal(); accountPushSoon(true);
-    return { challenge: ch, time, par: trainingPar(ch), incomplete: true, avg, minQ, stars: 0, prevStars, medal: 0, reward: 0, unlocked: [], next: null };
+    return { challenge: ch, time, par: trainingPar(ch), incomplete: true, avg, minQ, stars: 0, prevStars, medal: 0, reward: 0, next: null };
   }
   const par = trainingPar(ch);
   const medal = trainingMedalFor(time, par);
@@ -278,15 +246,13 @@ function trainingRecord(ch, time, avg) {
   saveAccountProgressLocal();
   if (reward > 0) addPropinas(reward);
   accountPushSoon(true);
-  const unlockedNow = [...trainingFeaturesUnlocked()].filter(f => !featuresBefore.has(f));
   return { challenge: ch, time, par, medal, avg, minQ, stars, prevStars, prevBest: prev.t || 0, best, improved: !!prev.t && time < prev.t, firstTime: !prev.m,
-    medalUp: medal > (prev.m || 0), reward, unlocked: unlockedNow, next: trainingOfLevel(ch.lvl).find(c => c.index > ch.index) || null };
+    medalUp: medal > (prev.m || 0), reward, next: trainingOfLevel(ch.lvl).find(c => c.index > ch.index) || null };
 }
 
 function startTrainingChallenge(id) {
   const ch = TRAINING_BY_ID[id];
   if (!ch || !trainingIsOpen(ch)) return;
-  closeTrainingModal();
   try { if (window.CampMapa) CampMapa.close(); } catch (e) {}
   const rm = document.getElementById('training-result-modal'); if (rm) rm.classList.remove('active');
   startSelectedMode = 'TRAINING';
@@ -294,129 +260,7 @@ function startTrainingChallenge(id) {
   executeStartGame();
 }
 
-// --- Entrenamiento: lista de retos, ficha del reto y resultado ---
-let trainingView = { mode: 'list', id: null };
-let trainingOnly = null;   // lista de capítulos a mostrar (desde un área del local); null = todos
-
-function openTrainingModal(id, only) {
-  if (!id && window.CampMapa) { CampMapa.retos(trainingFocusLevel()); return; }      // los retos son subniveles de la Campaña
-  trainingOnly = (only && only.length) ? only : null;
-  trainingView = id ? { mode: 'brief', id } : { mode: 'list', id: null };
-  renderTrainingHub();
-  const m = document.getElementById('training-modal');
-  m.style.display = '';
-  m.classList.add('active');
-}
-function closeTrainingModal() {
-  const m = document.getElementById('training-modal');
-  if (m) m.classList.remove('active');
-}
-
-function trnWordArea(a) { return { ramen: 'ramen', salteados: 'salteados', makis: 'makis', frituras: 'frituras' }[a]; }
-
-let trainingChapterFilter = 'all';
-
-function setTrainingChapterFilter(chId) {
-  trainingChapterFilter = chId;
-  renderTrainingHub();
-}
-
-function renderTrainingHub() {
-  const body = document.getElementById('trn-body');
-  const title = document.getElementById('trn-title');
-  if (!body) return;
-  if (trainingView.mode === 'brief' && TRAINING_BY_ID[trainingView.id]) {
-    const ch = TRAINING_BY_ID[trainingView.id];
-    if (title) title.textContent = `🏋️ Reto ${ch.num}: ${ch.title}`;
-    body.innerHTML = trainingBriefHtml(ch);
-    return;
-  }
-  if (title) title.textContent = '🏋️ Entrenamiento (50 Retos)';
-  const done = trainingDoneCount(), total = TRAINING_CHALLENGES.length;
-  const feats = trainingFeaturesUnlocked();
-  const next = trainingNextChallenge();
-  const featChips = Object.entries(TRAINING_FEATURES).map(([id, f]) =>
-    `<span class="trn-feat ${feats.has(id) ? 'on' : ''}" title="${f.name}">${feats.has(id) ? f.icon : '🔒'} ${f.name}</span>`).join('');
-
-  const filterTabs = [
-    { id: 'all', label: `⭐ Todos (${total})` },
-    ...TRAINING_CHAPTERS.map(chp => {
-      const cnt = TRAINING_CHALLENGES.filter(c => c.ch === chp.id).length;
-      return { id: chp.id, label: `${chp.icon} ${chp.name.split(':')[0]} (${cnt})` };
-    })
-  ].map(tab => {
-    const active = (!trainingOnly && trainingChapterFilter === tab.id) ? 'active' : '';
-    return `<button class="trn-filter-btn ${active}" onclick="setTrainingChapterFilter('${tab.id}')">${tab.label}</button>`;
-  }).join('');
-
-  const chapters = TRAINING_CHAPTERS.filter(chp => {
-    if (trainingOnly && trainingOnly.length) return trainingOnly.includes(chp.id);
-    if (trainingChapterFilter !== 'all') return chp.id === trainingChapterFilter;
-    return true;
-  }).map(chp => {
-    const list = TRAINING_CHALLENGES.filter(c => c.ch === chp.id);
-    const dn = list.filter(c => (trainingProgressOf(c.id) || {}).m > 0).length;
-    const cards = list.map(c => {
-      const p = trainingProgressOf(c.id) || {};
-      const open = trainingIsOpen(c);
-      const state = !open ? 'locked' : (p.m > 0 ? 'done' : 'open');
-      const isNext = next && next.id === c.id;
-      const meta = !open ? '🔒 Bloqueado' : (p.m > 0 ? `${trainingMedalIcon(p.m)} ${formatTrainingTime(p.t)} · +${c.reward}🧧` : `▶ +${c.reward}🧧`);
-      const starBadge = c.minStars ? `<span class="trn-star-badge" title="Mínimo ⭐${c.minStars}">⭐${c.minStars}</span>` : '';
-      return `<button class="trn-card ${state} ${isNext ? 'next' : ''}" ${open ? '' : 'disabled'} onclick="openTrainingBriefing('${c.id}')">
-        <span class="trn-num">${c.num}</span><span class="trn-ctitle">${c.title}</span>${starBadge}<span class="trn-meta">${meta}</span></button>`;
-    }).join('');
-    return `<div class="trn-chapter"><div class="trn-chead"><span>${chp.icon} ${chp.name}</span><span class="trn-cprog">${dn}/${list.length}</span></div><div class="trn-grid">${cards}</div></div>`;
-  }).join('');
-
-  body.innerHTML = `
-    <div class="trn-summary">
-      <div class="trn-sumline"><b>Retos ${done}/${total}</b><span>🥇 ${trainingMedalCount(3)} · 🥈 ${trainingMedalCount(2)} · 🥉 ${trainingMedalCount(1)}</span><span>🧧 Saldo ${getPropinasWallet()}</span></div>
-      <div class="trn-bar"><i style="width:${Math.round(100 * done / total)}%"></i></div>
-      <div class="trn-note">Sin cuenta regresiva: se mide cuánto tardas. Mejora tu tiempo para subir de medalla y cobrar más propinas.</div>
-      <details class="trn-featbox"><summary>🔓 Funciones de la cocina: ${[...feats].length}/${Object.keys(TRAINING_FEATURES).length} desbloqueadas</summary><div class="trn-feats">${featChips}</div></details>
-      ${next ? `<button class="acc-btn" onclick="openTrainingBriefing('${next.id}')">▶ Continuar: Reto ${next.num} · ${next.title}</button>` : '<div class="trn-note">🏆 ¡Completaste todo el recorrido! Repite retos para bajar tus tiempos.</div>'}
-    </div>
-    ${!trainingOnly ? `<div class="trn-filter-bar">${filterTabs}</div>` : ''}
-    ${chapters}`;
-}
-
-function openTrainingBriefing(id) {
-  const ch = TRAINING_BY_ID[id];
-  if (!ch || !trainingIsOpen(ch)) return;
-  trainingView = { mode: 'brief', id };
-  renderTrainingHub();
-  const b = document.getElementById('trn-body'); if (b) b.scrollTop = 0;
-}
-function backToTrainingList() { trainingView = { mode: 'list', id: null }; renderTrainingHub(); }
-
-function trainingBriefHtml(ch) {
-  const p = trainingProgressOf(ch.id) || {};
-  const par = trainingPar(ch);
-  const reqs = ch.reqs.map(r => `<li>${AREA_ICONS[r.area]} Sirve <b>${r.n}</b> ${trnWordArea(r.area)}</li>`).join('') +
-    `<li>⭐ Calidad media mínima <b>${trainingMinQ(ch).toFixed(1)}</b>${ch.minStars ? ' (un plato flojo se compensa con otro mejor)' : ''}. Sube a ⭐⭐ con ${trainingStarCuts(ch)[1].toFixed(1)} y a ⭐⭐⭐ con ${trainingStarCuts(ch)[2].toFixed(1)}</li>`;
-  const dishes = Object.keys(ch.pool).map(a => `<div class="trn-dishes">${AREA_ICONS[a]} ${trainingPoolNames(ch, a).join(', ')}</div>`).join('');
-  const unlocks = `<div class="trn-unlock">🏮 Subnivel del nivel ${ch.lvl} de la Campaña</div>`;
-  const rw = [1, 2, 3].map(m => `${trainingMedalIcon(m)} ${Math.round(ch.reward * TRAINING_MEDAL_SHARE[m])}`).join(' · ');
-  const hist = p.t ? `<div class="trn-hist">Tu mejor: <b>${formatTrainingTime(p.t)}</b> ${trainingMedalIcon(p.m)} · Último: ${formatTrainingTime(p.l)} · Intentos: ${p.n || 1}</div>` : '<div class="trn-hist">Aún no lo has completado.</div>';
-  return `
-    <button class="trn-back" onclick="backToTrainingList()">← Todos los retos</button>
-    <div class="trn-brief">
-      <div class="trn-bcol">
-        <h3>Objetivo</h3><ul class="trn-list">${reqs}</ul>
-        <h3>Platos que pedirán</h3>${dishes}
-        <h3>Ritmo</h3><div class="trn-dishes">👥 Hasta ${ch.M} cliente(s) a la vez · ${ch.O > 1 ? 'hasta ' + ch.O + ' pedidos' : '1 pedido'} por cliente · llegan cada ~${ch.spawn} s · ${ch.pm >= 2.5 ? 'paciencia relajada' : (ch.pm >= 1.8 ? 'paciencia normal' : (ch.pm >= 1.4 ? 'clientes exigentes' : 'paciencia estricta / rush'))}</div>
-      </div>
-      <div class="trn-bcol">
-        <h3>Medallas por tiempo</h3>
-        <div class="trn-dishes">🥇 hasta ${formatTrainingTime(par)} · 🥈 hasta ${formatTrainingTime(par * 1.35)} · 🥉 cualquier tiempo</div>
-        <h3>Propinas (🧧)</h3><div class="trn-dishes">${rw} <small>(solo se cobra la diferencia al mejorar)</small></div>
-        ${unlocks}${hist}
-        <button class="acc-btn trn-go" onclick="startTrainingChallenge('${ch.id}')">▶ Empezar reto</button>
-      </div>
-    </div>`;
-}
-
+// --- Resultado de un reto ---
 function showTrainingResult(res) {
   const ch = res.challenge;
   const delta = res.prevBest ? res.time - res.prevBest : 0;

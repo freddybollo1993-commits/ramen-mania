@@ -259,7 +259,9 @@
     ACTIVAS.forEach(a => { const lv = lvlOf(a.id); if (lv < a.lv.length) upd(a.lv[lv].price); }); secretos().forEach(x => { if (!sabOwned(x.id)) upd(x.price); }); return c; }
 
   window.Taller = Object.assign({
-    open(t) { css(); if (t) tab = t; sfx('click'); render(); },
+    open(t) { css(); if (t) tab = t; sfx('click'); try { accountPull(); } catch (e) {} render(); },
+    /** Repinta la Tienda si está abierta. */
+    refresh() { if ($('tll')) render(); },
     close() { const h = $('tll'); if (h) h.remove(); sfx('click'); try { if (window.Home) Home.refresh(); } catch (e) {} },
     tab(k) { tab = k; sfx('click'); render(); },
     jpSec(k) { jpSec = k; sfx('click'); render(); },
@@ -270,8 +272,6 @@
 
   // ---------- enganches ----------
   function wrap(name, fn) { const orig = window[name]; if (typeof orig !== 'function') return; window[name] = function () { return fn.call(this, orig, arguments); }; }
-  wrap('openUpgradesModal', function () { Taller.open('mejoras'); });
-  wrap('openSecretosModal', function () { Taller.open('secretos'); });
   wrap('startLevel', function (orig, args) { const r = orig.apply(this, args); try { resetRun(); hud(); } catch (e) {} return r; });
   wrap('openProfileModal', function (orig, args) { const r = orig.apply(this, args); try { renderProfile(); } catch (e) {} return r; });
   wrap('evaluateDish', function (orig, args) { const ev = orig.apply(this, args); try { const b = API.scoreBonus(args[0]); if (b && ev && typeof ev.score === 'number') { ev.rawScore = ev.score; ev.score = Math.min(100, ev.score + b); } } catch (e) {} return ev; });

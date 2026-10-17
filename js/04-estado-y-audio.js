@@ -100,27 +100,8 @@ let isSoundMuted = safeStorage.getItem('ramen_sound_muted') === 'true';
 function toggleAudioMute() {
   isSoundMuted = !isSoundMuted;
   safeStorage.setItem('ramen_sound_muted', isSoundMuted ? 'true' : 'false');
-  updateAudioToggleUI();
   if (!isSoundMuted) {
     try { playSound('click'); } catch(e) {}
-  }
-}
-
-function updateAudioToggleUI() {
-  const btn = document.getElementById("start-audio-toggle");
-  const icon = document.getElementById("start-audio-icon");
-  const text = document.getElementById("start-audio-text");
-  if (!btn) return;
-  if (isSoundMuted) {
-    if (icon) icon.textContent = "🔇";
-    if (text) text.textContent = "Mute";
-    btn.classList.add("muted");
-    btn.setAttribute("title", "Audio Silenciado · Toca para activar (Atajo: M)");
-  } else {
-    if (icon) icon.textContent = "🔊";
-    if (text) text.textContent = "Audio";
-    btn.classList.remove("muted");
-    btn.setAttribute("title", "Audio Activo · Toca para silenciar (Atajo: M)");
   }
 }
 

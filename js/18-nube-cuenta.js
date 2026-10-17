@@ -126,14 +126,12 @@ async function cloudLogin() {
       if (r.needsProfileUpload) await cloudSaveProfile();
       if (r.localAhead) await accountPush();
       accountProgress.sync = 'ok';
-      updateAccountButton();
       refreshUpgradesShopIfOpen();
       if (CloudAuth.pendingKey) maybeShowPendingKey();
       return true;
     } catch (e) {
       CloudAuth.status = 'offline';
       accountProgress.sync = 'error';
-      updateAccountButton();
       return false;
     } finally {
       CloudAuth.loginPromise = null;
@@ -157,7 +155,6 @@ async function cloudBoot() {
           CloudAuth.status = saved.kind === 'key' ? 'key' : 'device';
           applyCloudAccount(data.account);
           accountProgress.sync = 'ok';
-          updateAccountButton();
           refreshUpgradesShopIfOpen();
           return;
         }
@@ -304,7 +301,6 @@ async function cloudSwitchWithKey(rawKey) {
   if (oldToken && CloudAuth.deviceAccountId) cloudFire(client.rpc('end_session', { p_token: oldToken }));
   applyCloudAccount(data.account);
   accountProgress.sync = 'ok';
-  updateAccountButton();
   refreshUpgradesShopIfOpen();
   return { ok: true, message: `Entraste como ${data.account.alias}. La sesión temporal se cierra tras 15 min sin actividad.` };
 }
@@ -331,7 +327,6 @@ async function cloudReturnToDevice(reason) {
     } catch (e) {}
   }
   if (reason) showStationToast(`🔐 ${reason}. Volviste a la cuenta de este dispositivo.`);
-  updateAccountButton();
   refreshUpgradesShopIfOpen();
   refreshAccountModalIfOpen();
 }
@@ -344,7 +339,6 @@ async function cloudLinkDevice() {
     CloudAuth.deviceAccountId = d.account.id; CloudAuth.accountId = d.account.id; CloudAuth.lastActivity = Date.now();
     safeStorage.removeItem(DEVICE_STASH_KEY);
     persistCloudSession();
-    updateAccountButton();
     return { ok: true, message: 'Listo: este dispositivo ahora entra siempre a esta cuenta.' };
   } catch (e) {
     return { ok: false, message: 'No se pudo vincular (sin conexión).' };
@@ -385,17 +379,6 @@ function cloudIdleCheck() {
 setInterval(cloudIdleCheck, 30000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) cloudIdleCheck(); });
 
-// ----- Pantalla "Cuenta" -----
-function updateAccountButton() {
-  const btn = document.querySelector('.btn-account');
-  if (!btn) return;
-  const label = document.getElementById('acc-btn-label');
-  const temp = CloudAuth.kind === 'key';
-  btn.classList.toggle('is-temp', temp);
-  btn.classList.toggle('has-key', !!CloudAuth.pendingKey);
-  if (label) label.textContent = temp ? 'Temporal' : 'Cuenta';
-}
-
 function maybeShowPendingKey() {
   const start = document.getElementById('start-screen');
   const visible = start && !start.classList.contains('hidden') && start.style.display !== 'none';
@@ -411,7 +394,6 @@ function openAccountModal() {
 function closeAccountModal() {
   document.getElementById('account-modal').classList.remove('active');
   CloudAuth.pendingKey = null;
-  updateAccountButton();
 }
 function refreshAccountModalIfOpen() {
   const m = document.getElementById('account-modal');
@@ -454,7 +436,7 @@ async function accountUiSwitch() {
   const r = await cloudSwitchWithKey(input.value);
   msg.textContent = r.message; msg.dataset.keep = '1';
   msg.style.color = r.ok ? '#2e7d32' : '#c62828';
-  if (r.ok) { input.value = ''; renderAccountModal(); renderUpgradesShop(); }
+  if (r.ok) { input.value = ''; renderAccountModal(); refreshUpgradesShopIfOpen(); }
 }
 async function accountUiReturn() {
   await cloudReturnToDevice('Cerraste la sesión temporal');

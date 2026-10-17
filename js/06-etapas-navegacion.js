@@ -113,7 +113,6 @@ function stageSwipeAllowed(target) {
   const start = document.getElementById('start-screen');
   if (!start || getComputedStyle(start).display !== 'none') return false;       // en el menú no
   if (gameState.isPaused || gameState.isGameOver || isMultiplayerSession()) return false;
-  if (typeof TutorialManager !== 'undefined' && TutorialManager.isActive) return false;
   if (document.querySelector('.modal-overlay.active, .order-detail-modal.active')) return false;
   if (target && target.closest && target.closest(SWIPE_NO_START)) return false;
   return true;

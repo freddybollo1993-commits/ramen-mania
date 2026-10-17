@@ -174,40 +174,6 @@ function salStepsHtml(r) {
   const plate = sd.plate.length ? `<div class="rs-plate">🍽 En Emplatar: ${sd.plate.map(id => `<span class="rs-ing">${ico(id)} ${nm(id)}</span>`).join('')}</div>` : '';
   return start + parts + combine + plate;
 }
-function initRecipeTable() {
-  const tbody = document.querySelector("#recipes-table tbody");
-  tbody.innerHTML = "";
-  const unlocked = getUnlockedRecipes();
-  const areas = ['ramen', 'salteados', 'makis', 'frituras'];
-  const sorted = areas.flatMap(a => unlocked.filter(r => (r.area || 'ramen') === a));
-  let lastArea = null;
-  sorted.forEach(r => {
-    const area = r.area || 'ramen';
-    if (area !== lastArea) {                                   // encabezado de cada área
-      lastArea = area;
-      const hr = document.createElement("tr");
-      hr.className = 'recipe-area-row';
-      hr.innerHTML = `<td colspan="3">${AREA_ICONS[area] || ''} ${AREA_LABELS[area].toUpperCase()}</td>`;
-      tbody.appendChild(hr);
-    }
-    const staged = area === 'salteados' && stagedOn('salteados') && SAL_STAGED[r.name];
-    const ids = staged ? [...salCookIds(r.name), ...SAL_STAGED[r.name].plate] : r.ingredients;
-    const ingsList = ids.map(ingId => {
-      const ing = INGREDIENTES.find(i => i.id === ingId);
-      const src = ingCtxImg(ing);
-      const ic = src ? `<img src="${src}" class="pixel-sprite-large" style="width:16px; height:16px; vertical-align:middle; margin-right:2px;">` : ing.icon;
-      return `<span class="badge-ing">${ic} ${ing.display}</span>`;
-    }).join(" ");
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td style="font-weight:900; color:#b71c1c;">${r.name} <span style="font-size:10px;color:#8d6e63;">(${ids.length})</span></td>
-      <td>${staged ? salStepsHtml(r) : ingsList}</td>
-      <td style="font-weight:900; color:#2e7d32;">S/ ${r.price}</td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-
 const AREA_LABELS = { ramen: 'Ramen', salteados: 'Salteado', makis: 'Makis', frituras: 'Frituras' };
 const KITCHEN_AREAS = [
   { id: 'ramen', label: 'RAMEN' },

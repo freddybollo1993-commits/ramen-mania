@@ -796,21 +796,9 @@ function bootGameUI() {
   try { lockLandscapeIfInstalled(); } catch (e) {}
   checkOrientation();
   updateStartPlayerCard();
-  if (!isTutorialCompleted()) {
-    setStartSelectedMode('TUTORIAL');
-  } else {
-    setStartSelectedMode('NORMAL');
-  }
-  updateStartModesDisplay();
-  updateAudioToggleUI();
   setupKitchenStations();
   resetCookingStations();
 
-  if (window.location.search.includes('tutorial=1')) {
-    setTimeout(() => {
-      if (typeof TutorialManager !== 'undefined') TutorialManager.start();
-    }, 300);
-  }
 }
 
 // Ejecución instantánea y única sin duplicados

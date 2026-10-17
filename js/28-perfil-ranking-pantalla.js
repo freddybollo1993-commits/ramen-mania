@@ -1,72 +1,22 @@
 /* Módulo 28-perfil-ranking-pantalla — Perfil, registro, ranking, pantalla completa, PWA, recetario y orden de ingredientes.
    Script clásico (ámbito global compartido): se carga en el orden de los <script> de index.html. */
 
-function updateStartPlayerCard() {
-  const box = document.getElementById("start-profile-box");
-  if (box) {
-    box.style.display = "none";
-    box.innerHTML = "";
-  }
-
-  const bestRash = parseInt(safeStorage.getItem('ramen_mania_rash_best') || '1');
-  const curRash = parseInt(safeStorage.getItem('ramen_mania_rash_level') || '1');
-  const rashStatsEl = document.getElementById("start-rash-stats-text");
-  if (rashStatsEl) {
-    rashStatsEl.innerHTML = `🏆 Tu Récord: <strong>Ronda ${bestRash} / 100</strong> (Guardado: R${curRash})`;
-  }
-
-  renderLinkedUserBadges();
-}
+/** Refresca las insignias del perfil: la de la partida y la tarjeta de la pantalla principal. */
+function updateStartPlayerCard() { renderLinkedUserBadges(); }
 
 function renderLinkedUserBadges() {
   const p = DeviceManager.currentPlayer;
-  const startBadge = document.getElementById("start-linked-user-bar");
-  const startPillTitle = document.getElementById("start-pill-title");
-  const startPillName = document.getElementById("start-pill-name");
-  const startPillAvatar = document.getElementById("start-pill-avatar");
-  const startPillDot = document.getElementById("start-pill-dot");
-  
   const hudBadge = document.getElementById("hud-linked-user");
   const hudName = document.getElementById("hud-user-name");
   const hudAvatar = document.getElementById("hud-user-avatar");
-
-  if (startBadge) startBadge.style.display = "block";
-
-  const rankPill = document.getElementById("start-pill-rank");
-  if (rankPill) {
-    const rawMmr = safeStorage.getItem("ramen_player_mmr");
-    const mmr = (rawMmr !== null && !isNaN(parseInt(rawMmr))) ? parseInt(rawMmr) : 1000;
-    const rankInfo = (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.getRankDetails)
-      ? MultiplayerManager.getRankDetails(mmr)
-      : { fullName: "Bronce IV", icon: "🥉", color: "#cd7f32" };
-    rankPill.innerHTML = `${rankInfo.icon} <strong>${rankInfo.fullName}</strong> (${mmr} MMR)`;
-    rankPill.style.color = rankInfo.color || "#ffb300";
-    rankPill.style.display = "inline-flex";
-  }
-
   if (p && p.playerName) {
-    if (startPillTitle) startPillTitle.textContent = "CUENTA VINCULADA";
-    if (startPillName) startPillName.textContent = `Chef ${p.playerName}`;
-    if (startPillAvatar) startPillAvatar.textContent = p.avatar || "🍜";
-    if (startPillDot) {
-      startPillDot.style.color = "#00e676";
-      startPillDot.title = "Dispositivo Conectado";
-    }
-
     if (hudBadge) hudBadge.style.display = "inline-flex";
     if (hudName) hudName.textContent = `Chef ${p.playerName}`;
     if (hudAvatar) hudAvatar.textContent = p.avatar || "🍜";
-  } else {
-    if (startPillTitle) startPillTitle.textContent = "MI PERFIL";
-    if (startPillName) startPillName.textContent = "Chef Invitado";
-    if (startPillAvatar) startPillAvatar.textContent = "👤";
-    if (startPillDot) {
-      startPillDot.style.color = "#ffca28";
-      startPillDot.title = "Toca para registrar tu alias";
-    }
-
-    if (hudBadge) hudBadge.style.display = "none";
+  } else if (hudBadge) {
+    hudBadge.style.display = "none";
   }
+  try { if (window.Inicio) Inicio.refresh(); } catch (e) {}
 }
 
 let welcomeToastTimer = null;
@@ -113,13 +63,8 @@ function handleStartPlayClick() {
     renderLinkedUserBadges();
   }
 
-  if (startSelectedMode === 'TUTORIAL') {
-    TutorialManager.start();
-    return;
-  }
-
   if (startSelectedMode === 'TRAINING') {
-    openTrainingModal();
+    if (typeof openLevelRetos === 'function') openLevelRetos();
     return;
   }
 
@@ -129,8 +74,8 @@ function handleStartPlayClick() {
   }
 
   if (!isTutorialCompleted()) {
-    showLockedModeToast("🔒 Debes completar el Modo Tutorial antes de jugar este modo.");
-    setStartSelectedMode('TUTORIAL');
+    showLockedModeToast("🔒 Completa primero la lección de Ramen del Maestro para jugar este modo.");
+    try { Modos.learn(); } catch (e) {}
     return;
   }
 
@@ -190,8 +135,6 @@ function returnToStartMenu() {
     startScreen.style.pointerEvents = "auto";
   }
   updateStartPlayerCard();
-  updateStartModesDisplay();
-  updateAudioToggleUI();
 }
 
 function openRegisterPlayerModal(fromPlay = false) {
@@ -533,75 +476,6 @@ async function handleSaveProfileChanges() {
 /* ==========================================================================
    SISTEMA DE RÉCORDS Y LEADERBOARD (SUPABASE + LOCALSTORAGE)
    ========================================================================== */
-function closeSaveScoreModal() {
-  document.getElementById("save-score-modal").classList.remove("active");
-}
-
-async function submitScoreToSupabase() {
-  const nameInput = document.getElementById("record-player-name");
-  const contactInput = document.getElementById("record-player-contact");
-  const statusEl = document.getElementById("save-record-status");
-  const btn = document.getElementById("btn-submit-record");
-
-  let playerName = nameInput.value.trim();
-  let contact = contactInput.value.trim();
-
-  if (DeviceManager.currentPlayer) {
-    playerName = DeviceManager.currentPlayer.playerName;
-    if (!contact) contact = DeviceManager.currentPlayer.contact || "";
-  }
-
-  if (playerName.length < 2) {
-    statusEl.textContent = "⚠️ Ingresa un nombre o apodo de al menos 2 caracteres.";
-    statusEl.style.color = "#c62828";
-    return;
-  }
-
-  safeStorage.setItem('ramen_player_name', playerName);
-  safeStorage.setItem('ramen_player_contact', contact);
-
-  btn.disabled = true;
-  btn.textContent = "⏳ Guardando récord...";
-  statusEl.textContent = "Enviando puntuación...";
-  statusEl.style.color = "#ff9800";
-
-  const levelReached = gameState.gameMode === 'NORMAL' ? (currentLevelIndex + 1) : gameState.rashLevel;
-  const newRecord = {
-    player_name: playerName,
-    contact: contact || null,
-    device_id: DeviceManager.deviceId,
-    score_money: gameState.money,
-    customers_served: gameState.customersServed,
-    level_reached: levelReached,
-    game_mode: gameState.gameMode,
-    created_at: new Date().toISOString()
-  };
-
-  // Guardar siempre una copia local
-  saveLocalScore(newRecord);
-
-  let success = false;
-  const sent = await submitRecordToServer(newRecord);
-  if (sent.ok) {
-    success = true;
-    statusEl.textContent = "🎉 ¡Récord registrado con éxito en el Ranking Oficial!";
-    statusEl.style.color = "#2e7d32";
-  } else if (sent.error === 'registro_invalido' || sent.error === 'demasiados_registros') {
-    statusEl.textContent = "⚠️ El ranking no aceptó este récord (valores fuera de lo normal).";
-    statusEl.style.color = "#c62828";
-  } else {
-    statusEl.textContent = "Guardado localmente (sin conexión con el ranking). Se mostrará en tu dispositivo.";
-    statusEl.style.color = "#f57c00";
-  }
-
-  setTimeout(() => {
-    btn.disabled = false;
-    btn.textContent = "🚀 Enviar al Ranking Oficial";
-    closeSaveScoreModal();
-    openLeaderboardModal();
-  }, 1200);
-}
-
 function saveLocalScore(record) {
   try {
     const raw = safeStorage.getItem('ramen_local_scores') || "[]";
@@ -842,39 +716,6 @@ function escapeHtml(str) {
     .replace(/'/g, "&#039;");
 }
 
-function closeModeSelectModal() {
-  document.getElementById("mode-select-modal").classList.remove("active");
-  if (gameState.isPaused && !gameState.isGameOver) {
-    togglePause();
-  }
-}
-
-function selectGameMode(mode, targetLevel) {
-  if (!DeviceManager.currentPlayer) {
-    document.getElementById("mode-select-modal").classList.remove("active");
-    openRegisterPlayerModal();
-    const statusEl = document.getElementById("reg-status-msg");
-    if (statusEl) {
-      statusEl.textContent = "⚠️ Debes registrar tu alias de Chef antes de poder jugar.";
-      statusEl.style.color = "#d32f2f";
-    }
-    return;
-  }
-  document.getElementById("mode-select-modal").classList.remove("active");
-  gameState.gameMode = mode;
-  if (mode === 'NORMAL') {
-    startLevel(targetLevel !== null && targetLevel !== undefined ? targetLevel : 0);
-  } else {
-    let lvl = targetLevel;
-    if (lvl === null || lvl === undefined) {
-      lvl = parseInt(safeStorage.getItem('ramen_mania_rash_level') || '1');
-    }
-    gameState.rashLevel = lvl;
-    saveRashProgress(lvl);
-    startLevel(lvl - 1);
-  }
-}
-
 function saveRashProgress(lvl) {
   try {
     const l = lvl || gameState.rashLevel || 1;
@@ -927,11 +768,6 @@ function toggleFullScreen() {
 
 function handleFullscreenChange() {
   updateFullscreenBtn();
-  if (typeof TutorialManager !== 'undefined' && TutorialManager && TutorialManager.isActive) {
-    setTimeout(() => {
-      TutorialManager.updatePosition();
-    }, 120);
-  }
 }
 
 document.addEventListener('fullscreenchange', handleFullscreenChange);
@@ -1024,27 +860,6 @@ function togglePause() {
   if (gameState.isGameOver) return;
   gameState.isPaused = !gameState.isPaused;
   document.getElementById("btn-pause").textContent = gameState.isPaused ? "▶️" : "⏸️";
-}
-
-function openRecipeModal() {
-  initRecipeTable();
-  const titleEl = document.getElementById("modal-recipe-title");
-  if (titleEl) {
-    titleEl.textContent = `📖 Recetario (${getCurrentLevelConfig().name})`;
-  }
-  const modal = document.getElementById("recipe-modal");
-  if (modal) {
-    modal.classList.add("active");
-  }
-}
-
-function closeRecipeModal() {
-  document.getElementById("recipe-modal").classList.remove("active");
-}
-
-function openSecretosModal() {      // los secretos del chef ahora se compran en la Tienda (taller.js)
-  playSound('click');
-  if (window.Taller) Taller.open('secretos');
 }
 
 /* ==========================================================================

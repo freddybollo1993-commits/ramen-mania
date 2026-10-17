@@ -184,10 +184,7 @@ function updatePropinasHUD() {
   const w = getPropinasWallet();
   const el = document.getElementById('hud-propinas');
   if (el) el.textContent = w;
-  const chip = document.getElementById('start-wallet-val');
-  if (chip) chip.textContent = w;
-  const badge = document.getElementById('start-upg-badge');
-  if (badge) badge.textContent = w;
+  document.querySelectorAll('.hm-wallet').forEach(n => { n.textContent = w; });      // propinas de la pantalla principal
 }
 
 function addPropinas(n) {

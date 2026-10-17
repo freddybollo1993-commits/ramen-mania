@@ -61,7 +61,6 @@ const ST_PLATE_POINTS = { base: 15, order: 10, orderPenalty: 4 };               
 
 function stagedOn(area) {
   if (isMultiplayerSession()) return false;
-  if (typeof TutorialManager !== 'undefined' && TutorialManager.isActive) return false;
   if (isFree()) return true;
   if (isMultiplayerSession()) return mpAreas().includes(area);
   if ((gameState.gameMode === 'JAPON' && gameState.japon)) return japonRunAreas().includes(area);

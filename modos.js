@@ -252,7 +252,7 @@
         else if (kind === 'free') { if (arg === 'all') { window.startFreeAreas = null; setStartSelectedMode('FREE'); handleStartPlayClick(); } else Inicio.act('free', arg); }
         else if (kind === 'pantry') Inicio.act('pantry');
         else if (kind === 'retos') openLevelRetos(arg ? +arg : undefined);
-        else if (kind === 'book') { if (window.Recetario) Recetario.open(); else openRecipeModal(); }
+        else if (kind === 'book') { Recetario.open(); }
         else if (kind === 'order') openIngredientOrderModal();
       } catch (e) { console.warn('Modos.learnGo', kind, e); }
     },

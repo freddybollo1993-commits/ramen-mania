@@ -456,7 +456,6 @@
     try { safeStorage.setItem(FKEY, JSON.stringify(f)); } catch (e) {}
     if (first) { try { addPropinas(REWARD[key]); } catch (e) { console.warn(e); } }
     if (key === 'ramen') { try { safeStorage.setItem('ramen_tutorial_completed', 'true'); } catch (e) {} }      // con la lección de Ramen ya se abren Campaña y Rash
-    try { updateStartModesDisplay(); } catch (e) {}
     try { if (typeof japonSyncSoon === 'function') japonSyncSoon(); } catch (e) {}
     try { returnToStartMenu(); } catch (e) {}
     setTimeout(() => showDone(key, first, reward), 450);
@@ -470,7 +469,7 @@
     try { playSound('win'); } catch (e) {}
     modal('gu-done', `<div class="gu-menubox"><h3>${all && first ? '🏆 ¡Tutorial completo!' : '🎉 ¡Lección de ' + info.name + ' completada!'}</h3>
       <p>${first ? '🎁 Recompensa: <b style="color:#b71c1c">+' + reward + ' 🧧 propinas</b>. Ya tienes <b>' + getPropinasWallet() + ' 🧧</b> para comprar mejoras en la tienda.' : 'Repetiste la lección (la recompensa se gana solo la primera vez).'}${key === 'ramen' && first ? ' 🔓 <b>Campaña y Rash desbloqueados.</b>' : ''}</p>
-      <div class="gu-mbtns"><button class="gu-mb gold" onclick="document.getElementById('gu-done').remove(); openUpgradesModal()">🧧 Ver mejoras</button>
+      <div class="gu-mbtns"><button class="gu-mb gold" onclick="document.getElementById('gu-done').remove(); Taller.open('mejoras')">🧧 Ver la tienda</button>
       ${nxt ? '<button class="gu-mb green" onclick="document.getElementById(\'gu-done\').remove(); Guia.start(\'' + nxt + '\')">Siguiente: ' + LESSON_INFO[nxt].name + ' ▶</button>' : ''}
       <button class="gu-mb" onclick="document.getElementById('gu-done').remove(); Guia.menu()">Elegir lección</button><button class="gu-mb ghost" onclick="document.getElementById('gu-done').remove()">Menú</button></div></div>`);
   }

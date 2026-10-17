@@ -103,7 +103,6 @@
         ? DeviceManager.deviceId 
         : `DEV-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
 
-      this.setupDOMHooks();
       this.checkUrlRoomParam();
       console.log('🍜 MultiplayerManager inicializado correctamente con ID:', this.myPlayerId);
     },
@@ -1646,14 +1645,6 @@
       }
     },
 
-    // Configuración inicial de ganchos en el DOM
-    setupDOMHooks() {
-      // Botón principal en pantalla de inicio
-      const startCard = document.getElementById('start-mode-card-multiplayer');
-      if (startCard) {
-        startCard.addEventListener('click', () => this.openLobbyModal());
-      }
-    }
   };
 
   // Exponer globalmente

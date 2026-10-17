@@ -211,7 +211,7 @@
   }
 
   // ---------- estado del juego -> modo, arco y tensión ----------
-  function sala() { try { const m = document.getElementById('mds'); if (m && m.dataset.mode === 'aula') return 'aula'; const S = window.Inicio && Inicio._S && Inicio._S(); return (S && S.curRoom) || null; } catch (e) { return null; } }
+  function sala() { try { const m = document.getElementById('mds'); if (m && m.dataset.mode === 'aula') return 'aula'; return null; } catch (e) { return null; } }
   function enPartida() { try { const gc = document.getElementById('game-container'); return !gameState.isGameOver && gc && gc.offsetParent !== null && gc.getBoundingClientRect().height > 0; } catch (e) { return false; } }
   function muestrear() {
     const r = { modo: 'menu', arco: 'ramen', T: 0, n: 0, minPat: 1, tiempo: 99, falta: false };

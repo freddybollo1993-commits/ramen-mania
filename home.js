@@ -1,8 +1,7 @@
 /* Pantalla principal (inicio) con la distribución de los juegos móviles actuales: la escena viva de la cocina a pantalla completa y los botones
    en los bordes. Arriba: perfil, progreso de Campaña, propinas y menú. Columnas laterales: accesos con avisos. Abajo a la derecha: el Servicio del día,
    el botón del MODO elegido (abre la selección de modos) y el JUGAR grande (entra directo al modo elegido). Abajo a la izquierda: retos y cocina libre.
-   Las secciones que no son un modo (Aprender, Mejoras, Ajustes…) siguen usando el menú anterior como submenús: Inicio.openSub().
-   Script clásico. Lo muestra y oculta inicio.js con Home.sync(S). */
+   Script clásico. Lo muestra inicio.js con Home.sync(). */
 (function () {
   'use strict';
   const $ = id => document.getElementById(id);
@@ -14,7 +13,8 @@
   const CSS = `
   #hm { display: none; position: absolute; inset: 0; z-index: 6; overflow: hidden; background: #140a07; color: #fff8e7; font-family: 'Fredoka', 'Nunito', system-ui, sans-serif;
     --u: clamp(9px, 2.55vh, 21px); font-size: var(--u); user-select: none; -webkit-user-select: none; }
-  #start-screen.ini-on #hm.hm-on { display: block; }
+  #hm.hm-on { display: block; }
+  #app-version { position: absolute; left: max(.8em, env(safe-area-inset-left)); bottom: max(.5em, env(safe-area-inset-bottom)); z-index: 7; font: 800 10px 'Fredoka', sans-serif; color: rgba(255,243,214,.55); text-shadow: 0 1px 2px #000; pointer-events: none; }
   #hm * { box-sizing: border-box; }
   .hm-art { position: absolute; inset: 0; z-index: 0; display: flex; align-items: center; justify-content: center; }
   .hm-art .ec-wrap { width: 100%; height: 100%; } .hm-art .ec-scene { border-radius: 0; box-shadow: none; }

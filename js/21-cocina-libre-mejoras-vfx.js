@@ -89,6 +89,9 @@ function freeOrderDish(area, name) {
 }
 
 // --- Tienda de mejoras (menú de inicio) ---
+/** Repinta la Tienda si está abierta (la usa la nube al traer o enviar el progreso). */
+function refreshUpgradesShopIfOpen() { try { if (window.Taller) Taller.refresh(); } catch (e) {} }
+
 function buyUpgrade(id) {
   const u = UPGRADE_BY_ID[id];
   if (!u) return;
@@ -105,57 +108,6 @@ function buyUpgrade(id) {
   updatePropinasHUD();
   try { playSound('serve'); } catch (e) {}
   accountPushSoon(true);
-  renderUpgradesShop();
-}
-
-function renderUpgradesShop() {
-  const grid = document.getElementById('upg-grid');
-  if (!grid) return;
-  const wallet = getPropinasWallet();
-  const walletEl = document.getElementById('upg-wallet');
-  if (walletEl) walletEl.textContent = wallet;
-  const syncEl = document.getElementById('upg-sync');
-  if (syncEl) {
-    const registered = !!(typeof DeviceManager !== 'undefined' && DeviceManager.currentPlayer);
-    const labels = {
-      ok: '☁️ Guardado en tu cuenta',
-      syncing: '☁️ Sincronizando…',
-      error: '📱 Guardado en este dispositivo (se subirá a tu cuenta al reconectar)',
-      local: '📱 Guardado en este dispositivo'
-    };
-    syncEl.textContent = labels[accountProgress.sync] + (registered ? '' : ' · registra tu alias para no perderlo');
-  }
-  grid.innerHTML = UPGRADES.map(u => {
-    const lvl = getUpgradeLevel(u.id);
-    const max = u.costs.length;
-    const maxed = lvl >= max;
-    const cost = maxed ? 0 : u.costs[lvl];
-    const can = !maxed && wallet >= cost;
-    const pips = Array.from({ length: max }, (_, i) => `<i class="upg-pip ${i < lvl ? 'on' : ''}"></i>`).join('');
-    const now = lvl > 0 ? `<div class="upg-now">✔ ${u.effect[lvl - 1]}</div>` : '';
-    const next = maxed ? '<div class="upg-next">Nivel máximo</div>' : `<div class="upg-next">Siguiente: ${u.effect[lvl]}</div>`;
-    return `<div class="upg-card ${maxed ? 'maxed' : ''}">
-      <div class="upg-head"><span class="upg-ico">${u.icon}</span><div><div class="upg-name">${u.name}</div><div class="upg-where">${u.where}</div></div><div class="upg-pips">${pips}</div></div>
-      ${now}${next}
-      <button class="upg-buy" ${maxed ? 'disabled' : ''} ${can || maxed ? '' : 'data-poor="1"'} onclick="buyUpgrade('${u.id}')">${maxed ? '✔ Completa' : `🧧 ${cost} · Comprar`}</button>
-    </div>`;
-  }).join('');
-}
-
-function refreshUpgradesShopIfOpen() {
-  const m = document.getElementById('upgrades-modal');
-  if (m && m.classList.contains('active')) renderUpgradesShop();
-}
-
-function openUpgradesModal() {
-  renderUpgradesShop();
-  document.getElementById('upgrades-modal').style.display = '';
-  document.getElementById('upgrades-modal').classList.add('active');
-  accountPull();
-}
-
-function closeUpgradesModal() {
-  document.getElementById('upgrades-modal').classList.remove('active');
 }
 
 // --- Efectos de las mejoras en la partida ---

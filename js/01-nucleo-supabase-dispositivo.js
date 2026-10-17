@@ -174,8 +174,6 @@ const DeviceManager = {
       this.deviceInfoText = this.detectDeviceInfo();
 
       // Actualizar badges visuales de dispositivo
-      const badge = document.getElementById("start-device-info-bar");
-      if (badge) badge.innerHTML = `🔒 Dispositivo: <strong>${this.deviceId}</strong> (${this.deviceInfoText})`;
       const regPill = document.getElementById("reg-device-info-pill");
       if (regPill) regPill.innerHTML = `📱 <strong>Dispositivo:</strong> ${this.deviceInfoText}<br>🔑 <strong>ID de Hardware:</strong> ${this.deviceId}`;
       const profRaw = document.getElementById("prof-device-raw");

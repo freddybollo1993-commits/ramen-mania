@@ -112,7 +112,7 @@ function spawnCustomer(forced) {
 }
 
 function gameTick() {
-  if (gameState.isPaused || gameState.isGameOver || (typeof TutorialManager !== 'undefined' && TutorialManager.isActive)) return;
+  if (gameState.isPaused || gameState.isGameOver) return;
   gameState.gameClock++;
   statsAddTime();
   stTick();
@@ -350,24 +350,9 @@ function openCampaignModalFromEnd() {
   openCampaignModal();
 }
 
-let campaignFilterArc = 'all';
-
 function openCampaignModal(filterArc) {
-  // Campaña 2.0: el mapa ilustrado (campana-mapa.js) sustituye a la lista; el modal de abajo queda solo como respaldo si ese archivo no cargó
-  if (window.CampMapa) { loadAccountProgressLocal(); CampMapa.open(filterArc); return; }
-  if (filterArc) campaignFilterArc = filterArc;
   loadAccountProgressLocal();
-  renderCampaignModal();
-  const m = document.getElementById('campaign-modal');
-  if (m) {
-    m.style.display = '';
-    m.classList.add('active');
-  }
-}
-
-function closeCampaignModal() {
-  const m = document.getElementById('campaign-modal');
-  if (m) m.classList.remove('active');
+  CampMapa.open(filterArc);
 }
 
 const CAMPAIGN_ARCS = [
@@ -378,14 +363,9 @@ const CAMPAIGN_ARCS = [
   { id: 'maestria', icon: '🏆', name: 'Restaurante Insignia', levels: [17, 18, 19, 20], areas: '⭐ Las 4 Áreas' }
 ];
 
-function setCampaignArcFilter(arcId) {
-  campaignFilterArc = arcId;
-  renderCampaignModal();
-}
-
 function playCampaignLevel(lvlIndex) {
   const go = () => {
-    closeCampaignModal(); if (window.CampMapa) CampMapa.close();
+    if (window.CampMapa) CampMapa.close();
     setStartSelectedMode('NORMAL');
     executeStartGame();
     startLevel(lvlIndex);
@@ -393,98 +373,6 @@ function playCampaignLevel(lvlIndex) {
   // primera vez en un nivel que presenta algo nuevo: el Maestro lo explica antes de empezar (campana-mapa.js)
   if (window.CampMapa && CampMapa.needsBrief(NIVELES[lvlIndex])) { CampMapa.brief(NIVELES[lvlIndex], go); return; }
   go();
-}
-
-function renderCampaignModal() {
-  const body = document.getElementById('camp-modal-body');
-  if (!body) return;
-  const prog = loadCampaignProgress();
-  const unlockedLvl = prog.unlockedLevel || 1;
-  const totalStars = getCampaignTotalStars();
-  const totalLevels = NIVELES.length;
-  const maxPossibleStars = totalLevels * 3;
-  const completedCount = Object.values(prog.levels || {}).filter(l => (l.stars || 0) >= 1).length;
-
-  const nextLvlIndex = Math.min(totalLevels - 1, unlockedLvl - 1);
-  const nextCfg = NIVELES[nextLvlIndex];
-
-  const filterTabs = [
-    { id: 'all', label: `⭐ Todos (${totalLevels})` },
-    ...CAMPAIGN_ARCS.map(arc => ({ id: arc.id, label: `${arc.icon} ${arc.name}` }))
-  ].map(tab => {
-    const active = campaignFilterArc === tab.id ? 'active' : '';
-    return `<button class="camp-filter-btn ${active}" onclick="setCampaignArcFilter('${tab.id}')">${tab.label}</button>`;
-  }).join('');
-
-  const activeArcs = CAMPAIGN_ARCS.filter(a => campaignFilterArc === 'all' || a.id === campaignFilterArc);
-
-  const arcsHtml = activeArcs.map(arc => {
-    const arcLevels = NIVELES.filter(lvl => arc.levels.includes(lvl.level));
-    const arcCards = arcLevels.map(cfg => {
-      const idx = cfg.level - 1;
-      const lvlData = (prog.levels && prog.levels[String(cfg.level)]) || null;
-      const isUnlocked = cfg.level <= unlockedLvl;
-      const stars = lvlData ? lvlData.stars : 0;
-      const isNext = cfg.level === unlockedLvl && stars === 0;
-
-      let starsDisplay = '';
-      if (!isUnlocked) {
-        starsDisplay = '<span style="color:#90a4ae;">🔒 Bloqueado</span>';
-      } else if (stars === 3) {
-        starsDisplay = '<span class="camp-stars" title="3 Estrellas: Perfección">⭐⭐⭐</span>';
-      } else if (stars === 2) {
-        starsDisplay = '<span class="camp-stars" title="2 Estrellas: Buen Servicio">⭐⭐<span style="opacity:0.35;">★</span></span>';
-      } else if (stars === 1) {
-        starsDisplay = '<span class="camp-stars" title="1 Estrella: Superado">⭐<span style="opacity:0.35;">★★</span></span>';
-      } else {
-        starsDisplay = '<span style="color:#e65100; font-weight:800; font-size:11px;">▶ Nuevo</span>';
-      }
-
-      const bestText = lvlData && lvlData.bestMoney ? `Récord: S/ ${lvlData.bestMoney}` : `Meta: S/ ${cfg.goal}`;
-      const stateClass = !isUnlocked ? 'locked' : (stars > 0 ? 'done' : 'open');
-
-      return `
-        <button class="camp-card ${stateClass} ${isNext ? 'next' : ''}" ${isUnlocked ? '' : 'disabled'} onclick="playCampaignLevel(${idx})">
-          <span class="camp-num">${cfg.level}</span>
-          <span class="camp-areas-tag">${arc.areas}</span>
-          <span class="camp-title">${cfg.name.replace(/Nivel \d+:\s*/, '')}</span>
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:auto;">
-            <div>${starsDisplay}</div>
-            <div class="camp-meta">${bestText}</div>
-          </div>
-        </button>
-      `;
-    }).join('');
-
-    return `
-      <div class="camp-arc-section">
-        <div class="camp-arc-head">
-          <span>${arc.icon} ${arc.name} (Niveles ${arc.levels[0]}–${arc.levels[arc.levels.length - 1]})</span>
-          <span style="font-size:11px; color:#6d4c41;">${arc.areas}</span>
-        </div>
-        <div class="camp-grid">${arcCards}</div>
-      </div>
-    `;
-  }).join('');
-
-  body.innerHTML = `
-    <div class="camp-summary">
-      <div class="camp-sumline">
-        <b>Progreso de Campaña: ${completedCount}/${totalLevels} Niveles</b>
-        <span>⭐ <b>${totalStars}/${maxPossibleStars}</b> Estrellas</span>
-        <span>🧧 Saldo: ${getPropinasWallet()}</span>
-      </div>
-      <div class="camp-bar"><i style="width:${Math.round(100 * totalStars / maxPossibleStars)}%"></i></div>
-      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; margin-top:2px;">
-        <span style="font-size:10.5px; color:#5d4037;">Repite cualquier nivel para mejorar tus estrellas (⭐ S/ goal · ⭐⭐ +20% · ⭐⭐⭐ +35%).</span>
-        <button class="acc-btn" style="padding:4px 12px; font-size:11px;" onclick="playCampaignLevel(${nextLvlIndex})">
-          ▶ Continuar Nivel ${nextCfg.level}: ${nextCfg.name.replace(/Nivel \d+:\s*/, '')}
-        </button>
-      </div>
-    </div>
-    <div class="camp-filter-bar">${filterTabs}</div>
-    ${arcsHtml}
-  `;
 }
 
 function winLevel() {
@@ -735,7 +623,6 @@ function startLevel(lvlIndex) {
 
   resetCookingStations();
   applyMiseEnPlace();
-  initRecipeTable();
   updateHUD();
   renderBowls();
   renderCustomers();

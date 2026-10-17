@@ -156,14 +156,4 @@
   // para el guardado en la cuenta: mejores marcas (se combinan tomando el menor tiempo)
   window.reconGet = () => { load(); return { best: rec.best, runs: rec.runs }; };
   window.reconMerge = o => { load(); if (!o || !o.best) return; Object.keys(o.best).forEach(k => { const b = o.best[k]; if (b && typeof b.t === 'number' && (!rec.best[k] || b.t < rec.best[k].t)) rec.best[k] = { t: b.t, n: b.n || 1, acc: b.acc || 0 }; }); rec.runs = Math.max(rec.runs || 0, o.runs || 0); try { store().setItem(KEY, JSON.stringify(rec)); } catch (e) {} };
-  function install() {
-    const row = document.getElementById('start-btn-row-box');
-    if (row && !document.getElementById('btn-recon')) {
-      const b = document.createElement('button');
-      b.className = 'btn-start-sec'; b.id = 'btn-recon'; b.title = 'Practica qué ingredientes lleva cada plato (sin reloj en contra)';
-      b.setAttribute('onclick', 'reconOpen()'); b.innerHTML = '<span class="btn-ico">🔍</span><span>Ingredientes</span>';
-      const rb = row.querySelector('.btn-recipe'); row.insertBefore(b, rb ? rb.nextSibling : row.firstChild);
-    }
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install); else install();
 })();
