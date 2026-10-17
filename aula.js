@@ -35,35 +35,26 @@
   @keyframes auSpr { from { background-position-x: 0; } to { background-position-x: -512px; } }
   .au, .sc { position: absolute; inset: 0; font-family: 'Fredoka', sans-serif; color: #3b2208; display: flex; flex-direction: column; }
   .au-back { border: 2px solid #ffe082; border-radius: 12px; background: rgba(60,25,12,0.9); color: #ffe9b0; font: 800 13px 'Fredoka', sans-serif; padding: 4px 12px; cursor: pointer; flex: none; }
-  /* ---- aula ---- */
-  .au { background: linear-gradient(#d9bd86 0 62%, #3e2410 62% 64%, #8da35a 64% 100%); }
-  .au::before { content: ''; position: absolute; inset: 0 0 38% 0; background: repeating-linear-gradient(90deg, rgba(110,70,30,0.35) 0 3px, transparent 3px 96px), repeating-linear-gradient(0deg, rgba(110,70,30,0.25) 0 2px, transparent 2px 70px); pointer-events: none; }
-  .au::after { content: ''; position: absolute; inset: 62% 0 0 0; background: repeating-linear-gradient(0deg, rgba(60,80,30,0.35) 0 2px, transparent 2px 46px), repeating-linear-gradient(90deg, rgba(60,80,30,0.25) 0 2px, transparent 2px 120px); pointer-events: none; }
-  .au-top { position: relative; z-index: 2; display: flex; align-items: center; gap: 10px; padding: 6px 12px; background: linear-gradient(#5b3a1c, #3e2410); border-bottom: 3px solid #c9a227; flex: none; }
-  .au-top h2 { margin: 0; font: 900 16px 'Fredoka', sans-serif; color: #ffe9b0; flex: 1; } .au-stats { font: 800 11px sans-serif; color: #ffe9b0; white-space: nowrap; }
-  .au-body { position: relative; z-index: 2; flex: 1; min-height: 0; display: flex; gap: 8px; padding: 8px 10px 8px 8px; }
-  .au-side { width: 190px; flex: none; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; position: relative; }
-  .au-side .au-m { margin-bottom: -4px; cursor: pointer; transform: scale(0.8); margin-top: -20px; }
-  .au-bub { position: relative; background: #fffbe9; border: 3px solid #6b4a24; border-radius: 14px; padding: 7px 10px; font: 700 12.5px/1.3 'Fredoka', sans-serif; margin-bottom: 4px; box-shadow: 0 3px 8px rgba(0,0,0,0.3); animation: auPop 0.3s cubic-bezier(.2,1.5,.4,1); width: 100%; box-sizing: border-box; max-height: 145px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
-  .au-bub::after { content: ''; position: absolute; left: 50%; bottom: -12px; margin-left: -8px; border: 8px solid transparent; border-top-color: #6b4a24; }
-  .au-bub button { display: block; margin-top: 6px; width: 100%; border: 2px solid #8a5a00; border-radius: 10px; background: linear-gradient(#ffe9a8, #ffc84a); font: 900 13px 'Fredoka', sans-serif; padding: 4px 6px; cursor: pointer; color: #3b2208; box-shadow: 0 2px 0 #8a5a00; }
-  @keyframes auPop { from { transform: scale(0.6); opacity: 0; } }
-  .au-main { flex: 1; min-width: 0; display: flex; flex-direction: column; background: rgba(255,250,232,0.94); border: 3px solid #6b4a24; border-radius: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.35); overflow: hidden; }
-  .au-tabs { display: flex; gap: 4px; padding: 6px 6px 0; background: linear-gradient(#f1dcaa, #e5c98a); flex: none; }
-  .au-tabs button { flex: 1; border: 2px solid #6b4a24; border-bottom: 0; border-radius: 10px 10px 0 0; background: #e9d09a; font: 900 13px 'Fredoka', sans-serif; padding: 5px 4px; color: #6b4a24; cursor: pointer; }
-  .au-tabs button.on { background: #fffaf0; color: #3b2208; box-shadow: inset 0 3px 0 #ffc84a; }
-  .au-pane { flex: 1; min-height: 0; overflow-y: auto; padding: 8px; display: grid; grid-template-columns: repeat(auto-fill, minmax(136px, 1fr)); gap: 8px; align-content: start; -webkit-overflow-scrolling: touch; }
-  .au-card { border: 2px solid #6b4a24; border-radius: 12px; background: linear-gradient(#fffdf4, #f6e7bd); padding: 7px 9px; text-align: left; cursor: pointer; box-shadow: 0 3px 0 #6b4a24; font-family: inherit; color: #3b2208; display: flex; flex-direction: column; gap: 2px; }
-  .au-card:active { transform: translateY(2px); box-shadow: 0 1px 0 #6b4a24; } .au-card i { font-style: normal; font-size: 26px; } .au-card b { font: 900 14px/1.1 'Fredoka', sans-serif; } .au-card small { font: 700 11px/1.25 sans-serif; color: #6b5330; }
-  .au-card.done { background: linear-gradient(#e6f5d8, #c5e3a8); } .au-card.next { outline: 3px solid #ffe066; animation: iniGlow 1.2s ease-in-out infinite; } .au-card.off { opacity: 0.5; filter: grayscale(0.6); cursor: default; }
-  .au-wide { grid-column: 1 / -1; } .au-sum { grid-column: 1 / -1; font: 800 12px sans-serif; background: #fff3cf; border: 2px dashed #c9a24a; border-radius: 10px; padding: 5px 9px; }
-  .au-chap { grid-column: 1 / -1; font: 900 13px 'Fredoka', sans-serif; border-bottom: 2px solid #c9a24a; padding-top: 4px; display: flex; justify-content: space-between; }
-  .au-card .num { font: 900 11px sans-serif; color: #b71c1c; }
-  .au-filter-bar { grid-column: 1 / -1; display: flex; gap: 4px; overflow-x: auto; padding: 2px 0 6px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
-  .au-filter-bar::-webkit-scrollbar { display: none; }
-  .au-filter-pill { flex: none; border: 1.5px solid #8a6330; border-radius: 14px; background: #fff8e1; color: #5d4037; font: 800 11px sans-serif; padding: 3px 8px; cursor: pointer; transition: all 0.15s ease; white-space: nowrap; }
-  .au-filter-pill:hover { background: #ffe082; }
-  .au-filter-pill.active { background: linear-gradient(#ffb300, #e65100); color: #fff; border-color: #8a3b00; }
+  /* ---- aula (estilo de la Tienda y los modos: fondo marrón oscuro, placas y dorado) ---- */
+  .au { background: radial-gradient(circle at 50% 0%, #4a2a14 0%, #1d0e08 70%); color: #fff3d6; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); overflow: hidden; }
+  .au * { box-sizing: border-box; }
+  .au-top { display: flex; align-items: center; gap: 8px; padding: 6px 12px 4px; flex: none; }
+  .au-nav { flex: none; width: 40px; height: 34px; border: 2px solid #8a5a00; border-radius: 10px; background: linear-gradient(#ffe082, #ffb300); color: #3b2208; font: 900 16px/1 'Fredoka', sans-serif; box-shadow: 0 2px 0 #8a5a00; cursor: pointer; }
+  .au-nav:active, .au-go:active, .au-card:active { transform: translateY(2px); }
+  .au-top h2 { margin: 0; font: 400 19px 'Fredoka One', 'Fredoka', sans-serif; color: #ffd978; text-shadow: 0 2px 0 rgba(0,0,0,.5); flex: 1; white-space: nowrap; }
+  .au-chip { background: rgba(0,0,0,.4); border: 1.5px solid rgba(255,204,80,.45); border-radius: 14px; padding: 3px 10px; font: 900 12px/1.2 'Fredoka', sans-serif; color: #ffe9b0; white-space: nowrap; }
+  .au-tabs { display: flex; gap: 6px; padding: 2px 12px 4px; overflow-x: auto; flex: none; scrollbar-width: none; } .au-tabs::-webkit-scrollbar { display: none; }
+  .au-tabs button { flex: none; border: 2px solid rgba(255,255,255,.18); background: rgba(0,0,0,.35); color: #e9d5b0; border-radius: 12px; padding: 5px 14px; font: 800 12px/1 'Fredoka', sans-serif; cursor: pointer; }
+  .au-tabs button.on { background: linear-gradient(#ffd54f, #ffa000); border-color: #fff3d0; color: #2b1a08; box-shadow: 0 2px 0 #8a5a00; }
+  .au-tip { flex: none; display: flex; align-items: center; gap: 10px; margin: 2px 12px 6px; padding: 6px 10px; background: rgba(0,0,0,.35); border: 2px solid rgba(255,204,80,.4); border-radius: 12px; }
+  .au-tip .ic { flex: none; font-size: 24px; } .au-tip .tx { flex: 1; min-width: 0; font: 700 12.5px/1.3 'Fredoka', sans-serif; } .au-tip .tx b { color: #ffd978; } .au-tip small { display: block; margin-top: 2px; font: 700 10.5px/1.3 'Fredoka', sans-serif; color: #c9a77e; cursor: pointer; }
+  .au-go { flex: none; border: 2px solid #ffe082; border-radius: 10px; padding: 7px 12px; background: linear-gradient(135deg, #ff9800, #e64a19 65%, #c62828); color: #fff; font: 900 12px/1 'Fredoka', sans-serif; box-shadow: 0 3px 0 #7f0000; cursor: pointer; }
+  .au-pane { flex: 1; min-height: 0; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; padding: 4px 12px 14px; align-content: start; -webkit-overflow-scrolling: touch; }
+  .au-card { position: relative; border: 2.5px solid #1a0e07; border-radius: 12px; background: linear-gradient(#5a3a20, #2e1a0e); padding: 8px 10px 9px; text-align: left; cursor: pointer; box-shadow: 0 3px 0 rgba(0,0,0,.5); font-family: inherit; color: #fff3d6; display: flex; flex-direction: column; gap: 3px; transition: transform .18s cubic-bezier(.34, 1.56, .64, 1); -webkit-tap-highlight-color: transparent; }
+  .au-card i { font-style: normal; font-size: 26px; line-height: 1; } .au-card b { font: 900 13.5px/1.1 'Fredoka', sans-serif; color: #fff3d6; } .au-card small { font: 700 11px/1.3 'Fredoka', sans-serif; color: #c9b79a; } .au-card em { font: 900 11px 'Fredoka', sans-serif; font-style: normal; color: #ffd978; }
+  .au-card.done { border-color: #43a047; } .au-card.next { border-color: #ffb300; box-shadow: 0 0 0 2px rgba(255,179,0,.35), 0 3px 0 rgba(0,0,0,.5); } .au-card.off { opacity: .55; filter: grayscale(.6); cursor: default; }
+  .au-tag { position: absolute; top: 6px; right: 7px; font: 900 9px 'Fredoka', sans-serif; background: #ffb300; color: #2b1a08; border-radius: 6px; padding: 2px 6px; } .au-card.done .au-tag { background: #43a047; color: #fff; }
+  .au-sum { grid-column: 1 / -1; font: 700 12px/1.3 'Fredoka', sans-serif; color: #e9d5b0; background: rgba(0,0,0,.28); border: 1.5px dashed rgba(255,204,80,.4); border-radius: 10px; padding: 5px 10px; }
   /* ---- bodega de los secretos ---- */
   .sc { background: radial-gradient(ellipse at 62% 62%, #6b4a2a 0%, #2a160c 55%, #120905 100%); overflow: hidden; }
   .sc-shelf { position: absolute; left: 0; right: 0; height: 12px; background: #3b2210; box-shadow: 0 6px 10px rgba(0,0,0,0.5); } .sc-shelf::before { content: ''; position: absolute; left: 6%; bottom: 12px; width: 88%; height: 34px; background: repeating-linear-gradient(90deg, #5a3a1c 0 26px, transparent 26px 40px, #7a4a22 40px 64px, transparent 64px 80px); opacity: 0.75; border-radius: 3px; }
@@ -102,79 +93,64 @@
     const nl = ORDER.find(k => !fl[k]);
     if (nl) { const L = LES[nl]; return { t: `Te falta <b>la lección de ${L.n}</b>: +${L.reward} 🧧.`, btn: 'Ir a la lección', fn: () => Guia.start(nl) }; }
     const nr = safe(() => trainingNextChallenge(), null);
-    if (nr) return { t: `Siguiente reto: <b>${nr.num}. ${nr.title}</b>.`, btn: 'Ver el reto', fn: () => openTrainingModal(nr.id) };
+    if (nr) return { t: `Siguiente reto: <b>${nr.num}. ${nr.title}</b>.`, btn: 'Ver el reto', fn: () => openLevelRetos(nr.lvl) };
     return { t: '¡Dominas todo! Mejora tus tiempos en <b>Retos</b> o practica.', btn: 'Ir a Práctica', fn: () => au.tab('practica') };
   }
   function lessonsHtml(api) {
     const fl = api.flags(), nxt = ORDER.find(k => !fl[k]);
-    return ORDER.map(k => { const L = LES[k]; return `<button class="au-card ${fl[k] ? 'done' : (k === nxt ? 'next' : '')}" data-les="${k}"><i>${L.i}</i><b>Lección de ${L.n}</b><small>${L.dish} · ${L.min}</small><small>${fl[k] ? '✓ Hecha · repetir' : '+' + L.reward + ' 🧧 la primera vez'}</small><small>${L.note}</small></button>`; }).join('');
+    return ORDER.map(k => { const L = LES[k], done = !!fl[k];
+      return '<button class="au-card ' + (done ? 'done' : (k === nxt ? 'next' : '')) + '" data-les="' + k + '"><span class="au-tag">' + (done ? '✔ HECHA' : (k === nxt ? 'TE TOCA' : '+' + L.reward + ' 🧧')) + '</span><i>' + L.i + '</i><b>Lección de ' + L.n + '</b><small>' + L.dish + ' · ' + L.min + '</small><small>' + L.note + '</small><em>' + (done ? 'Repetir la lección' : '+' + L.reward + ' 🧧 la primera vez') + '</em></button>'; }).join('');
   }
-  let auRetosFilter = 'all';
+  // los retos son subniveles de la Campaña: aquí se ve el avance por arco y se abre el mapa
   function retosHtml() {
-    const chs = safe(() => TRAINING_CHAPTERS, []), all = safe(() => TRAINING_CHALLENGES, []);
-    const done = safe(() => trainingDoneCount(), 0), nx = safe(() => trainingNextChallenge(), null);
-    const filterPills = [
-      { id: 'all', n: `⭐ Todos (${all.length})` },
-      ...chs.map(c => {
-        const cnt = all.filter(x => x.ch === c.id).length;
-        return { id: c.id, n: `${c.icon} ${c.name.split(':')[0]} (${cnt})` };
-      })
-    ].map(f => `<button class="au-filter-pill ${auRetosFilter === f.id ? 'active' : ''}" data-au-filter="${f.id}">${f.n}</button>`).join('');
-
-    let h = `<div class="au-sum"><b>Retos ${done}/${all.length}</b> · 🥇 ${safe(() => trainingMedalCount(3), 0)} · 🥈 ${safe(() => trainingMedalCount(2), 0)} · 🥉 ${safe(() => trainingMedalCount(1), 0)} · 🧧 ${safe(() => getPropinasWallet(), 0)}</div>
-      <div class="au-filter-bar">${filterPills}</div>`;
-    const filteredChs = auRetosFilter === 'all' ? chs : chs.filter(c => c.id === auRetosFilter);
-    filteredChs.forEach(c => {
-      const list = all.filter(x => x.ch === c.id), dn = list.filter(x => safe(() => (trainingProgressOf(x.id) || {}).m > 0, false)).length;
-      h += `<div class="au-chap"><span>${c.icon} ${c.name}</span><span>${dn}/${list.length}</span></div>`;
-      list.forEach(x => {
-        const open = safe(() => trainingIsOpen(x), true), p = safe(() => trainingProgressOf(x.id) || {}, {}), isNext = nx && nx.id === x.id;
-        const meta = !open ? '🔒 Bloqueado' : (p.m > 0 ? safe(() => trainingMedalIcon(p.m) + ' ' + formatTrainingTime(p.t) + ' · +' + x.reward + '🧧', '✓') : `▶ +${x.reward}🧧`);
-        h += `<button class="au-card ${!open ? 'off' : (p.m > 0 ? 'done' : '')} ${isNext ? 'next' : ''}" data-reto="${open ? x.id : ''}"><span class="num">Reto ${x.num}</span><b>${x.title}</b><small>${meta}</small></button>`;
-      });
-    });
-    return h;
+    const arcs = safe(() => CAMPAIGN_ARCS, []), all = safe(() => TRAINING_CHALLENGES, []), unl = safe(() => getCampaignStatsSummary().unlockedLevel, 1) || 1;
+    const nx = safe(() => trainingNextChallenge(), null);
+    return '<div class="au-sum">🎫 Los retos son subniveles de la Campaña: se abren al superar cada nivel. Llevas <b>' + safe(() => trainingDoneCount(), 0) + '/' + all.length + '</b> · ⭐ ' + safe(() => trainingTotalStars(), 0) + ' · 🥇 ' + safe(() => trainingMedalCount(3), 0) + ' · 🥈 ' + safe(() => trainingMedalCount(2), 0) + ' · 🥉 ' + safe(() => trainingMedalCount(1), 0) + '</div>'
+      + arcs.map(a => {
+        const list = all.filter(c => a.levels.includes(c.lvl)), dn = list.filter(c => safe(() => (trainingProgressOf(c.id) || {}).m > 0, false)).length, open = a.levels[0] <= unl, isNext = nx && a.levels.includes(nx.lvl), lvl = isNext ? nx.lvl : a.levels[0];
+        return '<button class="au-card ' + (!open ? 'off' : (dn === list.length && list.length ? 'done' : (isNext ? 'next' : ''))) + '" data-retolvl="' + (open ? lvl : '') + '">' + (isNext ? '<span class="au-tag">SIGUIENTE</span>' : '') + '<i>' + a.icon + '</i><b>' + a.name + '</b><small>Niveles ' + a.levels[0] + '–' + a.levels[a.levels.length - 1] + '</small><em>' + (open ? '🎫 ' + dn + '/' + list.length : '🔒 Llega al nivel ' + a.levels[0]) + '</em></button>'; }).join('');
   }
   function practicaHtml() {
-    return `<div class="au-sum au-wide">Practica sin reloj ni notas: eliges el área y cocinas tranquilo, con el pedido que quieras.</div>`
-      + FREE_AREAS.map(([k, ico, n]) => `<button class="au-card" data-free="${k}"><i>${ico}</i><b>Cocina libre · ${n}</b><small>Solo platos de ${n.toLowerCase()}</small></button>`).join('')
-      + `<button class="au-card" data-free="all"><i>🌿</i><b>Cocina libre · Todo</b><small>Las 4 áreas a la vez</small></button>`;
+    return '<div class="au-sum">🌿 Practica sin reloj ni notas: eliges el área y cocinas tranquilo, con el pedido que quieras.</div>'
+      + FREE_AREAS.map(([k, ico, n]) => '<button class="au-card" data-free="' + k + '"><i>' + ico + '</i><b>Cocina libre · ' + n + '</b><small>Solo platos de ' + n.toLowerCase() + '</small></button>').join('')
+      + '<button class="au-card" data-free="all"><i>🌿</i><b>Cocina libre · Todo</b><small>Las 4 áreas a la vez</small></button>';
   }
   function repasoHtml() {
-    return `<div class="au-sum au-wide">Repasa qué lleva cada plato, técnicas maestras y organiza tu cocina.</div>
-      <button class="au-card" data-do="pantry"><i>🔍</i><b>Modo Ingredientes</b><small>Reconoce los ingredientes de cada plato sin reloj.</small></button>
-      <button class="au-card" data-do="book"><i>📖</i><b>Recetario Oficial</b><small>Ingredientes, pasos y precios de todos los platos.</small></button>
-      <button class="au-card" data-do="secretos"><i>📜</i><b>Secretos del Maestro</b><small>El baúl de técnicas avanzadas y trucos legendarios.</small></button>
-      <button class="au-card" data-do="order"><i>🍱</i><b>Ordenar ingredientes</b><small>Cambia el orden de tu despensa.</small></button>`;
+    return '<div class="au-sum">🔍 Repasa qué lleva cada plato, técnicas maestras y organiza tu cocina.</div>'
+      + '<button class="au-card" data-do="pantry"><i>🔍</i><b>Modo Ingredientes</b><small>Reconoce los ingredientes de cada plato sin reloj.</small></button>'
+      + '<button class="au-card" data-do="book"><i>📖</i><b>Recetario Oficial</b><small>Ingredientes, pasos y precios de todos los platos.</small></button>'
+      + '<button class="au-card" data-do="secretos"><i>📜</i><b>Secretos del Maestro</b><small>El baúl de técnicas avanzadas y trucos legendarios.</small></button>'
+      + '<button class="au-card" data-do="order"><i>🥢</i><b>Ordenar ingredientes</b><small>Cambia el orden de tu despensa.</small></button>';
   }
-  const TABS = [['lecciones', '🎓 Lecciones'], ['retos', '🏋️ Retos'], ['practica', '🌿 Práctica'], ['repaso', '🔍 Repaso']];
+  const TABS = [['lecciones', '🎓 Lecciones'], ['retos', '🎫 Retos'], ['practica', '🌿 Práctica'], ['repaso', '🔍 Repaso']];
   const auRoom = {
     mount(el, api) {
-      css(); au = { api, tabName: store.get('ramen_aula_tab') || 'lecciones', timers: [] };
+      css(); au = { api, tabName: store.get('ramen_aula_tab') || 'lecciones', timers: [], tip: Math.floor(Date.now() / 86400000) % TIPS.length };
+      if (!TABS.some(t => t[0] === au.tabName)) au.tabName = 'lecciones';
       const fl = api.flags(), les = ORDER.filter(k => fl[k]).length;
-      el.innerHTML = `<div class="au"><div class="au-top"><button class="au-back" data-back>← Salir</button><h2>🎓 Aula del Maestro</h2><div class="au-stats">Lecciones ${les}/4 · Retos ${safe(() => trainingDoneCount(), 0)}/${safe(() => TRAINING_CHALLENGES.length, 50)}</div></div>
-        <div class="au-body"><aside class="au-side"><div class="au-bub" id="au-bub"></div><div class="au-m work" id="au-m" title="Toca al Maestro para un consejo"></div></aside>
-        <section class="au-main"><nav class="au-tabs">${TABS.map(t => `<button data-tab="${t[0]}">${t[1]}</button>`).join('')}</nav><div class="au-pane" id="au-pane"></div></section></div></div>`;
-      const root = $('.au', el), pane = $('#au-pane', el), bub = $('#au-bub', el), m = $('#au-m', el);
+      el.innerHTML = '<div class="au"><div class="au-top"><button class="au-nav" data-back aria-label="Volver">◀</button><h2>🎓 AULA DEL MAESTRO</h2><span class="au-chip">Lecciones ' + les + '/4</span><span class="au-chip">🎫 ' + safe(() => trainingDoneCount(), 0) + '/' + safe(() => TRAINING_CHALLENGES.length, 50) + '</span></div>'
+        + '<nav class="au-tabs">' + TABS.map(t => '<button data-tab="' + t[0] + '">' + t[1] + '</button>').join('') + '</nav>'
+        + '<div class="au-tip"><span class="ic">🎓</span><div class="tx"><span id="au-step"></span><small id="au-tipline" data-tip></small></div><button class="au-go" id="au-go" data-go></button></div>'
+        + '<div class="au-pane" id="au-pane"></div></div>';
+      const root = $('.au', el), pane = $('#au-pane', el), stepEl = $('#au-step', el), tipEl = $('#au-tipline', el), goBtn = $('#au-go', el);
+      let stepFn = null;
+      const showTip = () => { tipEl.textContent = '💡 ' + TIPS[au.tip % TIPS.length] + ' (toca para otro consejo)'; };
       au.tab = name => { au.tabName = name; store.set('ramen_aula_tab', name); sfx('click'); root.querySelectorAll('.au-tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === name)); pane.innerHTML = name === 'retos' ? retosHtml() : (name === 'practica' ? practicaHtml() : (name === 'repaso' ? repasoHtml() : lessonsHtml(api))); pane.scrollTop = 0; };
-      const say = (html, btn, fn) => { bub.style.animation = 'none'; void bub.offsetWidth; bub.style.animation = ''; bub.innerHTML = html + (btn ? `<button data-go>${btn}</button>` : ''); bub._fn = fn || null; };
-      const rec = () => { const n = nextStep(api); say(n.t, n.btn, n.fn); };
+      const rec = () => { const n = nextStep(api); stepEl.innerHTML = n.t; goBtn.textContent = n.btn; stepFn = n.fn; showTip(); };
       root.addEventListener('click', e => {
-        const t = e.target.closest('[data-back],[data-tab],[data-les],[data-reto],[data-free],[data-do],[data-go],[data-au-filter],#au-m'); if (!t) return;
-        if (t.dataset.auFilter) { sfx('click'); auRetosFilter = t.dataset.auFilter; pane.innerHTML = retosHtml(); return; }
+        const t = e.target.closest('[data-back],[data-tab],[data-les],[data-retolvl],[data-free],[data-do],[data-go],[data-tip]'); if (!t) return;
         if (t.hasAttribute('data-back')) return api.leave();
         if (t.dataset.tab) return au.tab(t.dataset.tab);
-        if (t.hasAttribute('data-go')) { sfx('click'); if (bub._fn) bub._fn(); return; }
-        if (t.id === 'au-m') { sfx('add'); say('💡 ' + TIPS[Math.floor(Math.random() * TIPS.length)] + '<button data-go2>Volver a mi consejo</button>'); return; }
+        if (t.hasAttribute('data-go')) { sfx('click'); if (stepFn) stepFn(); return; }
+        if (t.hasAttribute('data-tip')) { sfx('add'); au.tip++; showTip(); return; }
         if (t.dataset.les) { sfx('click'); return Guia.start(t.dataset.les); }
-        if (t.dataset.reto !== undefined) { if (t.dataset.reto) { sfx('click'); openTrainingModal(t.dataset.reto); } return; }
+        if (t.dataset.retolvl !== undefined) { if (t.dataset.retolvl) { sfx('click'); openLevelRetos(+t.dataset.retolvl); } return; }
         if (t.dataset.free) { sfx('click'); if (t.dataset.free === 'all') { window.startFreeAreas = null; setStartSelectedMode('FREE'); handleStartPlayClick(); } else api.act('free', t.dataset.free); return; }
         if (t.dataset.do) {
           if (t.dataset.do === 'secretos') return api.act('enter', 'secretos');
           return api.act(t.dataset.do);
         }
       });
-      bub.addEventListener('click', e => { if (e.target.hasAttribute('data-go2')) { e.stopPropagation(); rec(); } });
       au.tab(au.tabName); rec();
     },
     unmount() { if (au) au.timers.forEach(clearInterval); au = null; }
