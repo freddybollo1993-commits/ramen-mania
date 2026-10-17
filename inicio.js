@@ -1300,7 +1300,7 @@
     update: () => forceAppCacheUpdate(),
     device: () => showDeviceInfoModal(),
     hubview: () => Inicio.setView('hub'),
-    enter: n => Inicio.enterRoom(n)
+    enter: n => ((n === 'aula' && window.Modos && Modos.aula) ? Modos.aula() : Inicio.enterRoom(n))
   };
 
   // ---------- estado del componente Hub ----------

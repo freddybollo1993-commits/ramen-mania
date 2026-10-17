@@ -118,6 +118,7 @@
   ];
   // lo último que cambió, en lenguaje del jugador (lo más nuevo primero)
   const NEWS = [
+    ['v199', '🎓', 'Aula del Maestro por tarjetas', 'El Aula se organiza como los modos de juego: dos secciones, Lecciones y Repaso, con tarjetas grandes que explican qué es cada cosa. Práctica y Retos viven en Aprender.'],
     ['v198', '🎓', 'Aula del Maestro renovada', 'El Aula pasa al estilo nuevo (fondo oscuro, placas y dorado), sin el Maestro animado: el siguiente paso y un consejo del día arriba, y los retos enlazan con el mapa de la Campaña.'],
     ['v197', '🎓', 'Aprender renovado', 'Aprender ahora usa la misma pantalla que los modos de juego: Lecciones del Aula, Práctica sin reloj, Retos de la Campaña y Repaso (Recetario y despensa).'],
     ['v195', '🏪', 'Tienda del Chef', 'Mejoras, secretos y técnicas ahora están en la Tienda. Nueva pestaña 🗾 Japón con todo lo que se compra en el Recorrido (ciudades, local, personal, objetos y maestría): precio de referencia, niveles y qué necesitas. El botón Retos se fue: ahora están en el mapa de la Campaña.'],

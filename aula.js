@@ -1,29 +1,11 @@
-/* Salas del inicio: el Aula del Maestro (Aprender) y la bodega de los Secretos.
+/* Bodega de los Secretos del Maestro (sala del inicio). El Aula del Maestro ahora es la pantalla de tarjetas de modos.js (Modos.aula).
    Se registran en Inicio (inicio.js), que las abre con la transición de velocidad. Cada sala recibe su contenedor y una pequeña API (leave, act...).
    El Maestro usa el sprite del Maestro de Ramen (assets/people/cook_ramen_v1.webp: fila 0 caminar, fila 1 trabajar, fila 2 caminar de espaldas). */
 (function () {
   'use strict';
   if (!window.Inicio) return;
   const SPRITE = 'assets/people/cook_ramen_v1.webp';
-  const ORDER = ['ramen', 'salteados', 'makis', 'frituras'];
-  const LES = {
-    ramen: { n: 'Ramen', i: '🍜', dish: 'Ramen Shio', min: '≈ 5 min', reward: 60, note: 'Etapas, pedido y cuenco' },
-    salteados: { n: 'Salteado', i: '🥘', dish: 'Chicken Teriyaki', min: '≈ 5 min', reward: 80, note: 'Wok, punto y sartén' },
-    makis: { n: 'Makis', i: '🍣', dish: 'Maki California', min: '≈ 5 min', reward: 100, note: 'Esterilla, arroz y enrollado' },
-    frituras: { n: 'Frituras', i: '🍤', dish: 'Chicken Katsu', min: '≈ 5 min', reward: 120, note: 'Empanizado, aceite y corte' }
-  };
-  const FREE_AREAS = [['ramen', '🍜', 'Ramen'], ['salteados', '🥘', 'Salteado'], ['makis', '🍣', 'Makis'], ['frituras', '🍤', 'Frituras']];
-  const TIPS = [
-    'El caldo Shio se cuida con calma: si hierve fuerte, se enturbia.',
-    'Corta siempre a favor del filo: un tajo limpio vale más que tres tajos nerviosos.',
-    'El arroz de los makis se lava hasta que el agua sale casi clara.',
-    'En el wok, el fuego manda: mantén el salteado en movimiento.',
-    'El aceite listo no humea: se ve brillante y se mueve como seda.',
-    'Emplatar es un cuarto de la nota: el orden también se come con los ojos.',
-    'Un plato frío es un plato perdido: sírvelo cuando esté en su punto.',
-    'Con las dos manos puedes flamear con una y servir fideos con la otra.',
-    'El Zu (vinagre y azúcar) se mezcla con el arroz aún tibio, nunca frío.'
-  ];
+
   const $ = (s, r) => (r || document).querySelector(s);
   const store = { get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} } };
   const safe = (f, d) => { try { return f(); } catch (e) { return d; } };
@@ -35,26 +17,6 @@
   @keyframes auSpr { from { background-position-x: 0; } to { background-position-x: -512px; } }
   .au, .sc { position: absolute; inset: 0; font-family: 'Fredoka', sans-serif; color: #3b2208; display: flex; flex-direction: column; }
   .au-back { border: 2px solid #ffe082; border-radius: 12px; background: rgba(60,25,12,0.9); color: #ffe9b0; font: 800 13px 'Fredoka', sans-serif; padding: 4px 12px; cursor: pointer; flex: none; }
-  /* ---- aula (estilo de la Tienda y los modos: fondo marrón oscuro, placas y dorado) ---- */
-  .au { background: radial-gradient(circle at 50% 0%, #4a2a14 0%, #1d0e08 70%); color: #fff3d6; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); overflow: hidden; }
-  .au * { box-sizing: border-box; }
-  .au-top { display: flex; align-items: center; gap: 8px; padding: 6px 12px 4px; flex: none; }
-  .au-nav { flex: none; width: 40px; height: 34px; border: 2px solid #8a5a00; border-radius: 10px; background: linear-gradient(#ffe082, #ffb300); color: #3b2208; font: 900 16px/1 'Fredoka', sans-serif; box-shadow: 0 2px 0 #8a5a00; cursor: pointer; }
-  .au-nav:active, .au-go:active, .au-card:active { transform: translateY(2px); }
-  .au-top h2 { margin: 0; font: 400 19px 'Fredoka One', 'Fredoka', sans-serif; color: #ffd978; text-shadow: 0 2px 0 rgba(0,0,0,.5); flex: 1; white-space: nowrap; }
-  .au-chip { background: rgba(0,0,0,.4); border: 1.5px solid rgba(255,204,80,.45); border-radius: 14px; padding: 3px 10px; font: 900 12px/1.2 'Fredoka', sans-serif; color: #ffe9b0; white-space: nowrap; }
-  .au-tabs { display: flex; gap: 6px; padding: 2px 12px 4px; overflow-x: auto; flex: none; scrollbar-width: none; } .au-tabs::-webkit-scrollbar { display: none; }
-  .au-tabs button { flex: none; border: 2px solid rgba(255,255,255,.18); background: rgba(0,0,0,.35); color: #e9d5b0; border-radius: 12px; padding: 5px 14px; font: 800 12px/1 'Fredoka', sans-serif; cursor: pointer; }
-  .au-tabs button.on { background: linear-gradient(#ffd54f, #ffa000); border-color: #fff3d0; color: #2b1a08; box-shadow: 0 2px 0 #8a5a00; }
-  .au-tip { flex: none; display: flex; align-items: center; gap: 10px; margin: 2px 12px 6px; padding: 6px 10px; background: rgba(0,0,0,.35); border: 2px solid rgba(255,204,80,.4); border-radius: 12px; }
-  .au-tip .ic { flex: none; font-size: 24px; } .au-tip .tx { flex: 1; min-width: 0; font: 700 12.5px/1.3 'Fredoka', sans-serif; } .au-tip .tx b { color: #ffd978; } .au-tip small { display: block; margin-top: 2px; font: 700 10.5px/1.3 'Fredoka', sans-serif; color: #c9a77e; cursor: pointer; }
-  .au-go { flex: none; border: 2px solid #ffe082; border-radius: 10px; padding: 7px 12px; background: linear-gradient(135deg, #ff9800, #e64a19 65%, #c62828); color: #fff; font: 900 12px/1 'Fredoka', sans-serif; box-shadow: 0 3px 0 #7f0000; cursor: pointer; }
-  .au-pane { flex: 1; min-height: 0; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; padding: 4px 12px 14px; align-content: start; -webkit-overflow-scrolling: touch; }
-  .au-card { position: relative; border: 2.5px solid #1a0e07; border-radius: 12px; background: linear-gradient(#5a3a20, #2e1a0e); padding: 8px 10px 9px; text-align: left; cursor: pointer; box-shadow: 0 3px 0 rgba(0,0,0,.5); font-family: inherit; color: #fff3d6; display: flex; flex-direction: column; gap: 3px; transition: transform .18s cubic-bezier(.34, 1.56, .64, 1); -webkit-tap-highlight-color: transparent; }
-  .au-card i { font-style: normal; font-size: 26px; line-height: 1; } .au-card b { font: 900 13.5px/1.1 'Fredoka', sans-serif; color: #fff3d6; } .au-card small { font: 700 11px/1.3 'Fredoka', sans-serif; color: #c9b79a; } .au-card em { font: 900 11px 'Fredoka', sans-serif; font-style: normal; color: #ffd978; }
-  .au-card.done { border-color: #43a047; } .au-card.next { border-color: #ffb300; box-shadow: 0 0 0 2px rgba(255,179,0,.35), 0 3px 0 rgba(0,0,0,.5); } .au-card.off { opacity: .55; filter: grayscale(.6); cursor: default; }
-  .au-tag { position: absolute; top: 6px; right: 7px; font: 900 9px 'Fredoka', sans-serif; background: #ffb300; color: #2b1a08; border-radius: 6px; padding: 2px 6px; } .au-card.done .au-tag { background: #43a047; color: #fff; }
-  .au-sum { grid-column: 1 / -1; font: 700 12px/1.3 'Fredoka', sans-serif; color: #e9d5b0; background: rgba(0,0,0,.28); border: 1.5px dashed rgba(255,204,80,.4); border-radius: 10px; padding: 5px 10px; }
   /* ---- bodega de los secretos ---- */
   .sc { background: radial-gradient(ellipse at 62% 62%, #6b4a2a 0%, #2a160c 55%, #120905 100%); overflow: hidden; }
   .sc-shelf { position: absolute; left: 0; right: 0; height: 12px; background: #3b2210; box-shadow: 0 6px 10px rgba(0,0,0,0.5); } .sc-shelf::before { content: ''; position: absolute; left: 6%; bottom: 12px; width: 88%; height: 34px; background: repeating-linear-gradient(90deg, #5a3a1c 0 26px, transparent 26px 40px, #7a4a22 40px 64px, transparent 64px 80px); opacity: 0.75; border-radius: 3px; }
@@ -83,78 +45,6 @@
   .sc-card .btns { display: flex; gap: 8px; margin-top: 8px; } .sc-card .btns button { flex: 1; border: 2px solid #6b4a24; border-radius: 10px; background: #fff3cf; font: 900 13px 'Fredoka', sans-serif; padding: 5px 8px; cursor: pointer; box-shadow: 0 2px 0 #6b4a24; color: #3b2208; } .sc-card .btns button.go { background: linear-gradient(#ffe9a8, #ffc84a); }
   `;
   function css() { if (document.getElementById('au-css')) return; const s = document.createElement('style'); s.id = 'au-css'; s.textContent = CSS; document.head.appendChild(s); }
-
-  // =============================== AULA DEL MAESTRO ===============================
-  let au = null;
-  /** Qué debería hacer el jugador ahora: primera lección, siguiente lección, siguiente reto o practicar. @returns {{t:string, btn:string, fn:Function}} */
-  function nextStep(api) {
-    const fl = api.flags();
-    if (api.firstTime()) return { t: '¡Bienvenido! Empieza por <b>la lección de Ramen</b>: +60 🧧.', btn: 'Empezar la lección', fn: () => Guia.start('ramen') };
-    const nl = ORDER.find(k => !fl[k]);
-    if (nl) { const L = LES[nl]; return { t: `Te falta <b>la lección de ${L.n}</b>: +${L.reward} 🧧.`, btn: 'Ir a la lección', fn: () => Guia.start(nl) }; }
-    const nr = safe(() => trainingNextChallenge(), null);
-    if (nr) return { t: `Siguiente reto: <b>${nr.num}. ${nr.title}</b>.`, btn: 'Ver el reto', fn: () => openLevelRetos(nr.lvl) };
-    return { t: '¡Dominas todo! Mejora tus tiempos en <b>Retos</b> o practica.', btn: 'Ir a Práctica', fn: () => au.tab('practica') };
-  }
-  function lessonsHtml(api) {
-    const fl = api.flags(), nxt = ORDER.find(k => !fl[k]);
-    return ORDER.map(k => { const L = LES[k], done = !!fl[k];
-      return '<button class="au-card ' + (done ? 'done' : (k === nxt ? 'next' : '')) + '" data-les="' + k + '"><span class="au-tag">' + (done ? '✔ HECHA' : (k === nxt ? 'TE TOCA' : '+' + L.reward + ' 🧧')) + '</span><i>' + L.i + '</i><b>Lección de ' + L.n + '</b><small>' + L.dish + ' · ' + L.min + '</small><small>' + L.note + '</small><em>' + (done ? 'Repetir la lección' : '+' + L.reward + ' 🧧 la primera vez') + '</em></button>'; }).join('');
-  }
-  // los retos son subniveles de la Campaña: aquí se ve el avance por arco y se abre el mapa
-  function retosHtml() {
-    const arcs = safe(() => CAMPAIGN_ARCS, []), all = safe(() => TRAINING_CHALLENGES, []), unl = safe(() => getCampaignStatsSummary().unlockedLevel, 1) || 1;
-    const nx = safe(() => trainingNextChallenge(), null);
-    return '<div class="au-sum">🎫 Los retos son subniveles de la Campaña: se abren al superar cada nivel. Llevas <b>' + safe(() => trainingDoneCount(), 0) + '/' + all.length + '</b> · ⭐ ' + safe(() => trainingTotalStars(), 0) + ' · 🥇 ' + safe(() => trainingMedalCount(3), 0) + ' · 🥈 ' + safe(() => trainingMedalCount(2), 0) + ' · 🥉 ' + safe(() => trainingMedalCount(1), 0) + '</div>'
-      + arcs.map(a => {
-        const list = all.filter(c => a.levels.includes(c.lvl)), dn = list.filter(c => safe(() => (trainingProgressOf(c.id) || {}).m > 0, false)).length, open = a.levels[0] <= unl, isNext = nx && a.levels.includes(nx.lvl), lvl = isNext ? nx.lvl : a.levels[0];
-        return '<button class="au-card ' + (!open ? 'off' : (dn === list.length && list.length ? 'done' : (isNext ? 'next' : ''))) + '" data-retolvl="' + (open ? lvl : '') + '">' + (isNext ? '<span class="au-tag">SIGUIENTE</span>' : '') + '<i>' + a.icon + '</i><b>' + a.name + '</b><small>Niveles ' + a.levels[0] + '–' + a.levels[a.levels.length - 1] + '</small><em>' + (open ? '🎫 ' + dn + '/' + list.length : '🔒 Llega al nivel ' + a.levels[0]) + '</em></button>'; }).join('');
-  }
-  function practicaHtml() {
-    return '<div class="au-sum">🌿 Practica sin reloj ni notas: eliges el área y cocinas tranquilo, con el pedido que quieras.</div>'
-      + FREE_AREAS.map(([k, ico, n]) => '<button class="au-card" data-free="' + k + '"><i>' + ico + '</i><b>Cocina libre · ' + n + '</b><small>Solo platos de ' + n.toLowerCase() + '</small></button>').join('')
-      + '<button class="au-card" data-free="all"><i>🌿</i><b>Cocina libre · Todo</b><small>Las 4 áreas a la vez</small></button>';
-  }
-  function repasoHtml() {
-    return '<div class="au-sum">🔍 Repasa qué lleva cada plato, técnicas maestras y organiza tu cocina.</div>'
-      + '<button class="au-card" data-do="pantry"><i>🔍</i><b>Modo Ingredientes</b><small>Reconoce los ingredientes de cada plato sin reloj.</small></button>'
-      + '<button class="au-card" data-do="book"><i>📖</i><b>Recetario Oficial</b><small>Ingredientes, pasos y precios de todos los platos.</small></button>'
-      + '<button class="au-card" data-do="secretos"><i>📜</i><b>Secretos del Maestro</b><small>El baúl de técnicas avanzadas y trucos legendarios.</small></button>'
-      + '<button class="au-card" data-do="order"><i>🥢</i><b>Ordenar ingredientes</b><small>Cambia el orden de tu despensa.</small></button>';
-  }
-  const TABS = [['lecciones', '🎓 Lecciones'], ['retos', '🎫 Retos'], ['practica', '🌿 Práctica'], ['repaso', '🔍 Repaso']];
-  const auRoom = {
-    mount(el, api) {
-      css(); au = { api, tabName: store.get('ramen_aula_tab') || 'lecciones', timers: [], tip: Math.floor(Date.now() / 86400000) % TIPS.length };
-      if (!TABS.some(t => t[0] === au.tabName)) au.tabName = 'lecciones';
-      const fl = api.flags(), les = ORDER.filter(k => fl[k]).length;
-      el.innerHTML = '<div class="au"><div class="au-top"><button class="au-nav" data-back aria-label="Volver">◀</button><h2>🎓 AULA DEL MAESTRO</h2><span class="au-chip">Lecciones ' + les + '/4</span><span class="au-chip">🎫 ' + safe(() => trainingDoneCount(), 0) + '/' + safe(() => TRAINING_CHALLENGES.length, 50) + '</span></div>'
-        + '<nav class="au-tabs">' + TABS.map(t => '<button data-tab="' + t[0] + '">' + t[1] + '</button>').join('') + '</nav>'
-        + '<div class="au-tip"><span class="ic">🎓</span><div class="tx"><span id="au-step"></span><small id="au-tipline" data-tip></small></div><button class="au-go" id="au-go" data-go></button></div>'
-        + '<div class="au-pane" id="au-pane"></div></div>';
-      const root = $('.au', el), pane = $('#au-pane', el), stepEl = $('#au-step', el), tipEl = $('#au-tipline', el), goBtn = $('#au-go', el);
-      let stepFn = null;
-      const showTip = () => { tipEl.textContent = '💡 ' + TIPS[au.tip % TIPS.length] + ' (toca para otro consejo)'; };
-      au.tab = name => { au.tabName = name; store.set('ramen_aula_tab', name); sfx('click'); root.querySelectorAll('.au-tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === name)); pane.innerHTML = name === 'retos' ? retosHtml() : (name === 'practica' ? practicaHtml() : (name === 'repaso' ? repasoHtml() : lessonsHtml(api))); pane.scrollTop = 0; };
-      const rec = () => { const n = nextStep(api); stepEl.innerHTML = n.t; goBtn.textContent = n.btn; stepFn = n.fn; showTip(); };
-      root.addEventListener('click', e => {
-        const t = e.target.closest('[data-back],[data-tab],[data-les],[data-retolvl],[data-free],[data-do],[data-go],[data-tip]'); if (!t) return;
-        if (t.hasAttribute('data-back')) return api.leave();
-        if (t.dataset.tab) return au.tab(t.dataset.tab);
-        if (t.hasAttribute('data-go')) { sfx('click'); if (stepFn) stepFn(); return; }
-        if (t.hasAttribute('data-tip')) { sfx('add'); au.tip++; showTip(); return; }
-        if (t.dataset.les) { sfx('click'); return Guia.start(t.dataset.les); }
-        if (t.dataset.retolvl !== undefined) { if (t.dataset.retolvl) { sfx('click'); openLevelRetos(+t.dataset.retolvl); } return; }
-        if (t.dataset.free) { sfx('click'); if (t.dataset.free === 'all') { window.startFreeAreas = null; setStartSelectedMode('FREE'); handleStartPlayClick(); } else api.act('free', t.dataset.free); return; }
-        if (t.dataset.do) {
-          if (t.dataset.do === 'secretos') return api.act('enter', 'secretos');
-          return api.act(t.dataset.do);
-        }
-      });
-      au.tab(au.tabName); rec();
-    },
-    unmount() { if (au) au.timers.forEach(clearInterval); au = null; }
-  };
 
   // =============================== SECRETOS: el baúl del Maestro ===============================
   let sc = null;
@@ -213,6 +103,5 @@
     unmount() { if (sc) sc.timers.forEach(clearInterval); sc = null; }
   };
 
-  window.Inicio.registerRoom('aula', auRoom);
   window.Inicio.registerRoom('secretos', scRoom);
 })();
