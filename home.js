@@ -68,14 +68,14 @@
 
 
   .hm-row { display: flex; align-items: flex-end; gap: .6em; }
-  .hm-mode { position: relative; display: flex; align-items: stretch; width: 12.6em; padding: 0; border: 0; background: none; text-align: left; }
+  .hm-mode { position: relative; display: flex; align-items: stretch; width: 160px; height: 60px; padding: 0; border: 0; background: none; text-align: left; }
 
-  .hm-mode .mp, .hm-go .mp { display: flex; align-items: stretch; width: 100%; height: 4.4em; border-radius: .8em; overflow: hidden; }
+  .hm-mode .mp, .hm-go .mp { display: flex; align-items: stretch; width: 100%; height: 100%; border-radius: .8em; overflow: hidden; }
   .hm-mode .mi { flex: none; width: calc(var(--u) * 3.9); display: flex; align-items: center; justify-content: center; font-size: 2em; background: radial-gradient(circle at 40% 35%, var(--c, #ff9800), #1e100a 95%); }
   .hm-mode .mt { flex: 1; min-width: 0; padding: .2em .5em; display: flex; flex-direction: column; justify-content: center; gap: .02em; }
   .hm-mode small { font: 800 .62em 'Fredoka', sans-serif; color: #c9b79a; line-height: 1.1; letter-spacing: .5px; text-transform: uppercase; white-space: nowrap; } .hm-mode b { font: 900 1.3em/1 'Fredoka', sans-serif; color: #fff; text-shadow: 0 .08em 0 #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .hm-mode .mtag { position: absolute; top: -.7em; right: .4em; padding: .1em .45em; border-radius: .6em; border: .1em solid #120905; background: #ffd24a; color: #2b1808; font: 900 .62em/1.2 'Fredoka', sans-serif; white-space: nowrap; box-shadow: 0 .12em 0 rgba(0,0,0,.5); }
-  .hm-go { display: flex; align-items: stretch; width: 9em; padding: 0; border: 0; background: none; text-align: center; }
+  .hm-go { display: flex; align-items: stretch; width: 160px; height: 60px; padding: 0; border: 0; background: none; text-align: center; }
   .hm-go .mp { padding: .3em; }
   .hm-play { flex: 1; display: flex; align-items: center; justify-content: center; border: .08em solid #fff0a8; border-radius: .55em; background: linear-gradient(#ffe45c, #f5b800 55%, #e0a000); box-shadow: inset 0 .1em 0 rgba(255,255,255,.5), inset 0 -.15em 0 rgba(0,0,0,.2); color: #2b1808; font: 400 1.9em/1 'Fredoka One', 'Fredoka', sans-serif; letter-spacing: .4px; text-shadow: 0 .05em 0 rgba(255,255,255,.4); }
   .hm-go:active { transform: translateY(.15em); }
@@ -112,7 +112,7 @@
   .hp-news b { font: 900 13px 'Fredoka', sans-serif; color: #fff3d6; } .hp-news em { font: 900 10px 'Fredoka', sans-serif; font-style: normal; background: #e53935; color: #fff; border-radius: 6px; padding: 1px 6px; margin-left: 6px; } .hp-news p { margin: 2px 0 0; font: 700 12px/1.35 'Fredoka', sans-serif; color: #c9b79a; }
   .hp-empty { text-align: center; color: #a98c68; font: 700 13px 'Fredoka', sans-serif; padding: 30px 10px; }
   @media (max-height: 340px) { .hm-col { gap: .7em; top: 5em; } .hm-btn .ic { font-size: 3em; } }
-  @media (max-aspect-ratio: 16/10) { .hm-mode { width: 11.5em; } .hm-go { width: 8em; } .hm-mis { width: 10.5em; } }
+  @media (max-aspect-ratio: 16/10) { .hm-mis { width: 10.5em; } }
   @media (prefers-reduced-motion: reduce) { .hm-flag { animation: none; } }
   `;
   function css() { if ($('hm-css')) return; const s = document.createElement('style'); s.id = 'hm-css'; s.textContent = CSS; document.head.appendChild(s); }
