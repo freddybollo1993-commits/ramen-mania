@@ -151,6 +151,6 @@
     show(key) { open = key; sfx('click'); render(); },
     hide() { open = null; render(); },
     practice(area) { const h = $('rcb'); if (h) h.remove(); open = null; try { Inicio.act('free', area); } catch (e) { console.warn('Recetario.practice', e); } },
-    summary
+    summary, catalog, stat, unlockedLevel
   };
 })();

@@ -149,6 +149,7 @@
       <table class="rc-table"><tr><th>Plato</th><th>Tiempo</th><th>Intentos</th></tr>${rows}</table>
       <div style="display:flex;gap:8px;justify-content:flex-end"><button class="rc-btn" onclick="Recon.menu()">Cambiar opciones</button><button class="rc-btn green" onclick="Recon.again()">🔄 Otra vez</button></div></div></div>`;
     try { playSound('win'); } catch (e) {}
+    try { if (window.Servicio) Servicio.event('recon', { n, acc }); } catch (e) {}
   }
   window.Recon = A;
   window.reconOpen = () => { renderMenu(); };

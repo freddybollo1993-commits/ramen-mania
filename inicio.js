@@ -39,6 +39,7 @@
       if (NUEVO_V[id]) return seenMap()[id] === NUEVO_V[id] ? null : { t: 'NUEVO', k: 'new' };
       if (id === 'knives') { const c = cheapestUpgrade(); return c != null && wallet() >= c ? { t: '¡MEJORA!', k: 'buy' } : null; }
       if (id === 'aula') return tutDone() ? null : { t: '¡EMPIEZA!', k: 'go' };
+      if (id === 'jugar' && window.Servicio && Servicio.summary().chestReady) return { t: '¡COFRE!', k: 'buy' };
       if (id === 'book' && window.Recetario) { const n = Recetario.summary().fresh; return n > 0 && tutDone() ? { t: n + ' POR PROBAR', k: 'new' } : null; }
       if (DATA[id]) { let best = null; DATA[id].forEach(c => { const a = itemAlert(c.id); if (a && (!best || ALERT_RANK[a.k] > ALERT_RANK[best.k])) best = a; }); return best; }   // pilar: el aviso más importante de sus opciones
     } catch (e) {}
@@ -1746,7 +1747,7 @@
       <p class="hub-meta-desc">${it.desc || it.sub}</p>
       <div class="hub-meta-action-row">
         <div class="hub-meta-pills">
-          ${(it.pills || []).map(pill => `<span class="hub-pill">${pill}</span>`).join('')}
+          ${cont && window.Servicio ? Servicio.strip() : (it.pills || []).map(pill => `<span class="hub-pill">${pill}</span>`).join('')}
         </div>
         ${cont ? `<div class="hub-cta-group"><button class="hub-cta-btn ghost" onclick="Inicio.trigger()">${it.id === 'jugar' ? 'MODOS' : 'MAPA'}</button><button class="hub-cta-btn" onclick="Inicio.play()">▶ CONTINUAR · NIVEL ${unlockedLevel()}</button></div>` : `<button class="hub-cta-btn ${isLocked ? 'locked' : ''}" onclick="Inicio.trigger()">
           ${isLocked ? '🔒 HACER LECCIÓN DE RAMEN' : (it.ctaText || '▶ JUGAR AHORA')}
