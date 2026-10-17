@@ -68,6 +68,39 @@
     } }
   ];
 
+  // ---------- APRENDER: lecciones, práctica, retos y repaso ----------
+  const flagsG = () => { try { return Guia.flags() || {}; } catch (e) { return {}; } };
+  function learnCats() {
+    const fl = flagsG();
+    const LES = [['ramen', '🍜', 'RAMEN', 'Ramen Shio', 60, '#ff9800'], ['salteados', '🥘', 'SALTEADO', 'Chicken Teriyaki', 80, '#ef5350'], ['makis', '🍣', 'MAKIS', 'Maki California', 100, '#26a69a'], ['frituras', '🍤', 'FRITURAS', 'Chicken Katsu', 120, '#ffb300']];
+    const done = LES.filter(l => fl[l[0]]).length, nxt = LES.find(l => !fl[l[0]]);
+    const AREAS = [['ramen', '🍜', 'RAMEN', '#ff9800'], ['salteados', '🍳', 'SALTEADO', '#ef5350'], ['makis', '🍣', 'MAKIS', '#26a69a'], ['frituras', '🍤', 'FRITURAS', '#ffb300']];
+    const cs = campStats(), unl = cs.unlockedLevel || 1, arcs = (typeof CAMPAIGN_ARCS !== 'undefined' ? CAMPAIGN_ARCS : []);
+    const safe = (f, d) => { try { return f(); } catch (e) { return d; } };
+    const reto = { done: safe(() => trainingDoneCount(), 0), total: safe(() => TRAINING_CHALLENGES.length, 50), stars: safe(() => trainingTotalStars(), 0) };
+    let best = null; try { const b = (window.reconGet && reconGet().best) || {}; const k = Object.keys(b); if (k.length) best = Math.min.apply(null, k.map(x => b[x].t)); } catch (e) {}
+    const rs = safe(() => window.Recetario && Recetario.summary(), null);
+    return [
+      { id: 'lecciones', name: 'LECCIONES', build() { return {
+        feat: { title: 'AULA DEL MAESTRO', art: 'aula', panels: ['Lecciones guiadas paso a paso, una por cada cocina.', 'La primera vez que completes cada una ganas propinas.'], cta: '🎓 ENTRAR AL AULA', go: ['enter', 'aula'], meta: 'Lecciones ' + done + '/4' },
+        cards: LES.map(l => ({ col: l[5], icon: l[1], title: 'LECCIÓN · ' + l[2], sub: l[3], meta: fl[l[0]] ? '✔ Hecha · repetir' : (nxt && nxt[0] === l[0] ? '▶ Te toca · +' + l[4] + ' 🧧' : '+' + l[4] + ' 🧧'), art: '<span>' + l[1] + '</span>',
+          info: 'Lección guiada de ' + l[2].toLowerCase() + ' con ' + l[3] + '. La primera vez da +' + l[4] + ' propinas.', go: ['lesson', l[0]] })) }; } },
+      { id: 'practica', name: 'PRÁCTICA', build() { return {
+        feat: { title: 'COCINA LIBRE', art: 'zen', panels: ['Practica sin reloj ni notas, a tu ritmo.', 'Elige el área o cocina las cuatro a la vez.'], cta: '🌿 COCINAR LIBRE', go: ['free', 'all'], meta: 'Sin reloj' },
+        cards: AREAS.map(a => ({ col: a[3], icon: a[1], title: 'LIBRE · ' + a[2], sub: 'Solo platos de ' + a[2].toLowerCase(), meta: 'Sin reloj', art: '<span>' + a[1] + '</span>', info: 'Cocina libre de ' + a[2].toLowerCase() + ': los clientes esperan siempre y no hay meta.', go: ['free', a[0]] }))
+          .concat([{ col: '#43a047', icon: '🌿', title: 'LIBRE · TODO', sub: 'Las 4 áreas a la vez', meta: 'Sin reloj', art: '<span>🌿</span>', info: 'Cocina libre con todas las áreas de la cocina.', go: ['free', 'all'] },
+            { col: '#8e24aa', icon: '🔍', title: 'RECONOCER INGREDIENTES', sub: 'Qué lleva cada plato', meta: best ? 'Mejor marca ' + Math.round(best) + ' s' : 'Mide tu tiempo', art: '<span>🔍</span>', info: 'Marca los ingredientes de cada plato entre varios y mide cuánto demoras.', go: ['pantry'] }]) }; } },
+      { id: 'retos', name: 'RETOS', build() { return {
+        feat: { title: 'RETOS DE LA CAMPAÑA', art: 'retos', panels: ['Subniveles que se abren al superar cada nivel de la Campaña.', 'Calidad media mínima, medallas por tiempo y estrellas para tu progreso.'], cta: '🎫 VER RETOS', go: ['retos'], meta: '🎫 ' + reto.done + '/' + reto.total + ' · ⭐ ' + reto.stars },
+        cards: arcs.map(a => { const list = safe(() => TRAINING_CHALLENGES.filter(c => a.levels.includes(c.lvl)), []), dn = list.filter(c => safe(() => (trainingProgressOf(c.id) || {}).m > 0, false)).length, open = a.levels[0] <= unl, nx = list.find(c => safe(() => trainingIsOpen(c) && !((trainingProgressOf(c.id) || {}).m > 0), false));
+          return { col: ARC_COL[a.id] || '#ff9800', icon: a.icon, title: a.name.toUpperCase(), sub: 'Niveles ' + a.levels[0] + '–' + a.levels[a.levels.length - 1], meta: open ? '🎫 ' + dn + '/' + list.length : '🔒 Llega al nivel ' + a.levels[0], locked: !open, art: '<span>🎫</span>', info: 'Retos de ' + a.name + ': ' + list.length + ' subniveles repartidos entre los niveles ' + a.levels.join(', ') + '.', go: ['retos', String(nx ? nx.lvl : a.levels[0])] }; }) }; } },
+      { id: 'repaso', name: 'REPASO', build() { return {
+        feat: { title: 'REPASO', art: 'aula', panels: ['Consulta qué lleva cada plato y cómo se prepara.', 'Y organiza tu despensa como te quede más cómodo.'], cta: '📖 ABRIR EL RECETARIO', go: ['book'], meta: rs ? '🍽️ ' + rs.tried + '/' + rs.total + ' probados' : '' },
+        cards: [{ col: '#ff9800', icon: '📖', title: 'RECETARIO', sub: 'Los 35 platos', meta: rs ? '🍽️ ' + rs.tried + '/' + rs.total : 'Colección', art: '<span>📖</span>', info: 'Ingredientes, pasos y estrellas de dominio de cada plato.', go: ['book'] },
+          { col: '#26a69a', icon: '🥢', title: 'ORDENAR DESPENSA', sub: 'Tu orden de ingredientes', meta: 'Personalizable', art: '<span>🥢</span>', info: 'Cambia el orden en que aparecen los ingredientes en la cocina.', go: ['order'] }] }; } }
+    ];
+  }
+
   // orden de las categorías: Campaña, Sin estrés, Rash, Recorrido por Japón y Online
   { const ORDER = ['camp', 'zen', 'rash', 'japon', 'online']; CATS.sort((a, b) => ORDER.indexOf(a.id) - ORDER.indexOf(b.id)); }
 
@@ -117,35 +150,40 @@
     rash: 'linear-gradient(160deg, #e53935 0%, #7a1010 60%, #2a0808 100%)',
     japon: 'linear-gradient(160deg, #f48fb1 0%, #8e2a58 55%, #2d1a3a 100%)',
     zen: 'linear-gradient(160deg, #81c784 0%, #2e7d32 55%, #0f2f14 100%)',
-    online: 'linear-gradient(160deg, #42a5f5 0%, #12408a 60%, #0b1f40 100%)'
+    online: 'linear-gradient(160deg, #42a5f5 0%, #12408a 60%, #0b1f40 100%)',
+    aula: 'linear-gradient(160deg, #9575cd 0%, #4527a0 55%, #1a1040 100%)',
+    retos: 'linear-gradient(160deg, #4db6ac 0%, #00695c 55%, #07241f 100%)'
   };
   const esc = s => String(s).replace(/"/g, '&quot;');
+  let MODE = 'play', LIST = CATS;                                   // 'play' = Modos de juego · 'learn' = Aprender
+  const PK = () => (MODE === 'learn' ? 'Modos.learnGo' : 'Modos.pick');
 
   function feat(c, f) {
     return `<div class="mds-feat" style="--bg:${BG[f.art]}; background: ${BG[f.art]}">
       ${f.meta ? `<span class="mds-fmeta">${f.meta}</span>` : '<span></span>'}
       <div><h3 class="mds-ft">${f.title}</h3>${f.panels.map(p => `<div class="mds-panel"><span>${p}</span></div>`).join('')}
-      <button class="mds-cta" onclick="Modos.pick('${f.go.join("','")}')">${f.cta}</button></div></div>`;
+      <button class="mds-cta" onclick="${PK()}('${f.go.join("','")}')">${f.cta}</button></div></div>`;
   }
   function card(c) {
-    return `<button class="mds-card ${c.locked ? 'locked' : ''}" style="--c:${c.col}" onclick="Modos.pick('${c.go.join("','")}')" aria-label="${esc(c.title)}">
+    return `<button class="mds-card ${c.locked ? 'locked' : ''}" style="--c:${c.col}" onclick="${PK()}('${c.go.join("','")}')" aria-label="${esc(c.title)}">
       <div class="mds-meta"><span>${c.meta || ''}</span><i class="mds-i" onclick="event.stopPropagation();Modos.info(this.dataset.t)" data-t="${esc(c.info || c.title)}">i</i></div>
       <div class="mds-head"><span class="ic">${c.icon}</span><div><b>${c.title}</b><small>${c.sub || ''}</small></div></div>
       <div class="mds-art">${c.art}</div></button>`;
   }
   function render() {
     let host = $('mds'); if (!host) { host = document.createElement('div'); host.id = 'mds'; document.body.appendChild(host); }
-    const secs = CATS.map(c => { const d = c.build(); return `<section class="mds-sec" data-id="${c.id}"><h4>${c.name}</h4><div class="mds-body">${feat(c, d.feat)}<div class="mds-grid">${d.cards.map(card).join('')}</div></div></section>`; }).join('');
-    host.innerHTML = `<div class="mds-top"><button class="mds-nav l" onclick="Modos.close()" aria-label="Volver">◀</button><h2>MODOS DE JUEGO</h2><button class="mds-nav r" onclick="Modos.close()" aria-label="Inicio">🏠</button></div>
+    LIST = MODE === 'learn' ? learnCats() : CATS;
+    const secs = LIST.map(c => { const d = c.build(); return `<section class="mds-sec" data-id="${c.id}"><h4>${c.name}</h4><div class="mds-body">${feat(c, d.feat)}<div class="mds-grid">${d.cards.map(card).join('')}</div></div></section>`; }).join('');
+    host.innerHTML = `<div class="mds-top"><button class="mds-nav l" onclick="Modos.close()" aria-label="Volver">◀</button><h2>${MODE === 'learn' ? 'APRENDER' : 'MODOS DE JUEGO'}</h2><button class="mds-nav r" onclick="Modos.close()" aria-label="Inicio">🏠</button></div>
       <div class="mds-strip" id="mds-strip">${secs}</div>
-      <div class="mds-tabs" id="mds-tabs">${CATS.map(c => `<button class="mds-tab" data-id="${c.id}" onclick="Modos.tab('${c.id}')">${c.name}</button>`).join('')}</div>`;
+      <div class="mds-tabs" id="mds-tabs">${LIST.map(c => `<button class="mds-tab" data-id="${c.id}" onclick="Modos.tab('${c.id}')">${c.name}</button>`).join('')}</div>`;
     const strip = $('mds-strip'); strip.addEventListener('scroll', sync, { passive: true }); sync();
   }
   function sync() {
-    const strip = $('mds-strip'); if (!strip) return; let on = CATS[0].id;
+    const strip = $('mds-strip'); if (!strip) return; let on = LIST[0].id;
     const x = strip.scrollLeft + strip.clientWidth * 0.3, atEnd = strip.scrollLeft + strip.clientWidth >= strip.scrollWidth - 4;
     strip.querySelectorAll('.mds-sec').forEach(s => { if (s.offsetLeft - 18 <= x) on = s.dataset.id; });
-    if (atEnd) on = CATS[CATS.length - 1].id;
+    if (atEnd) on = LIST[LIST.length - 1].id;
     document.querySelectorAll('#mds-tabs .mds-tab').forEach(t => t.classList.toggle('on', t.dataset.id === on));
   }
   const onKey = e => { if (e.key === 'Escape' && $('mds')) Modos.close(); };
@@ -181,7 +219,21 @@
         else if (window.Inicio) Inicio.play();
       } catch (e) { console.warn('Modos.play', e); }
     },
-    open() { css(); sfx('click'); render(); document.addEventListener('keydown', onKey); },
+    open() { MODE = 'play'; css(); sfx('click'); render(); document.addEventListener('keydown', onKey); },
+    /** Pantalla de APRENDER: lecciones del Aula, práctica sin reloj, retos de la Campaña y repaso. */
+    learn() { MODE = 'learn'; css(); sfx('click'); try { Inicio.seen('pantry'); } catch (e) {} render(); document.addEventListener('keydown', onKey); },
+    learnGo(kind, arg) {
+      const h = $('mds'); if (h) h.remove(); document.removeEventListener('keydown', onKey); sfx('click');
+      try {
+        if (kind === 'lesson') Guia.start(arg);
+        else if (kind === 'enter') Inicio.act('enter', arg);
+        else if (kind === 'free') { if (arg === 'all') { window.startFreeAreas = null; setStartSelectedMode('FREE'); handleStartPlayClick(); } else Inicio.act('free', arg); }
+        else if (kind === 'pantry') Inicio.act('pantry');
+        else if (kind === 'retos') openLevelRetos(arg ? +arg : undefined);
+        else if (kind === 'book') { if (window.Recetario) Recetario.open(); else openRecipeModal(); }
+        else if (kind === 'order') openIngredientOrderModal();
+      } catch (e) { console.warn('Modos.learnGo', kind, e); }
+    },
     close() { const h = $('mds'); if (h) h.remove(); document.removeEventListener('keydown', onKey); sfx('click'); try { if (window.Home) Home.refresh(); } catch (e) {} },
     tab(id) { sfx('click'); const strip = $('mds-strip'), s = strip && strip.querySelector('.mds-sec[data-id="' + id + '"]'); if (s) strip.scrollTo({ left: Math.max(0, s.offsetLeft - 18), behavior: 'smooth' }); },
     info(t) { toast('ℹ️ ' + t); },

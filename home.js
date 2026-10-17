@@ -118,6 +118,7 @@
   ];
   // lo último que cambió, en lenguaje del jugador (lo más nuevo primero)
   const NEWS = [
+    ['v197', '🎓', 'Aprender renovado', 'Aprender ahora usa la misma pantalla que los modos de juego: Lecciones del Aula, Práctica sin reloj, Retos de la Campaña y Repaso (Recetario y despensa).'],
     ['v195', '🏪', 'Tienda del Chef', 'Mejoras, secretos y técnicas ahora están en la Tienda. Nueva pestaña 🗾 Japón con todo lo que se compra en el Recorrido (ciudades, local, personal, objetos y maestría): precio de referencia, niveles y qué necesitas. El botón Retos se fue: ahora están en el mapa de la Campaña.'],
     ['v194', '⭐', 'Calidad en los retos', 'Los retos se superan con la calidad media de tus platos (con un pequeño margen) y dan de 1 a 3 estrellas que suman a tu contador de Campaña. Si no llegas al mínimo, el reto queda incompleto.'],
     ['v193', '🛤️', 'Retos en la ruta', 'Los retos van directo sobre la ruta de la Campaña, después de la linterna que los abre: fichas pequeñas de otro color para distinguirlos del contenido principal. Más espacio entre niveles.'],
@@ -215,7 +216,7 @@
       <div class="hm-col l">
         ${btn('📖', 'RECETARIO', "Recetario.open()", 'book')}
         ${btn(SHOP, 'TIENDA', "Inicio.act('knives')", 'knives', true)}
-        ${btn('🎓', 'APRENDER', "Inicio.openSub('aprender','aula')", 'aprender', true)}
+        ${btn('🎓', 'APRENDER', "Modos.learn()", 'aprender', true)}
       </div>
       <div class="hm-col r">
         ${btn('📣', 'NOVEDADES', "Home.novedades()", null, true).replace('<span class="ic">', newsFlag() + '<span class="ic">')}
@@ -277,7 +278,7 @@
     closePage() { const p = $('hp'); if (p) p.remove(); sfx('click'); paint(); },
     play() {
       const h = H(); if (!h) return;
-      if (!h.tutDone()) { sfx('serve'); toast('🎓 Primero la lección de ramen con el Maestro: así empieza todo.'); try { Inicio.openSub('aprender', 'aula'); } catch (e) {} return; }
+      if (!h.tutDone()) { sfx('serve'); toast('🎓 Primero la lección de ramen con el Maestro: así empieza todo.'); try { Modos.learn(); } catch (e) {} return; }
       sfx('serve'); try { Modos.play(); } catch (e) { console.warn('[Home] play', e); }
     }
   };
