@@ -43,7 +43,7 @@
   .hm-btn.hm-plate { position: relative; width: 7.2em; height: 5.4em; padding: 0; border: 0; background: none; box-shadow: none; display: block; font-size: 1em; }
   .hm-btn::before { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 3em; border: .18em solid #120905; border-radius: .8em; background: linear-gradient(#ffd54f, #f5a800); box-shadow: 0 .25em 0 rgba(0,0,0,.55), inset 0 .12em 0 rgba(255,255,255,.4); }
   .hm-btn.dark::before { background: linear-gradient(#5a3a22, #2a170c); box-shadow: 0 .25em 0 rgba(0,0,0,.55), inset 0 .12em 0 rgba(255,255,255,.14); }
-  .hm-btn:active, .hm-mini:active, .hm-mode:active { transform: translateY(.15em); box-shadow: 0 .1em 0 rgba(0,0,0,.55); }
+  .hm-btn:active, .hm-mini:active, .hm-mode:active, .hm-mis:active { transform: translateY(.15em); box-shadow: 0 .1em 0 rgba(0,0,0,.55); }
   .hm-btn .ic { position: absolute; left: 50%; top: 0; transform: translateX(-50%); font-size: 3.4em; line-height: 1; filter: drop-shadow(0 .04em 0 #120905) drop-shadow(0 .08em .08em rgba(0,0,0,.6)); } .hm-btn .ic img { width: 1em; height: 1em; object-fit: contain; }
   .hm-btn b { position: absolute; left: 0; right: 0; bottom: .7em; display: block; padding: 0; background: none; color: #2b1808; font: 900 .95em/1 'Fredoka', sans-serif; white-space: nowrap; letter-spacing: .2px; text-align: center; }
   .hm-btn.dark b { color: #fff3d6; text-shadow: 0 .1em 0 #000, 0 0 .2em #000; }
@@ -54,19 +54,27 @@
   .hm-menu .hm-flag { top: -.9em; right: -.5em; }
   /* abajo a la izquierda */
   .hm-bl { position: absolute; left: max(.8em, env(safe-area-inset-left)); bottom: calc(max(.6em, env(safe-area-inset-bottom)) + 1.5em); display: flex; gap: .6em; align-items: flex-end; }
+  /* MISIONES: placa ancha con el tablero grande saliendo por arriba y el avance (3/3) como etiqueta naranja */
+  .hm-mis { position: relative; display: flex; align-items: center; width: 21em; height: 5.6em; padding: 0 .9em 0 9.6em; }
+  .hm-mis .mic { position: absolute; left: .5em; bottom: .15em; width: 8.8em; height: 8.8em; filter: drop-shadow(0 .12em 0 #120905) drop-shadow(0 .2em .25em rgba(0,0,0,.55)); } .hm-mis .mic svg { width: 100%; height: 100%; display: block; }
+  .hm-mis b { font: 900 1.85em/1 'Fredoka', sans-serif; color: #fff; text-shadow: 0 .08em 0 #000, 0 0 .3em rgba(0,0,0,.6); letter-spacing: .3px; }
+  .hm-mis.all { box-shadow: 0 0 1.4em rgba(255,179,0,.75), 0 .3em 0 rgba(0,0,0,.55), inset 0 .1em 0 rgba(255,255,255,.14); }
+  .hm-mis .mbadge { position: absolute; top: -1em; right: 1.1em; padding: .12em .65em; border-radius: 1em; border: .14em solid #fff3d0; background: linear-gradient(#ffa726, #f57c00); color: #fff; font: 900 1.35em/1.15 'Fredoka', sans-serif; text-shadow: 0 .08em 0 rgba(0,0,0,.45); box-shadow: 0 .2em 0 #8a4b00; pointer-events: none; } .hm-mis .mbadge.buy { background: linear-gradient(#66bb6a, #2e7d32); box-shadow: 0 .2em 0 #14532d; }
   .hm-mini { position: relative; display: flex; align-items: center; gap: .5em; padding: .45em .8em .45em .5em; text-align: left; }
   .hm-mini .ic { font-size: 2.2em; line-height: 1; } .hm-mini b { display: block; font: 900 1.05em/1.05 'Fredoka', sans-serif; color: #ffe082; text-shadow: 0 .1em 0 #000; } .hm-mini small { display: block; font: 800 .85em 'Fredoka', sans-serif; color: #d6c4a4; }
   /* abajo a la derecha */
   .hm-br { position: absolute; right: max(.8em, env(safe-area-inset-right)); bottom: max(.6em, env(safe-area-inset-bottom)); display: flex; flex-direction: column; align-items: flex-end; gap: .5em; }
 
 
-  .hm-row { display: flex; align-items: center; gap: .5em; }
-  .hm-mode { position: relative; width: 14em; height: 4.4em; padding: 0; display: flex; align-items: stretch; text-align: left; }
-  .hm-mode .mi { flex: none; width: calc(var(--u) * 4.2); display: flex; align-items: center; justify-content: center; font-size: 2em; border-radius: .55em 0 0 .55em; background: radial-gradient(circle, var(--c, #ff9800), #1e100a 90%); }
-  .hm-mode .mt { flex: 1; min-width: 0; padding: .25em .6em; display: flex; flex-direction: column; justify-content: center; gap: .05em; }
-  .hm-mode small { font: 800 .72em 'Fredoka', sans-serif; color: #b9a98c; line-height: 1.1; } .hm-mode b { font: 900 1.2em/1.05 'Fredoka', sans-serif; color: #fff; text-shadow: 0 .1em 0 #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .hm-mode .mtag { position: absolute; top: -.75em; right: .5em; padding: .15em .55em; border-radius: .6em; border: .12em solid #120905; background: #ffd24a; color: #2b1808; font: 900 .68em/1.2 'Fredoka', sans-serif; white-space: nowrap; box-shadow: 0 .15em 0 rgba(0,0,0,.5); }
-  .hm-play { width: calc(var(--u) * 9); height: calc(var(--u) * 4.4); border: .2em solid #120905; border-radius: .7em; background: linear-gradient(#ffe45c, #f5b800 55%, #e0a000); box-shadow: 0 .25em 0 #8a5a00, 0 .35em .6em rgba(0,0,0,.45); color: #2b1808; font: 400 1.9em/1 'Fredoka One', 'Fredoka', sans-serif; letter-spacing: .5px; text-shadow: 0 .06em 0 rgba(255,255,255,.35); }
+  .hm-row { display: flex; align-items: flex-end; gap: .6em; }
+  .hm-mode { position: relative; display: flex; flex-direction: column; align-items: stretch; width: 15.4em; padding: 0; border: 0; background: none; text-align: left; }
+  .hm-mode .mh { display: block; text-align: center; padding: .3em .5em .25em; border-radius: .7em .7em 0 0; background: #0e0805; color: #e9d5b0; font: 800 .74em/1.1 'Fredoka', sans-serif; letter-spacing: .9px; text-transform: uppercase; }
+  .hm-mode .mp { display: flex; align-items: stretch; height: 5.2em; border-radius: 0 0 .8em .8em; overflow: hidden; }
+  .hm-mode .mi { flex: none; width: calc(var(--u) * 4.9); display: flex; align-items: center; justify-content: center; font-size: 2.5em; background: radial-gradient(circle at 40% 35%, var(--c, #ff9800), #1e100a 95%); }
+  .hm-mode .mt { flex: 1; min-width: 0; padding: .3em .6em; display: flex; flex-direction: column; justify-content: center; gap: .05em; }
+  .hm-mode small { font: 800 .8em 'Fredoka', sans-serif; color: #b9a98c; line-height: 1.1; } .hm-mode b { font: 900 1.7em/1 'Fredoka', sans-serif; color: #fff; text-shadow: 0 .08em 0 #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hm-mode .mtag { position: absolute; top: 1.7em; right: .45em; padding: .12em .5em; border-radius: .6em; border: .12em solid #120905; background: #ffd24a; color: #2b1808; font: 900 .68em/1.2 'Fredoka', sans-serif; white-space: nowrap; box-shadow: 0 .15em 0 rgba(0,0,0,.5); }
+  .hm-play { width: calc(var(--u) * 14.4); height: calc(var(--u) * 6.4); border: .22em solid #120905; border-radius: .9em; background: linear-gradient(#ffe45c, #f5b800 55%, #e0a000); box-shadow: 0 .3em 0 #8a5a00, 0 .4em .7em rgba(0,0,0,.45); color: #2b1808; font: 400 2.9em/1 'Fredoka One', 'Fredoka', sans-serif; letter-spacing: .5px; text-shadow: 0 .06em 0 rgba(255,255,255,.4); }
   .hm-play:active { transform: translateY(.2em); box-shadow: 0 .15em 0 #8a5a00; }
   .hm-play.lock { filter: saturate(.7); }
   /* menú ☰: lista desplegable a la derecha que no tapa la escena; las columnas y el botón JUGAR se apartan mientras está abierto */
@@ -101,7 +109,7 @@
   .hp-news b { font: 900 13px 'Fredoka', sans-serif; color: #fff3d6; } .hp-news em { font: 900 10px 'Fredoka', sans-serif; font-style: normal; background: #e53935; color: #fff; border-radius: 6px; padding: 1px 6px; margin-left: 6px; } .hp-news p { margin: 2px 0 0; font: 700 12px/1.35 'Fredoka', sans-serif; color: #c9b79a; }
   .hp-empty { text-align: center; color: #a98c68; font: 700 13px 'Fredoka', sans-serif; padding: 30px 10px; }
   @media (max-height: 340px) { .hm-col { gap: .7em; top: 5em; } .hm-btn .ic { font-size: 3em; } }
-  @media (max-aspect-ratio: 16/10) { .hm-mode { width: 12.5em; } .hm-play { width: calc(var(--u) * 8); } }
+  @media (max-aspect-ratio: 16/10) { .hm-mode { width: 13.5em; } .hm-play { width: calc(var(--u) * 11.5); } .hm-mis { width: 19em; } }
   @media (prefers-reduced-motion: reduce) { .hm-flag { animation: none; } }
   `;
   function css() { if ($('hm-css')) return; const s = document.createElement('style'); s.id = 'hm-css'; s.textContent = CSS; document.head.appendChild(s); }
@@ -204,7 +212,7 @@
   // imagen de la tienda (toldo rojo y crema, mostrador y platos): reemplaza al ícono de Secretos
   const SHOP = '<svg viewBox="0 0 64 64"><ellipse cx="32" cy="58" rx="26" ry="3.5" fill="rgba(0,0,0,.35)"/><rect x="7" y="30" width="50" height="26" rx="2" fill="#8a5a30" stroke="#2b1810" stroke-width="2.5"/><rect x="13" y="34" width="38" height="13" fill="#2a170c" stroke="#2b1810" stroke-width="2"/><circle cx="21" cy="42" r="4.2" fill="#ffd978" stroke="#2b1810" stroke-width="1.6"/><circle cx="32" cy="42" r="4.2" fill="#ef5350" stroke="#2b1810" stroke-width="1.6"/><circle cx="43" cy="42" r="4.2" fill="#8bc34a" stroke="#2b1810" stroke-width="1.6"/><rect x="10" y="46" width="44" height="9" rx="2" fill="#ffb300" stroke="#2b1810" stroke-width="2.2"/><path d="M5 12h54l3 17H2z" fill="#fff3d6"/><path d="M5 12h9.3l-2.3 17H2zM23.6 12h9.3l-.8 17h-9.5zM42.2 12h9.3l3.5 17h-9.6z" fill="#c8372d"/><path d="M5 12h54l3 17H2z" fill="none" stroke="#2b1810" stroke-width="2.5" stroke-linejoin="round"/></svg>';
   // tablero con visto bueno (misiones)
-  const MISIONES = '<svg viewBox="0 0 64 64"><ellipse cx="32" cy="58" rx="22" ry="3.5" fill="rgba(0,0,0,.35)"/><rect x="11" y="10" width="42" height="48" rx="5" fill="#8a5a30" stroke="#2b1810" stroke-width="2.5"/><rect x="16" y="17" width="32" height="36" rx="2" fill="#fff3d6" stroke="#2b1810" stroke-width="2"/><rect x="22" y="5" width="20" height="11" rx="3" fill="#ffb300" stroke="#2b1810" stroke-width="2.2"/><path d="M22 31l6 6 11-12" fill="none" stroke="#2e9e4f" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 46h20" stroke="#c9b79a" stroke-width="3" stroke-linecap="round"/></svg>';
+  const MISIONES = '<svg viewBox="0 0 96 96"><rect x="14" y="14" width="54" height="70" rx="7" fill="#8a5a30" stroke="#2b1810" stroke-width="3"/><rect x="20" y="23" width="42" height="54" rx="3" fill="#fff3d6" stroke="#2b1810" stroke-width="2.4"/><rect x="29" y="8" width="24" height="13" rx="4" fill="#c9cdd3" stroke="#2b1810" stroke-width="2.4"/><path d="M25 38l5 5 8-9M25 54l5 5 8-9" fill="none" stroke="#2e9e4f" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M44 40h13M44 56h13M25 68h32" stroke="#c9b79a" stroke-width="3.4" stroke-linecap="round"/><path d="M62 74l4-18 20-21 8 8-21 20z" fill="#e53935" stroke="#2b1810" stroke-width="2.6" stroke-linejoin="round"/><path d="M62 74l4-18 8 8z" fill="#ffd9a0" stroke="#2b1810" stroke-width="2.2" stroke-linejoin="round"/><path d="M86 35l8 8" stroke="#2b1810" stroke-width="3"/><path d="M10 14l2 5 5 2-5 2-2 5-2-5-5-2 5-2zM82 10l1.6 4 4 1.6-4 1.6-1.6 4-1.6-4-4-1.6 4-1.6z" fill="#ffd54f"/></svg>';
   const btn = (ic, label, onclick, id, dark) => `<button class="hm-btn hm-plate ${dark ? 'dark' : ''}" onclick="${onclick}">${id ? flag(id) : ''}<span class="ic">${ic}</span><b>${label}</b></button>`;
 
   function ui() {
@@ -231,10 +239,10 @@
       </div>
       <button class="hm-scrim" onclick="Home.menu(false)" aria-label="Cerrar el menú"></button>
       <div class="hm-drop">${MENU.map((m, i) => `<button style="--i:${i}" onclick="Home.item('${m.id}')">${m.flag ? flag(m.flag) : ''}<span class="ic">${m.ic}</span>${m.label}</button>`).join('')}</div>
-      ${tut && window.Servicio ? `<div class="hm-bl">${btn(MISIONES, 'MISIONES', "Servicio.open()", 'misiones', true)}</div>` : ''}
+      ${tut && window.Servicio ? (() => { const al = h.alertOf('misiones'), sm = Servicio.summary(); return `<div class="hm-bl"><button class="hm-mis hm-plate ${sm.done === sm.total ? 'all' : ''}" onclick="Servicio.open()" aria-label="Misiones"><span class="mic">${MISIONES}</span><b>MISIONES</b>${al ? `<i class="mbadge ${al.k}">${al.t}</i>` : ''}</button></div>`; })() : ''}
       <div class="hm-br">
         <div class="hm-row">
-          <button class="hm-mode hm-plate" style="--c:${sel.col}" onclick="Modos.open()" aria-label="Elegir modo de juego: ${sel.title}"><span class="mi">${sel.icon}</span><span class="mt"><small>${sel.top || 'Modo elegido'}</small><b>${sel.title}</b></span>${sel.tag ? `<span class="mtag">${sel.tag}</span>` : ''}</button>
+          <button class="hm-mode" style="--c:${sel.col}" onclick="Modos.open()" aria-label="Elegir modo de juego: ${sel.title}"><span class="mh">Modos de juego</span><span class="mp hm-plate"><span class="mi">${sel.icon}</span><span class="mt"><small>${sel.top || 'Modo elegido'}</small><b>${sel.title}</b></span></span>${sel.tag ? `<span class="mtag">${sel.tag}</span>` : ''}</button>
           <button class="hm-play ${tut ? '' : 'lock'}" onclick="Home.play()">${tut ? 'JUGAR' : 'EMPEZAR'}</button>
         </div>
       </div>`;
