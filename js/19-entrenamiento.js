@@ -128,6 +128,17 @@ function trainingPoolNames(ch, area) {
 }
 const isTraining = () => gameState.gameMode === 'TRAINING' && !!gameState.training && !gameState.isGameOver;
 
+// Calidad de un reto: se mide con el promedio de estrellas de los platos servidos (1 a 3).
+// Margen: un reto que pide ⭐N se supera con un promedio de N − 0,4, así un plato flojo se compensa con otro mejor.
+// Estrellas del reto: 1 al llegar al mínimo, 2 a mitad de camino hacia el 3 y 3 casi perfecto. Esas estrellas suman al contador general de la Campaña.
+function trainingMinQ(ch) { return ch.minStars ? Math.max(1, ch.minStars - 0.4) : 1; }
+function trainingStarCuts(ch) { const m = trainingMinQ(ch); return [m, m + (3 - m) * 0.5, m + (3 - m) * 0.85]; }
+function trainingStarsFor(ch, avg) { const c = trainingStarCuts(ch); return avg + 1e-9 >= c[2] ? 3 : (avg + 1e-9 >= c[1] ? 2 : (avg + 1e-9 >= c[0] ? 1 : 0)); }
+const trainingStarsOf = p => (p ? (p.s || (p.m > 0 ? 1 : 0)) : 0);       // los retos hechos antes de existir las estrellas valen 1
+function trainingTotalStars() { try { return TRAINING_CHALLENGES.reduce((t, c) => t + trainingStarsOf(trainingProgressOf(c.id)), 0); } catch (e) { return 0; } }
+const trainingMaxStars = () => TRAINING_CHALLENGES.length * 3;
+const starsText3 = n => '★'.repeat(n) + '☆'.repeat(3 - n);
+
 function trainingTotal(ch) { return ch.reqs.reduce((t, r) => t + r.n, 0); }
 // Tiempo de oro: el trabajo estimado de los pedidos con un margen de 1.5 más 25 s de preparación.
 function trainingPar(ch) {
@@ -178,14 +189,14 @@ function trainingConfig() {
 
 function trainingObjectiveText(ch) {
   const words = { ramen: 'ramen', salteados: 'salteados', makis: 'makis', frituras: 'frituras' };
-  return ch.reqs.map(r => `${AREA_ICONS[r.area]} ${r.n} ${words[r.area]}`).join(' · ') + (ch.minStars ? ` · con ⭐${ch.minStars}+` : '');
+  return ch.reqs.map(r => `${AREA_ICONS[r.area]} ${r.n} ${words[r.area]}`).join(' · ') + (ch.minStars ? ` · calidad media ⭐${trainingMinQ(ch).toFixed(1)}+` : '');
 }
 
 function showTrainingObjective() {
   if (!isTraining()) return;
   const t = gameState.training, ch = t.challenge;
   const left = ch.reqs.map(r => `${AREA_ICONS[r.area]} ${Math.min(r.n, t.counts[r.area] || 0)}/${r.n}`).join(' · ');
-  showStationToast(`🏋️ Reto ${ch.num}: ${ch.title}<br>${left}${ch.minStars ? ' · con ⭐' + ch.minStars + '+' : ''}`);
+  showStationToast(`🏋️ Reto ${ch.num}: ${ch.title}<br>${left}${ch.minStars ? ' · calidad media ⭐' + trainingMinQ(ch).toFixed(1) + '+' : ''}`);
 }
 
 // Pedidos del siguiente cliente: solo lo que aún falta para el reto (así el reto es finito y justo).
@@ -218,12 +229,14 @@ function trainingDoneInRun() {
   return t.challenge.reqs.reduce((sum, r) => sum + Math.min(r.n, t.counts[r.area] || 0), 0);
 }
 
-// Un pedido servido cuenta para el reto si cumple las estrellas mínimas.
+// Todo pedido servido cuenta para el reto y suma su calidad al promedio (la exigencia se mide al final, con margen).
 function trainingOnServe(area, tier) {
   if (!isTraining()) return;
   const t = gameState.training;
-  if (tier >= (t.challenge.minStars || 0)) t.counts[area] = (t.counts[area] || 0) + 1;
+  t.counts[area] = (t.counts[area] || 0) + 1;
+  t.tierSum = (t.tierSum || 0) + Math.max(1, tier | 0); t.served = (t.served || 0) + 1;
 }
+const trainingAvg = () => { const t = gameState.training; return t && t.served ? t.tierSum / t.served : 0; };
 
 function trainingCheckComplete() {
   if (!isTraining()) return;
@@ -236,7 +249,7 @@ function trainingComplete() {
   if (t.done) return;
   t.done = true;
   const time = gameState.gameClock;
-  const result = trainingRecord(t.challenge, time);
+  const result = trainingRecord(t.challenge, time, trainingAvg());
   gameState.isGameOver = true;
   clearInterval(gameLoopInterval);
   resetCookingStations();
@@ -245,22 +258,28 @@ function trainingComplete() {
 }
 
 // Guarda el tiempo, la medalla y cobra solo la parte de propinas que aún no se había cobrado.
-function trainingRecord(ch, time) {
+function trainingRecord(ch, time, avg) {
   loadAccountProgressLocal();
   const featuresBefore = trainingFeaturesUnlocked();
   const prev = (accountProgress.training || {})[ch.id] || {};
+  const stars = trainingStarsFor(ch, avg == null ? 3 : avg), minQ = trainingMinQ(ch), prevStars = trainingStarsOf(prev);
+  if (stars === 0) {      // calidad por debajo del mínimo: el reto queda incompleto (se guarda el intento, sin medalla, propinas ni estrellas)
+    accountProgress.training[ch.id] = { t: prev.t || 0, ...(prev.f ? { f: prev.f } : {}), l: time, m: prev.m || 0, n: (prev.n || 0) + 1, paid: prev.paid || 0, ...(prev.s ? { s: prev.s } : {}) };
+    saveAccountProgressLocal(); accountPushSoon(true);
+    return { challenge: ch, time, par: trainingPar(ch), incomplete: true, avg, minQ, stars: 0, prevStars, medal: 0, reward: 0, unlocked: [], next: null };
+  }
   const par = trainingPar(ch);
   const medal = trainingMedalFor(time, par);
   const best = prev.t ? Math.min(prev.t, time) : time;
   const m = Math.max(prev.m || 0, medal);
   const target = Math.round(ch.reward * TRAINING_MEDAL_SHARE[m]);
   const reward = Math.max(0, target - (prev.paid || 0));
-  accountProgress.training[ch.id] = { t: best, ...(prev.f || !prev.m ? { f: prev.f || time } : {}), l: time, m, n: (prev.n || 0) + 1, paid: Math.max(prev.paid || 0, target) };
+  accountProgress.training[ch.id] = { t: best, ...(prev.f || !prev.m ? { f: prev.f || time } : {}), l: time, m, n: (prev.n || 0) + 1, paid: Math.max(prev.paid || 0, target), s: Math.max(prevStars, stars) };
   saveAccountProgressLocal();
   if (reward > 0) addPropinas(reward);
   accountPushSoon(true);
   const unlockedNow = [...trainingFeaturesUnlocked()].filter(f => !featuresBefore.has(f));
-  return { challenge: ch, time, par, medal, prevBest: prev.t || 0, best, improved: !!prev.t && time < prev.t, firstTime: !prev.m,
+  return { challenge: ch, time, par, medal, avg, minQ, stars, prevStars, prevBest: prev.t || 0, best, improved: !!prev.t && time < prev.t, firstTime: !prev.m,
     medalUp: medal > (prev.m || 0), reward, unlocked: unlockedNow, next: trainingOfLevel(ch.lvl).find(c => c.index > ch.index) || null };
 }
 
@@ -375,7 +394,7 @@ function trainingBriefHtml(ch) {
   const p = trainingProgressOf(ch.id) || {};
   const par = trainingPar(ch);
   const reqs = ch.reqs.map(r => `<li>${AREA_ICONS[r.area]} Sirve <b>${r.n}</b> ${trnWordArea(r.area)}</li>`).join('') +
-    (ch.minStars ? `<li>⭐ Cada plato debe llegar a <b>${ch.minStars} estrella(s)</b> o más para contar</li>` : '');
+    `<li>⭐ Calidad media mínima <b>${trainingMinQ(ch).toFixed(1)}</b>${ch.minStars ? ' (un plato flojo se compensa con otro mejor)' : ''}. Sube a ⭐⭐ con ${trainingStarCuts(ch)[1].toFixed(1)} y a ⭐⭐⭐ con ${trainingStarCuts(ch)[2].toFixed(1)}</li>`;
   const dishes = Object.keys(ch.pool).map(a => `<div class="trn-dishes">${AREA_ICONS[a]} ${trainingPoolNames(ch, a).join(', ')}</div>`).join('');
   const unlocks = `<div class="trn-unlock">🏮 Subnivel del nivel ${ch.lvl} de la Campaña</div>`;
   const rw = [1, 2, 3].map(m => `${trainingMedalIcon(m)} ${Math.round(ch.reward * TRAINING_MEDAL_SHARE[m])}`).join(' · ');
@@ -410,9 +429,25 @@ function showTrainingResult(res) {
   const unl = '';
   const nextOpen = res.next && trainingIsOpen(res.next);
   const body = document.getElementById('trn-result-body');
+  if (res.incomplete) {
+    body.innerHTML = `
+    <div class="trn-medal">🔁</div>
+    <div class="trn-rtitle">Reto ${ch.num} incompleto · ${ch.title}</div>
+    <div class="trn-rline">⭐ Calidad media <b>${res.avg.toFixed(1)}</b> · mínimo para superarlo <b>${res.minQ.toFixed(1)}</b></div>
+    <div class="trn-rline">Cuida el punto de cada plato: este reto se supera con calidad, no solo con prisa. No cuenta para tus estrellas hasta superarlo.</div>
+    <div class="acc-row" style="justify-content:center;margin-top:8px;">
+      <button class="acc-btn" onclick="startTrainingChallenge('${ch.id}')">↻ Reintentar</button>
+      <button class="acc-btn alt" onclick="trainingResultToList()">🏮 Retos del nivel ${ch.lvl}</button>
+    </div>`;
+    const mi = document.getElementById('training-result-modal'); mi.style.display = ''; mi.classList.add('active');
+    return;
+  }
+  const gained = Math.max(0, res.stars - res.prevStars);
+  const starLine = `<div class="trn-rline">⭐ Calidad media <b>${res.avg.toFixed(1)}</b> → <b>${starsText3(res.stars)}</b>${gained > 0 ? ` · <b>+${gained}</b> al contador de Campaña` : (res.stars === res.prevStars ? ' · igualaste tu mejor calidad' : '')}</div>`;
   body.innerHTML = `
     <div class="trn-medal">${trainingMedalIcon(res.medal)}</div>
     <div class="trn-rtitle">Reto ${ch.num} completado · ${ch.title}</div>
+    ${starLine}
     <div class="trn-rline">⏱ Tu tiempo: <b>${formatTrainingTime(res.time)}</b> · 🎯 Oro: ${formatTrainingTime(res.par)}</div>
     <div class="trn-rline">${cmp}</div>
     <div class="trn-rline">${tips}</div>

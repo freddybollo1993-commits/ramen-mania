@@ -76,7 +76,8 @@
     .cm-tok::after { content: ''; position: absolute; inset: -9px; border-radius: 50%; }
     .cm-tok:active { transform: translateY(3px) scale(.92); box-shadow: 0 0 0 rgba(0,0,0,.5), inset 0 2px 0 rgba(255,255,255,.25); transition-duration: .05s; }
     @media (hover: hover) { .cm-tok:hover { filter: brightness(1.1); transform: translateY(-2px) scale(1.06); } }
-    .cm-tok.done { background: radial-gradient(circle at 35% 30%, #b8f1e8, #2bb3a2 60%, #0f6b60); font-size: 14px; }
+    .cm-tok.done { background: radial-gradient(circle at 35% 30%, #b8f1e8, #2bb3a2 60%, #0f6b60); font-size: 9px; letter-spacing: -1px; color: #ffe27a; }
+    .cm-tok.inc { outline: 2px dashed #ffb300; outline-offset: 2px; }
     .cm-tok.locked { background: radial-gradient(circle at 35% 30%, #78808a, #4b525a 60%, #30353b); opacity: .8; font-size: 10px; box-shadow: none; }
     .cm-tok.sel { outline: 3px solid #fff3d0; outline-offset: 2px; }
     .cm-tok.next::before { content: ''; position: absolute; inset: -4px; border-radius: 50%; border: 2px solid #8ff0e0; pointer-events: none; animation: cmTok 1.1s ease-out infinite; }
@@ -155,8 +156,8 @@
   function routeTokens(lvl) {
     const list = retosOf(lvl), nx = list.find(c => trainingIsOpen(c) && !retoDone(c));
     return list.map((c, i) => {
-      const q = tokPos(lvl, i), p = trainingProgressOf(c.id) || {}, open = trainingIsOpen(c), st = !open ? 'locked' : (p.m > 0 ? 'done' : 'open');
-      return '<button class="cm-tok ' + st + (nx && nx.id === c.id ? ' next' : '') + '" data-rt="' + c.id + '" style="left:' + q.x.toFixed(1) + 'px;top:' + q.y.toFixed(1) + 'px" aria-label="Reto ' + c.num + ': ' + c.title + '"><i>' + (!open ? '🔒' : (p.m > 0 ? trainingMedalIcon(p.m) : c.num)) + '</i></button>';
+      const q = tokPos(lvl, i), p = trainingProgressOf(c.id) || {}, open = trainingIsOpen(c), st = !open ? 'locked' : (p.m > 0 ? 'done' : ((p.n || 0) > 0 ? 'inc' : 'open'));
+      return '<button class="cm-tok ' + st + (nx && nx.id === c.id ? ' next' : '') + '" data-rt="' + c.id + '" style="left:' + q.x.toFixed(1) + 'px;top:' + q.y.toFixed(1) + 'px" aria-label="Reto ' + c.num + ': ' + c.title + '"><i>' + (!open ? '🔒' : (p.m > 0 ? '★'.repeat(trainingStarsOf(p)) : c.num)) + '</i></button>';
     }).join('');
   }
   let selReto = null;
@@ -166,7 +167,7 @@
     const names = Object.keys(c.pool).reduce((a, k) => a.concat(trainingPoolNames(c, k)), []), nm = names.length > 6 ? '<span class="cm-chip">🍽️ ' + names.length + ' platos distintos</span>' : names.map(n => '<span class="cm-chip">' + n + '</span>').join('');
     el.innerHTML = '<div class="cm-info"><h3>🎫 Reto ' + c.num + ' · ' + c.title + '</h3>'
       + (open ? '' : '<div class="cm-lock">🔒 Supera el nivel ' + c.lvl + ' para abrirlo.</div>')
-      + '<div class="cm-chips"><span class="cm-chip new">' + trainingObjectiveText(c) + '</span><span class="cm-chip">🥇 ' + formatTrainingTime(trainingPar(c)) + '</span><span class="cm-chip">🧧 hasta ' + c.reward + '</span>' + (p.m > 0 ? '<span class="cm-chip">' + trainingMedalIcon(p.m) + ' tu mejor ' + formatTrainingTime(p.t) + '</span>' : '') + '</div>'
+      + '<div class="cm-chips"><span class="cm-chip new">' + trainingObjectiveText(c) + '</span><span class="cm-chip">⭐ mín ' + trainingMinQ(c).toFixed(1) + '</span><span class="cm-chip">🥇 ' + formatTrainingTime(trainingPar(c)) + '</span><span class="cm-chip">🧧 hasta ' + c.reward + '</span>' + (p.m > 0 ? '<span class="cm-chip new">' + starsText3(trainingStarsOf(p)) + '</span><span class="cm-chip">' + trainingMedalIcon(p.m) + ' tu mejor ' + formatTrainingTime(p.t) + '</span>' : ((p.n || 0) > 0 ? '<span class="cm-chip" style="color:#ffb300;border-color:#ffb300">⚠ Incompleto: sube la calidad</span>' : '')) + '</div>'
       + '<div class="cm-chips"><span class="cm-chip">🏮 Subnivel del nivel ' + c.lvl + '</span>' + nm + '</div></div>'
       + '<div class="cm-acts"><button class="cm-btn teal" data-rplay="' + id + '" ' + (open ? '' : 'disabled') + '>' + (p.m > 0 ? '↻ Repetir' : '▶ Empezar') + '</button><button class="cm-btn sec" data-rlvl="' + c.lvl + '">← Nivel ' + c.lvl + '</button></div>';
   }
@@ -221,7 +222,7 @@
 
   function open(filterArc) {
     css(); close(true); sfx('click');
-    const cur = unlocked(), nextCfg = NIVELES[Math.min(NIVELES.length, cur) - 1], total = getCampaignTotalStars(), max = NIVELES.length * 3, w = buildWorld();
+    const cur = unlocked(), nextCfg = NIVELES[Math.min(NIVELES.length, cur) - 1], total = getCampaignTotalStars(), max = getCampaignStatsSummary().maxStars, w = buildWorld();
     root = document.createElement('div'); root.className = 'cm'; root.id = 'cm-root';
     root.innerHTML = `<div class="cm-top"><button class="cm-btn sec" data-back>← Volver</button><h1>🏮 Campaña Gastronómica</h1><span class="cm-pill">⭐ ${total}/${max}</span><span class="cm-pill">🧧 ${getPropinasWallet()}</span><button class="cm-btn" data-play="${nextCfg.level - 1}">▶ Nivel ${nextCfg.level}</button></div>`
       + `<div class="cm-scroll" id="cm-scroll"><div class="cm-world" style="width:${w.W}px">${w.html}</div></div><div class="cm-sheet" id="cm-sheet"></div>`;

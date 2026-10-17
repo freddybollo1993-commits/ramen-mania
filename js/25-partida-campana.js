@@ -264,7 +264,7 @@ function updateHUD() {
     }
     if (goalLabel) goalLabel.textContent = "Reto:";
     const goalEl = document.getElementById("hud-goal");
-    if (goalEl) goalEl.textContent = `${trainingDoneInRun()}/${trainingTotalCount()}`;
+    if (goalEl) goalEl.textContent = `${trainingDoneInRun()}/${trainingTotalCount()}` + (gameState.training.served ? ` ⭐${trainingAvg().toFixed(1)}` : '');
     if (timerIcon) timerIcon.textContent = "⏱️";
     const timerEl = document.getElementById("hud-timer");
     if (timerEl) timerEl.textContent = formatTrainingTime(gameState.gameClock); // el reloj SUBE: mide tu tiempo

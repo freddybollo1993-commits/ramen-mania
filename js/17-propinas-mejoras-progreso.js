@@ -132,6 +132,7 @@ function getCampaignTotalStars() {
   const prog = loadCampaignProgress();
   let total = 0;
   Object.values(prog.levels || {}).forEach(l => { total += (l.stars || 0); });
+  try { if (typeof trainingTotalStars === 'function') total += trainingTotalStars(); } catch (e) {}      // los retos son subniveles: sus estrellas cuentan en el progreso
   return total;
 }
 
@@ -147,13 +148,14 @@ function getCampaignStatsSummary() {
       if (st > 0) completed++;
     });
   }
+  try { if (typeof trainingTotalStars === 'function') stars += trainingTotalStars(); } catch (e) {}
   return {
     unlockedLevel: unlocked,
     highestUnlocked: unlocked,
     completedLevels: completed,
     totalLevels: NIVELES.length,
     stars: stars,
-    maxStars: NIVELES.length * 3
+    maxStars: NIVELES.length * 3 + (typeof trainingMaxStars === 'function' ? trainingMaxStars() : 0)
   };
 }
 window.getCampaignStatsSummary = getCampaignStatsSummary;
@@ -210,7 +212,7 @@ function mergeTraining(a, b) {
     const t = (x.t && y.t) ? Math.min(x.t, y.t) : (x.t || y.t || 0);
     const f = (x.f && y.f) ? Math.min(x.f, y.f) : (x.f || y.f || 0);
     out[k] = { t, ...(f ? { f } : {}), l: (y.n || 0) > (x.n || 0) ? (y.l || 0) : (x.l || 0), m: Math.max(x.m || 0, y.m || 0),
-      n: Math.max(x.n || 0, y.n || 0), paid: Math.max(x.paid || 0, y.paid || 0) };
+      n: Math.max(x.n || 0, y.n || 0), paid: Math.max(x.paid || 0, y.paid || 0), ...((x.s || y.s) ? { s: Math.max(x.s || 0, y.s || 0) } : {}) };
   });
   return out;
 }

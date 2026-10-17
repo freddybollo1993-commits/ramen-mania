@@ -112,6 +112,7 @@
   ];
   // lo último que cambió, en lenguaje del jugador (lo más nuevo primero)
   const NEWS = [
+    ['v194', '⭐', 'Calidad en los retos', 'Los retos se superan con la calidad media de tus platos (con un pequeño margen) y dan de 1 a 3 estrellas que suman a tu contador de Campaña. Si no llegas al mínimo, el reto queda incompleto.'],
     ['v193', '🛤️', 'Retos en la ruta', 'Los retos van directo sobre la ruta de la Campaña, después de la linterna que los abre: fichas pequeñas de otro color para distinguirlos del contenido principal. Más espacio entre niveles.'],
     ['v190', '🎫', 'Retos dentro de la Campaña', 'Los 50 retos ahora son subniveles: se abren al superar el nivel de Campaña donde ya conoces sus platos. Míralos en el mapa (botón 🎫 Retos de cada nivel).'],
     ['v189', '⚙️', 'Ajustes nuevos', 'Sonido y música, silenciar, pantalla completa, orden de ingredientes y datos del dispositivo ahora están en el menú ☰ → Ajustes. Desaparece la pantalla vieja de configuración.'],
