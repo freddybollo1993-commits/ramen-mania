@@ -1,4 +1,5 @@
-/* Servicio del día: 3 metas diarias (fácil, media y de reto) + Cofre del Maestro + racha con bono.
+/* Misiones: DIARIAS (3 metas: fácil, media y de reto + Cofre del Maestro + racha con bono), ESPECIALES (2 por semana) y DE TEMPORADA (6 de largo plazo, cada 4 semanas).
+   Todas con barra de progreso y un pequeño premio en propinas que se cobra solo al cumplirlas.
    Las metas se eligen según lo que el jugador ya desbloqueó y su plato más flojo, con una semilla por día y cuenta (no cambian al reiniciar).
    Se escuchan los eventos del juego envolviendo funciones existentes (sin editar el núcleo): statsRecordDish (platos servidos), recordCampaignLevelVictory
    (nivel ganado) y trainingRecord (reto del Entrenamiento); Reconocer avisa con Servicio.event('recon'). Todo se guarda en el aparato (ramen_servicio_v1).
@@ -8,7 +9,7 @@
   const KEY = 'ramen_servicio_v1';
   const BASE = { easy: 20, med: 35, hard: 60 }, CHEST = 50, STREAK_STEP = 0.1, STREAK_MAX = 5, GAP_OK = 2;      // propinas por meta, cofre y racha (+10 % por día, hasta +50 %)
   const AREA = { ramen: ['🍜', 'Ramen'], salteados: ['🍳', 'Salteado'], makis: ['🍣', 'Makis'], frituras: ['🍤', 'Frituras'] };
-  const ICON = { cook_any: '🍽️', cook_area: '🍽️', probar: '✨', mejorar: '📈', clean_run: '🔥', stars3: '⭐', win_level: '🏮', win_stars: '🏆', training: '🏋️', recon: '🔍' };
+  const ICON = { cook_any: '🍽️', cook_area: '🍽️', probar: '✨', mejorar: '📈', clean_run: '🔥', stars3: '⭐', win_level: '🏮', win_stars: '🏆', training: '🏋️', recon: '🔍', s_all: '🍽️', s_area: '🍽️', s_star3: '⭐', levels: '🏮', retos: '🎫' };
   const TIER_NAME = { easy: 'Fácil', med: 'Media', hard: 'Reto' };
   const store = { get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} } };
   const $ = id => document.getElementById(id);
@@ -22,6 +23,16 @@
   const dayNum = k => { const [y, m, d] = k.split('-').map(Number); return Math.round(Date.UTC(y, m - 1, d) / 86400000); };
   const hash = s => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
   const rng = seed => () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+
+  const weekId = () => Math.floor((dayNum(dayKey()) + 3) / 7);                  // las semanas empiezan el lunes
+  const seasonId = () => Math.floor((dayNum(dayKey()) + 3 + 21) / 28);          // temporada = 4 semanas (la primera empieza el lunes 12 de octubre de 2026)
+  const SEASON_BASE = Math.floor((dayNum('2026-10-12') + 3 + 21) / 28);
+  const seasonNo = () => Math.max(1, seasonId() - SEASON_BASE + 1);
+  const midnightIn = days => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate() + days).getTime() - Date.now(); };
+  const msToday = () => midnightIn(1);
+  const msWeek = () => midnightIn(7 - ((new Date().getDay() + 6) % 7));
+  const msSeason = () => midnightIn((seasonId() + 1) * 28 - 3 - 21 - dayNum(dayKey()));
+  const left = ms => { ms = Math.max(0, ms); const m = Math.floor(ms / 60000), d = Math.floor(m / 1440), h = Math.floor((m % 1440) / 60); return d >= 1 ? d + ' d ' + h + ' h' : h + ' h ' + String(m % 60).padStart(2, '0') + ' min'; };
 
   // ---------- estado ----------
   let st = null;
@@ -61,12 +72,30 @@
     });
     return goals;
   }
+  // misiones especiales (por semana) y de temporada (4 semanas): se cumplen sumando lo que haces en cualquier modo
+  function genWeek(id) {
+    const R = rng(hash('wk' + id + '|' + accId())), U = unlockedLevel(), w = (t, n, rew, x) => Object.assign({ t, n, prog: 0, done: false, rew, kind: 'wk' }, x || {});
+    const pool = [() => w('s_all', 30 + 10 * Math.floor(R() * 3), 100), () => w('s_star3', 10 + 5 * Math.floor(R() * 3), 150)];
+    if (tutDone()) pool.push(() => w('levels', 3 + Math.floor(R() * 3), 120));
+    if (U >= 2) pool.push(() => w('retos', 2 + Math.floor(R() * 2), 120));
+    const out = [], used = new Set();
+    while (out.length < 2 && pool.length) { const f = pool.splice(Math.floor(R() * pool.length), 1)[0], g = f(); if (!used.has(g.t)) { used.add(g.t); out.push(g); } }
+    return out;
+  }
+  function genSeason(id) {
+    const R = rng(hash('ss' + id + '|' + accId())), U = unlockedLevel(), cat = (window.Recetario ? Recetario.catalog() : []).filter(c => c.req != null && c.req <= U);
+    const areas = [...new Set(cat.map(c => c.area))].filter(a => AREA[a]), ar = areas.length ? areas[Math.floor(R() * areas.length)] : 'ramen';
+    const g = (t, n, rew, x) => Object.assign({ t, n, prog: 0, done: false, rew, kind: 'ss' }, x || {});
+    return [g('s_all', 250, 350), g('levels', 10, 500), g('s_star3', 80, 600), g('retos', 8, 450), g('recon', 12, 300), g('s_area', 80, 400, { area: ar })];
+  }
   function ensure() {
     load(); const today = dayKey();
     if (st.day !== today) {
       const prevHard = st.goals.length && st.goals[2] && st.goals[2].done;
       st.day = today; st.goals = generate(today, prevHard); st.chest = 0; save();
     }
+    if (!st.wk || st.wk.id !== weekId()) { st.wk = { id: weekId(), goals: genWeek(weekId()) }; save(); }
+    if (!st.ss || st.ss.id !== seasonId()) { st.ss = { id: seasonId(), goals: genSeason(seasonId()) }; save(); }
     return st;
   }
 
@@ -84,7 +113,12 @@
     toast('🎯 ¡Meta del día cumplida! ' + describe(g) + ' · +' + r + ' 🧧');
     if (st.goals.every(x => x.done)) setTimeout(() => toast('🎁 ¡Cofre del Maestro listo! Ábrelo en el menú de inicio.'), 2600);
   }
-  function bump(g, n) { if (g.done) return; g.prog = Math.min(g.n, (g.prog || 0) + (n == null ? 1 : n)); if (g.prog >= g.n) complete(g); }
+  function completeLong(g) {                                              // especial o de temporada: premio fijo, sin bono de racha
+    g.done = true; g.paid = g.rew; try { addPropinas(g.rew); } catch (e) {}
+    save(); sfx('serve'); toast((g.kind === 'ss' ? '🏅 ¡Misión de temporada cumplida! ' : '🌟 ¡Misión especial cumplida! ') + describe(g) + ' · +' + g.rew + ' 🧧');
+  }
+  function bump(g, n) { if (g.done) return; g.prog = Math.min(g.n, (g.prog || 0) + (n == null ? 1 : n)); if (g.prog >= g.n) { if (g.kind) completeLong(g); else complete(g); } }
+  const longGoals = () => [...(st.wk ? st.wk.goals : []), ...(st.ss ? st.ss.goals : [])];
   function onServe(recipe, ev, prevN) {
     if (!ev || typeof isMultiplayerSession === 'function' && isMultiplayerSession()) return;
     ensure(); const area = getRecipeArea(recipe), key = statsDishKey(area, recipe.name), score = ev.score || 0;
@@ -99,6 +133,10 @@
         case 'stars3': if (score >= 85) bump(g); break;
       }
     });
+    longGoals().forEach(g => {
+      if (g.done) return;
+      if (g.t === 's_all' || (g.t === 's_area' && g.area === area) || (g.t === 's_star3' && score >= 85)) bump(g);
+    });
     save();
   }
   function event(type, d) {
@@ -107,7 +145,13 @@
       if (g.done) return;
       if (g.t === 'win_level' && type === 'levelWon') bump(g);
       else if (g.t === 'win_stars' && type === 'levelWon' && (d.stars || 0) >= g.stars) bump(g);
-      else if (g.t === 'training' && type === 'training') bump(g);
+      else if (g.t === 'training' && type === 'training' && d.ok !== false) bump(g);
+      else if (g.t === 'recon' && type === 'recon') bump(g);
+    });
+    longGoals().forEach(g => {
+      if (g.done) return;
+      if (g.t === 'levels' && type === 'levelWon') bump(g);
+      else if (g.t === 'retos' && type === 'training' && d.ok !== false) bump(g);
       else if (g.t === 'recon' && type === 'recon') bump(g);
     });
     save();
@@ -124,8 +168,13 @@
       case 'stars3': return 'Sirve ' + g.n + ' platos con calidad 85+ (⭐⭐⭐)';
       case 'win_level': return 'Gana un nivel de Campaña';
       case 'win_stars': return 'Gana un nivel con ' + g.stars + ' estrellas o más';
-      case 'training': return 'Completa 1 reto del Entrenamiento';
-      case 'recon': return 'Termina una ronda de Reconocer ingredientes';
+      case 'training': return 'Completa 1 reto de la Campaña';
+      case 'recon': return g.n > 1 ? 'Termina ' + g.n + ' rondas de Reconocer ingredientes' : 'Termina una ronda de Reconocer ingredientes';
+      case 's_all': return 'Sirve ' + g.n + ' platos';
+      case 's_area': return 'Sirve ' + g.n + ' platos de ' + AREA[g.area][1];
+      case 's_star3': return 'Sirve ' + g.n + ' platos con calidad 85+ (⭐⭐⭐)';
+      case 'levels': return 'Gana ' + g.n + ' niveles de Campaña';
+      case 'retos': return 'Completa ' + g.n + ' retos de la Campaña';
     }
     return '';
   }
@@ -133,6 +182,11 @@
 
   // ---------- nube: se guarda dentro de la instantánea de progreso de la cuenta (japon.js → get_game / save_game) ----------
   const goalScore = x => (x.goals || []).reduce((a, g) => a + (g.done ? 100 : 0) + (g.prog || 0), 0);
+  function mergeSet(a, b) {                                             // semana o temporada: la más reciente; la misma, con el mayor avance de cada misión
+    if (!a || !a.goals) return b || null; if (!b || !b.goals) return a;
+    if (a.id !== b.id) return a.id > b.id ? a : b;
+    return { id: a.id, goals: a.goals.map((g, i) => { const x = b.goals[i]; const o = Object.assign({}, g); if (x && x.t === g.t && x.n === g.n && x.area === g.area) { o.prog = Math.max(g.prog || 0, x.prog || 0); o.done = !!(g.done || x.done); o.paid = Math.max(g.paid || 0, x.paid || 0); } return o; }) };
+  }
   function mergeSnap(a, b) {
     if (!a || a.v !== 1) return b && b.v === 1 ? b : (a || null);
     if (!b || b.v !== 1) return a;
@@ -140,56 +194,58 @@
     if ((b.last || '') > (a.last || '') || ((b.last || '') === (a.last || '') && (b.streak || 0) > (a.streak || 0))) { out.streak = b.streak || 0; out.last = b.last || ''; }   // racha: la más reciente (si empatan, la mayor)
     const w = (a.day || '') !== (b.day || '') ? ((a.day || '') > (b.day || '') ? a : b) : (goalScore(b) > goalScore(a) ? b : a), o = w === a ? b : a;       // día más reciente; el mismo día, el que lleva más avance
     out.day = w.day || ''; out.goals = JSON.parse(JSON.stringify(w.goals || [])); out.chest = Math.max(a.day === w.day ? a.chest || 0 : 0, b.day === w.day ? b.chest || 0 : 0);
+    out.wk = mergeSet(a.wk, b.wk) || undefined; out.ss = mergeSet(a.ss, b.ss) || undefined;
     if (o.day === w.day) out.goals = out.goals.map((g, i) => { const x = (o.goals || [])[i]; if (x && x.t === g.t && x.n === g.n && x.area === g.area && x.key === g.key) { g.prog = Math.max(g.prog || 0, x.prog || 0); g.done = !!(g.done || x.done); g.paid = Math.max(g.paid || 0, x.paid || 0); } return g; });
     return out;
   }
-  const snap = () => { load(); return { v: 1, day: st.day, goals: st.goals, chest: st.chest, streak: st.streak, last: st.last }; };
+  const snap = () => { load(); return { v: 1, day: st.day, goals: st.goals, chest: st.chest, streak: st.streak, last: st.last, wk: st.wk, ss: st.ss }; };
   function apply(sn) {                                  // une lo que llega de la nube con lo local (sin volver a pagar premios: ya se cobraron donde se cumplieron)
     if (!sn || sn.v !== 1) return;
     load(); const m = mergeSnap(snap(), sn); if (!m) return;
-    st = { v: 1, day: m.day || '', goals: m.goals || [], chest: m.chest || 0, streak: m.streak || 0, last: m.last || '', hardDone: false }; persist();
+    st = { v: 1, day: m.day || '', goals: m.goals || [], chest: m.chest || 0, streak: m.streak || 0, last: m.last || '', hardDone: false, wk: m.wk, ss: m.ss }; persist();
   }
   function reset() { st = null; try { localStorage.removeItem(KEY); } catch (e) {} }
 
   // ---------- API para el menú ----------
   function summary() {
     ensure(); const done = st.goals.filter(g => g.done).length;
-    return { done, total: st.goals.length, chestReady: done === st.goals.length && !st.chest, chestOpen: !!st.chest, streak: currentStreak(), mult: mult() };
+    const lg = longGoals();
+    return { done, total: st.goals.length, chestReady: done === st.goals.length && !st.chest, chestOpen: !!st.chest, streak: currentStreak(), mult: mult(), longDone: lg.filter(g => g.done).length, longTotal: lg.length };
   }
-  function strip() {
-    css(); ensure(); const sm = summary();
-    return '<div class="hub-daily" onclick="Servicio.open()" title="Servicio del día"><span class="svc-lab">🎯 Del día</span>'
-      + st.goals.map(g => '<span class="svc-dot ' + g.tier + (g.done ? ' done' : '') + '" title="' + describe(g).replace(/"/g, '') + '">' + (g.done ? '✔' : (g.n > 1 ? (g.prog || 0) + '/' + g.n : dotIcon(g))) + '</span>').join('')
-      + '<span class="svc-chest' + (sm.chestReady ? ' ready' : '') + '">' + (st.chest ? '✅' : '🎁') + '</span>'
-      + (sm.streak ? '<span class="svc-streak">🔥' + sm.streak + '</span>' : '') + '</div>';
-  }
-
-  // ---------- pantallas ----------
+  // ---------- pantalla de Misiones ----------
   const CSS = `
-  .hub-daily { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; cursor: pointer; }
-  .svc-lab { font: 900 10px 'Fredoka', sans-serif; color: #ffd978; letter-spacing: .4px; margin-right: 2px; }
-  .svc-dot { min-width: 34px; height: 24px; padding: 0 6px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; font: 900 11px 'Fredoka', sans-serif; color: #fff3d6; border: 1.5px solid rgba(255,255,255,.3); background: rgba(0,0,0,.4); }
-  .svc-dot.easy { border-color: #66bb6a; } .svc-dot.med { border-color: #ffb300; } .svc-dot.hard { border-color: #ef5350; }
-  .svc-dot.done { background: #2e9e4f; border-color: #c8f7c5; color: #fff; }
-  .svc-chest { font-size: 15px; filter: grayscale(.8) opacity(.7); } .svc-chest.ready { filter: none; animation: svcWob .9s ease-in-out infinite; }
-  .svc-streak { font: 900 11px 'Fredoka', sans-serif; color: #ffab40; }
-  @keyframes svcWob { 0%, 100% { transform: rotate(-8deg); } 50% { transform: rotate(8deg) scale(1.12); } }
-  #svc { position: fixed; inset: 0; z-index: 9200; background: rgba(10,5,2,.86); display: flex; align-items: center; justify-content: center; padding: 8px; font-family: 'Fredoka', 'Nunito', system-ui, sans-serif; color: #fff3d6;
-    padding-left: max(8px, env(safe-area-inset-left)); padding-right: max(8px, env(safe-area-inset-right)); }
+  #svc { position: fixed; inset: 0; z-index: 9200; display: flex; flex-direction: column; background: radial-gradient(circle at 50% 0%, #4a2a14 0%, #1d0e08 70%); color: #fff3d6; font-family: 'Fredoka', 'Nunito', system-ui, sans-serif;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); overflow: hidden; }
   #svc * { box-sizing: border-box; }
-  .svc-card { width: min(560px, 100%); max-height: 100%; overflow-y: auto; background: linear-gradient(#4a2a14, #2b1810); border: 3px solid #1a0e07; outline: 2px solid #ffb300; border-radius: 16px; padding: 10px 14px 12px; box-shadow: 0 10px 30px rgba(0,0,0,.6); }
-  .svc-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; } .svc-head h2 { margin: 0; flex: 1; font: 400 19px 'Fredoka One', 'Fredoka', sans-serif; color: #ffd978; }
-  .svc-x { border: 2px solid #8a5a00; border-radius: 10px; width: 34px; height: 30px; background: linear-gradient(#ffe082, #ffb300); color: #3b2208; font: 900 14px/1 'Fredoka', sans-serif; cursor: pointer; }
-  .svc-info { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; } .svc-info b { background: rgba(0,0,0,.4); border: 1.5px solid rgba(255,204,80,.35); border-radius: 12px; padding: 3px 9px; font: 800 11px 'Fredoka', sans-serif; color: #ffe9b0; }
-  .svc-goal { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,.3); border: 2px solid rgba(255,255,255,.12); border-radius: 12px; padding: 7px 10px; margin-bottom: 6px; }
-  .svc-goal.done { border-color: #66bb6a; background: rgba(46,158,79,.22); }
-  .svc-gi { flex: none; width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; background: rgba(255,255,255,.08); }
-  .svc-gt { flex: 1; min-width: 0; } .svc-gt b { display: block; font: 800 13px/1.2 'Fredoka', sans-serif; } .svc-gt small { color: #c9a77e; font: 700 10px 'Fredoka', sans-serif; letter-spacing: .4px; text-transform: uppercase; }
-  .svc-bar { height: 7px; border-radius: 4px; background: rgba(255,255,255,.12); margin-top: 4px; overflow: hidden; } .svc-bar i { display: block; height: 100%; background: linear-gradient(90deg, #ffb300, #66bb6a); }
-  .svc-rw { flex: none; font: 900 12px 'Fredoka', sans-serif; color: #ffe082; text-align: right; }
-  .svc-chestrow { display: flex; align-items: center; gap: 10px; margin-top: 8px; padding: 8px 10px; border-radius: 12px; border: 2px dashed rgba(255,204,80,.45); }
-  .svc-open { border: 2px solid #ffe082; border-radius: 12px; padding: 8px 14px; background: linear-gradient(135deg, #ff9800, #e64a19 65%, #c62828); color: #fff; font: 900 12px/1 'Fredoka', sans-serif; box-shadow: 0 3px 0 #7f0000; cursor: pointer; }
-  .svc-open:disabled { background: #555; border-color: #888; box-shadow: none; cursor: default; opacity: .7; }
+  .sv-top { display: flex; align-items: center; gap: 8px; padding: 6px 12px 4px; flex: none; }
+  .sv-nav { flex: none; width: 44px; height: 38px; border: 2px solid #8a5a00; border-radius: 10px; background: linear-gradient(#ffe082, #ffb300); color: #3b2208; font: 900 17px/1 'Fredoka', sans-serif; box-shadow: 0 3px 0 #8a5a00; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .sv-nav:active { transform: translateY(3px); box-shadow: none; }
+  .sv-top h2 { margin: 0; flex: 1; font: 400 20px 'Fredoka One', 'Fredoka', sans-serif; color: #ffd978; text-shadow: 0 2px 0 rgba(0,0,0,.55); letter-spacing: .5px; }
+  .sv-chip { background: rgba(0,0,0,.4); border: 1.5px solid rgba(255,204,80,.4); border-radius: 14px; padding: 3px 10px; font: 900 12px/1.2 'Fredoka', sans-serif; color: #ffe9b0; white-space: nowrap; }
+  .sv-strip { flex: 1; min-height: 0; display: flex; gap: 22px; overflow-x: auto; overflow-y: hidden; padding: 6px 14px 10px; scroll-snap-type: x proximity; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .sv-strip::-webkit-scrollbar { display: none; }
+  .sv-sec { flex: none; display: flex; flex-direction: column; gap: 6px; scroll-snap-align: start; }
+  .sv-h { display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,.42); border: 1.5px solid rgba(255,204,80,.3); border-radius: 10px; padding: 5px 10px; }
+  .sv-h i { font-style: normal; font-size: 16px; } .sv-h b { font: 900 11.5px 'Fredoka', sans-serif; letter-spacing: .6px; color: #fff3d6; } .sv-h small { margin-left: auto; font: 800 10.5px 'Fredoka', sans-serif; color: #e6c88a; white-space: nowrap; }
+  .sv-cols { display: flex; gap: 8px; flex: 1; min-height: 0; }
+  .sv-col { display: flex; flex-direction: column; gap: 7px; width: 236px; }
+  .sv-card { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-between; gap: 4px; padding: 7px 9px 7px 12px; border: 2.5px solid #1a0e07; border-radius: 12px; background: linear-gradient(#5a3a20, #2e1a0e); box-shadow: 0 3px 0 rgba(0,0,0,.5); overflow: hidden; }
+  .sv-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--c, #ffb300); }
+  .sv-card.easy { --c: #66bb6a; } .sv-card.med { --c: #ffb300; } .sv-card.hard { --c: #ef5350; } .sv-card.wk { --c: #ab47bc; } .sv-card.ss { --c: #26a69a; } .sv-card.chest { --c: #ffb300; }
+  .sv-card.done { border-color: #43a047; background: linear-gradient(#2f5a2c, #1c3a1a); }
+  .sv-tx { display: flex; align-items: center; gap: 8px; min-height: 0; flex: 1; }
+  .sv-ic { flex: none; width: 38px; height: 38px; border-radius: 10px; background: rgba(0,0,0,.35); display: flex; align-items: center; justify-content: center; font-size: 22px; line-height: 1; }
+  .sv-tx b { font: 800 12.5px/1.2 'Fredoka', sans-serif; color: #fff3d6; } .sv-tx small { display: block; font: 800 9.5px 'Fredoka', sans-serif; letter-spacing: .5px; text-transform: uppercase; color: #c9a77e; margin-bottom: 1px; }
+  .sv-bt { display: flex; align-items: center; gap: 6px; }
+  .sv-bar { position: relative; flex: 1; height: 18px; border-radius: 9px; background: rgba(0,0,0,.5); border: 1.5px solid rgba(255,255,255,.14); overflow: hidden; }
+  .sv-bar i { position: absolute; left: 0; top: 0; bottom: 0; width: 100%; transform-origin: left; background: linear-gradient(90deg, #ffb300, #66bb6a); }
+  .sv-bar span { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font: 900 10.5px 'Fredoka', sans-serif; color: #fff; text-shadow: 0 1px 0 rgba(0,0,0,.7); }
+  .sv-rw { flex: none; min-width: 52px; text-align: center; background: linear-gradient(#ffe082, #ffb300); color: #3b2208; border: 2px solid #8a5a00; border-radius: 9px; padding: 1px 6px; font: 900 11.5px/1.5 'Fredoka', sans-serif; }
+  .sv-card.done .sv-rw { background: linear-gradient(#a5d6a7, #43a047); border-color: #14532d; color: #0b2e10; }
+  .sv-open { flex: none; border: 2px solid #ffe082; border-radius: 10px; padding: 3px 14px; background: linear-gradient(135deg, #ff9800, #e64a19 65%, #c62828); color: #fff; font: 900 12px/1.5 'Fredoka', sans-serif; box-shadow: 0 3px 0 #7f0000; cursor: pointer; position: relative; }
+  .sv-open::before { content: ''; position: absolute; inset: -9px -3px; }
+  .sv-open:disabled { background: #555; border-color: #888; box-shadow: none; cursor: default; opacity: .7; }
+  .sv-note { font: 700 10.5px/1.3 'Fredoka', sans-serif; color: #b9a583; }
   #svc-chest { position: fixed; inset: 0; z-index: 9400; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; cursor: pointer; font-family: 'Fredoka', sans-serif; color: #fff3d6;
     background: radial-gradient(circle at 50% 42%, #d9962e 0%, #7a1d14 40%, #12060a 85%); }
   #svc-chest .box { font-size: 92px; line-height: 1; filter: drop-shadow(0 8px 14px rgba(0,0,0,.6)); animation: svcBox 1.1s ease-in-out infinite; } #svc-chest.pop .box { animation: svcPop .7s cubic-bezier(.2,1.4,.4,1) forwards; }
@@ -200,22 +256,38 @@
   @keyframes svcPop { 0% { transform: scale(1) rotate(0); } 40% { transform: scale(1.5) rotate(-12deg); } 100% { transform: scale(1.2) rotate(0); } }
   @keyframes svcAmt { from { transform: scale(.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   @keyframes svcSpk { from { transform: translate(0, 0) scale(.4); opacity: 1; } to { transform: translate(var(--dx), var(--dy)) scale(1.2); opacity: 0; } }
-  @media (prefers-reduced-motion: reduce) { .svc-chest.ready, #svc-chest .box { animation: none; } }
+  @media (prefers-reduced-motion: reduce) { #svc-chest .box { animation: none; } }
   `;
   function css() { if ($('svc-css')) return; const s = document.createElement('style'); s.id = 'svc-css'; s.textContent = CSS; document.head.appendChild(s); }
   function inject() { css(); }
 
+  const card = (g, kind) => {
+    const pct = g.n > 0 ? Math.min(1, (g.prog || 0) / g.n) : 0, rw = g.done ? (g.paid || g.rew) : (kind ? g.rew : Math.round(g.rew * mult()));
+    return '<div class="sv-card ' + (kind || g.tier) + (g.done ? ' done' : '') + '"><div class="sv-tx"><span class="sv-ic">' + (g.done ? '✅' : dotIcon(g)) + '</span><div>' + (kind ? '' : '<small>' + TIER_NAME[g.tier] + '</small>') + '<b>' + describe(g) + '</b></div></div>'
+      + '<div class="sv-bt"><div class="sv-bar"><i style="transform:scaleX(' + pct.toFixed(3) + ')"></i><span>' + (g.done ? '¡Cumplida!' : (g.prog || 0) + '/' + g.n) + '</span></div><span class="sv-rw">' + (g.done ? '✔ ' : '') + '🧧 ' + rw + '</span></div></div>';
+  };
   function render() {
-    ensure(); const sm = summary();
-    const goals = st.goals.map(g => '<div class="svc-goal ' + (g.done ? 'done' : '') + '"><div class="svc-gi">' + (g.done ? '✅' : dotIcon(g)) + '</div><div class="svc-gt"><small>' + TIER_NAME[g.tier] + '</small><b>' + describe(g) + '</b>'
-      + (g.n > 1 ? '<div class="svc-bar"><i style="width:' + Math.round(100 * (g.prog || 0) / g.n) + '%"></i></div>' : '') + '</div><div class="svc-rw">' + (g.done ? '+' + (g.paid || g.rew) : '+' + Math.round(g.rew * mult())) + ' 🧧</div></div>').join('');
-    const chest = '<div class="svc-chestrow"><div style="font-size:34px">' + (st.chest ? '✅' : '🎁') + '</div><div style="flex:1"><b style="font:800 13px Fredoka,sans-serif">Cofre del Maestro</b><div style="font:700 11px Fredoka,sans-serif;color:#c9a77e">'
-      + (st.chest ? 'Ya lo abriste hoy. Vuelve mañana.' : (sm.chestReady ? '¡Listo! Toca para abrirlo.' : 'Cumple las 3 metas para abrirlo (+' + Math.round(CHEST * mult()) + ' 🧧).')) + '</div></div>'
-      + '<button class="svc-open" ' + (sm.chestReady ? '' : 'disabled') + ' onclick="Servicio.chest()">Abrir</button></div>';
-    let host = $('svc'); if (!host) { host = document.createElement('div'); host.id = 'svc'; host.onclick = e => { if (e.target === host) Servicio.close(); }; document.body.appendChild(host); }
-    host.innerHTML = '<div class="svc-card"><div class="svc-head"><h2>🎯 SERVICIO DEL DÍA</h2><button class="svc-x" onclick="Servicio.close()" aria-label="Cerrar">✕</button></div>'
-      + '<div class="svc-info"><b>📅 ' + new Date().toLocaleDateString('es-PE', { weekday: 'long', day: 'numeric', month: 'long' }) + '</b><b>🔥 Racha: ' + sm.streak + (sm.streak ? ' día' + (sm.streak > 1 ? 's' : '') + ' (+' + Math.round((sm.mult - 1) * 100) + ' %)' : ' · cumple una meta para empezarla') + '</b></div>'
-      + goals + chest + '<div style="font:700 10.5px Fredoka,sans-serif;color:#a98c68;margin-top:8px">Las metas se renuevan a medianoche y se adaptan a tu progreso. Un día sin jugar no rompe la racha; dos o más, sí.</div></div>';
+    ensure(); const sm = summary(), dn = st.goals.filter(g => g.done).length;
+    const chest = '<div class="sv-card chest ' + (st.chest ? 'done' : '') + '"><div class="sv-tx"><span class="sv-ic" style="font-size:26px">' + (st.chest ? '✅' : '🎁') + '</span><div><small>Bonus del día</small><b>Cofre del Maestro</b></div></div>'
+      + '<div class="sv-bt"><div class="sv-bar"><i style="transform:scaleX(' + (dn / st.goals.length).toFixed(3) + ')"></i><span>' + (st.chest ? 'Abierto' : dn + '/' + st.goals.length + ' metas') + '</span></div><button class="sv-open" ' + (sm.chestReady ? '' : 'disabled') + ' onclick="Servicio.chest()">' + (st.chest ? '✔' : 'Abrir') + '</button></div></div>';
+    const streak = '<div class="sv-card"><div class="sv-tx"><span class="sv-ic">🔥</span><div><small>Racha</small><b>' + (sm.streak ? sm.streak + ' día' + (sm.streak > 1 ? 's' : '') + ' seguidos · +' + Math.round((sm.mult - 1) * 100) + ' % en las metas del día' : 'Cumple una meta hoy para empezar tu racha') + '</b></div></div><div class="sv-note">Un día sin jugar no rompe la racha; dos o más, sí.</div></div>';
+    const sec = (ic, title, sub, body, attr) => '<section class="sv-sec"><div class="sv-h"><i>' + ic + '</i><b>' + title + '</b><small' + (attr ? ' data-end="' + attr[0] + '" data-pre="' + attr[1] + '"' : '') + '>' + sub + '</small></div><div class="sv-cols">' + body + '</div></section>';
+    const col = h => '<div class="sv-col">' + h + '</div>';
+    const wk = st.wk.goals, ss = st.ss.goals, half = Math.ceil(ss.length / 2);
+    host().innerHTML = '<div class="sv-top"><button class="sv-nav" onclick="Servicio.close()" aria-label="Volver">◀</button><h2>MISIONES</h2><span class="sv-chip">🔥 Racha ' + sm.streak + '</span><span class="sv-chip">🧧 ' + (function () { try { return getPropinasWallet(); } catch (e) { return 0; } })() + '</span></div>'
+      + '<div class="sv-strip" id="sv-strip">'
+      + sec('🎯', 'MISIONES DIARIAS', 'Nuevas dentro de ' + left(msToday()), col(st.goals.map(g => card(g)).join('')) + col(chest + streak), [Date.now() + msToday(), 'Nuevas dentro de '])
+      + sec('🌟', 'MISIONES ESPECIALES', 'Terminan dentro de ' + left(msWeek()), col(wk.map(g => card(g, 'wk')).join('')), [Date.now() + msWeek(), 'Terminan dentro de '])
+      + sec('🏅', 'MISIONES DE TEMPORADA ' + seasonNo(), 'Termina dentro de ' + left(msSeason()), col(ss.slice(0, half).map(g => card(g, 'ss')).join('')) + col(ss.slice(half).map(g => card(g, 'ss')).join('')), [Date.now() + msSeason(), 'Termina dentro de '])
+      + '</div>';
+  }
+  const host = () => { let h = $('svc'); if (!h) { h = document.createElement('div'); h.id = 'svc'; document.body.appendChild(h); } return h; };
+  let cdTimer = null;
+  function countdown() {                                                // actualiza las cuentas atrás cada 30 s mientras la pantalla está abierta
+    clearInterval(cdTimer); cdTimer = setInterval(() => {
+      const h = $('svc'); if (!h) { clearInterval(cdTimer); cdTimer = null; return; }
+      h.querySelectorAll('.sv-h small[data-end]').forEach(e => { e.textContent = e.dataset.pre + left(+e.dataset.end - Date.now()); });
+    }, 30000);
   }
   function chestCeremony() {
     ensure(); if (!summary().chestReady) return;
@@ -235,10 +307,10 @@
   }
 
   window.Servicio = {
-    open() { inject(); sfx('click'); render(); },
-    close() { const h = $('svc'); if (h) h.remove(); try { if (window.Inicio && Inicio.refresh) Inicio.refresh(); } catch (e) {} },
+    open() { inject(); sfx('click'); render(); countdown(); },
+    close() { clearInterval(cdTimer); cdTimer = null; const h = $('svc'); if (h) h.remove(); sfx('click'); try { if (window.Inicio && Inicio.refresh) Inicio.refresh(); } catch (e) {} },
     chest() { inject(); chestCeremony(); },
-    event, summary, strip, describe, snap, mergeSnap, apply, reset, _state: () => ensure()
+    event, summary, describe, snap, mergeSnap, apply, reset, _state: () => ensure()
   };
 
   // ---------- escucha de los eventos del juego ----------
@@ -248,5 +320,5 @@
     const r = orig.apply(this, args); try { onServe(args[0], args[1], prevN); } catch (e) { console.warn('[Servicio]', e); } return r;
   });
   wrap('recordCampaignLevelVictory', function (orig, args) { const r = orig.apply(this, args); try { event('levelWon', { stars: r && r.stars, level: args[0] }); } catch (e) {} return r; });
-  wrap('trainingRecord', function (orig, args) { const r = orig.apply(this, args); try { event('training', { id: args[0] && args[0].id }); } catch (e) {} return r; });
+  wrap('trainingRecord', function (orig, args) { const r = orig.apply(this, args); try { event('training', { id: args[0] && args[0].id, ok: !(r && r.incomplete) }); } catch (e) {} return r; });
 })();

@@ -33,6 +33,7 @@
       if (NUEVO_V[id]) return seenMap()[id] === NUEVO_V[id] ? null : { t: 'NUEVO', k: 'new' };
       if (id === 'knives') return window.Taller && Taller.canBuyAny() ? { t: '¡NUEVO!', k: 'buy' } : null;
       if (id === 'aprender') return !tutDone() ? { t: '¡EMPIEZA!', k: 'go' } : itemAlert('pantry');
+      if (id === 'misiones' && window.Servicio) { const sm = Servicio.summary(); if (sm.chestReady) return { t: '¡COFRE!', k: 'buy' }; return sm.done < sm.total ? { t: sm.done + '/' + sm.total, k: 'go' } : null; }
       if (id === 'book' && window.Recetario) { const n = Recetario.summary().fresh; return n > 0 && tutDone() ? { t: n + ' POR PROBAR', k: 'new' } : null; }
     } catch (e) {}
     return null;

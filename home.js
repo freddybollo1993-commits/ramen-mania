@@ -53,27 +53,27 @@
   .hm-flag.buy { background: #2e9e4f; box-shadow: 0 .2em 0 #14532d; } .hm-flag.go { background: #ff8f00; box-shadow: 0 .2em 0 #8a4b00; }
   .hm-menu .hm-flag { top: -.9em; right: -.5em; }
   /* abajo a la izquierda */
-  .hm-bl { position: absolute; left: max(.8em, env(safe-area-inset-left)); bottom: max(.6em, env(safe-area-inset-bottom)); display: flex; gap: .6em; align-items: flex-end; }
+  .hm-bl { position: absolute; left: max(.8em, env(safe-area-inset-left)); bottom: calc(max(.6em, env(safe-area-inset-bottom)) + 1.5em); display: flex; gap: .6em; align-items: flex-end; }
   .hm-mini { position: relative; display: flex; align-items: center; gap: .5em; padding: .45em .8em .45em .5em; text-align: left; }
   .hm-mini .ic { font-size: 2.2em; line-height: 1; } .hm-mini b { display: block; font: 900 1.05em/1.05 'Fredoka', sans-serif; color: #ffe082; text-shadow: 0 .1em 0 #000; } .hm-mini small { display: block; font: 800 .85em 'Fredoka', sans-serif; color: #d6c4a4; }
   /* abajo a la derecha */
   .hm-br { position: absolute; right: max(.8em, env(safe-area-inset-right)); bottom: max(.6em, env(safe-area-inset-bottom)); display: flex; flex-direction: column; align-items: flex-end; gap: .5em; }
-  .hm-daily { pointer-events: auto; cursor: pointer; padding: .2em .8em .45em; border-radius: .8em .8em 0 0; background: linear-gradient(#e28a00, #b86400); border: .2em solid #120905; border-bottom: 0; position: relative; margin-right: .5em; }
-  .hm-daily .hub-daily { gap: .4em; } .hm-daily .svc-lab { color: #fff; font-size: .95em; text-shadow: 0 .1em 0 #000; } .hm-daily .svc-dot { min-width: 2.4em; height: 1.9em; font-size: .95em; border-radius: .5em; background: rgba(0,0,0,.45); } .hm-daily .svc-chest { font-size: 1.5em; filter: none; } .hm-daily .svc-chest:not(.ready) { filter: grayscale(.5); } .hm-daily .svc-streak { font-size: .95em; }
-  .hm-row { display: flex; align-items: stretch; gap: .5em; }
-  .hm-mode { position: relative; width: 22em; height: 7.4em; padding: 0; overflow: hidden; display: flex; align-items: stretch; text-align: left; }
-  .hm-mode .mi { flex: none; width: calc(var(--u) * 5.6); display: flex; align-items: center; justify-content: center; font-size: 3em; background: radial-gradient(circle, var(--c, #ff9800), #1e100a 90%); }
-  .hm-mode .mt { flex: 1; min-width: 0; padding: .55em .5em; display: flex; flex-direction: column; justify-content: center; gap: .15em; }
-  .hm-mode small { font: 800 .8em 'Fredoka', sans-serif; color: #b9a98c; } .hm-mode b { font: 900 1.55em/1 'Fredoka', sans-serif; color: #fff; text-shadow: 0 .1em 0 #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .hm-mode em { font: 800 1em 'Fredoka', sans-serif; color: #ffd978; font-style: normal; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .hm-mode .mtag { flex: none; align-self: stretch; display: flex; align-items: center; padding: 0 .6em; background: #ffd24a; color: #2b1808; font: 900 .95em/1.1 'Fredoka', sans-serif; text-align: center; max-width: 5.6em; }
-  .hm-play { width: calc(var(--u) * 17); height: calc(var(--u) * 7.4); border: .22em solid #120905; border-radius: .8em; background: linear-gradient(#ffe45c, #f5b800 55%, #e0a000); box-shadow: 0 .35em 0 #8a5a00, 0 .45em .8em rgba(0,0,0,.5); color: #2b1808; font: 400 3.3em/1 'Fredoka One', 'Fredoka', sans-serif; letter-spacing: .5px; text-shadow: 0 .06em 0 rgba(255,255,255,.55); display: flex; align-items: center; justify-content: center; }
+
+
+  .hm-row { display: flex; align-items: center; gap: .5em; }
+  .hm-mode { position: relative; width: 14em; height: 4.4em; padding: 0; display: flex; align-items: stretch; text-align: left; }
+  .hm-mode .mi { flex: none; width: calc(var(--u) * 4.2); display: flex; align-items: center; justify-content: center; font-size: 2em; border-radius: .55em 0 0 .55em; background: radial-gradient(circle, var(--c, #ff9800), #1e100a 90%); }
+  .hm-mode .mt { flex: 1; min-width: 0; padding: .25em .6em; display: flex; flex-direction: column; justify-content: center; gap: .05em; }
+  .hm-mode small { font: 800 .72em 'Fredoka', sans-serif; color: #b9a98c; line-height: 1.1; } .hm-mode b { font: 900 1.2em/1.05 'Fredoka', sans-serif; color: #fff; text-shadow: 0 .1em 0 #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hm-mode .mtag { position: absolute; top: -.75em; right: .5em; padding: .15em .55em; border-radius: .6em; border: .12em solid #120905; background: #ffd24a; color: #2b1808; font: 900 .68em/1.2 'Fredoka', sans-serif; white-space: nowrap; box-shadow: 0 .15em 0 rgba(0,0,0,.5); }
+  .hm-play { width: calc(var(--u) * 9); height: calc(var(--u) * 4.4); border: .2em solid #120905; border-radius: .7em; background: linear-gradient(#ffe45c, #f5b800 55%, #e0a000); box-shadow: 0 .25em 0 #8a5a00, 0 .35em .6em rgba(0,0,0,.45); color: #2b1808; font: 400 1.9em/1 'Fredoka One', 'Fredoka', sans-serif; letter-spacing: .5px; text-shadow: 0 .06em 0 rgba(255,255,255,.35); }
   .hm-play:active { transform: translateY(.2em); box-shadow: 0 .15em 0 #8a5a00; }
   .hm-play.lock { filter: saturate(.7); }
   /* menú ☰: lista desplegable a la derecha que no tapa la escena; las columnas y el botón JUGAR se apartan mientras está abierto */
   .hm-scrim { position: absolute; inset: 0; display: none; pointer-events: auto; background: rgba(0,0,0,.28); }
   #hm.menu-open .hm-scrim { display: block; }
-  #hm.menu-open .hm-col.r, #hm.menu-open .hm-daily, #hm.menu-open .hm-play { opacity: 0; pointer-events: none; transform: translateX(1.5em); transition: opacity .18s, transform .18s; }
-  .hm-col.r, .hm-daily, .hm-play { transition: opacity .18s, transform .18s; }
+  #hm.menu-open .hm-col.r, #hm.menu-open .hm-play { opacity: 0; pointer-events: none; transform: translateX(1.5em); transition: opacity .18s, transform .18s; }
+  .hm-col.r, .hm-play { transition: opacity .18s, transform .18s; }
   .hm-drop { position: absolute; right: max(.8em, env(safe-area-inset-right)); top: 5em; width: 17em; display: none; flex-direction: column; gap: .35em; }
   #hm.menu-open .hm-drop { display: flex; }
   .hm-drop button { position: relative; display: flex; align-items: center; gap: .7em; width: 100%; padding: 1em .8em; border: .15em solid rgba(0,0,0,.6); border-radius: .5em; background: linear-gradient(90deg, rgba(36,24,16,.94), rgba(52,34,22,.9)); color: #fff3d6; text-align: left; font: 900 .95em/1 'Fredoka', sans-serif; letter-spacing: .2px;
@@ -101,7 +101,7 @@
   .hp-news b { font: 900 13px 'Fredoka', sans-serif; color: #fff3d6; } .hp-news em { font: 900 10px 'Fredoka', sans-serif; font-style: normal; background: #e53935; color: #fff; border-radius: 6px; padding: 1px 6px; margin-left: 6px; } .hp-news p { margin: 2px 0 0; font: 700 12px/1.35 'Fredoka', sans-serif; color: #c9b79a; }
   .hp-empty { text-align: center; color: #a98c68; font: 700 13px 'Fredoka', sans-serif; padding: 30px 10px; }
   @media (max-height: 340px) { .hm-col { gap: .7em; top: 5em; } .hm-btn .ic { font-size: 3em; } }
-  @media (max-aspect-ratio: 16/10) { .hm-mode { width: 18em; } .hm-play { width: 14em; } }
+  @media (max-aspect-ratio: 16/10) { .hm-mode { width: 12.5em; } .hm-play { width: calc(var(--u) * 8); } }
   @media (prefers-reduced-motion: reduce) { .hm-flag { animation: none; } }
   `;
   function css() { if ($('hm-css')) return; const s = document.createElement('style'); s.id = 'hm-css'; s.textContent = CSS; document.head.appendChild(s); }
@@ -118,6 +118,7 @@
   ];
   // lo último que cambió, en lenguaje del jugador (lo más nuevo primero)
   const NEWS = [
+    ['v203', '🎯', 'Misiones', 'Nueva pantalla de Misiones: diarias (con su cofre y racha), especiales de la semana y de temporada, todas con barra de progreso y su premio. El botón está abajo a la izquierda; JUGAR y el modo elegido ahora son más discretos.'],
     ['v202', '🎨', 'Todas las ventanas con el estilo nuevo', 'Perfil, estadísticas, cuenta, ranking, atajos, ordenar ingredientes, sala online, resultados, Japón, Reconocer ingredientes y el tutorial del Maestro ahora usan el mismo estilo (fondo oscuro, marco dorado y botones en placa). Se quitó mucho código viejo: el juego carga más ligero.'],
     ['v200', '🧹', 'Secretos del Maestro, en la Tienda', 'Se quitó la bodega de Secretos del Maestro y sus modelos 3D: los secretos viven solo como ítems de la Tienda, con su bono permanente.'],
     ['v199', '🎓', 'Aula del Maestro por tarjetas', 'El Aula se organiza como los modos de juego: dos secciones, Lecciones y Repaso, con tarjetas grandes que explican qué es cada cosa. Práctica y Retos viven en Aprender.'],
@@ -202,6 +203,8 @@
   const flag = id => { const h = H(); const a = h && h.alertOf(id); return a ? `<i class="hm-flag ${a.k}">${a.t}</i>` : ''; };
   // imagen de la tienda (toldo rojo y crema, mostrador y platos): reemplaza al ícono de Secretos
   const SHOP = '<svg viewBox="0 0 64 64"><ellipse cx="32" cy="58" rx="26" ry="3.5" fill="rgba(0,0,0,.35)"/><rect x="7" y="30" width="50" height="26" rx="2" fill="#8a5a30" stroke="#2b1810" stroke-width="2.5"/><rect x="13" y="34" width="38" height="13" fill="#2a170c" stroke="#2b1810" stroke-width="2"/><circle cx="21" cy="42" r="4.2" fill="#ffd978" stroke="#2b1810" stroke-width="1.6"/><circle cx="32" cy="42" r="4.2" fill="#ef5350" stroke="#2b1810" stroke-width="1.6"/><circle cx="43" cy="42" r="4.2" fill="#8bc34a" stroke="#2b1810" stroke-width="1.6"/><rect x="10" y="46" width="44" height="9" rx="2" fill="#ffb300" stroke="#2b1810" stroke-width="2.2"/><path d="M5 12h54l3 17H2z" fill="#fff3d6"/><path d="M5 12h9.3l-2.3 17H2zM23.6 12h9.3l-.8 17h-9.5zM42.2 12h9.3l3.5 17h-9.6z" fill="#c8372d"/><path d="M5 12h54l3 17H2z" fill="none" stroke="#2b1810" stroke-width="2.5" stroke-linejoin="round"/></svg>';
+  // tablero con visto bueno (misiones)
+  const MISIONES = '<svg viewBox="0 0 64 64"><ellipse cx="32" cy="58" rx="22" ry="3.5" fill="rgba(0,0,0,.35)"/><rect x="11" y="10" width="42" height="48" rx="5" fill="#8a5a30" stroke="#2b1810" stroke-width="2.5"/><rect x="16" y="17" width="32" height="36" rx="2" fill="#fff3d6" stroke="#2b1810" stroke-width="2"/><rect x="22" y="5" width="20" height="11" rx="3" fill="#ffb300" stroke="#2b1810" stroke-width="2.2"/><path d="M22 31l6 6 11-12" fill="none" stroke="#2e9e4f" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 46h20" stroke="#c9b79a" stroke-width="3" stroke-linecap="round"/></svg>';
   const btn = (ic, label, onclick, id, dark) => `<button class="hm-btn hm-plate ${dark ? 'dark' : ''}" onclick="${onclick}">${id ? flag(id) : ''}<span class="ic">${ic}</span><b>${label}</b></button>`;
 
   function ui() {
@@ -228,10 +231,10 @@
       </div>
       <button class="hm-scrim" onclick="Home.menu(false)" aria-label="Cerrar el menú"></button>
       <div class="hm-drop">${MENU.map((m, i) => `<button style="--i:${i}" onclick="Home.item('${m.id}')">${m.flag ? flag(m.flag) : ''}<span class="ic">${m.ic}</span>${m.label}</button>`).join('')}</div>
+      ${tut && window.Servicio ? `<div class="hm-bl">${btn(MISIONES, 'MISIONES', "Servicio.open()", 'misiones', true)}</div>` : ''}
       <div class="hm-br">
-        ${tut && window.Servicio ? `<div class="hm-daily" onclick="Servicio.open()">${Servicio.strip()}${Servicio.summary().chestReady ? '<i class="hm-flag buy">¡COFRE!</i>' : ''}</div>` : ''}
         <div class="hm-row">
-          <button class="hm-mode hm-plate" style="--c:${sel.col}" onclick="Modos.open()" aria-label="Elegir modo de juego"><span class="mi">${sel.icon}</span><span class="mt"><small>${sel.top || 'Modo elegido'}</small><b>${sel.title}</b><em>${sel.sub}</em></span>${sel.tag ? `<span class="mtag">${sel.tag}</span>` : ''}</button>
+          <button class="hm-mode hm-plate" style="--c:${sel.col}" onclick="Modos.open()" aria-label="Elegir modo de juego: ${sel.title}"><span class="mi">${sel.icon}</span><span class="mt"><small>${sel.top || 'Modo elegido'}</small><b>${sel.title}</b></span>${sel.tag ? `<span class="mtag">${sel.tag}</span>` : ''}</button>
           <button class="hm-play ${tut ? '' : 'lock'}" onclick="Home.play()">${tut ? 'JUGAR' : 'EMPEZAR'}</button>
         </div>
       </div>`;
