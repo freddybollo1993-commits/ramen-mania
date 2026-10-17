@@ -1120,9 +1120,10 @@
   .hub-art-wrap {
     flex: 1 1 auto; width: 100%; min-height: 0; position: relative; display: flex;
     align-items: center; justify-content: center; overflow: visible;
-    pointer-events: none; z-index: 1; transition: opacity 0.22s ease, transform 0.22s ease;
+    pointer-events: none; z-index: 1; transition: opacity 0.16s ease;
   }
-  .hub-art-wrap.fade-out { opacity: 0; transform: scale(0.96); }
+  .hub-art-wrap.fade-out { opacity: 0; }
+  .hub-art-scene { display: contents; }
   .hub-art-wrap .h-svg {
     width: auto; height: 100%; max-height: 100%; max-width: 100%; object-fit: contain;
     display: block; filter: drop-shadow(0 4px 16px rgba(0,0,0,0.45));
@@ -1131,10 +1132,9 @@
   /* Tarjeta de Reseña y Acción sobrepuesta - compacta, translúcida y con cocineros animados en el fondo */
   .hub-meta-card {
     position: relative; flex: 0 0 auto; width: 100%; max-width: min(600px, 100%); margin: 0 auto;
-    z-index: 3; background: rgba(18, 8, 4, 0.44); /* Fondo translúcido para apreciar la animación */
+    z-index: 3; background: rgba(18, 8, 4, 0.6); /* translúcido, sin desenfoque: el backdrop-filter sobre un video en movimiento hacía saltar el menú en el celular */
     border: 1.5px solid rgba(255, 204, 80, 0.32); border-radius: 15px; padding: 7px 15px 9px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.45), 0 0 14px rgba(255, 179, 0, 0.08);
-    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
     overflow: hidden; box-sizing: border-box;
     animation: hubCardIn 0.25s cubic-bezier(0.2, 0.9, 0.3, 1);
   }
@@ -1495,7 +1495,7 @@
       const id = closest.dataset.id;
       if (id && S.item !== id) {
         S.item = id;
-        renderShowcase();
+        renderShowcase(true);
         sfx('click');
       }
     }
@@ -1665,18 +1665,40 @@
     bindListScroll();
   }
 
-  function renderShowcase() {
+  // Las escenas vivas (cocina) se crean UNA vez y se conservan ocultas: volver a «Jugar» ya no reconstruye la placa, ni reposiciona los videos
+  // (mover un video lo pausa y volvía a verse la foto) ni vuelve a decodificar las imágenes. El resto de ilustraciones (SVG) son livianas y se reemplazan.
+  function swapArt(id) {
+    if (!S || !S.artWrap) return;
+    let next;
+    if (window.EscenaCocina && EscenaCocina.has(id)) {
+      S.scenes = S.scenes || {};
+      if (!S.scenes[id]) { const d = document.createElement('div'); d.className = 'hub-art-scene'; d.innerHTML = getArtworkSvg(id); S.scenes[id] = d; }
+      next = S.scenes[id];
+    } else {
+      next = document.createElement('div'); next.className = 'hub-art-scene'; next.innerHTML = getArtworkSvg(id);
+    }
+    if (S.artCur === next) return;
+    S.artWrap.classList.add('fade-out');
+    clearTimeout(S.artFade);
+    S.artFade = setTimeout(() => {
+      if (!S) return;
+      const prev = S.artCur;
+      if (prev && prev !== next) { if (S.scenes && Object.values(S.scenes).includes(prev)) prev.style.display = 'none'; else prev.remove(); }
+      if (next.parentNode !== S.artWrap) S.artWrap.appendChild(next);
+      next.style.display = '';
+      S.artCur = next;
+      S.artWrap.classList.remove('fade-out');
+    }, 110);
+  }
+
+  function renderShowcase(fromScroll) {
     if (!S) return;
     const it = getItemData(S.item);
     if (!it) return;
 
-    // Transición suave de la ilustración viva
-    S.artWrap.classList.add('fade-out');
-    setTimeout(() => {
-      if (!S) return;
-      S.artWrap.innerHTML = getArtworkSvg(it.id);
-      S.artWrap.classList.remove('fade-out');
-    }, 120);
+    // Ilustración viva: al pasar la lista con el dedo solo se cambia cuando el scroll se asienta (una vez por gesto, no por cada opción que se cruza)
+    clearTimeout(S.artT);
+    if (fromScroll) S.artT = setTimeout(() => swapArt(it.id), 150); else swapArt(it.id);
 
     // Render de la tarjeta meta (en la capa frontal sobre el fondo de cocineros)
     const isLocked = it.reqTut && !tutDone();
