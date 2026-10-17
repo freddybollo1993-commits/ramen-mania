@@ -55,11 +55,12 @@
   /* abajo a la izquierda */
   .hm-bl { position: absolute; left: max(.8em, env(safe-area-inset-left)); bottom: calc(max(.6em, env(safe-area-inset-bottom)) + 1.5em); display: flex; gap: .6em; align-items: flex-end; }
   /* MISIONES: placa ancha con el tablero grande saliendo por arriba y el avance (3/3) como etiqueta naranja */
-  .hm-mis { position: relative; display: flex; align-items: center; width: 15em; height: 4.4em; padding: 0 .7em 0 6.6em; }
-  .hm-mis .mic { position: absolute; left: .35em; bottom: .15em; width: 6.4em; height: 6.4em; filter: drop-shadow(0 .1em 0 #120905) drop-shadow(0 .15em .2em rgba(0,0,0,.5)); } .hm-mis .mic svg { width: 100%; height: 100%; display: block; }
-  .hm-mis b { font: 900 1.4em/1 'Fredoka', sans-serif; color: #fff; text-shadow: 0 .08em 0 #000, 0 0 .3em rgba(0,0,0,.6); letter-spacing: .2px; }
+  .hm-mis, .hm-mode, .hm-go { font-size: calc(var(--u) * 1.15); }       /* los botones traen 13 px por defecto: se fija su escala con la de la pantalla */
+  .hm-mis { position: relative; display: flex; align-items: center; width: 11.2em; height: 4.4em; padding: 0 .6em 0 5.3em; }
+  .hm-mis .mic { position: absolute; left: .3em; bottom: .12em; width: 5em; height: 5em; filter: drop-shadow(0 .08em 0 #120905) drop-shadow(0 .12em .15em rgba(0,0,0,.5)); } .hm-mis .mic svg { width: 100%; height: 100%; display: block; }
+  .hm-mis b { font: 900 1.15em/1 'Fredoka', sans-serif; color: #fff; text-shadow: 0 .08em 0 #000, 0 0 .3em rgba(0,0,0,.6); letter-spacing: .2px; }
   .hm-mis.all { box-shadow: 0 0 1.1em rgba(255,179,0,.7), 0 .25em 0 rgba(0,0,0,.55), inset 0 .1em 0 rgba(255,255,255,.14); }
-  .hm-mis .mbadge { position: absolute; top: -.8em; right: .6em; padding: .08em .55em; border-radius: 1em; border: .12em solid #fff3d0; background: linear-gradient(#ffa726, #f57c00); color: #fff; font: 900 1.05em/1.15 'Fredoka', sans-serif; text-shadow: 0 .08em 0 rgba(0,0,0,.45); box-shadow: 0 .15em 0 #8a4b00; pointer-events: none; } .hm-mis .mbadge.buy { background: linear-gradient(#66bb6a, #2e7d32); box-shadow: 0 .15em 0 #14532d; }
+  .hm-mis .mbadge { position: absolute; top: -.75em; right: .45em; padding: .06em .5em; border-radius: 1em; border: .1em solid #fff3d0; background: linear-gradient(#ffa726, #f57c00); color: #fff; font: 900 .9em/1.15 'Fredoka', sans-serif; text-shadow: 0 .08em 0 rgba(0,0,0,.45); box-shadow: 0 .12em 0 #8a4b00; pointer-events: none; } .hm-mis .mbadge.buy { background: linear-gradient(#66bb6a, #2e7d32); box-shadow: 0 .12em 0 #14532d; }
   .hm-mini { position: relative; display: flex; align-items: center; gap: .5em; padding: .45em .8em .45em .5em; text-align: left; }
   .hm-mini .ic { font-size: 2.2em; line-height: 1; } .hm-mini b { display: block; font: 900 1.05em/1.05 'Fredoka', sans-serif; color: #ffe082; text-shadow: 0 .1em 0 #000; } .hm-mini small { display: block; font: 800 .85em 'Fredoka', sans-serif; color: #d6c4a4; }
   /* abajo a la derecha */
@@ -67,16 +68,16 @@
 
 
   .hm-row { display: flex; align-items: flex-end; gap: .6em; }
-  .hm-mode { position: relative; display: flex; flex-direction: column; align-items: stretch; width: 15.4em; padding: 0; border: 0; background: none; text-align: left; }
-  .hm-mode .mh, .hm-go .mh { display: block; text-align: center; padding: .3em .5em .25em; border-radius: .7em .7em 0 0; background: #0e0805; color: #e9d5b0; font: 800 .74em/1.1 'Fredoka', sans-serif; letter-spacing: .9px; text-transform: uppercase; }
-  .hm-mode .mp { display: flex; align-items: stretch; height: 5.2em; border-radius: 0 0 .8em .8em; overflow: hidden; }
-  .hm-mode .mi { flex: none; width: calc(var(--u) * 4.9); display: flex; align-items: center; justify-content: center; font-size: 2.5em; background: radial-gradient(circle at 40% 35%, var(--c, #ff9800), #1e100a 95%); }
-  .hm-mode .mt { flex: 1; min-width: 0; padding: .3em .6em; display: flex; flex-direction: column; justify-content: center; gap: .05em; }
-  .hm-mode small { font: 800 .8em 'Fredoka', sans-serif; color: #b9a98c; line-height: 1.1; } .hm-mode b { font: 900 1.7em/1 'Fredoka', sans-serif; color: #fff; text-shadow: 0 .08em 0 #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .hm-mode .mtag { position: absolute; top: 1.7em; right: .45em; padding: .12em .5em; border-radius: .6em; border: .12em solid #120905; background: #ffd24a; color: #2b1808; font: 900 .68em/1.2 'Fredoka', sans-serif; white-space: nowrap; box-shadow: 0 .15em 0 rgba(0,0,0,.5); }
-  .hm-go { display: flex; flex-direction: column; align-items: stretch; width: 12.5em; padding: 0; border: 0; background: none; text-align: center; }
-  .hm-go .mp { display: flex; align-items: stretch; height: 5.2em; padding: .4em; border-radius: 0 0 .8em .8em; }
-  .hm-play { flex: 1; display: flex; align-items: center; justify-content: center; border: .1em solid #fff0a8; border-radius: .55em; background: linear-gradient(#ffe45c, #f5b800 55%, #e0a000); box-shadow: inset 0 .12em 0 rgba(255,255,255,.5), inset 0 -.18em 0 rgba(0,0,0,.2); color: #2b1808; font: 400 2.5em/1 'Fredoka One', 'Fredoka', sans-serif; letter-spacing: .5px; text-shadow: 0 .06em 0 rgba(255,255,255,.4); }
+  .hm-mode { position: relative; display: flex; align-items: stretch; width: 12.6em; padding: 0; border: 0; background: none; text-align: left; }
+
+  .hm-mode .mp, .hm-go .mp { display: flex; align-items: stretch; width: 100%; height: 4.4em; border-radius: .8em; overflow: hidden; }
+  .hm-mode .mi { flex: none; width: calc(var(--u) * 3.9); display: flex; align-items: center; justify-content: center; font-size: 2em; background: radial-gradient(circle at 40% 35%, var(--c, #ff9800), #1e100a 95%); }
+  .hm-mode .mt { flex: 1; min-width: 0; padding: .2em .5em; display: flex; flex-direction: column; justify-content: center; gap: .02em; }
+  .hm-mode small { font: 800 .62em 'Fredoka', sans-serif; color: #c9b79a; line-height: 1.1; letter-spacing: .5px; text-transform: uppercase; white-space: nowrap; } .hm-mode b { font: 900 1.3em/1 'Fredoka', sans-serif; color: #fff; text-shadow: 0 .08em 0 #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hm-mode .mtag { position: absolute; top: -.7em; right: .4em; padding: .1em .45em; border-radius: .6em; border: .1em solid #120905; background: #ffd24a; color: #2b1808; font: 900 .62em/1.2 'Fredoka', sans-serif; white-space: nowrap; box-shadow: 0 .12em 0 rgba(0,0,0,.5); }
+  .hm-go { display: flex; align-items: stretch; width: 9em; padding: 0; border: 0; background: none; text-align: center; }
+  .hm-go .mp { padding: .3em; }
+  .hm-play { flex: 1; display: flex; align-items: center; justify-content: center; border: .08em solid #fff0a8; border-radius: .55em; background: linear-gradient(#ffe45c, #f5b800 55%, #e0a000); box-shadow: inset 0 .1em 0 rgba(255,255,255,.5), inset 0 -.15em 0 rgba(0,0,0,.2); color: #2b1808; font: 400 1.9em/1 'Fredoka One', 'Fredoka', sans-serif; letter-spacing: .4px; text-shadow: 0 .05em 0 rgba(255,255,255,.4); }
   .hm-go:active { transform: translateY(.15em); }
   .hm-play.lock { filter: saturate(.7); }
   /* menú ☰: lista desplegable a la derecha que no tapa la escena; las columnas y el botón JUGAR se apartan mientras está abierto */
@@ -111,7 +112,7 @@
   .hp-news b { font: 900 13px 'Fredoka', sans-serif; color: #fff3d6; } .hp-news em { font: 900 10px 'Fredoka', sans-serif; font-style: normal; background: #e53935; color: #fff; border-radius: 6px; padding: 1px 6px; margin-left: 6px; } .hp-news p { margin: 2px 0 0; font: 700 12px/1.35 'Fredoka', sans-serif; color: #c9b79a; }
   .hp-empty { text-align: center; color: #a98c68; font: 700 13px 'Fredoka', sans-serif; padding: 30px 10px; }
   @media (max-height: 340px) { .hm-col { gap: .7em; top: 5em; } .hm-btn .ic { font-size: 3em; } }
-  @media (max-aspect-ratio: 16/10) { .hm-mode { width: 13.5em; } .hm-go { width: 11em; } .hm-mis { width: 13.5em; } }
+  @media (max-aspect-ratio: 16/10) { .hm-mode { width: 11.5em; } .hm-go { width: 8em; } .hm-mis { width: 10.5em; } }
   @media (prefers-reduced-motion: reduce) { .hm-flag { animation: none; } }
   `;
   function css() { if ($('hm-css')) return; const s = document.createElement('style'); s.id = 'hm-css'; s.textContent = CSS; document.head.appendChild(s); }
@@ -120,6 +121,7 @@
   const MENU = [
     { id: 'ajustes', ic: '⚙️', label: 'AJUSTES', flag: 'sound' },
     { id: 'stats', ic: '📊', label: 'ESTADÍSTICAS' },
+    { id: 'novedades', ic: '📣', label: 'NOVEDADES', news: true },
     { id: 'registro', ic: '📜', label: 'REGISTRO DE SERVICIO' },
     { id: 'cuenta', ic: '👤', label: 'MI CUENTA Y NUBE' },
     { id: 'ayuda', ic: '❓', label: 'AYUDA Y ATAJOS' },
@@ -228,7 +230,7 @@
         <button class="hm-prog hm-plate" onclick="Inicio.act('camp')" aria-label="Progreso de Campaña"><span>⭐ ${cs.stars}/${cs.maxStars}</span><i class="hm-bar"><u style="width:${pct}%"></u></i><small>Campaña · nivel ${L} de 20</small></button>
         <span class="hm-gap"></span>
         <button class="hm-cur hm-plate" onclick="Inicio.act('knives')" aria-label="Propinas"><i>🧧</i><span class="hm-wallet">${h.wallet()}</span></button>
-        <button class="hm-menu hm-plate" onclick="Home.menu()" aria-label="Menú">☰${flag('sound')}</button>
+        <button class="hm-menu hm-plate" onclick="Home.menu()" aria-label="Menú">☰${flag('sound') || newsFlag()}</button>
       </div>
       <div class="hm-col l">
         ${btn('📖', 'RECETARIO', "Recetario.open()", 'book')}
@@ -236,16 +238,15 @@
         ${btn('🎓', 'APRENDER', "Modos.learn()", 'aprender', true)}
       </div>
       <div class="hm-col r">
-        ${btn('📣', 'NOVEDADES', "Home.novedades()", null, true).replace('<span class="ic">', newsFlag() + '<span class="ic">')}
         ${btn('🏆', 'RANKING', "Inicio.act('board')", null, true)}
       </div>
       <button class="hm-scrim" onclick="Home.menu(false)" aria-label="Cerrar el menú"></button>
-      <div class="hm-drop">${MENU.map((m, i) => `<button style="--i:${i}" onclick="Home.item('${m.id}')">${m.flag ? flag(m.flag) : ''}<span class="ic">${m.ic}</span>${m.label}</button>`).join('')}</div>
+      <div class="hm-drop">${MENU.map((m, i) => `<button style="--i:${i}" onclick="Home.item('${m.id}')">${m.flag ? flag(m.flag) : (m.news ? newsFlag() : '')}<span class="ic">${m.ic}</span>${m.label}</button>`).join('')}</div>
       ${tut && window.Servicio ? (() => { const al = h.alertOf('misiones'), sm = Servicio.summary(); return `<div class="hm-bl"><button class="hm-mis hm-plate ${sm.done === sm.total ? 'all' : ''}" onclick="Servicio.open()" aria-label="Misiones"><span class="mic">${MISIONES}</span><b>MISIONES</b>${al ? `<i class="mbadge ${al.k}">${al.t}</i>` : ''}</button></div>`; })() : ''}
       <div class="hm-br">
         <div class="hm-row">
-          <button class="hm-mode" style="--c:${sel.col}" onclick="Modos.open()" aria-label="Elegir modo de juego: ${sel.title}"><span class="mh">Modos de juego</span><span class="mp hm-plate"><span class="mi">${sel.icon}</span><span class="mt"><small>${sel.top || 'Modo elegido'}</small><b>${sel.title}</b></span></span>${sel.tag ? `<span class="mtag">${sel.tag}</span>` : ''}</button>
-          <button class="hm-go" onclick="Home.play()" aria-label="${tut ? 'Jugar' : 'Empezar'}"><span class="mh">${tut ? 'Comenzar' : 'Primera lección'}</span><span class="mp hm-plate"><span class="hm-play ${tut ? '' : 'lock'}">${tut ? 'JUGAR' : 'EMPEZAR'}</span></span></button>
+          <button class="hm-mode" style="--c:${sel.col}" onclick="Modos.open()" aria-label="Elegir modo de juego: ${sel.title}"><span class="mp hm-plate"><span class="mi">${sel.icon}</span><span class="mt"><small>Modos de juego</small><b>${sel.title}</b></span></span>${sel.tag ? `<span class="mtag">${sel.tag}</span>` : ''}</button>
+          <button class="hm-go" onclick="Home.play()" aria-label="${tut ? 'Jugar' : 'Empezar'}"><span class="mp hm-plate"><span class="hm-play ${tut ? '' : 'lock'}">${tut ? 'JUGAR' : 'EMPEZAR'}</span></span></button>
         </div>
       </div>`;
   }
@@ -274,6 +275,7 @@
       try {
         if (id === 'ajustes') ajustes();
         else if (id === 'stats') Inicio.act('stats');
+        else if (id === 'novedades') novedades();
         else if (id === 'registro') registro();
         else if (id === 'cuenta') Inicio.act('acct');
         else if (id === 'ayuda') Inicio.act('keys');
