@@ -112,6 +112,7 @@
   ];
   // lo último que cambió, en lenguaje del jugador (lo más nuevo primero)
   const NEWS = [
+    ['v192', '🛤️', 'Retos en el mapa', 'Cada nivel de la Campaña tiene ahora un caminito que parte de su linterna con sus retos: toca una ficha para ver el reto y empezarlo. Se abren al superar el nivel.'],
     ['v190', '🎫', 'Retos dentro de la Campaña', 'Los 50 retos ahora son subniveles: se abren al superar el nivel de Campaña donde ya conoces sus platos. Míralos en el mapa (botón 🎫 Retos de cada nivel).'],
     ['v189', '⚙️', 'Ajustes nuevos', 'Sonido y música, silenciar, pantalla completa, orden de ingredientes y datos del dispositivo ahora están en el menú ☰ → Ajustes. Desaparece la pantalla vieja de configuración.'],
     ['v187', '🗝️', 'Secretos del Chef', 'Mejoras y secretos en un solo lugar, todo con propinas: pasivas que se activan al comprarlas y 6 técnicas activas (llevas 3 a la vez, se equipan desde tu Perfil). Cocina libre y Reconocer pasan a los modos de juego como «Sin estrés».'],
