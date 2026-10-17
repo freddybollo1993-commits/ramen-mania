@@ -34,6 +34,19 @@ const TRN_RAMEN = ['Shio', 'Shoyu', 'Miso', 'Chashu', 'Tonkotsu', 'Tan tan', 'Eb
 const TRN_SAL = ['Yakimeshi', 'Chicken Teriyaki', 'Chaufa Shimaya', 'Yakitori', 'Yakiramen', 'Yasaitame', 'Batayaki Ramen', 'Karameshi', 'Omuraisu'];
 const TRN_MAKI = ['Maki California', 'Maki Guacamole', 'Maki Acevichado', 'Maki Hotate', 'Maki Amazon', 'Maki Yama', 'Maki Nin Niku', 'Maki Digion'];
 const TRN_FRY = ['Alitas Acevichadas', 'Alitas Digión', 'Kaarage', 'Tonkatsu', 'Chicken Katsu', 'Katsu Kare', 'Ebi Furai', 'Age Gyozas'];
+// Cada reto es un subnivel de la Campaña: se abre al superar el nivel indicado, que es donde ya se conocen sus platos y su técnica
+// (así no choca con la línea de aprendizaje). Dentro de un nivel van de menos a más difíciles.
+const TRAINING_LEVEL = {
+  c01: 1, c02: 2, c03: 3, c04: 3, c05: 4,
+  c08: 5, c09: 6, c10: 7, c12: 7, c11: 8, c13: 8, c14: 8,
+  c15: 9, c16: 10, c17: 11, c18: 11, c19: 12, c20: 12, c21: 12,
+  c22: 13, c23: 13, c24: 14, c25: 15,
+  c26: 16, c27: 16, c28: 16, c06: 16,
+  c29: 17, c30: 17, c31: 17, c32: 17,
+  c33: 18, c34: 18, c35: 18, c40: 18, c41: 18,
+  c36: 19, c37: 19, c38: 19, c42: 19, c44: 19, c07: 19,
+  c39: 20, c43: 20, c45: 20, c46: 20, c47: 20, c48: 20, c49: 20, c50: 20
+};
 // c = id, ch = capítulo, r = pedidos exigidos por área, M = clientes a la vez, O = pedidos por cliente,
 // spawn = segundos entre clientes, pm = multiplicador de paciencia, reward = propinas (medalla de oro)
 const TRAINING_CHALLENGES = [
@@ -98,11 +111,21 @@ const TRAINING_CHALLENGES = [
   { id: 'c48', ch: 'maestria', title: 'El Gran Banquete Shimaya', r: { ramen: 8, salteados: 8, makis: 8, frituras: 8 }, minStars: 2, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 4, O: 3, spawn: 3.4, pm: 1.2, reward: 1160, unlocks: [] },
   { id: 'c49', ch: 'maestria', title: 'Sinfonía Culinaria Impecable', r: { ramen: 6, salteados: 6, makis: 6, frituras: 6 }, minStars: 3, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 4, O: 3, spawn: 3.4, pm: 1.2, reward: 1320, unlocks: [] },
   { id: 'c50', ch: 'maestria', title: 'Leyenda Viviente del Sol Naciente', r: { ramen: 7, salteados: 7, makis: 7, frituras: 7 }, minStars: 3, pool: { ramen: TRN_RAMEN, salteados: TRN_SAL, makis: TRN_MAKI, frituras: TRN_FRY }, M: 4, O: 3, spawn: 3.2, pm: 1.1, reward: 1500, unlocks: [] }
-].map((c, i) => ({ ...c, num: i + 1, index: i, reqs: Object.entries(c.r).map(([area, n]) => ({ area, n })) }));
+].map((c, i) => ({ ...c, num: i + 1, index: i, lvl: TRAINING_LEVEL[c.id] || 1, reqs: Object.entries(c.r).map(([area, n]) => ({ area, n })) }));
 const TRAINING_BY_ID = Object.fromEntries(TRAINING_CHALLENGES.map(c => [c.id, c]));
 const TRAINING_SEC = { ramen: 20, salteados: 22, makis: 24, frituras: 38 };   // segundos por pedido (jugador que ya conoce el juego)
 const TRAINING_MEDAL_SHARE = [0, 0.6, 0.85, 1];
 
+const TRAINING_AREA_FIRST = { salteados: 5, makis: 9, frituras: 13 };
+function trainingDishLevel(area, name) {
+  if (area === 'ramen') { const n = NIVELES.find(x => (x.ramen_names || []).includes(name)); return n ? n.level : 1; }
+  const d = ((typeof AREA_DISH_UNLOCKS !== 'undefined' && AREA_DISH_UNLOCKS[area]) || []).find(x => x[0] === name);
+  return d ? d[1] : (TRAINING_AREA_FIRST[area] || 1);
+}
+function trainingPoolNames(ch, area) {
+  const all = ch.pool[area] || [], ok = all.filter(n => trainingDishLevel(area, n) <= ch.lvl);
+  return ok.length ? ok : all;
+}
 const isTraining = () => gameState.gameMode === 'TRAINING' && !!gameState.training && !gameState.isGameOver;
 
 function trainingTotal(ch) { return ch.reqs.reduce((t, r) => t + r.n, 0); }
@@ -115,10 +138,22 @@ function trainingMedalIcon(m) { return ['', '🥉', '🥈', '🥇'][m] || ''; }
 function formatTrainingTime(sec) { sec = Math.max(0, Math.round(sec)); return `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`; }
 
 function trainingProgressOf(id) { loadAccountProgressLocal(); return (accountProgress.training || {})[id] || null; }
-function trainingIsOpen(ch) { return ch.index === 0 || ((trainingProgressOf(TRAINING_CHALLENGES[ch.index - 1].id) || {}).m || 0) > 0; }
+function trainingLevelBeaten(lvl) { try { const l = (loadCampaignProgress().levels || {})[String(lvl)]; return !!(l && (l.stars || 0) >= 1); } catch (e) { return false; } }
+function trainingOfLevel(lvl) { return TRAINING_CHALLENGES.filter(c => c.lvl === lvl); }
+// Un reto se abre al superar su nivel de Campaña (los que ya se completaron antes siguen abiertos).
+function trainingIsOpen(ch) { return trainingLevelBeaten(ch.lvl) || ((trainingProgressOf(ch.id) || {}).m || 0) > 0; }
 function trainingDoneCount() { return TRAINING_CHALLENGES.filter(c => (trainingProgressOf(c.id) || {}).m > 0).length; }
 function trainingMedalCount(m) { return TRAINING_CHALLENGES.filter(c => (trainingProgressOf(c.id) || {}).m === m).length; }
-function trainingNextChallenge() { return TRAINING_CHALLENGES.find(c => !((trainingProgressOf(c.id) || {}).m > 0)) || null; }
+function trainingNextChallenge() { return TRAINING_CHALLENGES.find(c => trainingIsOpen(c) && !((trainingProgressOf(c.id) || {}).m > 0)) || null; }
+// Nivel de la Campaña donde conviene abrir la lista de retos: el del siguiente reto disponible o, si no hay, el del primero pendiente.
+function trainingFocusLevel() { const n = trainingNextChallenge() || TRAINING_CHALLENGES.find(c => !((trainingProgressOf(c.id) || {}).m > 0)); return n ? n.lvl : 20; }
+// Abre el mapa de Campaña con los retos del nivel (desde el final de un nivel, la pantalla principal o el resultado de un reto).
+function openLevelRetos(lvl) {
+  const em = document.getElementById('level-end-modal'); if (em) em.classList.remove('active');
+  const rm = document.getElementById('training-result-modal'); if (rm) rm.classList.remove('active');
+  try { if (typeof returnToStartMenu === 'function' && gameState && gameState.isGameOver) returnToStartMenu(); } catch (e) {}
+  if (window.CampMapa) CampMapa.retos(lvl || trainingFocusLevel()); else openTrainingModal();
+}
 
 // Funciones de la cocina abiertas por los retos ya completados.
 function trainingFeaturesUnlocked() {
@@ -126,22 +161,19 @@ function trainingFeaturesUnlocked() {
   TRAINING_CHALLENGES.forEach(c => { if ((trainingProgressOf(c.id) || {}).m > 0) c.unlocks.forEach(f => set.add(f)); });
   return set;
 }
-function trainingFeature(id) {
-  if (!isTraining()) return true;
-  return trainingFeaturesUnlocked().has(id);
-}
+function trainingFeature(id) { return true; }   // los retos son subniveles de la Campaña: ya se aprendió lo necesario antes de abrirlos
 const bowlLimit = () => Math.min(stagedOn('ramen') ? 2 : 3, !isTraining() ? 3 : (trainingFeature('bowls3') ? 3 : (trainingFeature('bowls2') ? 2 : 1)));   // con etapas el ramen usa 2 cuencos
 const wokLimit = () => (!isTraining() ? 2 : (trainingFeature('wok2') ? 2 : 1));
 
 function trainingPoolRecipes(ch, area) {
   const cat = area === 'ramen' ? RECETAS_RAMEN : AREA_CATALOGS[area];
-  return (ch.pool[area] || []).map(n => cat.find(r => r.name === n)).filter(Boolean);
+  return trainingPoolNames(ch, area).map(n => cat.find(r => r.name === n)).filter(Boolean);
 }
 
 function trainingConfig() {
   const ch = gameState.training.challenge;
   return { level: ch.num, name: ch.title, customers: 999, base_patience: 60, max_orders: ch.O, max_customers: ch.M,
-    ramen_names: ch.pool.ramen || [], spawn_time: ch.spawn, patience_mult: ch.pm };
+    ramen_names: ch.pool.ramen ? trainingPoolNames(ch, 'ramen') : [], spawn_time: ch.spawn, patience_mult: ch.pm };
 }
 
 function trainingObjectiveText(ch) {
@@ -229,13 +261,14 @@ function trainingRecord(ch, time) {
   accountPushSoon(true);
   const unlockedNow = [...trainingFeaturesUnlocked()].filter(f => !featuresBefore.has(f));
   return { challenge: ch, time, par, medal, prevBest: prev.t || 0, best, improved: !!prev.t && time < prev.t, firstTime: !prev.m,
-    medalUp: medal > (prev.m || 0), reward, unlocked: unlockedNow, next: TRAINING_CHALLENGES[ch.index + 1] || null };
+    medalUp: medal > (prev.m || 0), reward, unlocked: unlockedNow, next: trainingOfLevel(ch.lvl).find(c => c.index > ch.index) || null };
 }
 
 function startTrainingChallenge(id) {
   const ch = TRAINING_BY_ID[id];
   if (!ch || !trainingIsOpen(ch)) return;
   closeTrainingModal();
+  try { if (window.CampMapa) CampMapa.close(); } catch (e) {}
   const rm = document.getElementById('training-result-modal'); if (rm) rm.classList.remove('active');
   startSelectedMode = 'TRAINING';
   gameState.training = { challenge: ch, counts: {}, done: false };
@@ -247,6 +280,7 @@ let trainingView = { mode: 'list', id: null };
 let trainingOnly = null;   // lista de capítulos a mostrar (desde un área del local); null = todos
 
 function openTrainingModal(id, only) {
+  if (!id && window.CampMapa) { CampMapa.retos(trainingFocusLevel()); return; }      // los retos son subniveles de la Campaña
   trainingOnly = (only && only.length) ? only : null;
   trainingView = id ? { mode: 'brief', id } : { mode: 'list', id: null };
   renderTrainingHub();
@@ -342,8 +376,8 @@ function trainingBriefHtml(ch) {
   const par = trainingPar(ch);
   const reqs = ch.reqs.map(r => `<li>${AREA_ICONS[r.area]} Sirve <b>${r.n}</b> ${trnWordArea(r.area)}</li>`).join('') +
     (ch.minStars ? `<li>⭐ Cada plato debe llegar a <b>${ch.minStars} estrella(s)</b> o más para contar</li>` : '');
-  const dishes = Object.entries(ch.pool).map(([a, names]) => `<div class="trn-dishes">${AREA_ICONS[a]} ${names.join(', ')}</div>`).join('');
-  const unlocks = ch.unlocks.length ? `<div class="trn-unlock">🔓 Al completarlo: ${ch.unlocks.map(f => TRAINING_FEATURES[f].icon + ' ' + TRAINING_FEATURES[f].name).join(' · ')}</div>` : '';
+  const dishes = Object.keys(ch.pool).map(a => `<div class="trn-dishes">${AREA_ICONS[a]} ${trainingPoolNames(ch, a).join(', ')}</div>`).join('');
+  const unlocks = `<div class="trn-unlock">🏮 Subnivel del nivel ${ch.lvl} de la Campaña</div>`;
   const rw = [1, 2, 3].map(m => `${trainingMedalIcon(m)} ${Math.round(ch.reward * TRAINING_MEDAL_SHARE[m])}`).join(' · ');
   const hist = p.t ? `<div class="trn-hist">Tu mejor: <b>${formatTrainingTime(p.t)}</b> ${trainingMedalIcon(p.m)} · Último: ${formatTrainingTime(p.l)} · Intentos: ${p.n || 1}</div>` : '<div class="trn-hist">Aún no lo has completado.</div>';
   return `
@@ -373,7 +407,7 @@ function showTrainingResult(res) {
   else if (delta === 0) cmp = `= Igualaste tu mejor tiempo (${formatTrainingTime(res.best)})`;
   else cmp = `<span class="trn-down">▲ +${formatTrainingTime(delta)} sobre tu mejor (${formatTrainingTime(res.best)})</span>`;
   const tips = res.reward > 0 ? `🧧 <b>+${res.reward}</b> propinas${res.medalUp && !res.firstTime ? ' por subir de medalla' : ''}` : '🧧 Sin propinas nuevas: sube de medalla para cobrar más';
-  const unl = res.unlocked.length ? `<div class="trn-unlock">🔓 ¡Desbloqueaste! ${res.unlocked.map(f => TRAINING_FEATURES[f].icon + ' ' + TRAINING_FEATURES[f].name).join(' · ')}</div>` : '';
+  const unl = '';
   const nextOpen = res.next && trainingIsOpen(res.next);
   const body = document.getElementById('trn-result-body');
   body.innerHTML = `
@@ -386,14 +420,13 @@ function showTrainingResult(res) {
     <div class="acc-row" style="justify-content:center;margin-top:8px;">
       ${nextOpen ? `<button class="acc-btn" onclick="startTrainingChallenge('${res.next.id}')">▶ Siguiente: ${res.next.title}</button>` : ''}
       <button class="acc-btn alt" onclick="startTrainingChallenge('${ch.id}')">↻ Repetir</button>
-      <button class="acc-btn alt" onclick="trainingResultToList()">☰ Lista de retos</button>
+      <button class="acc-btn alt" onclick="trainingResultToList()">🏮 Retos del nivel ${ch.lvl}</button>
     </div>`;
   const m = document.getElementById('training-result-modal');
   m.style.display = '';
   m.classList.add('active');
 }
 function trainingResultToList() {
-  document.getElementById('training-result-modal').classList.remove('active');
-  returnToStartMenu();
-  openTrainingModal();
+  const ch = (gameState.training || {}).challenge;
+  openLevelRetos(ch ? ch.lvl : trainingFocusLevel());
 }

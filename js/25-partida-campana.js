@@ -531,6 +531,7 @@ function winLevel() {
       <div style="font-size:12.5px; font-weight:800; color:#3e2723; margin:4px 0;">${starDesc}</div>
       <div style="font-size:11px; color:#5d4037;">Meta base: S/ ${th.star1} · 2★: S/ ${th.star2} · 3★: S/ ${th.star3}</div>
       ${bonusTips > 0 ? `<div style="font-size:11.5px; font-weight:900; color:#e65100; margin-top:4px;">🧧 +${bonusTips} propinas conseguidas por tus nuevas estrellas</div>` : ''}
+      ${(() => { try { const rl = trainingOfLevel(lvlNum); if (!rl.length) return ''; const dn = rl.filter(c => (trainingProgressOf(c.id) || {}).m > 0).length; return `<div style="font-size:12px; font-weight:900; color:#00695c; margin-top:5px;">🎫 ${rec.prevStars === 0 ? '¡Se abrieron ' + rl.length + ' reto' + (rl.length > 1 ? 's' : '') + ' de este nivel!' : 'Retos de este nivel: ' + dn + '/' + rl.length}</div><button class="acc-btn alt" style="margin-top:4px;" onclick="openLevelRetos(${lvlNum})">🎫 Ver retos del nivel</button>`; } catch (e) { return ''; } })()}
     `;
     title.style.color = "#2e7d32";
 

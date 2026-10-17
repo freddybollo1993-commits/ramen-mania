@@ -69,6 +69,21 @@
     .cm-chip.new { background: rgba(255, 179, 0, .2); border-color: rgba(255, 179, 0, .65); color: #ffd978; }
     .cm-sheet .cm-acts { flex: none; display: flex; flex-direction: column; gap: 5px; align-items: stretch; }
     .cm-sheet .cm-lock { color: #b9c0c9; font-weight: 800; font-size: 13px; }
+    .cm-rt { display: block; margin-top: 1px; font-size: 10px; font-weight: 900; color: #7fe0d0; text-shadow: 0 1px 2px #000; white-space: nowrap; }
+    .cm-sheet .cm-acts .cm-row { display: flex; gap: 5px; } .cm-sheet .cm-acts .cm-row .cm-btn { flex: 1; padding-left: 8px; padding-right: 8px; white-space: nowrap; }
+    .cm-btn.teal { background: linear-gradient(#26a69a, #00796b); color: #fff; }
+    .cmr { position: fixed; inset: 0; z-index: 9050; display: flex; flex-direction: column; background: linear-gradient(#0f1f1c, #14262a 55%, #1c1410); font-family: 'Fredoka', 'Fredoka One', system-ui, sans-serif; color: #ffe9b0; }
+    .cmr-top { flex: none; display: flex; align-items: center; gap: 8px; padding: 6px max(10px, env(safe-area-inset-right)) 6px max(10px, env(safe-area-inset-left)); background: rgba(8, 20, 18, .9); border-bottom: 2px solid #0a1412; }
+    .cmr-top h1 { margin: 0; font: 400 16px 'Fredoka One', cursive, system-ui; color: #8ff0e0; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cmr-body { flex: 1; min-height: 0; overflow-y: auto; padding: 8px max(12px, env(safe-area-inset-right)) 12px max(12px, env(safe-area-inset-left)); -webkit-overflow-scrolling: touch; }
+    .cmr-note { background: rgba(255, 179, 0, .14); border: 1.5px solid rgba(255, 179, 0, .5); color: #ffd978; border-radius: 10px; padding: 6px 10px; font: 800 12px 'Fredoka', sans-serif; margin-bottom: 8px; }
+    .cmr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 7px; }
+    .cmr-card { display: flex; align-items: center; gap: 9px; background: rgba(0, 0, 0, .32); border: 2px solid rgba(255, 255, 255, .13); border-radius: 12px; padding: 7px 9px; }
+    .cmr-card.done { border-color: rgba(255, 207, 46, .55); } .cmr-card.next { border-color: #26a69a; box-shadow: 0 0 10px rgba(38, 166, 154, .45); } .cmr-card.locked { opacity: .55; }
+    .cmr-card .n { flex: none; width: 30px; height: 30px; border-radius: 9px; background: rgba(255, 255, 255, .1); display: flex; align-items: center; justify-content: center; font: 400 14px 'Fredoka One', cursive, system-ui; }
+    .cmr-card .t { flex: 1; min-width: 0; display: flex; flex-direction: column; } .cmr-card b { font: 900 13px/1.15 'Fredoka', sans-serif; color: #fff3d6; }
+    .cmr-card small { font: 700 11px/1.3 'Fredoka', sans-serif; color: #b7c9c4; } .cmr-card em { font: 800 11px 'Fredoka', sans-serif; font-style: normal; color: #ffd978; margin-top: 1px; }
+    .cmr-card .cm-btn { flex: none; padding: 5px 11px; }
     @keyframes cmSpr { to { background-position-x: -512px; } }
     @keyframes cmPulse { from { box-shadow: 0 0 10px rgba(255, 170, 60, .5); } to { box-shadow: 0 0 26px rgba(255, 200, 80, .95); } }
     /* presentación del Maestro */
@@ -105,6 +120,31 @@
   // ---------- mapa ----------
   function nodePos(lvl) { const a = arcOf(lvl), k = CAMPAIGN_ARCS[a].levels.indexOf(lvl); return { x: a * SEC + NODE_X0 + k * NODE_DX, y: NODE_Y[k] }; }
 
+  // ---------- retos: subniveles de cada nivel ----------
+  const retosOf = lvl => { try { return trainingOfLevel(lvl); } catch (e) { return []; } };
+  const retoDone = c => { try { return (trainingProgressOf(c.id) || {}).m > 0; } catch (e) { return false; } };
+  function retosBadge(lvl, st) { const l = retosOf(lvl); if (!l.length || !st) return ''; return '<span class="cm-rt">🎫 ' + l.filter(retoDone).length + '/' + l.length + '</span>'; }
+  function retosPanel(lvl) {
+    css(); lvl = Math.max(1, Math.min(NIVELES.length, lvl | 0 || 1));
+    const old = $('#cmr-root'); if (old) old.remove();
+    const cfg = NIVELES[lvl - 1], list = retosOf(lvl), beaten = trainingLevelBeaten(lvl), done = list.filter(retoDone).length, nx = list.find(c => trainingIsOpen(c) && !retoDone(c));
+    const cards = list.map(c => {
+      const p = trainingProgressOf(c.id) || {}, open = trainingIsOpen(c), state = !open ? 'locked' : (p.m > 0 ? 'done' : 'open');
+      const meta = !open ? '🔒 Supera el nivel ' + lvl : (p.m > 0 ? trainingMedalIcon(p.m) + ' ' + formatTrainingTime(p.t) + ' · +' + c.reward + '🧧' : '🥇 ' + formatTrainingTime(trainingPar(c)) + ' · +' + c.reward + '🧧');
+      return '<div class="cmr-card ' + state + (nx && nx.id === c.id ? ' next' : '') + '"><span class="n">' + c.num + '</span><div class="t"><b>' + c.title + '</b><small>' + trainingObjectiveText(c) + '</small><em>' + meta + '</em></div>'
+        + '<button class="cm-btn ' + (p.m > 0 ? 'sec' : 'teal') + '" data-rt="' + c.id + '" ' + (open ? '' : 'disabled') + '>' + (open ? (p.m > 0 ? '↻' : '▶') : '🔒') + '</button></div>';
+    }).join('');
+    const el = document.createElement('div'); el.className = 'cmr'; el.id = 'cmr-root';
+    el.innerHTML = '<div class="cmr-top"><button class="cm-btn sec" data-rback>← Mapa</button><button class="cm-btn sec" data-rlv="' + (lvl - 1) + '" ' + (lvl > 1 ? '' : 'disabled') + '>◀</button><h1>🎫 Retos · ' + lvl + '. ' + cfg.name.replace(/Nivel \d+:\s*/, '') + '</h1><button class="cm-btn sec" data-rlv="' + (lvl + 1) + '" ' + (lvl < NIVELES.length ? '' : 'disabled') + '>▶</button><span class="cm-pill">🎫 ' + done + '/' + list.length + '</span></div>'
+      + '<div class="cmr-body">' + (beaten ? '<div class="cmr-note" style="background:rgba(38,166,154,.16);border-color:rgba(38,166,154,.55);color:#8ff0e0">Sin cuenta regresiva: cuenta cuánto tardas. Mejora tu tiempo para subir de medalla y cobrar más propinas.</div>' : '<div class="cmr-note">🔒 Supera el nivel ' + lvl + ' de la Campaña para abrir estos retos.</div>') + '<div class="cmr-grid">' + cards + '</div></div>';
+    document.body.appendChild(el);
+    el.addEventListener('click', e => {
+      const t = e.target.closest('button'); if (!t || t.disabled) return; sfx('click');
+      if (t.hasAttribute('data-rback')) el.remove();
+      else if (t.dataset.rlv) { retosPanel(+t.dataset.rlv); if (root) select(Math.max(1, Math.min(NIVELES.length, +t.dataset.rlv)), true); }
+      else if (t.dataset.rt) { try { startTrainingChallenge(t.dataset.rt); } catch (er) { console.warn('[CampMapa] reto', er); } }
+    });
+  }
   function buildWorld() {
     const W = CAMPAIGN_ARCS.length * SEC + 40, cur = unlocked();
     let svg = '', nodes = '', arcs = '', gates = '';
@@ -124,7 +164,7 @@
       nodes += `<button class="cm-node ${lock ? 'locked' : (st ? 'done' : 'open')} ${boss ? 'boss' : ''} ${isCur ? 'cur' : ''}" data-l="${cfg.level}" style="left:${p.x}px;top:${p.y - (boss ? 6 : 0)}px">`
         + `<span class="cm-lan"><em>${lock ? '🔒' : cfg.level}</em></span>`
         + `<span class="cm-st">${[1, 2, 3].map(k => k <= st ? '<b>★</b>' : '<s>★</s>').join('')}</span>`
-        + `<span class="cm-nm">${cfg.name.replace(/Nivel \d+:\s*/, '')}</span></button>`;
+        + `<span class="cm-nm">${cfg.name.replace(/Nivel \d+:\s*/, '')}</span>${retosBadge(cfg.level, st)}</button>`;
     });
     // el Maestro espera en tu nivel actual (a la izquierda de su linterna)
     const cp = nodePos(Math.min(cur, NIVELES.length));
@@ -133,16 +173,16 @@
   }
 
   function sheet(i) {
-    const cfg = NIVELES[i], lvl = cfg.level, lock = lvl > unlocked(), th = getLevelStarThresholds(cfg), best = (prog().levels || {})[String(lvl)];
+    const cfg = NIVELES[i], lvl = cfg.level, st0 = starsOf(lvl) > 0, lock = lvl > unlocked(), th = getLevelStarThresholds(cfg), best = (prog().levels || {})[String(lvl)];
     const areas = (cfg.areas || ['ramen']).map(a => `<span class="cm-chip">${AREA_ICON[a]} ${AREA_NAME[a]}</span>`).join('');
     const nd = newDishes(cfg, i), nw = nd.slice(0, 5).map(n => `<span class="cm-chip new">✨ ${n}</span>`).join('') + (nd.length > 5 ? `<span class="cm-chip new">+${nd.length - 5}</span>` : '');
     const focus = cfg.focus && cfg.focus.mechanic ? `<span class="cm-chip new">🎓 ${cfg.focus.mechanic}</span>` : '';
     const el = $('#cm-sheet', root);
     el.innerHTML = `<div class="cm-info"><h3>${lvl}. ${cfg.name.replace(/Nivel \d+:\s*/, '')}</h3>`
-      + (lock ? `<div class="cm-lock">🔒 Termina el nivel ${lvl - 1} para abrirlo.</div>` : '')
+      + (lock ? `<div class="cm-lock">🔒 Termina el nivel ${lvl - 1} para abrirlo.</div>` : (!st0 && retosOf(lvl).length ? `<div class="cm-lock">🎫 ${retosOf(lvl).length} reto${retosOf(lvl).length > 1 ? 's' : ''} se abren al superar este nivel.</div>` : ''))
       + `<div class="cm-chips"><span class="cm-chip">⏱ ${mmss(cfg.time)}</span><span class="cm-chip">🎯 S/ ${cfg.goal}</span><span class="cm-chip">⭐ ${th.star1} · ⭐⭐ ${th.star2} · ⭐⭐⭐ ${th.star3}</span>${areas}</div>`
       + `<div class="cm-chips">${focus}${nw}${best && best.bestMoney ? `<span class="cm-chip">🏆 S/ ${best.bestMoney}</span>` : ''}</div></div>`
-      + `<div class="cm-acts"><button class="cm-btn" data-play="${i}" ${lock ? 'disabled' : ''}>▶ Jugar</button>${cfg.focus && cfg.focus.lesson && !lock ? `<button class="cm-btn sec" data-les="${cfg.focus.lesson}">📚 Lección</button>` : ''}</div>`;
+      + `<div class="cm-acts"><button class="cm-btn" data-play="${i}" ${lock ? 'disabled' : ''}>▶ Jugar</button><div class="cm-row">${cfg.focus && cfg.focus.lesson && !lock ? `<button class="cm-btn sec" data-les="${cfg.focus.lesson}">📚 Lección</button>` : ''}${retosOf(lvl).length ? `<button class="cm-btn teal" data-ret="${lvl}">🎫 Retos ${st0 ? retosOf(lvl).filter(retoDone).length + '/' : ''}${retosOf(lvl).length}</button>` : ''}</div></div>`;
   }
   function select(lvl, scroll) {
     selected = lvl; $$('.cm-node', root).forEach(n => n.classList.toggle('sel', +n.dataset.l === lvl)); sheet(lvl - 1);
@@ -162,6 +202,7 @@
       if (t.hasAttribute('data-back')) { sfx('click'); close(); return; }
       if (t.dataset.l) { sfx('click'); select(+t.dataset.l, true); return; }
       if (t.dataset.play != null) { const i = +t.dataset.play; sfx('click'); if (typeof playCampaignLevel === 'function') playCampaignLevel(i); return; }
+      if (t.dataset.ret) { sfx('click'); retosPanel(+t.dataset.ret); return; }
       if (t.dataset.les) { sfx('click'); close(); try { Guia.start(t.dataset.les); } catch (er) {} }
     });
     let startLvl = Math.min(cur, NIVELES.length);
@@ -169,7 +210,9 @@
     select(startLvl, false);
     const sc = $('#cm-scroll', root); const p = nodePos(startLvl); sc.scrollLeft = Math.max(0, p.x - sc.clientWidth * 0.45);
   }
-  function close(silent) { if (root) { root.remove(); root = null; } }
+  function close(silent) { if (root) { root.remove(); root = null; } const r = $('#cmr-root'); if (r) r.remove(); }
+  /** Abre el mapa con la lista de retos de un nivel encima (los retos son subniveles de la Campaña). */
+  function retos(lvl) { if (!root) open(); select(Math.max(1, Math.min(NIVELES.length, lvl | 0 || 1)), true); retosPanel(lvl); }
 
   // ---------- presentación del Maestro ----------
   function brief(cfg, go) {
@@ -188,5 +231,5 @@
     });
   }
 
-  window.CampMapa = { open, close, needsBrief, brief };
+  window.CampMapa = { open, close, needsBrief, brief, retos };
 })();
