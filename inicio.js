@@ -23,6 +23,27 @@
   const rashLvl = () => parseInt(store.get('ramen_mania_rash_level') || '1') || 1;
   const wallet = () => { try { return getPropinasWallet(); } catch (e) { return 0; } };
   const retosHechos = () => { try { return trainingDoneCount(); } catch (e) { return 0; } };
+  // ---------- avisos en las opciones del menú (NUEVO · ¡MEJORA! · ¡EMPIEZA!) ----------
+  // Se calculan con el estado real del juego. Los de «novedad» se quitan al abrir esa opción (se guardan como vistos).
+  const SEEN_KEY = 'ramen_ini_seen';
+  const NUEVO_V = { sound: 'v172', pantry: 'v176' };                  // funciones nuevas: «NUEVO» hasta que se abren una vez
+  const unlockedLevel = () => { try { return getCampaignStatsSummary().unlockedLevel || 1; } catch (e) { return 1; } };
+  const seenMap = () => { try { return JSON.parse(store.get(SEEN_KEY) || '{}') || {}; } catch (e) { return {}; } };
+  const alertToken = id => id === 'camp' ? 'L' + unlockedLevel() : (NUEVO_V[id] || null);
+  const markSeen = id => { const t = alertToken(id); if (t == null) return; const m = seenMap(); if (m[id] === t) return; m[id] = t; store.set(SEEN_KEY, JSON.stringify(m)); };
+  const cheapestUpgrade = () => { try { let c = null; UPGRADES.forEach(u => { const lv = getUpgradeLevel(u.id); if (lv < u.costs.length && (c == null || u.costs[lv] < c)) c = u.costs[lv]; }); return c; } catch (e) { return null; } };
+  const ALERT_RANK = { buy: 3, go: 2, new: 1 };
+  function itemAlert(id) {
+    try {
+      if (id === 'camp') { const L = unlockedLevel(); return tutDone() && L > 1 && seenMap().camp !== 'L' + L ? { t: 'NIVEL ' + L, k: 'new' } : null; }
+      if (NUEVO_V[id]) return seenMap()[id] === NUEVO_V[id] ? null : { t: 'NUEVO', k: 'new' };
+      if (id === 'knives') { const c = cheapestUpgrade(); return c != null && wallet() >= c ? { t: '¡MEJORA!', k: 'buy' } : null; }
+      if (id === 'aula') return tutDone() ? null : { t: '¡EMPIEZA!', k: 'go' };
+      if (DATA[id]) { let best = null; DATA[id].forEach(c => { const a = itemAlert(c.id); if (a && (!best || ALERT_RANK[a.k] > ALERT_RANK[best.k])) best = a; }); return best; }   // pilar: el aviso más importante de sus opciones
+    } catch (e) {}
+    return null;
+  }
+  const flagHtml = id => { const a = itemAlert(id); return a ? `<i class="hub-flag ${a.k}">${a.t}</i>` : ''; };
   const chefName = () => {
     try {
       if (window.DeviceManager && DeviceManager.currentPlayer) {
@@ -1062,7 +1083,7 @@
 
   /* Opciones del menú: amplias, con altura de 68px y padding ergonómico */
   .hub-item {
-    height: 68px; flex: none; box-sizing: border-box;
+    position: relative; height: 68px; flex: none; box-sizing: border-box;
     scroll-snap-align: start;
     border-radius: 14px;
     padding: 10px 14px;
@@ -1192,6 +1213,16 @@
   .hub-meta-action-row {
     display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;
   }
+  .hub-cta-group { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+  .hub-cta-btn.ghost { background: rgba(255,255,255,0.1); border-color: rgba(255,224,130,0.55); color: #ffe082; box-shadow: 0 3px 0 rgba(0,0,0,0.35); padding-left: 12px; padding-right: 12px; }
+  /* avisos sobre las opciones de la lista: esquina superior derecha, con latido suave */
+  .hub-flag { position: absolute; top: -7px; right: 10px; z-index: 2; font: normal 900 9.5px/1 'Fredoka', sans-serif; letter-spacing: 0.3px; color: #fff; padding: 3px 7px; border-radius: 9px; border: 1.5px solid #fff3d0; pointer-events: none;
+    background: #e53935; box-shadow: 0 2px 0 #7f0000; animation: hubFlagPulse 1.3s ease-in-out infinite; }
+  .hub-flag.buy { background: #2e9e4f; box-shadow: 0 2px 0 #14532d; } .hub-flag.go { background: #ff8f00; box-shadow: 0 2px 0 #8a4b00; }
+  @keyframes hubFlagPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+  @media (prefers-reduced-motion: reduce) { .hub-flag { animation: none; } }
+  .hub-back-btn.compact { flex: none; width: 38px; height: 32px; padding: 0; justify-content: center; font-size: 15px; border-radius: 9px; }
+  .hub-submenu-top-row .hub-sub-title { flex: 1; min-width: 0; font: 900 14px 'Fredoka', sans-serif; letter-spacing: 0.6px; color: #ffd978; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 0 rgba(0,0,0,0.5); }
   .hub-meta-pills { display: flex; flex-wrap: wrap; gap: 4px; flex: 1; min-width: 0; }
   .hub-pill { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.16); border-radius: 6px; padding: 1.5px 6px; font: 800 9.5px sans-serif; color: #ffe082; }
 
@@ -1546,6 +1577,7 @@
     if (!S) return;
     const it = getItemData(S.item);
     if (!it) return;
+    markSeen(it.id);
 
     // Si estamos en la raíz y es un pilar: abrir sus opciones adicionales (submenú)
     if (!S.sub) {
@@ -1612,6 +1644,7 @@
         <div class="hub-list-wrap">
           ${DATA.pillars.map(p => `
             <div class="hub-item ${S.item === p.id ? 'sel' : ''}" data-id="${p.id}" onclick="Inicio.onItemClick('${p.id}', this)">
+              ${flagHtml(p.id)}
               <span class="hub-item-icon">${p.icon}</span>
               <span class="hub-item-text">
                 <b>${p.title}</b>
@@ -1631,22 +1664,21 @@
       html += `
         <div class="hub-side-header">
           <div class="hub-submenu-top-row">
-            <button class="hub-back-btn" onclick="Inicio.back()">
-              <span>←</span> Volver al Menú Principal
-            </button>
+            <button class="hub-back-btn compact" onclick="Inicio.back()" title="Volver al menú principal" aria-label="Volver al menú principal">◀</button>
+            <div class="hub-sub-title">${groupName}</div>
             <div class="hub-header-actions">
               <button class="hub-hdr-chip wallet" onclick="openUpgradesModal()" title="Cartera de propinas">
                 🧧 <b>${wallet()}</b>
               </button>
             </div>
           </div>
-          <div class="hub-sub-title">${groupName}</div>
         </div>
         <div class="hub-list-wrap">
           ${items.map(it => {
             const isLocked = it.reqTut && !tutDone();
             return `
               <div class="hub-item ${S.item === it.id ? 'sel' : ''} ${isLocked ? 'locked' : ''}" data-id="${it.id}" onclick="Inicio.onItemClick('${it.id}', this)">
+                ${isLocked ? '' : flagHtml(it.id)}
                 <span class="hub-item-icon">${it.icon}</span>
                 <span class="hub-item-text">
                   <b>${it.title}</b>
@@ -1702,6 +1734,7 @@
 
     // Render de la tarjeta meta (en la capa frontal sobre el fondo de cocineros)
     const isLocked = it.reqTut && !tutDone();
+    const cont = (it.id === 'jugar' || it.id === 'camp') && tutDone() && typeof playCampaignLevel === 'function';      // atajo al siguiente nivel de Campaña
     const target = S.metaContent || S.metaWrap;
     target.innerHTML = `
       <div class="hub-meta-header-row">
@@ -1714,9 +1747,9 @@
         <div class="hub-meta-pills">
           ${(it.pills || []).map(pill => `<span class="hub-pill">${pill}</span>`).join('')}
         </div>
-        <button class="hub-cta-btn ${isLocked ? 'locked' : ''}" onclick="Inicio.trigger()">
+        ${cont ? `<div class="hub-cta-group"><button class="hub-cta-btn ghost" onclick="Inicio.trigger()">${it.id === 'jugar' ? 'MODOS' : 'MAPA'}</button><button class="hub-cta-btn" onclick="Inicio.play()">▶ CONTINUAR · NIVEL ${unlockedLevel()}</button></div>` : `<button class="hub-cta-btn ${isLocked ? 'locked' : ''}" onclick="Inicio.trigger()">
           ${isLocked ? '🔒 HACER LECCIÓN DE RAMEN' : (it.ctaText || '▶ JUGAR AHORA')}
-        </button>
+        </button>`}
       </div>
     `;
   }
@@ -1774,6 +1807,11 @@
     onItemClick(id, el) { handleItemClick(id, el); },
     back() { goBack(); },
     trigger() { triggerActiveItem(); },
+    play() {                                           // CONTINUAR: entra directo al siguiente nivel de Campaña (con la explicación del Maestro si es la primera vez)
+      if (!tutDone()) return triggerActiveItem();
+      sfx('serve'); markSeen('camp');
+      try { playCampaignLevel(Math.max(0, unlockedLevel() - 1)); } catch (e) { console.warn('Inicio.play', e); triggerActiveItem(); }
+    },
     gear() {
       if (!S) return;
       sfx('click');
