@@ -3,6 +3,7 @@
   "framework": null,
   "redirects": [
     { "source": "/", "has": [{ "type": "host", "value": "shimaya-panel.vercel.app" }], "destination": "/panel/", "permanent": false },
+    { "source": "/panel/", "has": [{ "type": "host", "value": "ramen-mania.vercel.app" }], "destination": "https://shimaya-panel.vercel.app/panel/", "permanent": false },
     { "source": "/panel/:path*", "has": [{ "type": "host", "value": "ramen-mania.vercel.app" }], "destination": "https://shimaya-panel.vercel.app/panel/:path*", "permanent": false },
     { "source": "/dashboard", "destination": "https://shimaya-panel.vercel.app/panel/", "permanent": false },
     { "source": "/dashboard.html", "destination": "https://shimaya-panel.vercel.app/panel/", "permanent": false },
