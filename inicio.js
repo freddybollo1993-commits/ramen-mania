@@ -39,6 +39,7 @@
       if (NUEVO_V[id]) return seenMap()[id] === NUEVO_V[id] ? null : { t: 'NUEVO', k: 'new' };
       if (id === 'knives') { const c = cheapestUpgrade(); return c != null && wallet() >= c ? { t: '¡MEJORA!', k: 'buy' } : null; }
       if (id === 'aula') return tutDone() ? null : { t: '¡EMPIEZA!', k: 'go' };
+      if (id === 'book' && window.Recetario) { const n = Recetario.summary().fresh; return n > 0 && tutDone() ? { t: n + ' POR PROBAR', k: 'new' } : null; }
       if (DATA[id]) { let best = null; DATA[id].forEach(c => { const a = itemAlert(c.id); if (a && (!best || ALERT_RANK[a.k] > ALERT_RANK[best.k])) best = a; }); return best; }   // pilar: el aviso más importante de sus opciones
     } catch (e) {}
     return null;
@@ -1365,7 +1366,7 @@
       }
     },
     rash: () => { setStartSelectedMode('RASH'); if (startSelectedMode === 'RASH') handleStartPlayClick(); },
-    book: () => openRecipeModal(),
+    book: () => (window.Recetario ? Recetario.open() : openRecipeModal()),
     board: () => openLeaderboardModal(),
     chest: () => openSecretosModal(),
     knives: () => openUpgradesModal(),
