@@ -63,11 +63,100 @@
   .hm-play { width: calc(var(--u) * 17); height: calc(var(--u) * 7.4); border: .22em solid #120905; border-radius: .8em; background: linear-gradient(#ffe45c, #f5b800 55%, #e0a000); box-shadow: 0 .35em 0 #8a5a00, 0 .45em .8em rgba(0,0,0,.5); color: #2b1808; font: 400 3.3em/1 'Fredoka One', 'Fredoka', sans-serif; letter-spacing: .5px; text-shadow: 0 .06em 0 rgba(255,255,255,.55); display: flex; align-items: center; justify-content: center; }
   .hm-play:active { transform: translateY(.2em); box-shadow: 0 .15em 0 #8a5a00; }
   .hm-play.lock { filter: saturate(.7); }
+  /* menú ☰: lista desplegable a la derecha que no tapa la escena; las columnas y el botón JUGAR se apartan mientras está abierto */
+  .hm-scrim { position: absolute; inset: 0; display: none; pointer-events: auto; background: rgba(0,0,0,.28); }
+  #hm.menu-open .hm-scrim { display: block; }
+  #hm.menu-open .hm-col.r, #hm.menu-open .hm-daily, #hm.menu-open .hm-play { opacity: 0; pointer-events: none; transform: translateX(1.5em); transition: opacity .18s, transform .18s; }
+  .hm-col.r, .hm-daily, .hm-play { transition: opacity .18s, transform .18s; }
+  .hm-drop { position: absolute; right: max(.8em, env(safe-area-inset-right)); top: 5em; width: 17em; display: none; flex-direction: column; gap: .35em; }
+  #hm.menu-open .hm-drop { display: flex; }
+  .hm-drop button { position: relative; display: flex; align-items: center; gap: .7em; width: 100%; padding: .5em .8em; border: .15em solid rgba(0,0,0,.6); border-radius: .5em; background: linear-gradient(90deg, rgba(36,24,16,.94), rgba(52,34,22,.9)); color: #fff3d6; text-align: left; font: 900 .95em/1 'Fredoka', sans-serif; letter-spacing: .2px;
+    box-shadow: 0 .2em 0 rgba(0,0,0,.45); animation: hmDrop .22s ease-out both; animation-delay: calc(var(--i) * 35ms); }
+  .hm-drop button .ic { flex: none; width: 1.7em; text-align: center; font-size: 1.5em; line-height: 1; }
+  .hm-drop button:active { transform: translateY(.1em); }
+  .hm-drop .hm-flag { top: -.5em; right: .4em; }
+  @keyframes hmDrop { from { opacity: 0; transform: translateX(40%); } to { opacity: 1; transform: translateX(0); } }
+  /* páginas de información (Registro, Novedades, Acerca): mismo marco que la selección de modos */
+  #hp { position: fixed; inset: 0; z-index: 9120; display: flex; flex-direction: column; color: #fff3d6; font-family: 'Fredoka', 'Nunito', system-ui, sans-serif; overflow: hidden;
+    background: radial-gradient(circle at 20% 0%, #5a2c14 0%, #24100a 55%, #120806 100%); padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+  #hp * { box-sizing: border-box; }
+  .hp-top { display: flex; align-items: center; justify-content: space-between; height: 44px; flex-shrink: 0; }
+  .hp-nav { height: 42px; min-width: 64px; border: 0; background: #2b2018; color: #fff; font: 900 22px/1 'Fredoka', sans-serif; cursor: pointer; border-bottom: 3px solid #0e0805; }
+  .hp-nav.l { border-radius: 0 0 14px 0; } .hp-nav.r { border-radius: 0 0 0 14px; }
+  .hp-top h2 { margin: 0; font: 400 18px 'Fredoka One', 'Fredoka', sans-serif; color: #ffd978; text-shadow: 0 2px 0 rgba(0,0,0,.6); letter-spacing: .6px; }
+  .hp-body { flex: 1; min-height: 0; overflow-y: auto; padding: 6px max(16px, env(safe-area-inset-right)) 14px max(16px, env(safe-area-inset-left)); -webkit-overflow-scrolling: touch; }
+  .hp-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; } .hp-chips b { background: rgba(0,0,0,.4); border: 1.5px solid rgba(255,204,80,.35); border-radius: 12px; padding: 3px 10px; font: 800 12px 'Fredoka', sans-serif; color: #ffe9b0; }
+  .hp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 8px; }
+  .hp-card { border: 3px solid #0e0805; border-radius: 10px; overflow: hidden; background: #1c0f09; box-shadow: 0 3px 0 rgba(0,0,0,.5); }
+  .hp-card .hd { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 5px 9px; background: var(--c, #6d4c41); } .hp-card .hd b { font: 900 13px 'Fredoka', sans-serif; text-shadow: 0 2px 0 rgba(0,0,0,.5); } .hp-card .hd span { font: 900 11px 'Fredoka', sans-serif; background: rgba(0,0,0,.45); border-radius: 8px; padding: 2px 8px; }
+  .hp-card .bd { padding: 6px 9px 8px; font: 700 12px/1.35 'Fredoka', sans-serif; color: #e9d5b0; } .hp-card .bd i { font-style: normal; margin-right: 10px; } .hp-card .bd small { display: block; color: #a98c68; margin-top: 3px; font-size: 10.5px; }
+  .hp-news { display: flex; gap: 10px; align-items: flex-start; background: rgba(0,0,0,.3); border: 2px solid rgba(255,255,255,.1); border-radius: 12px; padding: 8px 10px; margin-bottom: 7px; } .hp-news .ic { flex: none; font-size: 26px; width: 40px; height: 40px; border-radius: 10px; background: rgba(255,255,255,.08); display: flex; align-items: center; justify-content: center; }
+  .hp-news b { font: 900 13px 'Fredoka', sans-serif; color: #fff3d6; } .hp-news em { font: 900 10px 'Fredoka', sans-serif; font-style: normal; background: #e53935; color: #fff; border-radius: 6px; padding: 1px 6px; margin-left: 6px; } .hp-news p { margin: 2px 0 0; font: 700 12px/1.35 'Fredoka', sans-serif; color: #c9b79a; }
+  .hp-empty { text-align: center; color: #a98c68; font: 700 13px 'Fredoka', sans-serif; padding: 30px 10px; }
   @media (max-height: 340px) { .hm-col { gap: .45em; top: 5em; } .hm-btn .ic { font-size: 2em; } }
   @media (max-aspect-ratio: 16/10) { .hm-mode { width: 18em; } .hm-play { width: 14em; } }
   @media (prefers-reduced-motion: reduce) { .hm-flag { animation: none; } }
   `;
   function css() { if ($('hm-css')) return; const s = document.createElement('style'); s.id = 'hm-css'; s.textContent = CSS; document.head.appendChild(s); }
+
+  // ---------- menú ☰: información, reportes y ajustes (no son modos de juego) ----------
+  const MENU = [
+    { id: 'ajustes', ic: '⚙️', label: 'AJUSTES', flag: 'gear' },
+    { id: 'stats', ic: '📊', label: 'ESTADÍSTICAS' },
+    { id: 'registro', ic: '📜', label: 'REGISTRO DE SERVICIO' },
+    { id: 'cuenta', ic: '👤', label: 'MI CUENTA Y NUBE' },
+    { id: 'secretos', ic: '🗝️', label: 'SECRETOS' },
+    { id: 'ayuda', ic: '❓', label: 'AYUDA Y ATAJOS' },
+    { id: 'actualizar', ic: '🔄', label: 'ACTUALIZAR' },
+    { id: 'acerca', ic: 'ℹ️', label: 'ACERCA DE' }
+  ];
+  // lo último que cambió, en lenguaje del jugador (lo más nuevo primero)
+  const NEWS = [
+    ['v185', '🏠', 'Pantalla principal nueva', 'La cocina viva a pantalla completa, JUGAR entra directo al modo elegido y el botón de al lado abre la selección de modos.'],
+    ['v184', '🎮', 'Modos de juego', 'Desliza por Campaña, Rash, Recorrido por Japón y Online y elige tu modo.'],
+    ['v182', '🎯', 'Servicio del día', 'Tres metas diarias con premios en propinas, racha y el Cofre del Maestro.'],
+    ['v181', '📖', 'Recetario', 'Los 35 platos como colección: estrellas de dominio, qué falta para desbloquearlos y su receta completa.'],
+    ['v176', '🍱', 'Recetas actualizadas', 'Nuevos ingredientes, las Alitas se dividen en Acevichadas y Digión, y gari y wasabi pasan a ser opcionales en los makis.'],
+    ['v172', '🔊', 'Sonido y música', 'Ambiente de cocina y música que cambian con la paciencia de los clientes. Ajusta cada volumen en Ajustes.']
+  ];
+  const SEEN_NEWS = 'ramen_novedades_seen';
+  const newsSeen = () => { try { return localStorage.getItem(SEEN_NEWS); } catch (e) { return null; } };
+  const newsFlag = () => (newsSeen() === NEWS[0][0] ? '' : '<i class="hm-flag">NUEVO</i>');
+
+  function page(title, body) {
+    let p = $('hp'); if (p) p.remove();
+    p = document.createElement('div'); p.id = 'hp';
+    p.innerHTML = '<div class="hp-top"><button class="hp-nav l" onclick="Home.closePage()" aria-label="Volver">◀</button><h2>' + title + '</h2><button class="hp-nav r" onclick="Home.closePage()" aria-label="Inicio">🏠</button></div><div class="hp-body">' + body + '</div>';
+    document.body.appendChild(p);
+  }
+  const MODE_NAME = { NORMAL: ['🏮', 'Campaña', '#ff9800'], RASH: ['⚡', 'Rash', '#e53935'], TRAINING: ['🎫', 'Entrenamiento', '#43a047'], FREE: ['🌿', 'Cocina libre', '#26a69a'], COOP: ['🤝', 'Online', '#1e88e5'], VS: ['⚔️', 'Online', '#1e88e5'], JAPON: ['🗾', 'Japón', '#ec407a'] };
+  const RESULT = { WON: ['VICTORIA', '#2e9e4f'], LOST: ['DERROTA', '#c62828'], ABANDONED: ['ABANDONO', '#757575'], COMPLETED: ['COMPLETADA', '#1e88e5'] };
+  function ago(t) { const s = Math.max(0, (Date.now() - t) / 1000); if (s < 90) return 'hace un momento'; if (s < 3600) return 'hace ' + Math.round(s / 60) + ' min'; if (s < 86400) return 'hace ' + Math.round(s / 3600) + ' h'; const d = Math.round(s / 86400); return d === 1 ? 'ayer' : 'hace ' + d + ' días'; }
+  const dur = sec => { sec = Math.round(sec || 0); return sec >= 60 ? Math.floor(sec / 60) + ' min ' + (sec % 60) + ' s' : sec + ' s'; };
+  function registro() {
+    let list = []; try { list = JSON.parse(localStorage.getItem('ramen_analytics_sessions') || '[]') || []; } catch (e) {}
+    list = list.filter(x => x && x.created_at).slice(0, 60);
+    const camp = list.filter(x => x.game_mode === 'NORMAL'), won = camp.filter(x => x.outcome === 'WON').length;
+    const chips = '<div class="hp-chips"><b>🎮 ' + list.length + ' partidas</b>' + (camp.length ? '<b>🏮 ' + Math.round(100 * won / camp.length) + '% de victorias en Campaña</b>' : '') + '<b>🍽️ ' + list.reduce((a, x) => a + (x.customers_served || 0), 0) + ' clientes atendidos</b></div>';
+    const cards = list.map(x => {
+      const m = MODE_NAME[x.game_mode] || ['🎮', x.game_mode || 'Partida', '#6d4c41'], r = RESULT[x.outcome] || RESULT.COMPLETED, fails = (x.failed_recipes || []).slice(0, 4);
+      const where = x.game_mode === 'NORMAL' ? 'Nivel ' + x.level_number : (x.game_mode === 'RASH' ? 'Ronda ' + x.level_number : '');
+      return '<div class="hp-card"><div class="hd" style="--c:' + m[2] + '"><b>' + m[0] + ' ' + m[1] + (where ? ' · ' + where : '') + '</b><span style="background:' + r[1] + '">' + r[0] + '</span></div><div class="bd"><i>✔ ' + (x.customers_served || 0) + ' atendidos</i><i>✖ ' + (x.customers_lost || 0) + ' perdidos</i><i>⏱ ' + dur(x.duration_seconds) + '</i>'
+        + (fails.length ? '<small>Se perdieron pedidos de: ' + fails.join(', ') + '</small>' : '') + '<small>' + ago(new Date(x.created_at).getTime()) + '</small></div></div>';
+    }).join('');
+    page('REGISTRO DE SERVICIO', list.length ? chips + '<div class="hp-grid">' + cards + '</div>' : '<div class="hp-empty">Aún no hay partidas registradas en este aparato.<br>Juega un servicio y aparecerá aquí con su resultado.</div>');
+  }
+  function novedades() {
+    try { localStorage.setItem(SEEN_NEWS, NEWS[0][0]); } catch (e) {}
+    sfx('click'); paint();
+    page('NOVEDADES', NEWS.map((n, i) => '<div class="hp-news"><div class="ic">' + n[1] + '</div><div><b>' + n[2] + '</b><em>' + n[0].toUpperCase() + '</em><p>' + n[3] + '</p></div></div>').join(''));
+  }
+  function acerca() {
+    const v = (document.getElementById('app-version') || {}).textContent || '';
+    page('ACERCA DE', '<div class="hp-news"><div class="ic">🍜</div><div><b>Shimaya · Ramen Mania</b><em>' + v.toUpperCase() + '</em><p>Un juego de cocina japonesa para aprender jugando: ramen, salteados, makis y frituras, con sus técnicas y sus platos reales.</p></div></div>'
+      + '<div class="hp-news"><div class="ic">📲</div><div><b>Instalación y actualizaciones</b><p>Se actualiza sola al abrirla con internet. Si algo se ve viejo, usa ACTUALIZAR en este menú.</p></div></div>'
+      + '<div class="hp-news"><div class="ic">☁️</div><div><b>Tu progreso</b><p>Propinas, retos, estadísticas, Recorrido por Japón y el Servicio del día se guardan en tu cuenta. Entra a MI CUENTA Y NUBE para ver su estado.</p></div></div>');
+  }
 
   function build() {
     const sc = $('start-screen'); if (!sc) return false;
@@ -92,7 +181,7 @@
         <button class="hm-prog hm-plate" onclick="Inicio.act('camp')" aria-label="Progreso de Campaña"><span>⭐ ${cs.stars}/${cs.maxStars}</span><i class="hm-bar"><u style="width:${pct}%"></u></i><small>Campaña · nivel ${L} de 20</small></button>
         <span class="hm-gap"></span>
         <button class="hm-cur hm-plate" onclick="Inicio.act('knives')" aria-label="Propinas"><i>🧧</i><span class="hm-wallet">${h.wallet()}</span></button>
-        <button class="hm-menu hm-plate" onclick="Home.menu()" aria-label="Ajustes">☰${flag('gear')}</button>
+        <button class="hm-menu hm-plate" onclick="Home.menu()" aria-label="Menú">☰${flag('gear')}</button>
       </div>
       <div class="hm-col l">
         ${btn('📖', 'RECETARIO', "Recetario.open()", 'book')}
@@ -100,10 +189,11 @@
         ${btn('🎓', 'APRENDER', "Inicio.openSub('aprender','aula')", 'aprender', true)}
       </div>
       <div class="hm-col r">
+        ${btn('📣', 'NOVEDADES', "Home.novedades()", null, true).replace('<span class="ic">', newsFlag() + '<span class="ic">')}
         ${btn('🏆', 'RANKING', "Inicio.act('board')", null, true)}
-        ${btn('🗝️', 'SECRETOS', "Inicio.act('chest')", null, true)}
-        ${btn('📊', 'PROGRESO', "Inicio.act('stats')", null, true)}
       </div>
+      <button class="hm-scrim" onclick="Home.menu(false)" aria-label="Cerrar el menú"></button>
+      <div class="hm-drop">${MENU.map((m, i) => `<button style="--i:${i}" onclick="Home.item('${m.id}')">${m.flag ? flag(m.flag) : ''}<span class="ic">${m.ic}</span>${m.label}</button>`).join('')}</div>
       <div class="hm-bl">
         <button class="hm-mini hm-plate" onclick="Inicio.act('tickets')"><span class="ic">🎫</span><span><b>RETOS</b><small>${h.retosHechos()}/${window.TRAINING_CHALLENGES ? TRAINING_CHALLENGES.length : 50}</small></span></button>
         <button class="hm-mini hm-plate" onclick="Inicio.openSub('aprender','free')"><span class="ic">🌿</span><span><b>LIBRE</b><small>Sin reloj</small></span></button>
@@ -129,11 +219,28 @@
       if (!built && want && !build()) return;
       const hm = $('hm'); if (!hm) return;
       if (want) paint();
+      if (!want) hm.classList.remove('menu-open');
       hm.classList.toggle('hm-on', want); shown = want;
       try { if (want && window.EscenaCocina) EscenaCocina.preload(); } catch (e) {}
     },
     refresh() { if (shown) paint(); },
-    menu() { sfx('click'); try { Inicio.openSub('gear', 'sound'); } catch (e) {} },
+    /** Abre o cierra el menú ☰ (v: true abre, false cierra; sin argumento alterna). */
+    menu(v) { const hm = $('hm'); if (!hm) return; const open = v == null ? !hm.classList.contains('menu-open') : !!v; hm.classList.toggle('menu-open', open); sfx('click'); },
+    item(id) {
+      this.menu(false);
+      try {
+        if (id === 'ajustes') Inicio.openSub('gear', 'sound');
+        else if (id === 'stats') Inicio.act('stats');
+        else if (id === 'registro') registro();
+        else if (id === 'cuenta') Inicio.act('acct');
+        else if (id === 'secretos') Inicio.act('chest');
+        else if (id === 'ayuda') Inicio.act('keys');
+        else if (id === 'actualizar') Inicio.act('update');
+        else if (id === 'acerca') acerca();
+      } catch (e) { console.warn('[Home] menú', id, e); }
+    },
+    novedades, registro, acerca,
+    closePage() { const p = $('hp'); if (p) p.remove(); sfx('click'); paint(); },
     play() {
       const h = H(); if (!h) return;
       if (!h.tutDone()) { sfx('serve'); toast('🎓 Primero la lección de ramen con el Maestro: así empieza todo.'); try { Inicio.openSub('aprender', 'aula'); } catch (e) {} return; }
