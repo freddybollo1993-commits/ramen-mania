@@ -55,11 +55,11 @@
   /* abajo a la izquierda */
   .hm-bl { position: absolute; left: max(.8em, env(safe-area-inset-left)); bottom: calc(max(.6em, env(safe-area-inset-bottom)) + 1.5em); display: flex; gap: .6em; align-items: flex-end; }
   /* MISIONES: placa ancha con el tablero grande saliendo por arriba y el avance (3/3) como etiqueta naranja */
-  .hm-mis { position: relative; display: flex; align-items: center; width: 21em; height: 5.6em; padding: 0 .9em 0 9.6em; }
-  .hm-mis .mic { position: absolute; left: .5em; bottom: .15em; width: 8.8em; height: 8.8em; filter: drop-shadow(0 .12em 0 #120905) drop-shadow(0 .2em .25em rgba(0,0,0,.55)); } .hm-mis .mic svg { width: 100%; height: 100%; display: block; }
-  .hm-mis b { font: 900 1.85em/1 'Fredoka', sans-serif; color: #fff; text-shadow: 0 .08em 0 #000, 0 0 .3em rgba(0,0,0,.6); letter-spacing: .3px; }
-  .hm-mis.all { box-shadow: 0 0 1.4em rgba(255,179,0,.75), 0 .3em 0 rgba(0,0,0,.55), inset 0 .1em 0 rgba(255,255,255,.14); }
-  .hm-mis .mbadge { position: absolute; top: -1em; right: 1.1em; padding: .12em .65em; border-radius: 1em; border: .14em solid #fff3d0; background: linear-gradient(#ffa726, #f57c00); color: #fff; font: 900 1.35em/1.15 'Fredoka', sans-serif; text-shadow: 0 .08em 0 rgba(0,0,0,.45); box-shadow: 0 .2em 0 #8a4b00; pointer-events: none; } .hm-mis .mbadge.buy { background: linear-gradient(#66bb6a, #2e7d32); box-shadow: 0 .2em 0 #14532d; }
+  .hm-mis { position: relative; display: flex; align-items: center; width: 15em; height: 4.4em; padding: 0 .7em 0 6.6em; }
+  .hm-mis .mic { position: absolute; left: .35em; bottom: .15em; width: 6.4em; height: 6.4em; filter: drop-shadow(0 .1em 0 #120905) drop-shadow(0 .15em .2em rgba(0,0,0,.5)); } .hm-mis .mic svg { width: 100%; height: 100%; display: block; }
+  .hm-mis b { font: 900 1.4em/1 'Fredoka', sans-serif; color: #fff; text-shadow: 0 .08em 0 #000, 0 0 .3em rgba(0,0,0,.6); letter-spacing: .2px; }
+  .hm-mis.all { box-shadow: 0 0 1.1em rgba(255,179,0,.7), 0 .25em 0 rgba(0,0,0,.55), inset 0 .1em 0 rgba(255,255,255,.14); }
+  .hm-mis .mbadge { position: absolute; top: -.8em; right: .6em; padding: .08em .55em; border-radius: 1em; border: .12em solid #fff3d0; background: linear-gradient(#ffa726, #f57c00); color: #fff; font: 900 1.05em/1.15 'Fredoka', sans-serif; text-shadow: 0 .08em 0 rgba(0,0,0,.45); box-shadow: 0 .15em 0 #8a4b00; pointer-events: none; } .hm-mis .mbadge.buy { background: linear-gradient(#66bb6a, #2e7d32); box-shadow: 0 .15em 0 #14532d; }
   .hm-mini { position: relative; display: flex; align-items: center; gap: .5em; padding: .45em .8em .45em .5em; text-align: left; }
   .hm-mini .ic { font-size: 2.2em; line-height: 1; } .hm-mini b { display: block; font: 900 1.05em/1.05 'Fredoka', sans-serif; color: #ffe082; text-shadow: 0 .1em 0 #000; } .hm-mini small { display: block; font: 800 .85em 'Fredoka', sans-serif; color: #d6c4a4; }
   /* abajo a la derecha */
@@ -68,20 +68,22 @@
 
   .hm-row { display: flex; align-items: flex-end; gap: .6em; }
   .hm-mode { position: relative; display: flex; flex-direction: column; align-items: stretch; width: 15.4em; padding: 0; border: 0; background: none; text-align: left; }
-  .hm-mode .mh { display: block; text-align: center; padding: .3em .5em .25em; border-radius: .7em .7em 0 0; background: #0e0805; color: #e9d5b0; font: 800 .74em/1.1 'Fredoka', sans-serif; letter-spacing: .9px; text-transform: uppercase; }
+  .hm-mode .mh, .hm-go .mh { display: block; text-align: center; padding: .3em .5em .25em; border-radius: .7em .7em 0 0; background: #0e0805; color: #e9d5b0; font: 800 .74em/1.1 'Fredoka', sans-serif; letter-spacing: .9px; text-transform: uppercase; }
   .hm-mode .mp { display: flex; align-items: stretch; height: 5.2em; border-radius: 0 0 .8em .8em; overflow: hidden; }
   .hm-mode .mi { flex: none; width: calc(var(--u) * 4.9); display: flex; align-items: center; justify-content: center; font-size: 2.5em; background: radial-gradient(circle at 40% 35%, var(--c, #ff9800), #1e100a 95%); }
   .hm-mode .mt { flex: 1; min-width: 0; padding: .3em .6em; display: flex; flex-direction: column; justify-content: center; gap: .05em; }
   .hm-mode small { font: 800 .8em 'Fredoka', sans-serif; color: #b9a98c; line-height: 1.1; } .hm-mode b { font: 900 1.7em/1 'Fredoka', sans-serif; color: #fff; text-shadow: 0 .08em 0 #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .hm-mode .mtag { position: absolute; top: 1.7em; right: .45em; padding: .12em .5em; border-radius: .6em; border: .12em solid #120905; background: #ffd24a; color: #2b1808; font: 900 .68em/1.2 'Fredoka', sans-serif; white-space: nowrap; box-shadow: 0 .15em 0 rgba(0,0,0,.5); }
-  .hm-play { width: calc(var(--u) * 14.4); height: calc(var(--u) * 6.4); border: .22em solid #120905; border-radius: .9em; background: linear-gradient(#ffe45c, #f5b800 55%, #e0a000); box-shadow: 0 .3em 0 #8a5a00, 0 .4em .7em rgba(0,0,0,.45); color: #2b1808; font: 400 2.9em/1 'Fredoka One', 'Fredoka', sans-serif; letter-spacing: .5px; text-shadow: 0 .06em 0 rgba(255,255,255,.4); }
-  .hm-play:active { transform: translateY(.2em); box-shadow: 0 .15em 0 #8a5a00; }
+  .hm-go { display: flex; flex-direction: column; align-items: stretch; width: 12.5em; padding: 0; border: 0; background: none; text-align: center; }
+  .hm-go .mp { display: flex; align-items: stretch; height: 5.2em; padding: .4em; border-radius: 0 0 .8em .8em; }
+  .hm-play { flex: 1; display: flex; align-items: center; justify-content: center; border: .1em solid #fff0a8; border-radius: .55em; background: linear-gradient(#ffe45c, #f5b800 55%, #e0a000); box-shadow: inset 0 .12em 0 rgba(255,255,255,.5), inset 0 -.18em 0 rgba(0,0,0,.2); color: #2b1808; font: 400 2.5em/1 'Fredoka One', 'Fredoka', sans-serif; letter-spacing: .5px; text-shadow: 0 .06em 0 rgba(255,255,255,.4); }
+  .hm-go:active { transform: translateY(.15em); }
   .hm-play.lock { filter: saturate(.7); }
   /* menú ☰: lista desplegable a la derecha que no tapa la escena; las columnas y el botón JUGAR se apartan mientras está abierto */
   .hm-scrim { position: absolute; inset: 0; display: none; pointer-events: auto; background: rgba(0,0,0,.28); }
   #hm.menu-open .hm-scrim { display: block; }
-  #hm.menu-open .hm-col.r, #hm.menu-open .hm-play { opacity: 0; pointer-events: none; transform: translateX(1.5em); transition: opacity .18s, transform .18s; }
-  .hm-col.r, .hm-play { transition: opacity .18s, transform .18s; }
+  #hm.menu-open .hm-col.r, #hm.menu-open .hm-go { opacity: 0; pointer-events: none; transform: translateX(1.5em); transition: opacity .18s, transform .18s; }
+  .hm-col.r, .hm-go { transition: opacity .18s, transform .18s; }
   .hm-drop { position: absolute; right: max(.8em, env(safe-area-inset-right)); top: 5em; width: 17em; display: none; flex-direction: column; gap: .35em; }
   #hm.menu-open .hm-drop { display: flex; }
   .hm-drop button { position: relative; display: flex; align-items: center; gap: .7em; width: 100%; padding: 1em .8em; border: .15em solid rgba(0,0,0,.6); border-radius: .5em; background: linear-gradient(90deg, rgba(36,24,16,.94), rgba(52,34,22,.9)); color: #fff3d6; text-align: left; font: 900 .95em/1 'Fredoka', sans-serif; letter-spacing: .2px;
@@ -109,7 +111,7 @@
   .hp-news b { font: 900 13px 'Fredoka', sans-serif; color: #fff3d6; } .hp-news em { font: 900 10px 'Fredoka', sans-serif; font-style: normal; background: #e53935; color: #fff; border-radius: 6px; padding: 1px 6px; margin-left: 6px; } .hp-news p { margin: 2px 0 0; font: 700 12px/1.35 'Fredoka', sans-serif; color: #c9b79a; }
   .hp-empty { text-align: center; color: #a98c68; font: 700 13px 'Fredoka', sans-serif; padding: 30px 10px; }
   @media (max-height: 340px) { .hm-col { gap: .7em; top: 5em; } .hm-btn .ic { font-size: 3em; } }
-  @media (max-aspect-ratio: 16/10) { .hm-mode { width: 13.5em; } .hm-play { width: calc(var(--u) * 11.5); } .hm-mis { width: 19em; } }
+  @media (max-aspect-ratio: 16/10) { .hm-mode { width: 13.5em; } .hm-go { width: 11em; } .hm-mis { width: 13.5em; } }
   @media (prefers-reduced-motion: reduce) { .hm-flag { animation: none; } }
   `;
   function css() { if ($('hm-css')) return; const s = document.createElement('style'); s.id = 'hm-css'; s.textContent = CSS; document.head.appendChild(s); }
@@ -243,7 +245,7 @@
       <div class="hm-br">
         <div class="hm-row">
           <button class="hm-mode" style="--c:${sel.col}" onclick="Modos.open()" aria-label="Elegir modo de juego: ${sel.title}"><span class="mh">Modos de juego</span><span class="mp hm-plate"><span class="mi">${sel.icon}</span><span class="mt"><small>${sel.top || 'Modo elegido'}</small><b>${sel.title}</b></span></span>${sel.tag ? `<span class="mtag">${sel.tag}</span>` : ''}</button>
-          <button class="hm-play ${tut ? '' : 'lock'}" onclick="Home.play()">${tut ? 'JUGAR' : 'EMPEZAR'}</button>
+          <button class="hm-go" onclick="Home.play()" aria-label="${tut ? 'Jugar' : 'Empezar'}"><span class="mh">${tut ? 'Comenzar' : 'Primera lección'}</span><span class="mp hm-plate"><span class="hm-play ${tut ? '' : 'lock'}">${tut ? 'JUGAR' : 'EMPEZAR'}</span></span></button>
         </div>
       </div>`;
   }
