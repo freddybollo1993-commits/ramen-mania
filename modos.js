@@ -68,6 +68,9 @@
     } }
   ];
 
+  // orden de las categorías: Campaña, Sin estrés, Rash, Recorrido por Japón y Online
+  { const ORDER = ['camp', 'zen', 'rash', 'japon', 'online']; CATS.sort((a, b) => ORDER.indexOf(a.id) - ORDER.indexOf(b.id)); }
+
   // ---------- pantalla ----------
   const CSS = `
   #mds { position: fixed; inset: 0; z-index: 9150; display: flex; flex-direction: column; color: #fff3d6; font-family: 'Fredoka', 'Nunito', system-ui, sans-serif; overflow: hidden;
