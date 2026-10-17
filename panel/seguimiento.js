@@ -274,7 +274,7 @@
         kpi('🍽️', 'Platos servidos', L ? L.served : '—', L ? 'calidad media ' + N(L.avg, 0) + ' / 100' : 'sin estadísticas') +
         kpi('📈', 'Mejora de calidad', L && L.delta != null ? (L.delta > 0 ? '+' : '') + Math.round(L.delta) : '—', L && L.qE != null ? 'primeros días ' + Math.round(L.qE) + ' → últimos ' + Math.round(L.qL) : 'necesita 2+ días de juego') +
         kpi('🎯', 'Fallos por plato', L && L.fL != null ? P(Math.round(L.fL * 100)) : '—', L && L.fE != null ? 'antes ' + Math.round(L.fE * 100) + '%' : 'quemado, crudo o desorden') +
-        kpi('🏋️', 'Entrenamiento', L ? L.trn + '/' + (chal.length || 27) : '—', L ? Math.round(L.share * 100) + '% del tiempo en práctica' : '') +
+        kpi('🏋️', 'Entrenamiento', L ? L.trn + '/' + (chal.length || 0) : '—', L ? Math.round(L.share * 100) + '% del tiempo en práctica' : '') +
       '</div>' +
       '<div class="pnl-grid">' +
         card('Su curva de aprendizaje', 'Calidad media (línea verde) y % de fallos (roja) por día jugado', days.length >= 1 ? box('ch-pl-curve') : empty('Aún no hay historial diario.')) +

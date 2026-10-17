@@ -1,7 +1,7 @@
 /* Service worker del Shimaya Panel (alcance /panel/): independiente del juego.
    - La página y sus archivos se abren desde la copia guardada y se actualizan en segundo plano (el panel abre al instante y sin conexión muestra el acceso).
    - Los datos (Supabase) NUNCA se guardan: siempre van a la red. Tampoco se guarda nada con el secreto de administrador. */
-const CACHE = 'shimaya-panel-p2';
+const CACHE = 'shimaya-panel-p3';
 const SHELL = ['./', './index.html', './app.js', './seguimiento.js', './datos-juego.js', './manifest.json', './favicon.svg', './icon-192.png', './icon-512.png', './icon-maskable.png', './apple-touch-icon.png',
   '/assets/fonts/fredoka-one-latin-400-normal.woff2', '/assets/fonts/nunito-latin-wght-normal.woff2', '/assets/fonts/nunito-latin-ext-wght-normal.woff2'];
 const LIBS = ['cdn.jsdelivr.net'];      // supabase-js y chart.js: se guardan para poder abrir el panel sin conexión

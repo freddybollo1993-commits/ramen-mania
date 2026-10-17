@@ -2,7 +2,7 @@
    Script clásico. Se carga después del script principal del panel (usa supabaseClient, initSupabase, fetchLiveMetrics…). */
 (function () {
   'use strict';
-  const PANEL_VERSION = 'p1';
+  const PANEL_VERSION = 'p2';
   const SKEY = 'ramen_admin_secret', LKEY = 'shimaya_panel_secret', RKEY = 'shimaya_panel_refresh';
   window.PANEL_DEMO = false;
   window.allStats = [];

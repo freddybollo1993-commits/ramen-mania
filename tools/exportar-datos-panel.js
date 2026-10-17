@@ -28,8 +28,10 @@
       lista: full.map(nm), nivel, rash, hervido: r.metodo === 'hervido' || undefined });
   }));
   const niveles = NIVELES.map(n => ({ nivel: n.level, nombre: n.name.replace(/^Nivel \d+:\s*/, ''), arco: n.arc, meta: n.goal, tiempo: n.time, clientes: n.max_customers, pedidos: n.max_orders, areas: n.areas, mecanica: n.focus && n.focus.mechanic, platos: n.ramen_names.length }));
+  // retos del Entrenamiento (los mismos ids que guardan las cuentas) con su tiempo de oro
+  const retos = TRAINING_CHALLENGES.map(c => ({ id: c.id, ch: c.ch, titulo: c.title, par: trainingPar(c), total: trainingTotal(c) }));
   const txt = '/* Generado por tools/exportar-datos-panel.js desde el juego (' + ((document.getElementById('app-version') || {}).textContent || '?') + '). No editar a mano. */\n'
-    + 'window.PANEL_PLATOS = ' + JSON.stringify(platos) + ';\nwindow.PANEL_NIVELES = ' + JSON.stringify(niveles) + ';\n';
+    + 'window.PANEL_PLATOS = ' + JSON.stringify(platos) + ';\nwindow.PANEL_NIVELES = ' + JSON.stringify(niveles) + ';\nwindow.PANEL_RETOS = ' + JSON.stringify(retos) + ';\n';
   window.__panelDatos = txt;
   return txt.length;
 })();

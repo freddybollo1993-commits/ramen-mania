@@ -893,6 +893,7 @@
 </div>
 
 <!-- JAVASCRIPT DEL DASHBOARD -->
+<script src="datos-juego.js"></script>
 <script>
 const SUPABASE_CONFIG = {
   url: "https://byfvmwupbimvocmxrgab.supabase.co",
@@ -918,12 +919,7 @@ function initSupabase() {
 
 // CAMBIO DE PESTAÑAS
 // ===== Estadísticas de cocina (requieren el secreto de administrador) =====
-const STATS_DISHES = [
-  ['ramen', 'Shio'], ['ramen', 'Shoyu'], ['ramen', 'Miso'], ['ramen', 'Chashu'], ['ramen', 'Tonkotsu'], ['ramen', 'Tan tan'], ['ramen', 'Ebi'], ['ramen', 'Bajiru'], ['ramen', 'Vegetariano'],
-  ['salteados', 'Yakimeshi'], ['salteados', 'Chicken Teriyaki'], ['salteados', 'Chaufa Shimaya'], ['salteados', 'Yakitori'], ['salteados', 'Yakiramen'], ['salteados', 'Yasaitame'], ['salteados', 'Batayaki Ramen'], ['salteados', 'Karameshi'], ['salteados', 'Omuraisu'],
-  ['makis', 'Maki California'], ['makis', 'Maki Guacamole'], ['makis', 'Maki Acevichado'], ['makis', 'Maki Hotate'], ['makis', 'Maki Amazon'], ['makis', 'Maki Yama'], ['makis', 'Maki Nin Niku'], ['makis', 'Maki Digion'],
-  ['frituras', 'Alitas Acevichadas'], ['frituras', 'Alitas Digión'], ['frituras', 'Kaarage'], ['frituras', 'Tonkatsu'], ['frituras', 'Chicken Katsu'], ['frituras', 'Katsu Kare'], ['frituras', 'Ebi Furai'], ['frituras', 'Age Gyozas']
-];
+const STATS_DISHES = (window.PANEL_PLATOS || []).filter(p => !p.hervido).map(p => [p.area, p.nombre]);   // mismos platos que el juego (panel/datos-juego.js)
 const STATS_AREA_ICON = { ramen: '🍜', salteados: '🍳', makis: '🍣', frituras: '🍤' };
 const STATS_MODE_LABEL = { free: '🌿 Cocina libre', training: '🏋️ Entrenamiento', normal: '🏮 Campaña', rash: '⚡ Rash', multi: '⚔️ Multijugador' };
 let statsCharts = { time: null, dishes: null };
@@ -999,7 +995,7 @@ function renderKitchenStats(rows) {
   const playerRows = players.sort((a, b) => b.total - a.total).map(p =>
     '<tr><td>' + escapeHtml(p.avatar || '') + ' <strong>' + escapeHtml(p.alias || '') + '</strong></td><td>' + formatRelativeTime(p.last) + '</td><td>' + statsDur(p.total) + '</td><td>' +
     Object.entries(STATS_MODE_LABEL).filter(([m]) => p.t[m]).map(([m, l]) => '<span class="badge-tag badge-normal" style="margin-right:3px;">' + l + ' ' + statsDur(p.t[m]) + '</span>').join('') +
-    '</td><td>' + p.served + '</td><td>' + (p.served ? Math.round(p.avg) + ' ' + statsStars(p.avg) : '—') + '</td><td>' + (p.trn || 0) + '/27</td><td>' + (p.tips || 0) + '</td></tr>').join('') ||
+    '</td><td>' + p.served + '</td><td>' + (p.served ? Math.round(p.avg) + ' ' + statsStars(p.avg) : '—') + '</td><td>' + (p.trn || 0) + '/' + LEARN_CHALLENGES.length + '</td><td>' + (p.tips || 0) + '</td></tr>').join('') ||
     '<tr><td colspan="8" style="color:var(--text-muted);">Aún no hay jugadores con estadísticas.</td></tr>';
 
   document.getElementById('stats-content').innerHTML =
@@ -1040,17 +1036,13 @@ function renderKitchenStats(rows) {
 // ===== Curva de aprendizaje: cruce de KPIs por jugador, plato y reto =====
 // Lee las mismas estadísticas por cuenta (admin_stats). La pregunta de fondo: ¿los jugadores están aprendiendo?
 // Calidad = puntaje 0-100 (cocción 50 + proceso 30 + frescura 20). Fallo = plato con desorden de proceso, quemado o crudo.
-const LEARN_CHALLENGES = [["c01","Tu primer ramen","ramen",{"ramen":1}],["c02","Dos pedidos","ramen",{"ramen":2}],["c03","Dos cuencos a la vez","ramen",{"ramen":3}],["c04","Cuida el punto","ramen",{"ramen":4}],["c05","Caldos espesos","ramen",{"ramen":6}],["c06","Tu primer wok","salteado",{"salteados":1}],["c07","El punto del wok","salteado",{"salteados":2}],["c08","Dos woks en paralelo","salteado",{"salteados":4}],["c09","Ramen y wok","salteado",{"ramen":3,"salteados":3}],["c10","Salteados de carta","salteado",{"salteados":5}],["c11","Tu primer maki","makis",{"makis":1}],["c12","Dos makis","makis",{"makis":2}],["c13","Con coberturas","makis",{"makis":3}],["c14","La barra completa","makis",{"ramen":2,"salteados":2,"makis":3}],["c15","Makis finos","makis",{"makis":4}],["c16","Tu primera fritura","frituras",{"frituras":1}],["c17","El punto de la olla","frituras",{"frituras":2}],["c18","Empanizado y corte","frituras",{"frituras":2}],["c19","Fritura surtida","frituras",{"frituras":4}],["c20","Cocina caliente","frituras",{"frituras":3,"salteados":3}],["c21","El almuerzo","servicio",{"ramen":2,"salteados":2,"makis":2,"frituras":2}],["c22","Servicio de tarde","servicio",{"ramen":3,"salteados":3,"makis":2,"frituras":2}],["c23","Hora pico","servicio",{"ramen":3,"salteados":3,"makis":3,"frituras":3}],["c24","Cena concurrida","servicio",{"ramen":4,"salteados":4,"makis":4,"frituras":4}],["c25","Perfección","maestria",{"ramen":2,"salteados":2,"makis":1,"frituras":1}],["c26","Maratón","maestria",{"ramen":6,"salteados":6,"makis":6,"frituras":6}],["c27","Examen del maestro","maestria",{"ramen":8,"salteados":8,"makis":7,"frituras":7}]];
+const LEARN_CHALLENGES = (window.PANEL_RETOS || []).map(r => [r.id, r.titulo, r.ch, r.par]);   // [id, título, capítulo, tiempo de oro en s] (panel/datos-juego.js)
 const LEARN_CH_ICON = { ramen: '🍜', salteado: '🍳', makis: '🍣', frituras: '🍤', servicio: '🏮', maestria: '🏆' };
-const LEARN_SEC = { ramen: 13, salteados: 14, makis: 15, frituras: 24 };
 const LEARN_STAGES = {
   nuevo: '🌱 Nuevo', dominando: '🎯 Dominando', mejorando: '📈 Mejorando', camino: '🔄 En camino', estancado: '⏸ Estancado', retrocede: '📉 Retrocede'
 };
 let learnCharts = {};
 
-function learnPar(r) {
-  return Math.round((25 + Object.entries(r).reduce((t, [a, n]) => t + n * LEARN_SEC[a] * 1.5, 0)) / 5) * 5;
-}
 function learnNotice(html) {
   document.getElementById('learning-content').innerHTML = '<div style="padding:18px; text-align:center; color:var(--text-muted); font-size:13px;">' + html + '</div>';
 }
@@ -1155,7 +1147,7 @@ function renderLearning(rows) {
     const recs = trainers.map(r => r.training[id]).filter(x => x && x.m > 0);
     const withF = recs.filter(x => x.f && x.t);
     const rep = withF.filter(x => x.n >= 2);
-    const par = learnPar(req);
+    const par = req;
     return { id, title, ch, num: i + 1, par, done: recs.length, attempts: learnAvg(recs.map(x => x.n || 1)), firstAvg: learnAvg(withF.map(x => x.f)),
       bestAvg: learnAvg(withF.map(x => x.t)), gain: rep.length ? learnAvg(rep.map(x => (x.f - x.t) / x.f)) : null,
       medals: [0, 0, 0, 0].map((_, m) => recs.filter(x => x.m === m).length) };
@@ -1220,7 +1212,7 @@ function renderLearning(rows) {
   const playerTable = players.sort((a, b) => b.total - a.total).map(p =>
     '<tr><td>' + escapeHtml(p.avatar || '') + ' <strong>' + escapeHtml(p.alias || '') + '</strong></td><td>' + LEARN_STAGES[p.stage] + '</td><td>' + p.nDays + '</td><td>' + p.served + '</td><td>' +
     (p.qE != null ? Math.round(p.qE) + ' → ' + Math.round(p.qL) + ' <strong style="color:' + (p.delta >= 0 ? '#66bb6a' : '#ef5350') + ';">(' + learnSign(p.delta) + ')</strong>' : (p.served ? Math.round(p.avg) : '—')) + '</td><td>' +
-    (p.fE != null ? learnPct(p.fE) + ' → ' + learnPct(p.fL) : '—') + '</td><td>' + learnNum(p.perHour, 0) + '</td><td>' + p.trn + '/27' + (p.trainGain != null ? ' <small style="color:var(--text-muted);">(−' + Math.round(p.trainGain * 100) + '% tiempo)</small>' : '') + '</td><td>' + Math.round(p.share * 100) + '%</td><td style="font-family:monospace;letter-spacing:1px;color:#66bb6a;">' + learnSpark(p.trend) + '</td></tr>'
+    (p.fE != null ? learnPct(p.fE) + ' → ' + learnPct(p.fL) : '—') + '</td><td>' + learnNum(p.perHour, 0) + '</td><td>' + p.trn + '/' + LEARN_CHALLENGES.length + (p.trainGain != null ? ' <small style="color:var(--text-muted);">(−' + Math.round(p.trainGain * 100) + '% tiempo)</small>' : '') + '</td><td>' + Math.round(p.share * 100) + '%</td><td style="font-family:monospace;letter-spacing:1px;color:#66bb6a;">' + learnSpark(p.trend) + '</td></tr>'
   ).join('') || '<tr><td colspan="10" style="color:var(--text-muted);">Aún no hay jugadores con estadísticas.</td></tr>';
   const card = (title, sub, inner) => '<div style="background:rgba(0,0,0,0.25); border-radius:10px; padding:10px;"><div style="font-size:12px; font-weight:800;">' + title + '</div><div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">' + sub + '</div>' + inner + '</div>';
 
@@ -1988,7 +1980,6 @@ function copySqlSchema() {
 
 // La inicialización (acceso, carga y actualización periódica) está en app.js
 </script>
-<script src="datos-juego.js"></script>
 <script src="seguimiento.js"></script>
 <script src="app.js"></script>
 </body>
