@@ -26,7 +26,8 @@
   // ---------- estado ----------
   let st = null;
   const load = () => { try { st = JSON.parse(store.get(KEY) || 'null'); } catch (e) { st = null; } if (!st || st.v !== 1) st = { v: 1, day: '', goals: [], chest: 0, streak: 0, last: '', hardDone: false }; return st; };
-  const save = () => store.set(KEY, JSON.stringify(st));
+  const persist = () => store.set(KEY, JSON.stringify(st));
+  const save = () => { persist(); try { if (typeof japonSyncSoon === 'function') japonSyncSoon(); } catch (e) {} };      // marca la cuenta para guardarla en la nube (junto con el resto del progreso, ver japon.js)
   const accId = () => store.get('ramen_account_id') || 'anon';
   const mult = () => 1 + STREAK_STEP * Math.min(STREAK_MAX, currentStreak());
   function currentStreak() { if (!st) load(); if (!st.last) return 0; return dayNum(dayKey()) - dayNum(st.last) <= GAP_OK ? st.streak : 0; }   // un día sin jugar no rompe la racha; dos o más, sí
@@ -130,6 +131,26 @@
   }
   const dotIcon = g => ICON[g.t] || '🎯';
 
+  // ---------- nube: se guarda dentro de la instantánea de progreso de la cuenta (japon.js → get_game / save_game) ----------
+  const goalScore = x => (x.goals || []).reduce((a, g) => a + (g.done ? 100 : 0) + (g.prog || 0), 0);
+  function mergeSnap(a, b) {
+    if (!a || a.v !== 1) return b && b.v === 1 ? b : (a || null);
+    if (!b || b.v !== 1) return a;
+    const out = { v: 1, streak: a.streak || 0, last: a.last || '' };
+    if ((b.last || '') > (a.last || '') || ((b.last || '') === (a.last || '') && (b.streak || 0) > (a.streak || 0))) { out.streak = b.streak || 0; out.last = b.last || ''; }   // racha: la más reciente (si empatan, la mayor)
+    const w = (a.day || '') !== (b.day || '') ? ((a.day || '') > (b.day || '') ? a : b) : (goalScore(b) > goalScore(a) ? b : a), o = w === a ? b : a;       // día más reciente; el mismo día, el que lleva más avance
+    out.day = w.day || ''; out.goals = JSON.parse(JSON.stringify(w.goals || [])); out.chest = Math.max(a.day === w.day ? a.chest || 0 : 0, b.day === w.day ? b.chest || 0 : 0);
+    if (o.day === w.day) out.goals = out.goals.map((g, i) => { const x = (o.goals || [])[i]; if (x && x.t === g.t && x.n === g.n && x.area === g.area && x.key === g.key) { g.prog = Math.max(g.prog || 0, x.prog || 0); g.done = !!(g.done || x.done); g.paid = Math.max(g.paid || 0, x.paid || 0); } return g; });
+    return out;
+  }
+  const snap = () => { load(); return { v: 1, day: st.day, goals: st.goals, chest: st.chest, streak: st.streak, last: st.last }; };
+  function apply(sn) {                                  // une lo que llega de la nube con lo local (sin volver a pagar premios: ya se cobraron donde se cumplieron)
+    if (!sn || sn.v !== 1) return;
+    load(); const m = mergeSnap(snap(), sn); if (!m) return;
+    st = { v: 1, day: m.day || '', goals: m.goals || [], chest: m.chest || 0, streak: m.streak || 0, last: m.last || '', hardDone: false }; persist();
+  }
+  function reset() { st = null; try { localStorage.removeItem(KEY); } catch (e) {} }
+
   // ---------- API para el menú ----------
   function summary() {
     ensure(); const done = st.goals.filter(g => g.done).length;
@@ -217,7 +238,7 @@
     open() { inject(); sfx('click'); render(); },
     close() { const h = $('svc'); if (h) h.remove(); try { if (window.Inicio && Inicio.refresh) Inicio.refresh(); } catch (e) {} },
     chest() { inject(); chestCeremony(); },
-    event, summary, strip, describe, _state: () => ensure()
+    event, summary, strip, describe, snap, mergeSnap, apply, reset, _state: () => ensure()
   };
 
   // ---------- escucha de los eventos del juego ----------
