@@ -1,0 +1,221 @@
+/* Estilo nuevo para las ventanas del juego (perfil, estadísticas, cuenta, ranking, atajos, orden de ingredientes, sala online,
+   resultados…): fondo marrón oscuro, marco dorado, títulos Fredoka y botones en placa, como la Tienda, el Aula y los modos.
+   Se carga después de los estilos de index.html y los sustituye. Nada aquí anima width/height/top/left (solo transform y opacity). */
+
+:root {
+  --nv-gold: #ffb300; --nv-gold-2: #ffd978; --nv-cream: #fff3d6; --nv-ink: #1a0e07;
+  --nv-plate-a: #5a3a20; --nv-plate-b: #2e1a0e; --nv-line: rgba(255, 204, 80, .35);
+  --nv-squish: cubic-bezier(.34, 1.56, .64, 1);
+}
+
+/* ---------- marco de las ventanas ---------- */
+.modal-overlay, .order-detail-modal {
+  background: radial-gradient(circle at 50% 0%, rgba(74, 42, 20, .96) 0%, rgba(24, 11, 6, .98) 72%) !important;
+  backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+  padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)) !important;
+}
+.modal-card {
+  background: linear-gradient(#4a2d18, #2a170c) !important; color: var(--nv-cream) !important;
+  border: 3px solid var(--nv-ink) !important; outline: 2px solid var(--nv-gold); border-radius: 16px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .6) !important; font-family: 'Fredoka', 'Nunito', system-ui, sans-serif;
+}
+.modal-header {
+  background: linear-gradient(#6a4526, #3e2514) !important; color: var(--nv-gold-2) !important;
+  border-bottom: 3px solid var(--nv-gold); padding: 8px 14px !important;
+}
+.modal-header h2 { font-family: 'Fredoka One', 'Fredoka', cursive !important; font-size: 18px !important; color: var(--nv-gold-2) !important; text-shadow: 0 2px 0 rgba(0, 0, 0, .55); margin: 0; letter-spacing: .3px; }
+.modal-body { color: var(--nv-cream); scrollbar-width: thin; scrollbar-color: #8a5a00 transparent; }
+.modal-card, .modal-card * { scrollbar-color: #8a5a00 transparent; }
+
+/* ---------- botones ---------- */
+.modal-card .btn, .modal-overlay .btn {
+  background: linear-gradient(#ffe082, #ffb300) !important; color: #3b2208 !important; border: 2px solid #8a5a00 !important;
+  box-shadow: 0 3px 0 #8a5a00 !important; border-radius: 10px !important; font-family: 'Fredoka', sans-serif !important; font-weight: 800 !important;
+  min-height: 34px; padding: 5px 12px !important; transition: transform .18s var(--nv-squish);
+}
+.modal-card .btn:active, .modal-overlay .btn:active { transform: translateY(3px) scale(.97, .95); box-shadow: 0 0 0 #8a5a00 !important; }
+.modal-card .btn-danger, .modal-overlay .btn-danger { background: linear-gradient(#ff8a65, #e64a19) !important; color: #fff !important; border-color: #7f2a0a !important; box-shadow: 0 3px 0 #7f2a0a !important; min-width: 40px; }
+.modal-card .btn-primary, .modal-overlay .btn-primary { background: linear-gradient(135deg, #ff9800, #e64a19 65%, #c62828) !important; color: #fff !important; border-color: #ffe082 !important; box-shadow: 0 3px 0 #7f0000 !important; }
+.modal-card .btn::after, .modal-overlay .btn::after { content: ''; position: absolute; inset: -6px; }   /* zona táctil ≥ 44 px */
+.modal-card .btn, .modal-overlay .btn { position: relative; }
+@media (hover: hover) { .modal-card .btn:hover { filter: brightness(1.08); } }
+
+/* ---------- superficies claras con estilo en línea → placas oscuras ---------- */
+.modal-card [style*="background: #fff"], .modal-card [style*="background:#fff"],
+.modal-card [style*="background: #fafafa"], .modal-card [style*="background:#fafafa"],
+.modal-card [style*="background: #f5f5f5"], .modal-card [style*="background: #f1f8e9"],
+.modal-card [style*="background: #e8f5e9"], .modal-card [style*="background: #e3f2fd"],
+.modal-card [style*="background: #fff3e0"], .modal-card [style*="background: #fffde7"],
+.modal-card [style*="background: #ffe0b2"], .modal-card [style*="background: #fbe9e7"] {
+  background: linear-gradient(var(--nv-plate-a), var(--nv-plate-b)) !important; border-color: rgba(0, 0, 0, .5) !important; color: var(--nv-cream) !important;
+}
+.modal-card [style*="color: #b71c1c"], .modal-card [style*="color:#b71c1c"] { color: var(--nv-gold-2) !important; }
+.modal-card [style*="color: #5d4037"], .modal-card [style*="color:#5d4037"], .modal-card [style*="color: #6d4c41"], .modal-card [style*="color: #3e2723"],
+.modal-card [style*="color: #212121"], .modal-card [style*="color: #424242"], .modal-card [style*="color: #333"] { color: #e9d5b0 !important; }
+.modal-card [style*="color: #757575"], .modal-card [style*="color: #616161"], .modal-card [style*="color: #888"], .modal-card [style*="color: #9e9e9e"] { color: #b9a583 !important; }
+.modal-card [style*="color: #2e7d32"], .modal-card [style*="color:#2e7d32"] { color: #8fe08f !important; }
+.modal-card [style*="color: #e65100"] { color: #ffb74d !important; }
+.modal-card [style*="border: 1px solid #e0e0e0"], .modal-card [style*="border: 1px solid #ffe0b2"] { border-color: rgba(255, 204, 80, .25) !important; }
+
+/* ---------- campos y tablas ---------- */
+.modal-card input[type="text"], .modal-card input[type="password"], .modal-card input[type="email"], .modal-card input:not([type]), .modal-card select, .modal-card textarea, .acc-input {
+  background: #1d0e08 !important; color: var(--nv-cream) !important; border: 2px solid #8a5a00 !important; border-radius: 10px !important; font-family: 'Fredoka', sans-serif !important; min-height: 36px;
+}
+.modal-card input::placeholder { color: #8a735b; }
+.recipes-table th, .leaderboard-table th { background: #3e2514 !important; color: var(--nv-gold-2) !important; border-color: rgba(0, 0, 0, .5) !important; }
+.recipes-table td, .leaderboard-table td { border-color: rgba(255, 204, 80, .14) !important; color: var(--nv-cream); }
+.recipes-table tr:nth-child(even), .leaderboard-table tr:nth-child(even) { background: rgba(0, 0, 0, .22) !important; }
+.leaderboard-table tr:hover td { background: rgba(255, 179, 0, .1); }
+
+/* ---------- cuenta, estadísticas y similares ---------- */
+.acc-status, .acc-key { background: rgba(0, 0, 0, .35) !important; border-color: var(--nv-line) !important; color: var(--nv-cream) !important; }
+.acc-status span, .acc-hint { color: #c9b79a !important; }
+.acc-section h3 { color: var(--nv-gold-2) !important; font-family: 'Fredoka One', 'Fredoka', cursive; font-weight: 400; }
+.acc-btn { background: linear-gradient(#ffe082, #ffb300) !important; color: #3b2208 !important; border: 2px solid #8a5a00 !important; box-shadow: 0 3px 0 #8a5a00; border-radius: 10px !important; font-family: 'Fredoka', sans-serif !important; padding: 7px 12px !important; }
+.acc-btn.alt { background: linear-gradient(#ff8a65, #e64a19) !important; color: #fff !important; border-color: #7f2a0a !important; box-shadow: 0 3px 0 #7f2a0a; }
+.acc-warn { color: #ff8a65 !important; } .acc-msg { color: #ffab91 !important; }
+.level-stats { background: rgba(0, 0, 0, .3) !important; border: 1.5px solid var(--nv-line) !important; border-radius: 12px !important; }
+.level-stats .val-lbl { color: #c9b79a !important; }
+.device-info-pill { background: rgba(0, 0, 0, .3) !important; color: #e9d5b0 !important; border: 1.5px solid var(--nv-line) !important; border-radius: 10px !important; }
+.avatar-opt-btn { background: rgba(0, 0, 0, .35) !important; border: 2px solid rgba(255, 255, 255, .14) !important; border-radius: 10px !important; }
+.avatar-opt-btn.selected, .avatar-opt-btn.active { border-color: var(--nv-gold) !important; background: rgba(255, 179, 0, .2) !important; }
+
+/* ---------- estadísticas ---------- */
+.stt-kpi, .stt-learn { background: linear-gradient(var(--nv-plate-a), var(--nv-plate-b)) !important; border: 2px solid var(--nv-ink) !important; border-radius: 12px !important; box-shadow: 0 2px 0 rgba(0, 0, 0, .45); }
+.stt-kpi span { color: #c9b79a !important; } .stt-kpi b { color: var(--nv-cream) !important; }
+.stt-learn-h { color: #9fd49f !important; } .stt-learn-h small { color: #c9b79a !important; } .stt-learn-l { color: #e9d5b0 !important; } .stt-learn-l b { color: var(--nv-gold-2); }
+.stt-chip { background: rgba(0, 0, 0, .38) !important; color: #9fd49f !important; border: 1px solid rgba(159, 212, 159, .4); }
+.stt-filter { background: rgba(0, 0, 0, .35) !important; border: 2px solid rgba(255, 255, 255, .18) !important; color: #e9d5b0 !important; font-family: 'Fredoka', sans-serif; }
+.stt-filter.on { background: linear-gradient(#ffd54f, #ffa000) !important; color: #2b1a08 !important; border-color: #fff3d0 !important; }
+.stt-table { color: var(--nv-cream) !important; } .stt-table th { color: var(--nv-gold-2) !important; border-bottom-color: var(--nv-line) !important; }
+.stt-table td { border-bottom-color: rgba(255, 204, 80, .12) !important; color: var(--nv-cream) !important; } .stt-table small { color: #b9a583 !important; }
+.stt-bar { background: rgba(255, 255, 255, .16) !important; }
+
+/* ---------- pestañas (ranking, despensa) y textos sueltos ---------- */
+.modal-card .pantry-tab { background: rgba(0, 0, 0, .35) !important; color: #e9d5b0 !important; border: 2px solid rgba(255, 255, 255, .18) !important; border-radius: 12px !important; font-family: 'Fredoka', sans-serif; font-weight: 800; }
+.modal-card .pantry-tab.active { background: linear-gradient(#ffd54f, #ffa000) !important; color: #2b1a08 !important; border-color: #fff3d0 !important; box-shadow: 0 2px 0 #8a5a00; }
+.modal-card td, .modal-card th { color: var(--nv-cream); }
+.modal-card th { color: var(--nv-gold-2); }
+.modal-card small, .modal-card .hint { color: #c9b79a; }
+.level-stats .val-num { color: var(--nv-gold-2); }
+#leaderboard-modal .leaderboard-table td { color: var(--nv-cream) !important; }
+#leaderboard-modal .leaderboard-table td b { color: var(--nv-gold-2) !important; }
+#leaderboard-modal .leaderboard-table td[style*="color"], #leaderboard-modal .leaderboard-table td span[style*="color: #3e2723"], #leaderboard-modal .leaderboard-table td span[style*="color:#3e2723"] { color: var(--nv-cream) !important; }
+
+/* ---------- textos con estilo en línea sin espacio tras «:» ---------- */
+.modal-card [style*="color:#3e2723"], .modal-card [style*="color:#5d4037"], .modal-card [style*="color:#6d4c41"], .modal-card [style*="color:#212121"], .modal-card [style*="color:#424242"] { color: #e9d5b0 !important; }
+.modal-card [style*="color:#757575"], .modal-card [style*="color:#616161"], .modal-card [style*="color:#888"], .modal-card [style*="color:#9e9e9e"] { color: #b9a583 !important; }
+.modal-card [style*="color:#1b5e20"], .modal-card [style*="color: #1b5e20"], .modal-card [style*="color:#00695c"], .modal-card [style*="color: #00695c"] { color: #9fd49f !important; }
+.modal-card [style*="color:#e65100"] { color: #ffb74d !important; }
+.modal-card [style*="color:#c62828"], .modal-card [style*="color: #c62828"] { color: #ff8a80 !important; }
+
+/* ---------- fin de nivel ---------- */
+.level-end-modal { max-width: 640px !important; padding: 6px 16px 12px !important; text-align: center; }
+.level-end-modal h2, #end-title { font-family: 'Fredoka One', 'Fredoka', cursive !important; font-size: 22px !important; color: var(--nv-gold-2) !important; text-shadow: 0 3px 0 rgba(0, 0, 0, .55); margin: 4px 0 2px !important; }
+#end-desc { font-size: 12px !important; color: #e9d5b0 !important; }
+.level-stars-display { font-size: 28px !important; margin: 2px 0 !important; }
+.level-end-modal .level-stats { display: grid !important; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 6px 4px; margin: 6px 0; }
+.level-end-modal .level-stats .val-num { font-size: 18px !important; }
+#end-auto-ranking-notice { background: rgba(67, 160, 71, .18) !important; border-color: #43a047 !important; color: #9fd49f !important; }
+.level-end-modal .btn-secondary, .level-end-modal .btn-ranking { background: linear-gradient(#6a4526, #3e2514) !important; color: var(--nv-cream) !important; border: 2px solid #1a0e07 !important; box-shadow: 0 3px 0 #1a0e07 !important; }
+#btn-next-level { background: linear-gradient(135deg, #ff9800, #e64a19 65%, #c62828) !important; color: #fff !important; border-color: #ffe082 !important; box-shadow: 0 3px 0 #7f0000 !important; font-size: 14px !important; padding: 7px 18px !important; }
+@media (max-height: 460px) { #end-auto-ranking-notice { display: none !important; } .level-end-modal { padding: 2px 12px 8px !important; } .level-stars-display { font-size: 24px !important; } }
+
+/* ---------- Recorrido por Japón (la escena isométrica conserva sus colores; el marco usa el estilo nuevo) ---------- */
+#jp-screen .jp-top { background: linear-gradient(#6a4526, #3e2514); border-bottom: 3px solid var(--nv-gold); color: var(--nv-cream); }
+#jp-screen .jp-top h2 { font-family: 'Fredoka One', 'Fredoka', cursive; font-weight: 400; font-size: 17px; color: var(--nv-gold-2); text-shadow: 0 2px 0 rgba(0, 0, 0, .55); }
+#jp-screen .jp-chip, .jp-resultbox .jp-chip { background: rgba(0, 0, 0, .4); border: 1.5px solid var(--nv-line); color: var(--nv-cream); }
+#jp-screen .jp-btn, .jp-resultbox .jp-btn { background: linear-gradient(#ffe082, #ffb300); color: #3b2208; border: 2px solid #8a5a00; box-shadow: 0 3px 0 #8a5a00; border-radius: 10px; font-family: 'Fredoka', sans-serif; font-weight: 800; transition: transform .18s var(--nv-squish); position: relative; }
+#jp-screen .jp-btn::after, .jp-resultbox .jp-btn::after { content: ''; position: absolute; inset: -6px; }
+#jp-screen .jp-btn:active, .jp-resultbox .jp-btn:active { transform: translateY(3px) scale(.97, .95); box-shadow: 0 0 0 #8a5a00; }
+#jp-screen .jp-btn.red, .jp-resultbox .jp-btn.red { background: linear-gradient(135deg, #ff9800, #e64a19 65%, #c62828); color: #fff; border-color: #ffe082; box-shadow: 0 3px 0 #7f0000; }
+#jp-screen .jp-btn.ghost, .jp-resultbox .jp-btn.ghost, #jp-screen .jp-foot .jp-btn.ghost, #jp-screen .jp-hudL .jp-btn.ghost { background: linear-gradient(#6a4526, #3e2514); color: var(--nv-cream); border-color: #1a0e07; box-shadow: 0 3px 0 #1a0e07; }
+#jp-screen .jp-btn:disabled { filter: grayscale(.85); opacity: .6; }
+#jp-screen .jp-map { border: 3px solid #1a0e07; outline: 2px solid var(--nv-gold); }
+#jp-screen .jp-side, #jp-screen .jp-dock, #jp-screen .jp-card, .jp-resultbox .jp-card { background: linear-gradient(#4a2d18, #2a170c); border: 3px solid #1a0e07; outline: 2px solid var(--nv-gold); color: var(--nv-cream); }
+#jp-screen .jp-dock { outline: 0; border-left: 3px solid var(--nv-gold); }
+#jp-screen .jp-side h3, #jp-screen .jp-dock h3, #jp-screen .jp-card h3, .jp-resultbox h3 { font-family: 'Fredoka One', 'Fredoka', cursive; font-weight: 400; color: var(--nv-gold-2); text-shadow: 0 2px 0 rgba(0, 0, 0, .5); }
+#jp-screen .jp-side small, #jp-screen .jp-dock small, #jp-screen .jp-card small, #jp-screen .jp-row small, .jp-resultbox small { color: #c9b79a; }
+#jp-screen .jp-dish, #jp-screen .jp-row, #jp-screen .jp-stats div, .jp-resultbox .jp-row, .jp-resultbox .jp-stats div { background: rgba(0, 0, 0, .3); border: 1.5px solid rgba(255, 204, 80, .18); color: var(--nv-cream); }
+#jp-screen .jp-dish span { color: #c9b79a; }
+#jp-screen .jp-obj.have { background: rgba(67, 160, 71, .22); border-color: rgba(159, 212, 159, .45); }
+#jp-screen .jp-opt { background: rgba(0, 0, 0, .3); border-color: rgba(255, 204, 80, .25); color: var(--nv-cream); }
+#jp-screen .jp-opt.sel { background: rgba(255, 179, 0, .2); border-color: var(--nv-gold); box-shadow: none; }
+#jp-screen .jp-zone { background: linear-gradient(#5a3a20, #2e1a0e); border-color: #1a0e07; color: var(--nv-cream); } #jp-screen .jp-zone .nm { color: var(--nv-gold-2); } #jp-screen .jp-zone small { color: #c9b79a; }
+#jp-screen .jp-capchip, #jp-screen .jp-note { background: rgba(35, 18, 10, .92); border: 2px solid var(--nv-gold); color: var(--nv-cream); } #jp-screen .jp-capchip small, #jp-screen .jp-note { color: #e9d5b0; }
+#jp-screen .jp-fin td { border-bottom-color: rgba(255, 204, 80, .15); } #jp-screen .jp-mast .no { color: #b9a583; } #jp-screen .jp-mast .ok { color: #9fd49f; }
+#jp-screen .jp-modal, .jp-resultbox { background: rgba(14, 7, 4, .78); }
+#jp-screen { background: radial-gradient(circle at 50% 0%, #4a2a14 0%, #1d0e08 70%); color: var(--nv-cream); }
+.jp-resultbox { color: var(--nv-cream); } .jp-resultbox .jp-card h3 { color: var(--nv-gold-2); }
+
+/* ---------- Reconocer ingredientes ---------- */
+#rc-screen { background: radial-gradient(circle at 50% 0%, #4a2a14 0%, #1d0e08 70%); }
+#rc-screen .rc-top { background: linear-gradient(#6a4526, #3e2514); border-bottom: 3px solid var(--nv-gold); }
+#rc-screen .rc-top h2 { font-family: 'Fredoka One', 'Fredoka', cursive; font-weight: 400; font-size: 17px; color: var(--nv-gold-2); text-shadow: 0 2px 0 rgba(0, 0, 0, .55); }
+#rc-screen .rc-btn { background: linear-gradient(#ffe082, #ffb300); color: #3b2208; border: 2px solid #8a5a00; box-shadow: 0 3px 0 #8a5a00; font-weight: 800; position: relative; transition: transform .18s var(--nv-squish); }
+#rc-screen .rc-btn::after { content: ''; position: absolute; inset: -6px; }
+#rc-screen .rc-btn:active { transform: translateY(3px) scale(.97, .95); box-shadow: 0 0 0 #8a5a00; }
+#rc-screen .rc-btn.green { background: linear-gradient(135deg, #ff9800, #e64a19 65%, #c62828); color: #fff; border-color: #ffe082; box-shadow: 0 3px 0 #7f0000; }
+#rc-screen .rc-btn.ghost { background: linear-gradient(#6a4526, #3e2514); color: var(--nv-cream); border-color: #1a0e07; box-shadow: 0 3px 0 #1a0e07; }
+#rc-screen .rc-clock { background: rgba(0, 0, 0, .45); border: 1.5px solid var(--nv-line); }
+#rc-screen .rc-card { background: linear-gradient(#4a2d18, #2a170c); color: var(--nv-cream); border: 3px solid #1a0e07; outline: 2px solid var(--nv-gold); }
+#rc-screen .rc-card h3 { font-family: 'Fredoka One', 'Fredoka', cursive; font-weight: 400; color: var(--nv-gold-2); text-shadow: 0 2px 0 rgba(0, 0, 0, .5); }
+#rc-screen .rc-opt { background: rgba(0, 0, 0, .32); border: 2px solid rgba(255, 255, 255, .16); color: var(--nv-cream); }
+#rc-screen .rc-opt.sel { background: rgba(255, 179, 0, .2); border-color: var(--nv-gold); }
+#rc-screen .rc-table td, #rc-screen .rc-table th { border-bottom-color: rgba(255, 204, 80, .15); }
+#rc-screen .rc-stat div { background: rgba(0, 0, 0, .3); border: 1.5px solid rgba(255, 204, 80, .18); } #rc-screen .rc-stat b { color: var(--nv-gold-2); } #rc-screen .rc-stat small { color: #c9b79a; }
+#rc-screen .rc-card p, #rc-screen .rc-card small, #rc-screen .rc-card div[style*="color"] { color: #e9d5b0; }
+#rc-screen .rc-card > div, #rc-screen .rc-card > p { color: #d6c4a4; }
+
+/* ---------- pedido del cliente (en partida) ---------- */
+.order-detail-box { background: linear-gradient(#4a2d18, #2a170c) !important; color: var(--nv-cream) !important; border: 3px solid var(--nv-ink) !important; outline: 2px solid var(--nv-gold); border-radius: 14px !important; font-family: 'Fredoka', sans-serif; }
+.order-detail-header { background: linear-gradient(#6a4526, #3e2514) !important; border-bottom: 3px solid var(--nv-gold); }
+.order-detail-header h3 { font-family: 'Fredoka One', 'Fredoka', cursive !important; font-weight: 400; color: var(--nv-gold-2) !important; text-shadow: 0 2px 0 rgba(0, 0, 0, .55); }
+.order-detail-box .btn-danger { background: linear-gradient(#ff8a65, #e64a19) !important; color: #fff !important; border: 2px solid #7f2a0a !important; box-shadow: 0 3px 0 #7f2a0a !important; border-radius: 10px !important; }
+.order-detail-body, .order-detail-body * { color: inherit; }
+.order-detail-box [style*="background: #fff"], .order-detail-box [style*="background:#fff"], .order-detail-box [style*="background: #f1f8e9"], .order-detail-box [style*="background: #e8f5e9"] { background: linear-gradient(var(--nv-plate-a), var(--nv-plate-b)) !important; border-color: rgba(0, 0, 0, .5) !important; color: var(--nv-cream) !important; }
+.order-detail-box .badge-ing { background: rgba(0, 0, 0, .35) !important; color: var(--nv-cream) !important; border: 1px solid rgba(255, 204, 80, .28) !important; }
+.order-detail-box [style*="color:#212121"], .order-detail-box [style*="color: #212121"], .order-detail-box [style*="color:#3e2723"], .order-detail-box [style*="color: #3e2723"], .order-detail-box [style*="color:#5d4037"], .order-detail-box [style*="color: #5d4037"] { color: #e9d5b0 !important; }
+.order-detail-box b, .order-detail-box strong { color: var(--nv-gold-2); }
+.order-detail-box .btn { background: linear-gradient(135deg, #43a047, #2e7d32) !important; color: #fff !important; border: 2px solid #a5d6a7 !important; box-shadow: 0 3px 0 #14532d !important; border-radius: 10px !important; font-family: 'Fredoka', sans-serif !important; }
+.order-detail-box .btn-danger { background: linear-gradient(#ff8a65, #e64a19) !important; border-color: #7f2a0a !important; box-shadow: 0 3px 0 #7f2a0a !important; }
+
+/* ---------- Tutorial guiado (Guía del Maestro) ---------- */
+.gu-card, .gu-menubox { background: linear-gradient(#4a2d18, #2a170c) !important; color: var(--nv-cream) !important; border: 3px solid var(--nv-ink) !important; outline: 2px solid var(--nv-gold); font-family: 'Fredoka', 'Nunito', system-ui, sans-serif; }
+.gu-head { color: #c9a77e !important; } .gu-bar { background: rgba(255, 255, 255, .14) !important; }
+.gu-title, .gu-menubox h3 { font-family: 'Fredoka One', 'Fredoka', cursive !important; font-weight: 400 !important; color: var(--nv-gold-2) !important; text-shadow: 0 2px 0 rgba(0, 0, 0, .5); }
+.gu-text, .gu-menubox p { color: #e9d5b0 !important; } .gu-text b, .gu-menubox p b { color: var(--nv-gold-2) !important; }
+.gu-tip { color: #8fe0d0 !important; }
+.gu-btns button, .gu-mb { border: 2px solid #8a5a00 !important; box-shadow: 0 3px 0 #8a5a00; background: linear-gradient(#ffe082, #ffb300) !important; color: #3b2208 !important; font-family: 'Fredoka', sans-serif !important; font-weight: 800 !important; position: relative; }
+.gu-btns button::after, .gu-mb::after { content: ''; position: absolute; inset: -6px; }
+.gu-ok, .gu-mb.green { background: linear-gradient(135deg, #43a047, #2e7d32) !important; color: #fff !important; border-color: #a5d6a7 !important; box-shadow: 0 3px 0 #14532d !important; }
+.gu-skip, .gu-mb.ghost { background: linear-gradient(#6a4526, #3e2514) !important; color: var(--nv-cream) !important; border-color: #1a0e07 !important; box-shadow: 0 3px 0 #1a0e07 !important; }
+.gu-exit { background: linear-gradient(#ff8a65, #e64a19) !important; color: #fff !important; border-color: #7f2a0a !important; box-shadow: 0 3px 0 #7f2a0a !important; }
+.gu-mb.gold { background: linear-gradient(135deg, #ff9800, #e64a19 65%, #c62828) !important; color: #fff !important; border-color: #ffe082 !important; box-shadow: 0 3px 0 #7f0000 !important; }
+.gu-ask { background: rgba(0, 0, 0, .35) !important; color: var(--nv-cream); }
+.gu-lesson { background: rgba(0, 0, 0, .3) !important; border-color: rgba(255, 204, 80, .25) !important; }
+.gu-lesson b { color: var(--nv-gold-2) !important; } .gu-lesson small { color: #c9b79a !important; }
+.gu-lesson .rw { background: #ffb300 !important; color: #2b1a08 !important; }
+.gu-lesson.next { background: rgba(67, 160, 71, .2) !important; border-color: #43a047 !important; } .gu-lesson.done { background: rgba(67, 160, 71, .12) !important; } .gu-lesson em, .gu-lesson.next em, .gu-lesson.done em { color: #9fd49f !important; }
+
+/* ---------- resultado de un reto ---------- */
+#training-result-modal .trn-medal { font-size: 46px; line-height: 1; filter: drop-shadow(0 3px 4px rgba(0, 0, 0, .5)); }
+#training-result-modal .trn-rtitle { font-family: 'Fredoka One', 'Fredoka', cursive; font-size: 19px; color: var(--nv-gold-2) !important; text-shadow: 0 2px 0 rgba(0, 0, 0, .55); margin: 2px 0 6px; }
+#training-result-modal .trn-rline { color: var(--nv-cream) !important; font-size: 12.5px; margin: 3px 0; }
+#training-result-modal .trn-rline b { color: var(--nv-gold-2); }
+#training-result-modal .trn-up { color: #9fd49f !important; } #training-result-modal .trn-down { color: #ffab91 !important; }
+#training-result-modal .acc-row { gap: 8px; }
+
+/* ---------- zonas táctiles ≥ 44 px (la skill game-ui-master): se amplía el área que responde sin cambiar el dibujo ---------- */
+.tl-tab, .tl-buy, .tl-back, .stt-filter, .modal-card .pantry-tab, .acc-btn, .cm-btn, .rcb-back, .rcb-tab, .svc-x, .svc-open, .mds-cta, .mds-tab, .hp-nav, .cm-tok, #hm .hm-btn { position: relative; }
+.tl-tab::before, .tl-buy::before, .tl-back::before, .stt-filter::before, .modal-card .pantry-tab::before, .acc-btn::before, .cm-btn::before, .rcb-back::before, .rcb-tab::before, .svc-x::before, .svc-open::before, .mds-cta::before, .mds-tab::before {
+  content: ''; position: absolute; left: -2px; right: -2px; top: -9px; bottom: -9px; }
+.mds-i { position: relative; } .mds-i::before { content: ''; position: absolute; inset: -14px; border-radius: 50%; }
+.modal-card .btn::after, .modal-overlay .btn::after { inset: -10px -4px; }
+#jp-screen .jp-btn::after, .jp-resultbox .jp-btn::after, #rc-screen .rc-btn::after, .gu-btns button::after, .gu-mb::after { inset: -9px -4px; }
+.tl-tab, .rcb-tab, .mds-tab { min-height: 36px; display: inline-flex; align-items: center; justify-content: center; }
+.tl-tabs { padding-top: 4px !important; padding-bottom: 6px !important; }
+.mds-i { width: 22px !important; height: 22px !important; font-size: 13px !important; line-height: 19px !important; }
+.prof-sk-list button { min-height: 40px; padding: 8px 12px !important; }
+.svc-x { min-width: 44px; }
+.hm-daily { position: relative; } .hm-daily::before { content: ''; position: absolute; left: 0; right: 0; top: -8px; bottom: -8px; }

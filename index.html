@@ -5007,6 +5007,7 @@
     transform: translateX(-50%) translateY(0);
   }
 </style>
+<link rel="stylesheet" href="estilo-nuevo.css?v=15">
 </head>
 <body>
 
@@ -5031,7 +5032,7 @@
 <div id="game-container">
   <!-- PANTALLA DE INICIO (START / TITLE SCREEN) -->
   <div id="start-screen" class="start-screen-overlay">
-    <span id="app-version">v201</span>
+    <span id="app-version">v202</span>
   </div>
 
   <!-- EFECTO DE PARPADEO ROJO Y MENSAJE DE CLIENTE PERDIDO -->
@@ -6318,44 +6319,39 @@
     <div class="modal-card" onclick="event.stopPropagation()" style="max-width: 560px; width: 92%; border: 2.5px solid #ffb300; background: #1b0a07; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.85);">
       <div class="modal-header" style="background: linear-gradient(90deg, #2b110b, #441a12); border-bottom: 2px solid #ffb300; padding: 10px 16px; display:flex; justify-content:space-between; align-items:center;">
         <h2 style="font-family:'Fredoka One', cursive; color:#ffca28; font-size:18px; margin:0; display:flex; align-items:center; gap:8px;">
-          <span>⌨️</span> Atajos de Teclado & Controles Arcade
+          <span>⌨️</span> Atajos de teclado y controles
         </h2>
         <button class="btn btn-danger" style="padding: 2px 8px;" onclick="closeShortcutsModal()">✕</button>
       </div>
       <div style="padding: 14px 16px; display:flex; flex-direction:column; gap:12px; font-size:12px; color:#fff8f0;">
         <div style="background: rgba(0,0,0,0.4); border-radius:10px; padding:10px 12px; border:1px solid #4a241a;">
-          <h4 style="color:#ffb300; font-family:'Fredoka One', cursive; font-size:13.5px; margin-bottom:8px;">🎮 Menú Principal (Pantalla de Inicio)</h4>
+          <h4 style="color:#ffb300; font-family:'Fredoka One', cursive; font-size:13.5px; margin-bottom:8px;">🎮 Pantalla principal</h4>
           <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; font-size:11.5px;">
-            <div><kbd class="key-pill">Espacio / Enter</kbd> : Jugar modo activo</div>
-            <div><kbd class="key-pill">1</kbd> : Elegir Modo Tutorial</div>
-            <div><kbd class="key-pill">2</kbd> : Elegir Modo Entrenamiento</div>
-            <div><kbd class="key-pill">3</kbd> : Elegir Cocina libre</div>
-            <div><kbd class="key-pill">4</kbd> : Elegir Modo Campaña</div>
-            <div><kbd class="key-pill">5</kbd> : Elegir Modo Rash</div>
-            <div><kbd class="key-pill">R</kbd> : Ver Ranking Oficial</div>
-            <div><kbd class="key-pill">S</kbd> : Secretos del Chef</div>
+            <div><kbd class="key-pill">Espacio / Enter</kbd> : Jugar el modo elegido</div>
+            <div><kbd class="key-pill">R</kbd> : Ver Ranking</div>
+            <div><kbd class="key-pill">S</kbd> : Abrir la Tienda</div>
             <div><kbd class="key-pill">L</kbd> : Abrir Recetario</div>
             <div><kbd class="key-pill">O</kbd> : Ordenar Ingredientes</div>
+            <div><kbd class="key-pill">H</kbd> : Esta ayuda</div>
             <div><kbd class="key-pill">M</kbd> : Silenciar / Activar Audio</div>
             <div><kbd class="key-pill">F</kbd> : Pantalla Completa</div>
             <div><kbd class="key-pill">Esc</kbd> : Cerrar Ventanas</div>
           </div>
         </div>
         <div style="background: rgba(0,0,0,0.4); border-radius:10px; padding:10px 12px; border:1px solid rgba(0,229,255,0.25);">
-          <h4 style="color:#00e5ff; font-family:'Fredoka One', cursive; font-size:13.5px; margin-bottom:8px;">🍜 Durante la Partida (Cocina Arcade)</h4>
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; font-size:11.5px;">
-            <div><kbd class="key-pill">1, 2, 3</kbd> : Cambiar Cuenco Donburi</div>
-            <div><kbd class="key-pill">Q</kbd> : Cocinar / Servir Fideos</div>
-            <div><kbd class="key-pill">W</kbd> : Hervir Caldo Shio</div>
-            <div><kbd class="key-pill">E</kbd> : Sopletear Lámina Chasu</div>
-            <div><kbd class="key-pill">P</kbd> : Pausar Partida</div>
-            <div><kbd class="key-pill">M</kbd> : Mute de Audio</div>
+          <h4 style="color:#00e5ff; font-family:'Fredoka One', cursive; font-size:13.5px; margin-bottom:8px;">🍜 Durante la partida</h4>
+          <div style="font-size:11.5px; line-height:1.5;">La cocina se juega con el dedo o el ratón: toca, arrastra y haz los gestos que pide cada área.
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:6px;">
+              <div><kbd class="key-pill">M</kbd> : Silenciar / activar audio</div>
+              <div><kbd class="key-pill">F</kbd> : Pantalla completa</div>
+              <div><kbd class="key-pill">Esc</kbd> : Cerrar ventanas</div>
+            </div>
           </div>
         </div>
       </div>
       <div style="text-align:center; padding: 4px 16px 14px 16px;">
         <button class="btn" onclick="closeShortcutsModal()" style="background:linear-gradient(135deg, #ff9800, #e65100); border-color:#ffe082; color:#fff; font-weight:900; padding:8px 24px; border-radius:20px; font-size:13px; cursor:pointer;">
-          ¡Entendido, a Cocinar! 🥢
+          ¡Entendido! 🥢
         </button>
       </div>
     </div>
@@ -6655,40 +6651,39 @@
   <!-- TOAST DE MODO BLOQUEADO (REQUIERE TUTORIAL) -->
   <div id="mode-locked-toast">
     <span style="font-size: 16px;">🔒</span>
-    <span id="mode-locked-toast-text">Completa primero el Modo Tutorial para desbloquear el Modo Normal y Rash.</span>
-    <button onclick="TutorialManager.skip();" style="background:#ffca28; color:#1b0a07; border:none; padding:4px 10px; border-radius:12px; font-weight:900; font-size:11px; cursor:pointer; margin-left:8px; box-shadow:0 2px 6px rgba(0,0,0,0.4);" title="Saltar tutorial si ya sabes jugar">⏩ Desbloquear</button>
+    <span id="mode-locked-toast-text">Completa primero la lección de Ramen del Maestro para desbloquear el juego.</span>
   </div>
 </div> <!-- CIERRE DE #game-container (INCLUYE OVERLAYS Y MODALES PARA PANTALLA COMPLETA TOTAL) -->
 
-<script src="js/01-nucleo-supabase-dispositivo.js?v=165"></script>
-<script src="js/02-datos-ingredientes-recetas.js?v=165"></script>
-<script src="js/03-datos-niveles-campana.js?v=165"></script>
-<script src="js/04-estado-y-audio.js?v=165"></script>
-<script src="js/05-menu-recetas-areas.js?v=165"></script>
-<script src="js/06-etapas-navegacion.js?v=165"></script>
-<script src="js/07-makis-estacion.js?v=165"></script>
-<script src="js/08-salteados-wok.js?v=165"></script>
-<script src="js/09-etapas-motor.js?v=165"></script>
-<script src="js/10-produccion-taller-gestos.js?v=165"></script>
-<script src="js/11-emplatado-platos-salteado.js?v=165"></script>
-<script src="js/12-frituras-estacion.js?v=165"></script>
-<script src="js/13-areas-despensa-arrastre.js?v=165"></script>
-<script src="js/14-cuencos-estado-cocina.js?v=165"></script>
-<script src="js/15-ramen-fideos-clientes.js?v=165"></script>
-<script src="js/16-cooperativo-estaciones.js?v=165"></script>
-<script src="js/17-propinas-mejoras-progreso.js?v=165"></script>
-<script src="js/18-nube-cuenta.js?v=165"></script>
-<script src="js/19-entrenamiento.js?v=165"></script>
-<script src="js/20-estadisticas.js?v=165"></script>
-<script src="js/21-cocina-libre-mejoras-vfx.js?v=165"></script>
-<script src="js/22-calidad-servir.js?v=165"></script>
-<script src="js/23-ramen-sartenes-herramientas.js?v=165"></script>
-<script src="js/24-ramen-sartenes-shio-fideos.js?v=165"></script>
-<script src="js/25-partida-campana.js?v=165"></script>
-<script src="js/26-inicio-menu-modales.js?v=165"></script>
-<script src="js/28-perfil-ranking-pantalla.js?v=165"></script>
-<script src="js/29-secretos-datos.js?v=165"></script>
-<script src="js/31-orientacion-admin-arranque.js?v=165"></script>
+<script src="js/01-nucleo-supabase-dispositivo.js?v=166"></script>
+<script src="js/02-datos-ingredientes-recetas.js?v=166"></script>
+<script src="js/03-datos-niveles-campana.js?v=166"></script>
+<script src="js/04-estado-y-audio.js?v=166"></script>
+<script src="js/05-menu-recetas-areas.js?v=166"></script>
+<script src="js/06-etapas-navegacion.js?v=166"></script>
+<script src="js/07-makis-estacion.js?v=166"></script>
+<script src="js/08-salteados-wok.js?v=166"></script>
+<script src="js/09-etapas-motor.js?v=166"></script>
+<script src="js/10-produccion-taller-gestos.js?v=166"></script>
+<script src="js/11-emplatado-platos-salteado.js?v=166"></script>
+<script src="js/12-frituras-estacion.js?v=166"></script>
+<script src="js/13-areas-despensa-arrastre.js?v=166"></script>
+<script src="js/14-cuencos-estado-cocina.js?v=166"></script>
+<script src="js/15-ramen-fideos-clientes.js?v=166"></script>
+<script src="js/16-cooperativo-estaciones.js?v=166"></script>
+<script src="js/17-propinas-mejoras-progreso.js?v=166"></script>
+<script src="js/18-nube-cuenta.js?v=166"></script>
+<script src="js/19-entrenamiento.js?v=166"></script>
+<script src="js/20-estadisticas.js?v=166"></script>
+<script src="js/21-cocina-libre-mejoras-vfx.js?v=166"></script>
+<script src="js/22-calidad-servir.js?v=166"></script>
+<script src="js/23-ramen-sartenes-herramientas.js?v=166"></script>
+<script src="js/24-ramen-sartenes-shio-fideos.js?v=166"></script>
+<script src="js/25-partida-campana.js?v=166"></script>
+<script src="js/26-inicio-menu-modales.js?v=166"></script>
+<script src="js/28-perfil-ranking-pantalla.js?v=166"></script>
+<script src="js/29-secretos-datos.js?v=166"></script>
+<script src="js/31-orientacion-admin-arranque.js?v=166"></script>
 <script src="multiplayer.js?v=23"></script>
 <script src="makis-studio.js?v=118"></script>
 <script src="frituras-prod.js?v=2"></script>
@@ -6699,7 +6694,7 @@
 <script src="servicio.js?v=4"></script>
 <script src="taller.js?v=7"></script>
 <script src="modos.js?v=11"></script>
-<script src="home.js?v=21"></script>
+<script src="home.js?v=22"></script>
 <script src="guia.js?v=9"></script>
 <script src="japon-scene.js?v=10"></script>
 <script src="escena-cocina.js?v=16"></script>

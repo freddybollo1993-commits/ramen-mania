@@ -138,7 +138,7 @@ function openLevelRetos(lvl) {
   const em = document.getElementById('level-end-modal'); if (em) em.classList.remove('active');
   const rm = document.getElementById('training-result-modal'); if (rm) rm.classList.remove('active');
   try { if (typeof returnToStartMenu === 'function' && gameState && gameState.isGameOver) returnToStartMenu(); } catch (e) {}
-  if (window.CampMapa) CampMapa.retos(lvl || trainingFocusLevel()); else openTrainingModal();
+  if (window.CampMapa) CampMapa.retos(lvl || trainingFocusLevel());
 }
 
 function trainingFeature(id) { return true; }   // los retos son subniveles de la Campaña: ya se aprendió lo necesario antes de abrirlos

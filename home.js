@@ -118,6 +118,7 @@
   ];
   // lo último que cambió, en lenguaje del jugador (lo más nuevo primero)
   const NEWS = [
+    ['v202', '🎨', 'Todas las ventanas con el estilo nuevo', 'Perfil, estadísticas, cuenta, ranking, atajos, ordenar ingredientes, sala online, resultados, Japón, Reconocer ingredientes y el tutorial del Maestro ahora usan el mismo estilo (fondo oscuro, marco dorado y botones en placa). Se quitó mucho código viejo: el juego carga más ligero.'],
     ['v200', '🧹', 'Secretos del Maestro, en la Tienda', 'Se quitó la bodega de Secretos del Maestro y sus modelos 3D: los secretos viven solo como ítems de la Tienda, con su bono permanente.'],
     ['v199', '🎓', 'Aula del Maestro por tarjetas', 'El Aula se organiza como los modos de juego: dos secciones, Lecciones y Repaso, con tarjetas grandes que explican qué es cada cosa. Práctica y Retos viven en Aprender.'],
     ['v198', '🎓', 'Aula del Maestro renovada', 'El Aula pasa al estilo nuevo (fondo oscuro, placas y dorado), sin el Maestro animado: el siguiente paso y un consejo del día arriba, y los retos enlazan con el mapa de la Campaña.'],
