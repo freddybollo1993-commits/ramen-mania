@@ -3,6 +3,7 @@
 
 // El manifiesto ya no fuerza horizontal (orientation: any): con 'landscape' la app instalada no abría al primer toque desde una pantalla de inicio
 // en vertical (la otra PWA, en vertical, abre al instante). Ahora se abre como cualquier app y el juego pide horizontal al iniciar.
+let userDismissedRotateOverlay = false;       // (antes vivía por error al final del módulo de los modelos 3D)
 function lockLandscapeIfInstalled() {
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
   if (!isStandalone || !(screen.orientation && screen.orientation.lock)) return;
