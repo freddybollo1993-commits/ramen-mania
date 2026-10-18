@@ -42,11 +42,11 @@ function getCurrentLevelConfig() {
       level: 99,
       name: "Servicio Multijugador",
       customers: 999,
-      base_patience: 35,
+      base_patience: MultiplayerManager.gameMode === 'VS' ? 45 : 35,        // con etapas (Arrebato) cada pedido tarda más: más paciencia y llegadas más espaciadas
       max_orders: 2,
       max_customers: 4,
       ramen_names: RECETAS_RAMEN.map(r => r.name),
-      spawn_time: 4
+      spawn_time: MultiplayerManager.gameMode === 'VS' ? 6 : 4
     };
   }
   if (gameState.gameMode === 'RASH') {

@@ -52,13 +52,13 @@
     AREA_OPTS: [['ramen', '🍜', 'Ramen'], ['salteados', '🥘', 'Salteado'], ['makis', '🍣', 'Makis'], ['frituras', '🍤', 'Frituras']],
     winCondition: {
       type: 'TIME', // 'TIME', 'MONEY', 'CUSTOMERS'
-      target: 120    // 120s, $600, o 10 clientes
+      target: 180    // 180s, $600, o 10 clientes
     },
     winPresets: {
       TIME: [
-        { label: '⏱️ 120s (Normal)', target: 120 },
-        { label: '⚡ 60s (Rápido)', target: 60 },
-        { label: '🏆 180s (Maratón)', target: 180 }
+        { label: '⏱️ 180s (Normal)', target: 180 },
+        { label: '⚡ 120s (Rápido)', target: 120 },
+        { label: '🏆 300s (Maratón)', target: 300 }
       ],
       MONEY: [
         { label: '💰 S/ 600 (Normal)', target: 600 },
@@ -410,7 +410,7 @@
       this.isHost = true;
       this.isReady = true; // El Host siempre está listo
       this.gameMode = this.gameMode || 'VS';
-      this.winCondition = this.winCondition || { type: 'TIME', target: 120 };
+      this.winCondition = this.winCondition || { type: 'TIME', target: 180 };
 
       await this.connectToChannel(this.roomId);
       this.switchLobbyTab('room');
@@ -703,7 +703,7 @@
         if (winTarget !== null && winTarget !== undefined) {
           this.winCondition.target = Number(winTarget);
         } else {
-          if (winType === 'TIME') this.winCondition.target = 120;
+          if (winType === 'TIME') this.winCondition.target = 180;
           else if (winType === 'MONEY') this.winCondition.target = 600;
           else if (winType === 'CUSTOMERS') this.winCondition.target = 10;
         }
@@ -850,7 +850,7 @@
        MECÁNICA VS: ARREBATO DE CLIENTES (STEAL THE ORDER)
        ========================================================================== */
     // Llamado cuando el jugador sirve con éxito un plato a un cliente
-    claimCustomerInVS(customerIndex, customerId, ramenName, price) {
+    claimCustomerInVS(customerIndex, customerId, ramenName, price, itemIndex) {
       if (!this.isGameActive || this.gameMode !== 'VS') return;
 
       this.myScore += Number(price) || 30;
@@ -862,6 +862,7 @@
       this.broadcastEvent('CLAIM_CUSTOMER', {
         customerIndex,
         customerId,
+        itemIndex,
         ramenName,
         price,
         playerId: myProf.id,
@@ -873,6 +874,7 @@
       });
 
       this.updateMultiplayerHUD();
+      if (this.isHost) setTimeout(() => this.syncCustomerQueue(gameState.customerSlots), 0);   // el anfitrión actualiza la fila de todos ya con este pedido servido
 
       // Verificar si alcancé la condición de victoria
       if (this.winCondition.type === 'MONEY' && this.myScore >= this.winCondition.target) {
@@ -968,7 +970,7 @@
 
     // Sincronizar fila de clientes en Modo Co-op (el Host es la fuente de verdad)
     syncCustomerQueue(customerSlots) {
-      if (!this.isGameActive || this.gameMode !== 'COOP' || !this.isHost) return;
+      if (!this.isGameActive || !this.isHost) return;                  // la fila de clientes es compartida en VS y en Cooperativo; el anfitrión manda
       this.broadcastEvent('CUSTOMER_QUEUE_SYNC', {
         customerSlots
       });
@@ -1090,9 +1092,12 @@
           }
           break;
 
-        case 'CUSTOMER_QUEUE_SYNC': // En Modo Co-op: Sincronización de clientes desde el Host
+        case 'CUSTOMER_QUEUE_SYNC': // VS y Co-op: Sincronización de clientes desde el Host
           if (typeof gameState !== 'undefined') {
-            gameState.customerSlots = data.customerSlots;
+            // no se pierde lo que yo ya serví mientras llegaba la fila del anfitrión: los pedidos servidos se conservan
+            const mine = {}; (gameState.customerSlots || []).forEach(c => { if (c && c.id) mine[c.id] = c; });
+            (data.customerSlots || []).forEach(c => { const m = c && c.id && mine[c.id]; if (m) c.orders.forEach((o, i) => { if (m.orders[i] && m.orders[i].served) o.served = true; }); });
+            gameState.customerSlots = (data.customerSlots || []).map(c => (c && c.orders && c.orders.every(o => o.served)) ? null : c);   // sin clientes fantasma ya atendidos
             if (typeof renderCustomers === 'function') renderCustomers();
           }
           break;
@@ -1148,30 +1153,40 @@
 
     // Alerta visual de cliente arrebatado (VS)
     handleCustomerStolen(data) {
-      this.myCustomersStolen++;
-      this.playArcadeSound('stolen');
-
-      // Mostrar toast animado grande
-      this.showActionToast(
-        `💨 ¡${data.playerName} te arrebató el cliente! (+${data.avatar} S/ ${data.price})`,
-        '#d32f2f'
-      );
-
       // Actualizar ranking en HUD del rival
       const rival = this.players.find(p => p.id === data.playerId);
       if (rival) {
         rival.score = data.score;
         rival.customersServed = data.customersServed;
       }
-      this.updateMultiplayerHUD();
 
-      // Si el cliente estaba en la barra de clientes local, removerlo y traer otro
-      if (typeof shiftCustomersLeft === 'function' && typeof gameState !== 'undefined') {
-        if (gameState.customers && gameState.customers[data.customerIndex]) {
-          gameState.customers.splice(data.customerIndex, 1);
-          if (typeof renderCustomers === 'function') renderCustomers();
+      // La fila de clientes es compartida: el pedido que sirvió el rival queda servido para todos
+      let wasMine = false;
+      const slots = (typeof gameState !== 'undefined' && gameState.customerSlots) || [];
+      const idx = slots.findIndex(c => c && c.id === data.customerId);
+      if (idx >= 0) {
+        const cust = slots[idx];
+        const order = (data.itemIndex !== undefined && cust.orders[data.itemIndex] && !cust.orders[data.itemIndex].served)
+          ? cust.orders[data.itemIndex]
+          : cust.orders.find(o => !o.served && o.recipe.name === data.ramenName);
+        if (order) { order.served = true; wasMine = true; }
+        if (cust.orders.every(o => o.served)) {
+          gameState.customerSlots[idx] = null;
+          if (gameState.selectedCustomerModalIndex === idx && typeof closeCustomerOrderModal === 'function') closeCustomerOrderModal();
+          if (typeof shiftCustomersLeft === 'function') shiftCustomersLeft();
         }
+        if (typeof renderCustomers === 'function') renderCustomers();
+        if (this.isHost) this.syncCustomerQueue(gameState.customerSlots);
       }
+
+      if (wasMine) {
+        this.myCustomersStolen++;
+        this.playArcadeSound('stolen');
+        this.showActionToast(`💨 ¡${data.playerName} te arrebató ${data.ramenName || 'el pedido'}! (${data.avatar} S/ ${data.price})`, '#d32f2f');
+      } else {
+        this.showActionToast(`${data.avatar} ${data.playerName} sirvió ${data.ramenName || 'un pedido'} (S/ ${data.price})`, '#1565c0');
+      }
+      this.updateMultiplayerHUD();
     },
 
     // Aplicar actualización visual de un tazón que otro amigo está armando
@@ -1226,9 +1241,9 @@
       // Indicadores y botones de valor meta adaptados a la condición elegida
       const targetGroup = document.getElementById('mp-targets-group');
       const presets = (this.winPresets && this.winPresets[this.winCondition.type]) || [
-        { label: '⏱️ 120s (Normal)', target: 120 },
-        { label: '⚡ 60s (Rápido)', target: 60 },
-        { label: '🏆 180s (Maratón)', target: 180 }
+        { label: '⏱️ 180s (Normal)', target: 180 },
+        { label: '⚡ 120s (Rápido)', target: 120 },
+        { label: '🏆 300s (Maratón)', target: 300 }
       ];
 
       if (targetGroup) {

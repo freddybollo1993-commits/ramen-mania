@@ -301,7 +301,7 @@ function serveOrder(customerIndex, itemIndex, dish) {
   // Integración Multijugador (VS Arrebato y Co-op)
   if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive) {
     if (MultiplayerManager.gameMode === 'VS') {
-      MultiplayerManager.claimCustomerInVS(customerIndex, c.id || `cust_${customerIndex}`, orderItem.recipe.name, pay);
+      MultiplayerManager.claimCustomerInVS(customerIndex, c.id || `cust_${customerIndex}`, orderItem.recipe.name, pay, itemIndex);
     } else if (MultiplayerManager.gameMode === 'COOP') {
       MultiplayerManager.coopServeCustomer(customerIndex, itemIndex, orderItem.recipe.name, pay, dish.index, dish.area);
       if (dish.area === 'ramen') {

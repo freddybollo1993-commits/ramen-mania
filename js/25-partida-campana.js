@@ -41,9 +41,7 @@ function getOrdersProcessSeconds(orders) {
 }
 
 function spawnCustomer(forced) {
-  if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP') {
-    if (!MultiplayerManager.isHost) return;
-  }
+  if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && !MultiplayerManager.isHost) return;   // Online: solo el anfitrión crea clientes (la fila es compartida)
   shiftCustomersLeft();
 
   const cfg = getCurrentLevelConfig();
@@ -88,6 +86,7 @@ function spawnCustomer(forced) {
   totalPatience *= 1 + [0, 0.08, 0.15, 0.25][getUpgradeLevel('te')] + japonBuffSafe('patience');
 
   gameState.customerSlots[emptyIndex] = {
+    id: 'c' + Date.now().toString(36) + Math.floor(Math.random() * 1296).toString(36),   // identifica al cliente entre jugadores (Online)
     name: template.name,
     avatar: template.avatar,
     orders: orders,
@@ -104,10 +103,8 @@ function spawnCustomer(forced) {
     updateHUD();
   }
 
-  if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP') {
-    if (MultiplayerManager.isHost) {
-      MultiplayerManager.syncCustomerQueue(gameState.customerSlots);
-    }
+  if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.isHost) {
+    MultiplayerManager.syncCustomerQueue(gameState.customerSlots);
   }
 }
 
@@ -141,8 +138,8 @@ function gameTick() {
     if (c) {
       if (!isFree() && !(window.Taller && Taller.frozen())) c.patience -= 1; // en cocina libre los clientes esperan siempre; la Pausa del Maestro detiene la paciencia
       if (c.patience <= 0) {
-        if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP' && !MultiplayerManager.isHost) {
-          continue;
+        if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && !MultiplayerManager.isHost) {
+          continue;   // Online: solo el anfitrión da por perdido a un cliente (y avisa a los demás)
         }
         AnalyticsTracker.trackCustomerLost(c);
         playSound('lost');
@@ -153,7 +150,7 @@ function gameTick() {
         if (gameState.selectedCustomerModalIndex === i) closeCustomerOrderModal();
         shiftCustomersLeft(); // Mover la fila hacia la izquierda
 
-        if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP' && MultiplayerManager.isHost) {
+        if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.isHost) {
           MultiplayerManager.syncCustomerQueue(gameState.customerSlots);
         }
 
@@ -181,7 +178,7 @@ function gameTick() {
   const targetSpawnTime = (gameState.gameMode === 'RASH') ? (cfg.spawn_time || 3) : (cfg.spawn_time || 4);
 
   if (gameState.customerSpawnTimer >= targetSpawnTime) {
-    if (typeof MultiplayerManager === 'undefined' || !MultiplayerManager.isGameActive || MultiplayerManager.gameMode !== 'COOP' || MultiplayerManager.isHost) {
+    if (typeof MultiplayerManager === 'undefined' || !MultiplayerManager.isGameActive || MultiplayerManager.isHost) {
       spawnCustomer();
     }
     gameState.customerSpawnTimer = 0;
@@ -641,12 +638,12 @@ function startLevel(lvlIndex) {
   updateStationVisibilityForArea();
   renderPantryGrid();
 
-  if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP') {
+  if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive) {
     if (MultiplayerManager.isHost) {
       spawnCustomer();
       if (cfg.max_customers >= 2) spawnCustomer();
       MultiplayerManager.syncCustomerQueue(gameState.customerSlots);
-      MultiplayerManager.syncKitchenStocks(kitchenState.stocks);
+      if (MultiplayerManager.gameMode === 'COOP') MultiplayerManager.syncKitchenStocks(kitchenState.stocks);
     }
   } else {
     spawnCustomer();

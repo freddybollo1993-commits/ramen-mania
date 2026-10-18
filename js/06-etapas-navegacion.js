@@ -27,7 +27,7 @@ const STAGE_INFO = {
 
 function getStage(area) {
   const a = area || gameState.activeArea;
-  if (!stagedOn(a)) return 'cook';          // sin etapas (aún no se activan, tutorial o multijugador)
+  if (!stagedOn(a)) return 'cook';          // sin etapas (aún no se activan, tutorial o Cocina compartida)
   return (gameState.stages && gameState.stages[a]) || 'cook';
 }
 
@@ -35,7 +35,7 @@ function renderStageTabs() {
   const box = document.getElementById('kitchen-stage-tabs');
   if (!box) return;
   updateStageEdgeHints();
-  if (isMultiplayerSession()) { box.innerHTML = ''; return; }
+  if (isMultiplayerSession() && !stagedOn(gameState.activeArea)) { box.innerHTML = ''; return; }
   const area = gameState.activeArea, cur = getStage(area), ck = AREA_COOK_STAGE[area] || AREA_COOK_STAGE.ramen;
   const defs = [['prod', STAGE_INFO.prod.icon, STAGE_INFO.prod.label], ['cook', ck.icon, ck.label], ['plate', STAGE_INFO.plate.icon, STAGE_INFO.plate.label]];   // orden fijo: izquierda · centro · derecha
   const on = stagedOn(area);
@@ -67,7 +67,7 @@ function renderStagePanel() {
 }
 
 function setKitchenStage(stage) {
-  if (isMultiplayerSession() || !['cook', 'prod', 'plate'].includes(stage)) return;
+  if ((isMultiplayerSession() && !stagedOn(gameState.activeArea)) || !['cook', 'prod', 'plate'].includes(stage)) return;
   const area = gameState.activeArea;
   if (stage !== 'cook' && !stagedOn(area)) {
     showStationToast(`🔒 ${STAGE_INFO[stage].label} de ${AREA_LABELS[area]} se desbloquea en ${stGateHint(area)}.`);
@@ -112,7 +112,7 @@ let swipeNoClickUntil = 0;
 function stageSwipeAllowed(target) {
   const start = document.getElementById('start-screen');
   if (!start || getComputedStyle(start).display !== 'none') return false;       // en el menú no
-  if (gameState.isPaused || gameState.isGameOver || isMultiplayerSession()) return false;
+  if (gameState.isPaused || gameState.isGameOver || (isMultiplayerSession() && !stagedOn(gameState.activeArea))) return false;
   if (document.querySelector('.modal-overlay.active, .order-detail-modal.active')) return false;
   if (target && target.closest && target.closest(SWIPE_NO_START)) return false;
   return true;
@@ -185,7 +185,7 @@ function updateStageEdgeHints() {
     document.body.appendChild(left); document.body.appendChild(right);
   }
   const start = document.getElementById('start-screen');
-  const on = !isMultiplayerSession() && stagedOn(gameState.activeArea) && start && getComputedStyle(start).display === 'none';
+  const on = stagedOn(gameState.activeArea) && start && getComputedStyle(start).display === 'none';
   const cur = STAGE_ORDER.indexOf(getStage(gameState.activeArea));
   const icon = id => id === 'cook' ? (AREA_COOK_STAGE[gameState.activeArea] || AREA_COOK_STAGE.ramen).icon : STAGE_INFO[id].icon;
   // estructura fija: el borde izquierdo lleva a la etapa de su izquierda (Producción) y el derecho a la de su derecha (Emplatar)
