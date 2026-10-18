@@ -390,62 +390,79 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
   function refresh() { save(); render(); }
 
   const CSS = `
-  #jp-screen { position: fixed; inset: 0; z-index: 9000; background: linear-gradient(#f4ead2, #e4d3ae); color: #3b2a1a; font-family: 'Fredoka', 'Nunito', system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden; }
+  #jp-screen { position: fixed; inset: 0; z-index: 9000; background: linear-gradient(180deg, #3a2012, #1c0f09); color: #f1e3c8; font-family: 'Fredoka', 'Nunito', system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden; }
   #jp-screen * { box-sizing: border-box; }
-  .jp-top { display: flex; align-items: center; gap: 8px; padding: calc(4px + env(safe-area-inset-top)) 10px 4px; background: #7a1f1f; color: #fff4d6; flex-shrink: 0; min-height: 38px; }
-  .jp-top h2 { font-size: 15px; margin: 0; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .jp-chip { background: rgba(0,0,0,0.3); border-radius: 14px; padding: 3px 9px; font-size: 12px; font-weight: 800; white-space: nowrap; }
+  .jp-top { display: flex; align-items: center; gap: 8px; padding: calc(4px + env(safe-area-inset-top, 0px)) 10px 4px max(10px, env(safe-area-inset-left, 0px)); background: linear-gradient(#5a2c14, #2b1208); border-bottom: 3px solid #0e0805; color: #ffe082; flex-shrink: 0; min-height: 42px; }
+  .jp-top h2 { font: 400 19px/1 'Fredoka One', 'Fredoka', sans-serif; margin: 0; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #ffe082; text-shadow: 0 2px 0 #1a0e07; }
+  .jp-chip { background: rgba(0,0,0,0.4); border: 2px solid #1a0e07; border-radius: 12px; padding: 2px 9px; font-size: 12px; font-weight: 800; white-space: nowrap; color: #f1e3c8; }
   .jp-chip.pos b, .pos { color: #8bd36b; } .jp-chip.neg b, .neg { color: #ff8a80; }
-  .jp-btn { border: 0; border-radius: 10px; padding: 6px 12px; font-weight: 900; font-size: 12px; background: #c9a24a; color: #2b1a08; cursor: pointer; font-family: inherit; }
+  .jp-btn { border: 2px solid #1a0e07; border-radius: 10px; padding: 6px 12px; font-weight: 900; font-size: 12px; background: linear-gradient(#ffb300, #e68a00); color: #2b1808; cursor: pointer; font-family: inherit; box-shadow: 0 2px 0 rgba(0,0,0,.5); display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
+  .jp-btn img { width: 22px; height: 22px; object-fit: contain; }
+  .jp-btn:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 0 0 rgba(0,0,0,.5); }
   .jp-btn:disabled { opacity: 0.45; cursor: default; }
-  .jp-btn.red { background: #b71c1c; color: #fff; } .jp-btn.ghost { background: rgba(255,255,255,0.18); color: #fff4d6; } .jp-foot .jp-btn.ghost { background: #7a1f1f; }
-  .jp-body { flex: 1; min-height: 0; display: flex; gap: 8px; padding: 8px; overflow: hidden; }
-  .jp-map { flex: 1; min-width: 0; background: #9fd0e8; border-radius: 14px; position: relative; overflow: hidden; border: 3px solid #7a5a2a; }
+  .jp-btn.red { background: linear-gradient(#e53935, #b71c1c); color: #fff; } .jp-btn.ghost { background: linear-gradient(#ffb300, #e68a00); color: #2b1808; } .jp-hudL .jp-btn.ghost, .jp-foot .jp-btn.ghost { background: #3a2412; color: #f1e3c8; }
+  .jp-top .jp-btn.ghost { width: 42px; padding: 6px 0; font-size: 16px; }
+  .jp-body { flex: 1; min-height: 0; display: flex; gap: 8px; padding: 8px 10px 6px; overflow: hidden; }
+  .jp-map { flex: 1; min-width: 0; background: #9fd0e8; border-radius: 12px; position: relative; overflow: hidden; border: 3px solid #0e0805; box-shadow: 0 3px 0 rgba(0,0,0,.5); }
   .jp-map svg { width: 100%; height: 100%; display: block; }
   .jp-land { fill: #d9cf9a; stroke: #8a7a45; stroke-width: 2; }
   .jp-pin { cursor: pointer; } .jp-pin circle { stroke: #fff; stroke-width: 2; } .jp-pin text { font-size: 12px; font-weight: 800; fill: #3b2a1a; paint-order: stroke; stroke: #fff9e6; stroke-width: 3px; }
   .jp-pin.locked circle { fill: #8d8d8d; } .jp-pin.owned circle { fill: #d32f2f; } .jp-pin.done circle { fill: #f4b400; } .jp-pin.sel circle { stroke: #1565c0; stroke-width: 4; }
-  .jp-side { width: 270px; flex-shrink: 0; background: #fff8e6; border-radius: 14px; border: 2px solid #c9a24a; padding: 8px 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+  .jp-side { width: 270px; flex-shrink: 0; background: rgba(20, 10, 5, .88); border-radius: 12px; border: 2px solid #0e0805; box-shadow: 0 3px 0 rgba(0,0,0,.5); padding: 8px 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
   .jp-side > .jp-btn { position: sticky; bottom: 0; flex-shrink: 0; }
-  .jp-side h3 { margin: 0; font-size: 16px; color: #7a1f1f; } .jp-side small { color: #6b5a3a; line-height: 1.25; }
-  .jp-dish { display: flex; gap: 6px; align-items: flex-start; font-size: 10px; background: #f4ead2; border-radius: 8px; padding: 4px 6px; }
-  .jp-dish b { white-space: nowrap; } .jp-dish span { color: #6b5a3a; }
+  .jp-side h3 { margin: 0; font: 400 18px/1.1 'Fredoka One', 'Fredoka', sans-serif; color: #ffe082; } .jp-side small { color: #cdb892; line-height: 1.25; }
+  .jp-dish { display: flex; gap: 6px; align-items: flex-start; font-size: 10px; background: rgba(255,255,255,.07); border-radius: 8px; padding: 4px 6px; }
+  .jp-dish b { white-space: nowrap; color: #ffe9b0; } .jp-dish span { color: #cdb892; }
   .jp-lock { filter: grayscale(1); opacity: 0.7; }
+  /* carrusel lateral de ciudades (como Modos de juego) */
+  .jp-strip { flex: none; display: flex; gap: 7px; padding: 0 10px 8px max(10px, env(safe-area-inset-left, 0px)); overflow-x: auto; overflow-y: hidden; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .jp-strip::-webkit-scrollbar { display: none; }
+  .jp-ccard { flex: none; width: 104px; scroll-snap-align: start; display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 0 0 4px; border: 3px solid #0e0805; border-radius: 10px; overflow: hidden; background: #1c0f09; color: #fff; font-family: inherit; cursor: pointer; box-shadow: 0 3px 0 rgba(0,0,0,.5); position: relative; }
+  .jp-ccard:active { transform: translateY(1px); }
+  .jp-ccard .hd { width: 100%; padding: 3px 4px; background: #ec407a; font-size: 11px; font-weight: 900; line-height: 1.1; text-shadow: 0 2px 0 rgba(0,0,0,.55); text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .jp-ccard .hd small { display: block; font-size: 9px; font-weight: 800; opacity: .92; }
+  .jp-ccard .ar { width: 100%; height: 50px; display: flex; align-items: center; justify-content: center; background: linear-gradient(160deg, #7a2a50, #1c0f09); }
+  .jp-ccard .ar img { width: 46px; height: 46px; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(0,0,0,.5)); } .jp-ccard .ar span { font-size: 28px; }
+  .jp-ccard .st { font-size: 10px; font-weight: 800; color: #ffe9b0; }
+  .jp-ccard.locked .hd { background: #6d4c6e; } .jp-ccard.locked .ar { filter: grayscale(.8) brightness(.8); } .jp-ccard.locked .st { color: #c9b79a; }
+  .jp-ccard.sel { border-color: #ffd54f; box-shadow: 0 0 0 2px #ff8f00, 0 3px 0 rgba(0,0,0,.5); }
   .jp-plan { flex: 1; min-width: 0; display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: 1fr 1.25fr; gap: 6px; }
-  .jp-zone { position: relative; border-radius: 12px; border: 2px solid #8a6a35; background: #fff8e6; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 4px; cursor: pointer; text-align: center; font-size: 11px; font-weight: 700; }
-  .jp-zone .ic { font-size: 26px; line-height: 1; } .jp-zone .nm { font-size: 12px; font-weight: 900; color: #7a1f1f; }
-  .jp-zone small { font-size: 10px; color: #6b5a3a; font-weight: 700; } .jp-zone.off { background: #e0d8c4; border-style: dashed; opacity: 0.8; } .jp-zone.salon { grid-column: span 3; background: #dbe8b8; }
-  .jp-zone:active { transform: scale(0.98); } .jp-zone .bd { position: absolute; top: 3px; right: 5px; font-size: 10px; background: #7a1f1f; color: #fff; border-radius: 8px; padding: 0 5px; }
+  .jp-zone { position: relative; border-radius: 12px; border: 2px solid #0e0805; background: rgba(20,10,5,.85); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 4px; cursor: pointer; text-align: center; font-size: 11px; font-weight: 700; }
+  .jp-zone .ic { font-size: 26px; line-height: 1; } .jp-zone .nm { font-size: 12px; font-weight: 900; color: #ffe082; }
+  .jp-zone small { font-size: 10px; color: #cdb892; font-weight: 700; } .jp-zone.off { background: rgba(60,45,30,.7); border-style: dashed; opacity: 0.8; } .jp-zone.salon { grid-column: span 3; background: rgba(40,70,35,.8); }
+  .jp-zone:active { transform: scale(0.98); } .jp-zone .bd { position: absolute; top: 3px; right: 5px; font-size: 10px; background: #b71c1c; color: #fff; border-radius: 8px; padding: 0 5px; }
   .jp-tables { display: flex; flex-wrap: wrap; gap: 3px; justify-content: center; max-width: 100%; } .jp-tables i { font-style: normal; font-size: 15px; }
-  .jp-bar { height: 6px; border-radius: 3px; background: rgba(0,0,0,0.25); overflow: hidden; width: 100%; } .jp-bar b { display: block; height: 100%; background: linear-gradient(90deg, #ffb300, #ff6f00); }
-  .jp-modal { position: absolute; inset: 0; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center; z-index: 5; padding: 8px; }
-  .jp-card { width: min(640px, 100%); max-height: 100%; overflow-y: auto; background: #fff8e6; border: 3px solid #7a5a2a; border-radius: 16px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
-  .jp-card h3 { margin: 0; font-size: 16px; color: #7a1f1f; display: flex; justify-content: space-between; align-items: center; }
-  .jp-row { display: flex; align-items: center; gap: 8px; background: #f4ead2; border-radius: 10px; padding: 6px 8px; font-size: 12px; font-weight: 700; } .jp-row > div { flex: 1; min-width: 0; } .jp-row small { display: block; color: #6b5a3a; font-weight: 600; }
-  .jp-obj { opacity: 1; } .jp-obj.have { background: #d7ecc0; } .jp-obj .ic { font-size: 22px; }
-  .jp-fin table { width: 100%; border-collapse: collapse; font-size: 12px; } .jp-fin td { padding: 2px 4px; border-bottom: 1px solid #e0d2ac; } .jp-fin td:last-child { text-align: right; font-weight: 800; }
-  .jp-mast { display: flex; flex-direction: column; gap: 2px; font-size: 11px; } .jp-mast .ok { color: #2e7d32; } .jp-mast .no { color: #8a6a35; }
+  .jp-bar { height: 6px; border-radius: 3px; background: rgba(0,0,0,0.45); overflow: hidden; width: 100%; } .jp-bar b { display: block; height: 100%; background: linear-gradient(90deg, #ffb300, #ff6f00); }
+  .jp-modal { position: absolute; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 5; padding: 8px; }
+  .jp-card { width: min(640px, 100%); max-height: 100%; overflow-y: auto; background: #1c0f09; border: 3px solid #ffb300; border-radius: 14px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; color: #f1e3c8; box-shadow: 0 6px 18px rgba(0,0,0,.6); }
+  .jp-card h3 { margin: 0; font: 400 18px/1.1 'Fredoka One', 'Fredoka', sans-serif; color: #ffe082; display: flex; justify-content: space-between; align-items: center; }
+  .jp-row { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,.07); border-radius: 10px; padding: 6px 8px; font-size: 12px; font-weight: 700; } .jp-row > div { flex: 1; min-width: 0; } .jp-row small { display: block; color: #cdb892; font-weight: 600; }
+  .jp-obj { opacity: 1; } .jp-obj.have { background: rgba(76,175,80,.22); } .jp-obj .ic { font-size: 22px; }
+  .jp-fin table { width: 100%; border-collapse: collapse; font-size: 12px; } .jp-fin td { padding: 2px 4px; border-bottom: 1px solid rgba(255,255,255,.12); } .jp-fin td:last-child { text-align: right; font-weight: 800; }
+  .jp-mast { display: flex; flex-direction: column; gap: 2px; font-size: 11px; } .jp-mast .ok { color: #8bd36b; } .jp-mast .no { color: #c9a77e; }
   .jp-scenehost { flex: 1; min-height: 0; display: flex; position: relative; }
-  .jp-hudL { position: absolute; left: 8px; bottom: 8px; display: flex; gap: 6px; z-index: 30; align-items: flex-end; flex-wrap: wrap; max-width: calc(100% - 60px); }
-  .jp-hudL .jp-btn { box-shadow: 0 2px 0 rgba(0,0,0,0.35); } .jp-hudL .jp-btn.ghost { background: #7a1f1f; }
-  .jp-capchip { background: rgba(255,248,230,0.92); border: 2px solid #8a6a35; border-radius: 10px; padding: 3px 8px; min-width: 150px; } .jp-capchip small { font-size: 10px; color: #5b3a12; font-weight: 800; white-space: nowrap; }
-  .jp-dock { position: absolute; right: 0; top: 40px; bottom: 0; z-index: 40; background: #fff8e6; border-left: 3px solid #7a5a2a; box-shadow: -6px 0 14px rgba(0,0,0,0.3); padding: 8px 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+  .jp-hudL { position: absolute; left: max(8px, env(safe-area-inset-left, 0px)); bottom: 8px; display: flex; gap: 6px; z-index: 30; align-items: flex-end; flex-wrap: wrap; max-width: calc(100% - 60px); }
+  .jp-hudL .jp-btn { box-shadow: 0 2px 0 rgba(0,0,0,0.5); }
+  .jp-capchip { background: rgba(20,10,5,.9); border: 2px solid #0e0805; border-radius: 10px; padding: 3px 8px; min-width: 150px; } .jp-capchip small { font-size: 10px; color: #ffe9b0; font-weight: 800; white-space: nowrap; }
+  .jp-dock { position: absolute; right: 0; top: 42px; bottom: 0; z-index: 40; background: #1c0f09; border-left: 3px solid #ffb300; box-shadow: -6px 0 14px rgba(0,0,0,0.5); padding: 8px 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; color: #f1e3c8; }
   .jp-dock .jp-row { flex-wrap: wrap; } .jp-dock .jp-row > div { flex: 1 1 100%; } .jp-dock .jp-row .jp-btn { flex: 1 1 auto; }
-  .jp-dock h3 { margin: 0; font-size: 16px; color: #7a1f1f; display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+  .jp-dock h3 { margin: 0; font: 400 17px/1.1 'Fredoka One', 'Fredoka', sans-serif; color: #ffe082; display: flex; justify-content: space-between; align-items: center; gap: 6px; }
   .jp-cloud { animation: jpCloud 38s linear infinite; opacity: 0.85; } .jp-cloud.c2 { animation-duration: 55s; animation-delay: -20s; } @keyframes jpCloud { from { transform: translateX(-80px); } to { transform: translateX(680px); } }
   .jp-wave { animation: jpWave 4s ease-in-out infinite; } @keyframes jpWave { 50% { transform: translateX(10px); } }
   .jp-boat { animation: jpBoat 22s linear infinite; } @keyframes jpBoat { from { transform: translateX(0); } to { transform: translateX(120px); } }
   .jp-pin.owned circle, .jp-pin.done circle { animation: jpPin 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; } @keyframes jpPin { 50% { transform: scale(1.25); } }
-  .jp-opts { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; } .jp-opt { flex: 1 1 110px; background: #f4ead2; border: 2px solid #c9b78a; border-radius: 10px; padding: 5px 8px; cursor: pointer; display: flex; flex-direction: column; gap: 1px; position: relative; } .jp-opt b { font-size: 13px; } .jp-opt small { font-size: 10px; color: #6b5a3a; font-weight: 600; } .jp-opt em { position: absolute; top: 4px; right: 7px; font-style: normal; font-weight: 900; font-size: 12px; color: #b71c1c; }
-  .jp-opt.sel { border-color: #b71c1c; background: #ffe9c9; box-shadow: 0 0 0 2px rgba(183,28,28,0.25); } .jp-opt.off { opacity: 0.5; cursor: default; }
-  .jp-resultbox { position: fixed; inset: 0; z-index: 9500; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; padding: 10px; font-family: 'Fredoka', 'Nunito', system-ui, sans-serif; color: #3b2a1a; } .jp-resultbox .jp-card { width: 100%; background: #fff8e6; border: 3px solid #7a5a2a; border-radius: 16px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; } .jp-resultbox h3 { margin: 0; font-size: 16px; color: #7a1f1f; }
-  .jp-resultbox .jp-row { display: flex; align-items: center; gap: 8px; background: #f4ead2; border-radius: 10px; padding: 6px 8px; font-size: 12px; font-weight: 700; } .jp-resultbox .jp-row > div { flex: 1; } .jp-resultbox .jp-row small { display: block; color: #6b5a3a; font-weight: 600; } .jp-resultbox .jp-btn { border: 0; border-radius: 10px; padding: 7px 14px; font-weight: 900; font-size: 13px; background: #c9a24a; color: #2b1a08; cursor: pointer; font-family: inherit; } .jp-resultbox .jp-btn.red { background: #b71c1c; color: #fff; }
-  .jp-stats { display: flex; gap: 6px; } .jp-stats div { flex: 1; background: #f4ead2; border-radius: 10px; padding: 5px; text-align: center; } .jp-stats b { display: block; font-size: 16px; } .jp-stats small { font-size: 10px; color: #6b5a3a; font-weight: 700; }
+  .jp-opts { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; } .jp-opt { flex: 1 1 110px; background: #2a1a10; border: 2px solid #0e0805; border-radius: 10px; padding: 5px 8px; cursor: pointer; display: flex; flex-direction: column; gap: 1px; position: relative; box-shadow: 0 2px 0 rgba(0,0,0,.5); } .jp-opt b { font-size: 13px; color: #f1e3c8; } .jp-opt small { font-size: 10px; color: #cdb892; font-weight: 600; } .jp-opt em { position: absolute; top: 4px; right: 7px; font-style: normal; font-weight: 900; font-size: 12px; color: #ff8a65; }
+  .jp-opt.sel { border-color: #fff0a8; background: linear-gradient(135deg, #7a4a00, #4a2a00); box-shadow: 0 0 0 2px #ffb300, 0 2px 0 rgba(0,0,0,.5); } .jp-opt.off { opacity: 0.5; cursor: default; }
+  .jp-resultbox { position: fixed; inset: 0; z-index: 9500; background: rgba(0,0,0,0.65); display: flex; align-items: center; justify-content: center; padding: 10px; font-family: 'Fredoka', 'Nunito', system-ui, sans-serif; color: #f1e3c8; } .jp-resultbox .jp-card { width: 100%; }
+  .jp-resultbox .jp-btn { padding: 7px 14px; font-size: 13px; }
+  .jp-stats { display: flex; gap: 6px; } .jp-stats div { flex: 1; background: rgba(255,255,255,.07); border-radius: 10px; padding: 5px; text-align: center; } .jp-stats b { display: block; font-size: 16px; color: #ffe9b0; } .jp-stats small { font-size: 10px; color: #cdb892; font-weight: 700; }
   .jp-foot { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; padding: 0 8px 6px; flex-shrink: 0; }
-  .jp-note { background: #fff2b3; border: 2px solid #c9a24a; border-radius: 10px; padding: 4px 8px; font-size: 12px; font-weight: 800; margin: 0 8px; }
+  .jp-note { background: rgba(255, 213, 79, .15); border: 2px solid #c9a24a; border-radius: 10px; padding: 4px 8px; font-size: 12px; font-weight: 800; margin: 0 8px; color: #ffe9b0; }
+  @media (max-height: 420px) { .jp-ccard { width: 96px; } .jp-ccard .ar { height: 42px; } .jp-ccard .ar img { width: 38px; height: 38px; } .jp-side { width: 250px; } }
   `;
   function css() { if (document.getElementById('jp-css')) return; const s = document.createElement('style'); s.id = 'jp-css'; s.textContent = CSS; document.head.appendChild(s); }
 
+  const AI = (id, fb) => (window.ArteUI ? ArteUI.icon(id, fb) : fb);
   function mapSvg() {
     const pins = CITIES.map(c => {
       const open = !!S.open[c.id], done = open && mastery(c, S.rest[c.id]).complete;
@@ -473,14 +490,21 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
       <div class="jp-side"><h3>${sel.name} <small>· ${sel.region}</small></h3><small>${sel.story}</small>
         ${dishes}
         <small>${open ? `Local abierto · neto ${net >= 0 ? '+' : ''}${fmt1(net * 60)}/h · Maestría ${m.done}/${m.total}${m.complete ? ' ✅ mejoras de platos ganadas' : ''}` : 'Al completar la Maestría de este local ganas la mejora de cada uno de estos platos (+8 % de pago al servirlo). Los platos están disponibles en el juego igualmente.'}</small>
-        <button class="jp-btn ${open ? '' : 'red'}" onclick="JP.open('${sel.id}')">${open ? '🏮 Entrar al restaurante' : `Abrir local · S/ ${fmt(sel.cost)}`}</button></div></div>`;
+        <button class="jp-btn ${open ? '' : 'red'}" onclick="JP.open('${sel.id}')">${open ? '🏮 Entrar al restaurante' : `Abrir local · S/ ${fmt(sel.cost)}`}</button></div></div>
+      <div class="jp-strip" id="jp-strip">${CITIES.map(c => cityCard(c)).join('')}</div>`;
+  }
+  /** Tarjeta de ciudad del carrusel lateral (mismo formato que en Modos de juego): ilustración, nombre, región y estado. */
+  function cityCard(c) {
+    const open = !!S.open[c.id], done = open && mastery(c, S.rest[c.id]).complete;
+    return `<button class="jp-ccard ${open ? 'open' : 'locked'} ${S.sel === c.id ? 'sel' : ''}" data-id="${c.id}" onclick="JP.sel('${c.id}')" aria-label="${c.name}"><div class="hd">${c.name.toUpperCase()}<small>${c.region}</small></div>
+      <div class="ar">${AI(c.id, `<span>${open ? '🏯' : '🔒'}</span>`)}</div><div class="st">${done ? '⭐ Maestría' : (open ? '✔ Abierta' : '🔒 S/ ' + fmt(c.cost))}</div></button>`;
   }
 
   function renderRest() {
     const c = CITY[S.cur], r = rs(), ev = evalRest(c, r), m = mastery(c, r);
     r.net = ev.net;
     return `<div class="jp-scenehost" id="jp-scene-host">
-      <div class="jp-hudL"><button class="jp-btn red" onclick="JP.play()">🎮 Jugar aquí</button><button class="jp-btn" onclick="JP.collect()">💴 Recolectar</button><button class="jp-btn ghost" onclick="JP.fin()">📊 Finanzas</button>
+      <div class="jp-hudL"><button class="jp-btn red" onclick="JP.play()">${AI('btn_jugar', '🎮')} Jugar aquí</button><button class="jp-btn" onclick="JP.collect()">${AI('soles', '💴')} Recolectar</button><button class="jp-btn ghost" onclick="JP.fin()">📊 Finanzas</button>
         <div class="jp-capchip"><div class="jp-bar"><b id="jp-capbar" style="width:${Math.round(100 * Math.min(1, r.since / (capHours(r) * 60)))}%"></b></div><small>Caja: tope ${capHours(r).toFixed(1)} h · Maestría ${m.done}/${m.total} · tiempo acelerado</small></div></div></div>`;
   }
 
@@ -505,7 +529,7 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
       head = '🏠 Local';
       const tier = T.tiers[r.tier - 1];
       body = `<div class="jp-row"><div>${tier.name}<small>Hasta ${tier.tables} mesas · renta ${tier.rent.toFixed(2)}/min · puestos: ${tier.cooks} cocineros, ${tier.waiters} mozos</small></div>${r.tier < 4 ? `<button class="jp-btn" onclick="JP.tier()">Ampliar · S/ ${fmt(costTier(c.id, r.tier))}</button>` : '<small>Máximo</small>'}</div>`
-        + `<small style="color:#6b5a3a">Más espacio permite más mesas y personal, pero sube la renta y la luz.</small>`;
+        + `<small style="color:#cdb892">Más espacio permite más mesas y personal, pero sube la renta y la luz.</small>`;
     } else {
       head = ZONE_INFO[z].icon + ' ' + ZONE_INFO[z].name;
       if (KITCHENS.includes(z) && !r.areas[z]) {
@@ -514,11 +538,11 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
         body = hireRow(c, r, z);
         if (z === 'salon') body += `<div class="jp-row"><div>🪑 Mesas ${r.tables}/${T.tiers[r.tier - 1].tables}<small>Cada mesa trae clientes y consume luz y agua</small></div>${r.tables < T.tiers[r.tier - 1].tables ? `<button class="jp-btn" onclick="JP.table()">+1 mesa · S/ ${fmt(costTable(c.id, r.tables))}</button>` : '<small>Sin espacio</small>'}</div>`;
         if (z === 'depo') body += `<div class="jp-row"><div>⭐ Calidad de ingredientes ${r.q}/5<small>Platos +${Math.round(T.quality.price * (r.q - 1) * 100)}% de precio · ingredientes cuestan ${Math.round((T.quality.base + T.quality.cogs * (r.q - 1)) * 100)}% del plato</small></div>${r.q < 5 ? `<button class="jp-btn" onclick="JP.qual()">Mejorar · S/ ${fmt(costQual(c.id, r.q))}</button>` : '<small>Máxima</small>'}</div>`;
-        if (KITCHENS.includes(z)) body += `<small style="color:#6b5a3a">Platos: ${c.dishes.filter(d => d[1] === z).map(d => d[0]).join(', ')}</small>`;
+        if (KITCHENS.includes(z)) body += `<small style="color:#cdb892">Platos: ${c.dishes.filter(d => d[1] === z).map(d => d[0]).join(', ')}</small>`;
         body += objRows(c, r, z);
       }
     }
-    return `<div class="jp-dock" style="width:${dockW()}px"><h3><span>${head}</span><span><span class="jp-chip" style="background:#7a1f1f;color:#fff4d6">💴 S/ ${fmt(S.fondo)}</span> <button class="jp-btn red" onclick="JP.close()">✕</button></span></h3>${body}</div>`;
+    return `<div class="jp-dock" style="width:${dockW()}px"><h3><span>${head}</span><span><span class="jp-chip">💴 S/ ${fmt(S.fondo)}</span> <button class="jp-btn red" onclick="JP.close()">✕</button></span></h3>${body}</div>`;
   }
 
   function renderFin() {
@@ -557,12 +581,19 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
     if (window.JPScene) window.JPScene.detach();
     let el = document.getElementById('jp-screen');
     if (!el) { el = document.createElement('div'); el.id = 'jp-screen'; document.body.appendChild(el); }
+    const oldStrip = document.getElementById('jp-strip'), keepScroll = oldStrip ? oldStrip.scrollLeft : 0;   // el carrusel conserva su posición al repintar
     const inRest = S.view === 'rest' && S.cur && S.rest[S.cur];
-    const title = inRest ? `🏮 ${CITY[S.cur].name}` : '🗾 Recorrido por Japón';
-    const top = `<div class="jp-top"><button class="jp-btn ghost" onclick="${inRest ? 'JP.map()' : 'JP.exit()'}">${inRest ? '← Mapa' : '← Menú'}</button><h2>${title}</h2>
+    const title = inRest ? `${CITY[S.cur].name}` : 'RECORRIDO POR JAPÓN';
+    const top = `<div class="jp-top"><button class="jp-btn ghost" onclick="${inRest ? 'JP.map()' : 'JP.exit()'}" aria-label="${inRest ? 'Volver al mapa' : 'Volver al menú'}">◀</button><h2>${title}</h2>
       ${inRest ? evChip() + `<span class="jp-chip">Caja <b id="jp-cash">S/ ${fmt(rs().cash)}</b></span><span class="jp-chip ${rs().net >= 0 ? 'pos' : 'neg'}"><b id="jp-net" class="${rs().net >= 0 ? 'pos' : 'neg'}">${rs().net >= 0 ? '+' : ''}${fmt1(rs().net * 60)}/h</b></span>` : ''}
       <span class="jp-chip" id="jp-cloud" style="font-size:11px"></span><span class="jp-chip" title="Fondo: soles de Campaña, Rash, Retos y de las cajas">💴 Fondo <b>S/ ${fmt(S.fondo)}</b></span></div>`;
     el.innerHTML = top + (inRest ? renderRest() : renderMap()) + (inRest && S.zone ? renderZone() : '') + (inRest && S.fin ? renderFin() : '') + (inRest && S.playOpen ? renderPlay() : '');
+    const strip = document.getElementById('jp-strip');
+    if (strip) {
+      strip.scrollLeft = keepScroll;
+      const c = strip.querySelector('.jp-ccard.sel');                // si la ciudad elegida (p. ej. desde el mapa) queda fuera de vista, se centra
+      if (c && (c.offsetLeft < strip.scrollLeft || c.offsetLeft + c.offsetWidth > strip.scrollLeft + strip.clientWidth)) strip.scrollLeft = c.offsetLeft - (strip.clientWidth - c.offsetWidth) / 2;
+    }
     syncUi();
     if (inRest && window.JPScene) window.JPScene.mount(document.getElementById('jp-scene-host'), sceneState);
     else if (window.JPScene) window.JPScene.destroy();
