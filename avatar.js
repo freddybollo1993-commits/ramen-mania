@@ -1,90 +1,58 @@
-/* Avatar del chef: muñeco 2D por capas (SVG) que ocupa el centro de la pantalla principal.
-   Cada pieza (piel, peinado, color de pelo, gorro, ropa, delantal y cara) es una capa; comprar y equipar cosméticos solo cambia una capa.
-   · Cada pieza se define en CATALOGO con su precio en propinas y una función que dibuja sus capas (back = detrás del cuerpo, front = delante).
-     Más adelante cualquier pieza puede pasar a una imagen WebP (campo img) sin tocar la tienda ni el guardado.
-   · Lo comprado y lo equipado se guarda en el aparato (ramen_avatar_v1) y viaja con la cuenta dentro del snapshot de taller.js (clave av).
-   Script clásico, sin dependencias. API: Avatar.svg(look, opciones) · Avatar.look() · Avatar.catalog() · Avatar.buy/equip · Avatar.open(). */
+/* Avatar del chef: muñeco 3D de juguete armado por piezas (recortes WebP de Gemini) y dibujado en un canvas con animación.
+   · Piezas sueltas en assets/avatar/v1/ (cabeza, brazos, piernas, ropa, mangas, peinados, gorros). Cada pieza ya está a su tamaño final y lleva su posición en MAN
+     (x, y de su esquina dentro de un lienzo de 700 px de ancho; OY desplaza el origen para dejar sitio a los gorros altos).
+   · El tono de piel y el color del pelo se aplican por código sobre las piezas (la piel por ganancia de canal y el pelo gris por una rampa de color): una sola imagen sirve para todos los tonos.
+   · Cada cosmético es una pieza del catálogo con su precio en propinas. Lo comprado y lo equipado se guardan en el aparato (ramen_avatar_v1)
+     y viajan con la cuenta dentro del snapshot de taller.js (clave av).
+   · Las piezas que aún no tienen arte (happi, yukata, traje de gala, delantales, accesorios de cara) no salen en la tienda hasta que lo tengan.
+   Script clásico, sin dependencias. API: Avatar.mount(el, look) · Avatar.thumb(look, opciones) · Avatar.look() · Avatar.items(slot) · Avatar.buy/equip · Avatar.open(). */
 (function () {
   'use strict';
-  const KEY = 'ramen_avatar_v1';
+  const KEY = 'ramen_avatar_v1', BASE = 'assets/avatar/v1/';
   const $ = id => document.getElementById(id);
   const sfx = n => { try { playSound(n); } catch (e) {} };
   const toast = m => { try { showStationToast(m); } catch (e) {} };
   const wallet = () => { try { return getPropinasWallet(); } catch (e) { return 0; } };
   const store = { get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} } };
-  const O = '#2b1810';                                                   // contorno
-  const ln = (w) => `stroke="${O}" stroke-width="${w || 4}" stroke-linejoin="round" stroke-linecap="round"`;
-  const P = (d, fill, w, extra) => `<path d="${d}" fill="${fill}" ${ln(w)} ${extra || ''}/>`;
-  const C = (x, y, r, fill, w) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}" ${w === 0 ? '' : ln(w)}/>`;
 
-  // ---------------- piezas ----------------
+  // ---------------- piezas: posición (x, y) y tamaño (w, h) en el lienzo de 700 px ----------------
+  const MAN = {"head":[174,140,350,361],"headB":[174,140,350,361],"low":[231,755,237,336],"armL":[200,526,108,353],"armR":[391,526,108,353],
+    "tor_camiseta":[249,505,200,251],"slL_camiseta":[196,514,80,131],"slR_camiseta":[422,514,80,131],"tor_sudadera":[248,505,203,277],"slL_sudadera":[187,514,99,288],"slR_sudadera":[417,514,90,287],
+    "tor_chef":[247,505,204,252],"slL_chef":[182,514,108,251],"slR_chef":[408,514,108,250],
+    "pelo_corto":[160,126,371,280],"pelo_erizado":[159,118,379,314],"pelo_rapado":[159,132,379,367],"pelo_melena_f":[154,106,391,484],"pelo_melena_b":[164,140,369,470],"pelo_mono":[170,88,354,387],"pelo_coleta_b":[360,90,207,362],
+    "gorro_hachimaki":[171,107,333,312],"gorro_tenugui":[171,52,332,273],"gorro_orejas":[196,49,306,263],"gorro_toque":[176,-95,346,327],"gorro_kasa":[172,24,354,228],"gorro_corona":[192,30,315,205]};
+  const OY = 110, CW = 700, CH = 1220;                       // origen vertical y tamaño del lienzo
+  const CROPS = { head: [150, 170, 400, 460], hat: [130, 5, 440, 625], torso: [120, 170, 460, 780] };   // recortes para miniaturas (x, y, w, h) en coordenadas del lienzo
+
+  // ---------------- catálogo ----------------
   const SLOTS = [
-    { id: 'peinado', name: 'Peinado', ic: '💇' },
-    { id: 'color', name: 'Color de pelo', ic: '🎨' },
-    { id: 'gorro', name: 'Gorro', ic: '🎓' },
-    { id: 'ropa', name: 'Ropa', ic: '👕' },
-    { id: 'delantal', name: 'Delantal', ic: '🧑‍🍳' },
-    { id: 'cara', name: 'Cara', ic: '👓' },
-    { id: 'piel', name: 'Piel', ic: '🖐️' }
+    { id: 'peinado', name: 'Peinado', ic: '💇' }, { id: 'color', name: 'Color de pelo', ic: '🎨' }, { id: 'gorro', name: 'Gorro', ic: '🎓' },
+    { id: 'ropa', name: 'Ropa', ic: '👕' }, { id: 'delantal', name: 'Delantal', ic: '🧑‍🍳' }, { id: 'cara', name: 'Cara', ic: '👓' }, { id: 'piel', name: 'Piel', ic: '🖐️' }
   ];
-  const HEAD = 'M40 92C40 52 66 40 100 40C134 40 160 52 160 92C160 126 134 148 100 148C66 148 40 126 40 92Z';
-  const TORSO = 'M70 150Q68 144 78 143H122Q132 144 130 150L135 212Q135 222 125 222H75Q65 222 65 212Z';
-
-  const PIEL = [['p1', 'Clara', '#ffdcb8', '#f2b98c'], ['p2', 'Trigo', '#f5c79a', '#e0a373'], ['p3', 'Miel', '#e0a97a', '#c98c5c'], ['p4', 'Canela', '#c68a5e', '#a96c43'], ['p5', 'Cacao', '#9a6040', '#7c4a2e'], ['p6', 'Ébano', '#6d4230', '#55321f']]
-    .map(([k, name, c, s]) => ({ id: 'piel_' + k, name, price: 0, c, s }));
-
-  const COLOR = [['negro', 'Negro', '#2e2636', '#52485e', 0], ['castano', 'Castaño', '#6b4128', '#946040', 0], ['rubio', 'Rubio', '#e3b448', '#f6d77a', 30], ['rojo', 'Pelirrojo', '#c4492a', '#e8704c', 30],
-    ['canoso', 'Canoso', '#d6d6e2', '#f2f2fa', 40], ['azul', 'Azul', '#3f7fe0', '#78aef5', 60], ['rosa', 'Rosa', '#ee6fa6', '#f8a2c8', 60], ['menta', 'Menta', '#4fcfa0', '#8ae8c6', 60], ['violeta', 'Violeta', '#8c58d8', '#b48cf0', 60]]
-    .map(([k, name, c, h, price]) => ({ id: 'color_' + k, name, price, c, h }));
-
-  // peinados: back = detrás de la cabeza, front = flequillo y mechones sobre la frente. Reciben el color c y el brillo h.
-  const FRINGE = 'M38 96C32 50 64 24 100 24C136 24 168 50 162 96C152 80 142 72 132 66C122 78 104 72 98 60C90 74 66 76 58 66C48 72 40 84 38 96Z';
-  const shine = (h) => `<path d="M62 44C74 34 92 31 108 33" fill="none" stroke="${h}" stroke-width="5" stroke-linecap="round" opacity=".75"/>`;
+  // tonos de piel: color medio objetivo (la pieza base es el tono claro)
+  const PIEL = [['p1', 'Clara', null], ['p2', 'Trigo', [232, 178, 134]], ['p3', 'Miel', [212, 150, 104]], ['p4', 'Canela', [184, 120, 78]], ['p5', 'Cacao', [142, 88, 56]], ['p6', 'Ébano', [98, 60, 40]]]
+    .map(([k, name, rgb]) => ({ id: 'piel_' + k, name, price: 0, rgb, art: true }));
+  const COLOR = [['negro', 'Negro', '#2e2636', '#6a5f78', 0], ['castano', 'Castaño', '#6b4128', '#b07a52', 0], ['rubio', 'Rubio', '#e3b448', '#fbe7a0', 30], ['rojo', 'Pelirrojo', '#c4492a', '#f09670', 30],
+    ['canoso', 'Canoso', '#d6d6e2', '#ffffff', 40], ['azul', 'Azul', '#3f7fe0', '#a6caff', 60], ['rosa', 'Rosa', '#ee6fa6', '#ffc0dc', 60], ['menta', 'Menta', '#4fcfa0', '#b6f5dc', 60], ['violeta', 'Violeta', '#8c58d8', '#d4b8ff', 60]]
+    .map(([k, name, c, h, price]) => ({ id: 'color_' + k, name, price, c, h, art: true }));
   const PEINADO = [
-    { id: 'peinado_corto', name: 'Corto', price: 0, front: (c, h) => P(FRINGE, c) + shine(h) },
-    { id: 'peinado_erizado', name: 'Erizado', price: 25, front: (c, h) => P('M38 96C30 64 38 44 52 36L56 16L72 30L84 8L98 28L114 6L126 28L144 12L146 34L160 42C170 62 166 80 162 96C152 80 142 72 134 66C124 78 106 70 100 60C92 74 70 76 60 66C50 72 42 84 38 96Z', c) + `<path d="M84 8L98 28M114 6L126 28" fill="none" stroke="${h}" stroke-width="4" stroke-linecap="round" opacity=".7"/>` },
-    { id: 'peinado_mono', name: 'Moño', price: 35, back: (c, h) => P('M78 34C70 6 130 6 122 34Z', c) + C(100, 18, 21, c) + `<path d="M88 12C92 6 100 5 106 8" fill="none" stroke="${h}" stroke-width="4" stroke-linecap="round" opacity=".8"/>`, front: (c, h) => P(FRINGE, c) + shine(h) },
-    { id: 'peinado_coleta', name: 'Coleta', price: 35, back: (c, h) => `<g class="av-tail">${P('M144 52C176 40 196 70 190 100C186 126 170 140 162 160C152 138 168 124 170 102C172 84 160 78 144 80Z', c)}${C(146, 66, 8, '#e53935', 3)}</g>`, front: (c, h) => P(FRINGE, c) + shine(h) },
-    { id: 'peinado_largo', name: 'Melena', price: 50, back: (c, h) => P('M34 90C24 140 30 184 52 200L148 200C170 184 176 140 166 90Z', c),
-      front: (c, h) => P(FRINGE, c) + shine(h) + P('M40 98C32 126 38 158 48 176C58 158 58 126 56 100Z', c, 3) + P('M160 98C168 126 162 158 152 176C142 158 142 126 144 100Z', c, 3) },
-    { id: 'peinado_rapado', name: 'Casi rapado', price: 15, front: (c, h) => P('M42 82C46 52 68 40 100 40C132 40 154 52 158 82C148 66 128 58 100 58C72 58 52 66 42 82Z', c, 3, 'opacity=".92"') }
-  ];
-
-  const GORRO = [
-    { id: 'gorro_ninguno', name: 'Sin gorro', price: 0 },
-    { id: 'gorro_hachimaki', name: 'Hachimaki', price: 25, front: () => P('M41 66C62 54 138 54 159 66L159 82C138 70 62 70 41 82Z', '#fbf7ee') + C(100, 68, 7, '#d32f2f', 2) + P('M156 70L184 80L174 88L190 100L160 88Z', '#fbf7ee', 3) },
-    { id: 'gorro_tenugui', name: 'Pañuelo tenugui', price: 35, front: () => P('M39 84C37 46 66 32 100 32C134 32 163 46 161 84C140 66 60 66 39 84Z', '#2f4f8f') + [[70, 52], [100, 44], [130, 52], [84, 64], [116, 64]].map(([x, y]) => C(x, y, 3.2, '#fbf7ee', 0)).join('') + P('M156 62L182 54L178 72L190 84L160 82Z', '#2f4f8f', 3) },
-    { id: 'gorro_orejas', name: 'Orejas de gato', price: 55, front: () => P('M44 54L52 12L84 38Z', '#37323f') + P('M56 44L58 24L72 38Z', '#f48fb1', 0) + P('M156 54L148 12L116 38Z', '#37323f') + P('M144 44L142 24L128 38Z', '#f48fb1', 0) + `<path d="M46 56C66 38 134 38 154 56" fill="none" stroke="${O}" stroke-width="9" stroke-linecap="round"/><path d="M46 56C66 38 134 38 154 56" fill="none" stroke="#5a5266" stroke-width="4" stroke-linecap="round"/>` },
-    { id: 'gorro_toque', name: 'Gorro de chef', price: 80, front: () => C(66, 20, 22, '#fffdf7') + C(134, 20, 22, '#fffdf7') + C(100, 8, 26, '#fffdf7') + P('M54 34H146L142 62Q100 70 58 62Z', '#fffdf7') + `<path d="M62 48C90 54 110 54 138 48" fill="none" stroke="#d9d2c2" stroke-width="3" stroke-linecap="round"/>` },
-    { id: 'gorro_kasa', name: 'Sombrero kasa', price: 120, front: () => P('M28 62L100 -10L172 62Q100 82 28 62Z', '#e2b862') + `<path d="M56 56L100 6M82 64L112 18M124 66L120 16M148 58L128 14" fill="none" stroke="#b98a35" stroke-width="3" stroke-linecap="round" opacity=".75"/><path d="M28 62Q100 82 172 62" fill="none" stroke="${O}" stroke-width="4"/>` },
-    { id: 'gorro_corona', name: 'Corona dorada', price: 400, front: () => P('M60 44L62 8L82 28L100 -2L118 28L138 8L140 44Z', '#ffc928') + C(100, 30, 6, '#e53935', 2.5) + C(76, 36, 4, '#42a5f5', 2) + C(124, 36, 4, '#66bb6a', 2) + `<path d="M66 16L76 28" stroke="#fff3b0" stroke-width="3" stroke-linecap="round"/>` }
-  ];
-
-  // ropa: torso y mangas. torso(): sobre el tronco; sleeve: color de la manga; cuff: puño opcional.
-  const ROPA = [
-    { id: 'ropa_camiseta', name: 'Camiseta roja', price: 0, sleeve: '#e0523f', torso: () => P(TORSO, '#e0523f') + `<path d="M88 146Q100 160 112 146" fill="#f2b98c" ${ln(3)}/><path d="M72 160L74 206" stroke="#f08a78" stroke-width="5" stroke-linecap="round" opacity=".6"/>` },
-    { id: 'ropa_sudadera', name: 'Sudadera gris', price: 40, sleeve: '#8c909c', cuff: '#6f7380', torso: () => P(TORSO, '#8c909c') + P('M70 146Q100 164 130 146L126 138Q100 150 74 138Z', '#757987', 3) + `<path d="M92 156V176M108 156V176" stroke="#fbf7ee" stroke-width="3" stroke-linecap="round"/><path d="M82 196H118L124 218H76Z" fill="#7a7e8b" ${ln(3)}/>` },
-    { id: 'ropa_chef', name: 'Chaqueta de chef', price: 60, sleeve: '#fffdf7', cuff: '#e6dfcf', torso: () => P(TORSO, '#fffdf7') + P('M84 143L100 166L116 143L112 138H88Z', '#f1ead8', 3) + `<path d="M100 166V220" stroke="#d6cdb8" stroke-width="3"/>` + [[90, 178], [90, 198], [110, 178], [110, 198]].map(([x, y]) => C(x, y, 3.6, '#2b3a55', 2)).join('') },
-    { id: 'ropa_happi', name: 'Happi de festival', price: 90, sleeve: '#2f4f8f', cuff: '#fbf7ee', torso: () => P(TORSO, '#2f4f8f') + `<path d="M84 143L106 190L116 143" fill="none" stroke="#fbf7ee" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M68 214H132" stroke="#fbf7ee" stroke-width="6"/>` + C(84, 186, 8, 'none', 0) + `<circle cx="86" cy="190" r="7" fill="#fbf7ee"/>` },
-    { id: 'ropa_yukata', name: 'Yukata de sakura', price: 140, sleeve: '#ee9ab4', cuff: '#fbf7ee', torso: () => P(TORSO, '#ee9ab4') + [[80, 166], [118, 172], [92, 188], [112, 160], [78, 200]].map(([x, y]) => C(x, y, 4.5, '#fff0f4', 0)).join('') + `<path d="M84 143L100 178L116 143" fill="none" stroke="#fbf7ee" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>` + P('M66 188H134V208H66Z', '#3d2c6b', 3.5) + P('M96 186L84 214L96 210ZM104 186L116 214L104 210Z', '#5a45a0', 3) },
-    { id: 'ropa_gala', name: 'Traje de gala', price: 260, sleeve: '#2a2a38', cuff: '#fffdf7', torso: () => P(TORSO, '#2a2a38') + P('M84 143L100 196L116 143L100 150Z', '#fffdf7', 3) + P('M92 150L100 160L108 150L100 146Z', '#c62828', 2.5) + [[100, 178], [100, 194], [100, 208]].map(([x, y]) => C(x, y, 3.2, '#ffc928', 2)).join('') }
-  ];
-
-  const DELANTAL = [
-    { id: 'delantal_ninguno', name: 'Sin delantal', price: 0 },
-    ...[['marron', 'Marrón de cocina', '#8a5a30', '#6b4423', 25], ['blanco', 'Blanco', '#fbf7ee', '#e6dfcf', 25], ['indigo', 'Índigo', '#2f4f8f', '#223a6b', 45], ['rojo', 'Rojo ramen', '#c8372d', '#9a2a22', 45], ['negro', 'Negro y oro', '#2a2a38', '#1c1c27', 120]]
-      .map(([k, name, c, s, price]) => ({ id: 'delantal_' + k, name, price, front: () => `<path d="M86 146L82 172M114 146L118 172" stroke="${O}" stroke-width="7" stroke-linecap="round"/><path d="M86 146L82 172M114 146L118 172" stroke="${c}" stroke-width="3.5" stroke-linecap="round"/>` + P('M78 166H122L128 222H72Z', c) + `<path d="M84 196H116V214H84Z" fill="${s}" ${ln(2.5)}/>` + (k === 'negro' ? `<path d="M80 172H120" stroke="#ffc928" stroke-width="3"/>` : '') }))
-  ];
-
-  const CARA = [
-    { id: 'cara_ninguna', name: 'Sin accesorio', price: 0 },
-    { id: 'cara_gafas', name: 'Gafas redondas', price: 45, front: () => `<g fill="rgba(190,225,255,.28)" ${ln(3.2)}><circle cx="78" cy="98" r="17"/><circle cx="122" cy="98" r="17"/></g><path d="M95 98Q100 92 105 98M61 96L44 92M139 96L156 92" fill="none" ${ln(3)}/><path d="M68 90L76 84" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".8"/>` },
-    { id: 'cara_sol', name: 'Gafas de sol', price: 70, front: () => P('M58 86H96L94 106Q90 116 76 116Q60 116 58 100Z', '#1b1722', 3.5) + P('M104 86H142L142 100Q140 116 124 116Q110 116 106 106Z', '#1b1722', 3.5) + `<path d="M96 92H104M58 90L44 88M142 90L156 88" fill="none" ${ln(3.5)}/><path d="M66 92L78 92M114 92L126 92" stroke="#7d6fa0" stroke-width="3" stroke-linecap="round"/>` },
-    { id: 'cara_bigote', name: 'Bigote', price: 50, front: () => P('M100 112C92 106 78 106 72 114C80 120 92 120 100 116C108 120 120 120 128 114C122 106 108 106 100 112Z', '#3b2a22', 3) },
-    { id: 'cara_mascarilla', name: 'Mascarilla', price: 35, front: () => P('M58 108C74 103 126 103 142 108C142 128 128 144 100 147C72 144 58 128 58 108Z', '#f4f8fb', 3.5) + `<path d="M70 118Q100 124 130 118M72 130Q100 136 128 130" fill="none" stroke="#c9d6df" stroke-width="2.5" stroke-linecap="round"/><path d="M58 112L44 100M142 112L156 100" fill="none" ${ln(2.5)}/>` },
-    { id: 'cara_flor', name: 'Flor de hibisco', price: 40, front: () => [0, 72, 144, 216, 288].map(a => `<ellipse cx="144" cy="52" rx="7" ry="11" fill="#ef5350" ${ln(2.2)} transform="rotate(${a} 144 60) translate(0 -2)"/>`).join('') + C(144, 60, 4.5, '#ffd54f', 2) }
-  ];
-
+    { id: 'peinado_corto', name: 'Corto', price: 0, front: 'pelo_corto' },
+    { id: 'peinado_erizado', name: 'Erizado', price: 25, front: 'pelo_erizado' },
+    { id: 'peinado_mono', name: 'Moño', price: 35, front: 'pelo_mono' },
+    { id: 'peinado_coleta', name: 'Coleta', price: 35, front: 'pelo_corto', back: 'pelo_coleta_b', sway: true },
+    { id: 'peinado_largo', name: 'Melena', price: 50, front: 'pelo_melena_f', back: 'pelo_melena_b' },
+    { id: 'peinado_rapado', name: 'Casi rapado', price: 15, front: 'pelo_rapado' }
+  ].map(p => Object.assign(p, { art: true, tint: true }));
+  const GORRO = [{ id: 'gorro_ninguno', name: 'Sin gorro', price: 0, art: true },
+    { id: 'gorro_hachimaki', name: 'Hachimaki', price: 25, piece: 'gorro_hachimaki' }, { id: 'gorro_tenugui', name: 'Pañuelo tenugui', price: 35, piece: 'gorro_tenugui' },
+    { id: 'gorro_orejas', name: 'Orejas de gato', price: 55, piece: 'gorro_orejas' }, { id: 'gorro_toque', name: 'Gorro de chef', price: 80, piece: 'gorro_toque' },
+    { id: 'gorro_kasa', name: 'Sombrero kasa', price: 120, piece: 'gorro_kasa' }, { id: 'gorro_corona', name: 'Corona dorada', price: 400, piece: 'gorro_corona' }].map(g => Object.assign(g, { art: true }));
+  const ROPA = [{ id: 'ropa_camiseta', name: 'Camiseta roja', price: 0, set: 'camiseta' }, { id: 'ropa_sudadera', name: 'Sudadera gris', price: 40, set: 'sudadera' }, { id: 'ropa_chef', name: 'Chaqueta de chef', price: 60, set: 'chef' },
+    { id: 'ropa_happi', name: 'Happi de festival', price: 90 }, { id: 'ropa_yukata', name: 'Yukata de sakura', price: 140 }, { id: 'ropa_gala', name: 'Traje de gala', price: 260 }].map(r => Object.assign(r, { art: !!r.set }));
+  const DELANTAL = [{ id: 'delantal_ninguno', name: 'Sin delantal', price: 0, art: true }, { id: 'delantal_marron', name: 'Marrón de cocina', price: 25 }, { id: 'delantal_blanco', name: 'Blanco', price: 25 },
+    { id: 'delantal_indigo', name: 'Índigo', price: 45 }, { id: 'delantal_rojo', name: 'Rojo ramen', price: 45 }, { id: 'delantal_negro', name: 'Negro y oro', price: 120 }].map(d => Object.assign(d, { art: d.id === 'delantal_ninguno' }));
+  const CARA = [{ id: 'cara_ninguna', name: 'Sin accesorio', price: 0, art: true }, { id: 'cara_gafas', name: 'Gafas redondas', price: 45 }, { id: 'cara_sol', name: 'Gafas de sol', price: 70 },
+    { id: 'cara_bigote', name: 'Bigote', price: 50 }, { id: 'cara_mascarilla', name: 'Mascarilla', price: 35 }, { id: 'cara_flor', name: 'Flor de hibisco', price: 40 }].map(c => Object.assign(c, { art: c.id === 'cara_ninguna' }));
   const CATALOGO = { piel: PIEL, color: COLOR, peinado: PEINADO, gorro: GORRO, ropa: ROPA, delantal: DELANTAL, cara: CARA };
   const BY_ID = {}; Object.keys(CATALOGO).forEach(s => CATALOGO[s].forEach(it => { it.slot = s; BY_ID[it.id] = it; }));
   const DEFAULT = { piel: 'piel_p1', color: 'color_negro', peinado: 'peinado_corto', gorro: 'gorro_ninguno', ropa: 'ropa_camiseta', delantal: 'delantal_ninguno', cara: 'cara_ninguna' };
@@ -96,87 +64,144 @@
   const persist = () => store.set(KEY, JSON.stringify(S));
   function save() { persist(); try { if (typeof japonSyncSoon === 'function') japonSyncSoon(); } catch (e) {} }
   const owned = id => { const it = BY_ID[id]; return !!it && (it.price === 0 || !!load().own[id]); };
-  const look = () => { load(); const o = {}; SLOTS.forEach(s => { const id = S.eq[s.id]; o[s.id] = BY_ID[id] && owned(id) ? id : DEFAULT[s.id]; }); return o; };
+  /** Lo equipado, como {slot: idPieza}; una pieza sin arte o que ya no es tuya se cambia por la de siempre. */
+  const look = () => { load(); const o = {}; SLOTS.forEach(s => { const id = S.eq[s.id], it = BY_ID[id]; o[s.id] = it && it.art && owned(id) ? id : DEFAULT[s.id]; }); return o; };
   function spent() { load(); let t = 0; Object.keys(S.own).forEach(id => { const it = BY_ID[id]; if (it) t += it.price; }); return t; }
 
-  // ---------------- dibujo ----------------
-  /** Devuelve el SVG del muñeco. lk = {slot: idPieza} (lo que falte se toma de lo equipado); o.bust = solo busto; o.still = sin animación. */
-  function svg(lk, o) {
-    o = o || {}; const L = Object.assign({}, look(), lk || {});
-    const g = id => BY_ID[id] || BY_ID[DEFAULT[(BY_ID[id] || {}).slot]] || {};
-    const skin = g(L.piel), col = g(L.color), hair = g(L.peinado), hat = g(L.gorro), cl = g(L.ropa), ap = g(L.delantal), fc = g(L.cara);
-    const sk = skin.c, sh = skin.s, hc = col.c, hh = col.h, sl = cl.sleeve || '#e0523f';
-    const arm = (side) => {
-      const s = side === 'L' ? 1 : -1, x0 = 100 - 29 * s, x1 = 100 - 43 * s;
-      return `<g class="av-arm${side}"><path d="M${x0} 158Q${x1} 178 ${100 - 41 * s} 202" fill="none" stroke="${O}" stroke-width="23" stroke-linecap="round"/><path d="M${x0} 158Q${x1} 178 ${100 - 41 * s} 202" fill="none" stroke="${sl}" stroke-width="15" stroke-linecap="round"/>`
-        + (cl.cuff ? `<path d="M${100 - 37 * s} 196L${100 - 45 * s} 198" stroke="${cl.cuff}" stroke-width="15" stroke-linecap="butt" opacity="0"/>` : '')
-        + C(100 - 41 * s, 210, 9.5, sk) + `</g>`;
-    };
-    const face = `<g class="av-face">`
-      + `<g class="av-eye"><ellipse cx="77" cy="100" rx="8.5" ry="11.5" fill="${O}"/><circle cx="74" cy="95" r="3.6" fill="#fff"/><circle cx="80" cy="105" r="1.8" fill="#fff"/></g>`
-      + `<g class="av-eye"><ellipse cx="123" cy="100" rx="8.5" ry="11.5" fill="${O}"/><circle cx="120" cy="95" r="3.6" fill="#fff"/><circle cx="126" cy="105" r="1.8" fill="#fff"/></g>`
-      + `<path d="M66 82Q77 76 88 81M112 81Q123 76 134 82" fill="none" stroke="${O}" stroke-width="3.4" stroke-linecap="round" opacity=".85"/>`
-      + `<ellipse cx="62" cy="118" rx="9" ry="5.5" fill="#ff7a8a" opacity=".42"/><ellipse cx="138" cy="118" rx="9" ry="5.5" fill="#ff7a8a" opacity=".42"/>`
-      + `<path d="M91 121Q100 133 109 121Z" fill="#8a2f33" ${ln(3)}/><path d="M95 127Q100 131 105 127" fill="#ff8f8a" stroke="none"/>`
-      + `<path d="M98 110Q100 113 102 110" fill="none" stroke="${sh}" stroke-width="3" stroke-linecap="round"/>`
-      + `</g>`;
-    const body = `<g class="av-all">`
-      + `<ellipse class="av-shadow" cx="100" cy="266" rx="56" ry="9" fill="rgba(0,0,0,.42)"/>`
-      + (hair.back ? hair.back(hc, hh) : '')
-      + P('M80 214H96L95 250H78Z', '#363a52') + P('M104 214H120L122 250H105Z', '#363a52')
-      + P('M70 252Q68 240 84 240Q98 240 98 254V262H72Q70 262 70 252Z', '#f2f0ea') + P('M130 252Q132 240 116 240Q102 240 102 254V262H128Q130 262 130 252Z', '#f2f0ea')
-      + `<g class="av-torso">` + (cl.torso ? cl.torso() : '') + (ap.front ? ap.front() : '') + `</g>`
-      + arm('L') + arm('R')
-      + P('M44 98C34 94 32 112 46 114Z', sk, 3.5) + P('M156 98C166 94 168 112 154 114Z', sk, 3.5)
-      + `<g class="av-head">`
-      + P(HEAD, sk) + `<path d="M52 118C60 136 76 144 92 146" fill="none" stroke="${sh}" stroke-width="5" stroke-linecap="round" opacity=".55"/>`
-      + face + (fc.front ? fc.front() : '') + (hair.front ? hair.front(hc, hh) : '') + (hat.front ? hat.front() : '')
-      + `</g></g>`;
-    const vb = o.bust ? '14 -26 172 200' : '0 -26 200 306';
-    return `<svg class="av-svg ${o.still ? '' : 'av-live'} ${o.cls || ''}" viewBox="${vb}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Tu chef">${body}</svg>`;
+  // ---------------- imágenes ----------------
+  const IMG = {}, WAIT = [];
+  function img(key) {
+    let e = IMG[key]; if (e) return e;
+    const el = new Image(); e = IMG[key] = { el, ok: false, bad: false };
+    el.onload = () => { e.ok = true; flush(); }; el.onerror = () => { e.bad = true; };
+    el.src = BASE + key + '.webp'; return e;
   }
+  function flush() { for (let i = WAIT.length - 1; i >= 0; i--) { try { if (WAIT[i].keys.every(k => IMG[k].ok || IMG[k].bad)) { const f = WAIT.splice(i, 1)[0]; f.fn(); } } catch (e) { WAIT.splice(i, 1); } } }
+  /** Llama a fn cuando todas las piezas pedidas están cargadas (o fallaron). */
+  function whenReady(keys, fn) { keys.forEach(img); if (keys.every(k => IMG[k].ok || IMG[k].bad)) fn(); else WAIT.push({ keys, fn }); }
+
+  // piezas que usa un aspecto
+  function partsOf(lk) {
+    const h = BY_ID[lk.peinado] || PEINADO[0], r = BY_ID[lk.ropa] || ROPA[0], g = BY_ID[lk.gorro] || GORRO[0];
+    return { hairFront: h.front, hairBack: h.back || null, sway: !!h.sway, tor: 'tor_' + r.set, slL: 'slL_' + r.set, slR: 'slR_' + r.set, hat: g.piece || null };
+  }
+  function keysOf(lk) { const p = partsOf(lk); return ['head', 'headB', 'armL', 'armR', 'low', p.hairFront, p.hairBack, p.tor, p.slL, p.slR, p.hat].filter(Boolean); }
+
+  // ---------------- color: piel y pelo ----------------
+  const CACHE = {};
+  function pixels(el, fn) { const c = document.createElement('canvas'); c.width = el.naturalWidth || el.width; c.height = el.naturalHeight || el.height; const x = c.getContext('2d'); x.drawImage(el, 0, 0); const d = x.getImageData(0, 0, c.width, c.height); fn(d.data); x.putImageData(d, 0, 0); return c; }
+  const hsv = (r, g, b) => { const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn; let h = 0; if (d) { if (mx === r) h = ((g - b) / d) % 6; else if (mx === g) h = (b - r) / d + 2; else h = (r - g) / d + 4; h *= 60; if (h < 0) h += 360; } return [h, mx ? d / mx : 0, mx / 255]; };
+  const skinW = (r, g, b) => { const [h, s] = hsv(r, g, b); const hw = h < 3 ? 0 : h < 8 ? (h - 3) / 5 : h <= 40 ? 1 : h < 46 ? (46 - h) / 6 : 0; const sw = s < 0.15 ? 0 : s < 0.22 ? (s - 0.15) / 0.07 : 1; return hw * sw; };
+  let BASESKIN = null;
+  function baseSkin() {
+    if (BASESKIN) return BASESKIN; const e = IMG.head; if (!e || !e.ok) return [236, 186, 150];
+    let r = 0, g = 0, b = 0, n = 0; pixels(e.el, a => { for (let i = 0; i < a.length; i += 40) { if (a[i + 3] > 250 && skinW(a[i], a[i + 1], a[i + 2]) > 0.99) { r += a[i]; g += a[i + 1]; b += a[i + 2]; n++; } } });
+    BASESKIN = n ? [r / n, g / n, b / n] : [236, 186, 150]; return BASESKIN;
+  }
+  function skinned(key, tone) {
+    const it = BY_ID[tone]; if (!it || !it.rgb) return IMG[key].el; const ck = key + '|' + tone; if (CACHE[ck]) return CACHE[ck];
+    const b = baseSkin(), gain = it.rgb.map((v, i) => v / b[i]);
+    return (CACHE[ck] = pixels(IMG[key].el, a => { for (let i = 0; i < a.length; i += 4) { const w = a[i + 3] ? skinW(a[i], a[i + 1], a[i + 2]) : 0; if (w) { a[i] = Math.min(255, a[i] * (1 + (gain[0] - 1) * w)); a[i + 1] = Math.min(255, a[i + 1] * (1 + (gain[1] - 1) * w)); a[i + 2] = Math.min(255, a[i + 2] * (1 + (gain[2] - 1) * w)); } } }));
+  }
+  const hex = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+  function tinted(key, colorId) {
+    const it = BY_ID[colorId]; if (!it) return IMG[key].el; const ck = key + '|' + colorId; if (CACHE[ck]) return CACHE[ck];
+    const c = hex(it.c), h = hex(it.h), dk = c.map(v => v * 0.5), mix = (A, B, t) => A.map((v, i) => v + (B[i] - v) * t);
+    return (CACHE[ck] = pixels(IMG[key].el, a => { for (let i = 0; i < a.length; i += 4) { if (!a[i + 3]) continue; const r = a[i], g = a[i + 1], b = a[i + 2], mx = Math.max(r, g, b), mn = Math.min(r, g, b); if (mx && (mx - mn) / mx > 0.22) continue;     // lo coloreado (la liga roja) no se tiñe
+      const L = (r + g + b) / 765; let o; if (L < 0.8) o = mix(dk, c, Math.max(0, (L - 0.25) / 0.55)); else o = mix(c, h, Math.min(1, (L - 0.8) / 0.18)); a[i] = o[0]; a[i + 1] = o[1]; a[i + 2] = o[2]; } }));
+  }
+
+  // ---------------- dibujo ----------------
+  function draw(ctx, k, lk, t, st) {
+    const P = partsOf(lk), tone = lk.piel, col = lk.color, bob = Math.sin(t * 1.85), blink = (t % 4.6) > 4.46 || (st && st.blink > 0);
+    const rect = key => MAN[key], D = (src, key, dx, dy) => { const m = rect(key); ctx.drawImage(src, m[0] + (dx || 0), m[1] + OY + (dy || 0), m[2], m[3]); };
+    ctx.save(); ctx.scale(k, k);
+    // sombra del suelo
+    ctx.save(); ctx.translate(349, MAN.low[1] + MAN.low[3] + OY - 6); ctx.scale(1 - bob * 0.03, 1); ctx.fillStyle = 'rgba(0,0,0,.34)'; ctx.beginPath(); ctx.ellipse(0, 0, 150, 17, 0, 0, 7); ctx.fill(); ctx.restore();
+    ctx.translate(0, bob * -2.5);
+    if (P.hairBack) { const s = P.sway ? Math.sin(t * 1.85 + 1) * 0.045 : 0; ctx.save(); const m = rect(P.hairBack); ctx.translate(m[0] + 20, m[1] + OY + 50); ctx.rotate(s); ctx.translate(-(m[0] + 20), -(m[1] + OY + 50)); D(tinted(P.hairBack, col), P.hairBack); ctx.restore(); }
+    D(IMG.low.el, 'low');
+    const wv = st && st.wave > 0 ? (st.wave) : 0;                          // 0..1: saludo con el brazo derecho
+    const ang = wv ? -(wv < 0.2 ? wv / 0.2 : wv < 0.8 ? 1 + 0.07 * Math.sin((wv - 0.2) * 6 * Math.PI) : (1 - wv) / 0.2) * 2.55 : Math.sin(t * 1.85 + 2) * -0.025;
+    const arm = (key, sl, px, py, a) => { ctx.save(); ctx.translate(px, py + OY); ctx.rotate(a); ctx.translate(-px, -(py + OY)); D(skinned(key, tone), key); if (sl) D(IMG[sl].el, sl); ctx.restore(); };
+    arm('armL', null, 288, 556, Math.sin(t * 1.85 + 1) * 0.025);
+    arm('armR', null, 411, 556, ang);
+    ctx.save(); ctx.translate(349, MAN.low[1] + OY); ctx.scale(1, 1 + bob * 0.006); ctx.translate(-349, -(MAN.low[1] + OY)); D(IMG[P.tor].el, P.tor); ctx.restore();
+    // mangas: acompañan al brazo
+    const sleeve = (sl, px, py, a) => { ctx.save(); ctx.translate(px, py + OY); ctx.rotate(a); ctx.translate(-px, -(py + OY)); D(IMG[sl].el, sl); ctx.restore(); };
+    sleeve(P.slL, 288, 556, Math.sin(t * 1.85 + 1) * 0.025); sleeve(P.slR, 411, 556, ang);
+    // cabeza con pelo y gorro
+    ctx.save(); ctx.translate(349, 500 + OY); ctx.rotate(Math.sin(t * 1.85 + 0.6) * 0.014); ctx.translate(-349, -(500 + OY));
+    D(skinned(blink ? 'headB' : 'head', tone), blink ? 'headB' : 'head'); D(tinted(P.hairFront, col), P.hairFront);
+    if (P.hat) D(IMG[P.hat].el, P.hat);
+    ctx.restore(); ctx.restore();
+  }
+
+  // ---------------- montaje animado ----------------
+  const MOUNTS = new Set(); let raf = 0, last = 0;
+  function frame(now) {
+    raf = 0; if (!MOUNTS.size || document.hidden) return;
+    if (now - last >= 30) {
+      last = now;
+      MOUNTS.forEach(m => {
+        if (!m.el.isConnected) { MOUNTS.delete(m); return; }
+        try { paint(m, now / 1000); } catch (e) { console.warn('[Avatar] dibujo', e); }
+      });
+    }
+    if (MOUNTS.size) raf = requestAnimationFrame(frame);
+  }
+  function kick() { if (!raf && MOUNTS.size && !document.hidden) raf = requestAnimationFrame(frame); }
+  document.addEventListener('visibilitychange', kick);
+  const reduce = () => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } };
+  function paint(m, ts) {
+    const r = m.el.getBoundingClientRect(); if (!r.width || !r.height) return;
+    const dpr = Math.min(2.5, window.devicePixelRatio || 1), w = Math.round(r.width * dpr), h = Math.round(r.height * dpr), c = m.cv;
+    if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+    const x = c.getContext('2d'); x.clearRect(0, 0, w, h);
+    const cr = CROPS.head, bw = m.bust ? cr[2] : CW, bh = m.bust ? cr[3] : CH, k = Math.min(w / bw, h / bh);
+    x.save(); x.translate((w - bw * k) / 2, m.bust ? (h - bh * k) / 2 : h - bh * k); if (m.bust) x.translate(-cr[0] * k, -cr[1] * k);
+    const st = m.st;
+    if (st.waveStart != null) { const p = (ts - st.waveStart) / 1.3; st.wave = p >= 1 ? 0 : p; if (p >= 1) st.waveStart = null; }
+    draw(x, k, m.look, ts - m.t0, st); x.restore();
+  }
+  /** Monta el muñeco animado dentro de el. lk = aspecto (lo que falte se toma de lo equipado). o.bust: solo el busto; o.still: sin animación. Devuelve {set(look), wave(), stop()}. */
+  function mount(el, lk, o) {
+    o = o || {}; const L = Object.assign({}, look(), lk || {}); el.innerHTML = '';
+    const cv = document.createElement('canvas'); cv.style.cssText = 'display:block;width:100%;height:100%'; el.appendChild(cv);
+    const m = { el, cv, look: L, bust: !!o.bust, st: { wave: 0, waveStart: null, blink: 0 }, t0: performance.now() / 1000, still: !!o.still || reduce() };
+    const go = () => { if (!el.isConnected) return; if (m.still) { paint(m, m.t0 + 0.3); } else { MOUNTS.add(m); kick(); paint(m, performance.now() / 1000); } };
+    whenReady(keysOf(L), go);
+    return {
+      set(next) { m.look = Object.assign({}, look(), next || {}); whenReady(keysOf(m.look), () => { if (m.still) paint(m, performance.now() / 1000); }); },
+      wave() { m.st.waveStart = performance.now() / 1000; m.st.blink = 0; if (m.still) return; kick(); },
+      stop() { MOUNTS.delete(m); }
+    };
+  }
+  const THUMBS = {};
+  /** Imagen (dataURL) del aspecto para tarjetas pequeñas; '' mientras las piezas aún se cargan (onLoad avisa cuando ya se puede). */
+  function thumb(lk, o) {
+    o = o || {}; const L = Object.assign({}, look(), lk || {}), keys = keysOf(L), w = o.w || 120, cr = CROPS[o.crop] || CROPS.head, sig = JSON.stringify(L) + '|' + w + '|' + (o.crop || 'head');
+    if (THUMBS[sig]) return THUMBS[sig];
+    if (!keys.every(k => IMG[k] && IMG[k].ok)) { keys.forEach(img); return ''; }
+    const k = w / cr[2], c = document.createElement('canvas'); c.width = w; c.height = Math.round(cr[3] * k);
+    const x = c.getContext('2d'); x.save(); x.translate(-cr[0] * k, -cr[1] * k); draw(x, k, L, 0.3, null); x.restore();
+    return (THUMBS[sig] = c.toDataURL('image/png'));
+  }
+  const loadCbs = [];
+  /** Carga todas las piezas (al abrir la tienda) y avisa a quien lo pidió. */
+  function preloadAll(cb) { const keys = Object.keys(MAN); if (cb) loadCbs.push(cb); whenReady(keys, () => { loadCbs.splice(0).forEach(f => { try { f(); } catch (e) {} }); }); }
 
   // ---------------- compras ----------------
   function refresh() { try { if (window.Home) Home.refresh(); } catch (e) {} try { if (window.Taller) Taller.refresh(); } catch (e) {} }
   function buy(id) {
-    const it = BY_ID[id]; if (!it || owned(id)) return false;
+    const it = BY_ID[id]; if (!it || !it.art || owned(id)) return false;
     if (wallet() < it.price) { toast('🧧 Te faltan ' + (it.price - wallet()) + ' propinas para ' + it.name + '.'); sfx('error'); return false; }
     load(); S.own[id] = 1; S.eq[it.slot] = id; try { updatePropinasHUD(); } catch (e) {} sfx('serve'); save(); toast('✨ ' + it.name + ' · ¡te queda genial!'); refresh(); return true;
   }
   function equip(id) {
-    const it = BY_ID[id]; if (!it || !owned(id)) return false;
+    const it = BY_ID[id]; if (!it || !it.art || !owned(id)) return false;
     load(); S.eq[it.slot] = id; sfx('click'); save(); refresh(); return true;
   }
-  /** Saludo al tocar al chef. */
-  function wave(root) { const el = (root || document).querySelector('.av-svg'); if (!el) return; el.classList.remove('av-hi'); void el.getBoundingClientRect(); el.classList.add('av-hi'); sfx('click'); clearTimeout(wave.t); wave.t = setTimeout(() => el.classList.remove('av-hi'), 1400); }
-
-  // ---------------- estilos ----------------
-  const CSS = `
-  .av-svg { display: block; width: 100%; height: 100%; overflow: visible; }
-  .av-svg * { transform-box: view-box; }
-  .av-live .av-all { animation: avBob 3.4s ease-in-out infinite; }
-  .av-live .av-shadow { animation: avSh 3.4s ease-in-out infinite; transform-origin: 100px 266px; }
-  .av-live .av-torso { animation: avBreath 3.4s ease-in-out infinite; transform-origin: 100px 222px; }
-  .av-live .av-armL { animation: avArmL 3.4s ease-in-out infinite; transform-origin: 71px 158px; }
-  .av-live .av-armR { animation: avArmR 3.4s ease-in-out infinite; transform-origin: 129px 158px; }
-  .av-live .av-head { animation: avHead 3.4s ease-in-out infinite; transform-origin: 100px 146px; }
-  .av-live .av-eye { animation: avBlink 4.6s infinite; transform-origin: 100px 100px; transform-box: view-box; }
-  .av-live .av-tail { animation: avTail 3.4s ease-in-out infinite; transform-origin: 146px 64px; }
-  .av-live.av-hi .av-armR { animation: avWave 1.3s ease-in-out 1; }
-  .av-live.av-hi .av-head { animation: avNod 1.3s ease-in-out 1; }
-  @keyframes avBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
-  @keyframes avSh { 0%, 100% { transform: scale(1); } 50% { transform: scale(.94); } }
-  @keyframes avBreath { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.015, 1.03); } }
-  @keyframes avArmL { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(2.5deg); } }
-  @keyframes avArmR { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-2.5deg); } }
-  @keyframes avHead { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-1.4deg) translateY(1px); } }
-  @keyframes avBlink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.08); } }
-  @keyframes avTail { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(5deg); } }
-  @keyframes avWave { 0% { transform: rotate(0); } 18% { transform: rotate(-150deg); } 32% { transform: rotate(-125deg); } 46% { transform: rotate(-155deg); } 60% { transform: rotate(-125deg); } 74% { transform: rotate(-150deg); } 100% { transform: rotate(0); } }
-  @keyframes avNod { 0%, 100% { transform: rotate(0); } 25%, 70% { transform: rotate(3deg); } }
-  @media (prefers-reduced-motion: reduce) { .av-live * { animation: none !important; } }`;
-  function css() { if ($('av-css')) return; const s = document.createElement('style'); s.id = 'av-css'; s.textContent = CSS; document.head.appendChild(s); }
-  css();
 
   // ---------------- nube (viaja dentro del snapshot de taller.js) ----------------
   const snap = () => { load(); return { v: 1, own: S.own, eq: S.eq }; };
@@ -189,10 +214,13 @@
   const reset = () => { S = null; try { localStorage.removeItem(KEY); } catch (e) {} };
 
   window.Avatar = {
-    svg, look, spent, snap, mergeSnap, apply, reset, buy, equip, wave, owned,
-    slots: () => SLOTS, items: slot => CATALOGO[slot] || [], item: id => BY_ID[id] || null,
-    /** Cuántas piezas de pago quedan por comprar (para el aviso de la tienda). */
-    pending() { return Object.keys(BY_ID).filter(id => !owned(id)).length; },
+    mount, thumb, look, spent, snap, mergeSnap, apply, reset, buy, equip, owned, preloadAll,
+    /** Categorías con al menos dos piezas disponibles. */
+    slots: () => SLOTS.filter(s => CATALOGO[s.id].filter(i => i.art).length > 1),
+    items: slot => (CATALOGO[slot] || []).filter(i => i.art), item: id => BY_ID[id] || null,
+    keys: () => Object.keys(MAN),
     open() { if (window.Taller) Taller.open('apariencia'); }
   };
+  // arranque: precarga lo equipado para que el menú lo dibuje enseguida
+  try { whenReady(keysOf(look()), () => {}); } catch (e) {}
 })();

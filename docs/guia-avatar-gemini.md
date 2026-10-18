@@ -1,3 +1,6 @@
+> **Estado (v211):** se adoptó el método de **piezas sueltas** (muñeco de recortes) en lugar de capas sobre el cuerpo entero: cada hoja de Gemini trae varias piezas separadas con el mismo estilo y yo las coloco con `tools/cortar-partes.js` y las animo en `avatar.js`. Ya integradas: cuerpo (cabeza con ojos abiertos y cerrados, brazos, piernas), 6 peinados (en gris, el juego los tiñe), 6 gorros y 3 prendas (camiseta, sudadera, chaqueta de chef). El tono de piel y el color del pelo se aplican por código, así que no hacen falta hojas por tono.
+> **Faltan hojas:** ropa B (happi, yukata, traje de gala), delantales (torso en gris para teñir), accesorios de cara (gafas, gafas de sol, bigote, mascarilla, flor) y, más adelante, utensilios para la mano.
+
 # Avatar del chef con Gemini (Nano Banana): guía por etapas
 
 Sustituye al muñeco dibujado con código (`avatar.js`, v210) por arte generado en un estilo de **personaje 3D de juego móvil de combate**: cabeza grande, aspecto de juguete brillante, contorno oscuro grueso, colores saturados, luz de borde. El muñeco actual sirve de **plano**: mismas proporciones y misma pose, así las piezas encajan.

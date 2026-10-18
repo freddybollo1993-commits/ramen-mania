@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ramen-mania-v210';
+const CACHE_NAME = 'ramen-mania-v211';
 
 // Shell del juego para instalar y abrir sin conexión: la página y todos sus scripts (js/ + archivos de apoyo)
 const CORE_SHELL = [
@@ -109,6 +109,33 @@ self.addEventListener('activate', event => {
           './assets/menu/cliente_yuki_2.webp',
           './assets/menu/cliente_ren_2.webp',
           './assets/menu/cliente_aoi_2.webp',
+          './assets/avatar/v1/armL.webp',
+          './assets/avatar/v1/armR.webp',
+          './assets/avatar/v1/gorro_corona.webp',
+          './assets/avatar/v1/gorro_hachimaki.webp',
+          './assets/avatar/v1/gorro_kasa.webp',
+          './assets/avatar/v1/gorro_orejas.webp',
+          './assets/avatar/v1/gorro_tenugui.webp',
+          './assets/avatar/v1/gorro_toque.webp',
+          './assets/avatar/v1/head.webp',
+          './assets/avatar/v1/headB.webp',
+          './assets/avatar/v1/low.webp',
+          './assets/avatar/v1/pelo_coleta_b.webp',
+          './assets/avatar/v1/pelo_corto.webp',
+          './assets/avatar/v1/pelo_erizado.webp',
+          './assets/avatar/v1/pelo_melena_b.webp',
+          './assets/avatar/v1/pelo_melena_f.webp',
+          './assets/avatar/v1/pelo_mono.webp',
+          './assets/avatar/v1/pelo_rapado.webp',
+          './assets/avatar/v1/slL_camiseta.webp',
+          './assets/avatar/v1/slL_chef.webp',
+          './assets/avatar/v1/slL_sudadera.webp',
+          './assets/avatar/v1/slR_camiseta.webp',
+          './assets/avatar/v1/slR_chef.webp',
+          './assets/avatar/v1/slR_sudadera.webp',
+          './assets/avatar/v1/tor_camiseta.webp',
+          './assets/avatar/v1/tor_chef.webp',
+          './assets/avatar/v1/tor_sudadera.webp',
           './assets/icons/icon-192.png',
           './assets/icons/favicon-32x32.png',
           './assets/icons/favicon-16x16.png'

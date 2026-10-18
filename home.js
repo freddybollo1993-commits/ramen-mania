@@ -19,7 +19,7 @@
   .hm-art { position: absolute; inset: 0; z-index: 0; background: #140a07 url(assets/ramen_bg.webp) center 40% / cover no-repeat; }
   .hm-art::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 34% 62% at 50% 62%, rgba(255,196,110,.30), rgba(255,196,110,0) 70%), linear-gradient(rgba(14,7,4,.42), rgba(14,7,4,.42)); }
   .hm-art::after { content: ''; position: absolute; left: 50%; bottom: 3%; width: 46%; height: 12%; transform: translateX(-50%); background: radial-gradient(ellipse, rgba(255,214,150,.34), rgba(255,214,150,0) 68%); }
-  .hm-chef { position: absolute; left: 50%; bottom: 3.5%; height: 82%; aspect-ratio: 200 / 306; transform: translateX(-50%); cursor: pointer; -webkit-tap-highlight-color: transparent; filter: drop-shadow(0 .5em .8em rgba(0,0,0,.45)); }
+  .hm-chef { position: absolute; left: 50%; bottom: 1.5%; height: 90%; aspect-ratio: 700 / 1220; transform: translateX(-50%); cursor: pointer; -webkit-tap-highlight-color: transparent; filter: drop-shadow(0 .5em .8em rgba(0,0,0,.45)); }
   .hm-hang { position: absolute; left: calc(50% - 15em); top: 52%; width: 3.6em; height: 3.6em; padding: 0; display: flex; align-items: center; justify-content: center; } .hm-hang svg { width: 70%; height: 70%; }
   .hm-hang i { position: absolute; top: -.7em; right: -.9em; padding: .1em .5em; border-radius: .7em; border: .12em solid #120905; background: #ffd24a; color: #2b1808; font: 900 .62em/1.2 'Fredoka', sans-serif; font-style: normal; white-space: nowrap; box-shadow: 0 .15em 0 rgba(0,0,0,.5); }
   .hm-shade { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(180deg, rgba(8,4,2,.78) 0, rgba(8,4,2,0) 22%, rgba(8,4,2,0) 58%, rgba(8,4,2,.82) 100%), linear-gradient(90deg, rgba(8,4,2,.55) 0, rgba(8,4,2,0) 22%, rgba(8,4,2,0) 78%, rgba(8,4,2,.55) 100%); }
@@ -30,7 +30,7 @@
   .hm-top { position: absolute; left: max(.8em, env(safe-area-inset-left)); right: max(.8em, env(safe-area-inset-right)); top: max(.6em, env(safe-area-inset-top)); display: flex; align-items: flex-start; gap: .6em; }
   .hm-plate { border: .2em solid #120905; border-radius: .8em; background: linear-gradient(#4a2d18, #2a170c); box-shadow: 0 .3em 0 rgba(0,0,0,.55), inset 0 .1em 0 rgba(255,255,255,.12); }
   .hm-prof { display: flex; align-items: center; gap: .5em; padding: .35em .8em .35em .4em; min-width: 11em; }
-  .hm-prof .av { width: calc(var(--u) * 4.4); height: calc(var(--u) * 4.4); border-radius: .6em; background: #1b0f08; border: .15em solid #ffb300; display: flex; align-items: center; justify-content: center; font-size: 1.7em; line-height: 1; overflow: hidden; } .hm-prof .av svg { width: 100%; height: 100%; }
+  .hm-prof .av { width: calc(var(--u) * 4.4); height: calc(var(--u) * 4.4); border-radius: .6em; background: #1b0f08; border: .15em solid #ffb300; display: flex; align-items: center; justify-content: center; font-size: 1.7em; line-height: 1; overflow: hidden; } .hm-prof .av img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; display: block; }
   .hm-prof b { display: block; font: 900 1.25em/1.1 'Fredoka', sans-serif; text-shadow: 0 .1em 0 #000; max-width: 7.5em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #d58cff; text-align: left; }
   .hm-prof small { display: block; font: 800 .9em 'Fredoka', sans-serif; color: #ffd978; text-align: left; }
   .hm-prog { display: flex; flex-direction: column; justify-content: center; gap: .25em; padding: .4em .9em; min-width: 12em; text-align: left; }
@@ -180,7 +180,7 @@
     const sc = $('start-screen'); if (!sc) return false;
     css();
     const el = document.createElement('div'); el.id = 'hm';
-    el.innerHTML = '<div class="hm-art" id="hm-art"><div class="hm-chef" id="hm-chef" onclick="Avatar.wave(this)"></div></div><div class="hm-shade"></div><div class="hm-ui" id="hm-ui"></div>';
+    el.innerHTML = '<div class="hm-art" id="hm-art"><div class="hm-chef" id="hm-chef" onclick="Home.wave()"></div></div><div class="hm-shade"></div><div class="hm-ui" id="hm-ui"></div>';
     sc.appendChild(el); built = true;
     return true;
   }
@@ -200,7 +200,7 @@
     const L = Math.min(20, cs.unlockedLevel || 1), pct = cs.maxStars ? Math.round(100 * cs.stars / cs.maxStars) : 0;
     const tut = h.tutDone(), rec = window.Recetario ? Recetario.summary() : { fresh: 0 };
     return `<div class="hm-top">
-        <button class="hm-prof hm-plate" onclick="openProfileModal()" aria-label="Perfil"><span class="av">${window.Avatar ? Avatar.svg({}, { bust: true, still: true }) : h.chefAvatar()}</span><span><b>${h.chefName()}</b><small>Chef · Nivel ${L}</small></span></button>
+        <button class="hm-prof hm-plate" onclick="openProfileModal()" aria-label="Perfil"><span class="av">${(() => { const t = window.Avatar ? Avatar.thumb({}, { w: 110 }) : ''; return t ? `<img alt="" src="${t}">` : h.chefAvatar(); })()}</span><span><b>${h.chefName()}</b><small>Chef · Nivel ${L}</small></span></button>
         <button class="hm-prog hm-plate" onclick="Inicio.act('camp')" aria-label="Progreso de Campaña"><span>⭐ ${cs.stars}/${cs.maxStars}</span><i class="hm-bar"><u style="width:${pct}%"></u></i><small>Campaña · nivel ${L} de 20</small></button>
         <span class="hm-gap"></span>
         <button class="hm-menu hm-fs hm-plate" onclick="Inicio.act('full')" aria-label="Pantalla completa">⛶</button>
@@ -226,10 +226,11 @@
         </div>
       </div>`;
   }
+  let chefCtl = null;
   function paint() {
     if (!built && !build()) return;
     const u = $('hm-ui'); if (u) u.innerHTML = ui();
-    const ch = $('hm-chef'); if (ch && window.Avatar) { const sig = JSON.stringify(Avatar.look()); if (ch.dataset.sig !== sig) { ch.dataset.sig = sig; ch.innerHTML = Avatar.svg(); } }
+    const ch = $('hm-chef'); if (ch && window.Avatar) { const sig = JSON.stringify(Avatar.look()); if (!chefCtl) { chefCtl = Avatar.mount(ch, null); ch.dataset.sig = sig; Avatar.preloadAll(() => { if (shown) paint(); }); } else if (ch.dataset.sig !== sig) { ch.dataset.sig = sig; chefCtl.set(Avatar.look()); } }
     const hm = $('hm'); if (hm) hm.classList.toggle('hm-rash', !!(window.Modos && Modos.current().id === 'rash'));
   }
 
@@ -244,6 +245,8 @@
       hm.classList.toggle('hm-on', want); shown = want;
     },
     refresh() { if (shown) paint(); },
+    /** El chef te saluda al tocarlo. */
+    wave() { try { if (chefCtl) { chefCtl.wave(); sfx('click'); } } catch (e) {} },
     /** Abre o cierra el menú ☰ (v: true abre, false cierra; sin argumento alterna). */
     menu(v) { const hm = $('hm'); if (!hm) return; const open = v == null ? !hm.classList.contains('menu-open') : !!v; hm.classList.toggle('menu-open', open); sfx('click'); },
     item(id) {
