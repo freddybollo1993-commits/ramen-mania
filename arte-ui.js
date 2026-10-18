@@ -9,7 +9,7 @@
   // ids que ya tienen archivo (se rellena al llegar cada hoja o escena)
   var HAY = {
     ic: [],        // p. ej. 'arco_ramen', 'tokio', 'libre_todo'
-    esc: []        // p. ej. 'rash', 'japon', 'zen'
+    esc: ['rash', 'japon', 'zen', 'online', 'aula', 'retos', 'repaso', 'camp']
   };
   function has(tipo, id) { return HAY[tipo] && HAY[tipo].indexOf(id) >= 0; }
   /** HTML de la ilustración de una tarjeta; devuelve respaldo si aún no existe. */
