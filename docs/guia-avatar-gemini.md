@@ -50,28 +50,35 @@ STYLE: stylized 3D-rendered chibi character for a mobile game, glossy toy-like l
 
 ---
 
+> **Base aprobada** (`assets/gen/avatar/base.jpg`, 1696 × 2528, sin contorno, magenta limpio). Desde aquí las piezas se piden **sin contorno**: el juego dibuja un único borde oscuro alrededor del conjunto. Así no se ven líneas entre pelo, gorro y ropa.
+>
+> **BLOQUE ESTILO SIN CONTORNO**
+> ```
+> STYLE: the same stylized 3D-rendered chibi look as the attached character: glossy toy-like materials, soft smooth shading, bright rim light, saturated colors, small crisp highlights. NO outline, no dark border, no white halo: the edges are defined only by the shading. Same canvas size and vertical 2:3 aspect ratio as the attached image. Flat solid magenta background (#FF00FF) everywhere, clean crisp edges; pure magenta must not appear inside the object. No text, no ground shadow.
+> ```
+
 ## ETAPA 2 · Prueba de capas (antes de pedir las 46 piezas)
 Con `base.png` ya elegida, comprobamos que Gemini **respeta la posición**. Se piden **cuatro imágenes sueltas**, cada una con `base.png` adjunta:
 
 **2A · Pelo de delante (peinado corto, en gris claro)**
 ```
 Attached is a character. Draw ONLY its hair FRONT layer (the fringe and the top of the hair that sits above the forehead), exactly where it is on the attached character: same position, same size, same canvas. Do NOT draw the head, face, body or anything else. The hair is a light neutral grey (#d9d9d9) with soft shading and a white highlight, so it can be tinted later. The fringe must reach the same hairline as in the attached image.
-[BLOQUE ESTILO]
+[BLOQUE ESTILO SIN CONTORNO]
 ```
 **2B · Gorro (hachimaki)**
 ```
 Attached is a character. Draw ONLY a white hachimaki headband with a red circle at the front and two small knot tails on the right side, exactly where it would sit on the attached character's forehead: same position, same size, same canvas. Do NOT draw the head, hair, face or body.
-[BLOQUE ESTILO]
+[BLOQUE ESTILO SIN CONTORNO]
 ```
 **2C · Ropa (chaqueta de chef)**
 ```
 Attached is a character. Draw ONLY a white double-breasted chef jacket (torso and both long sleeves, a small stand collar, two rows of dark blue buttons), exactly where it would be worn by the attached character: same position, same size, same canvas. The sleeves end just above the wrists so the hands stay uncovered. The jacket must NOT cover the head or the hands. Do NOT draw the head, face, hands, legs or any other part of the character.
-[BLOQUE ESTILO]
+[BLOQUE ESTILO SIN CONTORNO]
 ```
 **2D · Cuerpo en otro tono de piel**
 ```
 Attached is a character. Redraw the SAME character in the SAME position, size and canvas, but without hair and without the red t-shirt: a bald head with the same face, ears and neck, bare arms ending in open hands, a plain dark grey sleeveless top, dark blue trousers and white sneakers. Change only the skin tone to deep brown (#8a5a3c). Keep the face, the eyes and the expression identical.
-[BLOQUE ESTILO]
+[BLOQUE ESTILO SIN CONTORNO]
 ```
 **Guardar como:** `test_pelo.png`, `test_gorro.png`, `test_ropa.png`, `test_cuerpo_moreno.png`.
 
