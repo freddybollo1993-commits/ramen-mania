@@ -131,6 +131,7 @@
   .tl-chip { background: rgba(0,0,0,.4); border: 1.5px solid rgba(255,204,80,.45); border-radius: 14px; padding: 3px 10px; font: 900 13px/1.2 'Fredoka', sans-serif; color: #ffe9b0; white-space: nowrap; }
   .tl-tabs { display: flex; gap: 6px; padding: 2px 12px 4px; overflow-x: auto; flex-shrink: 0; scrollbar-width: none; } .tl-tabs::-webkit-scrollbar { display: none; }
   .tl-tab { flex: none; border: 2px solid rgba(255,255,255,.18); background: rgba(0,0,0,.35); color: #e9d5b0; border-radius: 12px; padding: 5px 12px; font: 800 12px/1 'Fredoka', sans-serif; cursor: pointer; }
+  .tl-ti { width: 22px; height: 22px; vertical-align: -6px; margin-right: 2px; object-fit: contain; }
   .tl-tab.on { background: linear-gradient(#ffd54f, #ffa000); border-color: #fff3d0; color: #2b1a08; box-shadow: 0 2px 0 #8a5a00; }
   .tl-note { padding: 0 14px 4px; font: 700 11px/1.3 'Fredoka', sans-serif; color: #c9a77e; flex-shrink: 0; }
   .tl-eq { display: flex; align-items: center; gap: 8px; padding: 2px 12px 6px; flex-shrink: 0; } .tl-eq b { font: 900 11px 'Fredoka', sans-serif; color: #ffd978; }
@@ -250,10 +251,12 @@
     return '<div class="av-shop"><div class="av-prev"><div class="av-fig" id="av-fig"></div><div class="av-nm">' + (it ? it.name : 'Tu chef') + '<small>' + (it ? (A.owned(it.id) ? 'Ya es tuyo' : 'Vista previa · se paga con propinas') : 'Toca una pieza para probártela') + '</small></div>' + act + '</div>'
       + '<div class="av-pick">' + chips + '<div class="av-grid">' + grid + '</div></div></div>';
   }
+  // ícono pequeño de una pestaña: la ilustración si existe y, si no, el emoji de siempre
+  const ti = (id, fb) => (window.ArteUI && ArteUI.has('ic', id) ? '<img class="tl-ti" src="assets/ui/ui_' + id + '.webp" alt=""> ' : fb + ' ');
   function render() {
     let host = $('tll'); if (!host) { host = document.createElement('div'); host.id = 'tll'; document.body.appendChild(host); }
     const eq = eqList();
-    const tabs = [['mejoras', '🛠️ PASIVAS · MEJORAS'], ['secretos', '🗝️ PASIVAS · SECRETOS'], ['activas', '⚡ ACTIVAS'], ['apariencia', '👤 APARIENCIA'], ['japon', '🗾 JAPÓN']].map(([k, n]) => '<button class="tl-tab ' + (tab === k ? 'on' : '') + '" onclick="Taller.tab(\'' + k + '\')">' + n + '</button>').join('');
+    const tabs = [['mejoras', ti('tienda_mejoras', '🛠️') + 'PASIVAS · MEJORAS'], ['secretos', ti('tienda_secretos', '🗝️') + 'PASIVAS · SECRETOS'], ['activas', ti('tienda_activas', '⚡') + 'ACTIVAS'], ['apariencia', ti('tienda_apariencia', '👤') + 'APARIENCIA'], ['japon', ti('tienda_japon', '🗾') + 'JAPÓN']].map(([k, n]) => '<button class="tl-tab ' + (tab === k ? 'on' : '') + '" onclick="Taller.tab(\'' + k + '\')">' + n + '</button>').join('');
     const note = { mejoras: 'Pasivas: se activan solas al comprarlas.', secretos: 'Pasivas: cada secreto que compras da un pequeño bono permanente.', apariencia: '', activas: 'Activas: úsalas durante el servicio con los botones redondos. Solo puedes llevar ' + MAX_EQ + ' a la vez (también se equipan desde tu Perfil). Más poder, más precio.', japon: jpNote() }[tab];
     const slots = tab === 'japon' ? jpChips() : tab === 'activas' ? '<div class="tl-eq"><b>EQUIPADAS</b>' + Array.from({ length: MAX_EQ }, (_, i) => '<div class="tl-slot ' + (eq[i] ? 'on' : '') + '" title="' + (eq[i] ? ACT[eq[i]].name : 'Vacía') + '">' + (eq[i] ? ACT[eq[i]].ic : '') + '</div>').join('') + '</div>' : '';
     host.innerHTML = '<div class="tl-top"><button class="tl-back" onclick="Taller.close()" aria-label="Volver">◀</button><h2>' + SHOP_IC + ' TIENDA DEL CHEF</h2>' + (tab === 'japon' ? '<span class="tl-chip" title="Fondo del Recorrido por Japón">💴 S/ ' + money(jpFondo()) + '</span><button class="tl-buy ghost" onclick="Taller.goJapon()">🗾 Ir al Recorrido</button>' : '') + '<span class="tl-chip">🧧 ' + wallet() + '</span></div><div class="tl-tabs">' + tabs + '</div>' + (note ? '<div class="tl-note">' + note + '</div>' : '') + slots

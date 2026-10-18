@@ -61,7 +61,7 @@
   /* MISIONES: placa ancha con el tablero grande saliendo por arriba y el avance (3/3) como etiqueta naranja */
   .hm-mis, .hm-mode, .hm-go { font-size: calc(var(--u) * 1.15); }       /* los botones traen 13 px por defecto: se fija su escala con la de la pantalla */
   .hm-mis { position: relative; display: flex; align-items: center; width: 11.2em; height: 4.4em; padding: 0 .6em 0 5.3em; }
-  .hm-mis .mic { position: absolute; left: .3em; bottom: .12em; width: 5em; height: 5em; filter: drop-shadow(0 .08em 0 #120905) drop-shadow(0 .12em .15em rgba(0,0,0,.5)); } .hm-mis .mic svg { width: 100%; height: 100%; display: block; }
+  .hm-mis .mic { position: absolute; left: .3em; bottom: .12em; width: 5em; height: 5em; filter: drop-shadow(0 .08em 0 #120905) drop-shadow(0 .12em .15em rgba(0,0,0,.5)); } .hm-mis .mic svg, .hm-mis .mic img { width: 100%; height: 100%; display: block; object-fit: contain; } .hm-cur i img { width: 1.5em; height: 1.5em; display: block; object-fit: contain; }
   .hm-mis b { font: 900 1.15em/1 'Fredoka', sans-serif; color: #fff; text-shadow: 0 .08em 0 #000, 0 0 .3em rgba(0,0,0,.6); letter-spacing: .2px; }
   .hm-mis.all { box-shadow: 0 0 1.1em rgba(255,179,0,.7), 0 .25em 0 rgba(0,0,0,.55), inset 0 .1em 0 rgba(255,255,255,.14); }
   .hm-mis .mbadge { position: absolute; top: -.75em; right: .45em; padding: .06em .5em; border-radius: 1em; border: .1em solid #fff3d0; background: linear-gradient(#ffa726, #f57c00); color: #fff; font: 900 .9em/1.15 'Fredoka', sans-serif; text-shadow: 0 .08em 0 rgba(0,0,0,.45); box-shadow: 0 .12em 0 #8a4b00; pointer-events: none; } .hm-mis .mbadge.buy { background: linear-gradient(#66bb6a, #2e7d32); box-shadow: 0 .12em 0 #14532d; }
@@ -191,6 +191,7 @@
   const HANGER = '<svg viewBox="0 0 64 64"><path d="M32 22V17C32 11 40 11 40 17C40 21 36 22 32 24L6 44Q2 48 8 48H56Q62 48 58 44L32 24" fill="none" stroke="#fff3d6" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   // tablero con visto bueno (misiones)
   const MISIONES = '<svg viewBox="0 0 96 96"><rect x="14" y="14" width="54" height="70" rx="7" fill="#8a5a30" stroke="#2b1810" stroke-width="3"/><rect x="20" y="23" width="42" height="54" rx="3" fill="#fff3d6" stroke="#2b1810" stroke-width="2.4"/><rect x="29" y="8" width="24" height="13" rx="4" fill="#c9cdd3" stroke="#2b1810" stroke-width="2.4"/><path d="M25 38l5 5 8-9M25 54l5 5 8-9" fill="none" stroke="#2e9e4f" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M44 40h13M44 56h13M25 68h32" stroke="#c9b79a" stroke-width="3.4" stroke-linecap="round"/><path d="M62 74l4-18 20-21 8 8-21 20z" fill="#e53935" stroke="#2b1810" stroke-width="2.6" stroke-linejoin="round"/><path d="M62 74l4-18 8 8z" fill="#ffd9a0" stroke="#2b1810" stroke-width="2.2" stroke-linejoin="round"/><path d="M86 35l8 8" stroke="#2b1810" stroke-width="3"/><path d="M10 14l2 5 5 2-5 2-2 5-2-5-5-2 5-2zM82 10l1.6 4 4 1.6-4 1.6-1.6 4-1.6-4-4-1.6 4-1.6z" fill="#ffd54f"/></svg>';
+  const AI = (id, fb) => (window.ArteUI ? ArteUI.icon(id, fb) : fb);                       // ilustración del botón (o su dibujo de respaldo)
   const btn = (ic, label, onclick, id, dark) => `<button class="hm-btn hm-plate ${dark ? 'dark' : ''}" onclick="${onclick}">${id ? flag(id) : ''}<span class="ic">${ic}</span><b>${label}</b></button>`;
 
   function ui() {
@@ -204,21 +205,21 @@
         <button class="hm-prog hm-plate" onclick="Inicio.act('camp')" aria-label="Progreso de Campaña"><span>⭐ ${cs.stars}/${cs.maxStars}</span><i class="hm-bar"><u style="width:${pct}%"></u></i><small>Campaña · nivel ${L} de 20</small></button>
         <span class="hm-gap"></span>
         <button class="hm-menu hm-fs hm-plate" onclick="Inicio.act('full')" aria-label="Pantalla completa">⛶</button>
-        <button class="hm-cur hm-plate" onclick="Inicio.act('knives')" aria-label="Propinas"><i>🧧</i><span class="hm-wallet">${h.wallet()}</span></button>
+        <button class="hm-cur hm-plate" onclick="Inicio.act('knives')" aria-label="Propinas"><i>${AI('propinas', '🧧')}</i><span class="hm-wallet">${h.wallet()}</span></button>
         <button class="hm-menu hm-plate" onclick="Home.menu()" aria-label="Menú">☰${flag('sound')}</button>
       </div>
       <div class="hm-col l">
-        ${btn('📖', 'RECETARIO', "Recetario.open()", 'book')}
-        ${btn(SHOP, 'TIENDA', "Inicio.act('knives')", 'knives', true)}
-        ${btn('🎓', 'APRENDER', "Modos.learn()", 'aprender', true)}
+        ${btn(AI('btn_recetario', '📖'), 'RECETARIO', "Recetario.open()", 'book')}
+        ${btn(AI('btn_tienda', SHOP), 'TIENDA', "Inicio.act('knives')", 'knives', true)}
+        ${btn(AI('btn_aprender', '🎓'), 'APRENDER', "Modos.learn()", 'aprender', true)}
       </div>
       ${window.Avatar ? `<button class="hm-hang hm-plate" onclick="Avatar.open()" aria-label="Cambiar apariencia">${HANGER}</button>` : ''}
       <div class="hm-col r">
-        ${btn('🏆', 'RANKING', "Inicio.act('board')", null, true)}
+        ${btn(AI('btn_ranking', '🏆'), 'RANKING', "Inicio.act('board')", null, true)}
       </div>
       <button class="hm-scrim" onclick="Home.menu(false)" aria-label="Cerrar el menú"></button>
       <div class="hm-drop">${MENU.map((m, i) => `<button style="--i:${i}" onclick="Home.item('${m.id}')">${m.flag ? flag(m.flag) : ''}<span class="ic">${m.ic}</span>${m.label}</button>`).join('')}</div>
-      ${tut && window.Servicio ? (() => { const al = h.alertOf('misiones'), sm = Servicio.summary(); return `<div class="hm-bl"><button class="hm-mis hm-plate ${sm.done === sm.total ? 'all' : ''}" onclick="Servicio.open()" aria-label="Misiones"><span class="mic">${MISIONES}</span><b>MISIONES</b>${al ? `<i class="mbadge ${al.k}">${al.t}</i>` : ''}</button></div>`; })() : ''}
+      ${tut && window.Servicio ? (() => { const al = h.alertOf('misiones'), sm = Servicio.summary(); return `<div class="hm-bl"><button class="hm-mis hm-plate ${sm.done === sm.total ? 'all' : ''}" onclick="Servicio.open()" aria-label="Misiones"><span class="mic">${AI('btn_misiones', MISIONES)}</span><b>MISIONES</b>${al ? `<i class="mbadge ${al.k}">${al.t}</i>` : ''}</button></div>`; })() : ''}
       <div class="hm-br">
         <div class="hm-row">
           <button class="hm-mode" style="--c:${sel.col}" onclick="Modos.open()" aria-label="Elegir modo de juego: ${sel.title}"><span class="mp hm-plate"><span class="mi">${sel.icon}</span><span class="mt"><small>Modos de juego</small><b>${sel.title}</b></span></span>${sel.tag ? `<span class="mtag">${sel.tag}</span>` : ''}</button>

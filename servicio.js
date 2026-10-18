@@ -226,6 +226,7 @@
   .sv-strip::-webkit-scrollbar { display: none; }
   .sv-sec { flex: none; display: flex; flex-direction: column; gap: 6px; scroll-snap-align: start; }
   .sv-h { display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,.42); border: 1.5px solid rgba(255,204,80,.3); border-radius: 10px; padding: 5px 10px; }
+  .sv-h i img { width: 26px; height: 26px; display: block; object-fit: contain; } .sv-ic img { width: 32px; height: 32px; object-fit: contain; }
   .sv-h i { font-style: normal; font-size: 16px; } .sv-h b { font: 900 11.5px 'Fredoka', sans-serif; letter-spacing: .6px; color: #fff3d6; } .sv-h small { margin-left: auto; font: 800 10.5px 'Fredoka', sans-serif; color: #e6c88a; white-space: nowrap; }
   .sv-cols { display: flex; gap: 8px; flex: 1; min-height: 0; }
   .sv-col { display: flex; flex-direction: column; gap: 7px; width: 236px; }
@@ -268,17 +269,18 @@
   };
   function render() {
     ensure(); const sm = summary(), dn = st.goals.filter(g => g.done).length;
-    const chest = '<div class="sv-card chest ' + (st.chest ? 'done' : '') + '"><div class="sv-tx"><span class="sv-ic" style="font-size:26px">' + (st.chest ? '✅' : '🎁') + '</span><div><small>Bonus del día</small><b>Cofre del Maestro</b></div></div>'
+    const AI = (id, fb) => (window.ArteUI ? ArteUI.icon(id, fb) : fb);
+    const chest = '<div class="sv-card chest ' + (st.chest ? 'done' : '') + '"><div class="sv-tx"><span class="sv-ic" style="font-size:26px">' + (st.chest ? '✅' : AI('cofre_dia', '🎁')) + '</span><div><small>Bonus del día</small><b>Cofre del Maestro</b></div></div>'
       + '<div class="sv-bt"><div class="sv-bar"><i style="transform:scaleX(' + (dn / st.goals.length).toFixed(3) + ')"></i><span>' + (st.chest ? 'Abierto' : dn + '/' + st.goals.length + ' metas') + '</span></div><button class="sv-open" ' + (sm.chestReady ? '' : 'disabled') + ' onclick="Servicio.chest()">' + (st.chest ? '✔' : 'Abrir') + '</button></div></div>';
-    const streak = '<div class="sv-card"><div class="sv-tx"><span class="sv-ic">🔥</span><div><small>Racha</small><b>' + (sm.streak ? sm.streak + ' día' + (sm.streak > 1 ? 's' : '') + ' seguidos · +' + Math.round((sm.mult - 1) * 100) + ' % en las metas del día' : 'Cumple una meta hoy para empezar tu racha') + '</b></div></div><div class="sv-note">Un día sin jugar no rompe la racha; dos o más, sí.</div></div>';
+    const streak = '<div class="sv-card"><div class="sv-tx"><span class="sv-ic">' + AI('racha', '🔥') + '</span><div><small>Racha</small><b>' + (sm.streak ? sm.streak + ' día' + (sm.streak > 1 ? 's' : '') + ' seguidos · +' + Math.round((sm.mult - 1) * 100) + ' % en las metas del día' : 'Cumple una meta hoy para empezar tu racha') + '</b></div></div><div class="sv-note">Un día sin jugar no rompe la racha; dos o más, sí.</div></div>';
     const sec = (ic, title, sub, body, attr) => '<section class="sv-sec"><div class="sv-h"><i>' + ic + '</i><b>' + title + '</b><small' + (attr ? ' data-end="' + attr[0] + '" data-pre="' + attr[1] + '"' : '') + '>' + sub + '</small></div><div class="sv-cols">' + body + '</div></section>';
     const col = h => '<div class="sv-col">' + h + '</div>';
     const wk = st.wk.goals, ss = st.ss.goals, half = Math.ceil(ss.length / 2);
     host().innerHTML = '<div class="sv-top"><button class="sv-nav" onclick="Servicio.close()" aria-label="Volver">◀</button><h2>MISIONES</h2><span class="sv-chip">🔥 Racha ' + sm.streak + '</span><span class="sv-chip">🧧 ' + (function () { try { return getPropinasWallet(); } catch (e) { return 0; } })() + '</span></div>'
       + '<div class="sv-strip" id="sv-strip">'
-      + sec('🎯', 'MISIONES DIARIAS', 'Nuevas dentro de ' + left(msToday()), col(st.goals.map(g => card(g)).join('')) + col(chest + streak), [Date.now() + msToday(), 'Nuevas dentro de '])
-      + sec('🌟', 'MISIONES ESPECIALES', 'Terminan dentro de ' + left(msWeek()), col(wk.map(g => card(g, 'wk')).join('')), [Date.now() + msWeek(), 'Terminan dentro de '])
-      + sec('🏅', 'MISIONES DE TEMPORADA ' + seasonNo(), 'Termina dentro de ' + left(msSeason()), col(ss.slice(0, half).map(g => card(g, 'ss')).join('')) + col(ss.slice(half).map(g => card(g, 'ss')).join('')), [Date.now() + msSeason(), 'Termina dentro de '])
+      + sec(AI('mision_diaria', '🎯'), 'MISIONES DIARIAS', 'Nuevas dentro de ' + left(msToday()), col(st.goals.map(g => card(g)).join('')) + col(chest + streak), [Date.now() + msToday(), 'Nuevas dentro de '])
+      + sec(AI('mision_semanal', '🌟'), 'MISIONES ESPECIALES', 'Terminan dentro de ' + left(msWeek()), col(wk.map(g => card(g, 'wk')).join('')), [Date.now() + msWeek(), 'Terminan dentro de '])
+      + sec(AI('mision_temporada', '🏅'), 'MISIONES DE TEMPORADA ' + seasonNo(), 'Termina dentro de ' + left(msSeason()), col(ss.slice(0, half).map(g => card(g, 'ss')).join('')) + col(ss.slice(half).map(g => card(g, 'ss')).join('')), [Date.now() + msSeason(), 'Termina dentro de '])
       + '</div>';
   }
   const host = () => { let h = $('svc'); if (!h) { h = document.createElement('div'); h.id = 'svc'; document.body.appendChild(h); } return h; };
