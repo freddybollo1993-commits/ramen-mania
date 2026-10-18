@@ -140,7 +140,7 @@ function getUnlockedIngredients() {
     list = INGREDIENTES.filter(i => ids.has(i.id));
     // En Frituras la harina, el huevo y el panko son los tres espacios de empanizado, no fichas.
     if (gameState.activeArea === 'frituras') list = list.filter(i => !FRY_BREADING_IDS.includes(i.id) && (!stagedOn('frituras') || FRY_PROTEIN_IDS.includes(i.id) || i.id === 83));
-  } else if (isMultiplayerSession()) {
+  } else if (isMultiplayerSession() && !stagedOn('ramen')) {                 // Cocina compartida (sin etapas): todos los ingredientes de Ramen; Arrebato usa el mismo filtrado que la Campaña
     list = INGREDIENTES.filter(i => i.areas && i.areas.includes('ramen'));
   } else {
     const unlockedRecs = getUnlockedRamenRecipes();
@@ -194,7 +194,7 @@ function switchKitchenArea(areaId) {
   gameState.currentCategory = 'todos';
   try { playSound('click'); } catch (e) {}
   try { // pista única para quien juega con el dedo
-    if ((navigator.maxTouchPoints > 0) && !isMultiplayerSession() && safeStorage.getItem('ramen_swipe_hint') !== '1') {
+    if ((navigator.maxTouchPoints > 0) && (!isMultiplayerSession() || stagedOn(gameState.activeArea)) && safeStorage.getItem('ramen_swipe_hint') !== '1') {
       safeStorage.setItem('ramen_swipe_hint', '1');
       setTimeout(() => showStationToast('👆 Desde el borde izquierdo → Producción · desde el borde derecho ← Emplatar'), 600);
     }
