@@ -22,6 +22,7 @@ Sin framework: HTML/CSS/JS clásico (scripts globales, no módulos), Vite solo c
 | `manifest.json` | PWA. |
 | `makis-studio.js` | Estudio de Makis (esterilla, arroz, enrollado, pescado). |
 | `frituras-prod.js` / `frituras-plate.js` | Producción (mandolina, licuado, gyozas) y emplatado dibujado de Frituras. |
+| `escala-pantalla.js` (v226) | Escalado a pantallas chicas (iPhone SE/8/mini, Safari con barras): si la pantalla útil es menor que 873×393 px, cambia el `<meta viewport>` a `width = ancho virtual` para que el navegador lo reduzca y todo quepa (mantiene coherentes toques y arrastres; no usa zoom ni transform). Solo reduce, solo en horizontal, no toca el tamaño de diseño. `EscalaPantalla.info()` para depurar; `tools/qa-pantallas.js` mide desbordes por pantalla. |
 | `multiplayer.js` | Multijugador 2–4 jugadores sobre Supabase Realtime + ranking MMR. |
 | `japon.js` / `japon-scene.js` | Recorrido por Japón (economía idle) y escena isométrica animada de los restaurantes. `japon-scene.js` exporta `window.JPKit` (proyección, personas, cajas, estilos) que reutiliza el inicio. |
 | `reconocer.js` | Modo «Ingredientes» (reconocer qué lleva cada plato, sin reloj en contra). |

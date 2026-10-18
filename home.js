@@ -12,7 +12,7 @@
 
   const CSS = `
   #hm { display: none; position: absolute; inset: 0; z-index: 6; overflow: hidden; background: #140a07; color: #fff8e7; font-family: 'Fredoka', 'Nunito', system-ui, sans-serif;
-    --u: clamp(9px, 2.55vh, 21px); font-size: var(--u); user-select: none; -webkit-user-select: none; }
+    --u: clamp(9px, min(2.55vh, 1.145vw), 21px); font-size: var(--u); user-select: none; -webkit-user-select: none; }
   #hm.hm-on { display: block; }
   #app-version { position: absolute; left: max(.8em, env(safe-area-inset-left)); bottom: max(.5em, env(safe-area-inset-bottom)); z-index: 7; font: 800 10px 'Fredoka', sans-serif; color: rgba(255,243,214,.55); text-shadow: 0 1px 2px #000; pointer-events: none; }
   #hm * { box-sizing: border-box; }
