@@ -4887,7 +4887,7 @@
     transform: translateX(-50%) translateY(0);
   }
 </style>
-<link rel="stylesheet" href="estilo-nuevo.css?v=16">
+<link rel="stylesheet" href="estilo-nuevo.css?v=19">
 </head>
 <body>
 
@@ -4912,7 +4912,7 @@
 <div id="game-container">
   <!-- PANTALLA DE INICIO (START / TITLE SCREEN) -->
   <div id="start-screen" class="start-screen-overlay">
-    <span id="app-version">v229</span>
+    <span id="app-version">v231</span>
   </div>
 
   <!-- EFECTO DE PARPADEO ROJO Y MENSAJE DE CLIENTE PERDIDO -->
@@ -5706,7 +5706,7 @@
 
   <!-- MODAL DE RECETAS -->
   <!-- ESTADÍSTICAS DE COCINA -->
-  <div class="modal-overlay" id="stats-modal" onclick="closeStatsModal()">
+  <div class="modal-overlay nv-pantalla" id="stats-modal" onclick="closeStatsModal()">
     <div class="modal-card upgrades-card training-card" onclick="event.stopPropagation()">
       <div class="modal-header">
         <h2>📊 Mis estadísticas</h2>
@@ -5735,7 +5735,7 @@
   </div>
 
   <!-- CUENTA: clave de acceso y cambio de cuenta -->
-  <div class="modal-overlay" id="account-modal" onclick="closeAccountModal()">
+  <div class="modal-overlay nv-pantalla nv-carrusel" id="account-modal" onclick="closeAccountModal()">
     <div class="modal-card upgrades-card account-card" onclick="event.stopPropagation()">
       <div class="modal-header">
         <h2>🔐 Cuenta</h2>
@@ -5814,7 +5814,7 @@
   </div>
 
   <!-- MODAL DE TABLA DE CLASIFICACIÓN / LEADERBOARD -->
-  <div class="modal-overlay" id="leaderboard-modal" onclick="closeLeaderboardModal()">
+  <div class="modal-overlay nv-pantalla" id="leaderboard-modal" onclick="closeLeaderboardModal()">
     <div class="modal-card" onclick="event.stopPropagation()" style="max-width: 650px;">
       <div class="modal-header" style="background: linear-gradient(90deg, #ff9800, #b71c1c);">
         <h2>🏆 Ranking de Mejores Jugadores</h2>
@@ -5906,13 +5906,14 @@
   </div>
 
   <!-- MODAL DE PERFIL Y DISPOSITIVO -->
-  <div class="modal-overlay" id="player-profile-modal" onclick="closeProfileModal()">
+  <div class="modal-overlay nv-pantalla nv-carrusel" id="player-profile-modal" onclick="closeProfileModal()">
     <div class="modal-card" onclick="event.stopPropagation()" style="max-width: 480px; border-color: var(--ramen-gold);">
       <div class="modal-header" style="background: linear-gradient(90deg, #3e2723, #d32f2f);">
         <h2>👤 Perfil del Jugador & Dispositivo</h2>
         <button class="btn btn-danger" style="padding: 2px 8px;" onclick="closeProfileModal()">✕</button>
       </div>
       <div class="modal-body" style="padding: 14px; text-align: left;">
+        <div class="prof-grupo">
         <div style="display: flex; align-items: center; gap: 12px; background: #fff3e0; padding: 10px; border-radius: 10px; margin-bottom: 12px; border: 1px solid #ffe0b2;">
           <div style="font-size: 34px; width: 50px; height: 50px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--ramen-gold);" id="prof-avatar-display">🍜</div>
           <div style="flex: 1;">
@@ -5937,6 +5938,12 @@
           </div>
         </div>
 
+        <div class="device-info-pill" id="prof-device-details-box">
+          📱 <strong>Datos Técnicos del Dispositivo:</strong><br>
+          <span id="prof-device-raw">Cargando...</span>
+        </div>
+
+        </div>
         <!-- TARJETA DE RANGO COMPETITIVO MMR (ESTILO LOL / DOTA 2) -->
         <div class="profile-rank-card" id="prof-mmr-card" style="background: linear-gradient(135deg, #1f1412, #3e2723); border: 2px solid #ffb300; border-radius: 12px; padding: 12px; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); text-align: center;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
@@ -5978,11 +5985,6 @@
               <div style="font-size:9px; color:#bdbdbd;">Racha</div>
             </div>
           </div>
-        </div>
-
-        <div class="device-info-pill" id="prof-device-details-box">
-          📱 <strong>Datos Técnicos del Dispositivo:</strong><br>
-          <span id="prof-device-raw">Cargando...</span>
         </div>
 
         <div style="background: #fafafa; border: 1px solid #e0e0e0; border-radius: 8px; padding: 10px; margin-bottom: 8px;">
@@ -6348,35 +6350,35 @@
   </div>
 </div> <!-- CIERRE DE #game-container (INCLUYE OVERLAYS Y MODALES PARA PANTALLA COMPLETA TOTAL) -->
 
-<script src="js/01-nucleo-supabase-dispositivo.js?v=174"></script>
-<script src="js/02-datos-ingredientes-recetas.js?v=174"></script>
-<script src="js/03-datos-niveles-campana.js?v=174"></script>
-<script src="js/04-estado-y-audio.js?v=174"></script>
-<script src="js/05-menu-recetas-areas.js?v=174"></script>
-<script src="js/06-etapas-navegacion.js?v=174"></script>
-<script src="js/07-makis-estacion.js?v=174"></script>
-<script src="js/08-salteados-wok.js?v=174"></script>
-<script src="js/09-etapas-motor.js?v=174"></script>
-<script src="js/10-produccion-taller-gestos.js?v=174"></script>
-<script src="js/11-emplatado-platos-salteado.js?v=174"></script>
-<script src="js/12-frituras-estacion.js?v=174"></script>
-<script src="js/13-areas-despensa-arrastre.js?v=174"></script>
-<script src="js/14-cuencos-estado-cocina.js?v=174"></script>
-<script src="js/15-ramen-fideos-clientes.js?v=174"></script>
-<script src="js/16-cooperativo-estaciones.js?v=174"></script>
-<script src="js/17-propinas-mejoras-progreso.js?v=174"></script>
-<script src="js/18-nube-cuenta.js?v=174"></script>
-<script src="js/19-entrenamiento.js?v=174"></script>
-<script src="js/20-estadisticas.js?v=174"></script>
-<script src="js/21-cocina-libre-mejoras-vfx.js?v=174"></script>
-<script src="js/22-calidad-servir.js?v=174"></script>
-<script src="js/23-ramen-sartenes-herramientas.js?v=174"></script>
-<script src="js/24-ramen-sartenes-shio-fideos.js?v=174"></script>
-<script src="js/25-partida-campana.js?v=174"></script>
-<script src="js/26-inicio-menu-modales.js?v=174"></script>
-<script src="js/28-perfil-ranking-pantalla.js?v=174"></script>
-<script src="js/29-secretos-datos.js?v=174"></script>
-<script src="js/31-orientacion-admin-arranque.js?v=174"></script>
+<script src="js/01-nucleo-supabase-dispositivo.js?v=175"></script>
+<script src="js/02-datos-ingredientes-recetas.js?v=175"></script>
+<script src="js/03-datos-niveles-campana.js?v=175"></script>
+<script src="js/04-estado-y-audio.js?v=175"></script>
+<script src="js/05-menu-recetas-areas.js?v=175"></script>
+<script src="js/06-etapas-navegacion.js?v=175"></script>
+<script src="js/07-makis-estacion.js?v=175"></script>
+<script src="js/08-salteados-wok.js?v=175"></script>
+<script src="js/09-etapas-motor.js?v=175"></script>
+<script src="js/10-produccion-taller-gestos.js?v=175"></script>
+<script src="js/11-emplatado-platos-salteado.js?v=175"></script>
+<script src="js/12-frituras-estacion.js?v=175"></script>
+<script src="js/13-areas-despensa-arrastre.js?v=175"></script>
+<script src="js/14-cuencos-estado-cocina.js?v=175"></script>
+<script src="js/15-ramen-fideos-clientes.js?v=175"></script>
+<script src="js/16-cooperativo-estaciones.js?v=175"></script>
+<script src="js/17-propinas-mejoras-progreso.js?v=175"></script>
+<script src="js/18-nube-cuenta.js?v=175"></script>
+<script src="js/19-entrenamiento.js?v=175"></script>
+<script src="js/20-estadisticas.js?v=175"></script>
+<script src="js/21-cocina-libre-mejoras-vfx.js?v=175"></script>
+<script src="js/22-calidad-servir.js?v=175"></script>
+<script src="js/23-ramen-sartenes-herramientas.js?v=175"></script>
+<script src="js/24-ramen-sartenes-shio-fideos.js?v=175"></script>
+<script src="js/25-partida-campana.js?v=175"></script>
+<script src="js/26-inicio-menu-modales.js?v=175"></script>
+<script src="js/28-perfil-ranking-pantalla.js?v=175"></script>
+<script src="js/29-secretos-datos.js?v=175"></script>
+<script src="js/31-orientacion-admin-arranque.js?v=175"></script>
 <script src="multiplayer.js?v=28"></script>
 <script src="makis-studio.js?v=118"></script>
 <script src="frituras-prod.js?v=2"></script>

@@ -479,3 +479,20 @@ function renderPantryGrid() {
     container.appendChild(tile);
   });
 }
+
+// Ajuste de altura de la cocina: si la estación de abajo (woks, olla, tabla…) no cabe en la pantalla útil (p. ej. Salteado con 26 insumos en 873×393),
+// la despensa cede esa altura y se desplaza por dentro (ya tiene overflow: auto). Solo actúa cuando algo se sale; no cambia nada si todo cabe.
+function fitKitchenHeight() {
+  const g = document.getElementById('ingredients-grid');
+  if (!g) return;
+  g.style.maxHeight = '';
+  const dock = document.querySelector('.kitchen-bottom-dock');
+  if (!dock || !dock.offsetHeight) return;
+  const over = dock.getBoundingClientRect().bottom - window.innerHeight;
+  if (over > 2) g.style.maxHeight = Math.max(84, Math.floor(g.getBoundingClientRect().height - over)) + 'px';
+}
+(function () {
+  const base = renderPantryGrid;
+  renderPantryGrid = function () { base.apply(this, arguments); fitKitchenHeight(); try { requestAnimationFrame(fitKitchenHeight); } catch (e) {} setTimeout(fitKitchenHeight, 250); };
+  window.addEventListener('resize', () => setTimeout(fitKitchenHeight, 150));
+})();
