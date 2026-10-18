@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ramen-mania-v211';
+const CACHE_NAME = 'ramen-mania-v212';
 
 // Shell del juego para instalar y abrir sin conexión: la página y todos sus scripts (js/ + archivos de apoyo)
 const CORE_SHELL = [
@@ -129,13 +129,22 @@ self.addEventListener('activate', event => {
           './assets/avatar/v1/pelo_rapado.webp',
           './assets/avatar/v1/slL_camiseta.webp',
           './assets/avatar/v1/slL_chef.webp',
+          './assets/avatar/v1/slL_gala.webp',
+          './assets/avatar/v1/slL_happi.webp',
           './assets/avatar/v1/slL_sudadera.webp',
+          './assets/avatar/v1/slL_yukata.webp',
           './assets/avatar/v1/slR_camiseta.webp',
           './assets/avatar/v1/slR_chef.webp',
+          './assets/avatar/v1/slR_gala.webp',
+          './assets/avatar/v1/slR_happi.webp',
           './assets/avatar/v1/slR_sudadera.webp',
+          './assets/avatar/v1/slR_yukata.webp',
           './assets/avatar/v1/tor_camiseta.webp',
           './assets/avatar/v1/tor_chef.webp',
+          './assets/avatar/v1/tor_gala.webp',
+          './assets/avatar/v1/tor_happi.webp',
           './assets/avatar/v1/tor_sudadera.webp',
+          './assets/avatar/v1/tor_yukata.webp',
           './assets/icons/icon-192.png',
           './assets/icons/favicon-32x32.png',
           './assets/icons/favicon-16x16.png'

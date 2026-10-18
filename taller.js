@@ -236,7 +236,7 @@
     return sec.items.map(cardJp).join('');
   }
   // ---------- pestaña APARIENCIA ----------
-  let avSlot = 'peinado', avSel = null, avPrev = null;
+  let avSlot = 'peinado', avSel = null, avPrev = null, avPre = false;
   function avView() {
     const A = window.Avatar; if (!A) return '<div class="tl-note">La apariencia aún no está disponible.</div>';
     const cur = A.look(), prev = Object.assign({}, cur, avSel ? { [A.item(avSel).slot]: avSel } : {}), w = wallet(), it = avSel ? A.item(avSel) : null;
@@ -258,7 +258,7 @@
     const slots = tab === 'japon' ? jpChips() : tab === 'activas' ? '<div class="tl-eq"><b>EQUIPADAS</b>' + Array.from({ length: MAX_EQ }, (_, i) => '<div class="tl-slot ' + (eq[i] ? 'on' : '') + '" title="' + (eq[i] ? ACT[eq[i]].name : 'Vacía') + '">' + (eq[i] ? ACT[eq[i]].ic : '') + '</div>').join('') + '</div>' : '';
     host.innerHTML = '<div class="tl-top"><button class="tl-back" onclick="Taller.close()" aria-label="Volver">◀</button><h2>' + SHOP_IC + ' TIENDA DEL CHEF</h2>' + (tab === 'japon' ? '<span class="tl-chip" title="Fondo del Recorrido por Japón">💴 S/ ' + money(jpFondo()) + '</span><button class="tl-buy ghost" onclick="Taller.goJapon()">🗾 Ir al Recorrido</button>' : '') + '<span class="tl-chip">🧧 ' + wallet() + '</span></div><div class="tl-tabs">' + tabs + '</div>' + (note ? '<div class="tl-note">' + note + '</div>' : '') + slots
       + (tab === 'apariencia' ? avView() : '<div class="tl-grid">' + (tab === 'mejoras' ? cardsMejoras() : tab === 'secretos' ? cardsSecretos() : tab === 'japon' ? cardsJapon() : cardsActivas()) + '</div>');
-    if (tab === 'apariencia' && window.Avatar) { try { const f = $('av-fig'); if (f) Avatar.mount(f, avPrev); Avatar.preloadAll(() => { if ($('tll') && tab === 'apariencia') render(); }); } catch (e) { console.warn('[Taller] apariencia', e); } }
+    if (tab === 'apariencia' && window.Avatar) { try { const f = $('av-fig'); if (f) Avatar.mount(f, avPrev); if (!avPre) { avPre = true; Avatar.preloadAll(() => { if ($('tll') && tab === 'apariencia') render(); }); } } catch (e) { console.warn('[Taller] apariencia', e); } }
   }
 
   // ---------- perfil: equipar las técnicas activas ----------
@@ -289,7 +289,7 @@
     ACTIVAS.forEach(a => { const lv = lvlOf(a.id); if (lv < a.lv.length) upd(a.lv[lv].price); }); secretos().forEach(x => { if (!sabOwned(x.id)) upd(x.price); }); return c; }
 
   window.Taller = Object.assign({
-    open(t) { css(); if (t) tab = t; sfx('click'); try { accountPull(); } catch (e) {} render(); },
+    open(t) { css(); if (t) tab = t; avPre = false; sfx('click'); try { accountPull(); } catch (e) {} render(); },
     /** Repinta la Tienda si está abierta. */
     refresh() { if ($('tll')) render(); },
     close() { const h = $('tll'); if (h) h.remove(); sfx('click'); try { if (window.Home) Home.refresh(); } catch (e) {} },

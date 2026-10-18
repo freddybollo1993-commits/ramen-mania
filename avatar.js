@@ -18,6 +18,7 @@
   // ---------------- piezas: posición (x, y) y tamaño (w, h) en el lienzo de 700 px ----------------
   const MAN = {"head":[174,140,350,361],"headB":[174,140,350,361],"low":[231,755,237,336],"armL":[200,526,108,353],"armR":[391,526,108,353],
     "tor_camiseta":[249,505,200,251],"slL_camiseta":[196,514,80,131],"slR_camiseta":[422,514,80,131],"tor_sudadera":[248,505,203,277],"slL_sudadera":[187,514,99,288],"slR_sudadera":[417,514,90,287],
+    "tor_happi":[247,505,204,260],"slL_happi":[179,514,114,226],"slR_happi":[405,514,113,226],"tor_yukata":[247,505,204,270],"slL_yukata":[170,514,132,264],"slR_yukata":[396,514,132,263],"tor_gala":[247,505,204,251],"slL_gala":[183,514,107,233],"slR_gala":[409,514,107,233],
     "tor_chef":[247,505,204,252],"slL_chef":[182,514,108,251],"slR_chef":[408,514,108,250],
     "pelo_corto":[160,126,371,280],"pelo_erizado":[159,118,379,314],"pelo_rapado":[159,132,379,367],"pelo_melena_f":[154,106,391,484],"pelo_melena_b":[164,140,369,470],"pelo_mono":[170,88,354,387],"pelo_coleta_b":[360,90,207,362],
     "gorro_hachimaki":[171,107,333,312],"gorro_tenugui":[171,52,332,273],"gorro_orejas":[196,49,306,263],"gorro_toque":[176,-95,346,327],"gorro_kasa":[172,24,354,228],"gorro_corona":[192,30,315,205]};
@@ -48,7 +49,7 @@
     { id: 'gorro_orejas', name: 'Orejas de gato', price: 55, piece: 'gorro_orejas' }, { id: 'gorro_toque', name: 'Gorro de chef', price: 80, piece: 'gorro_toque' },
     { id: 'gorro_kasa', name: 'Sombrero kasa', price: 120, piece: 'gorro_kasa' }, { id: 'gorro_corona', name: 'Corona dorada', price: 400, piece: 'gorro_corona' }].map(g => Object.assign(g, { art: true }));
   const ROPA = [{ id: 'ropa_camiseta', name: 'Camiseta roja', price: 0, set: 'camiseta' }, { id: 'ropa_sudadera', name: 'Sudadera gris', price: 40, set: 'sudadera' }, { id: 'ropa_chef', name: 'Chaqueta de chef', price: 60, set: 'chef' },
-    { id: 'ropa_happi', name: 'Happi de festival', price: 90 }, { id: 'ropa_yukata', name: 'Yukata de sakura', price: 140 }, { id: 'ropa_gala', name: 'Traje de gala', price: 260 }].map(r => Object.assign(r, { art: !!r.set }));
+    { id: 'ropa_happi', name: 'Happi de festival', price: 90, set: 'happi' }, { id: 'ropa_yukata', name: 'Yukata de sakura', price: 140, set: 'yukata' }, { id: 'ropa_gala', name: 'Traje de gala', price: 260, set: 'gala' }].map(r => Object.assign(r, { art: !!r.set }));
   const DELANTAL = [{ id: 'delantal_ninguno', name: 'Sin delantal', price: 0, art: true }, { id: 'delantal_marron', name: 'Marrón de cocina', price: 25 }, { id: 'delantal_blanco', name: 'Blanco', price: 25 },
     { id: 'delantal_indigo', name: 'Índigo', price: 45 }, { id: 'delantal_rojo', name: 'Rojo ramen', price: 45 }, { id: 'delantal_negro', name: 'Negro y oro', price: 120 }].map(d => Object.assign(d, { art: d.id === 'delantal_ninguno' }));
   const CARA = [{ id: 'cara_ninguna', name: 'Sin accesorio', price: 0, art: true }, { id: 'cara_gafas', name: 'Gafas redondas', price: 45 }, { id: 'cara_sol', name: 'Gafas de sol', price: 70 },
@@ -145,7 +146,7 @@
       last = now;
       MOUNTS.forEach(m => {
         if (!m.el.isConnected) { MOUNTS.delete(m); return; }
-        try { paint(m, now / 1000); } catch (e) { console.warn('[Avatar] dibujo', e); }
+        try { paint(m, now / 1000); } catch (e) { console.error('[Avatar] dibujo', e && e.message); }
       });
     }
     if (MOUNTS.size) raf = requestAnimationFrame(frame);
@@ -157,7 +158,7 @@
     const r = m.el.getBoundingClientRect(); if (!r.width || !r.height) return;
     const dpr = Math.min(2.5, window.devicePixelRatio || 1), w = Math.round(r.width * dpr), h = Math.round(r.height * dpr), c = m.cv;
     if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
-    const x = c.getContext('2d'); x.clearRect(0, 0, w, h);
+    const x = c.getContext('2d'); x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, w, h);
     const cr = CROPS.head, bw = m.bust ? cr[2] : CW, bh = m.bust ? cr[3] : CH, k = Math.min(w / bw, h / bh);
     x.save(); x.translate((w - bw * k) / 2, m.bust ? (h - bh * k) / 2 : h - bh * k); if (m.bust) x.translate(-cr[0] * k, -cr[1] * k);
     const st = m.st;
@@ -188,8 +189,11 @@
     return (THUMBS[sig] = c.toDataURL('image/png'));
   }
   const loadCbs = [];
-  /** Carga todas las piezas (al abrir la tienda) y avisa a quien lo pidió. */
-  function preloadAll(cb) { const keys = Object.keys(MAN); if (cb) loadCbs.push(cb); whenReady(keys, () => { loadCbs.splice(0).forEach(f => { try { f(); } catch (e) {} }); }); }
+  /** Carga todas las piezas y avisa a quien lo pidió solo si tuvo que esperar; devuelve false si ya estaban cargadas. */
+  function preloadAll(cb) {
+    const keys = Object.keys(MAN); if (keys.every(k => IMG[k] && (IMG[k].ok || IMG[k].bad))) return false;      // ya está todo: no hay nada que avisar (evita repintar en bucle)
+    if (cb) loadCbs.push(cb); whenReady(keys, () => { loadCbs.splice(0).forEach(f => { try { f(); } catch (e) {} }); }); return true;
+  }
 
   // ---------------- compras ----------------
   function refresh() { try { if (window.Home) Home.refresh(); } catch (e) {} try { if (window.Taller) Taller.refresh(); } catch (e) {} }
