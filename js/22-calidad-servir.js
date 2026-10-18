@@ -351,7 +351,7 @@ function serveOrder(customerIndex, itemIndex, dish) {
       showStationToast(`⭐ ¡Meta base alcanzada (S/ ${gameState.money})! Sigue cocinando para ⭐⭐ y ⭐⭐⭐`);
     }
   } else if (gameState.gameMode === 'RASH') {
-    gameState.rashCustomersServed++;
+    if (c.orders.every(o => o.served)) gameState.rashCustomersServed++;   // cuenta clientes atendidos (no pedidos): con 2-3 pedidos por cliente el marcador pasaba del total
     const cfg = getCurrentLevelConfig();
     const activeCount = gameState.customerSlots.filter(s => s !== null).length;
     if (gameState.rashCustomersSpawned >= cfg.customers && activeCount === 0) {
