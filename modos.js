@@ -15,6 +15,8 @@
   // ---------- datos de cada categoría ----------
   const campStats = () => { try { return getCampaignStatsSummary(); } catch (e) { return { stars: 0, maxStars: 60, unlockedLevel: 1 }; } };
   function arcStars(arc) { let st = 0; try { const lv = loadCampaignProgress().levels || {}; arc.levels.forEach(n => { st += Number((lv[n] || {}).stars) || 0; }); } catch (e) {} return st; }
+  const AU = (id, fb) => (window.ArteUI ? ArteUI.icon(id, fb) : fb);                       // ilustración de la tarjeta (o el emoji de respaldo)
+  const LIB = { ramen: 'ramen', salteados: 'salteado', makis: 'makis', frituras: 'frituras' };
   const ARC_ART = { ramen: 11, salteado: 48, makis: 49, frituras: 43, maestria: null };
   const ARC_COL = { ramen: '#ff9800', salteado: '#ef5350', makis: '#26a69a', frituras: '#ffb300', maestria: '#ab47bc' };
   function japonCities() { try { return (window.JP && JP.cities) ? JP.cities() : []; } catch (e) { return []; } }
@@ -28,7 +30,7 @@
           cta: '✔ ELEGIR CAMPAÑA', go: ['camp'], meta: `⭐ ${cs.stars}/${cs.maxStars}` },
         cards: arcs.map((a, i) => { const open = a.levels[0] <= (cs.unlockedLevel || 1), st = arcStars(a);
           return { col: ARC_COL[a.id] || '#ff9800', icon: a.icon, title: a.name.toUpperCase(), sub: `Niveles ${a.levels[0]}–${a.levels[a.levels.length - 1]}`, meta: open ? `⭐ ${st}/${a.levels.length * 3}` : `🔒 Llega al nivel ${a.levels[0]}`, locked: !open,
-            art: ARC_ART[a.id] != null ? imgOf(ARC_ART[a.id]) : '<span>🏆</span>', info: `${a.name}: ${a.areas}. Niveles ${a.levels.join(', ')}.`, go: ['camp', a.id] }; })
+            art: AU('arco_' + a.id, ARC_ART[a.id] != null ? imgOf(ARC_ART[a.id]) : '<span>🏆</span>'), info: `${a.name}: ${a.areas}. Niveles ${a.levels.join(', ')}.`, go: ['camp', a.id] }; })
       };
     } },
     { id: 'rash', name: 'RASH', col: '#e53935', build() {
@@ -36,8 +38,8 @@
       return {
         feat: { title: 'RASH', art: 'rash', panels: ['Supervivencia extrema: los clientes llegan cada vez más rápido.', 'Tienes 3 vidas. Cada ronda desbloquea platos y cocinas nuevas.'], cta: '✔ ELEGIR RASH', go: ['rash'], meta: `Récord: ronda ${b}` },
         cards: [
-          { col: '#e53935', icon: '🏆', title: 'TU RÉCORD', sub: 'Ronda ' + b, meta: 'Mejor marca', art: '<span>🏆</span>', info: 'Tu ronda más alta en Rash.', go: ['rash'] },
-          { col: '#8e24aa', icon: '🔓', title: 'ETAPAS', sub: 'Por rondas', meta: 'Ramen, wok, makis y frituras', art: '<span>🔥</span>', info: 'Las cocinas se activan poco a poco: Ramen desde la ronda 3, Salteado 9, Makis 16 y Frituras 27.', go: ['rash'] }
+          { col: '#e53935', icon: '🏆', title: 'TU RÉCORD', sub: 'Ronda ' + b, meta: 'Mejor marca', art: AU('rash_record', '<span>🏆</span>'), info: 'Tu ronda más alta en Rash.', go: ['rash'] },
+          { col: '#8e24aa', icon: '🔓', title: 'ETAPAS', sub: 'Por rondas', meta: 'Ramen, wok, makis y frituras', art: AU('rash_etapas', '<span>🔥</span>'), info: 'Las cocinas se activan poco a poco: Ramen desde la ronda 3, Salteado 9, Makis 16 y Frituras 27.', go: ['rash'] }
         ]
       };
     } },
@@ -45,7 +47,7 @@
       const cities = japonCities();
       return {
         feat: { title: 'RECORRIDO POR JAPÓN', art: 'japon', panels: ['Abre un restaurante en cada ciudad: producen soles aunque estés fuera.', 'Mejora cocineros, mesas y objetos; domina la ciudad para desbloquear sus platos.'], cta: '✔ ELEGIR EL RECORRIDO', go: ['japon'], meta: cities.length ? `${cities.filter(c => c.open).length}/${cities.length} ciudades` : '' },
-        cards: cities.map(c => ({ col: c.open ? '#ec407a' : '#6d4c6e', icon: '⛩️', title: c.name.toUpperCase(), sub: c.region, meta: c.open ? '✔ Abierta' : '🔒 S/ ' + Number(c.cost).toLocaleString('es-PE'), locked: !c.open, art: '<span>' + (c.open ? '🏯' : '🔒') + '</span>', info: c.story || c.name, go: ['japon', c.id] }))
+        cards: cities.map(c => ({ col: c.open ? '#ec407a' : '#6d4c6e', icon: '⛩️', title: c.name.toUpperCase(), sub: c.region, meta: c.open ? '✔ Abierta' : '🔒 S/ ' + Number(c.cost).toLocaleString('es-PE'), locked: !c.open, art: AU(c.id, '<span>' + (c.open ? '🏯' : '🔒') + '</span>'), info: c.story || c.name, go: ['japon', c.id] }))
       };
     } },
     { id: 'zen', name: 'SIN ESTRÉS', col: '#43a047', build() {
@@ -53,16 +55,16 @@
       let best = null; try { const b = (window.reconGet && reconGet().best) || {}; const k = Object.keys(b); if (k.length) best = Math.min.apply(null, k.map(x => b[x].t)); } catch (e) {}
       return {
         feat: { title: 'SIN ESTRÉS', art: 'zen', panels: ['Practica a tu ritmo: sin reloj y sin clientes que se vayan.', 'Cocina libre por área y Reconocer ingredientes de cada plato.'], cta: '✔ ELEGIR SIN ESTRÉS', go: ['zen', 'free:ramen'], meta: 'Sin reloj' },
-        cards: A.map(a => ({ col: a[3], icon: a[1], title: 'LIBRE · ' + a[2], sub: 'Cocina libre', meta: 'Sin reloj', art: '<span>' + a[1] + '</span>', desc: 'Solo platos de ' + a[2].toLowerCase() + ', sin reloj ni notas.', info: 'Cocina libre de ' + a[2].toLowerCase() + ': los clientes esperan siempre y no hay meta que cumplir.', go: ['zen', 'free:' + a[0]] }))
-          .concat([{ col: '#8e24aa', icon: '🔍', title: 'RECONOCER INGREDIENTES', sub: 'Sin reloj en contra', meta: best ? 'Mejor marca ' + Math.round(best) + ' s' : 'Mide tu tiempo', art: '<span>🔍</span>', info: 'Marca los ingredientes de cada plato entre varios. Un contador mide cuánto demoras en reconocerlos.', go: ['zen', 'recon'] }])
+        cards: A.map(a => ({ col: a[3], icon: a[1], title: 'LIBRE · ' + a[2], sub: 'Cocina libre', meta: 'Sin reloj', art: AU('libre_' + LIB[a[0]], '<span>' + a[1] + '</span>'), desc: 'Solo platos de ' + a[2].toLowerCase() + ', sin reloj ni notas.', info: 'Cocina libre de ' + a[2].toLowerCase() + ': los clientes esperan siempre y no hay meta que cumplir.', go: ['zen', 'free:' + a[0]] }))
+          .concat([{ col: '#8e24aa', icon: '🔍', title: 'RECONOCER INGREDIENTES', sub: 'Sin reloj en contra', meta: best ? 'Mejor marca ' + Math.round(best) + ' s' : 'Mide tu tiempo', art: AU('reconocer', '<span>🔍</span>'), info: 'Marca los ingredientes de cada plato entre varios. Un contador mide cuánto demoras en reconocerlos.', go: ['zen', 'recon'] }])
       };
     } },
     { id: 'online', name: 'ONLINE', col: '#1e88e5', build() {
       return {
         feat: { title: 'MULTIJUGADOR', art: 'online', panels: ['Juega con amigos en línea, en sala privada.', 'Compite por quitarte los clientes o cocina junto a tu equipo.'], cta: '✔ ELEGIR ONLINE', go: ['online', 'VS'], meta: 'Tiempo real' },
         cards: [
-          { col: '#e53935', icon: '⚔️', title: 'ARREBATO', sub: 'Versus', meta: '1 contra 1', art: '<span>⚔️</span>', info: 'Versus: compites por los clientes con tu rival (MMR).', go: ['online', 'VS'] },
-          { col: '#43a047', icon: '🤝', title: 'COCINA COMPARTIDA', sub: 'Cooperativo', meta: 'En equipo', art: '<span>🤝</span>', info: 'Cooperativo: cada uno atiende una estación y la meta es del equipo.', go: ['online', 'COOP'] }
+          { col: '#e53935', icon: '⚔️', title: 'ARREBATO', sub: 'Versus', meta: '1 contra 1', art: AU('online_arrebato', '<span>⚔️</span>'), info: 'Versus: compites por los clientes con tu rival (MMR).', go: ['online', 'VS'] },
+          { col: '#43a047', icon: '🤝', title: 'COCINA COMPARTIDA', sub: 'Cooperativo', meta: 'En equipo', art: AU('online_coop', '<span>🤝</span>'), info: 'Cooperativo: cada uno atiende una estación y la meta es del equipo.', go: ['online', 'COOP'] }
         ]
       };
     } }
@@ -83,17 +85,17 @@
     return [
       { id: 'lecciones', name: 'AULA', build() { return {
         feat: { title: 'AULA DEL MAESTRO', art: 'aula', panels: ['Lecciones guiadas paso a paso, una por cada cocina, y repaso de platos e ingredientes.', 'La primera vez que completes cada lección ganas propinas.'], cta: '🎓 ENTRAR AL AULA', go: ['enter', 'aula'], meta: 'Lecciones ' + done + '/4' },
-        cards: LES.map(l => ({ col: l[5], icon: l[1], title: 'LECCIÓN · ' + l[2], sub: l[3], meta: fl[l[0]] ? '✔ Hecha · repetir' : (nxt && nxt[0] === l[0] ? '▶ Te toca · +' + l[4] + ' 🧧' : '+' + l[4] + ' 🧧'), art: '<span>' + l[1] + '</span>',
+        cards: LES.map(l => ({ col: l[5], icon: l[1], title: 'LECCIÓN · ' + l[2], sub: l[3], meta: fl[l[0]] ? '✔ Hecha · repetir' : (nxt && nxt[0] === l[0] ? '▶ Te toca · +' + l[4] + ' 🧧' : '+' + l[4] + ' 🧧'), art: AU('leccion_' + LIB[l[0]], '<span>' + l[1] + '</span>'),
           desc: 'Cocinas un ' + l[3] + ' paso a paso con el Maestro.', info: 'Lección guiada de ' + l[2].toLowerCase() + ' con ' + l[3] + '. La primera vez da +' + l[4] + ' propinas.', go: ['lesson', l[0]] })) }; } },
       { id: 'practica', name: 'PRÁCTICA', build() { return {
         feat: { title: 'COCINA LIBRE', art: 'zen', panels: ['Practica sin reloj ni notas, a tu ritmo.', 'Elige el área o cocina las cuatro a la vez.'], cta: '🌿 COCINAR LIBRE', go: ['free', 'all'], meta: 'Sin reloj' },
-        cards: AREAS.map(a => ({ col: a[3], icon: a[1], title: 'LIBRE · ' + a[2], sub: 'Solo platos de ' + a[2].toLowerCase(), meta: 'Sin reloj', art: '<span>' + a[1] + '</span>', info: 'Cocina libre de ' + a[2].toLowerCase() + ': los clientes esperan siempre y no hay meta.', go: ['free', a[0]] }))
-          .concat([{ col: '#43a047', icon: '🌿', title: 'LIBRE · TODO', sub: 'Las 4 áreas a la vez', meta: 'Sin reloj', art: '<span>🌿</span>', desc: 'Las cuatro áreas a la vez, sin reloj.', info: 'Cocina libre con todas las áreas de la cocina.', go: ['free', 'all'] },
-            { col: '#8e24aa', icon: '🔍', title: 'RECONOCER INGREDIENTES', sub: 'Qué lleva cada plato', meta: best ? 'Mejor marca ' + Math.round(best) + ' s' : 'Mide tu tiempo', art: '<span>🔍</span>', desc: 'Marca los ingredientes de cada plato y mide tu tiempo.', info: 'Marca los ingredientes de cada plato entre varios y mide cuánto demoras.', go: ['pantry'] }]) }; } },
+        cards: AREAS.map(a => ({ col: a[3], icon: a[1], title: 'LIBRE · ' + a[2], sub: 'Solo platos de ' + a[2].toLowerCase(), meta: 'Sin reloj', art: AU('libre_' + LIB[a[0]], '<span>' + a[1] + '</span>'), info: 'Cocina libre de ' + a[2].toLowerCase() + ': los clientes esperan siempre y no hay meta.', go: ['free', a[0]] }))
+          .concat([{ col: '#43a047', icon: '🌿', title: 'LIBRE · TODO', sub: 'Las 4 áreas a la vez', meta: 'Sin reloj', art: AU('libre_todo', '<span>🌿</span>'), desc: 'Las cuatro áreas a la vez, sin reloj.', info: 'Cocina libre con todas las áreas de la cocina.', go: ['free', 'all'] },
+            { col: '#8e24aa', icon: '🔍', title: 'RECONOCER INGREDIENTES', sub: 'Qué lleva cada plato', meta: best ? 'Mejor marca ' + Math.round(best) + ' s' : 'Mide tu tiempo', art: AU('reconocer', '<span>🔍</span>'), desc: 'Marca los ingredientes de cada plato y mide tu tiempo.', info: 'Marca los ingredientes de cada plato entre varios y mide cuánto demoras.', go: ['pantry'] }]) }; } },
       { id: 'retos', name: 'RETOS', build() { return {
         feat: { title: 'RETOS DE LA CAMPAÑA', art: 'retos', panels: ['Subniveles que se abren al superar cada nivel de la Campaña.', 'Calidad media mínima, medallas por tiempo y estrellas para tu progreso.'], cta: '🎫 VER RETOS', go: ['retos'], meta: '🎫 ' + reto.done + '/' + reto.total + ' · ⭐ ' + reto.stars },
         cards: arcs.map(a => { const list = safe(() => TRAINING_CHALLENGES.filter(c => a.levels.includes(c.lvl)), []), dn = list.filter(c => safe(() => (trainingProgressOf(c.id) || {}).m > 0, false)).length, open = a.levels[0] <= unl, nx = list.find(c => safe(() => trainingIsOpen(c) && !((trainingProgressOf(c.id) || {}).m > 0), false));
-          return { col: ARC_COL[a.id] || '#ff9800', icon: a.icon, title: a.name.toUpperCase(), sub: 'Niveles ' + a.levels[0] + '–' + a.levels[a.levels.length - 1], meta: open ? '🎫 ' + dn + '/' + list.length : '🔒 Llega al nivel ' + a.levels[0], locked: !open, art: '<span>🎫</span>', desc: list.length + ' subniveles tras superar los niveles ' + a.levels[0] + ' al ' + a.levels[a.levels.length - 1] + '.', info: 'Retos de ' + a.name + ': ' + list.length + ' subniveles repartidos entre los niveles ' + a.levels.join(', ') + '.', go: ['retos', String(nx ? nx.lvl : a.levels[0])] }; }) }; } }
+          return { col: ARC_COL[a.id] || '#ff9800', icon: a.icon, title: a.name.toUpperCase(), sub: 'Niveles ' + a.levels[0] + '–' + a.levels[a.levels.length - 1], meta: open ? '🎫 ' + dn + '/' + list.length : '🔒 Llega al nivel ' + a.levels[0], locked: !open, art: AU('arco_' + a.id, '<span>🎫</span>'), desc: list.length + ' subniveles tras superar los niveles ' + a.levels[0] + ' al ' + a.levels[a.levels.length - 1] + '.', info: 'Retos de ' + a.name + ': ' + list.length + ' subniveles repartidos entre los niveles ' + a.levels.join(', ') + '.', go: ['retos', String(nx ? nx.lvl : a.levels[0])] }; }) }; } }
     ];
   }
   // ---------- AULA DEL MAESTRO: Lecciones y Repaso, con tarjetas que explican qué es cada cosa ----------
@@ -105,14 +107,14 @@
     return [
       { id: 'lecciones', name: 'LECCIONES', build() { return {
         feat: { title: 'LECCIONES', art: 'aula', panels: ['El Maestro te guía paso a paso por cada cocina: ramen, salteado, makis y frituras.', 'La primera vez que completes cada lección ganas propinas.'], cta: nxt ? '▶ EMPEZAR: LECCIÓN DE ' + nxt[2] : '↻ REPETIR LA DE RAMEN', go: ['lesson', nxt ? nxt[0] : 'ramen'], meta: 'Lecciones ' + done + '/4' },
-        cards: LES.map(l => ({ col: l[5], icon: l[1], title: 'LECCIÓN · ' + l[2], sub: l[3], meta: fl[l[0]] ? '✔ Hecha · repetir' : (nxt && nxt[0] === l[0] ? '▶ Te toca · +' + l[4] + ' 🧧' : '+' + l[4] + ' 🧧'), art: '<span>' + l[1] + '</span>',
+        cards: LES.map(l => ({ col: l[5], icon: l[1], title: 'LECCIÓN · ' + l[2], sub: l[3], meta: fl[l[0]] ? '✔ Hecha · repetir' : (nxt && nxt[0] === l[0] ? '▶ Te toca · +' + l[4] + ' 🧧' : '+' + l[4] + ' 🧧'), art: AU('leccion_' + LIB[l[0]], '<span>' + l[1] + '</span>'),
           desc: l[6] + ' con el Maestro (≈ 5 min).', info: 'Lección guiada de ' + l[2].toLowerCase() + '. La primera vez da +' + l[4] + ' propinas.', go: ['lesson', l[0]] })) }; } },
       { id: 'repaso', name: 'REPASO', build() { return {
-        feat: { title: 'REPASO', art: 'retos', panels: ['Consulta qué lleva cada plato y cómo se prepara.', 'Entrena tu ojo con los ingredientes y organiza tu despensa.'], cta: '📖 ABRIR EL RECETARIO', go: ['book'], meta: rs ? '🍽️ ' + rs.tried + '/' + rs.total + ' probados' : '' },
+        feat: { title: 'REPASO', art: 'repaso', panels: ['Consulta qué lleva cada plato y cómo se prepara.', 'Entrena tu ojo con los ingredientes y organiza tu despensa.'], cta: '📖 ABRIR EL RECETARIO', go: ['book'], meta: rs ? '🍽️ ' + rs.tried + '/' + rs.total + ' probados' : '' },
         cards: [
-          { col: '#8e24aa', icon: '🔍', title: 'MODO INGREDIENTES', sub: 'Qué lleva cada plato', meta: 'Mide tu tiempo', art: '<span>🔍</span>', desc: 'Marca los ingredientes de cada plato y mide tu tiempo.', info: 'Sin reloj en contra: tu tiempo es tu marca.', go: ['pantry'] },
-          { col: '#ff9800', icon: '📖', title: 'RECETARIO OFICIAL', sub: 'Los 35 platos', meta: rs ? '🍽️ ' + rs.tried + '/' + rs.total : 'Colección', art: '<span>📖</span>', desc: 'Ingredientes, pasos y estrellas de los 35 platos.', info: 'Tu colección de platos.', go: ['book'] },
-          { col: '#26a69a', icon: '🥢', title: 'ORDENAR DESPENSA', sub: 'Tu orden de ingredientes', meta: 'Personalizable', art: '<span>🥢</span>', desc: 'Cambia el orden de los ingredientes en la cocina.', info: 'Personaliza la despensa.', go: ['order'] }] }; } }
+          { col: '#8e24aa', icon: '🔍', title: 'MODO INGREDIENTES', sub: 'Qué lleva cada plato', meta: 'Mide tu tiempo', art: AU('reconocer', '<span>🔍</span>'), desc: 'Marca los ingredientes de cada plato y mide tu tiempo.', info: 'Sin reloj en contra: tu tiempo es tu marca.', go: ['pantry'] },
+          { col: '#ff9800', icon: '📖', title: 'RECETARIO OFICIAL', sub: 'Los 35 platos', meta: rs ? '🍽️ ' + rs.tried + '/' + rs.total : 'Colección', art: AU('repaso_recetario', '<span>📖</span>'), desc: 'Ingredientes, pasos y estrellas de los 35 platos.', info: 'Tu colección de platos.', go: ['book'] },
+          { col: '#26a69a', icon: '🥢', title: 'ORDENAR DESPENSA', sub: 'Tu orden de ingredientes', meta: 'Personalizable', art: AU('repaso_despensa', '<span>🥢</span>'), desc: 'Cambia el orden de los ingredientes en la cocina.', info: 'Personaliza la despensa.', go: ['order'] }] }; } }
     ];
   }
 
@@ -150,6 +152,7 @@
   .mds-head { display: flex; align-items: center; gap: 5px; padding: 5px 6px; background: var(--c); min-width: 0; } .mds-head > div { min-width: 0; } .mds-head .ic { flex: none; font-size: 20px; line-height: 1; filter: drop-shadow(0 1px 1px rgba(0,0,0,.5)); }
   .mds-head b { display: block; font: 900 11.5px/1.05 'Fredoka', sans-serif; color: #fff; text-shadow: 0 2px 0 rgba(0,0,0,.55); overflow-wrap: anywhere; } .mds-head small { display: block; font: 800 10px 'Fredoka', sans-serif; color: #fff; opacity: .92; text-shadow: 0 1px 0 rgba(0,0,0,.5); }
   .mds-art { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; background: linear-gradient(160deg, color-mix(in srgb, var(--c) 55%, #000) 0%, #1c0f09 100%); }
+  .mds-art img.ui-ic { width: 62px; height: 62px; }
   .mds-art img { width: 46px; height: 46px; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(0,0,0,.5)); } .mds-art span { font-size: 38px; line-height: 1; filter: drop-shadow(0 2px 3px rgba(0,0,0,.5)); }
   .mds-desc { margin: 0; padding: 4px 7px 6px; background: rgba(0,0,0,.6); font: 700 9.5px/1.25 'Fredoka', sans-serif; color: #f1e3c8; }
   #mds[data-mode="aula"] .mds-grid, #mds[data-mode="learn"] .mds-grid { grid-auto-columns: 196px; }
@@ -170,15 +173,17 @@
     zen: 'linear-gradient(160deg, #81c784 0%, #2e7d32 55%, #0f2f14 100%)',
     online: 'linear-gradient(160deg, #42a5f5 0%, #12408a 60%, #0b1f40 100%)',
     aula: 'linear-gradient(160deg, #9575cd 0%, #4527a0 55%, #1a1040 100%)',
-    retos: 'linear-gradient(160deg, #4db6ac 0%, #00695c 55%, #07241f 100%)'
+    retos: 'linear-gradient(160deg, #4db6ac 0%, #00695c 55%, #07241f 100%)',
+    repaso: 'linear-gradient(160deg, #80cbc4 0%, #00796b 55%, #072a25 100%)'
   };
+  const bgOf = k => (window.ArteUI ? ArteUI.bg(k, BG[k]) : BG[k]);
   const esc = s => String(s).replace(/"/g, '&quot;');
   let MODE = 'play', LIST = CATS;                                   // 'play' = Modos de juego · 'learn' = Aprender
   let FROM = null;                                                  // desde dónde se abrió el Aula (para volver con ◀)
   const PK = () => (MODE === 'learn' || MODE === 'aula' ? 'Modos.learnGo' : 'Modos.pick');
 
   function feat(c, f) {
-    return `<div class="mds-feat" style="--bg:${BG[f.art]}; background: ${BG[f.art]}">
+    return `<div class="mds-feat" style="--bg:${bgOf(f.art)}; background: ${bgOf(f.art)}">
       ${f.meta ? `<span class="mds-fmeta">${f.meta}</span>` : '<span></span>'}
       <div><h3 class="mds-ft">${f.title}</h3>${f.panels.map(p => `<div class="mds-panel"><span>${p}</span></div>`).join('')}
       <button class="mds-cta" onclick="${PK()}('${f.go.join("','")}')">${f.cta}</button></div></div>`;
