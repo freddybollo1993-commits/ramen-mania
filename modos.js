@@ -36,7 +36,7 @@
     { id: 'rash', name: 'RASH', col: '#e53935', build() {
       const b = rashBest();
       return {
-        feat: { title: 'RASH', art: 'rash', panels: ['Supervivencia extrema: los clientes llegan cada vez más rápido.', 'Tienes 3 vidas. Cada ronda desbloquea platos y cocinas nuevas.'], cta: '✔ ELEGIR RASH', go: ['rash'], meta: `Récord: ronda ${b}` },
+        feat: { title: 'RASH', art: 'rash', panels: ['Supervivencia extrema: hasta la ronda 100, con clientes cada vez más rápidos y menos pacientes.', 'Cada ronda desbloquea platos y cocinas nuevas y, cada 5 rondas, ganas propinas extra.'], cta: '✔ ELEGIR RASH', go: ['rash'], meta: `Récord: ronda ${b}` },
         cards: [
           { col: '#e53935', icon: '🏆', title: 'TU RÉCORD', sub: 'Ronda ' + b, meta: 'Mejor marca', art: AU('rash_record', '<span>🏆</span>'), info: 'Tu ronda más alta en Rash.', go: ['rash'] },
           { col: '#8e24aa', icon: '🔓', title: 'ETAPAS', sub: 'Por rondas', meta: 'Ramen 1 · Wok 6 · Makis 12 · Frituras 22', art: AU('rash_etapas', '<span>🔥</span>'), info: 'Las cocinas se abren por rondas: Ramen desde la 1, Salteado la 6, Makis la 12 y Frituras la 22. Todas con Producción, Cocina y Emplatar.', go: ['rash'] }
@@ -64,7 +64,8 @@
         feat: { title: 'MULTIJUGADOR', art: 'online', panels: ['Juega con amigos en línea, en sala privada.', 'Compite por quitarte los clientes o cocina junto a tu equipo.'], cta: '✔ ELEGIR ONLINE', go: ['online', 'VS'], meta: 'Tiempo real' },
         cards: [
           { col: '#e53935', icon: '⚔️', title: 'ARREBATO', sub: 'Versus', meta: '1 contra 1', art: AU('online_arrebato', '<span>⚔️</span>'), info: 'Versus: compites por los clientes con tu rival (MMR).', go: ['online', 'VS'] },
-          { col: '#43a047', icon: '🤝', title: 'COCINA COMPARTIDA', sub: 'Cooperativo', meta: 'En equipo', art: AU('online_coop', '<span>🤝</span>'), info: 'Cooperativo: cada chef cocina en su propia estación con las tres etapas (Producción, Cocina y Emplatar); la caja, la fila de clientes y la meta son del equipo.', go: ['online', 'COOP'] }
+          { col: '#43a047', icon: '🤝', title: 'COCINA COMPARTIDA', sub: 'Cooperativo', meta: 'En equipo', art: AU('online_coop', '<span>🤝</span>'), info: 'Cooperativo: cada chef cocina en su propia estación con las tres etapas (Producción, Cocina y Emplatar); la caja, la fila de clientes y la meta son del equipo.', go: ['online', 'COOP'] },
+          { col: '#ef6c00', icon: '⚡', title: 'RASH EN EQUIPO', sub: 'Cooperativo', meta: 'Hasta la ronda 100', art: AU('rash_record', '<span>⚡</span>'), info: 'Rash con amigos: rondas cada vez más exigentes para todo el equipo, vidas compartidas y propinas extra cada 5 rondas superadas.', go: ['online', 'RASH'] }
         ]
       };
     } }
@@ -223,13 +224,21 @@
 
   // ---------- modo elegido (lo juega el botón JUGAR de la pantalla principal) ----------
   const SEL_KEY = 'ramen_modo_sel';
+  /** Aplica la elección de Online a la sala: Arrebato (VS), Cocina compartida (COOP) o Rash en equipo (COOP con meta «Rash»). */
+  function onlineArg(arg) {
+    try {
+      const M = window.MultiplayerManager; if (!M || !arg) return;
+      if (arg === 'RASH') { M.gameMode = 'COOP'; M.winCondition = { type: 'RASH', target: 1 }; }
+      else { M.gameMode = arg; if (M.winCondition.type === 'RASH') M.winCondition = { type: 'TIME', target: 180 }; }
+    } catch (e) {}
+  }
   const readSel = () => { try { const v = JSON.parse(store.get(SEL_KEY) || 'null'); if (v && ['camp', 'rash', 'japon', 'online', 'zen'].includes(v.id)) return v; } catch (e) {} return { id: 'camp', arg: null }; };
   function current() {
     const v = readSel();
     if (v.id === 'rash') return { id: 'rash', icon: '⚡', title: 'RASH', top: 'Supervivencia', sub: 'Récord: ronda ' + rashBest(), tag: '', col: '#e53935' };
     if (v.id === 'japon') { const c = japonCities(), n = c.filter(x => x.open).length; return { id: 'japon', icon: '🗾', title: 'JAPÓN', top: 'Recorrido', sub: c.length ? n + '/' + c.length + ' ciudades' : 'Restaurantes por ciudad', tag: '', col: '#ec407a' }; }
     if (v.id === 'zen') { const rec = v.arg === 'recon', ar = String(v.arg || '').replace('free:', ''), ic = { ramen: '🍜', salteados: '🍳', makis: '🍣', frituras: '🍤' }[ar] || '🌿'; return { id: 'zen', icon: rec ? '🔍' : ic, title: rec ? 'RECONOCER' : 'COCINA LIBRE', top: 'Sin estrés', sub: rec ? 'Ingredientes de cada plato' : ({ ramen: 'Ramen', salteados: 'Salteado', makis: 'Makis', frituras: 'Frituras' }[ar] || 'Sin reloj'), tag: '', col: '#43a047' }; }
-    if (v.id === 'online') return { id: 'online', icon: v.arg === 'COOP' ? '🤝' : '⚔️', title: v.arg === 'COOP' ? 'COCINA COMPARTIDA' : 'ARREBATO', top: 'Online', sub: v.arg === 'COOP' ? 'Cooperativo' : 'Versus 1 contra 1', tag: '', col: '#1e88e5' };
+    if (v.id === 'online') return { id: 'online', icon: v.arg === 'RASH' ? '⚡' : (v.arg === 'COOP' ? '🤝' : '⚔️'), title: v.arg === 'RASH' ? 'RASH EN EQUIPO' : (v.arg === 'COOP' ? 'COCINA COMPARTIDA' : 'ARREBATO'), top: 'Online', sub: v.arg === 'RASH' ? 'Cooperativo · rondas' : (v.arg === 'COOP' ? 'Cooperativo' : 'Versus 1 contra 1'), tag: '', col: '#1e88e5' };
     const cs = campStats(), L = Math.min(20, cs.unlockedLevel || 1);
     return { id: 'camp', icon: '🏮', title: 'CAMPAÑA', top: 'Gastronómica', sub: 'Nivel ' + L + ' · ⭐ ' + cs.stars + '/' + cs.maxStars, tag: L > 1 ? 'NIVEL ' + L : '¡NUEVO!', col: '#ff9800' };
   }
@@ -248,7 +257,7 @@
         if (v.id === 'rash') Inicio.act('rash');
         else if (v.id === 'japon') Inicio.act('door');
         else if (v.id === 'zen') { if (v.arg === 'recon') Inicio.act('pantry'); else Inicio.act('free', String(v.arg || 'free:ramen').replace('free:', '')); }
-        else if (v.id === 'online') { try { if (window.MultiplayerManager && v.arg) MultiplayerManager.gameMode = v.arg; } catch (e) {} Inicio.act('room'); }
+        else if (v.id === 'online') { onlineArg(v.arg); Inicio.act('room'); }
         else if (window.Inicio) Inicio.play();
       } catch (e) { console.warn('Modos.play', e); }
     },
@@ -276,7 +285,7 @@
       const h = $('mds'); if (h) h.remove(); document.removeEventListener('keydown', onKey);
       try {
         if (act === 'play') { if (window.Inicio) Inicio.play(); }
-        else if (act === 'room') { try { if (window.MultiplayerManager && arg) MultiplayerManager.gameMode = arg; } catch (e) {} Inicio.act('room'); }
+        else if (act === 'room') { onlineArg(arg); Inicio.act('room'); }
         else Inicio.act(act, arg);
       } catch (e) { console.warn('Modos.go', act, e); }
     }

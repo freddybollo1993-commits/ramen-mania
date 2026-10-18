@@ -53,8 +53,9 @@
     // Áreas de cocina activas en la sala (las elige el anfitrión): solo se piden platos de esas áreas y solo existen sus pestañas.
     areas: ['ramen', 'salteados', 'makis', 'frituras'],
     AREA_OPTS: [['ramen', '🍜', 'Ramen'], ['salteados', '🥘', 'Salteado'], ['makis', '🍣', 'Makis'], ['frituras', '🍤', 'Frituras']],
+    rash: null,         // estado del Rash en equipo (ronda, vidas compartidas…) mientras dura la partida; ver rashStart()
     winCondition: {
-      type: 'TIME', // 'TIME', 'MONEY', 'CUSTOMERS'
+      type: 'TIME', // 'TIME', 'MONEY', 'CUSTOMERS' o 'RASH' (solo Cooperativo)
       target: 180    // 180s, $600, o 10 clientes
     },
     winPresets: {
@@ -67,6 +68,11 @@
         { label: '💰 S/ 600 (Normal)', target: 600 },
         { label: '⚡ S/ 300 (Rápido)', target: 300 },
         { label: '🏆 S/ 1000 (Maratón)', target: 1000 }
+      ],
+      RASH: [
+        { label: '⚡ Desde la ronda 1', target: 1 },
+        { label: '🔥 Desde la ronda 10', target: 10 },
+        { label: '💀 Desde la ronda 25', target: 25 }
       ],
       CUSTOMERS: [
         { label: '🍜 10 Clientes (Normal)', target: 10 },
@@ -644,6 +650,7 @@
       }
       this.countdownTimer = null;
       this.gameLoopTimer = null;
+      this.rash = null;
 
       if (this.channel) {
         try {
@@ -699,14 +706,17 @@
 
       if (newMode) {
         this.gameMode = newMode;
+        if (newMode === 'VS' && this.winCondition.type === 'RASH') { this.winCondition.type = 'TIME'; this.winCondition.target = 180; }   // el Rash en equipo solo existe en Cooperativo
       }
+      if (winType === 'RASH') this.gameMode = 'COOP';
 
       if (winType) {
         this.winCondition.type = winType;
         if (winTarget !== null && winTarget !== undefined) {
           this.winCondition.target = Number(winTarget);
         } else {
-          if (winType === 'TIME') this.winCondition.target = 180;
+          if (winType === 'RASH') this.winCondition.target = 1;
+          else if (winType === 'TIME') this.winCondition.target = 180;
           else if (winType === 'MONEY') this.winCondition.target = 600;
           else if (winType === 'CUSTOMERS') this.winCondition.target = 10;
         }
@@ -755,6 +765,7 @@
       if (this.winCondition.type === 'TIME') return `Tiempo: ${this.winCondition.target}s`;
       if (this.winCondition.type === 'MONEY') return `Meta: S/ ${this.winCondition.target}`;
       if (this.winCondition.type === 'CUSTOMERS') return `Meta: ${this.winCondition.target} Clientes`;
+      if (this.winCondition.type === 'RASH') return `⚡ Rash en equipo desde la ronda ${this.winCondition.target || 1}`;
       return '';
     },
 
@@ -816,6 +827,7 @@
       this.sharedReputation = 5;
       this.sharedTimeRemaining = this.winCondition.type === 'TIME' ? this.winCondition.target : 300;
       this.stationLocks = {};
+      this.rashStart();
 
       // Mostrar HUD superior multijugador
       const hud = document.getElementById('mp-game-hud');
@@ -833,6 +845,7 @@
       this.gameLoopTimer = setInterval(() => {
         if (!this.isGameActive) return;
 
+        if (this.isHost && this.rash) this.rashTick();
         if (this.isHost) {
           this.sharedTimeRemaining--;
           this.broadcastEvent('TIME_SYNC', {
@@ -978,6 +991,69 @@
       this.broadcastEvent('CUSTOMER_QUEUE_SYNC', {
         customerSlots
       });
+    },
+
+    /* ==========================================================================
+       RASH EN EQUIPO (Cooperativo): rondas de Rash escaladas al número de chefs, vidas compartidas y premios por hitos.
+       El anfitrión manda (crea clientes, cuenta vidas y decide cuándo se supera una ronda); los demás reciben RASH_STATE.
+       ========================================================================== */
+    /** Prepara el estado del Rash al lanzar la partida (todos los clientes lo hacen igual; luego manda el anfitrión). */
+    rashStart() {
+      if (this.gameMode !== 'COOP' || this.winCondition.type !== 'RASH') { this.rash = null; return; }
+      const start = Math.max(1, Math.min(100, Number(this.winCondition.target) || 1));
+      this.rash = { round: start, lives: 0, spawned: 0, pauseUntil: 0, clearing: false, over: false, served: 0 };
+      this.rash.lives = this.rashCfg().lives;
+    },
+    rashCfg() { return rashTeamConfig(this.rash ? this.rash.round : 1, Math.max(2, this.players.length)); },
+    rashCanSpawn() { return !!this.rash && !this.rash.over && !this.rash.clearing && this.rash.spawned < this.rashCfg().customers; },
+    rashOnSpawn() { if (this.isHost && this.rash) { this.rash.spawned++; this.rashBroadcast(); } },
+    rashBroadcast() {
+      if (this.isHost && this.rash) this.broadcastEvent('RASH_STATE', { rash: this.rash });
+      this.updateMultiplayerHUD();
+    },
+    /** Un cliente se fue sin que lo atendieran: el equipo pierde una vida (solo el anfitrión cuenta). */
+    rashCustomerLost() {
+      if (!this.isHost || !this.rash || this.rash.over) return;
+      this.rash.lives--;
+      this.rashBroadcast();
+      if (this.rash.lives <= 0) {
+        this.rash.over = true;
+        this.rashBroadcast();
+        this.handleMatchFinished('¡El Equipo!');
+      }
+    },
+    /** Cada segundo (solo anfitrión): detecta la ronda superada y arranca la siguiente tras la pausa. */
+    rashTick() {
+      if (!this.isHost || !this.rash || this.rash.over) return;
+      const r = this.rash, now = Date.now();
+      if (r.clearing) {
+        if (now < r.pauseUntil) return;
+        if (r.round >= 100) { r.over = true; this.rashBroadcast(); this.handleMatchFinished('¡El Equipo!'); return; }
+        r.round++; r.spawned = 0; r.clearing = false; r.pauseUntil = 0; r.lives = this.rashCfg().lives;
+        this.rashBroadcast(); this.rashRoundVisuals();
+        if (typeof spawnCustomer === 'function') { spawnCustomer(); spawnCustomer(); }
+        return;
+      }
+      const cfg = this.rashCfg();
+      const idle = (gameState.customerSlots || []).every(c => !c);
+      if (r.spawned >= cfg.customers && idle) {
+        r.clearing = true; r.pauseUntil = now + 5000;
+        this.broadcastEvent('RASH_CLEAR', { round: r.round });
+        this.onRashCleared(r.round);
+        this.rashBroadcast();
+      }
+    },
+    /** Todos: aviso de ronda superada y compensación por hitos (una sola vez por hito y por jugador). */
+    onRashCleared(round) {
+      let bonus = 0;
+      try { bonus = rashClaimMilestone(round, 'ramen_rash_coop_hito'); } catch (e) {}
+      this.playArcadeSound('win');
+      this.showActionToast(`⚡ ¡Ronda ${round} superada!${bonus ? ` 🎁 Hito: +${bonus} 🧧` : ''} Siguiente ronda en 5 s`, '#ef6c00');
+      try { const best = parseInt(safeStorage.getItem('ramen_rash_coop_best') || '0'); if (round > best) safeStorage.setItem('ramen_rash_coop_best', round); } catch (e) {}
+    },
+    /** Al cambiar de ronda: se abren áreas y platos nuevos. */
+    rashRoundVisuals() {
+      try { if (typeof renderAreaTabs === 'function') renderAreaTabs(); if (typeof updateStationVisibilityForArea === 'function') updateStationVisibilityForArea(); if (typeof renderPantryGrid === 'function') renderPantryGrid(); if (typeof renderStageTabs === 'function') renderStageTabs(); } catch (e) {}
     },
 
     // Servir un plato en cooperativo (suma a la caja y meta del equipo)
@@ -1156,6 +1232,19 @@
 
         case 'REACTION': // Emote flotante en el HUD
           this.showFloatingReaction(data.emoji, data.playerName, data.colorIndex);
+          break;
+
+        case 'RASH_STATE': // Rash en equipo: estado de la ronda (lo manda el anfitrión)
+          if (data.rash) {
+            const prev = this.rash ? this.rash.round : 0;
+            this.rash = Object.assign({}, this.rash || {}, data.rash);
+            if (this.rash.round !== prev) this.rashRoundVisuals();
+            this.updateMultiplayerHUD();
+          }
+          break;
+
+        case 'RASH_CLEAR': // Rash en equipo: ronda superada
+          this.onRashCleared(data.round);
           break;
 
         case 'GAME_OVER': // Fin de la partida
@@ -1381,6 +1470,9 @@
           const secs = String(this.sharedTimeRemaining % 60).padStart(2, '0');
           timerEl.textContent = `⏱️ ${mins}:${secs}`;
           timerEl.style.color = (this.sharedTimeRemaining <= 15) ? '#ff3b30' : '#ffb300';
+        } else if (this.winCondition.type === 'RASH' && this.rash) {
+          timerEl.textContent = `⚡ Ronda ${this.rash.round} · ❤ ${Math.max(0, this.rash.lives)}`;
+          timerEl.style.color = this.rash.lives <= 3 ? '#ff3b30' : '#ffb300';
         } else if (this.winCondition.type === 'MONEY') {
           timerEl.textContent = `💰 Meta: S/ ${this.winCondition.target}`;
         } else {
@@ -1416,7 +1508,9 @@
       } else {
         // En Co-op: Mostrar la caja registradora común y vidas del restaurante
         const myProf = this.getMyProfile();
-        html = `
+        const rashChips = (this.winCondition.type === 'RASH' && this.rash) ? `
+          <div class="mp-hud-chip coop-rash"><span>⚡ Ronda <strong>${this.rash.round}</strong> · 👥 <strong>${Math.min(this.rash.spawned, this.rashCfg().customers)}/${this.rashCfg().customers}</strong></span></div>` : '';
+        html = rashChips + `
           <div class="mp-hud-chip coop-bank">
             <span>🏦 Caja Común: <strong>S/ ${this.sharedMoney}</strong></span>
           </div>
@@ -1524,7 +1618,7 @@
       if (titleEl) {
         titleEl.textContent = (this.gameMode === 'VS') 
           ? `🏆 ¡Victoria de ${winnerName || 'el Maestro Chef'}!` 
-          : `🎉 ¡Servicio Exitoso del Restaurante!`;
+          : (this.winCondition.type === 'RASH' && this.rash ? `⚡ Rash en equipo: ¡llegaron a la ronda ${this.rash.round}!` : `🎉 ¡Servicio Exitoso del Restaurante!`);
       }
 
       // 1. Determinar posición del jugador local
@@ -1538,7 +1632,9 @@
         placement = myRankIdx >= 0 ? myRankIdx + 1 : 1;
       }
 
-      const isCoopSuccess = this.sharedMoney >= (this.winCondition.target || 300);
+      const rashMode = this.winCondition.type === 'RASH' && !!this.rash;
+      const isCoopSuccess = rashMode ? this.rash.round >= 10 : this.sharedMoney >= (this.winCondition.target || 300);
+      let coopBest = 0; try { coopBest = parseInt(safeStorage.getItem('ramen_rash_coop_best') || '0'); } catch (e) {}
       // 2. Registrar y calcular delta MMR
       const mmrInfo = this.recordMatchMmr(placement, totalPlayers, this.gameMode === 'COOP', isCoopSuccess);
 
@@ -1617,9 +1713,11 @@
         } else {
           bodyEl.innerHTML = `<div>${mmrDeltaHtml}</div>
             <div style="text-align:center; padding:15px; background:rgba(255,255,255,0.05); border-radius:10px;">
-              <div style="font-size:42px;">⭐⭐⭐</div>
+              ${rashMode ? `<div style="font-size:42px;">⚡</div>
+              <h3 style="color:#ffb300; margin:8px 0;">Ronda ${this.rash.round} de 100</h3>
+              <p>El equipo recaudó <strong>S/ ${this.sharedMoney}</strong>. Tu mejor ronda en equipo: <strong>${Math.max(coopBest, 0)}</strong>.<br>Cada 5 rondas superadas hay una compensación extra de propinas.</p>` : `<div style="font-size:42px;">⭐⭐⭐</div>
               <h3 style="color:#ffb300; margin:8px 0;">¡Cocina 3 Estrellas Michelin!</h3>
-              <p>El equipo recaudó <strong>S/ ${this.sharedMoney}</strong> con un trabajo perfecto en equipo.</p>
+              <p>El equipo recaudó <strong>S/ ${this.sharedMoney}</strong> con un trabajo perfecto en equipo.</p>`}
             </div>
           `;
         }

@@ -95,12 +95,14 @@ function executeStartGame() {
   const rotateOverlay = document.getElementById("rotate-device-overlay");
   if (rotateOverlay) rotateOverlay.style.display = "none";
 
-  gameState.gameMode = startSelectedMode;
+  gameState.gameMode = isMultiplayerSession() ? 'MULTI' : startSelectedMode;   // Online tiene su propio modo: no hereda el reloj ni las reglas de la última partida (Campaña, Rash, Cocina libre…)
   statsBump('g');
   if (startSelectedMode !== 'TRAINING') gameState.training = null;
   const freeOnly = window.startFreeAreas; window.startFreeAreas = null;   // desde el local isométrico: cocina libre de una sola área
   gameState.free = startSelectedMode === 'FREE' ? { auto: true, areas: (freeOnly && freeOnly.length) ? [...freeOnly] : [...FREE_AREAS] } : null;
-  if (startSelectedMode === 'NORMAL') {
+  if (isMultiplayerSession()) {
+    startLevel(0);
+  } else if (startSelectedMode === 'NORMAL') {
     startLevel(0);
   } else if (startSelectedMode === 'TRAINING' || startSelectedMode === 'FREE') {
     startLevel(0);
@@ -714,6 +716,19 @@ function escapeHtml(str) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
+}
+
+/** Paga la compensación del hito de Rash (cada 5 rondas) una sola vez por hito; devuelve las propinas pagadas (0 si no es hito o ya se cobró). */
+function rashClaimMilestone(round, key) {
+  try {
+    const bonus = rashMilestoneBonus(round);
+    if (!bonus) return 0;
+    const k = key || 'ramen_rash_hito';
+    if (round <= parseInt(safeStorage.getItem(k) || '0')) return 0;
+    safeStorage.setItem(k, round);
+    addPropinas(bonus);
+    return bonus;
+  } catch (e) { return 0; }
 }
 
 function saveRashProgress(lvl) {

@@ -60,7 +60,7 @@ const ST_EXTRA_SECONDS = { ramen: 8, salteados: 10, makis: 10, frituras: 14 };  
 const ST_PLATE_POINTS = { base: 15, order: 10, orderPenalty: 4 };               // emplatado: 25 puntos
 
 function stagedOn(area) {
-  if (isMultiplayerSession()) return mpAreas().includes(area);   // Online (Arrebato y Cocina compartida): etapas en las áreas que eligió el anfitrión, igual que en Campaña
+  if (isMultiplayerSession()) return isAreaUnlocked(area);   // Online (Arrebato, Cocina compartida y Rash en equipo): etapas en las áreas abiertas de la sala, igual que en Campaña
   if (isFree()) return true;
   if ((gameState.gameMode === 'JAPON' && gameState.japon)) return japonRunAreas().includes(area);
   if (isTraining()) return trainingFeature('st_' + area);

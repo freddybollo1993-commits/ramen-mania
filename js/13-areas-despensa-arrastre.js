@@ -4,7 +4,7 @@
 // Un área se abre cuando ya hay algún plato suyo en el menú del nivel (o ronda) actual.
 function isAreaUnlocked(area) {
   if (isFree()) return true;
-  if (isMultiplayerSession()) return mpAreas().includes(area);
+  if (isMultiplayerSession()) return mpAreas().includes(area) && (!mpRashRound() || area === 'ramen' || getUnlockedRecipes().some(r => r.area === area));   // Rash en equipo: las áreas se abren por ronda
   if ((gameState.gameMode === 'JAPON' && gameState.japon)) return japonRunAreas().includes(area);
   if (isTraining() && area !== 'ramen' && !trainingFeature('area_' + area)) return false;
   return area === 'ramen' || getUnlockedRecipes().some(r => r.area === area);

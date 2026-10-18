@@ -1,31 +1,36 @@
 /* Módulo 05-menu-recetas-areas — Configuración de niveles, platos y menús por área.
    Script clásico (ámbito global compartido): se carga en el orden de los <script> de index.html. */
 
+/** Configuración de una ronda de Rash (1-100). Calibrada con tools/simular-rash.cjs: un jugador excelente puede llegar a la ronda 100, uno experto a la ~58,
+ *  uno competente a la ~20 y un aprendiz a la ~14 (estimación; la capacidad real del jugador se confirma jugando).
+ *  La paciencia usa la misma fórmula que el resto del juego (25 s + 2,5 s por ingrediente + proceso de cada área, ver spawnCustomer) multiplicada por patience_mult,
+ *  que baja con las rondas; así depende de cuántos platos pide el cliente y de qué áreas están abiertas. */
 function getRashConfig(lvl) {
-  const customers = 8 + (lvl - 1) * 4;
-  // Piso de 25s (antes 14s): un ramen de 9 ingredientes ya toma ~11–13s solo en armarse y cocer.
-  const basePatience = Math.max(25, 60 - (lvl - 1) * 2);
+  const customers = 8 + (lvl - 1) * 3;
+  const patienceMult = Math.max(0.42, 1 - (lvl - 1) * 0.006);
   let maxOrders = 1;
-  if (lvl > 30) maxOrders = 3;
-  else if (lvl > 10) maxOrders = 2;
-  
+  if (lvl >= 55) maxOrders = 3;
+  else if (lvl >= 20) maxOrders = 2;
+
   let maxCustomers = 2;
-  if (lvl > 15) maxCustomers = 4;
-  else if (lvl > 5) maxCustomers = 3;
-  
+  if (lvl >= 38) maxCustomers = 4;
+  else if (lvl >= 16) maxCustomers = 3;
+
   let ramenNames = [];
   if (lvl <= 5) ramenNames = ["Shio", "Shoyu"];
   else if (lvl <= 15) ramenNames = ["Shio", "Shoyu", "Miso", "Chashu"];
   else if (lvl <= 30) ramenNames = ["Shio", "Shoyu", "Miso", "Chashu", "Tonkotsu", "Tan tan"];
   else if (lvl <= 50) ramenNames = ["Shio", "Shoyu", "Miso", "Chashu", "Tonkotsu", "Tan tan", "Ebi", "Bajiru"];
   else ramenNames = ["Shio", "Shoyu", "Miso", "Chashu", "Tonkotsu", "Tan tan", "Ebi", "Bajiru", "Vegetariano"];
-  
-  const spawnTime = Math.max(2, Math.round(6 - (lvl - 1) * 0.05));
+
+  const spawnTime = Math.max(1.4, Math.round((6 - (lvl - 1) * 0.05) * 10) / 10);
   return {
     level: lvl,
     name: `Modo Rash - Ronda ${lvl}`,
     customers: customers,
-    base_patience: basePatience,
+    lives: Math.round(5 + (lvl - 1) * 0.8),
+    patience_mult: patienceMult,
+    base_patience: Math.round(patienceMult * 47),     // solo informativo (un plato de ~9 ingredientes de Ramen); la paciencia real sale de spawnCustomer
     max_orders: maxOrders,
     max_customers: maxCustomers,
     ramen_names: ramenNames,
@@ -33,11 +38,38 @@ function getRashConfig(lvl) {
   };
 }
 
+/** Ronda actual del Rash cooperativo online (0 si la sala no juega Rash). */
+function mpRashRound() {
+  return (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.rash && MultiplayerManager.winCondition.type === 'RASH') ? (MultiplayerManager.rash.round || 1) : 0;
+}
+
+/** Rash en equipo (Online cooperativo): la ronda de Rash escalada al número de chefs. Más chefs → más clientes y más seguidos, hasta 4 en la barra, y algo más de vidas compartidas.
+ *  Calibrada con tools/simular-rash.cjs --equipo. @param {number} round 1-100 @param {number} n chefs (2-4) */
+function rashTeamConfig(round, n) {
+  const b = getRashConfig(round), k = Math.max(1, Math.min(4, n || 2)) - 1, f = 1 + 0.9 * k;
+  return Object.assign({}, b, {
+    name: `Rash en equipo - Ronda ${round}`,
+    customers: Math.ceil(b.customers * f),
+    patience_mult: b.patience_mult * (1 - 0.07 * k),
+    spawn_time: Math.max(1, Math.round(b.spawn_time / f * 10) / 10),
+    max_customers: Math.min(4, b.max_customers + k),
+    max_orders: Math.min(3, b.max_orders + (k >= 2 && round >= 10 ? 1 : 0)),
+    lives: Math.round(b.lives * (1 + 0.35 * k))
+  });
+}
+
+/** Compensación extra de Rash por hitos: cada 5 rondas superadas (10 + ronda propinas) y el triple en las rondas 25, 50, 75 y 100. 0 si la ronda no es un hito. */
+function rashMilestoneBonus(round) {
+  if (!(round > 0) || round % 5 !== 0) return 0;
+  return (10 + round) * (round % 25 === 0 ? 3 : 1);
+}
+
 function getCurrentLevelConfig() {
   if (isTraining()) return trainingConfig();
   if (isFree()) return freeConfig();
   if ((gameState.gameMode === 'JAPON' && gameState.japon)) return japonRunConfig();
   if (typeof MultiplayerManager !== 'undefined' && (MultiplayerManager.isGameActive || MultiplayerManager.isInMultiplayer)) {
+    if (mpRashRound()) return rashTeamConfig(mpRashRound(), MultiplayerManager.players.length);   // Rash en equipo: la ronda escalada a los chefs
     return {
       level: 99,
       name: "Servicio Multijugador",
@@ -69,7 +101,11 @@ function getUnlockedRamenRecipes() {
   if (isTraining()) return trainingPoolRecipes(gameState.training.challenge, 'ramen');
   if (isFree()) return RECETAS_RAMEN;
   if ((gameState.gameMode === 'JAPON' && gameState.japon)) return RECETAS_RAMEN.filter(r => japonRunDishes().has(r.name));
-  if (isMultiplayerSession()) return mpAreas().includes('ramen') ? RECETAS_RAMEN : [];
+  if (isMultiplayerSession()) {
+    if (!mpAreas().includes('ramen')) return [];
+    const rr = mpRashRound();                                  // Rash en equipo: los ramen de la ronda; si no, todos
+    return rr ? RECETAS_RAMEN.filter(r => getRashConfig(rr).ramen_names.includes(r.name)) : RECETAS_RAMEN;
+  }
   const cfg = getCurrentLevelConfig();
   return RECETAS_RAMEN.filter(r => cfg.ramen_names.includes(r.name));
 }
@@ -94,6 +130,7 @@ function getUnlockedRecipes() {
     AREA_DISH_UNLOCKS[area].forEach(([name, campLvl, rashLvl]) => {
       if (!mp && lvl < (campaign ? campLvl : rashLvl)) return;
       if (mp && !mpAreas().includes(area)) return;                // sala multijugador: solo las áreas que eligió el anfitrión
+      if (mp && mpRashRound() && mpRashRound() < rashLvl) return; // Rash en equipo: los platos se abren por ronda, como en Rash
       const r = AREA_CATALOGS[area].find(x => x.name === name);
       if (r) list.push(r);
     });

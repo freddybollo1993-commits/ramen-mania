@@ -42,6 +42,7 @@ function getOrdersProcessSeconds(orders) {
 
 function spawnCustomer(forced) {
   if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && !MultiplayerManager.isHost) return;   // Online: solo el anfitrión crea clientes (la fila es compartida)
+  if (mpRashRound() && !MultiplayerManager.rashCanSpawn()) return;                                                          // Rash en equipo: no más clientes que los de la ronda ni durante la pausa entre rondas
   shiftCustomersLeft();
 
   const cfg = getCurrentLevelConfig();
@@ -75,10 +76,7 @@ function spawnCustomer(forced) {
 
   let totalPatience = 0;
   const processSeconds = getOrdersProcessSeconds(orders);
-  if (gameState.gameMode === 'RASH') {
-    const baseP = cfg.base_patience;
-    totalPatience = baseP + (orders.length - 1) * 8 + processSeconds;
-  } else {
+  {   // misma fórmula en todos los modos (Campaña, Rash…): depende de cuántos ingredientes llevan los platos y de las áreas (proceso); cada modo ajusta patience_mult
     const totalIngredients = orders.reduce((acc, o) => acc + o.recipe.ingredients.length, 0);
     totalPatience = (25 + totalIngredients * 2.5 + processSeconds) * (cfg.patience_mult || 1);
   }
@@ -95,6 +93,7 @@ function spawnCustomer(forced) {
     spawnTime: Date.now(),
     minScore: customerMinScore(template.name)
   };
+  if (mpRashRound()) MultiplayerManager.rashOnSpawn();
 
   renderCustomers();
   renderBowls();
@@ -146,6 +145,7 @@ function gameTick() {
         triggerAbolladoEffect();
         gameState.customersLost++;
         if (!isFree() && !isTraining()) statsBump('lc'); // solo cuenta donde perder clientes es posible
+        if (mpRashRound()) MultiplayerManager.rashCustomerLost();   // Rash en equipo: las vidas son del equipo (solo el anfitrión llega aquí)
         gameState.customerSlots[i] = null;
         if (gameState.selectedCustomerModalIndex === i) closeCustomerOrderModal();
         shiftCustomersLeft(); // Mover la fila hacia la izquierda
@@ -432,15 +432,17 @@ function winLevel() {
     if (btnMap) btnMap.style.display = 'none';
     const curLvl = gameState.rashLevel;
     saveRashProgress(curLvl + 1);
+    const hito = rashClaimMilestone(curLvl);                      // compensación extra cada 5 rondas (una sola vez por hito)
+    const hitoHtml = hito > 0 ? `<br><b style="color:#ffcc80">🎁 ¡Hito de la ronda ${curLvl}! +${hito} 🧧 propinas</b>` : '';
 
     if (curLvl < 100) {
       title.textContent = `⚡ ¡Ronda ${curLvl} Superada!`;
-      desc.textContent = `¡Completaste los ${getCurrentLevelConfig().customers} clientes manteniendo ${gameState.rashLives} vida(s)! Siguiente ronda: +4 clientes y menor paciencia.`;
+      desc.innerHTML = `¡Completaste los ${getCurrentLevelConfig().customers} clientes manteniendo ${gameState.rashLives} vida(s)! Siguiente ronda: +3 clientes y menos paciencia.${hitoHtml}`;
       title.style.color = "#ff9800";
       btn.textContent = `▶️ Iniciar Ronda ${curLvl + 1}`;
     } else {
       title.textContent = "🏆 ¡LEYENDA SUPREMA DEL MODO RASH: NIVEL 100!";
-      desc.textContent = "¡Increíble hazaña! Has sobrevivido a las 100 rondas del Modo Rash con la máxima velocidad culinaria.";
+      desc.innerHTML = "¡Increíble hazaña! Has sobrevivido a las 100 rondas del Modo Rash con la máxima velocidad culinaria." + hitoHtml;
       title.style.color = "var(--ramen-gold)";
       btn.textContent = "🔄 Reiniciar Modo Rash";
     }
@@ -563,8 +565,8 @@ function startLevel(lvlIndex) {
     gameState.timeLeft = cfg.time;
   } else if ((gameState.gameMode === 'JAPON' && gameState.japon)) {
     gameState.timeLeft = japonRunConfig().time;      // jornada en un local: tiempo fijo según la dificultad
-  } else if (gameState.gameMode === 'TRAINING' || gameState.gameMode === 'FREE') {
-    gameState.timeLeft = 0; // sin cuenta regresiva (entrenamiento: el reloj sube; cocina libre: sin tiempo)
+  } else if (gameState.gameMode === 'TRAINING' || gameState.gameMode === 'FREE' || gameState.gameMode === 'MULTI') {
+    gameState.timeLeft = 0; // sin cuenta regresiva (entrenamiento: el reloj sube; cocina libre: sin tiempo; Online: manda el reloj de la sala)
   } else {
     if (lvlIndex !== undefined && lvlIndex !== null) {
       gameState.rashLevel = lvlIndex + 1;
@@ -574,7 +576,7 @@ function startLevel(lvlIndex) {
     if (gameState.rashLevel > 100) gameState.rashLevel = 100;
     gameState.rashCustomersSpawned = 0;
     gameState.rashCustomersServed = 0;
-    const maxLivesForLevel = 5 + (gameState.rashLevel - 1);
+    const maxLivesForLevel = getRashConfig(gameState.rashLevel).lives;
     gameState.rashMaxLives = maxLivesForLevel;
     gameState.rashLives = maxLivesForLevel;
     gameState.elapsedTime = 0;
