@@ -199,7 +199,7 @@
     const L = Math.min(20, cs.unlockedLevel || 1), pct = cs.maxStars ? Math.round(100 * cs.stars / cs.maxStars) : 0;
     const tut = h.tutDone(), rec = window.Recetario ? Recetario.summary() : { fresh: 0 };
     return `<div class="hm-top">
-        <button class="hm-prof hm-plate" onclick="openProfileModal()" aria-label="Perfil"><span class="av">${(() => { const t = window.Avatar ? Avatar.thumb({}, { w: 110 }) : ''; return t ? `<img alt="" src="${t}">` : h.chefAvatar(); })()}</span><span><b>${h.chefName()}</b><small>Chef · Nivel ${L}</small></span></button>
+        <button class="hm-prof hm-plate" onclick="openProfileModal()" aria-label="Perfil"><span class="av">${h.chefAvatar()}</span><span><b>${h.chefName()}</b><small>Chef · Nivel ${L}</small></span></button>
         <button class="hm-prog hm-plate" onclick="Inicio.act('camp')" aria-label="Progreso de Campaña"><span>⭐ ${cs.stars}/${cs.maxStars}</span><i class="hm-bar"><u style="width:${pct}%"></u></i><small>Campaña · nivel ${L} de 20</small></button>
         <span class="hm-gap"></span>
         <button class="hm-menu hm-fs hm-plate" onclick="Inicio.act('full')" aria-label="Pantalla completa">⛶</button>
