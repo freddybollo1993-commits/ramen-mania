@@ -39,46 +39,71 @@
     return shuffle([...need, ...extra.map(i => i.id)]).filter(id => ing(id));
   }
   const CSS = `
-  #rc-screen { position: fixed; inset: 0; z-index: 9000; background: linear-gradient(#2b1a12, #1a0d08); color: #fff3d6; font-family: 'Fredoka','Nunito',system-ui,sans-serif; display: flex; flex-direction: column; overflow: hidden; }
+  #rc-screen { position: fixed; inset: 0; z-index: 9000; background: linear-gradient(180deg, #3a2012, #1c0f09); color: #f1e3c8; font-family: 'Fredoka','Nunito',system-ui,sans-serif; display: flex; flex-direction: column; overflow: hidden; }
   #rc-screen * { box-sizing: border-box; }
-  .rc-top { display: flex; align-items: center; gap: 8px; padding: calc(4px + env(safe-area-inset-top)) 10px 4px; background: #7a1f1f; min-height: 40px; flex-shrink: 0; }
-  .rc-top h2 { margin: 0; font-size: 15px; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .rc-btn { border: 0; border-radius: 10px; padding: 7px 14px; font-weight: 900; font-size: 13px; background: #c9a24a; color: #2b1a08; cursor: pointer; font-family: inherit; }
-  .rc-btn.green { background: #43a047; color: #fff; } .rc-btn.ghost { background: rgba(255,255,255,0.15); color: #fff3d6; } .rc-btn:disabled { opacity: 0.45; }
-  .rc-clock { background: rgba(0,0,0,0.4); border-radius: 14px; padding: 2px 12px; font: 900 18px/1.2 monospace; color: #ffd54f; min-width: 92px; text-align: center; }
+  .rc-top { display: flex; align-items: center; gap: 8px; padding: calc(4px + env(safe-area-inset-top, 0px)) 10px 4px max(10px, env(safe-area-inset-left, 0px)); background: linear-gradient(#5a2c14, #2b1208); border-bottom: 3px solid #0e0805; min-height: 42px; flex-shrink: 0; }
+  .rc-top h2 { margin: 0; font: 400 19px/1 'Fredoka One','Fredoka',sans-serif; color: #ffe082; text-shadow: 0 2px 0 #1a0e07; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .rc-btn { border: 2px solid #1a0e07; border-radius: 10px; padding: 7px 14px; font-weight: 900; font-size: 13px; background: linear-gradient(#ffb300, #e68a00); color: #2b1808; cursor: pointer; font-family: inherit; box-shadow: 0 2px 0 rgba(0,0,0,.5); }
+  .rc-btn:active:not(:disabled) { transform: translateY(2px); box-shadow: none; }
+  .rc-btn.green { background: linear-gradient(#66bb6a, #2e7d32); color: #fff; } .rc-btn.ghost { background: linear-gradient(#ffb300, #e68a00); color: #2b1808; } .rc-btn:disabled { opacity: 0.45; }
+  .rc-top .rc-btn.ghost { width: 42px; padding: 6px 0; font-size: 16px; }
+  .rc-foot .rc-btn.ghost { background: #3a2412; color: #f1e3c8; }
+  .rc-clock { background: rgba(0,0,0,0.45); border: 2px solid #1a0e07; border-radius: 12px; padding: 1px 12px; font: 900 18px/1.2 monospace; color: #ffd54f; min-width: 92px; text-align: center; }
   .rc-clock small { display: block; font: 700 9px/1 sans-serif; color: #d7c08a; }
   .rc-body { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 6px 10px; gap: 6px; }
-  .rc-dish { display: flex; align-items: center; gap: 10px; flex-shrink: 0; } .rc-dish b { font-size: 22px; color: #ffd54f; } .rc-dish span { font-size: 12px; color: #d7c08a; font-weight: 700; }
+  .rc-dish { display: flex; align-items: center; gap: 10px; flex-shrink: 0; } .rc-dish b { font: 400 22px 'Fredoka One','Fredoka',sans-serif; color: #ffd54f; text-shadow: 0 2px 0 #1a0e07; } .rc-dish span { font-size: 12px; color: #d7c08a; font-weight: 700; }
   .rc-grid { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(74px, 1fr)); gap: 6px; overflow-y: auto; align-content: start; padding-bottom: 4px; }
-  .rc-tile { background: #3a2418; border: 2px solid #6b4a30; border-radius: 10px; padding: 4px 2px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; min-height: 66px; user-select: none; transition: transform 0.1s; }
+  .rc-tile { background: linear-gradient(#4a2e1c, #2a1810); border: 2px solid #0e0805; border-radius: 10px; padding: 4px 2px; text-align: center; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; min-height: 66px; user-select: none; transition: transform 0.1s; box-shadow: 0 2px 0 rgba(0,0,0,.5); }
   .rc-tile img { width: 30px; height: 30px; object-fit: contain; } .rc-tile .ic { font-size: 26px; line-height: 30px; } .rc-tile small { font-size: 10px; font-weight: 800; line-height: 1.1; }
-  .rc-tile:active { transform: scale(0.95); } .rc-tile.sel { border-color: #ffd54f; background: #5a3a14; box-shadow: 0 0 0 2px rgba(255,213,79,0.5); }
+  .rc-tile:active { transform: scale(0.95); } .rc-tile.sel { border-color: #fff0a8; background: linear-gradient(#7a4a00, #4a2a00); box-shadow: 0 0 0 2px #ffb300, 0 2px 0 rgba(0,0,0,.5); }
   .rc-tile.bad { border-color: #ef5350; background: #5a1f1f; animation: rcShake 0.4s; } .rc-tile.good { border-color: #66bb6a; background: #1f4a22; }
   @keyframes rcShake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
-  .rc-foot { display: flex; gap: 8px; align-items: center; padding: 6px 10px calc(6px + env(safe-area-inset-bottom)); flex-shrink: 0; background: rgba(0,0,0,0.25); }
+  .rc-foot { display: flex; gap: 8px; align-items: center; padding: 6px 10px calc(6px + env(safe-area-inset-bottom, 0px)); flex-shrink: 0; background: linear-gradient(#5a2c14, #2b1208); border-top: 3px solid #0e0805; }
   .rc-msg { flex: 1; font-size: 12px; font-weight: 800; color: #ffe9a8; min-width: 0; }
-  .rc-card { margin: auto; width: min(560px, 94%); background: #fff8e6; color: #3b2a1a; border: 3px solid #7a5a2a; border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 8px; max-height: 100%; overflow-y: auto; }
-  .rc-card h3 { margin: 0; color: #7a1f1f; font-size: 18px; } .rc-card .row { display: flex; gap: 6px; flex-wrap: wrap; }
-  .rc-opt { flex: 1 1 90px; background: #f4ead2; border: 2px solid #c9b78a; border-radius: 10px; padding: 8px 6px; text-align: center; font-weight: 900; font-size: 13px; cursor: pointer; } .rc-opt.sel { border-color: #b71c1c; background: #ffe9c9; }
-  .rc-table { width: 100%; border-collapse: collapse; font-size: 12px; } .rc-table td, .rc-table th { padding: 3px 5px; border-bottom: 1px solid #e0d2ac; text-align: left; } .rc-table td:nth-child(n+2) { text-align: right; }
-  .rc-stat { display: flex; gap: 6px; } .rc-stat div { flex: 1; background: #f4ead2; border-radius: 10px; padding: 5px; text-align: center; } .rc-stat b { display: block; font-size: 17px; color: #7a1f1f; } .rc-stat small { font-size: 10px; color: #6b5a3a; font-weight: 700; }
-  .rc-chip { display: inline-block; background: #ffe082; color: #5a3a00; border-radius: 10px; padding: 0 7px; font-size: 11px; font-weight: 900; }
+  .rc-card { margin: auto; width: min(560px, 94%); background: #1c0f09; color: #f1e3c8; border: 3px solid #ffb300; border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 8px; max-height: 100%; overflow-y: auto; box-shadow: 0 6px 18px rgba(0,0,0,.6); }
+  .rc-card h3 { margin: 0; color: #ffe082; font: 400 20px/1.1 'Fredoka One','Fredoka',sans-serif; }
+  .rc-table { width: 100%; border-collapse: collapse; font-size: 12px; } .rc-table td, .rc-table th { padding: 3px 5px; border-bottom: 1px solid rgba(255,255,255,.12); text-align: left; } .rc-table th { color: #ffb300; } .rc-table td:nth-child(n+2) { text-align: right; }
+  .rc-stat { display: flex; gap: 6px; } .rc-stat div { flex: 1; background: rgba(255,255,255,.07); border-radius: 10px; padding: 5px; text-align: center; } .rc-stat b { display: block; font-size: 17px; color: #ffe9b0; } .rc-stat small { font-size: 10px; color: #cdb892; font-weight: 700; }
+  .rc-dish span.rc-chip, .rc-chip { color: #2b1808 !important; }
+  .rc-chip { display: inline-block; background: #ffb300; color: #2b1808; border-radius: 10px; padding: 0 7px; font-size: 11px; font-weight: 900; }
+  /* inicio: panel destacado + carruseles laterales (como Modos de juego) */
+  .rc-menu { flex: 1; min-height: 0; display: flex; gap: 10px; padding: 8px 10px 8px max(10px, env(safe-area-inset-left, 0px)); }
+  .rc-feat { position: relative; width: 252px; flex: none; border: 3px solid #0e0805; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; padding: 8px 10px 10px; box-shadow: 0 4px 0 rgba(0,0,0,.5); background: var(--bg, #0b1f40); }
+  .rc-feat::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(0,0,0,.05), rgba(0,0,0,.6)); } .rc-feat > * { position: relative; }
+  .rc-feat .ft { margin: 2px 0 6px; font: 400 23px/1 'Fredoka One','Fredoka',sans-serif; font-style: italic; color: #ffe94d; text-shadow: 0 3px 0 #1a0e07, 2px 2px 0 #1a0e07, -2px 0 0 #1a0e07; transform: rotate(-3deg); transform-origin: left center; }
+  .rc-feat .pn { background: rgba(0,0,0,.82); border-bottom: 3px solid #ffe94d; padding: 6px 9px; margin: 4px 0; font: 800 11px/1.25 'Fredoka',sans-serif; color: #fff; transform: skewX(-6deg); max-width: 95%; } .rc-feat .pn span { display: block; transform: skewX(6deg); }
+  .rc-feat .best { align-self: flex-start; font: 900 10px 'Fredoka',sans-serif; background: rgba(0,0,0,.65); border-radius: 9px; padding: 2px 8px; color: #ffe9b0; max-width: 100%; }
+  .rc-feat .rc-btn { width: 100%; padding: 9px 10px; font-size: 14px; }
+  .rc-side { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; justify-content: center; }
+  .rc-side h4 { margin: 0; font: 900 11px/1 'Fredoka',sans-serif; color: #ffb300; letter-spacing: .6px; text-transform: uppercase; }
+  .rc-strip { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 6px; scroll-snap-type: x proximity; scrollbar-width: none; -webkit-overflow-scrolling: touch; } .rc-strip::-webkit-scrollbar { display: none; }
+  .rc-opt { flex: none; width: 112px; scroll-snap-align: start; display: flex; flex-direction: column; border: 3px solid #0e0805; border-radius: 10px; overflow: hidden; background: #1c0f09; color: #fff; font-family: inherit; cursor: pointer; box-shadow: 0 3px 0 rgba(0,0,0,.5); padding: 0; text-align: left; }
+  .rc-opt .hd { padding: 4px 6px; background: var(--c, #8e24aa); font: 900 12px/1.1 'Fredoka',sans-serif; text-shadow: 0 2px 0 rgba(0,0,0,.55); }
+  .rc-opt .ar { height: 54px; display: flex; align-items: center; justify-content: center; background: linear-gradient(160deg, color-mix(in srgb, var(--c, #8e24aa) 55%, #000), #1c0f09); }
+  .rc-opt .ar img { width: 46px; height: 46px; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(0,0,0,.5)); } .rc-opt .ar span { font: 400 24px 'Fredoka One','Fredoka',sans-serif; color: #fff3d6; }
+  .rc-opt.sel { border-color: #fff0a8; box-shadow: 0 0 0 2px #ffb300, 0 3px 0 rgba(0,0,0,.5); } .rc-opt.sel .hd::after { content: ' ✔'; }
+  @media (max-height: 420px) { .rc-opt { width: 100px; } .rc-opt .ar { height: 46px; } .rc-feat { width: 232px; } }
   `;
   function css() { if (document.getElementById('rc-css')) return; const s = document.createElement('style'); s.id = 'rc-css'; s.textContent = CSS; document.head.appendChild(s); }
   function root() { let el = document.getElementById('rc-screen'); if (!el) { el = document.createElement('div'); el.id = 'rc-screen'; document.body.appendChild(el); } return el; }
-  const top = (title, clock) => `<div class="rc-top"><button class="rc-btn ghost" onclick="Recon.exit()">← Menú</button><h2>${title}</h2>${clock ? '<div class="rc-clock" id="rc-clock">0:00.0<small>TIEMPO TOTAL</small></div>' : ''}</div>`;
+  const top = (title, clock) => `<div class="rc-top"><button class="rc-btn ghost" onclick="Recon.exit()" aria-label="Volver al menú">◀</button><h2>${title}</h2>${clock ? '<div class="rc-clock" id="rc-clock">0:00.0<small>TIEMPO TOTAL</small></div>' : ''}</div>`;
 
   // ---------- pantalla de inicio del modo ----------
   const sel = { area: 'todas', count: 5 };
+  const AREA_COL = { todas: '#8e24aa', ramen: '#ff9800', salteados: '#ef5350', frituras: '#ffca28', makis: '#26a69a' };
+  const AREA_ART = { todas: 'reconocer', ramen: 'libre_ramen', salteados: 'libre_salteado', frituras: 'libre_frituras', makis: 'libre_makis' };
   function renderMenu() {
     load(); css();
     const best = rec.best[sel.area + ':' + sel.count];
-    root().innerHTML = top('🔍 Reconocer ingredientes', false) + `<div class="rc-body"><div class="rc-card"><h3>¿Qué lleva cada plato?</h3>
-      <div style="font-size:12px;color:#6b5a3a;font-weight:600">Sin reloj en contra: solo un contador que mide cuánto demoras en reconocer los ingredientes de cada plato. Marca los ingredientes correctos entre varios (hay de más) y toca <b>Confirmar</b>.</div>
-      <b style="font-size:12px">Área</b><div class="row">${AREAS.map(a => `<div class="rc-opt ${sel.area === a[0] ? 'sel' : ''}" onclick="Recon.set('area','${a[0]}')">${a[1]} ${a[2]}</div>`).join('')}</div>
-      <b style="font-size:12px">Cantidad</b><div class="row">${COUNTS.map(c => `<div class="rc-opt ${sel.count === c[0] ? 'sel' : ''}" onclick="Recon.set('count',${c[0]})">${c[1]}</div>`).join('')}</div>
-      <div style="font-size:12px;font-weight:700">${best ? `🏆 Tu mejor marca: <b>${fmtT(best.t)}</b> en total · ${(best.t / best.n).toFixed(1)} s por plato · ${Math.round(best.acc * 100)} % de aciertos a la primera` : 'Aún no tienes marca con esta combinación.'}</div>
-      <div style="display:flex;justify-content:flex-end"><button class="rc-btn green" onclick="Recon.start()">▶ Empezar</button></div></div></div>`;
+    const AI = (id, fb) => (window.ArteUI ? ArteUI.icon(id, fb) : fb);
+    const bgFb = 'linear-gradient(160deg, #80cbc4 0%, #00796b 55%, #072a25 100%)';
+    const bg = window.ArteUI ? ArteUI.bg('repaso', bgFb) : bgFb;
+    root().innerHTML = top('RECONOCER INGREDIENTES', false) + `<div class="rc-menu">
+      <div class="rc-feat" style="--bg:${bg}; background:${bg}"><span class="best">${best ? `🏆 Mejor marca: ${fmtT(best.t)} · ${(best.t / best.n).toFixed(1)} s por plato · ${Math.round(best.acc * 100)} % a la primera` : 'Aún no tienes marca con esta combinación'}</span>
+        <div><h3 class="ft">¿QUÉ LLEVA CADA PLATO?</h3><div class="pn"><span>Sin reloj en contra: un contador mide cuánto demoras en reconocer los ingredientes de cada plato.</span></div><div class="pn"><span>Marca los correctos entre varios (hay de más) y toca Confirmar.</span></div>
+        <button class="rc-btn green" onclick="Recon.start()">▶ EMPEZAR</button></div></div>
+      <div class="rc-side"><h4>Área</h4><div class="rc-strip">${AREAS.map(a => `<button class="rc-opt ${sel.area === a[0] ? 'sel' : ''}" style="--c:${AREA_COL[a[0]]}" onclick="Recon.set('area','${a[0]}')"><div class="hd">${a[2].toUpperCase()}</div><div class="ar">${AI(AREA_ART[a[0]], `<span>${a[1]}</span>`)}</div></button>`).join('')}</div>
+        <h4>Cantidad</h4><div class="rc-strip">${COUNTS.map(c => `<button class="rc-opt ${sel.count === c[0] ? 'sel' : ''}" style="--c:#43a047" onclick="Recon.set('count',${c[0]})"><div class="hd">${c[0] ? c[0] + ' PLATOS' : 'TODOS'}</div><div class="ar"><span>${c[0] || '∞'}</span></div></button>`).join('')}</div></div></div>`;
   }
 
   // ---------- partida ----------
@@ -145,7 +170,7 @@
     root().innerHTML = top('🔍 Resultado', false) + `<div class="rc-body"><div class="rc-card"><h3>${isBest ? '🏆 ¡Nueva mejor marca!' : '¡Listo!'}</h3>
       <div class="rc-stat"><div><b>${fmtT(total)}</b><small>Tiempo total</small></div><div><b>${(total / n).toFixed(1)} s</b><small>Por plato</small></div><div><b>${Math.round(acc * 100)} %</b><small>A la primera</small></div><div><b>${R.wrongTotal}</b><small>Errores</small></div></div>
       ${slow ? `<div style="font-size:12px;font-weight:700">🐢 Los que más te costaron: ${slow}</div>` : ''}
-      ${prev ? `<div style="font-size:12px;color:#6b5a3a">Marca anterior: ${fmtT(prev.t)}</div>` : ''}
+      ${prev ? `<div style="font-size:12px;color:#cdb892">Marca anterior: ${fmtT(prev.t)}</div>` : ''}
       <table class="rc-table"><tr><th>Plato</th><th>Tiempo</th><th>Intentos</th></tr>${rows}</table>
       <div style="display:flex;gap:8px;justify-content:flex-end"><button class="rc-btn" onclick="Recon.menu()">Cambiar opciones</button><button class="rc-btn green" onclick="Recon.again()">🔄 Otra vez</button></div></div></div>`;
     try { playSound('win'); } catch (e) {}
