@@ -76,6 +76,8 @@
 
   .hm-mode .mp, .hm-go .mp { display: flex; align-items: stretch; width: 100%; height: 100%; border-radius: .8em; overflow: hidden; }
   .hm-mode .mi { flex: none; width: calc(var(--u) * 3.9); display: flex; align-items: center; justify-content: center; font-size: 2em; background: radial-gradient(circle at 40% 35%, var(--c, #ff9800), #1e100a 95%); }
+  .hm-mode .mi img { width: 82%; height: 82%; object-fit: contain; filter: drop-shadow(0 .08em .08em rgba(0,0,0,.5)); }
+  .hm-drop .ic img { width: 1.15em; height: 1.15em; object-fit: contain; vertical-align: middle; }
   .hm-mode .mt { flex: 1; min-width: 0; padding: .2em .5em; display: flex; flex-direction: column; justify-content: center; gap: .02em; }
   .hm-mode small { font: 800 .62em 'Fredoka', sans-serif; color: #c9b79a; line-height: 1.1; letter-spacing: .5px; text-transform: uppercase; white-space: nowrap; } .hm-mode b { font: 900 1.3em/1 'Fredoka', sans-serif; color: #fff; text-shadow: 0 .08em 0 #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .hm-mode .mtag { position: absolute; top: -.7em; right: .4em; padding: .1em .45em; border-radius: .6em; border: .1em solid #120905; background: #ffd24a; color: #2b1808; font: 900 .62em/1.2 'Fredoka', sans-serif; white-space: nowrap; box-shadow: 0 .12em 0 rgba(0,0,0,.5); }
@@ -123,10 +125,10 @@
 
   // ---------- menú ☰: información, reportes y ajustes (no son modos de juego) ----------
   const MENU = [
-    { id: 'ajustes', ic: '⚙️', label: 'AJUSTES', flag: 'sound' },
+    { id: 'ajustes', ic: '⚙️', art: 'btn_ajustes', label: 'AJUSTES', flag: 'sound' },
     { id: 'stats', ic: '📊', label: 'ESTADÍSTICAS' },
     { id: 'registro', ic: '📜', label: 'REGISTRO DE SERVICIO' },
-    { id: 'cuenta', ic: '👤', label: 'MI CUENTA Y NUBE' },
+    { id: 'cuenta', ic: '👤', art: 'btn_perfil', label: 'MI CUENTA Y NUBE' },
     { id: 'actualizar', ic: '🔄', label: 'ACTUALIZAR' },
     { id: 'acerca', ic: 'ℹ️', label: 'ACERCA DE' }
   ];
@@ -218,11 +220,11 @@
         ${btn(AI('btn_ranking', '🏆'), 'RANKING', "Inicio.act('board')", null, true)}
       </div>
       <button class="hm-scrim" onclick="Home.menu(false)" aria-label="Cerrar el menú"></button>
-      <div class="hm-drop">${MENU.map((m, i) => `<button style="--i:${i}" onclick="Home.item('${m.id}')">${m.flag ? flag(m.flag) : ''}<span class="ic">${m.ic}</span>${m.label}</button>`).join('')}</div>
+      <div class="hm-drop">${MENU.map((m, i) => `<button style="--i:${i}" onclick="Home.item('${m.id}')">${m.flag ? flag(m.flag) : ''}<span class="ic">${AI(m.art, m.ic)}</span>${m.label}</button>`).join('')}</div>
       ${tut && window.Servicio ? (() => { const al = h.alertOf('misiones'), sm = Servicio.summary(); return `<div class="hm-bl"><button class="hm-mis hm-plate ${sm.done === sm.total ? 'all' : ''}" onclick="Servicio.open()" aria-label="Misiones"><span class="mic">${AI('btn_misiones', MISIONES)}</span><b>MISIONES</b>${al ? `<i class="mbadge ${al.k}">${al.t}</i>` : ''}</button></div>`; })() : ''}
       <div class="hm-br">
         <div class="hm-row">
-          <button class="hm-mode" style="--c:${sel.col}" onclick="Modos.open()" aria-label="Elegir modo de juego: ${sel.title}"><span class="mp hm-plate"><span class="mi">${sel.icon}</span><span class="mt"><small>Modos de juego</small><b>${sel.title}</b></span></span>${sel.tag ? `<span class="mtag">${sel.tag}</span>` : ''}</button>
+          <button class="hm-mode" style="--c:${sel.col}" onclick="Modos.open()" aria-label="Elegir modo de juego: ${sel.title}"><span class="mp hm-plate"><span class="mi">${AI('btn_modos', sel.icon)}</span><span class="mt"><small>Modos de juego</small><b>${sel.title}</b></span></span>${sel.tag ? `<span class="mtag">${sel.tag}</span>` : ''}</button>
           <button class="hm-go" onclick="Home.play()" aria-label="${tut ? 'Jugar' : 'Empezar'}"><span class="mp hm-plate"><span class="hm-play ${tut ? '' : 'lock'}">${tut ? 'JUGAR' : 'EMPEZAR'}</span></span></button>
         </div>
       </div>`;

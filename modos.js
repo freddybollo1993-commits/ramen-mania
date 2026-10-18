@@ -158,6 +158,12 @@
   #mds[data-mode="aula"] .mds-grid, #mds[data-mode="learn"] .mds-grid { grid-auto-columns: 196px; }
   #mds[data-mode="aula"] .mds-art span, #mds[data-mode="learn"] .mds-art span { font-size: 24px; } #mds[data-mode="aula"] .mds-art img, #mds[data-mode="learn"] .mds-art img { width: 30px; height: 30px; }
   .mds-card.locked { filter: grayscale(.75) brightness(.8); }
+  /* ilustración: ocupa solo su recuadro (nunca se sale ni pisa el texto) */
+  .mds-art { position: relative; overflow: hidden; }
+  #mds .mds-art img.ui-ic { position: absolute; inset: 3px; width: calc(100% - 6px); height: calc(100% - 6px); object-fit: contain; filter: drop-shadow(0 2px 3px rgba(0,0,0,.5)); }
+  .mds-cb { flex: 1; min-height: 0; display: flex; align-items: stretch; background: rgba(0,0,0,.6); }
+  .mds-cb .mds-art { flex: none; width: 56px; }
+  .mds-cb .mds-desc { flex: 1; min-width: 0; display: flex; align-items: center; background: none; padding: 3px 6px; }
   .mds-tabs { position: relative; z-index: 2; flex-shrink: 0; display: flex; align-items: center; justify-content: space-around; gap: 4px; height: 38px; padding: 0 8px; background: #11315f; background: linear-gradient(#5a2c14, #2b1208); border-top: 3px solid #0e0805; }
   .mds-tab { border: 0; background: none; color: #d6c4a4; font: 900 12px/1 'Fredoka', sans-serif; letter-spacing: .4px; padding: 8px 10px; cursor: pointer; text-shadow: 0 1px 0 rgba(0,0,0,.6); white-space: nowrap; position: relative; }
   .mds-tab.on { color: #ffd54f; font-size: 14px; text-shadow: 0 2px 0 rgba(0,0,0,.7); }
@@ -189,10 +195,12 @@
       <button class="mds-cta" onclick="${PK()}('${f.go.join("','")}')">${f.cta}</button></div></div>`;
   }
   function card(c) {
-    return `<button class="mds-card ${c.locked ? 'locked' : ''}" style="--c:${c.col}" onclick="${PK()}('${c.go.join("','")}')" aria-label="${esc(c.title)}">
+    const ilus = String(c.art).indexOf('ui-ic') >= 0;                // con arte nuevo: sin emoji genérico en el título
+    const art = `<div class="mds-art">${c.art}</div>`;
+    return `<button class="mds-card ${c.locked ? 'locked' : ''} ${ilus ? 'ilus' : ''}" style="--c:${c.col}" onclick="${PK()}('${c.go.join("','")}')" aria-label="${esc(c.title)}">
       <div class="mds-meta"><span>${c.meta || ''}</span><i class="mds-i" onclick="event.stopPropagation();Modos.info(this.dataset.t)" data-t="${esc(c.info || c.title)}">i</i></div>
-      <div class="mds-head"><span class="ic">${c.icon}</span><div><b>${c.title}</b><small>${c.sub || ''}</small></div></div>
-      <div class="mds-art">${c.art}</div>${c.desc ? `<p class="mds-desc">${c.desc}</p>` : ''}</button>`;
+      <div class="mds-head">${ilus ? '' : `<span class="ic">${c.icon}</span>`}<div><b>${c.title}</b><small>${c.sub || ''}</small></div></div>
+      ${c.desc ? `<div class="mds-cb">${art}<p class="mds-desc">${c.desc}</p></div>` : art}</button>`;
   }
   function render() {
     let host = $('mds'); if (!host) { host = document.createElement('div'); host.id = 'mds'; document.body.appendChild(host); }
