@@ -100,7 +100,7 @@
         '<div class="mpl-box" style="flex:1.7">' +
           '<h4>1 · Modo de juego</h4><div class="mp-btn-group">' +
             '<button class="mp-opt-btn mp-mode-opt-btn active" data-mode="VS" onclick="MultiplayerManager.setRoomRules(\'VS\', null, null)">' + A('online_arrebato', '⚔️') + 'ARREBATO (VS)<small>Te quitan los clientes</small></button>' +
-            '<button class="mp-opt-btn mp-mode-opt-btn" data-mode="COOP" onclick="MultiplayerManager.setRoomRules(\'COOP\', null, null)">' + A('online_coop', '🤝') + 'COCINA COMPARTIDA<small>En equipo</small></button></div>' +
+            '<button class="mp-opt-btn mp-mode-opt-btn" data-mode="COOP" onclick="MultiplayerManager.setRoomRules(\'COOP\', null, null)">' + A('online_coop', '🤝') + 'COCINA COMPARTIDA<small>Una caja para el equipo</small></button></div>' +
           '<h4>2 · Cómo se gana</h4><div class="mp-btn-group">' +
             '<button class="mp-opt-btn mp-win-type-btn active" data-wintype="TIME" onclick="MultiplayerManager.setRoomRules(null, \'TIME\', 180)">⏱️ Por tiempo</button>' +
             '<button class="mp-opt-btn mp-win-type-btn" data-wintype="MONEY" onclick="MultiplayerManager.setRoomRules(null, \'MONEY\', 600)">💰 Por dinero</button>' +

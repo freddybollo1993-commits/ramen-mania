@@ -47,6 +47,9 @@
     
     // Reglas de la sala
     gameMode: 'VS', // 'VS' (Arrebato) o 'COOP' (Cocina Compartida)
+    // Cada chef cocina en su propia estación con las tres etapas (como en el resto del juego); el equipo comparte la caja y la fila de clientes.
+    // Si algún día se quisieran estaciones compartidas (cuencos y ollas con bloqueos), se activaría aquí.
+    sharedKitchen: false,
     // Áreas de cocina activas en la sala (las elige el anfitrión): solo se piden platos de esas áreas y solo existen sus pestañas.
     areas: ['ramen', 'salteados', 'makis', 'frituras'],
     AREA_OPTS: [['ramen', '🍜', 'Ramen'], ['salteados', '🥘', 'Salteado'], ['makis', '🍣', 'Makis'], ['frituras', '🍤', 'Frituras']],
@@ -808,6 +811,7 @@
       this.myScore = 0;
       this.myCustomersServed = 0;
       this.myCustomersStolen = 0;
+      this.teamServed = 0;
       this.sharedMoney = 0;
       this.sharedReputation = 5;
       this.sharedTimeRemaining = this.winCondition.type === 'TIME' ? this.winCondition.target : 300;
@@ -889,7 +893,7 @@
        ========================================================================== */
     // Intentar bloquear una estación al tocarla
     requestStationLock(stationId) {
-      if (!this.isGameActive || this.gameMode !== 'COOP') return true;
+      if (!this.isGameActive || this.gameMode !== 'COOP' || !this.sharedKitchen) return true;
 
       const existingLock = this.stationLocks[stationId];
       if (existingLock && existingLock.playerId !== this.myPlayerId) {
@@ -923,7 +927,7 @@
 
     // Liberar la estación al terminar la acción
     releaseStationLock(stationId) {
-      if (!this.isGameActive || this.gameMode !== 'COOP') return;
+      if (!this.isGameActive || this.gameMode !== 'COOP' || !this.sharedKitchen) return;
 
       const lock = this.stationLocks[stationId];
       if (lock && lock.playerId === this.myPlayerId) {
@@ -935,7 +939,7 @@
 
     // Sincronizar el contenido de un tazón compartido
     syncSharedBowl(bowlIndex, bowlData) {
-      if (!this.isGameActive || this.gameMode !== 'COOP') return;
+      if (!this.isGameActive || this.gameMode !== 'COOP' || !this.sharedKitchen) return;
 
       this.broadcastEvent('BOWL_UPDATE', {
         bowlIndex,
@@ -946,13 +950,13 @@
 
     // Sincronizar el estado de una estación de otra área (woks, tabla de makis, frituras) en Modo Co-op
     syncStation(area, index, data) {
-      if (!this.isGameActive || this.gameMode !== 'COOP') return;
+      if (!this.isGameActive || this.gameMode !== 'COOP' || !this.sharedKitchen) return;
       this.broadcastEvent('STATION_SYNC', { area, index, data });
     },
 
     // Sincronizar existencias de cocina en Modo Co-op (fideos, shio, tonkotsu, chasu)
     syncKitchenStocks(stocks, source = '', delta = '') {
-      if (!this.isGameActive || this.gameMode !== 'COOP') return;
+      if (!this.isGameActive || this.gameMode !== 'COOP' || !this.sharedKitchen) return;
       const myProf = this.getMyProfile();
       this.broadcastEvent('KITCHEN_STOCKS_UPDATE', {
         stocks: {
@@ -977,12 +981,13 @@
     },
 
     // Servir un plato en cooperativo (suma a la caja y meta del equipo)
-    coopServeCustomer(customerIndex, itemIndex, ramenName, price, bowlIndex, area = 'ramen') {
+    coopServeCustomer(customerIndex, itemIndex, ramenName, price, bowlIndex, area = 'ramen', customerId = null) {
       if (!this.isGameActive || this.gameMode !== 'COOP') return;
 
       const amount = Number(price) || 35;
       this.sharedMoney += amount;
       this.myCustomersServed++;
+      this.teamServed = (this.teamServed || 0) + 1;
 
       const myProf = this.getMyProfile();
       this.broadcastEvent('COOP_SERVE', {
@@ -992,16 +997,19 @@
         price: amount,
         bowlIndex,
         area,
+        customerId,
         sharedMoney: this.sharedMoney,
+        teamServed: this.teamServed,
         serverName: myProf.name,
         avatar: myProf.avatar
       });
 
       this.updateMultiplayerHUD();
+      if (this.isHost) setTimeout(() => this.syncCustomerQueue(gameState.customerSlots), 0);   // el anfitrión actualiza la fila de todos ya con este pedido servido
 
       if (this.winCondition.type === 'MONEY' && this.sharedMoney >= this.winCondition.target) {
         this.handleMatchFinished('¡El Equipo!');
-      } else if (this.winCondition.type === 'CUSTOMERS' && this.myCustomersServed >= this.winCondition.target) {
+      } else if (this.winCondition.type === 'CUSTOMERS' && this.teamServed >= this.winCondition.target) {
         this.handleMatchFinished('¡El Equipo!');
       }
     },
@@ -1104,12 +1112,15 @@
 
         case 'COOP_SERVE': // En Modo Co-op: Plato servido en equipo
           this.sharedMoney = data.sharedMoney;
+          this.teamServed = data.teamServed || this.teamServed || 0;
           const areaIcon = (typeof AREA_ICONS !== 'undefined' && AREA_ICONS[data.area || 'ramen']) || '🍜';
           this.showActionToast(`${areaIcon} ${data.serverName} sirvió ${data.ramenName} (+S/ ${data.price})`, '#2e7d32');
           this.updateMultiplayerHUD();
 
           // Vaciar la estación correspondiente en la pantalla del compañero
-          if (data.area && data.area !== 'ramen') {
+          if (!this.sharedKitchen) {
+            // cada chef tiene su propia cocina: no hay nada que vaciar aquí
+          } else if (data.area && data.area !== 'ramen') {
             if (typeof applyRemoteStationServed === 'function') applyRemoteStationServed(data.area, data.bowlIndex);
           } else if (data.bowlIndex !== undefined && typeof gameState !== 'undefined' && gameState.bowls && gameState.bowls[data.bowlIndex]) {
             gameState.bowls[data.bowlIndex] = { ingredients: [], matchedRamen: null };
@@ -1118,7 +1129,9 @@
 
           // Marcar el cliente como atendido
           if (typeof gameState !== 'undefined' && gameState.customerSlots) {
-            const cust = gameState.customerSlots[data.customerIndex];
+            const byId = data.customerId ? gameState.customerSlots.findIndex(c => c && c.id === data.customerId) : -1;
+            const cIdx = byId >= 0 ? byId : data.customerIndex;
+            const cust = gameState.customerSlots[cIdx];
             if (cust && cust.orders) {
               const order = (data.itemIndex !== undefined && cust.orders[data.itemIndex])
                 ? cust.orders[data.itemIndex]
@@ -1128,7 +1141,7 @@
               }
               const allServed = cust.orders.every(o => o.served);
               if (allServed) {
-                gameState.customerSlots[data.customerIndex] = null;
+                gameState.customerSlots[cIdx] = null;
                 if (typeof closeCustomerOrderModal === 'function') closeCustomerOrderModal();
                 if (typeof shiftCustomersLeft === 'function') shiftCustomersLeft();
               }

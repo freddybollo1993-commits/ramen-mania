@@ -9,7 +9,7 @@ let _applyingRemoteStation = false;
 const _lastStationSig = {};
 
 function isCoopActive() {
-  return typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP';
+  return typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isGameActive && MultiplayerManager.gameMode === 'COOP' && MultiplayerManager.sharedKitchen;   // solo con estaciones compartidas (hoy cada chef cocina en la suya)
 }
 
 function coopLock(stationId) {

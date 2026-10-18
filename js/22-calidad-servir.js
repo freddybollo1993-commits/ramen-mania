@@ -303,7 +303,7 @@ function serveOrder(customerIndex, itemIndex, dish) {
     if (MultiplayerManager.gameMode === 'VS') {
       MultiplayerManager.claimCustomerInVS(customerIndex, c.id || `cust_${customerIndex}`, orderItem.recipe.name, pay, itemIndex);
     } else if (MultiplayerManager.gameMode === 'COOP') {
-      MultiplayerManager.coopServeCustomer(customerIndex, itemIndex, orderItem.recipe.name, pay, dish.index, dish.area);
+      MultiplayerManager.coopServeCustomer(customerIndex, itemIndex, orderItem.recipe.name, pay, dish.index, dish.area, c.id || null);
       if (dish.area === 'ramen') {
         MultiplayerManager.syncSharedBowl(dish.index, gameState.bowls[dish.index]);
         MultiplayerManager.releaseStationLock(`bowl-card-${dish.index}`);

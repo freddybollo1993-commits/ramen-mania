@@ -42,11 +42,11 @@ function getCurrentLevelConfig() {
       level: 99,
       name: "Servicio Multijugador",
       customers: 999,
-      base_patience: MultiplayerManager.gameMode === 'VS' ? 45 : 35,        // con etapas (Arrebato) cada pedido tarda más: más paciencia y llegadas más espaciadas
+      base_patience: 45,        // con etapas cada pedido tarda más: más paciencia y llegadas más espaciadas
       max_orders: 2,
       max_customers: 4,
       ramen_names: RECETAS_RAMEN.map(r => r.name),
-      spawn_time: MultiplayerManager.gameMode === 'VS' ? 6 : 4
+      spawn_time: 6
     };
   }
   if (gameState.gameMode === 'RASH') {
@@ -140,7 +140,7 @@ function getUnlockedIngredients() {
     list = INGREDIENTES.filter(i => ids.has(i.id));
     // En Frituras la harina, el huevo y el panko son los tres espacios de empanizado, no fichas.
     if (gameState.activeArea === 'frituras') list = list.filter(i => !FRY_BREADING_IDS.includes(i.id) && (!stagedOn('frituras') || FRY_PROTEIN_IDS.includes(i.id) || i.id === 83));
-  } else if (isMultiplayerSession() && !stagedOn('ramen')) {                 // Cocina compartida (sin etapas): todos los ingredientes de Ramen; Arrebato usa el mismo filtrado que la Campaña
+  } else if (isMultiplayerSession() && !stagedOn('ramen')) {                 // sala sin etapas en esa área: todos los ingredientes de Ramen
     list = INGREDIENTES.filter(i => i.areas && i.areas.includes('ramen'));
   } else {
     const unlockedRecs = getUnlockedRamenRecipes();

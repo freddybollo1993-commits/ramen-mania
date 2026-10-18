@@ -39,7 +39,7 @@
         feat: { title: 'RASH', art: 'rash', panels: ['Supervivencia extrema: los clientes llegan cada vez más rápido.', 'Tienes 3 vidas. Cada ronda desbloquea platos y cocinas nuevas.'], cta: '✔ ELEGIR RASH', go: ['rash'], meta: `Récord: ronda ${b}` },
         cards: [
           { col: '#e53935', icon: '🏆', title: 'TU RÉCORD', sub: 'Ronda ' + b, meta: 'Mejor marca', art: AU('rash_record', '<span>🏆</span>'), info: 'Tu ronda más alta en Rash.', go: ['rash'] },
-          { col: '#8e24aa', icon: '🔓', title: 'ETAPAS', sub: 'Por rondas', meta: 'Ramen, wok, makis y frituras', art: AU('rash_etapas', '<span>🔥</span>'), info: 'Las cocinas se activan poco a poco: Ramen desde la ronda 3, Salteado 9, Makis 16 y Frituras 27.', go: ['rash'] }
+          { col: '#8e24aa', icon: '🔓', title: 'ETAPAS', sub: 'Por rondas', meta: 'Ramen 1 · Wok 6 · Makis 12 · Frituras 22', art: AU('rash_etapas', '<span>🔥</span>'), info: 'Las cocinas se abren por rondas: Ramen desde la 1, Salteado la 6, Makis la 12 y Frituras la 22. Todas con Producción, Cocina y Emplatar.', go: ['rash'] }
         ]
       };
     } },
@@ -64,7 +64,7 @@
         feat: { title: 'MULTIJUGADOR', art: 'online', panels: ['Juega con amigos en línea, en sala privada.', 'Compite por quitarte los clientes o cocina junto a tu equipo.'], cta: '✔ ELEGIR ONLINE', go: ['online', 'VS'], meta: 'Tiempo real' },
         cards: [
           { col: '#e53935', icon: '⚔️', title: 'ARREBATO', sub: 'Versus', meta: '1 contra 1', art: AU('online_arrebato', '<span>⚔️</span>'), info: 'Versus: compites por los clientes con tu rival (MMR).', go: ['online', 'VS'] },
-          { col: '#43a047', icon: '🤝', title: 'COCINA COMPARTIDA', sub: 'Cooperativo', meta: 'En equipo', art: AU('online_coop', '<span>🤝</span>'), info: 'Cooperativo: cada uno atiende una estación y la meta es del equipo.', go: ['online', 'COOP'] }
+          { col: '#43a047', icon: '🤝', title: 'COCINA COMPARTIDA', sub: 'Cooperativo', meta: 'En equipo', art: AU('online_coop', '<span>🤝</span>'), info: 'Cooperativo: cada chef cocina en su propia estación con las tres etapas (Producción, Cocina y Emplatar); la caja, la fila de clientes y la meta son del equipo.', go: ['online', 'COOP'] }
         ]
       };
     } }

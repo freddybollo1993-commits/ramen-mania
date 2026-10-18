@@ -50,22 +50,22 @@ function newFryStation() {
 //    'cook' = se gasta al agregarlo a la estación; 'plate' = se gasta al servir un plato que lo lleva.
 //  · COCINAR: la estación de siempre (cuenco, wok, tabla de makis, olla). Al terminar el plato pasa al "pase".
 //  · EMPLATAR: se elige un plato del pase y se arma con sus componentes. Es obligatorio y vale 25 de 100 puntos.
-// Rash y Entrenamiento las activan poco a poco (STAGE_GATE_ROUND / features); la Campaña las tiene siempre (NIVEL_EXTRA.rules.stages).
-// No existen en el tutorial antiguo ni en la Cocina compartida (Online cooperativo); Arrebato (VS) sí las usa.
+// Campaña y Rash las tienen siempre en las áreas abiertas (Campaña: NIVEL_EXTRA.rules.stages; Rash: al abrirse el área por ronda); el Entrenamiento las activa por retos (features).
+// No existen en el tutorial antiguo. Online (Arrebato y Cocina compartida) las usa en las áreas de la sala.
 const STAGE_AREAS = ['ramen', 'salteados', 'makis', 'frituras'];
 const STAGE_GATE_LEVEL = { ramen: 4, salteados: 6, makis: 10, frituras: 14 };     // (ya no se usa en la Campaña 2.0: allí las etapas están activas en todos los niveles; ver NIVEL_EXTRA)
-const STAGE_GATE_ROUND = { ramen: 3, salteados: 9, makis: 16, frituras: 27 };   // Rash: ronda
+const STAGE_GATE_ROUND = { ramen: 3, salteados: 9, makis: 16, frituras: 27 };   // (ya no se usa en Rash: las etapas vienen con el área; ver stagedOn)
 const ST_PASS_MAX = 3;
 const ST_EXTRA_SECONDS = { ramen: 8, salteados: 10, makis: 10, frituras: 14 };  // paciencia extra por pedido
 const ST_PLATE_POINTS = { base: 15, order: 10, orderPenalty: 4 };               // emplatado: 25 puntos
 
 function stagedOn(area) {
-  if (isMultiplayerSession()) return MultiplayerManager.gameMode === 'VS' && mpAreas().includes(area);   // Online: etapas en Arrebato (VS); la Cocina compartida aún usa la estación de siempre
+  if (isMultiplayerSession()) return mpAreas().includes(area);   // Online (Arrebato y Cocina compartida): etapas en las áreas que eligió el anfitrión, igual que en Campaña
   if (isFree()) return true;
   if ((gameState.gameMode === 'JAPON' && gameState.japon)) return japonRunAreas().includes(area);
   if (isTraining()) return trainingFeature('st_' + area);
   if (gameState.gameMode === 'NORMAL') { const c = NIVELES[currentLevelIndex]; return !!(c && c.areas && c.areas.includes(area) && (!c.rules || c.rules.stages !== false)); }   // Campaña 2.0: Producción → Cocina → Emplatar en todos los niveles
-  if (gameState.gameMode === 'RASH') return (gameState.rashLevel || 1) >= (STAGE_GATE_ROUND[area] || 999);
+  if (gameState.gameMode === 'RASH') return isAreaUnlocked(area);   // como en la Campaña 2.0: en cuanto un área se abre por ronda, ya trae Producción, Cocina y Emplatar
   return false;
 }
 function stGateHint(area) {
