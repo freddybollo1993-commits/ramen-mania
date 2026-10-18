@@ -16,8 +16,12 @@
   #hm.hm-on { display: block; }
   #app-version { position: absolute; left: max(.8em, env(safe-area-inset-left)); bottom: max(.5em, env(safe-area-inset-bottom)); z-index: 7; font: 800 10px 'Fredoka', sans-serif; color: rgba(255,243,214,.55); text-shadow: 0 1px 2px #000; pointer-events: none; }
   #hm * { box-sizing: border-box; }
-  .hm-art { position: absolute; inset: 0; z-index: 0; display: flex; align-items: center; justify-content: center; }
-  .hm-art .ec-wrap { width: 100%; height: 100%; } .hm-art .ec-scene { border-radius: 0; box-shadow: none; }
+  .hm-art { position: absolute; inset: 0; z-index: 0; background: #140a07 url(assets/ramen_bg.webp) center 40% / cover no-repeat; }
+  .hm-art::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 34% 62% at 50% 62%, rgba(255,196,110,.30), rgba(255,196,110,0) 70%), linear-gradient(rgba(14,7,4,.42), rgba(14,7,4,.42)); }
+  .hm-art::after { content: ''; position: absolute; left: 50%; bottom: 3%; width: 46%; height: 12%; transform: translateX(-50%); background: radial-gradient(ellipse, rgba(255,214,150,.34), rgba(255,214,150,0) 68%); }
+  .hm-chef { position: absolute; left: 50%; bottom: 3.5%; height: 82%; aspect-ratio: 200 / 306; transform: translateX(-50%); cursor: pointer; -webkit-tap-highlight-color: transparent; filter: drop-shadow(0 .5em .8em rgba(0,0,0,.45)); }
+  .hm-hang { position: absolute; left: calc(50% - 15em); top: 52%; width: 3.6em; height: 3.6em; padding: 0; display: flex; align-items: center; justify-content: center; } .hm-hang svg { width: 70%; height: 70%; }
+  .hm-hang i { position: absolute; top: -.7em; right: -.9em; padding: .1em .5em; border-radius: .7em; border: .12em solid #120905; background: #ffd24a; color: #2b1808; font: 900 .62em/1.2 'Fredoka', sans-serif; font-style: normal; white-space: nowrap; box-shadow: 0 .15em 0 rgba(0,0,0,.5); }
   .hm-shade { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(180deg, rgba(8,4,2,.78) 0, rgba(8,4,2,0) 22%, rgba(8,4,2,0) 58%, rgba(8,4,2,.82) 100%), linear-gradient(90deg, rgba(8,4,2,.55) 0, rgba(8,4,2,0) 22%, rgba(8,4,2,0) 78%, rgba(8,4,2,.55) 100%); }
   #hm.hm-rash .hm-shade { background: linear-gradient(180deg, rgba(60,0,0,.72) 0, rgba(60,0,0,0) 24%, rgba(80,0,0,0) 50%, rgba(50,0,0,.88) 100%), linear-gradient(90deg, rgba(60,0,0,.6) 0, rgba(0,0,0,0) 22%, rgba(0,0,0,0) 78%, rgba(60,0,0,.6) 100%); }
   .hm-ui { position: absolute; inset: 0; z-index: 2; padding: max(.6em, env(safe-area-inset-top)) max(.8em, env(safe-area-inset-right)) max(.6em, env(safe-area-inset-bottom)) max(.8em, env(safe-area-inset-left)); pointer-events: none; }
@@ -26,7 +30,7 @@
   .hm-top { position: absolute; left: max(.8em, env(safe-area-inset-left)); right: max(.8em, env(safe-area-inset-right)); top: max(.6em, env(safe-area-inset-top)); display: flex; align-items: flex-start; gap: .6em; }
   .hm-plate { border: .2em solid #120905; border-radius: .8em; background: linear-gradient(#4a2d18, #2a170c); box-shadow: 0 .3em 0 rgba(0,0,0,.55), inset 0 .1em 0 rgba(255,255,255,.12); }
   .hm-prof { display: flex; align-items: center; gap: .5em; padding: .35em .8em .35em .4em; min-width: 11em; }
-  .hm-prof .av { width: calc(var(--u) * 4.4); height: calc(var(--u) * 4.4); border-radius: .6em; background: #1b0f08; border: .15em solid #ffb300; display: flex; align-items: center; justify-content: center; font-size: 1.7em; line-height: 1; }
+  .hm-prof .av { width: calc(var(--u) * 4.4); height: calc(var(--u) * 4.4); border-radius: .6em; background: #1b0f08; border: .15em solid #ffb300; display: flex; align-items: center; justify-content: center; font-size: 1.7em; line-height: 1; overflow: hidden; } .hm-prof .av svg { width: 100%; height: 100%; }
   .hm-prof b { display: block; font: 900 1.25em/1.1 'Fredoka', sans-serif; text-shadow: 0 .1em 0 #000; max-width: 7.5em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #d58cff; text-align: left; }
   .hm-prof small { display: block; font: 800 .9em 'Fredoka', sans-serif; color: #ffd978; text-align: left; }
   .hm-prog { display: flex; flex-direction: column; justify-content: center; gap: .25em; padding: .4em .9em; min-width: 12em; text-align: left; }
@@ -176,14 +180,15 @@
     const sc = $('start-screen'); if (!sc) return false;
     css();
     const el = document.createElement('div'); el.id = 'hm';
-    el.innerHTML = '<div class="hm-art" id="hm-art"></div><div class="hm-shade"></div><div class="hm-ui" id="hm-ui"></div>';
+    el.innerHTML = '<div class="hm-art" id="hm-art"><div class="hm-chef" id="hm-chef" onclick="Avatar.wave(this)"></div></div><div class="hm-shade"></div><div class="hm-ui" id="hm-ui"></div>';
     sc.appendChild(el); built = true;
-    try { if (window.EscenaCocina) $('hm-art').innerHTML = EscenaCocina.html('jugar'); } catch (e) { console.warn('[Home] escena', e); }
     return true;
   }
   const flag = id => { const h = H(); const a = h && h.alertOf(id); return a ? `<i class="hm-flag ${a.k}">${a.t}</i>` : ''; };
   // imagen de la tienda (toldo rojo y crema, mostrador y platos): reemplaza al ícono de Secretos
   const SHOP = '<svg viewBox="0 0 64 64"><ellipse cx="32" cy="58" rx="26" ry="3.5" fill="rgba(0,0,0,.35)"/><rect x="7" y="30" width="50" height="26" rx="2" fill="#8a5a30" stroke="#2b1810" stroke-width="2.5"/><rect x="13" y="34" width="38" height="13" fill="#2a170c" stroke="#2b1810" stroke-width="2"/><circle cx="21" cy="42" r="4.2" fill="#ffd978" stroke="#2b1810" stroke-width="1.6"/><circle cx="32" cy="42" r="4.2" fill="#ef5350" stroke="#2b1810" stroke-width="1.6"/><circle cx="43" cy="42" r="4.2" fill="#8bc34a" stroke="#2b1810" stroke-width="1.6"/><rect x="10" y="46" width="44" height="9" rx="2" fill="#ffb300" stroke="#2b1810" stroke-width="2.2"/><path d="M5 12h54l3 17H2z" fill="#fff3d6"/><path d="M5 12h9.3l-2.3 17H2zM23.6 12h9.3l-.8 17h-9.5zM42.2 12h9.3l3.5 17h-9.6z" fill="#c8372d"/><path d="M5 12h54l3 17H2z" fill="none" stroke="#2b1810" stroke-width="2.5" stroke-linejoin="round"/></svg>';
+  // percha: abre el vestuario del chef
+  const HANGER = '<svg viewBox="0 0 64 64"><path d="M32 22V17C32 11 40 11 40 17C40 21 36 22 32 24L6 44Q2 48 8 48H56Q62 48 58 44L32 24" fill="none" stroke="#fff3d6" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   // tablero con visto bueno (misiones)
   const MISIONES = '<svg viewBox="0 0 96 96"><rect x="14" y="14" width="54" height="70" rx="7" fill="#8a5a30" stroke="#2b1810" stroke-width="3"/><rect x="20" y="23" width="42" height="54" rx="3" fill="#fff3d6" stroke="#2b1810" stroke-width="2.4"/><rect x="29" y="8" width="24" height="13" rx="4" fill="#c9cdd3" stroke="#2b1810" stroke-width="2.4"/><path d="M25 38l5 5 8-9M25 54l5 5 8-9" fill="none" stroke="#2e9e4f" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M44 40h13M44 56h13M25 68h32" stroke="#c9b79a" stroke-width="3.4" stroke-linecap="round"/><path d="M62 74l4-18 20-21 8 8-21 20z" fill="#e53935" stroke="#2b1810" stroke-width="2.6" stroke-linejoin="round"/><path d="M62 74l4-18 8 8z" fill="#ffd9a0" stroke="#2b1810" stroke-width="2.2" stroke-linejoin="round"/><path d="M86 35l8 8" stroke="#2b1810" stroke-width="3"/><path d="M10 14l2 5 5 2-5 2-2 5-2-5-5-2 5-2zM82 10l1.6 4 4 1.6-4 1.6-1.6 4-1.6-4-4-1.6 4-1.6z" fill="#ffd54f"/></svg>';
   const btn = (ic, label, onclick, id, dark) => `<button class="hm-btn hm-plate ${dark ? 'dark' : ''}" onclick="${onclick}">${id ? flag(id) : ''}<span class="ic">${ic}</span><b>${label}</b></button>`;
@@ -195,7 +200,7 @@
     const L = Math.min(20, cs.unlockedLevel || 1), pct = cs.maxStars ? Math.round(100 * cs.stars / cs.maxStars) : 0;
     const tut = h.tutDone(), rec = window.Recetario ? Recetario.summary() : { fresh: 0 };
     return `<div class="hm-top">
-        <button class="hm-prof hm-plate" onclick="openProfileModal()" aria-label="Perfil"><span class="av">${h.chefAvatar()}</span><span><b>${h.chefName()}</b><small>Chef · Nivel ${L}</small></span></button>
+        <button class="hm-prof hm-plate" onclick="openProfileModal()" aria-label="Perfil"><span class="av">${window.Avatar ? Avatar.svg({}, { bust: true, still: true }) : h.chefAvatar()}</span><span><b>${h.chefName()}</b><small>Chef · Nivel ${L}</small></span></button>
         <button class="hm-prog hm-plate" onclick="Inicio.act('camp')" aria-label="Progreso de Campaña"><span>⭐ ${cs.stars}/${cs.maxStars}</span><i class="hm-bar"><u style="width:${pct}%"></u></i><small>Campaña · nivel ${L} de 20</small></button>
         <span class="hm-gap"></span>
         <button class="hm-menu hm-fs hm-plate" onclick="Inicio.act('full')" aria-label="Pantalla completa">⛶</button>
@@ -207,6 +212,7 @@
         ${btn(SHOP, 'TIENDA', "Inicio.act('knives')", 'knives', true)}
         ${btn('🎓', 'APRENDER', "Modos.learn()", 'aprender', true)}
       </div>
+      ${window.Avatar ? `<button class="hm-hang hm-plate" onclick="Avatar.open()" aria-label="Cambiar apariencia">${HANGER}</button>` : ''}
       <div class="hm-col r">
         ${btn('🏆', 'RANKING', "Inicio.act('board')", null, true)}
       </div>
@@ -223,6 +229,7 @@
   function paint() {
     if (!built && !build()) return;
     const u = $('hm-ui'); if (u) u.innerHTML = ui();
+    const ch = $('hm-chef'); if (ch && window.Avatar) { const sig = JSON.stringify(Avatar.look()); if (ch.dataset.sig !== sig) { ch.dataset.sig = sig; ch.innerHTML = Avatar.svg(); } }
     const hm = $('hm'); if (hm) hm.classList.toggle('hm-rash', !!(window.Modos && Modos.current().id === 'rash'));
   }
 
@@ -235,7 +242,6 @@
       if (want) paint();
       if (!want) hm.classList.remove('menu-open');
       hm.classList.toggle('hm-on', want); shown = want;
-      try { if (want && window.EscenaCocina) EscenaCocina.preload(); } catch (e) {}
     },
     refresh() { if (shown) paint(); },
     /** Abre o cierra el menú ☰ (v: true abre, false cierra; sin argumento alterna). */

@@ -51,7 +51,7 @@
   const lvlOf = id => { load(); return S.act[id] || 0; };
   const owned = id => lvlOf(id) > 0;
   const sabOwned = id => { load(); return !!S.sab[id]; };
-  function spent() { load(); let t = 0; Object.keys(S.act).forEach(id => { const a = ACT[id]; if (a) for (let i = 0; i < (S.act[id] || 0) && i < a.lv.length; i++) t += a.lv[i].price; }); const sl = secretos(); Object.keys(S.sab).forEach(id => { const x = sl.find(y => y.id === id); if (x) t += x.price; }); return t; }
+  function spent() { load(); let t = 0; Object.keys(S.act).forEach(id => { const a = ACT[id]; if (a) for (let i = 0; i < (S.act[id] || 0) && i < a.lv.length; i++) t += a.lv[i].price; }); const sl = secretos(); Object.keys(S.sab).forEach(id => { const x = sl.find(y => y.id === id); if (x) t += x.price; }); try { if (window.Avatar) t += Avatar.spent(); } catch (e) {} return t; }
   const eqList = () => { load(); return S.eq.filter(id => owned(id)).slice(0, MAX_EQ); };
 
   // ---------- compras ----------
@@ -154,6 +154,19 @@
   .tl-buy { flex: 1; min-width: 96px; border: 2px solid #ffe082; border-radius: 10px; padding: 6px 8px; background: linear-gradient(135deg, #ff9800, #e64a19 65%, #c62828); color: #fff; font: 900 12px/1 'Fredoka', sans-serif; box-shadow: 0 3px 0 #7f0000; cursor: pointer; }
   .tl-buy[data-poor] { filter: grayscale(.6) brightness(.8); } .tl-buy:disabled { background: #2e7d32; border-color: #a5d6a7; box-shadow: none; cursor: default; }
   .tl-buy.ghost { background: rgba(255,255,255,.1); border-color: rgba(255,224,130,.5); color: #ffe082; box-shadow: 0 3px 0 rgba(0,0,0,.35); flex: none; }
+  /* pestaña APARIENCIA: el chef a la izquierda y las piezas a la derecha */
+  .av-shop { flex: 1; min-height: 0; display: flex; gap: 10px; padding: 2px 12px 10px; }
+  .av-prev { flex: none; width: 31%; max-width: 230px; min-width: 150px; display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 6px 8px 8px; border: 2.5px solid #1a0e07; border-radius: 14px; background: radial-gradient(ellipse at 50% 38%, #7a5230 0%, #3a2112 72%); box-shadow: 0 3px 0 rgba(0,0,0,.5); }
+  .av-fig { flex: 1; min-height: 0; width: 100%; display: flex; justify-content: center; } .av-fig .av-svg { height: 100%; width: auto; max-width: 100%; }
+  .av-nm { width: 100%; text-align: center; font: 900 12.5px/1.15 'Fredoka', sans-serif; color: #fff3d6; } .av-nm small { display: block; font: 700 10.5px 'Fredoka', sans-serif; color: #c9a77e; }
+  .av-prev .tl-buy { width: 100%; flex: none; min-width: 0; }
+  .av-pick { flex: 1; min-width: 0; display: flex; flex-direction: column; min-height: 0; }
+  .av-pick .tl-tabs { padding: 0 0 6px; }
+  .av-grid { flex: 1; min-height: 0; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; align-content: start; padding: 2px 2px 8px; -webkit-overflow-scrolling: touch; }
+  .av-it { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 4px 6px; border: 2.5px solid #1a0e07; border-radius: 12px; background: linear-gradient(#5a3a20, #2e1a0e); color: #fff3d6; box-shadow: 0 3px 0 rgba(0,0,0,.5); cursor: pointer; font-family: 'Fredoka', sans-serif; }
+  .av-it .th { width: 100%; height: 72px; border-radius: 8px; background: radial-gradient(circle at 50% 40%, #7a5230, #3a2112 80%); overflow: hidden; } .av-it .th .av-svg { width: 100%; height: 100%; }
+  .av-it b { font: 900 11px/1.1 'Fredoka', sans-serif; text-align: center; } .av-it small { font: 800 10px 'Fredoka', sans-serif; color: #ffd978; }
+  .av-it.sel { border-color: #fff3d0; box-shadow: 0 0 0 2px #ffb300, 0 3px 0 rgba(0,0,0,.5); } .av-it.eq small { color: #9fd49f; } .av-it.lock .th { filter: saturate(.8); }
   /* botones de técnicas en la partida: a la derecha de la fila de clientes */
   #tll-hud { position: absolute; right: 52px; top: 48px; z-index: 40; display: none; gap: 6px; }
   #tll-hud button { position: relative; width: 46px; height: 46px; border-radius: 50%; border: 3px solid #1a0e07; background: radial-gradient(circle at 35% 30%, #6b4426, #2b180c); color: #fff; font-size: 22px; line-height: 1; cursor: pointer; box-shadow: 0 3px 0 rgba(0,0,0,.55); padding: 0; opacity: .6; }
@@ -222,14 +235,28 @@
     const sec = c.sections.find(x => x.id === jpSec) || c.sections[0];
     return sec.items.map(cardJp).join('');
   }
+  // ---------- pestaña APARIENCIA ----------
+  let avSlot = 'peinado', avSel = null;
+  function avView() {
+    const A = window.Avatar; if (!A) return '<div class="tl-note">La apariencia aún no está disponible.</div>';
+    const cur = A.look(), prev = Object.assign({}, cur, avSel ? { [A.item(avSel).slot]: avSel } : {}), w = wallet(), it = avSel ? A.item(avSel) : null;
+    const chips = '<div class="tl-tabs">' + A.slots().map(x => '<button class="tl-tab ' + (x.id === avSlot ? 'on' : '') + '" onclick="Taller.avSlot(\'' + x.id + '\')">' + x.ic + ' ' + x.name + '</button>').join('') + '</div>';
+    const grid = A.items(avSlot).map(p => { const own = A.owned(p.id), eq = cur[avSlot] === p.id, th = A.svg(Object.assign({}, cur, { [avSlot]: p.id }), { bust: true, still: true });
+      return '<button class="av-it ' + (eq ? 'eq ' : '') + (avSel === p.id ? 'sel ' : '') + (own ? '' : 'lock') + '" onclick="Taller.avPick(\'' + p.id + '\')"><div class="th">' + th + '</div><b>' + p.name + '</b><small>' + (eq ? '✔ Puesto' : own ? 'Tuyo' : '🧧 ' + p.price) + '</small></button>'; }).join('');
+    let act = '';
+    if (it) { const own = A.owned(it.id), eq = cur[it.slot] === it.id;
+      act = eq ? '<button class="tl-buy" disabled>✔ Puesto</button>' : own ? '<button class="tl-buy" onclick="Taller.avUse()">Ponértelo</button>' : '<button class="tl-buy" ' + (w >= it.price ? '' : 'data-poor="1"') + ' onclick="Taller.avBuy()">🧧 ' + it.price + ' · Comprar</button>'; }
+    return '<div class="av-shop"><div class="av-prev"><div class="av-fig">' + A.svg(prev) + '</div><div class="av-nm">' + (it ? it.name : 'Tu chef') + '<small>' + (it ? (A.owned(it.id) ? 'Ya es tuyo' : 'Vista previa · se paga con propinas') : 'Toca una pieza para probártela') + '</small></div>' + act + '</div>'
+      + '<div class="av-pick">' + chips + '<div class="av-grid">' + grid + '</div></div></div>';
+  }
   function render() {
     let host = $('tll'); if (!host) { host = document.createElement('div'); host.id = 'tll'; document.body.appendChild(host); }
     const eq = eqList();
-    const tabs = [['mejoras', '🛠️ PASIVAS · MEJORAS'], ['secretos', '🗝️ PASIVAS · SECRETOS'], ['activas', '⚡ ACTIVAS'], ['japon', '🗾 JAPÓN']].map(([k, n]) => '<button class="tl-tab ' + (tab === k ? 'on' : '') + '" onclick="Taller.tab(\'' + k + '\')">' + n + '</button>').join('');
-    const note = { mejoras: 'Pasivas: se activan solas al comprarlas.', secretos: 'Pasivas: cada secreto que compras da un pequeño bono permanente.', activas: 'Activas: úsalas durante el servicio con los botones redondos. Solo puedes llevar ' + MAX_EQ + ' a la vez (también se equipan desde tu Perfil). Más poder, más precio.', japon: jpNote() }[tab];
+    const tabs = [['mejoras', '🛠️ PASIVAS · MEJORAS'], ['secretos', '🗝️ PASIVAS · SECRETOS'], ['activas', '⚡ ACTIVAS'], ['apariencia', '👤 APARIENCIA'], ['japon', '🗾 JAPÓN']].map(([k, n]) => '<button class="tl-tab ' + (tab === k ? 'on' : '') + '" onclick="Taller.tab(\'' + k + '\')">' + n + '</button>').join('');
+    const note = { mejoras: 'Pasivas: se activan solas al comprarlas.', secretos: 'Pasivas: cada secreto que compras da un pequeño bono permanente.', apariencia: '', activas: 'Activas: úsalas durante el servicio con los botones redondos. Solo puedes llevar ' + MAX_EQ + ' a la vez (también se equipan desde tu Perfil). Más poder, más precio.', japon: jpNote() }[tab];
     const slots = tab === 'japon' ? jpChips() : tab === 'activas' ? '<div class="tl-eq"><b>EQUIPADAS</b>' + Array.from({ length: MAX_EQ }, (_, i) => '<div class="tl-slot ' + (eq[i] ? 'on' : '') + '" title="' + (eq[i] ? ACT[eq[i]].name : 'Vacía') + '">' + (eq[i] ? ACT[eq[i]].ic : '') + '</div>').join('') + '</div>' : '';
-    host.innerHTML = '<div class="tl-top"><button class="tl-back" onclick="Taller.close()" aria-label="Volver">◀</button><h2>' + SHOP_IC + ' TIENDA DEL CHEF</h2>' + (tab === 'japon' ? '<span class="tl-chip" title="Fondo del Recorrido por Japón">💴 S/ ' + money(jpFondo()) + '</span><button class="tl-buy ghost" onclick="Taller.goJapon()">🗾 Ir al Recorrido</button>' : '') + '<span class="tl-chip">🧧 ' + wallet() + '</span></div><div class="tl-tabs">' + tabs + '</div><div class="tl-note">' + note + '</div>' + slots
-      + '<div class="tl-grid">' + (tab === 'mejoras' ? cardsMejoras() : tab === 'secretos' ? cardsSecretos() : tab === 'japon' ? cardsJapon() : cardsActivas()) + '</div>';
+    host.innerHTML = '<div class="tl-top"><button class="tl-back" onclick="Taller.close()" aria-label="Volver">◀</button><h2>' + SHOP_IC + ' TIENDA DEL CHEF</h2>' + (tab === 'japon' ? '<span class="tl-chip" title="Fondo del Recorrido por Japón">💴 S/ ' + money(jpFondo()) + '</span><button class="tl-buy ghost" onclick="Taller.goJapon()">🗾 Ir al Recorrido</button>' : '') + '<span class="tl-chip">🧧 ' + wallet() + '</span></div><div class="tl-tabs">' + tabs + '</div>' + (note ? '<div class="tl-note">' + note + '</div>' : '') + slots
+      + (tab === 'apariencia' ? avView() : '<div class="tl-grid">' + (tab === 'mejoras' ? cardsMejoras() : tab === 'secretos' ? cardsSecretos() : tab === 'japon' ? cardsJapon() : cardsActivas()) + '</div>');
   }
 
   // ---------- perfil: equipar las técnicas activas ----------
@@ -244,16 +271,17 @@
   }
 
   // ---------- nube (se guarda con el resto del progreso de la cuenta) ----------
-  const snap = () => { load(); return { v: 1, act: S.act, sab: S.sab, eq: S.eq }; };
+  const snap = () => { load(); const o = { v: 1, act: S.act, sab: S.sab, eq: S.eq }; try { if (window.Avatar) o.av = Avatar.snap(); } catch (e) {} return o; };
   function mergeSnap(a, b) {
     if (!a || a.v !== 1) return b && b.v === 1 ? b : (a || null); if (!b || b.v !== 1) return a;
     const out = { v: 1, act: {}, sab: Object.assign({}, a.sab || {}, b.sab || {}), eq: [] };
     new Set([...Object.keys(a.act || {}), ...Object.keys(b.act || {})]).forEach(k => { if (ACT[k]) out.act[k] = Math.min(ACT[k].lv.length, Math.max((a.act || {})[k] || 0, (b.act || {})[k] || 0)); });
     out.eq = ((b.eq && b.eq.length) ? b.eq : (a.eq || [])).filter((id, i, arr) => out.act[id] > 0 && arr.indexOf(id) === i).slice(0, MAX_EQ);
+    try { if (window.Avatar) { const av = Avatar.mergeSnap(a.av, b.av); if (av) out.av = av; } } catch (e) {}      // apariencia del chef
     return out;
   }
-  function apply(sn) { if (!sn || sn.v !== 1) return; load(); const m = mergeSnap(snap(), sn); if (!m) return; S = { v: 1, act: m.act, sab: m.sab, eq: m.eq }; persist(); try { if (window.Home) Home.refresh(); } catch (e) {} }
-  const reset = () => { S = null; try { localStorage.removeItem(KEY); } catch (e) {} };
+  function apply(sn) { if (!sn || sn.v !== 1) return; load(); const m = mergeSnap(snap(), sn); if (!m) return; S = { v: 1, act: m.act, sab: m.sab, eq: m.eq }; persist(); try { if (window.Avatar && m.av) Avatar.apply(m.av); } catch (e) {} try { if (window.Home) Home.refresh(); } catch (e) {} }
+  const reset = () => { S = null; try { localStorage.removeItem(KEY); } catch (e) {} try { if (window.Avatar) Avatar.reset(); } catch (e) {} };
   function cheapest() { let c = null; const w = wallet(); const upd = p => { if (p != null && (c == null || p < c)) c = p; };
     try { UPGRADES.forEach(u => { const lv = getUpgradeLevel(u.id); if (lv < u.costs.length) upd(u.costs[lv]); }); } catch (e) {}
     ACTIVAS.forEach(a => { const lv = lvlOf(a.id); if (lv < a.lv.length) upd(a.lv[lv].price); }); secretos().forEach(x => { if (!sabOwned(x.id)) upd(x.price); }); return c; }
@@ -263,7 +291,11 @@
     /** Repinta la Tienda si está abierta. */
     refresh() { if ($('tll')) render(); },
     close() { const h = $('tll'); if (h) h.remove(); sfx('click'); try { if (window.Home) Home.refresh(); } catch (e) {} },
-    tab(k) { tab = k; sfx('click'); render(); },
+    tab(k) { tab = k; avSel = null; sfx('click'); render(); },
+    avSlot(k) { avSlot = k; avSel = null; sfx('click'); render(); },
+    avPick(id) { avSel = avSel === id ? null : id; sfx('click'); render(); },
+    avBuy() { if (avSel && window.Avatar) Avatar.buy(avSel); },
+    avUse() { if (avSel && window.Avatar) Avatar.equip(avSel); },
     jpSec(k) { jpSec = k; sfx('click'); render(); },
     goJapon() { sfx('click'); Taller.close(); setTimeout(() => { try { Inicio.act('door'); } catch (e) { try { japonOpen(); } catch (e2) {} } }, 60); },
     buyUp, buyActive, buySecret, equip, use, spent, snap, mergeSnap, apply, reset, cheapest, renderProfile,
