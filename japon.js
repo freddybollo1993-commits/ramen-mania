@@ -552,6 +552,7 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
       canUp: z => UP(z, r, c.id), costArea: () => costArea(c.id, Object.values(r.areas).filter(Boolean).length), staffMax: z => staffMax(r, z), hasObj: k => !!r.objs[k] };
   }
   function render() {
+    if (runOf()) return;   // durante una jornada no se dibuja el restaurante: la sincronización en la nube lo recreaba encima de la partida a los pocos segundos y sus botones inferiores (Jugar aquí, Recolectar, Finanzas) tapaban los de la cocina
     load(); css();
     if (window.JPScene) window.JPScene.detach();
     let el = document.getElementById('jp-screen');
