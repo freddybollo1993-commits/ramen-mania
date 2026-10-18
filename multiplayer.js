@@ -368,7 +368,7 @@
         btn.classList.toggle('active', btn.dataset.tab === tab);
       });
       document.querySelectorAll('.mp-tab-pane').forEach(pane => {
-        pane.style.display = (pane.id === `mp-pane-${tab}`) ? 'block' : 'none';
+        pane.style.display = (pane.id === `mp-pane-${tab}`) ? 'flex' : 'none';
       });
       this.renderRulesUI();
       if (tab === 'room') {
@@ -1206,6 +1206,8 @@
       const avatarEl = document.getElementById('mp-my-avatar-display');
       if (nameEl) nameEl.textContent = myProf.name;
       if (avatarEl) avatarEl.textContent = myProf.avatar;
+      const rankEl = document.getElementById('mp-my-rank-display');
+      if (rankEl) rankEl.textContent = `${myProf.rankIcon} ${myProf.rankTier} · ${myProf.mmr} MMR`;
 
       this.renderRulesUI();
     },
@@ -1245,9 +1247,10 @@
 
       const areasGroup = document.getElementById('mp-areas-group');
       if (areasGroup) {
+        const ART = { ramen: 'arco_ramen', salteados: 'arco_salteado', makis: 'arco_makis', frituras: 'arco_frituras' };
         areasGroup.innerHTML = this.AREA_OPTS.map(o => `
           <button type="button" class="mp-opt-btn mp-area-btn ${this.areas.includes(o[0]) ? 'active' : ''}" data-area="${o[0]}"
-                  onclick="MultiplayerManager.toggleRoomArea('${o[0]}')">${o[1]} ${o[2]}</button>`).join('');
+                  onclick="MultiplayerManager.toggleRoomArea('${o[0]}')">${window.ArteUI ? ArteUI.icon(ART[o[0]], o[1]) : o[1]} ${o[2]}</button>`).join('');
       }
 
       const badge = document.getElementById('mp-room-rule-badge');
@@ -1282,12 +1285,10 @@
               <div class="mp-slot-badge" style="background: ${color.hex};">${color.label}</div>
               <div class="mp-slot-avatar">${player.avatar || '🍜'}</div>
               <div class="mp-slot-name">${player.name} ${isMe ? '<span style="font-size:10px; color:#ffb300;">(Tú)</span>' : ''}</div>
-              <div class="mp-slot-rank" style="display:inline-flex; align-items:center; gap:4px; font-size:10.5px; font-weight:800; background:rgba(0,0,0,0.3); border-radius:10px; padding:2px 7px; margin-top:3px; color:${rankColor}; border:1px solid rgba(255,255,255,0.15);">
-                <span>${rankIcon}</span>
-                <span>${rankTier}</span>
-                <span style="opacity:0.8; font-size:9.5px;">(${playerMmr} MMR)</span>
+              <div class="mp-slot-rank" style="color:${rankColor};">
+                <span>${rankIcon}</span><span>${rankTier}</span><span style="opacity:.8;">${playerMmr}</span>
               </div>
-              <div class="mp-slot-status ${isReady ? 'ready' : 'pending'}" style="margin-top:4px;">
+              <div class="mp-slot-status ${isReady ? 'ready' : 'pending'}">
                 ${isHost ? '👑 Anfitrión' : (isReady ? '✅ Listo' : '⏳ Esperando...')}
               </div>
             </div>
@@ -1318,7 +1319,7 @@
       if (this.isHost) {
         if (hostControls) hostControls.style.display = 'block';
         if (guestControls) guestControls.style.display = 'none';
-        if (editRulesBtn) editRulesBtn.style.display = 'inline-block';
+        if (editRulesBtn) editRulesBtn.style.display = 'flex';
 
         if (startBtn) {
           const canStart = this.players.length >= 2;
@@ -1566,7 +1567,7 @@
         `;
 
         if (this.gameMode === 'VS') {
-          let html = mmrDeltaHtml + `<div class="mp-podium-list">`;
+          let html = `<div>${mmrDeltaHtml}</div><div class="mp-podium-list">`;
           sorted.forEach((p, idx) => {
             const medal = idx === 0 ? '🥇 Oro' : (idx === 1 ? '🥈 Plata' : (idx === 2 ? '🥉 Bronce' : '4º Puesto'));
             const isMe = p.id === this.myPlayerId;
@@ -1586,7 +1587,7 @@
           html += `</div>`;
           bodyEl.innerHTML = html;
         } else {
-          bodyEl.innerHTML = mmrDeltaHtml + `
+          bodyEl.innerHTML = `<div>${mmrDeltaHtml}</div>
             <div style="text-align:center; padding:15px; background:rgba(255,255,255,0.05); border-radius:10px;">
               <div style="font-size:42px;">⭐⭐⭐</div>
               <h3 style="color:#ffb300; margin:8px 0;">¡Cocina 3 Estrellas Michelin!</h3>
