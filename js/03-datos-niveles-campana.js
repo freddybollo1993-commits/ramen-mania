@@ -19,7 +19,7 @@ const NIVELES = [
     goal: 140,
     time: 200,
     spawn_time: 8,
-    patience_mult: 1.6,
+    patience_mult: 1.84,
     intro: "Producción → Cocina → Emplatar: prepara los insumos, cocina el Shio y emplátalo."
   },
   {
@@ -32,7 +32,7 @@ const NIVELES = [
     goal: 170,
     time: 210,
     spawn_time: 8,
-    patience_mult: 1.5,
+    patience_mult: 1.72,
     intro: "Caldo y salsa se preparan en la sartén: sigue el orden caldo → salsa → proteína."
   },
   {
@@ -45,7 +45,7 @@ const NIVELES = [
     goal: 220,
     time: 220,
     spawn_time: 7.5,
-    patience_mult: 1.4,
+    patience_mult: 1.61,
     intro: "Flamea el chasu con el soplete y mantén el miso a punto."
   },
   {
@@ -58,7 +58,7 @@ const NIVELES = [
     goal: 280,
     time: 240,
     spawn_time: 7,
-    patience_mult: 1.35,
+    patience_mult: 1.7,
     intro: "El Tonkotsu pide fuego fuerte, reducción y quitar la espuma."
   },
 
@@ -73,7 +73,7 @@ const NIVELES = [
     goal: 240,
     time: 250,
     spawn_time: 7,
-    patience_mult: 1.3,
+    patience_mult: 1.49,
     intro: "¡Se abre SALTEADOS! Lava y cuece el arroz, y saltéalo en el wok con el toss."
   },
   {
@@ -86,7 +86,7 @@ const NIVELES = [
     goal: 270,
     time: 260,
     spawn_time: 6.5,
-    patience_mult: 1.25,
+    patience_mult: 1.44,
     intro: "Teriyaki en sartén y un segundo wok: reparte bien el fuego."
   },
   {
@@ -99,7 +99,7 @@ const NIVELES = [
     goal: 300,
     time: 260,
     spawn_time: 6.5,
-    patience_mult: 1.2,
+    patience_mult: 1.38,
     intro: "Dos preparaciones a la vez: yakitori y yakiramen."
   },
   {
@@ -112,7 +112,7 @@ const NIVELES = [
     goal: 340,
     time: 270,
     spawn_time: 6,
-    patience_mult: 1.2,
+    patience_mult: 1.38,
     intro: "Examen del arco: toda la carta del wok."
   },
 
@@ -127,7 +127,7 @@ const NIVELES = [
     goal: 320,
     time: 280,
     spawn_time: 6,
-    patience_mult: 1.18,
+    patience_mult: 1.36,
     intro: "¡Se abre MAKIS! Cuece el shari con Zu, extiéndelo en la esterilla y enrolla con los gestos."
   },
   {
@@ -140,7 +140,7 @@ const NIVELES = [
     goal: 360,
     time: 290,
     spawn_time: 5.8,
-    patience_mult: 1.15,
+    patience_mult: 1.32,
     intro: "Pescado: córtalo a 90° de las fibras, en su propia tabla."
   },
   {
@@ -153,7 +153,7 @@ const NIVELES = [
     goal: 400,
     time: 300,
     spawn_time: 5.5,
-    patience_mult: 1.12,
+    patience_mult: 1.29,
     intro: "Cobertura, flameado y apretar antes de cortar."
   },
   {
@@ -166,7 +166,7 @@ const NIVELES = [
     goal: 430,
     time: 300,
     spawn_time: 5.2,
-    patience_mult: 1.1,
+    patience_mult: 1.26,
     intro: "Hasta tres makis esperando en la tabla. Examen del arco."
   },
 
@@ -181,7 +181,7 @@ const NIVELES = [
     goal: 360,
     time: 330,
     spawn_time: 5.2,
-    patience_mult: 1.1,
+    patience_mult: 1.26,
     intro: "¡Se abre FRITURAS! Alitas y kaarage al aceite en su punto."
   },
   {
@@ -194,7 +194,7 @@ const NIVELES = [
     goal: 410,
     time: 330,
     spawn_time: 5.0,
-    patience_mult: 1.08,
+    patience_mult: 1.24,
     intro: "Empaniza con gestos: harina, huevo y panko; luego aceite y cortes."
   },
   {
@@ -207,7 +207,7 @@ const NIVELES = [
     goal: 440,
     time: 330,
     spawn_time: 4.8,
-    patience_mult: 1.05,
+    patience_mult: 1.21,
     intro: "Gyozas con pinza de dos dedos y langostino empanizado."
   },
   {
@@ -220,7 +220,7 @@ const NIVELES = [
     goal: 490,
     time: 340,
     spawn_time: 4.6,
-    patience_mult: 1.05,
+    patience_mult: 1.21,
     intro: "Katsu Kare: calienta el kare en sartén y viértelo sobre el bife. Examen del arco."
   },
 
@@ -235,7 +235,7 @@ const NIVELES = [
     goal: 480,
     time: 340,
     spawn_time: 4.4,
-    patience_mult: 1.02,
+    patience_mult: 1.17,
     intro: "Comandas de 3 platos por cliente: organiza las cuatro áreas."
   },
   {
@@ -248,7 +248,7 @@ const NIVELES = [
     goal: 500,
     time: 350,
     spawn_time: 4.2,
-    patience_mult: 1.0,
+    patience_mult: 1.15,
     intro: "Hora punta: más clientes y menos paciencia."
   },
   {
@@ -261,7 +261,7 @@ const NIVELES = [
     goal: 540,
     time: 360,
     spawn_time: 4.0,
-    patience_mult: 0.98,
+    patience_mult: 1.13,
     intro: "Clientes exigentes: los platos fríos o mal armados se rechazan."
   },
   {
@@ -274,7 +274,7 @@ const NIVELES = [
     goal: 570,
     time: 360,
     spawn_time: 3.8,
-    patience_mult: 0.95,
+    patience_mult: 1.09,
     intro: "Examen del Maestro Matsuo: carta completa."
   }
 ];
