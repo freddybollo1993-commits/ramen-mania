@@ -4,7 +4,7 @@
 function stRenderProd(area, panel) {
   if (stIsShop(area)) { stRenderShop(area, panel); return; }
   const st = stGet(area), pr = st.prep;
-  const cards = ST_PROD[area].map(p => {
+  const cards = stProdOrdered(area).map(p => {
     const n = st.stock[p.key], busy = pr && pr.key === p.key, low = n <= Math.ceil(p.max * 0.25);
     const many = ST_PROD[area].length > 6;
     const label = busy ? `⏳ <b data-fp-left>${pr.left}</b> s` : (many ? `+${p.batch} · ${stProdTime(p)} s` : `Preparar +${p.batch} · ${stProdTime(p)} s`);

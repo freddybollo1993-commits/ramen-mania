@@ -349,8 +349,11 @@ function stPlateIngList(area) {
   const ids = new Set();
   getUnlockedRecipes().filter(r => (r.area || 'ramen') === area).forEach(r => stParts(area, r).forEach(id => ids.add(id)));
   const order = ST_GROUPS[area];
-  return INGREDIENTES.filter(i => ids.has(i.id)).sort((a, b) => order.indexOf(stGroupOf(area, a.id)) - order.indexOf(stGroupOf(area, b.id)) || a.id - b.id);
+  const base = INGREDIENTES.filter(i => ids.has(i.id)).sort((a, b) => order.indexOf(stGroupOf(area, a.id)) - order.indexOf(stGroupOf(area, b.id)) || a.id - b.id);
+  return sortIngredientsByCustomOrder(base, area, 'plate');   // el orden que eligió el jugador (Ajustes → Orden de ingredientes)
 }
+/** Insumos de Producción de un área, en el orden que eligió el jugador. */
+function stProdOrdered(area) { return sortByOrder(ST_PROD[area], getIngOrderFor(area, 'prod'), p => p.key); }
 // Pasa un plato del pase al primer cuenco libre de emplatado
 function stPassToSlot(area, i) {
   if (gameState.isPaused || gameState.isGameOver) return;

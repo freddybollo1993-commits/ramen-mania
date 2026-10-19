@@ -813,7 +813,7 @@ function shopTrailDraw() {
 
 // ---- Pantalla del taller ----
 function stRenderShop(area, panel) {
-  const st = stGet(area), list = ST_PROD[area].filter(p => !p.virtual);
+  const st = stGet(area), list = stProdOrdered(area).filter(p => !p.virtual);
   const freeSlot = st.stove.findIndex(x => !x);
   const cards = list.map(p => {
     const n = st.stock[p.key], how = ST_HOW[p.how], low = n <= Math.ceil(p.max * 0.25);

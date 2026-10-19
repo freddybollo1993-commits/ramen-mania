@@ -153,16 +153,26 @@ function getCustomIngredientOrder() {
   return null;
 }
 
-function sortIngredientsByCustomOrder(list) {
-  const customOrder = getCustomIngredientOrder();
-  if (!customOrder || !Array.isArray(customOrder)) return list;
-  const orderMap = new Map();
-  customOrder.forEach((id, idx) => orderMap.set(Number(id), idx));
-  return [...list].sort((a, b) => {
-    const posA = orderMap.has(Number(a.id)) ? orderMap.get(Number(a.id)) : 999;
-    const posB = orderMap.has(Number(b.id)) ? orderMap.get(Number(b.id)) : 999;
-    return posA - posB;
-  });
+/** Orden guardado de una pantalla de la cocina: area = ramen | salteados | makis | frituras, stage = prod | cook | plate. Devuelve la lista de claves (ids de ingrediente; en Producción, las claves de insumo) o null si no hay. */
+function getIngOrderFor(area, stage) {
+  try {
+    const o = JSON.parse(localStorage.getItem('ramen_ing_order_v2') || '{}');
+    const a = o && o[area + ':' + stage];
+    if (Array.isArray(a)) return a;                // [] = el jugador pidió el orden original: no se usa el orden único de antes
+  } catch (e) {}
+  return stage === 'cook' ? getCustomIngredientOrder() : null;   // el orden único de antes sigue valiendo para la despensa de cocina
+}
+/** Ordena `list` según `order` (lista de claves); lo que no esté en `order` queda al final, en su orden original. */
+function sortByOrder(list, order, keyFn) {
+  if (!order || !order.length) return list;
+  const pos = new Map(); order.forEach((k, i) => pos.set(String(k), i));
+  return list.map((x, i) => [x, i]).sort((a, b) => {
+    const pa = pos.has(String(keyFn(a[0]))) ? pos.get(String(keyFn(a[0]))) : 9999, pb = pos.has(String(keyFn(b[0]))) ? pos.get(String(keyFn(b[0]))) : 9999;
+    return pa - pb || a[1] - b[1];
+  }).map(p => p[0]);
+}
+function sortIngredientsByCustomOrder(list, area, stage) {
+  return sortByOrder(list, getIngOrderFor(area || 'ramen', stage || 'cook'), i => i.id);
 }
 
 function getUnlockedIngredients() {
@@ -187,7 +197,7 @@ function getUnlockedIngredients() {
     if (stagedOn('ramen')) list = list.filter(i => !TOOL_SAUCE_IDS.includes(i.id));   // con etapas las salsas son botellas de la franja de herramientas
   }
   if (gameState.activeArea === 'salteados' && stagedOn('salteados')) list = list.filter(i => !WOK_SAUCE_IDS.includes(i.id));   // lo mismo en Salteados
-  return sortIngredientsByCustomOrder(list);
+  return sortIngredientsByCustomOrder(list, gameState.activeArea || 'ramen', 'cook');
 }
 
 // Platos mixtos de Salteados: se cocinan en dos utensilios y luego se combinan

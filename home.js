@@ -276,7 +276,7 @@
     item(id) {
       this.menu(false);
       try {
-        if (id === 'ajustes') ajustes();
+        if (id === 'ajustes') Home.ajustes();
         else if (id === 'stats') Inicio.act('stats');
         else if (id === 'registro') registro();
         else if (id === 'cuenta') Inicio.act('acct');
@@ -284,7 +284,9 @@
         else if (id === 'acerca') acerca();
       } catch (e) { console.warn('[Home] menú', id, e); }
     },
-    registro, acerca, ajustes,
+    registro, acerca,
+    /** Ajustes: la pantalla con la distribución de Brawl Stars (pantallas-bs.js); si no cargó, la lista de siempre. */
+    ajustes() { try { Inicio.seen('sound'); } catch (e) {} if (window.Bs) Bs.ajustes(); else ajustes(); },
     /** Acciones de las filas de Ajustes (la página se repinta para mostrar el estado nuevo). */
     set(id) {
       try {

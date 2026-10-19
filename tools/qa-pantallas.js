@@ -36,7 +36,7 @@
       try { await abrir(); await sleep(espera || 500); const f = fuera(); pantallas.push({ pantalla: nombre, fuera: f.length, ejemplos: f.slice(0, 6).map(x => x.el + ' [' + x.r.join(',') + ']') }); }
       catch (e) { pantallas.push({ pantalla: nombre, error: String(e.message || e) }); }
     };
-    const cierra = async () => { try { document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active')); } catch (e) {} for (const f of [() => Modos.close(), () => Taller.close(), () => Servicio.close(), () => Recetario.close(), () => MultiplayerManager.closeLobbyModal(), () => JP.exit(), () => Recon.exit(), () => Home.closePage()]) { try { f(); } catch (e) {} } await sleep(150); };
+    const cierra = async () => { try { document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active')); } catch (e) {} for (const f of [() => { if (window.Bs) Bs.close(true); }, () => Modos.close(), () => Taller.close(), () => Servicio.close(), () => Recetario.close(), () => MultiplayerManager.closeLobbyModal(), () => JP.exit(), () => Recon.exit(), () => Home.closePage()]) { try { f(); } catch (e) {} } await sleep(150); };
     try {
       localStorage.setItem('ramen_tutorial_completed', 'true');
       await cierra();
@@ -51,6 +51,8 @@
       await medir('Estadísticas', async () => { openStatsModal(); }, 700); await cierra();
       await medir('Cuenta', async () => { Home.item('cuenta'); }); await cierra();
       await medir('Ajustes', async () => { Home.item('ajustes'); }); await cierra();
+      await medir('Orden de ingredientes · Salteados', async () => { Bs.ordenar(); document.querySelector('[data-a=area][data-v=salteados]').click(); }, 700); await cierra();
+      await medir('Ranking · Rash', async () => { Bs.clasificaciones(); document.querySelector('[data-t=RASH]').click(); }, 900); await cierra();
       await medir('Reconocer · menú', async () => { reconOpen(); }); await cierra();
       await medir('Japón · mapa', async () => { japonOpen(); }, 700); await medir('Japón · restaurante', async () => { JP.go('tokio'); }, 1500); await medir('Japón · jugar aquí', async () => { JP.play(); }); await cierra();
       await medir('Sala online', async () => { MultiplayerManager.openLobbyModal(); }); await medir('Sala online · reglas', async () => { MultiplayerManager.switchLobbyTab('private'); }); await cierra();
