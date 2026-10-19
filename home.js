@@ -69,20 +69,34 @@
 
 
   .hm-row { display: flex; align-items: flex-end; gap: .6em; }
-  .hm-mode { position: relative; display: flex; align-items: stretch; width: 160px; height: 60px; padding: 0; border: 0; background: none; text-align: left; }
+  .hm-mode { position: relative; display: flex; align-items: stretch; width: 17.5em; height: 6.2em; padding: 0; border: 0; background: none; text-align: center; }
 
   .hm-mode .mp, .hm-go .mp { display: flex; align-items: stretch; width: 100%; height: 100%; border-radius: .8em; overflow: hidden; }
   .hm-mode .mi { flex: none; width: calc(var(--u) * 3.9); display: flex; align-items: center; justify-content: center; font-size: 2em; background: radial-gradient(circle at 40% 35%, var(--c, #ff9800), #1e100a 95%); }
   .hm-mode .mi img { width: 82%; height: 82%; object-fit: contain; filter: drop-shadow(0 .08em .08em rgba(0,0,0,.5)); }
   .hm-drop .ic img { width: 1.15em; height: 1.15em; object-fit: contain; vertical-align: middle; }
-  .hm-mode .mt { flex: 1; min-width: 0; padding: .2em .5em; display: flex; flex-direction: column; justify-content: center; gap: .02em; }
-  .hm-mode small { font: 800 .62em 'Fredoka', sans-serif; color: #c9b79a; line-height: 1.1; letter-spacing: .5px; text-transform: uppercase; white-space: nowrap; } .hm-mode b { font: 900 1.3em/1 'Fredoka', sans-serif; color: #fff; text-shadow: 0 .08em 0 #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hm-mode .mt { flex: 1; min-width: 0; padding: .2em .6em; display: flex; align-items: center; justify-content: center; text-align: center; }
+  .hm-mode b { display: block; font: 900 1.7em/1.02 'Fredoka', sans-serif; color: #fff; text-shadow: 0 .08em 0 #000, 0 0 .3em rgba(0,0,0,.5); text-transform: uppercase; text-wrap: balance; letter-spacing: .3px; }
   .hm-mode .mtag { position: absolute; top: -.7em; right: .4em; padding: .1em .45em; border-radius: .6em; border: .1em solid #120905; background: #ffd24a; color: #2b1808; font: 900 .62em/1.2 'Fredoka', sans-serif; white-space: nowrap; box-shadow: 0 .12em 0 rgba(0,0,0,.5); }
-  .hm-go { display: flex; align-items: stretch; width: 160px; height: 60px; padding: 0; border: 0; background: none; text-align: center; }
+  .hm-go { display: flex; align-items: stretch; width: 15.5em; height: 6.2em; padding: 0; border: 0; background: none; text-align: center; }
   .hm-go .mp { padding: .3em; }
-  .hm-play { flex: 1; display: flex; align-items: center; justify-content: center; border: .08em solid #fff0a8; border-radius: .55em; background: linear-gradient(#ffe45c, #f5b800 55%, #e0a000); box-shadow: inset 0 .1em 0 rgba(255,255,255,.5), inset 0 -.15em 0 rgba(0,0,0,.2); color: #2b1808; font: 400 1.9em/1 'Fredoka One', 'Fredoka', sans-serif; letter-spacing: .4px; text-shadow: 0 .05em 0 rgba(255,255,255,.4); }
+  .hm-play { flex: 1; display: flex; align-items: center; justify-content: center; border: .08em solid #fff0a8; border-radius: .55em; background: linear-gradient(#ffe45c, #f5b800 55%, #e0a000); box-shadow: inset 0 .1em 0 rgba(255,255,255,.5), inset 0 -.15em 0 rgba(0,0,0,.2); color: #2b1808; font: 400 2.3em/1 'Fredoka One', 'Fredoka', sans-serif; letter-spacing: .5px; text-shadow: 0 .05em 0 rgba(255,255,255,.4); }
   .hm-go:active { transform: translateY(.15em); }
   .hm-play.lock { filter: saturate(.7); }
+  /* tarjeta del modo elegido: al centro, grande y con brillo; queda entre las columnas laterales y por encima de la fila de botones de abajo */
+  .hm-sel { position: absolute; left: 50%; top: 6.4em; transform: translateX(-50%); width: min(37em, calc(100% - 20em)); max-height: calc(100% - 6.4em - 9.6em); display: flex; align-items: stretch; gap: .9em; padding: .8em .9em; text-align: left; border: .22em solid color-mix(in srgb, var(--c, #ffb300) 55%, #fff3b0); border-radius: 1em; overflow: hidden; background: var(--bg, #2a170c); color: #fff; pointer-events: auto; cursor: pointer; animation: hmGlow 2.6s ease-in-out infinite; }
+  .hm-sel::before { content: ''; position: absolute; inset: 0; background: linear-gradient(100deg, rgba(10,5,2,.88) 0, rgba(10,5,2,.7) 46%, rgba(10,5,2,.42) 100%); }
+  .hm-sel > * { position: relative; }
+  .hm-sel .sa { flex: none; width: 8.6em; display: flex; align-items: center; justify-content: center; }
+  .hm-sel .sa img { width: 100%; height: auto; max-height: 100%; object-fit: contain; filter: drop-shadow(0 .15em .25em rgba(0,0,0,.7)); } .hm-sel .sa span { font-size: 5.5em; line-height: 1; }
+  .hm-sel .sx { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: .35em; }
+  .hm-sel .sk { align-self: flex-start; font: 900 .8em/1 'Fredoka', sans-serif; letter-spacing: .6px; text-transform: uppercase; padding: .25em .7em; border-radius: .9em; background: var(--c, #ff9800); color: #fff; text-shadow: 0 .08em 0 rgba(0,0,0,.5); }
+  .hm-sel h3 { margin: 0; font: 400 2em/1.02 'Fredoka One', 'Fredoka', sans-serif; color: #ffe94d; text-shadow: 0 .1em 0 #1a0e07, .08em .08em 0 #1a0e07, -.08em 0 0 #1a0e07; }
+  .hm-sel .ss { font: 800 1em/1.1 'Fredoka', sans-serif; color: #ffd978; }
+  .hm-sel p { margin: 0; font: 700 1.05em/1.3 'Fredoka', sans-serif; color: #fff; text-shadow: 0 .06em 0 rgba(0,0,0,.6); display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+  .hm-sel .sm { align-self: flex-start; font: 900 .85em/1 'Fredoka', sans-serif; padding: .3em .7em; border-radius: .8em; background: rgba(0,0,0,.6); color: #ffe9b0; }
+  @keyframes hmGlow { 0%, 100% { box-shadow: 0 0 .9em .15em color-mix(in srgb, var(--c, #ffb300) 70%, transparent), 0 0 2.2em .5em color-mix(in srgb, var(--c, #ffb300) 38%, transparent), 0 .3em 0 rgba(0,0,0,.55); } 50% { box-shadow: 0 0 1.5em .35em color-mix(in srgb, var(--c, #ffb300) 95%, transparent), 0 0 3.4em .9em color-mix(in srgb, var(--c, #ffb300) 55%, transparent), 0 .3em 0 rgba(0,0,0,.55); } }
+  #hm.menu-open .hm-sel { opacity: 0; pointer-events: none; }
   /* menú ☰: lista desplegable a la derecha que no tapa la escena; las columnas y el botón JUGAR se apartan mientras está abierto */
   .hm-scrim { position: absolute; inset: 0; display: none; pointer-events: auto; background: rgba(0,0,0,.28); }
   #hm.menu-open .hm-scrim { display: block; }
@@ -192,6 +206,20 @@
   const AI = (id, fb) => (window.ArteUI ? ArteUI.icon(id, fb) : fb);                       // ilustración del botón (o su dibujo de respaldo)
   const btn = (ic, label, onclick, id, dark) => `<button class="hm-btn hm-plate ${dark ? 'dark' : ''}" onclick="${onclick}">${id ? flag(id) : ''}<span class="ic">${ic}</span><b>${label}</b></button>`;
 
+  /** Tarjeta del modo elegido (centro de la pantalla): ilustración, categoría, nombre y explicación; al tocarla se abre la lista de modos. */
+  function selCard() {
+    const si = window.Modos && Modos.selectedInfo ? Modos.selectedInfo() : null;
+    if (!si) return '';
+    const c = si.card, f = si.feat, AI = (id, fb) => (window.ArteUI ? ArteUI.icon(id, fb) : fb);
+    const CAT_ART = { camp: ['arco_maestria', '🏮'], rash: ['rash_record', '⚡'], japon: ['tokio', '🗾'], zen: ['libre_todo', '🌿'], online: ['online_arrebato', '🌐'] }[si.cat.id] || ['arco_maestria', '🏮'];
+    const art = c ? c.art : AI(CAT_ART[0], `<span>${CAT_ART[1]}</span>`);
+    const title = c ? c.title : f.title, sub = c ? c.sub : '', meta = c ? c.meta : f.meta;
+    const text = c ? (c.info || c.desc || '') : (f.panels || []).join(' ');
+    return `<button class="hm-sel" style="--c:${si.col}; --bg:${si.bg}" onclick="Modos.open()" aria-label="Modo elegido: ${String(title).replace(/"/g, '')}. Toca para cambiarlo">
+        <div class="sa">${art}</div>
+        <div class="sx"><span class="sk">${si.cat.name}</span><h3>${title}</h3>${sub ? `<div class="ss">${sub}</div>` : ''}<p>${text}</p>${meta ? `<span class="sm">${meta}</span>` : ''}</div></button>`;
+  }
+
   function ui() {
     const h = H(); if (!h) return '';
     const sel = window.Modos ? Modos.current() : { id: 'camp', icon: '🏮', title: 'CAMPAÑA', sub: '', tag: '', col: '#ff9800', top: '' };
@@ -217,9 +245,10 @@
       <button class="hm-scrim" onclick="Home.menu(false)" aria-label="Cerrar el menú"></button>
       <div class="hm-drop">${MENU.map((m, i) => `<button style="--i:${i}" onclick="Home.item('${m.id}')">${m.flag ? flag(m.flag) : ''}<span class="ic">${AI(m.art, m.ic)}</span>${m.label}</button>`).join('')}</div>
       ${tut && window.Servicio ? (() => { const al = h.alertOf('misiones'), sm = Servicio.summary(); return `<div class="hm-bl"><button class="hm-mis hm-plate ${sm.done === sm.total ? 'all' : ''}" onclick="Servicio.open()" aria-label="Misiones"><span class="mic">${AI('btn_misiones', MISIONES)}</span><b>MISIONES</b>${al ? `<i class="mbadge ${al.k}">${al.t}</i>` : ''}</button></div>`; })() : ''}
+      ${selCard()}
       <div class="hm-br">
         <div class="hm-row">
-          <button class="hm-mode" style="--c:${sel.col}" onclick="Modos.open()" aria-label="Elegir modo de juego: ${sel.title}"><span class="mp hm-plate"><span class="mi">${AI('btn_modos', sel.icon)}</span><span class="mt"><small>Modos de juego</small><b>${sel.title}</b></span></span>${sel.tag ? `<span class="mtag">${sel.tag}</span>` : ''}</button>
+          <button class="hm-mode" style="--c:${sel.col}" onclick="Modos.open()" aria-label="Elegir modo de juego: ${sel.title}"><span class="mp hm-plate"><span class="mt"><b>Modos de juego</b></span></span></button>
           <button class="hm-go" onclick="Home.play()" aria-label="${tut ? 'Jugar' : 'Empezar'}"><span class="mp hm-plate"><span class="hm-play ${tut ? '' : 'lock'}">${tut ? 'JUGAR' : 'EMPEZAR'}</span></span></button>
         </div>
       </div>`;

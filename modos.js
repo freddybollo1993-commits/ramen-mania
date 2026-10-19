@@ -243,8 +243,18 @@
     return { id: 'camp', icon: '🏮', title: 'CAMPAÑA', top: 'Gastronómica', sub: 'Nivel ' + L + ' · ⭐ ' + cs.stars + '/' + cs.maxStars, tag: L > 1 ? 'NIVEL ' + L : '¡NUEVO!', col: '#ff9800' };
   }
 
+  /** Tarjeta del modo elegido para la pantalla principal: su categoría, la tarjeta concreta (o el panel de la categoría) y el fondo de su escena. */
+  function selectedInfo() {
+    try {
+      const v = readSel(), cat = CATS.find(c => c.id === v.id) || CATS[0], d = cat.build();
+      const card = (d.cards || []).find(c => c.go && c.go[0] === cat.id && String(c.go[1] || '') === String(v.arg || '')) || null;
+      return { cat: { id: cat.id, name: cat.name }, feat: d.feat, card, bg: bgOf(d.feat.art), col: card ? card.col : cat.col };
+    } catch (e) { return null; }
+  }
+
   window.Modos = {
     current,
+    selectedInfo,
     pick(id, arg) {
       try { localStorage.setItem(SEL_KEY, JSON.stringify({ id, arg: arg || null })); } catch (e) {}
       const h = $('mds'); if (h) h.remove(); document.removeEventListener('keydown', onKey); sfx('serve');
