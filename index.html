@@ -939,7 +939,8 @@
   @keyframes cbTrash { 0% { transform: translate(0, 0) rotate(0); opacity: 1; } 100% { transform: translate(var(--dx), var(--dy)) rotate(var(--rot)); opacity: 0; } }
   .cb-drip { position: absolute; top: 30%; font-size: 14px; opacity: 0; animation: cbDrip 0.6s ease-in forwards; }
   @keyframes cbDrip { 0% { transform: translateY(0); opacity: 0.9; } 100% { transform: translateY(46px); opacity: 0; } }
-  .shop-side { width: calc(var(--sh) * 2.9); flex-shrink: 0; display: flex; flex-direction: column; justify-content: flex-end; gap: 4px; }
+  .shop-side { width: calc(var(--sh) * 2.9); flex-shrink: 0; display: flex; flex-direction: column; justify-content: flex-start; gap: 4px; min-height: 0; max-height: 100%; overflow-y: auto; scrollbar-width: none; }   /* en pantallas bajas la lista se desplaza dentro de su caja en vez de subir sobre los botones de arriba */
+  .shop-side::-webkit-scrollbar { display: none; }
   .shop-side .shop-stove { margin-right: 0; margin-top: calc(var(--sh) * 0.12); }
   .bl-list { background: rgba(28, 14, 10, 0.6); border: 1.5px solid #5a2e22; border-radius: 8px; padding: 2px 4px; display: flex; flex-direction: column; gap: 1px; }
   .bl-title { font-size: 9px; font-weight: 900; color: #ffcc80; }
@@ -4912,7 +4913,7 @@
 <div id="game-container">
   <!-- PANTALLA DE INICIO (START / TITLE SCREEN) -->
   <div id="start-screen" class="start-screen-overlay">
-    <span id="app-version">v233</span>
+    <span id="app-version">v235</span>
   </div>
 
   <!-- EFECTO DE PARPADEO ROJO Y MENSAJE DE CLIENTE PERDIDO -->
@@ -6350,35 +6351,35 @@
   </div>
 </div> <!-- CIERRE DE #game-container (INCLUYE OVERLAYS Y MODALES PARA PANTALLA COMPLETA TOTAL) -->
 
-<script src="js/01-nucleo-supabase-dispositivo.js?v=175"></script>
-<script src="js/02-datos-ingredientes-recetas.js?v=175"></script>
-<script src="js/03-datos-niveles-campana.js?v=175"></script>
-<script src="js/04-estado-y-audio.js?v=175"></script>
-<script src="js/05-menu-recetas-areas.js?v=175"></script>
-<script src="js/06-etapas-navegacion.js?v=175"></script>
-<script src="js/07-makis-estacion.js?v=175"></script>
-<script src="js/08-salteados-wok.js?v=175"></script>
-<script src="js/09-etapas-motor.js?v=175"></script>
-<script src="js/10-produccion-taller-gestos.js?v=175"></script>
-<script src="js/11-emplatado-platos-salteado.js?v=175"></script>
-<script src="js/12-frituras-estacion.js?v=175"></script>
-<script src="js/13-areas-despensa-arrastre.js?v=175"></script>
-<script src="js/14-cuencos-estado-cocina.js?v=175"></script>
-<script src="js/15-ramen-fideos-clientes.js?v=175"></script>
-<script src="js/16-cooperativo-estaciones.js?v=175"></script>
-<script src="js/17-propinas-mejoras-progreso.js?v=175"></script>
-<script src="js/18-nube-cuenta.js?v=175"></script>
-<script src="js/19-entrenamiento.js?v=175"></script>
-<script src="js/20-estadisticas.js?v=175"></script>
-<script src="js/21-cocina-libre-mejoras-vfx.js?v=175"></script>
-<script src="js/22-calidad-servir.js?v=175"></script>
-<script src="js/23-ramen-sartenes-herramientas.js?v=175"></script>
-<script src="js/24-ramen-sartenes-shio-fideos.js?v=175"></script>
-<script src="js/25-partida-campana.js?v=175"></script>
-<script src="js/26-inicio-menu-modales.js?v=175"></script>
-<script src="js/28-perfil-ranking-pantalla.js?v=175"></script>
-<script src="js/29-secretos-datos.js?v=175"></script>
-<script src="js/31-orientacion-admin-arranque.js?v=175"></script>
+<script src="js/01-nucleo-supabase-dispositivo.js?v=177"></script>
+<script src="js/02-datos-ingredientes-recetas.js?v=177"></script>
+<script src="js/03-datos-niveles-campana.js?v=177"></script>
+<script src="js/04-estado-y-audio.js?v=177"></script>
+<script src="js/05-menu-recetas-areas.js?v=177"></script>
+<script src="js/06-etapas-navegacion.js?v=177"></script>
+<script src="js/07-makis-estacion.js?v=177"></script>
+<script src="js/08-salteados-wok.js?v=177"></script>
+<script src="js/09-etapas-motor.js?v=177"></script>
+<script src="js/10-produccion-taller-gestos.js?v=177"></script>
+<script src="js/11-emplatado-platos-salteado.js?v=177"></script>
+<script src="js/12-frituras-estacion.js?v=177"></script>
+<script src="js/13-areas-despensa-arrastre.js?v=177"></script>
+<script src="js/14-cuencos-estado-cocina.js?v=177"></script>
+<script src="js/15-ramen-fideos-clientes.js?v=177"></script>
+<script src="js/16-cooperativo-estaciones.js?v=177"></script>
+<script src="js/17-propinas-mejoras-progreso.js?v=177"></script>
+<script src="js/18-nube-cuenta.js?v=177"></script>
+<script src="js/19-entrenamiento.js?v=177"></script>
+<script src="js/20-estadisticas.js?v=177"></script>
+<script src="js/21-cocina-libre-mejoras-vfx.js?v=177"></script>
+<script src="js/22-calidad-servir.js?v=177"></script>
+<script src="js/23-ramen-sartenes-herramientas.js?v=177"></script>
+<script src="js/24-ramen-sartenes-shio-fideos.js?v=177"></script>
+<script src="js/25-partida-campana.js?v=177"></script>
+<script src="js/26-inicio-menu-modales.js?v=177"></script>
+<script src="js/28-perfil-ranking-pantalla.js?v=177"></script>
+<script src="js/29-secretos-datos.js?v=177"></script>
+<script src="js/31-orientacion-admin-arranque.js?v=177"></script>
 <script src="multiplayer.js?v=28"></script>
 <script src="makis-studio.js?v=118"></script>
 <script src="frituras-prod.js?v=2"></script>
@@ -6392,7 +6393,7 @@
 <script src="online-sala.js?v=4"></script>
 <script src="modos.js?v=17"></script>
 <script src="home.js?v=37"></script>
-<script src="guia.js?v=9"></script>
+<script src="guia.js?v=11"></script>
 <script src="japon-scene.js?v=10"></script>
 <script src="escena-cocina.js?v=16"></script>
 <script src="inicio.js?v=41"></script>

@@ -489,10 +489,14 @@ function fitKitchenHeight() {
   const dock = document.querySelector('.kitchen-bottom-dock');
   if (!dock || !dock.offsetHeight) return;
   const over = dock.getBoundingClientRect().bottom - window.innerHeight;
-  if (over > 2) g.style.maxHeight = Math.max(84, Math.floor(g.getBoundingClientRect().height - over)) + 'px';
+  if (over > 2) g.style.maxHeight = Math.max(52, Math.floor(g.getBoundingClientRect().height - over)) + 'px';
 }
 (function () {
   const base = renderPantryGrid;
   renderPantryGrid = function () { base.apply(this, arguments); fitKitchenHeight(); try { requestAnimationFrame(fitKitchenHeight); } catch (e) {} setTimeout(fitKitchenHeight, 250); };
   window.addEventListener('resize', () => setTimeout(fitKitchenHeight, 150));
+  try {                                                  // el plato, la producción y las estaciones cambian de alto al llenarse: se reajusta cuando cambia el panel de abajo
+    const dock = document.querySelector('.kitchen-bottom-dock'); let t = 0;
+    if (dock) new MutationObserver(() => { clearTimeout(t); t = setTimeout(fitKitchenHeight, 60); }).observe(dock, { childList: true, subtree: true });
+  } catch (e) {}
 })();

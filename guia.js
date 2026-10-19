@@ -35,7 +35,7 @@
   add({ seg: 'Ramen', area: 'ramen', stage: 'prod', title: '🔪 Cortar poro', target: () => cardBtn('poro')() || sel('.fp-card .fp-btn[title="Cortar Poro"]'), text: 'Cada ficha es un insumo. Vamos a cortar <b>poro</b> (se usa en el Shio). Toca el botón <b>🔪 Cortar</b> de la ficha «Poro».', done: () => stGet('ramen').board && stGet('ramen').board.key === 'poro', assist: () => stProdStart('ramen', 'poro') });
   add({ seg: 'Ramen', area: 'ramen', stage: 'prod', title: '🔪 Prepara el cuchillo', target: '#shop-knife', to: '#shop-board', text: 'El poro quedó en la tabla de la izquierda. <b>Arrastra el cuchillo</b> (mantén el dedo sobre él y llévalo) hasta la tabla y suéltalo ahí.', done: () => stGet('ramen').knifeArmed || (stGet('ramen').board && stGet('ramen').board.taps > 0), assist: () => { stGet('ramen').knifeArmed = true; stRenderIfOpen('ramen'); } });
   add({ seg: 'Ramen', area: 'ramen', stage: 'prod', title: '⚡ Corta con tajos rápidos', target: '#shop-board', setup() { base.poro = stGet('ramen').stock.poro; }, text: 'Ahora desliza el dedo <b>rápido de lado a lado</b> sobre el poro, como un tajo. Haz <b>3 tajos</b> (cada vez saliendo de la tabla y volviendo a cruzar): 3 cortes = 1 porción nueva de poro.', done: () => stGet('ramen').stock.poro > base.poro, assist: async () => { stGet('ramen').knifeArmed = true; stRenderIfOpen('ramen'); for (let k = 0; k < 8 && stGet('ramen').stock.poro <= base.poro; k++) { shopChop(); await sleep(520); } } });
-  add({ seg: 'Ramen', area: 'ramen', stage: 'prod', title: '🍜 A cocinar', target: () => sel('.stage-panel-back') || sel('.kitchen-stage-btn[data-stage="cook"]'), text: '¡Poro listo! Los demás insumos ya están preparados para que no esperes. Toca <b>🍜 Cocinar</b> (arriba a la derecha) para pasar a la etapa 2.', done: () => stg('ramen') === 'cook', assist: () => setKitchenStage('cook') });
+  add({ seg: 'Ramen', area: 'ramen', stage: 'prod', title: '🍜 A cocinar', target: () => [...document.querySelectorAll('.stage-panel-back')].find(b => b.offsetParent !== null && /Cocinar/.test(b.textContent)) || sel('.kitchen-stage-btn[data-stage="cook"]'), text: '¡Poro listo! Los demás insumos ya están preparados para que no esperes. Toca <b>🍜 Cocinar</b> (arriba a la derecha) para pasar a la etapa 2.', done: () => stg('ramen') === 'cook', assist: () => setKitchenStage('cook') });
   add({ seg: 'Ramen', area: 'ramen', stage: 'cook', title: '🍜 Cocer los fideos', target: '#btn-cook-noodles', text: 'Etapa 2: aquí se cocina la base. Primero los <b>fideos</b>: toca la olla «Fideos» para empezar a cocerlos.', done: () => kitchenState.noodles.state !== 'IDLE' || kitchenState.stocks.noodles > 0, assist: () => { if (kitchenState.noodles.state === 'IDLE') handleNoodlesBtnClick(); } });
   add({ seg: 'Ramen', area: 'ramen', stage: 'cook', title: '✨ Recoge los fideos a tiempo', target: '#btn-cook-noodles', text: () => kitchenState.noodles.state === 'COOKING' ? 'Se están cociendo… espera a que la olla brille en dorado (unos 4 segundos).' : 'Los fideos están listos: toca la olla <b>otra vez</b> para recogerlos. Si te demoras, se queman.', done: () => kitchenState.stocks.noodles > 0, assist: async () => { if (kitchenState.noodles.state === 'COOKING') kitchenState.noodles.cookTimeRemaining = 0.05; await sleep(400); if (kitchenState.noodles.state === 'READY') handleNoodlesBtnClick(); } });
   add({ seg: 'Ramen', area: 'ramen', stage: 'cook', title: '🥣 Calentar el caldo Shio', target: '#btn-heat-shio', text: 'Ahora el <b>caldo Shio</b>: toca la hornilla «Caldo Shio» para encenderla. Tarda unos segundos en calentarse.', done: () => kitchenState.shio.fire || kitchenState.stocks.shio > 0, assist: () => { if (!kitchenState.shio.fire) shioToggle(); } });
@@ -65,17 +65,19 @@
   add({ seg: 'Salteado', area: 'salteados', stage: 'cook', title: '🔁 Cambia a SARTÉN', target: '#wok-swap-0', text: 'Este plato se cocina en <b>sartén</b>, no en wok (si usas el equivocado, pierdes calidad). En la hornilla izquierda toca el botón <b>WOK ⇄</b> para cambiar a SARTÉN.', done: () => wk().tool === 'pan', assist: () => { if (wk().tool !== 'pan') wokSwapTool(0); } });
   add({ seg: 'Salteado', area: 'salteados', stage: 'cook', title: '🔥 Enciende el fuego', target: '#wok-fire-0', text: 'Todo salteado empieza con la sartén <b>caliente y con aceite</b>. Primero el fuego: toca la <b>perilla</b> de la hornilla.', done: () => wk().fire, assist: () => { if (!wk().fire) wokFireToggle(0); } });
   add({ seg: 'Salteado', area: 'salteados', stage: 'cook', title: '🛢️ Echa el aceite', target: '.tool-item[data-kind="sauce"][data-id="108"]', to: '#wok-card-0', text: 'Ahora el <b>aceite de cocina</b>: arrastra la botella <b>«Aceite»</b> (la primera de la fila de abajo) hasta la sartén y suéltala. Luego toca la botella para verter.', done: () => wk().oil, assist: () => wokPour(0, 108) });
-  add({ seg: 'Salteado', area: 'salteados', stage: 'cook', title: '⏳ Espera que caliente', target: '#wok-heat-fill-0', text: () => (wk().heat || 0) >= 0.9 ? '¡Caliente! Ya puedes cocinar.' : 'Espera unos 3 segundos a que se llene la <b>barra de temperatura</b> de la hornilla.', done: () => (wk().heat || 0) >= 0.9, assist: async () => { for (let k = 0; k < 50 && (wk().heat || 0) < 0.9; k++) await sleep(150); } });
+  add({ seg: 'Salteado', area: 'salteados', stage: 'cook', title: '⏳ Espera que caliente', target: () => { const f = sel('#wok-heat-fill-0'); return f && f.parentElement; }, text: () => (wk().heat || 0) >= 0.9 ? '¡Caliente! Ya puedes cocinar.' : 'Espera unos 3 segundos a que se llene la <b>barra de temperatura</b> de la hornilla.', done: () => (wk().heat || 0) >= 0.9, assist: async () => { for (let k = 0; k < 50 && (wk().heat || 0) < 0.9; k++) await sleep(150); } });
   add({ seg: 'Salteado', area: 'salteados', stage: 'cook', title: '🍗 Ronda 1: el pollo', target: () => tile(106), to: '#wok-card-0', text: 'El plato se cocina en <b>rondas</b>. En la ronda 1 entra el <b>Pollo Teriyaki</b>: arrastra su ficha (arriba) hasta la sartén.', done: () => wk().ingredients.includes(106), assist: () => dropIn('wok-card-0', 106) });
   add({ seg: 'Salteado', area: 'salteados', stage: 'cook', title: '⤴ Saltea 3 veces', target: '#wok-card-0', text: () => `Desliza el dedo <b>hacia arriba</b> sobre la sartén con un golpe seco para lanzar la comida. <b>3 lanzamientos = 1 ronda</b> (también vale tocar). Llevas ${wk().taps || 0} de 3.`, done: () => (wk().rounds || 0) >= 1, assist: async () => { for (let k = 0; k < 6 && (wk().rounds || 0) < 1; k++) { wokToss(0); await sleep(900); } } });
   add({ seg: 'Salteado', area: 'salteados', stage: 'cook', title: '💧 Ronda 2: la salsa', target: '.tool-item[data-kind="sauce"][data-id="87"]', to: '#wok-card-0', text: 'Ronda 2: la salsa. Arrastra la botella <b>«Teriyaki»</b> hasta la sartén y toca la botella para verter.', done: () => wk().ingredients.includes(87), assist: () => wokPour(0, 87) });
   add({ seg: 'Salteado', area: 'salteados', stage: 'cook', title: '⤴ Saltea otra ronda', target: '#wok-card-0', text: () => `Otra ronda: <b>3 lanzamientos hacia arriba</b> para integrar la salsa. Llevas ${wk().taps || 0} de 3. No te pases: si das rondas de más, el plato se seca.`, done: () => (wk().rounds || 0) >= 2 || !!wk().result, assist: async () => { for (let k = 0; k < 6 && (wk().rounds || 0) < 2; k++) { wokToss(0); await sleep(900); } } });
+  add({ seg: 'Salteado', area: 'salteados', stage: 'cook', title: '🍶 Ronda 3: el licor de arroz', target: '.tool-item[data-kind="sauce"][data-id="99"]', to: '#wok-card-0', text: 'Este plato tiene una <b>tercera ronda</b>: el toque final con <b>«Licor de Arroz»</b>. Arrastra la botella hasta la sartén y toca la botella para verter.', done: () => wk().ingredients.includes(99) || !!wk().result, assist: () => wokPour(0, 99) });
+  add({ seg: 'Salteado', area: 'salteados', stage: 'cook', title: '⤴ Última ronda', target: '#wok-card-0', text: () => `Otros <b>3 lanzamientos hacia arriba</b> para terminar el plato. Llevas ${wk().taps || 0} de 3. Cuando termines el último, el botón de la hornilla cambia a «¡Listo!».`, done: () => (wk().rounds || 0) >= 3 || !!wk().result, assist: async () => { for (let k = 0; k < 8 && (wk().rounds || 0) < 3 && !wk().result; k++) { wokToss(0); await sleep(900); } } });
   add({ seg: 'Salteado', area: 'salteados', stage: 'cook', title: '✅ Retira el plato', target: '#wok-stir-btn-0', text: 'El botón de la hornilla dice <b>✅ ¡Listo! Toca para retirar</b>. Tócalo en su punto: antes sale crudo y si te demoras se quema.', done: () => !!wk().result, assist: () => { if (!wk().result) wokStagedTap(0); } });
   add({ seg: 'Salteado', area: 'salteados', stage: 'cook', title: '➡️ Manda el plato a Emplatar', target: '#wok-serve-btn-0', text: 'Toca <b>→ A emplatar</b> para mandarlo al pase.', done: () => stGet('salteados').pass.length > 0 || slotItem('salteados') >= 0, assist: () => wokServeClick(0) });
   add({ seg: 'Salteado', area: 'salteados', title: '🍽️ Emplatar', target: '.kitchen-stage-btn[data-stage="plate"]', text: 'Entra a <b>🍽️ Emplatar</b>.', done: () => stg('salteados') === 'plate', assist: () => setKitchenStage('plate') });
   add({ seg: 'Salteado', area: 'salteados', stage: 'plate', title: '📥 Del pase al cuenco', target: '.fp-pass-card', text: 'Toca el plato del <b>pase</b> para ponerlo en un cuenco.', done: () => slotItem('salteados') >= 0, assist: () => stPassToSlot('salteados', 0) });
-  const TERI_PLATE = [37, 56];
-  add({ seg: 'Salteado', area: 'salteados', stage: 'plate', title: '🍚 Arroz y ensalada', target: () => { const k = slotItem('salteados'), sl = k >= 0 ? stGet('salteados').slots[k] : null; const n = TERI_PLATE.find(id => !sl || !sl.items.includes(id)); return n ? tile(n) : null; }, to: '.plate-bowl:not(.is-empty)', text: () => `Arrastra al plato, <b>en este orden</b>: ${orderNames(TERI_PLATE)}.`, done: () => { const k = slotItem('salteados'); return k >= 0 && TERI_PLATE.every(id => stGet('salteados').slots[k].items.includes(id)); }, assist: () => { const k = slotItem('salteados'); TERI_PLATE.forEach(id => stPlateAddItem('salteados', k, id)); } });
+  const TERI_PLATE = (typeof SAL_STAGED !== 'undefined' && SAL_STAGED['Chicken Teriyaki'] && SAL_STAGED['Chicken Teriyaki'].plate) || [37, 56];   // las piezas salen de la receta actual
+  add({ seg: 'Salteado', area: 'salteados', stage: 'plate', title: '🍚 Arma el plato', target: () => { const k = slotItem('salteados'), sl = k >= 0 ? stGet('salteados').slots[k] : null; const n = TERI_PLATE.find(id => !sl || !sl.items.includes(id)); return n ? tile(n) : null; }, to: '.plate-bowl:not(.is-empty)', text: () => `Arrastra al plato, <b>en este orden</b>: ${orderNames(TERI_PLATE)}.`, done: () => { const k = slotItem('salteados'); return k >= 0 && TERI_PLATE.every(id => stGet('salteados').slots[k].items.includes(id)); }, assist: () => { const k = slotItem('salteados'); TERI_PLATE.forEach(id => stPlateAddItem('salteados', k, id)); } });
   add({ seg: 'Salteado', area: 'salteados', stage: 'plate', title: '✅ ¡Servir!', target: '.plate-bowl:not(.is-empty) .fp-serve', setup() { base.served = served(); }, text: 'Toca <b>✅ Servir</b> para entregar el Chicken Teriyaki.', done: () => served() > base.served, assist: () => stPlateServe('salteados', Math.max(0, slotItem('salteados'))) });
   add({ seg: 'Salteado', info: true, area: 'salteados', title: '🎉 ¡Salteado servido!', text: () => 'En el Salteado cuenta el <b>ritmo</b>: fuego, aceite, ingredientes en su ronda y 3 lanzamientos por ronda. Cada plato tiene sus propias rondas (el recetario las indica).' + rewardLine('salteados') });
 
@@ -123,7 +125,7 @@
   add({ seg: 'Frituras', area: 'frituras', stage: 'cook', title: '🥚 2.º Huevo', target: '#fry-slot-1', text: () => `Ahora el <b>huevo</b>: haz <b>círculos con el dedo</b> sobre la bandeja, 2 vueltas completas (llevas ${fsn().coat >= 2 ? 2 : (fsn().bp || 0)} de 2).`, done: () => fsn().coat >= 2, assist: () => { for (let k = 0; k < 2; k++) if (fsn().coat < 2) fryBreadAdvance(document.getElementById('fry-slot-1')); } });
   add({ seg: 'Frituras', area: 'frituras', stage: 'cook', title: '🍞 3.º Panko', target: '#fry-slot-2', text: () => `Por último el <b>panko</b>: tócalo <b>3 veces</b> (llevas ${fsn().coat >= 3 ? 3 : (fsn().bp || 0)} de 3).`, done: () => fsn().coat >= 3, assist: () => { for (let k = 0; k < 3; k++) if (fsn().coat < 3) fryBreadAdvance(document.getElementById('fry-slot-2')); } });
   add({ seg: 'Frituras', area: 'frituras', stage: 'cook', title: '🔥 Enciende el aceite', target: '#fry-fire-btn', text: 'Mientras tanto el aceite debe estar <b>caliente</b>: toca el botón <b>🔥</b> de la olla de aceite.', done: () => fryer().fire, assist: () => { if (!fryer().fire) fryFireToggle(); } });
-  add({ seg: 'Frituras', area: 'frituras', stage: 'cook', title: '⏳ Espera que caliente', target: '#fry-heat-fill', text: () => fryer().temp >= FRY_HOT_TEMP ? '¡Aceite listo!' : 'Espera unos 4 segundos a que la <b>barra de temperatura</b> se llene: con aceite frío sale grasoso.', done: () => fryer().temp >= FRY_HOT_TEMP, assist: async () => { for (let k = 0; k < 60 && fryer().temp < FRY_HOT_TEMP; k++) await sleep(150); } });
+  add({ seg: 'Frituras', area: 'frituras', stage: 'cook', title: '⏳ Espera que caliente', target: ['#fry-heat', '#fry-stove'], text: () => fryer().temp >= FRY_HOT_TEMP ? '¡Aceite listo!' : 'Espera unos 4 segundos a que la <b>barra de temperatura</b> se llene: con aceite frío sale grasoso.', done: () => fryer().temp >= FRY_HOT_TEMP, assist: async () => { for (let k = 0; k < 60 && fryer().temp < FRY_HOT_TEMP; k++) await sleep(150); } });
   add({ seg: 'Frituras', area: 'frituras', stage: 'cook', title: '🛢️ A la olla', target: '#fry-table-strip .fry-board-item', to: '#fry-oil-card', text: 'El bife ya está empanizado. <b>Arrástralo desde la tabla hasta la olla de aceite.</b>', done: () => fsn().phase !== 'BUILDING', assist: () => startFryingFromBoard() });
   add({ seg: 'Frituras', area: 'frituras', stage: 'cook', title: '✋ Retíralo a punto', target: '#fry-action-btn', text: () => `Se está friendo: el contador de la olla pasa de <b>crudo</b> a <b>dorado</b> y luego a <b>quemado</b>. Toca <b>✋ Retirar</b> cuando esté dorado (${(fsn().frySeconds || 0).toFixed(1)} s).`, done: () => fsn().phase === 'FRIED', assist: async () => { for (let k = 0; k < 60 && (fsn().frySeconds || 0) < fryProfile(44).ready + 0.2; k++) await sleep(150); if (fsn().phase === 'FRYING') handleFryActionClick(); } });
   add({ seg: 'Frituras', area: 'frituras', stage: 'cook', title: '💧 Escurre el aceite', target: '#fry-table-strip .fry-board-item', text: 'Recién frito brilla de aceite. <b>Sacúdelo de arriba abajo</b> (arrastra el dedo ↕ sobre él) hasta que deje de gotear.', done: () => (fsn().drain || 0) >= 1, assist: () => { fsn().drain = 1; renderFryStation(); } });
@@ -161,13 +163,19 @@
   .gu-ring { position: fixed; border: 3px solid #ffe066; border-radius: 12px; box-shadow: 0 0 0 3px rgba(255,160,0,0.55), 0 0 18px 4px rgba(255,214,64,0.8); pointer-events: none; animation: guPulse 1s ease-in-out infinite; display: none; z-index: 1; }
   .gu-ring.two { border-style: dashed; border-color: #80d8ff; box-shadow: 0 0 0 3px rgba(0,150,255,0.35), 0 0 16px 3px rgba(128,216,255,0.7); }
   .gu-ring.ok { border-color: #69f0ae; box-shadow: 0 0 22px 6px rgba(105,240,174,0.9); animation: none; }
+  .gu-ring.bad { border-color: #ff5252; box-shadow: 0 0 0 3px rgba(255,82,82,0.45), 0 0 18px 5px rgba(255,82,82,0.85); animation: guNo 0.35s; }
+  @keyframes guNo { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+  .gu-card.no { animation: guNo 0.35s; }
+  .gu-msg { margin: 4px 0 0; font-size: 11px; font-weight: 800; color: #ff8a80; display: none; }
   @keyframes guPulse { 50% { transform: scale(1.04); opacity: 0.85; } }
   .gu-hand { position: fixed; font-size: 30px; pointer-events: none; animation: guHand 0.9s ease-in-out infinite; display: none; z-index: 3; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.6)); }
   @keyframes guHand { 50% { transform: translateY(-7px); } }
   .gu-drag-svg { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; display: none; }
   #gu-drag-path { animation: guDash 1.2s linear infinite; }
   @keyframes guDash { to { stroke-dashoffset: -24; } }
-  .gu-card { position: fixed; width: min(370px, 50vw); max-height: calc(100vh - 16px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: rgba(122, 90, 42, 0.4) transparent; background: #fff8e6; color: #3b2a1a; border: 3px solid #7a5a2a; border-radius: 14px; padding: 8px 10px 8px; pointer-events: auto; box-shadow: 0 6px 20px rgba(0,0,0,0.55); z-index: 4; transition: top 0.22s, left 0.22s; }
+  .gu-card { position: fixed; display: flex; flex-direction: column; width: min(360px, 46vw); max-height: calc(100vh - 16px); overflow: hidden; background: #fff8e6; color: #3b2a1a; border: 3px solid #7a5a2a; border-radius: 14px; padding: 8px 10px 8px; pointer-events: auto; box-shadow: 0 6px 20px rgba(0,0,0,0.55); z-index: 4; transition: top 0.22s, left 0.22s; }
+  .gu-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: rgba(122, 90, 42, 0.4) transparent; }
+  .gu-btns { flex: none; }
   .gu-head { display: flex; justify-content: space-between; font-size: 10px; font-weight: 900; color: #8a6a35; text-transform: uppercase; letter-spacing: 0.4px; }
   .gu-bar { height: 5px; background: #e6d7b0; border-radius: 3px; overflow: hidden; margin: 3px 0 4px; } .gu-bar i { display: block; height: 100%; background: linear-gradient(90deg, #ffb300, #43a047); width: 0; transition: width 0.4s; }
   .gu-title { margin: 0 0 2px; font-size: 14px; color: #7a1f1f; line-height: 1.15; }
@@ -188,8 +196,8 @@
   .gu-menuwrap { position: fixed; inset: 0; z-index: 9850; background: rgba(0,0,0,0.65); display: flex; align-items: center; justify-content: center; padding: 8px; font-family: 'Fredoka','Nunito',system-ui,sans-serif; color: #3b2a1a; box-sizing: border-box; }
   .gu-menubox { width: min(640px, 100%); max-height: calc(100vh - 16px); overflow-y: auto; background: #fff8e6; border: 3px solid #7a5a2a; border-radius: 16px; padding: 10px 14px; display: flex; flex-direction: column; gap: 6px; box-sizing: border-box; }
   .gu-menubox h3 { margin: 0; color: #7a1f1f; font-size: 17px; } .gu-menubox p { margin: 0; font-size: 12px; font-weight: 600; line-height: 1.3; } .gu-menubox p b { color: #b71c1c; }
-  .gu-lessons { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 6px; }
-  .gu-lesson { position: relative; background: #f4ead2; border: 2px solid #c9b78a; border-radius: 12px; padding: 6px 8px 18px; cursor: pointer; display: flex; flex-direction: column; gap: 2px; min-height: 92px; }
+  .gu-lessons { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 6px; scroll-snap-type: x proximity; scrollbar-width: none; -webkit-overflow-scrolling: touch; } .gu-lessons::-webkit-scrollbar { display: none; }
+  .gu-lesson { flex: 0 0 150px; scroll-snap-align: start; position: relative; background: #f4ead2; border: 2px solid #c9b78a; border-radius: 12px; padding: 6px 8px 18px; cursor: pointer; display: flex; flex-direction: column; gap: 2px; min-height: 92px; }
   .gu-lesson b { font-size: 13.5px; color: #7a1f1f; } .gu-lesson small { font-size: 10px; color: #6b5a3a; font-weight: 700; line-height: 1.15; } .gu-lesson em { font-style: normal; font-size: 10.5px; font-weight: 900; color: #8a6a35; margin-top: auto; }
   .gu-lesson .rw { position: absolute; right: 5px; bottom: 3px; background: #ffe082; color: #5a3a00; border-radius: 8px; padding: 0 6px; font-size: 10px; font-weight: 900; }
   .gu-lesson.next { border-color: #43a047; background: #e8f5e0; box-shadow: 0 0 0 2px rgba(67,160,71,0.35); } .gu-lesson.next em { color: #2e7d32; } .gu-lesson.done { background: #eef3e6; } .gu-lesson.done em { color: #2e7d32; }
@@ -218,11 +226,14 @@
         </svg>
         <div class="gu-hand" id="gu-hand">👆</div>
         <div class="gu-card" id="gu-card">
-          <div class="gu-head"><span id="gu-seg"></span><span id="gu-n"></span></div>
-          <div class="gu-bar"><i id="gu-bar"></i></div>
-          <h4 class="gu-title" id="gu-title"></h4>
-          <p class="gu-text" id="gu-text"></p>
-          <p class="gu-tip" id="gu-tip"></p>
+          <div class="gu-scroll">
+            <div class="gu-head"><span id="gu-seg"></span><span id="gu-n"></span></div>
+            <div class="gu-bar"><i id="gu-bar"></i></div>
+            <h4 class="gu-title" id="gu-title"></h4>
+            <p class="gu-text" id="gu-text"></p>
+            <p class="gu-tip" id="gu-tip"></p>
+            <p class="gu-msg" id="gu-msg">👆 Ahora toca solo lo que te indico (recuadro amarillo).</p>
+          </div>
           <div class="gu-btns">
             <button class="gu-exit" onclick="Guia.askExit()" title="Salir del tutorial">✕</button>
             <span class="sp"></span>
@@ -232,9 +243,11 @@
           <div class="gu-ask" id="gu-ask">¿Salir del tutorial? <button class="gu-skip" onclick="Guia.askExit(true)">Seguir</button><button class="gu-exit" onclick="Guia.exit()">Salir</button></div>
         </div>`;
       document.body.appendChild(el);
+      try { new ResizeObserver(() => { if (G.active && !placing) placeCard(lastR1, lastR2); }).observe(document.getElementById('gu-card')); } catch (e) {}
     }
     return el;
   }
+  let lastR1 = null, lastR2 = null, placing = false;
   function resolve(t) {
     if (!t) return null;
     if (typeof t === 'function') { try { t = t(); } catch (e) { return null; } if (!t) return null; }
@@ -242,6 +255,15 @@
     if (Array.isArray(t)) { for (const s of t) { const e = resolve(s); if (e) return e; } return null; }
     for (const e of document.querySelectorAll(t)) { const r = e.getBoundingClientRect(); if (r.width > 2 && r.height > 2 && (e.offsetParent !== null || getComputedStyle(e).position === 'fixed')) return e; }
     return null;
+  }
+  /** Si el objetivo está dentro de un contenedor con desplazamiento (p. ej. la despensa) y queda fuera de su zona visible, lo desplaza hasta mostrarlo. */
+  function ensureVisible(e) {
+    if (!e) return;
+    for (let p = e.parentElement; p && p !== document.body; p = p.parentElement) {
+      if (!/(auto|scroll)/.test(getComputedStyle(p).overflowY) || p.scrollHeight <= p.clientHeight + 2) continue;
+      const pr = p.getBoundingClientRect(), er = e.getBoundingClientRect();
+      if (er.top < pr.top) p.scrollTop += er.top - pr.top - 4; else if (er.bottom > pr.bottom) p.scrollTop += er.bottom - pr.bottom + 4;
+    }
   }
   const rectOf = e => { if (!e) return null; const r = e.getBoundingClientRect(); return r.width > 2 && r.height > 2 ? r : null; };
   function place(ring, r, pad) {
@@ -258,68 +280,33 @@
     ring.style.height = h + 'px';
   }
   const overlap = (a, b) => { if (!a || !b) return 0; const w = Math.min(a.right, b.right) - Math.max(a.left, b.left), h = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top); return w > 0 && h > 0 ? w * h : 0; };
+  /** Coloca la tarjeta del tutorial en la mejor de 25 posiciones: siempre dentro de la pantalla (con los márgenes de seguridad) y lo más lejos posible
+   *  del objetivo, del destino del arrastre y de la manita. Se vuelve a llamar cuando cambia el tamaño de la tarjeta (texto, aviso de ayuda). */
   function placeCard(r1, r2) {
     const card = document.getElementById('gu-card');
     if (!card) return;
-    const vw = window.innerWidth, vh = window.innerHeight;
+    placing = true;
+    const cs = getComputedStyle(document.documentElement), px = n => parseFloat(cs.getPropertyValue(n)) || 0;
+    const vw = window.innerWidth, vh = window.innerHeight, m = 8;
+    const mt = m + px('--sat'), ml = m + px('--sal'), mr = m + px('--sar'), mb = m + px('--sab');
+    card.style.maxHeight = Math.max(80, vh - mt - mb) + 'px';
     const w = card.offsetWidth || 340, h = card.offsetHeight || 130;
-    const m = 8;
-
-    const topY = Math.max(m, Math.min(vh - h - m, 46));
-    const botY = Math.max(m, vh - h - m);
-    const midY = Math.max(m, Math.min(vh - h - m, (vh - h) / 2));
-
-    const leftX = m;
-    const rightX = Math.max(m, vw - w - m);
-    const centerX = Math.max(m, Math.min(vw - w - m, (vw - w) / 2));
-
-    const cands = [
-      [rightX, botY],
-      [leftX, botY],
-      [centerX, botY],
-      [rightX, topY],
-      [leftX, topY],
-      [centerX, topY],
-      [rightX, midY],
-      [leftX, midY]
-    ];
-
-    let best = null;
-    for (let k = 0; k < cands.length; k++) {
-      const [x, y] = cands[k];
+    const minX = ml, maxX = Math.max(ml, vw - w - mr), minY = mt, maxY = Math.max(mt, vh - h - mb);
+    const grow = (r, pad, extraDown, extraUp) => r && { left: r.left - pad, top: r.top - pad - extraUp, right: r.right + pad, bottom: r.bottom + pad + extraDown };
+    const nearBottom = r1 && r1.bottom > vh - 68;
+    const o1 = grow(r1, 8, nearBottom ? 0 : 34, nearBottom ? 34 : 0), o2 = grow(r2, 8, 0, 0);       // el objetivo, con su recuadro y su manita
+    let best = null, k = 0;
+    for (let ix = 0; ix < 5; ix++) for (let iy = 0; iy < 5; iy++, k++) {
+      const x = minX + (maxX - minX) * (ix / 4), y = minY + (maxY - minY) * (iy / 4);
       const c = { left: x, top: y, right: x + w, bottom: y + h };
-      const o1 = overlap(c, r1);
-      const o2 = overlap(c, r2);
-
-      let cost = o1 * 100 + o2 * 60;
-
-      if (r1) {
-        const r1Center = r1.left + r1.width / 2;
-        if (r1Center < vw / 2 && x === leftX) cost += 40;
-        if (r1Center >= vw / 2 && x === rightX) cost += 40;
-        if (r1.top > vh / 2 && y === botY) cost += 50;
-        if (r1.bottom < vh / 2 && y === topY) cost += 50;
-      }
-
-      if (r1 && r2) {
-        const mx = (r1.left + r2.left) / 2;
-        const my = (r1.top + r2.top) / 2;
-        if (x <= mx && mx <= x + w && y <= my && my <= y + h) {
-          cost += 35;
-        }
-      }
-
-      cost += k * 3;
-
-      if (!best || cost < best.cost) {
-        best = { x, y, cost };
-      }
+      let cost = overlap(c, o1) * 100 + overlap(c, o2) * 60 + k * 0.5;
+      if (r1) cost += Math.hypot((x + w / 2) - (r1.left + r1.width / 2), (y + h / 2) - (r1.top + r1.height / 2)) * -0.02;   // a igualdad, prefiere quedar cerca
+      if (r1 && r2) { const mx = (r1.left + r2.left) / 2, my = (r1.top + r2.top) / 2; if (x <= mx && mx <= x + w && y <= my && my <= y + h) cost += 35; }
+      if (!best || cost < best.cost) best = { x, y, cost };
     }
-
-    const finalX = Math.max(m, Math.min(vw - w - m, best ? best.x : rightX));
-    const finalY = Math.max(m, Math.min(vh - h - m, best ? best.y : botY));
-    card.style.left = finalX + 'px';
-    card.style.top = finalY + 'px';
+    card.style.left = Math.round(Math.max(minX, Math.min(maxX, best.x))) + 'px';
+    card.style.top = Math.round(Math.max(minY, Math.min(maxY, best.y))) + 'px';
+    placing = false;
   }
   function wrongPlace(s) {
     if (s.area && gameState.activeArea !== s.area) return { t: `.kitchen-area-tab-btn[data-area="${s.area}"]`, msg: `Primero ve a la pestaña <b>${AREA_NAME[s.area]}</b> (arriba).` };
@@ -346,6 +333,7 @@
     const txt = wp ? wp.msg : (typeof s.text === 'function' ? s.text() : s.text);
     const tEl = document.getElementById('gu-text'); if (tEl.dataset.k !== txt || force) { tEl.innerHTML = txt; tEl.dataset.k = txt; }
     const t1 = resolve(wp ? wp.t : s.target), t2 = wp ? null : resolve(s.to);
+    ensureVisible(t1); ensureVisible(t2);
     const r1 = rectOf(t1), r2 = rectOf(t2);
     place(document.getElementById('gu-r1'), r1, 5);
     place(document.getElementById('gu-r2'), r2, 5);
@@ -372,7 +360,7 @@
     if (r1 && !s.info) {
       hand.style.display = 'block';
       const vw = window.innerWidth, vh = window.innerHeight;
-      const handX = Math.max(6, Math.min(vw - 38, r1.left + r1.width / 2 - 14));
+      const handX = Math.max(6, Math.min(vw - 46, r1.left + r1.width / 2 - 14));
       const nearBottom = r1.bottom > vh - 68;
       let handY;
       if (nearBottom) {
@@ -380,7 +368,7 @@
         handY = Math.max(4, r1.top - 28);
       } else {
         hand.textContent = '👆';
-        handY = Math.min(vh - 38, Math.max(4, r1.bottom - 6));
+        handY = Math.min(vh - 46, Math.max(4, r1.bottom - 6));
       }
       hand.style.left = handX + 'px';
       hand.style.top = handY + 'px';
@@ -388,10 +376,67 @@
       hand.style.display = 'none';
     }
 
-    placeCard(r1, r2);
     const tip = document.getElementById('gu-tip');
     if (!s.info && Date.now() - tEnter > 28000 && s.assist) { tip.textContent = '¿Atascado? Toca «Saltar paso» y lo hago por ti.'; tip.style.display = 'block'; }
+    lastR1 = r1; lastR2 = r2;
+    placeCard(r1, r2);
   }
+  // ---------------------------------------------------------------- bloqueo de toques
+  // Durante el tutorial solo responden: el objetivo del paso, el destino del arrastre y la propia tarjeta. Todo lo demás se bloquea en la fase de captura,
+  // antes de que lo vea el juego. Un gesto que EMPIEZA sobre el objetivo (arrastrar, deslizar, mantener) queda libre hasta que se suelta. Si el paso no tiene
+  // objetivo visible (falló el selector) no se bloquea nada, para no dejar al jugador atrapado; en los pasos informativos solo vale la tarjeta.
+  let shieldOn = true, gesture = false, okUntil = 0, lastWarn = 0;
+  const DOWN = ['pointerdown', 'mousedown', 'touchstart'], CLICKS = ['click', 'dblclick', 'contextmenu', 'auxclick'], UP = ['pointerup', 'pointercancel', 'mouseup', 'touchend', 'touchcancel'];
+  function allowedEls() {
+    const s = steps[i]; if (!s || s.info) return [];
+    const wp = wrongPlace(s), out = [resolve(wp ? wp.t : s.target)];
+    if (!wp) { out.push(resolve(s.to)); (s.allow || []).forEach(a => out.push(resolve(a))); }
+    return out.filter(Boolean);
+  }
+  function isAllowedTarget(t) {
+    if (!shieldOn || !G.active || G.assisting || !(t instanceof Node)) return true;
+    const g = document.getElementById('guia'); if (g && g.contains(t)) return true;
+    const s = steps[i]; if (!s) return true;
+    if (s.info) return false;
+    const els = allowedEls(); if (!els.length) return true;
+    return els.some(e => e === t || e.contains(t));
+  }
+  function warnBlocked() {
+    const now = Date.now(); if (now - lastWarn < 900) return; lastWarn = now;
+    const r = document.getElementById('gu-r1'), c = document.getElementById('gu-card'), m = document.getElementById('gu-msg'), s = steps[i];
+    if (r) { r.classList.add('bad'); setTimeout(() => r.classList.remove('bad'), 400); }
+    if (c) { c.classList.add('no'); setTimeout(() => c.classList.remove('no'), 400); }
+    if (m) { m.textContent = s && s.info ? '👆 Lee el mensaje y toca «Entendido».' : '👆 Ahora toca solo lo que te indico (recuadro amarillo).'; m.style.display = 'block'; clearTimeout(m._t); m._t = setTimeout(() => { m.style.display = 'none'; placeCard(lastR1, lastR2); }, 2600); placeCard(lastR1, lastR2); }
+    try { playSound('error'); } catch (e) {}
+  }
+  function onShield(ev) {
+    if (!G.active || !shieldOn) return;
+    const t = ev.target, now = Date.now();
+    if (DOWN.includes(ev.type)) {
+      if (gesture || isAllowedTarget(t)) { if (!gesture) gesture = true; return; }
+    } else if (CLICKS.includes(ev.type)) {
+      if (now < okUntil || gesture || isAllowedTarget(t)) return;
+    } else return;
+    ev.preventDefault(); ev.stopPropagation(); ev.stopImmediatePropagation();
+    warnBlocked();
+  }
+  function onRelease() { if (gesture) { gesture = false; okUntil = Date.now() + 600; } }
+  function shieldOnAttach() { DOWN.concat(CLICKS).forEach(t => window.addEventListener(t, onShield, { capture: true, passive: false })); UP.forEach(t => window.addEventListener(t, onRelease, { capture: true, passive: true })); }
+  function shieldOnDetach() { DOWN.concat(CLICKS).forEach(t => window.removeEventListener(t, onShield, { capture: true })); UP.forEach(t => window.removeEventListener(t, onRelease, { capture: true })); gesture = false; okUntil = 0; }
+  G.setShield = v => { shieldOn = !!v; };
+  /** Revisión para QA: ¿un toque sobre el objetivo pasaría y uno fuera se bloquearía? Devuelve una lista de problemas (vacía si todo bien) o null si el paso no aplica. */
+  G.shieldCheck = function () {
+    const s = steps[i]; if (!s || s.info) return null;
+    const els = allowedEls(), msgs = [];
+    if (!els.length) return ['sin objetivo visible: el bloqueo queda abierto'];
+    const r = rectOf(els[0]); if (r) {
+      const top = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+      if (top && !isAllowedTarget(top)) msgs.push('un toque sobre el objetivo se bloquearía (lo tapa otro elemento: ' + (top.id || top.className || top.tagName) + ')');
+    }
+    const vw = window.innerWidth, vh = window.innerHeight, pts = [[6, 6], [vw - 6, 6], [6, vh - 6], [vw - 6, vh - 6], [vw / 2, 6], [vw / 2, vh - 6]];
+    pts.forEach(([x, y]) => { const e = document.elementFromPoint(x, y); if (e && e !== document.body && e !== document.documentElement && !els.some(a => a === e || a.contains(e)) && isAllowedTarget(e)) msgs.push('un toque fuera del objetivo (' + Math.round(x) + ',' + Math.round(y) + ') NO se bloquearía: ' + (e.id || e.className || e.tagName)); });
+    return msgs;
+  };
   async function enter(k) {
     i = k; advancing = false; tEnter = Date.now();
     if (i >= steps.length) { complete(); return; }
@@ -419,24 +464,28 @@
   }
   Object.assign(G, {
     steps: () => steps,
+    /** Rectángulo (pantalla) del objetivo del paso actual, para QA. */
+    targetRect() { const s = steps[i]; if (!s || s.info) return null; const wp = wrongPlace(s); const e = resolve(wp ? wp.t : s.target); return e ? e.getBoundingClientRect() : null; },
     diag() { const s = steps[i]; if (!s) return null; const wp = !s.info ? wrongPlace(s) : null; return { i, title: s.title, wrongPlace: !!wp, target: !!rectOf(resolve(wp ? wp.t : s.target)), hasTarget: !!(s.target || wp), to: s.to ? !!rectOf(resolve(s.to)) : null }; },
     index: () => i,
     ok() { try { playSound('add'); } catch (e) {} const s = steps[i]; if (s && s.info) advance(); },
     async skip() {
       const s = steps[i]; if (!s || advancing) return;
       if (s.info) { advance(); return; }
+      G.assisting = true;
       try { await s.assist(); } catch (e) { console.warn('assist', e); }
       for (let k = 0; k < 30 && !(s.done && s.done()); k++) await sleep(100);
+      G.assisting = false;
     },
     askExit(hide) { const a = document.getElementById('gu-ask'); if (a) a.style.display = hide ? 'none' : 'block'; },
     exit() { G.stop(); try { returnToStartMenu(); } catch (e) {} },
-    stop() { G.active = false; clearInterval(timer); const e = document.getElementById('guia'); if (e) e.remove(); document.body.classList.remove('guia-on'); },
+    stop() { G.active = false; shieldOnDetach(); clearInterval(timer); const e = document.getElementById('guia'); if (e) e.remove(); document.body.classList.remove('guia-on'); },
     start(key) {
       if (G.active) return;
       css();
       G.lesson = LESSONS[key] ? key : 'ramen'; steps = LESSONS[G.lesson];
       S.forEach(s => { delete s._did; });
-      base = {}; G.active = true;
+      base = {}; G.active = true; shieldOnAttach();
       const prev = startSelectedMode; startSelectedMode = 'FREE';
       try { executeStartGame(); } finally { startSelectedMode = prev; }
       setTimeout(() => {
