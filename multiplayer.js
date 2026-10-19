@@ -655,7 +655,7 @@
       Object.keys(state).forEach(key => {
         const presences = state[key];
         if (presences && presences.length > 0) {
-          list.push(presences[0]);
+          list.push(this.cleanRemote(presences[0]));
         }
       });
 
@@ -698,6 +698,33 @@
           this.renderGlobalWait();
         }
       }
+    },
+
+    /**
+     * Limpia los datos que llegan de otros jugadores (presencia y eventos en vivo) antes de usarlos.
+     * Un cliente modificado podría mandar un nombre o un avatar con HTML (<img onerror=…>) que se ejecutaría en el celular de los demás:
+     * aquí se quitan los caracteres que abren etiquetas o atributos, los colores solo pueden ser #hex y los números raros pasan a 0.
+     * Los datos del juego (recetas, ingredientes, clientes) no usan esos caracteres, así que no se pierde nada.
+     * @param {*} v valor recibido · @param {string} [k] nombre del campo · @returns {*} copia limpia
+     */
+    cleanRemote(v, k, depth) {
+      depth = depth || 0;
+      if (depth > 8) return null;
+      if (typeof v === 'string') {
+        if (/color$/i.test(k || '')) return /^#[0-9a-f]{3,8}$/i.test(v) ? v : '#888888';
+        return v.replace(/[<>"'`]/g, '').slice(0, 400);
+      }
+      if (typeof v === 'number') return isFinite(v) ? v : 0;
+      if (Array.isArray(v)) return v.slice(0, 200).map(x => this.cleanRemote(x, k, depth + 1));
+      if (v && typeof v === 'object') {
+        const o = {};
+        Object.keys(v).slice(0, 120).forEach(key => {
+          if (key === '__proto__' || key === 'constructor' || key === 'prototype') return;
+          o[key] = this.cleanRemote(v[key], key, depth + 1);
+        });
+        return o;
+      }
+      return v;
     },
 
     // Salir de la sala actual y desconectar canal
@@ -1164,6 +1191,7 @@
     },
 
     handleIncomingBroadcast(data) {
+      data = this.cleanRemote(data);                 // lo que manda otro jugador nunca se usa como HTML
       if (!data || data.senderId === this.myPlayerId) return;
 
       switch(data.eventType) {
@@ -1454,10 +1482,10 @@
           html += `
             <div class="mp-player-slot filled" style="border-color: ${color.hex}; background: ${color.bg};">
               <div class="mp-slot-badge" style="background: ${color.hex};">${color.label}</div>
-              <div class="mp-slot-avatar">${player.avatar || '🍜'}</div>
-              <div class="mp-slot-name">${player.name} ${isMe ? '<span style="font-size:10px; color:#ffb300;">(Tú)</span>' : ''}</div>
+              <div class="mp-slot-avatar">${(typeof escapeHtml === 'function' ? escapeHtml : String)(player.avatar || '🍜')}</div>
+              <div class="mp-slot-name">${(typeof escapeHtml === 'function' ? escapeHtml : String)(player.name)} ${isMe ? '<span style="font-size:10px; color:#ffb300;">(Tú)</span>' : ''}</div>
               <div class="mp-slot-rank" style="color:${rankColor};">
-                <span>${rankIcon}</span><span>${rankTier}</span><span style="opacity:.8;">${playerMmr}</span>
+                <span>${(typeof escapeHtml === 'function' ? escapeHtml : String)(rankIcon)}</span><span>${(typeof escapeHtml === 'function' ? escapeHtml : String)(rankTier)}</span><span style="opacity:.8;">${playerMmr}</span>
               </div>
               <div class="mp-slot-status ${isReady ? 'ready' : 'pending'}">
                 ${isHost ? '👑 Anfitrión' : (isReady ? '✅ Listo' : '⏳ Esperando...')}
@@ -1553,8 +1581,8 @@
           html += `
             <div class="mp-hud-chip ${isMe ? 'is-me' : ''}" style="border-color:${color.hex};">
               <span class="mp-hud-medal">${medal}</span>
-              <span class="mp-hud-avatar">${p.avatar || '🍜'}</span>
-              <span class="mp-hud-name">${p.name}</span>
+              <span class="mp-hud-avatar">${(typeof escapeHtml === 'function' ? escapeHtml : String)(p.avatar || '🍜')}</span>
+              <span class="mp-hud-name">${(typeof escapeHtml === 'function' ? escapeHtml : String)(p.name)}</span>
               <span class="mp-hud-stat">S/ ${score} (${served}🍜)</span>
             </div>
           `;
@@ -1601,7 +1629,7 @@
           const badge = document.createElement('div');
           badge.className = 'station-lock-badge';
           badge.style.background = isMe ? 'rgba(76, 175, 80, 0.9)' : 'rgba(211, 47, 47, 0.92)';
-          badge.innerHTML = `🔒 ${lock.avatar} ${lock.playerName}`;
+          badge.textContent = `🔒 ${lock.avatar || ''} ${lock.playerName || ''}`;
           btn.style.position = 'relative';
           btn.appendChild(badge);
           if (!isMe) {
@@ -1627,7 +1655,7 @@
       const container = document.getElementById('mp-reactions-layer') || document.body;
       const bubble = document.createElement('div');
       bubble.className = 'mp-reaction-bubble';
-      bubble.innerHTML = `<span style="font-size:24px;">${emoji}</span><small>${playerName}</small>`;
+      bubble.innerHTML = `<span style="font-size:24px;">${(typeof escapeHtml === 'function' ? escapeHtml : String)(emoji)}</span><small>${(typeof escapeHtml === 'function' ? escapeHtml : String)(playerName)}</small>`;
       bubble.style.left = `${30 + Math.random() * 40}%`;
       bubble.style.top = '70%';
       container.appendChild(bubble);
@@ -1755,7 +1783,7 @@
               <div class="mp-podium-card rank-${idx + 1}">
                 <div class="mp-podium-rank">${medal}</div>
                 <div class="mp-podium-chef">
-                  ${p.avatar} ${p.name} ${isMe ? '<strong>(Tú)</strong>' : ''}
+                  ${(typeof escapeHtml === 'function' ? escapeHtml : String)(p.avatar)} ${(typeof escapeHtml === 'function' ? escapeHtml : String)(p.name)} ${isMe ? '<strong>(Tú)</strong>' : ''}
                   <span style="display:inline-block; font-size:10px; opacity:0.85; margin-left:4px;">${rankIcon} ${rankTier}</span>
                 </div>
                 <div class="mp-podium-score">S/ ${p.score || 0} • ${p.customersServed || 0} ramen</div>
