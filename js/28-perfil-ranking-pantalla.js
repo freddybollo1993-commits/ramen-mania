@@ -120,7 +120,7 @@ function returnToStartMenu() {
   if (gameState.gameMode === 'FREE') gameState.free = null;
   const freeBtnMenu = document.getElementById('btn-free-menu');
   if (freeBtnMenu) freeBtnMenu.style.display = 'none';
-  if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isInMultiplayer) {
+  if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isInMultiplayer && !MultiplayerManager.queueActive) {
     MultiplayerManager.leaveRoom();
   }
   if (!gameState.isGameOver) {

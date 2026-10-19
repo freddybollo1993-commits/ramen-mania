@@ -68,7 +68,7 @@ function getCurrentLevelConfig() {
   if (isTraining()) return trainingConfig();
   if (isFree()) return freeConfig();
   if ((gameState.gameMode === 'JAPON' && gameState.japon)) return japonRunConfig();
-  if (typeof MultiplayerManager !== 'undefined' && (MultiplayerManager.isGameActive || MultiplayerManager.isInMultiplayer)) {
+  if (isMultiplayerSession()) {
     if (mpRashRound()) return rashTeamConfig(mpRashRound(), MultiplayerManager.players.length);   // Rash en equipo: la ronda escalada a los chefs
     return {
       level: 99,
@@ -88,7 +88,7 @@ function getCurrentLevelConfig() {
 }
 
 function isMultiplayerSession() {
-  return typeof MultiplayerManager !== 'undefined' && (MultiplayerManager.isGameActive || MultiplayerManager.isInMultiplayer);
+  return typeof MultiplayerManager !== 'undefined' && (MultiplayerManager.isGameActive || (MultiplayerManager.isInMultiplayer && !MultiplayerManager.queueActive));   // buscando partida global aún no es una partida: el resto del juego se comporta normal
 }
 
 // Áreas de cocina que eligió el anfitrión de la sala (todas si no hay sala).

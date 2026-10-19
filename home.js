@@ -83,6 +83,10 @@
   .hm-play { flex: 1; display: flex; align-items: center; justify-content: center; border: .08em solid #fff0a8; border-radius: .55em; background: linear-gradient(#ffe45c, #f5b800 55%, #e0a000); box-shadow: inset 0 .1em 0 rgba(255,255,255,.5), inset 0 -.15em 0 rgba(0,0,0,.2); color: #2b1808; font: 400 2.3em/1 'Fredoka One', 'Fredoka', sans-serif; letter-spacing: .5px; text-shadow: 0 .05em 0 rgba(255,255,255,.4); }
   .hm-go:active { transform: translateY(.15em); }
   .hm-play.lock { filter: saturate(.7); }
+  .hm-play.search { flex-direction: column; gap: .12em; font-size: 1.55em; background: linear-gradient(#7fdcff, #2f9bd8 55%, #1d78b8); border-color: #c9efff; color: #06243a; animation: hmQ 1.1s ease-in-out infinite alternate; }
+  .hm-play.search small { font: 900 .5em/1 'Fredoka', sans-serif; letter-spacing: .6px; } .hm-play.search b { font: 400 1.25em/1 'Fredoka One', 'Fredoka', sans-serif; }
+  .hm-play.found { font-size: 1.7em; background: linear-gradient(#8cf08c, #2fb52f 55%, #1f8f1f); border-color: #d6ffd6; color: #07300a; animation: hmQ .6s ease-in-out infinite alternate; }
+  @keyframes hmQ { from { filter: brightness(1); } to { filter: brightness(1.18); } }
   /* tarjeta del modo elegido: al centro, grande y con brillo; queda entre las columnas laterales y por encima de la fila de botones de abajo */
   .hm-sel { position: absolute; left: 50%; top: 6.4em; transform: translateX(-50%); width: min(37em, calc(100% - 20em)); max-height: calc(100% - 6.4em - 9.6em); display: flex; align-items: stretch; gap: .9em; padding: .8em .9em; text-align: left; border: .22em solid color-mix(in srgb, var(--c, #ffb300) 55%, #fff3b0); border-radius: 1em; overflow: hidden; background: var(--bg, #2a170c); color: #fff; pointer-events: auto; cursor: pointer; animation: hmGlow 2.6s ease-in-out infinite; }
   .hm-sel::before { content: ''; position: absolute; inset: 0; background: linear-gradient(100deg, rgba(10,5,2,.88) 0, rgba(10,5,2,.7) 46%, rgba(10,5,2,.42) 100%); }
@@ -249,7 +253,7 @@
       <div class="hm-br">
         <div class="hm-row">
           <button class="hm-mode" style="--c:${sel.col}" onclick="Modos.open()" aria-label="Elegir modo de juego: ${sel.title}"><span class="mp hm-plate"><span class="mt"><b>Modos de juego</b></span></span></button>
-          <button class="hm-go" onclick="Home.play()" aria-label="${tut ? 'Jugar' : 'Empezar'}"><span class="mp hm-plate"><span class="hm-play ${tut ? '' : 'lock'}">${tut ? 'JUGAR' : 'EMPEZAR'}</span></span></button>
+          ${(() => { const M = window.MultiplayerManager; if (M && M.isSearchingQueue && M.isSearchingQueue()) { const found = M.matchFound && !M.matchAccepted; return `<button class="hm-go" onclick="Home.play()" aria-label="${found ? 'Partida encontrada: entrar' : 'Buscando partida: volver a la búsqueda'}"><span class="mp hm-plate">${found ? '<span class="hm-play found">¡ENTRAR!</span>' : `<span class="hm-play search"><small>🌐 BUSCANDO</small><b id="hm-q">${M.fmtQueue()}</b></span>`}</span></button>`; } return `<button class="hm-go" onclick="Home.play()" aria-label="${tut ? 'Jugar' : 'Empezar'}"><span class="mp hm-plate"><span class="hm-play ${tut ? '' : 'lock'}">${tut ? 'JUGAR' : 'EMPEZAR'}</span></span></button>`; })()}
         </div>
       </div>`;
   }
@@ -300,6 +304,7 @@
     closePage() { const p = $('hp'); if (p) p.remove(); sfx('click'); paint(); },
     play() {
       const h = H(); if (!h) return;
+      try { const M = window.MultiplayerManager; if (M && M.isSearchingQueue && M.isSearchingQueue()) { sfx('click'); M.openQueue(); return; } } catch (e) {}   // buscando partida global: JUGAR vuelve a la pantalla de búsqueda
       if (!h.tutDone()) { sfx('serve'); toast('🎓 Primero la lección de ramen con el Maestro: así empieza todo.'); try { Modos.learn(); } catch (e) {} return; }
       sfx('serve'); try { Modos.play(); } catch (e) { console.warn('[Home] play', e); }
     }

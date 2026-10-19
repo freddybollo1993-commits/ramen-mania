@@ -40,6 +40,8 @@
     isInitialized: false,
     isInMultiplayer: false,
     isGameActive: false,
+    queueActive: false,        // buscando partida global (se puede navegar por el juego mientras tanto)
+    queueSec: 0, matchFound: false, matchAccepted: false, joinedAt: 0, matchDeadlineTimer: null,
     isHost: false,
     channel: null,
     roomId: null,
@@ -365,11 +367,12 @@
     },
 
     closeLobbyModal() {
-      if (this.isInMultiplayer && !this.isGameActive) {
+      if (this.isInMultiplayer && !this.isGameActive && !this.queueActive) {   // buscando partida global: la búsqueda sigue aunque salgas de esta pantalla
         this.leaveRoom();
       }
       const modal = document.getElementById('multiplayer-lobby-modal');
       if (modal) modal.classList.remove('active');
+      this.refreshHome();
     },
 
     switchLobbyTab(tab) {
@@ -461,6 +464,7 @@
 
       this.leaveRoom();
       this.roomType = 'GLOBAL';
+      this.queueActive = true; this.queueSec = 0; this.matchFound = false; this.matchAccepted = false;
 
       const myMmr = this.getPlayerMmr();
       const matchInfo = this.getMatchmakingRoomForMmr(myMmr);
@@ -468,38 +472,102 @@
       this.isHost = false;
       this.isReady = true;
 
-      const rank = this.getRankDetails(myMmr);
-      const statusEl = document.getElementById('mp-global-sbmm-status');
-      if (statusEl) {
-        statusEl.innerHTML = `<span style="color:${rank.color}; font-weight:900;">${rank.icon} Categoría: ${rank.fullName}</span> <span style="color:#ffca28; font-size:11px;">(${myMmr} MMR)</span>`;
-      }
-      const descEl = document.getElementById('mp-global-wait-desc');
-      if (descEl) {
-        descEl.textContent = `Buscando rivales en el rango ${rank.tierName}...`;
-      }
-
+      this.renderGlobalWait();
       await this.connectToChannel(this.roomId);
       this.switchLobbyTab('global-wait');
       this.startGlobalQueueTimer(matchInfo);
+      this.refreshHome();
     },
+
+    /** Textos de la pantalla «Buscando chefs» (categoría y rango); se repinta cada vez que se vuelve a ella. */
+    renderGlobalWait() {
+      const rank = this.getRankDetails(this.getPlayerMmr()), mmr = this.getPlayerMmr();
+      const statusEl = document.getElementById('mp-global-sbmm-status');
+      if (statusEl) statusEl.innerHTML = `<span style="color:${rank.color}; font-weight:900;">${rank.icon} Categoría: ${rank.fullName}</span> <span style="color:#ffca28; font-size:11px;">(${mmr} MMR)</span>`;
+      const descEl = document.getElementById('mp-global-wait-desc');
+      if (descEl) descEl.textContent = this.matchFound ? '¡Hay rivales! Confirma para entrar.' : (this.queueSec >= 20 ? '⚡ Ampliando rango de búsqueda para emparejarte rápidamente...' : `Buscando rivales en el rango ${rank.tierName}...`);
+      const t = document.getElementById('mp-global-timer');
+      if (t) t.textContent = this.fmtQueue();
+    },
+    fmtQueue() { const s = this.queueSec || 0; return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); },
+    /** ¿Está buscando partida global (sin haber empezado)? */
+    isSearchingQueue() { return !!this.queueActive && !this.isGameActive; },
+    refreshHome() { try { if (window.Home && Home.refresh) Home.refresh(); } catch (e) {} },
+    /** Abre la pantalla de búsqueda (desde el botón JUGAR de la pantalla principal); si ya hay partida encontrada, la acepta. */
+    openQueue() {
+      if (this.matchFound && !this.matchAccepted) { this.acceptMatch(); return; }
+      this.openLobbyModal(); this.switchLobbyTab('global-wait'); this.renderGlobalWait();
+    },
+    /** Cancela la búsqueda (con un aviso opcional). */
+    cancelQueue(msg) {
+      this.leaveRoom();
+      try { this.switchLobbyTab('menu'); } catch (e) {}
+      if (msg) { try { if (typeof showLockedModeToast === 'function') showLockedModeToast('🌐 ' + msg); } catch (e) {} }
+    },
+    /** Lo que se publica de mí en la sala (presencia). `acc` = ya confirmé entrar a la partida encontrada. */
+    trackMe() {
+      if (!this.channel) return Promise.resolve();
+      const p = this.getMyProfile();
+      return this.channel.track({ id: p.id, name: p.name, avatar: p.avatar, mmr: p.mmr, rankTier: p.rankTier, rankIcon: p.rankIcon, rankColor: p.rankColor, isHost: this.isHost, isReady: this.isReady, acc: !!this.matchAccepted, joinedAt: this.joinedAt || (this.joinedAt = Date.now()) });
+    },
+    /** Se encontró rival: se avisa en la pantalla principal (o se confirma sola si el jugador está mirando la búsqueda). */
+    onMatchFound() {
+      this.matchFound = true; this.matchAccepted = false;
+      clearTimeout(this.matchDeadlineTimer); this.matchDeadlineAt = Date.now() + 25000;
+      this.matchDeadlineTimer = setTimeout(() => this.onMatchDeadline(), 25000);
+      this.playArcadeSound('join'); try { playSound('bell'); } catch (e) {}
+      const modal = document.getElementById('multiplayer-lobby-modal'), pane = document.getElementById('mp-pane-global-wait');
+      const watching = modal && modal.classList.contains('active') && pane && pane.style.display !== 'none';
+      if (watching) this.acceptMatch(); else { this.showMatchBanner(); this.refreshHome(); }
+    },
+    acceptMatch() {
+      this.matchAccepted = true; this.hideMatchBanner();
+      this.trackMe();
+      this.openLobbyModal(); this.switchLobbyTab('global-wait'); this.renderGlobalWait();
+      this.refreshHome();
+    },
+    /** Pasaron 25 s: quien no confirmó sale de la cola; el anfitrión que sí confirmó arranca con quienes confirmaron. */
+    onMatchDeadline() {
+      this.matchDeadlineTimer = null;
+      if (!this.queueActive || this.isGameActive || this.countdownTimer) return;
+      if (!this.matchAccepted) { this.cancelQueue('Se acabó el tiempo para entrar a la partida.'); return; }
+      if (this.isHost && this.players.filter(p => p.acc).length >= 2) this.startCountdownAndLaunch();
+    },
+    clearMatch() {
+      this.matchFound = false; this.matchAccepted = false; clearTimeout(this.matchDeadlineTimer); this.matchDeadlineTimer = null;
+      if (this.globalMatchLaunchTimer) { clearTimeout(this.globalMatchLaunchTimer); this.globalMatchLaunchTimer = null; }
+      this.hideMatchBanner(); this.refreshHome();
+    },
+    showMatchBanner() {
+      if (!document.getElementById('mp-found-css')) {
+        const st = document.createElement('style'); st.id = 'mp-found-css';
+        st.textContent = `#mp-found { position: fixed; z-index: 10030; left: 50%; top: max(8px, env(safe-area-inset-top)); transform: translateX(-50%); display: flex; align-items: center; gap: 12px; max-width: calc(100% - 24px); padding: 8px 10px 8px 16px; border: 3px solid #0e0805; border-radius: 14px; background: linear-gradient(#5fd35f, #2c9a2c); color: #fff; font: 900 15px/1.1 'Fredoka', sans-serif; text-shadow: 0 2px 0 rgba(0,0,0,.55); box-shadow: 0 0 0 3px #ffe14d, 0 0 22px 6px rgba(120,255,120,.6), 0 6px 0 rgba(0,0,0,.5); animation: mpFound 1s ease-in-out infinite alternate; }
+          #mp-found button { flex: none; border: 3px solid #0e0805; border-bottom-width: 5px; border-radius: 10px; padding: 8px 18px; background: linear-gradient(#ffe45c, #f5b800); color: #2b1808; font: 400 18px/1 'Fredoka One', 'Fredoka', sans-serif; cursor: pointer; text-shadow: none; }
+          #mp-found small { display: block; font: 800 11px/1.1 'Fredoka', sans-serif; opacity: .95; }
+          @keyframes mpFound { from { transform: translateX(-50%) scale(1); } to { transform: translateX(-50%) scale(1.04); } }`;
+        document.head.appendChild(st);
+      }
+      let b = document.getElementById('mp-found');
+      if (!b) { b = document.createElement('div'); b.id = 'mp-found'; document.body.appendChild(b); }
+      b.innerHTML = '<span>🌐 ¡PARTIDA ENCONTRADA!<small>Entra antes de que se acabe el tiempo: <b id="mp-found-t">25</b> s</small></span><button onclick="MultiplayerManager.acceptMatch()">ENTRAR</button>';
+    },
+    hideMatchBanner() { const b = document.getElementById('mp-found'); if (b) b.remove(); },
 
     startGlobalQueueTimer(matchInfo) {
       let seconds = 0;
       let expandedSearch = false;
-      const timerEl = document.getElementById('mp-global-timer');
-      const descEl = document.getElementById('mp-global-wait-desc');
-      const statusEl = document.getElementById('mp-global-sbmm-status');
-
       clearInterval(this.globalQueueTimer);
       this.globalQueueTimer = setInterval(() => {
-        seconds++;
-        const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
-        const secs = String(seconds % 60).padStart(2, '0');
-        if (timerEl) timerEl.textContent = `${mins}:${secs}`;
+        seconds++; this.queueSec = seconds;
+        const timerEl = document.getElementById('mp-global-timer');
+        if (timerEl) timerEl.textContent = this.fmtQueue();
+        const hq = document.getElementById('hm-q'); if (hq) hq.textContent = this.fmtQueue();            // el contador también corre en el botón JUGAR de la pantalla principal
+        const ft = document.getElementById('mp-found-t'); if (ft && this.matchDeadlineAt) ft.textContent = Math.max(0, Math.ceil((this.matchDeadlineAt - Date.now()) / 1000));
 
         // Si pasan 20 segundos y no hay contrincante, expandir búsqueda
         if (seconds >= 20 && !expandedSearch && this.players.length < 2) {
           expandedSearch = true;
+          const descEl = document.getElementById('mp-global-wait-desc'), statusEl = document.getElementById('mp-global-sbmm-status');
           if (descEl) {
             descEl.innerHTML = '⚡ <em>Ampliando rango de búsqueda para emparejarte rápidamente...</em>';
           }
@@ -563,18 +631,8 @@
       this.channel.subscribe(async (status) => {
         if (status === 'SUBSCRIBED') {
           this.isInMultiplayer = true;
-          await this.channel.track({
-            id: myProf.id,
-            name: myProf.name,
-            avatar: myProf.avatar,
-            mmr: myProf.mmr,
-            rankTier: myProf.rankTier,
-            rankIcon: myProf.rankIcon,
-            rankColor: myProf.rankColor,
-            isHost: this.isHost,
-            isReady: this.isReady,
-            joinedAt: Date.now()
-          });
+          this.joinedAt = Date.now();
+          await this.trackMe();
 
           // Si soy Host en sala privada, emitir la configuración de juego actual
           if (this.isHost) {
@@ -619,22 +677,25 @@
       this.renderRoomSlots();
       this.updateHostControls();
 
-      // En Modo Global: si somos 4 jugadores listos, arrancar automáticamente
-      if (this.roomType === 'GLOBAL') {
-        if (this.players.length >= 4) {
-          if (this.isHost && !this.isGameActive && !this.countdownTimer) {
-            this.startCountdownAndLaunch();
+      // Modo Global: con 2 o más chefs se avisa a cada uno («¡Partida encontrada!») y la partida arranca cuando todos confirmaron
+      // (con 4 al instante; con 2 o 3, esperando 6 s por si entra un cuarto) o, a más tardar, a los 25 s con quienes confirmaron.
+      if (this.roomType === 'GLOBAL' && this.queueActive && !this.isGameActive && !this.countdownTimer) {
+        const n = this.players.length;
+        if (n >= 2) {
+          if (!this.matchFound) this.onMatchFound();
+          const acc = this.players.filter(p => p.acc).length;
+          if (this.isHost && this.matchAccepted && acc === n) {
+            if (n >= 4) this.startCountdownAndLaunch();
+            else if (!this.globalMatchLaunchTimer) {
+              this.globalMatchLaunchTimer = setTimeout(() => {
+                this.globalMatchLaunchTimer = null;
+                if (this.isHost && this.roomType === 'GLOBAL' && this.matchAccepted && this.players.filter(p => p.acc).length >= 2 && !this.isGameActive && !this.countdownTimer) this.startCountdownAndLaunch();
+              }, 6000);
+            }
           }
-        } else if (this.players.length >= 2 && !this.countdownTimer && !this.isGameActive) {
-          // Si hay 2 o 3 jugadores en matchmaking global, arrancar en 6s si no entra un 4to
-          if (!this.globalMatchLaunchTimer) {
-            this.globalMatchLaunchTimer = setTimeout(() => {
-              if (this.isHost && this.roomType === 'GLOBAL' && this.players.length >= 2 && !this.isGameActive && !this.countdownTimer) {
-                this.startCountdownAndLaunch();
-              }
-              this.globalMatchLaunchTimer = null;
-            }, 6000);
-          }
+        } else if (this.matchFound) {
+          this.clearMatch();               // el rival se fue antes de entrar: se vuelve a buscar
+          this.renderGlobalWait();
         }
       }
     },
@@ -648,6 +709,9 @@
         clearTimeout(this.globalMatchLaunchTimer);
         this.globalMatchLaunchTimer = null;
       }
+      clearTimeout(this.matchDeadlineTimer); this.matchDeadlineTimer = null;
+      this.queueActive = false; this.matchFound = false; this.matchAccepted = false; this.queueSec = 0; this.joinedAt = 0;
+      this.hideMatchBanner();
       this.countdownTimer = null;
       this.gameLoopTimer = null;
       this.rash = null;
@@ -667,6 +731,7 @@
       this.roomId = null;
       this.players = [];
       this.stationLocks = {};
+      this.refreshHome();
 
       const hud = document.getElementById('mp-game-hud');
       if (hud) hud.style.display = 'none';
@@ -678,21 +743,7 @@
     // Cambiar estado Listo / No Listo
     async toggleReady() {
       this.isReady = !this.isReady;
-      if (this.channel) {
-        const myProf = this.getMyProfile();
-        await this.channel.track({
-          id: myProf.id,
-          name: myProf.name,
-          avatar: myProf.avatar,
-          mmr: myProf.mmr,
-          rankTier: myProf.rankTier,
-          rankIcon: myProf.rankIcon,
-          rankColor: myProf.rankColor,
-          isHost: this.isHost,
-          isReady: this.isReady,
-          joinedAt: Date.now()
-        });
-      }
+      if (this.channel) await this.trackMe();
       this.renderRoomSlots();
     },
 
@@ -816,6 +867,7 @@
        ========================================================================== */
     launchGameSession() {
       this.isGameActive = true;
+      this.queueActive = false; this.matchFound = false; clearTimeout(this.matchDeadlineTimer); this.hideMatchBanner();
       this.closeLobbyModal();
 
       // Reset de estadísticas de la partida
@@ -1123,6 +1175,8 @@
           break;
 
         case 'START_COUNTDOWN':
+          if (this.roomType === 'GLOBAL' && this.queueActive && !this.matchAccepted) { this.cancelQueue('La partida empezó sin ti: no confirmaste a tiempo.'); break; }   // no entró a la partida encontrada
+          this.hideMatchBanner();
           this.triggerCountdown(data.seconds || 3);
           break;
 

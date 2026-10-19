@@ -541,6 +541,7 @@ function showLevelBrief(cfg) {
 }
 
 function startLevel(lvlIndex) {
+  try { if (typeof MultiplayerManager !== 'undefined' && MultiplayerManager.isSearchingQueue && MultiplayerManager.isSearchingQueue()) MultiplayerManager.cancelQueue('Búsqueda cancelada: empezaste otra partida.'); } catch (e) {}   // la partida global no empezó: otra partida cancela la búsqueda
   if (!DeviceManager.currentPlayer) {
     const guestNum = Math.floor(1000 + Math.random() * 9000);
     DeviceManager.currentPlayer = {
