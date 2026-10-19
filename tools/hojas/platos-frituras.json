@@ -1,0 +1,21 @@
+{
+  "filas": 3,
+  "columnas": 3,
+  "salida": "assets/platos",
+  "tamano": [
+    400,
+    300
+  ],
+  "relleno": 0.04,
+  "piezas": [
+    "plato_frituras_gyozas.webp",
+    "plato_frituras_chicken_katsu.webp",
+    "plato_frituras_age_gyozas.webp",
+    "plato_frituras_alitas_acevichadas.webp",
+    "plato_frituras_alitas_digion.webp",
+    "plato_frituras_ebi_furai.webp",
+    "plato_frituras_kaarage.webp",
+    "plato_frituras_katsu_kare.webp",
+    "plato_frituras_tonkatsu.webp"
+  ]
+}

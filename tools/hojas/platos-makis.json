@@ -1,0 +1,21 @@
+{
+  "filas": 3,
+  "columnas": 3,
+  "salida": "assets/platos",
+  "tamano": [
+    400,
+    300
+  ],
+  "relleno": 0.04,
+  "piezas": [
+    "plato_makis_maki_acevichado.webp",
+    "plato_makis_maki_furai.webp",
+    "plato_makis_maki_hotate.webp",
+    "plato_makis_maki_california.webp",
+    "plato_makis_maki_guacamole.webp",
+    "plato_makis_maki_yama.webp",
+    "plato_makis_maki_nin_niku.webp",
+    "plato_makis_maki_amazon.webp",
+    "plato_makis_maki_digion.webp"
+  ]
+}

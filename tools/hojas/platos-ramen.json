@@ -1,0 +1,21 @@
+{
+  "filas": 3,
+  "columnas": 3,
+  "salida": "assets/platos",
+  "tamano": [
+    400,
+    300
+  ],
+  "relleno": 0.04,
+  "piezas": [
+    "plato_ramen_shio.webp",
+    "plato_ramen_shoyu.webp",
+    "plato_ramen_miso.webp",
+    "plato_ramen_tonkotsu.webp",
+    "plato_ramen_chashu.webp",
+    "plato_ramen_ebi.webp",
+    "plato_ramen_tan_tan.webp",
+    "plato_ramen_vegetariano.webp",
+    "plato_ramen_bajiru.webp"
+  ]
+}

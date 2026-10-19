@@ -1,0 +1,24 @@
+{
+  "filas": 3,
+  "columnas": 4,
+  "salida": "assets/ingredients/v2",
+  "tamano": [
+    160,
+    160
+  ],
+  "relleno": 0.06,
+  "piezas": [
+    "ing_109.webp",
+    "ing_110.webp",
+    "ing_111.webp",
+    "ing_112.webp",
+    "ing_113.webp",
+    "ing_114.webp",
+    "ing_115.webp",
+    "ing_116.webp",
+    "ing_117.webp",
+    "ing_118.webp",
+    "ing_119.webp",
+    "ing_120.webp"
+  ]
+}

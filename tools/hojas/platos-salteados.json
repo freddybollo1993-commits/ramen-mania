@@ -1,0 +1,21 @@
+{
+  "filas": 3,
+  "columnas": 3,
+  "salida": "assets/platos",
+  "tamano": [
+    400,
+    300
+  ],
+  "relleno": 0.04,
+  "piezas": [
+    "plato_salteados_chaufa_shimaya.webp",
+    "plato_salteados_chicken_teriyaki.webp",
+    "plato_salteados_batayaki_ramen.webp",
+    "plato_salteados_yakimeshi.webp",
+    "plato_salteados_yakiramen.webp",
+    "plato_salteados_yasaitame.webp",
+    "plato_salteados_yakitori.webp",
+    "plato_salteados_karameshi.webp",
+    "plato_salteados_omuraisu.webp"
+  ]
+}

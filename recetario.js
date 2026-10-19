@@ -55,6 +55,8 @@
     return all.find(i => i.cat === 'proteinas' && i.img) || all.find(i => i.img) || all[0] || null;
   }
   const ico = i => !i ? '🍽️' : (i.img ? `<img src="${i.img}" alt="" draggable="false">` : `<span>${i.icon}</span>`);
+  /** Arte del plato: su imagen terminada si ya existe (ArteUI.dish) y, si no, el icono del ingrediente emblema. */
+  const dishArt = (c, em) => (window.ArteUI && ArteUI.dish ? ArteUI.dish(c.area, c.r.name, null) : null) || ico(em);
 
   // ---------- resumen para el menú ----------
   function summary() {
@@ -82,6 +84,7 @@
   .rcb-card { position: relative; border: 2.5px solid #1a0e07; border-radius: 14px; background: linear-gradient(#5a3a20, #2e1a0e); cursor: pointer; padding: 0; overflow: hidden; text-align: center; color: inherit; font-family: inherit; box-shadow: 0 3px 0 rgba(0,0,0,.5); display: flex; flex-direction: column; min-height: 142px; }
   .rcb-card:active { transform: translateY(1px); }
   .rcb-art { height: 62px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--c), rgba(0,0,0,.35)); border-bottom: 2px solid rgba(0,0,0,.45); }
+  .rcb-art img.ui-dish { width: auto; height: 58px; max-width: 94%; } .rcb-det .big .rcb-art img.ui-dish { width: 104px; height: auto; }
   .rcb-art img { width: 48px; height: 48px; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(0,0,0,.5)); } .rcb-art span { font-size: 34px; line-height: 1; }
   .rcb-ar { position: absolute; left: 4px; top: 3px; font-size: 13px; text-shadow: 0 1px 2px rgba(0,0,0,.8); }
   .rcb-name { font: 800 13px/1.1 'Fredoka', sans-serif; padding: 5px 4px 0; color: #fff3d6; min-height: 30px; display: flex; align-items: center; justify-content: center; }
@@ -102,7 +105,7 @@
   .rcb-btns { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
   .rcb-btn { border: 2px solid #ffe082; border-radius: 12px; padding: 7px 14px; background: linear-gradient(135deg, #ff9800, #e64a19 65%, #c62828); color: #fff; font: 900 12px/1 'Fredoka', sans-serif; box-shadow: 0 3px 0 #7f0000; cursor: pointer; }
   .rcb-btn.ghost { background: rgba(255,255,255,.1); color: #ffe082; box-shadow: 0 3px 0 rgba(0,0,0,.35); }
-  @media (max-height: 460px) { .rcb-det { grid-template-columns: 96px 1fr; padding: 8px 10px; } .rcb-det .big .rcb-art { width: 90px; height: 90px; } .rcb-det .big .rcb-art img { width: 66px; height: 66px; } }
+  @media (max-height: 460px) { .rcb-det .big .rcb-art img.ui-dish { width: 84px; height: auto; } .rcb-det { grid-template-columns: 96px 1fr; padding: 8px 10px; } .rcb-det .big .rcb-art { width: 90px; height: 90px; } .rcb-det .big .rcb-art img { width: 66px; height: 66px; } }
   @media (prefers-reduced-motion: reduce) { .rcb-new { animation: none; } }
   `;
   function css() { if ($('rcb-css')) return; const s = document.createElement('style'); s.id = 'rcb-css'; s.textContent = CSS; document.head.appendChild(s); }
@@ -118,7 +121,7 @@
     const cards = shown.map(c => {
       const s = stat(c), A = AREA[c.area], locked = c.req == null || c.req > U, em = emblem(c);
       return `<button class="rcb-card ${locked ? 'locked' : ''}" style="--c:${A.col}" onclick="Recetario.show('${c.key}')" aria-label="${c.r.name}">
-        <div class="rcb-art">${ico(em)}</div><span class="rcb-ar">${A.ic}</span>${locked ? '<div class="rcb-lock">🔒</div>' : (!s.n ? '<i class="rcb-new">¡PROBAR!</i>' : '')}
+        <div class="rcb-art">${dishArt(c, em)}</div><span class="rcb-ar">${A.ic}</span>${locked ? '<div class="rcb-lock">🔒</div>' : (!s.n ? '<i class="rcb-new">¡PROBAR!</i>' : '')}
         <div class="rcb-name">${c.r.name}</div>
         ${locked ? `<div class="rcb-meta" style="margin-top:auto;padding-bottom:8px">${c.req == null ? 'Próximamente' : 'Llega al nivel ' + c.req}</div>` : `${starsHtml(s.stars)}<div class="rcb-meta">${s.n ? s.n + ' servidos' : 'S/ ' + c.r.price}</div>`}
       </button>`;
@@ -134,7 +137,7 @@
     const chips = ids => ids.map(id => { const i = ing(id); return `<span class="rcb-ing">${i && i.img ? `<img src="${i.img}" alt="" draggable="false">` : `<span class="e">${i ? i.icon : '•'}</span>`}${iname(id)}</span>`; }).join('');
     const mastery = !s.n ? 'Sin probar' : (s.stars === 3 ? 'Maestro' : (s.stars === 2 ? 'Cocinero' : 'Aprendiz'));
     return `<div class="rcb-sheet" onclick="Recetario.hide()"><div class="rcb-det" style="--c:${A.col}" onclick="event.stopPropagation()">
-      <div class="big"><div class="rcb-art" style="--c:${A.col}">${ico(em)}</div>${starsHtml(s.stars)}<div class="rcb-meta">${locked ? '🔒 Bloqueado' : mastery}</div></div>
+      <div class="big"><div class="rcb-art" style="--c:${A.col}">${dishArt(c, em)}</div>${starsHtml(s.stars)}<div class="rcb-meta">${locked ? '🔒 Bloqueado' : mastery}</div></div>
       <div><h3>${c.r.name}</h3><div class="sub">${A.ic} ${A.name} · ${c.req == null ? 'aún no entra al menú (se termina en Frituras)' : 'entra en el nivel ' + c.req + ' de Campaña'}</div>
         <div class="rcb-kv"><b>💰 S/ ${c.r.price}</b>${locked ? '' : `<b>🍽️ ${s.n} servidos</b><b>📊 calidad ${s.n ? Math.round(s.avg) : '—'}</b><b>🏆 mejor ${s.n ? Math.round(s.best) : '—'}</b>`}</div>
         <h4>En la cocina</h4><div class="rcb-ings">${chips(cook)}</div>
