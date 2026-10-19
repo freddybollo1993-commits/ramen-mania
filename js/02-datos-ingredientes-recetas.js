@@ -142,7 +142,7 @@ const ING_SHORT = { 73: 'Relleno Gyoza', 60: 'Langostino ×6', 70: 'Pollo ×7', 
 const ING_ICON_FIX = { 62: '🍯', 76: '🍅', 53: '🌿', 44: '🐔', 70: '🍖', 49: '🍣' };
 // Icono del ingrediente en línea (SVG si existe, emoji si no).
 // Algunos ingredientes se ven distinto según el área: en Salteado el huevo es CRUDO (ing_raw_15) y el lomo que se usa en cocina es el ya CORTADO
-const ING_CTX_ART = { salteados: { 15: 'assets/ingredients/ing_raw_15_huevo.svg', 61: 'assets/ingredients/ing_proc_61_lomo.svg' } };
+const ING_CTX_ART = { salteados: { 15: 'assets/ingredients/v2/ing_raw_15.webp', 61: 'assets/ingredients/ing_proc_61_lomo.svg' } };
 function ingCtxImg(ing) {
   if (!ing) return null;
   try { const m = ING_CTX_ART[gameState.activeArea]; if (m && m[ing.id]) return m[ing.id]; } catch (e) {}
@@ -161,12 +161,12 @@ INGREDIENTES.forEach(i => {
 // Insumos de Producción: dos estados. CRUDO (fresco, como llega) se ve en Producción; PROCESADO (cortado / cocido,
 // listo para usar) es el icono normal y se ve al emplatar. Arte generado con tools/gen-production-icons.mjs.
 const ING_RAW_ART = {
-  15: 'assets/ingredients/ing_raw_15_huevo.svg', 17: 'assets/ingredients/ing_raw_17_poro.svg', 18: 'assets/ingredients/ing_raw_18_cebolla_china.svg',
-  20: 'assets/ingredients/ing_20_nori.svg', 21: 'assets/ingredients/ing_21_alga_wanji.svg', 22: 'assets/ingredients/ing_raw_22_bambu.svg',
-  23: 'assets/ingredients/ing_23_holantao.svg', 24: 'assets/ingredients/ing_raw_24_col.svg', 25: 'assets/ingredients/ing_raw_25_moyashi.svg',
+  15: 'assets/ingredients/v2/ing_raw_15.webp', 17: 'assets/ingredients/v2/ing_raw_17.webp', 18: 'assets/ingredients/v2/ing_raw_18.webp',
+  20: 'assets/ingredients/ing_20_nori.svg', 21: 'assets/ingredients/ing_21_alga_wanji.svg', 22: 'assets/ingredients/v2/ing_raw_22.webp',
+  23: 'assets/ingredients/ing_23_holantao.svg', 24: 'assets/ingredients/v2/ing_raw_24.webp', 25: 'assets/ingredients/v2/ing_raw_25.webp',
   27: 'assets/ingredients/ing_27_champinones.svg', 28: 'assets/ingredients/ing_28_shitake.svg', 29: 'assets/ingredients/ing_29_esparrago.svg',
-  30: 'assets/ingredients/ing_raw_30_zanahoria.svg',
-  61: 'assets/ingredients/ing_raw_61_lomo.svg'      // Salteado, Producción: el lomo entero que se corta
+  30: 'assets/ingredients/v2/ing_raw_30.webp',
+  61: 'assets/ingredients/v2/ing_raw_61.webp'      // Salteado, Producción: el lomo entero que se corta
 };
 const ING_PROC_ART = {
   17: 'assets/ingredients/ing_proc_17_poro.svg', 18: 'assets/ingredients/ing_proc_18_cebolla_china.svg', 20: 'assets/ingredients/ing_proc_20_nori.svg',
@@ -178,8 +178,8 @@ INGREDIENTES.forEach(i => {
   if (ING_RAW_ART[i.id]) i.rawImg = ING_RAW_ART[i.id];
 });
 // Arte v2 (generado con Gemini, WebP 160 px con contorno blanco): reemplaza el icono normal / procesado de estos ingredientes.
-// El estado CRUDO específico (ing_raw_*, Producción y huevo / lomo de Salteado) sigue con su SVG hasta tener su versión nueva.
-const ING_ART_V2 = new Set([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107]);
+// El estado CRUDO específico (ing_raw_*, Producción y huevo / lomo de Salteado) también es arte v2 desde la hoja de crudos (v240).
+const ING_ART_V2 = new Set([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,109,110,111,112,113,114,115,116,117,118,119,120,121]);
 const ING_ART_V2_ALIAS = { 37: 57 };      // Arroz Gohan (Salteado) usa el dibujo del cuenco de Gohan
 INGREDIENTES.forEach(i => {
   if (!ING_ART_V2.has(i.id)) return;
