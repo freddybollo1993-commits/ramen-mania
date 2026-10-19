@@ -358,7 +358,7 @@
     });
     tile.addEventListener('pointermove', ev => {
       if (!down || ev.pointerId !== down.id) return;
-      if (!moved && Math.hypot(ev.clientX - down.x, ev.clientY - down.y) > 7) {
+      if (!moved && Math.hypot(ev.clientX - down.x, ev.clientY - down.y) > 4) {
         moved = true; tile.classList.add('drag');
         const r = tile.getBoundingClientRect(); proxy = tile.cloneNode(true); proxy.className = 'bs-tile bs-proxy'; proxy.style.width = r.width + 'px'; proxy.style.height = r.height + 'px'; document.body.appendChild(proxy); sfx('add');
       }

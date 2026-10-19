@@ -60,7 +60,8 @@ function filterCategory(cat) {
 // Con el mouse el arrastre empieza al mover; con el dedo, al mantener ~160ms quieto (si el dedo se
 // mueve antes, se interpreta como scroll del panel). Un toque simple solo sirve para retirar un
 // ingrediente que ya está en el plato activo.
-const DRAG_TOUCH_HOLD_MS = 60;     // con el dedo el arrastre empieza casi al instante (antes 160 ms)
+const DRAG_TOUCH_HOLD_MS = 60;     // despensa con desplazamiento interno: el dedo espera esto para distinguir arrastre de scroll
+const DRAG_TOUCH_START_PX = 3;     // despensa fija: el ingrediente se despega en cuanto el dedo se mueve esto (sin esperar)
 const DRAG_MOUSE_START_PX = 5;
 const DRAG_TOUCH_CANCEL_PX = 14;
 const DRAG_TOUCH_GHOST_OFFSET_Y = 34; // el fantasma se muestra sobre el dedo para no taparlo
@@ -315,6 +316,8 @@ function onIngredientPointerMove(e) {
     const dist = Math.hypot(d.x - d.startX, d.y - d.startY);
     if (d.pointerType === 'mouse') {
       if (dist > DRAG_MOUSE_START_PX) activateIngredientDrag(d);
+    } else if (!d.scrolls) {
+      if (dist > DRAG_TOUCH_START_PX) activateIngredientDrag(d);   // sin scroll interno no hay nada que confundir: arranca al primer movimiento
     } else if (dist > DRAG_TOUCH_CANCEL_PX) {
       cleanupIngredientDrag(d); // el dedo se movió antes de mantener: es un scroll del panel
     }
@@ -364,11 +367,12 @@ function beginIngredientPress(e, tile, ing) {
     pointerType: e.pointerType,
     startX: e.clientX, startY: e.clientY,
     x: e.clientX, y: e.clientY,
-    active: false, ghost: null, hoverEl: null, holdTimer: null
+    active: false, ghost: null, hoverEl: null, holdTimer: null,
+    scrolls: (() => { const g = document.getElementById('ingredients-grid'); return !!g && g.scrollHeight > g.clientHeight + 2; })()   // ¿la despensa se desplaza por dentro?
   };
   ingredientDrags.set(e.pointerId, d);
   ingredientDrag = d;
-  if (e.pointerType !== 'mouse') {
+  if (e.pointerType !== 'mouse' && d.scrolls) {
     d.holdTimer = setTimeout(() => {
       if (ingredientDrags.get(d.pointerId) === d && !d.active) activateIngredientDrag(d);
     }, DRAG_TOUCH_HOLD_MS);
@@ -486,10 +490,12 @@ function fitKitchenHeight() {
   const g = document.getElementById('ingredients-grid');
   if (!g) return;
   g.style.maxHeight = '';
+  try { g.classList.toggle('can-scroll', g.scrollHeight > g.clientHeight + 2); } catch (e) {}   // con scroll interno las fichas dejan pasar el deslizamiento vertical; si no, el dedo es todo del arrastre
   const dock = document.querySelector('.kitchen-bottom-dock');
   if (!dock || !dock.offsetHeight) return;
   const over = dock.getBoundingClientRect().bottom - window.innerHeight;
   if (over > 2) g.style.maxHeight = Math.max(52, Math.floor(g.getBoundingClientRect().height - over)) + 'px';
+  try { g.classList.toggle('can-scroll', g.scrollHeight > g.clientHeight + 2); } catch (e) {}
 }
 (function () {
   const base = renderPantryGrid;
