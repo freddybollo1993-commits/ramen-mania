@@ -13,32 +13,32 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
 
   // ---------- ciudades y platos (relación histórica / afinidad) ----------
   const CITIES = [
-    { id: 'tokio', name: 'Tokio', region: 'Kantō', x: 420, y: 132, cost: 0, cm: 1,
+    { id: 'tokio', name: 'Tokio', region: 'Kantō', x: 73.5, y: 70.8, cost: 0, cm: 1,
       story: 'La capital del Edo: donde el shoyu, el katsu y el sushi moderno se hicieron famosos.',
       dishes: [['Shoyu', 'ramen', 'Cuna del shoyu ramen: los puestos de Asakusa (c. 1910)'], ['Omuraisu', 'salteados', 'Nació en Ginza, en el restaurante Rengatei (1900)'],
         ['Yakitori', 'salteados', 'Las brochetas de los izakaya de Yūrakuchō'], ['Tonkatsu', 'frituras', 'Inventado en Ginza en 1899'], ['Maki California', 'makis', 'Heredero del sushi Edomae, versión «inside-out»']] },
-    { id: 'yokohama', name: 'Yokohama', region: 'Kantō', x: 396, y: 160, cost: 1500, cm: 1.3,
+    { id: 'yokohama', name: 'Yokohama', region: 'Kantō', x: 68.0, y: 80.8, cost: 1500, cm: 1.3,
       story: 'Puerto que abrió Japón al mundo en 1859: fusión, Chinatown y sabores de Occidente.',
       dishes: [['Bajiru', 'ramen', 'Ramen de albahaca: la influencia extranjera del puerto'], ['Chicken Teriyaki', 'salteados', 'El teriyaki viajó con el puerto hacia Occidente'], ['Maki Digion', 'makis', 'Mostaza de Dijon: cocina occidental en Japón']] },
-    { id: 'osaka', name: 'Osaka', region: 'Kansai', x: 262, y: 214, cost: 2500, cm: 1.6,
+    { id: 'osaka', name: 'Osaka', region: 'Kansai', x: 43.3, y: 62.7, cost: 2500, cm: 1.6,
       story: 'La «cocina de Japón» (kuidaore): fritura, plancha y comida callejera.',
       dishes: [['Yakiramen', 'salteados', 'Plancha (teppan) y fideos salteados de Naniwa'], ['Yasaitame', 'salteados', 'Verduras al wok de las cocinas populares'], ['Maki Furai', 'makis', 'Fritura al estilo kushikatsu de Shinsekai']] },
-    { id: 'nagoya', name: 'Nagoya', region: 'Chūbu', x: 342, y: 184, cost: 4000, cm: 2,
+    { id: 'nagoya', name: 'Nagoya', region: 'Chūbu', x: 52.0, y: 62.0, cost: 4000, cm: 2,
       story: 'Capital del «nagoya-meshi»: platos intensos, fritos y picantes.',
       dishes: [['Alitas Acevichadas', 'frituras', 'Tebasaki: las alitas fritas de Nagoya'], ['Ebi Furai', 'frituras', 'El langostino frito es plato emblema de Nagoya'], ['Chicken Katsu', 'frituras', 'Katsu con salsa oscura al estilo de Nagoya'], ['Karameshi', 'salteados', 'Picante con carácter: el sabor de Nagoya']] },
-    { id: 'sapporo', name: 'Sapporo', region: 'Hokkaidō', x: 528, y: 52, cost: 6000, cm: 2.4,
+    { id: 'sapporo', name: 'Sapporo', region: 'Hokkaidō', x: 73.0, y: 11.0, cost: 6000, cm: 2.4,
       story: 'El norte frío: mantequilla, mariscos y el miso ramen nacido en 1955.',
       dishes: [['Miso', 'ramen', 'Creado en Sapporo en 1955'], ['Shio', 'ramen', 'El ramen de sal de Hakodate, Hokkaidō'], ['Ebi', 'ramen', 'Camarones del mar de Hokkaidō'], ['Batayaki Ramen', 'salteados', 'Mantequilla (bata) y vegetales a la plancha de Hokkaidō'], ['Maki Hotate', 'makis', 'Las vieiras de Hokkaidō']] },
-    { id: 'kioto', name: 'Kioto', region: 'Kansai', x: 288, y: 192, cost: 8000, cm: 2.8,
+    { id: 'kioto', name: 'Kioto', region: 'Kansai', x: 45.3, y: 55.0, cost: 8000, cm: 2.8,
       story: 'La ciudad de los templos: cocina vegetal (shōjin ryōri) y delicadeza.',
       dishes: [['Vegetariano', 'ramen', 'Shōjin ryōri: la cocina vegetal de los templos'], ['Maki Guacamole', 'makis', 'Lo vegetal y cremoso, a la manera de Kioto'], ['Maki Yama', 'makis', 'Las montañas de Arashiyama («yama»)']] },
-    { id: 'fukuoka', name: 'Fukuoka', region: 'Kyūshū', x: 124, y: 226, cost: 11000, cm: 3.2,
+    { id: 'fukuoka', name: 'Fukuoka', region: 'Kyūshū', x: 17.5, y: 32.0, cost: 11000, cm: 3.2,
       story: 'Hakata: yatai (puestos de calle), tonkotsu y gyozas de un bocado.',
       dishes: [['Tonkotsu', 'ramen', 'Hakata: el caldo blanco de hueso de cerdo'], ['Chashu', 'ramen', 'El cerdo braseado de los ramen de Hakata'], ['Age Gyozas', 'frituras', 'Hitokuchi gyoza: las gyozas de un bocado'], ['Kaarage', 'frituras', 'Kyūshū (Nakatsu) es tierra del pollo karaage'], ['Maki Nin Niku', 'makis', 'El ajo de los yatai de Hakata']] },
-    { id: 'kanazawa', name: 'Kanazawa', region: 'Hokuriku', x: 322, y: 138, cost: 15000, cm: 3.6,
+    { id: 'kanazawa', name: 'Kanazawa', region: 'Hokuriku', x: 49.5, y: 40.4, cost: 15000, cm: 3.6,
       story: 'La costa del Mar de Japón: pescado fresco y el famoso curry de Kanazawa.',
       dishes: [['Katsu Kare', 'frituras', 'El «Kanazawa curry» con katsu es su plato más querido'], ['Maki Amazon', 'makis', 'Verdes y frescura del Hokuriku'], ['Maki Acevichado', 'makis', 'Pescado del Mar de Japón en versión nikkei']] },
-    { id: 'nagasaki', name: 'Nagasaki', region: 'Kyūshū', x: 88, y: 252, cost: 20000, cm: 4,
+    { id: 'nagasaki', name: 'Nagasaki', region: 'Kyūshū', x: 9.5, y: 47.5, cost: 20000, cm: 4,
       story: 'Puerto con barrio chino (Shinchi): champon, chaufa y sabores del continente.',
       dishes: [['Chaufa Shimaya', 'salteados', 'Arroz salteado al estilo del barrio chino de Shinchi'], ['Yakimeshi', 'salteados', 'El arroz frito de las cocinas sino-japonesas'], ['Tan tan', 'ramen', 'Influencia de Sichuan llegada por el puerto']] }
   ];
@@ -403,11 +403,15 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
   .jp-btn.red { background: linear-gradient(#e53935, #b71c1c); color: #fff; } .jp-btn.ghost { background: linear-gradient(#ffb300, #e68a00); color: #2b1808; } .jp-hudL .jp-btn.ghost, .jp-foot .jp-btn.ghost { background: #3a2412; color: #f1e3c8; }
   .jp-top .jp-btn.ghost { width: 42px; padding: 6px 0; font-size: 16px; }
   .jp-body { flex: 1; min-height: 0; display: flex; gap: 8px; padding: 8px 10px 6px; overflow: hidden; }
-  .jp-map { flex: 1; min-width: 0; background: #9fd0e8; border-radius: 12px; position: relative; overflow: hidden; border: 3px solid #0e0805; box-shadow: 0 3px 0 rgba(0,0,0,.5); }
-  .jp-map svg { width: 100%; height: 100%; display: block; }
-  .jp-land { fill: #d9cf9a; stroke: #8a7a45; stroke-width: 2; }
-  .jp-pin { cursor: pointer; } .jp-pin circle { stroke: #fff; stroke-width: 2; } .jp-pin text { font-size: 12px; font-weight: 800; fill: #3b2a1a; paint-order: stroke; stroke: #fff9e6; stroke-width: 3px; }
-  .jp-pin.locked circle { fill: #8d8d8d; } .jp-pin.owned circle { fill: #d32f2f; } .jp-pin.done circle { fill: #f4b400; } .jp-pin.sel circle { stroke: #1565c0; stroke-width: 4; }
+  .jp-map { flex: 1; min-width: 0; background: #62bcc8; border-radius: 12px; position: relative; overflow: hidden; border: 3px solid #0e0805; box-shadow: 0 3px 0 rgba(0,0,0,.5); display: flex; align-items: center; justify-content: center; }
+  .jp-mapbox { position: relative; flex: none; } .jp-mapbox img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; user-select: none; -webkit-user-drag: none; }
+  .jp-mpin { position: absolute; transform: translate(-50%, -50%); border: 0; background: none; padding: 0; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 1px; font-family: inherit; touch-action: pan-x pan-y; }
+  .jp-mpin::before { content: ''; position: absolute; inset: -14px; }                    /* zona táctil más grande que el punto */
+  .jp-mpin i { width: 14px; height: 14px; border-radius: 50%; background: #d32f2f; border: 2.5px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,.55); display: block; }
+  .jp-mpin span { font-size: 10px; font-weight: 900; color: #fff; white-space: nowrap; text-shadow: 0 0 3px #1a0e07, 0 1px 2px #1a0e07, 1px 0 2px #1a0e07, -1px 0 2px #1a0e07; letter-spacing: .2px; }
+  .jp-mpin.locked i { background: #8d8d8d; } .jp-mpin.done i { background: #f4b400; } .jp-mpin.owned i, .jp-mpin.done i { animation: jpPin 1.6s ease-in-out infinite; }
+  .jp-mpin.sel i { box-shadow: 0 0 0 3px #ffd54f, 0 0 10px 3px rgba(255,213,79,.9); } .jp-mpin.sel span { color: #ffe082; }
+  @keyframes jpPin { 50% { transform: scale(1.25); } }
   .jp-side { width: 270px; flex-shrink: 0; background: rgba(20, 10, 5, .88); border-radius: 12px; border: 2px solid #0e0805; box-shadow: 0 3px 0 rgba(0,0,0,.5); padding: 8px 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
   .jp-side > .jp-btn { position: sticky; bottom: 0; flex-shrink: 0; }
   .jp-side h3 { margin: 0; font: 400 18px/1.1 'Fredoka One', 'Fredoka', sans-serif; color: #ffe082; } .jp-side small { color: #cdb892; line-height: 1.25; }
@@ -417,14 +421,13 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
   /* carrusel lateral de ciudades (como Modos de juego) */
   .jp-strip { flex: none; display: flex; gap: 7px; padding: 0 10px 8px max(10px, env(safe-area-inset-left, 0px)); overflow-x: auto; overflow-y: hidden; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
   .jp-strip::-webkit-scrollbar { display: none; }
-  .jp-ccard { flex: none; width: 104px; scroll-snap-align: start; display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 0 0 4px; border: 3px solid #0e0805; border-radius: 10px; overflow: hidden; background: #1c0f09; color: #fff; font-family: inherit; cursor: pointer; box-shadow: 0 3px 0 rgba(0,0,0,.5); position: relative; }
+  .jp-ccard { flex: none; width: 150px; height: 52px; scroll-snap-align: start; display: flex; align-items: center; gap: 6px; padding: 0 8px 0 0; border: 3px solid #0e0805; border-radius: 10px; overflow: hidden; background: linear-gradient(90deg, #7a2a50, #3a1a2a); color: #fff; font-family: inherit; cursor: pointer; box-shadow: 0 3px 0 rgba(0,0,0,.5); text-align: left; }
   .jp-ccard:active { transform: translateY(1px); }
-  .jp-ccard .hd { width: 100%; padding: 3px 4px; background: #ec407a; font-size: 11px; font-weight: 900; line-height: 1.1; text-shadow: 0 2px 0 rgba(0,0,0,.55); text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .jp-ccard .hd small { display: block; font-size: 9px; font-weight: 800; opacity: .92; }
-  .jp-ccard .ar { width: 100%; height: 50px; display: flex; align-items: center; justify-content: center; background: linear-gradient(160deg, #7a2a50, #1c0f09); }
-  .jp-ccard .ar img { width: 46px; height: 46px; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(0,0,0,.5)); } .jp-ccard .ar span { font-size: 28px; }
-  .jp-ccard .st { font-size: 10px; font-weight: 800; color: #ffe9b0; }
-  .jp-ccard.locked .hd { background: #6d4c6e; } .jp-ccard.locked .ar { filter: grayscale(.8) brightness(.8); } .jp-ccard.locked .st { color: #c9b79a; }
+  .jp-ccard .ar { flex: none; width: 46px; align-self: stretch; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.28); }
+  .jp-ccard .ar img { width: 36px; height: 36px; object-fit: contain; filter: drop-shadow(0 2px 3px rgba(0,0,0,.5)); } .jp-ccard .ar span { font-size: 24px; }
+  .jp-ccard .tx { min-width: 0; display: flex; flex-direction: column; line-height: 1.1; } .jp-ccard .tx b { font-size: 11px; font-weight: 900; text-shadow: 0 2px 0 rgba(0,0,0,.55); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .jp-ccard .tx small { font-size: 9px; font-weight: 800; opacity: .85; } .jp-ccard .tx em { font-style: normal; font-size: 10px; font-weight: 900; color: #ffe9b0; white-space: nowrap; }
+  .jp-ccard.locked { background: linear-gradient(90deg, #4e3a4f, #2b1c2c); } .jp-ccard.locked .ar { filter: grayscale(.8) brightness(.85); } .jp-ccard.locked .tx em { color: #c9b79a; }
   .jp-ccard.sel { border-color: #ffd54f; box-shadow: 0 0 0 2px #ff8f00, 0 3px 0 rgba(0,0,0,.5); }
   .jp-plan { flex: 1; min-width: 0; display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: 1fr 1.25fr; gap: 6px; }
   .jp-zone { position: relative; border-radius: 12px; border: 2px solid #0e0805; background: rgba(20,10,5,.85); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 4px; cursor: pointer; text-align: center; font-size: 11px; font-weight: 700; }
@@ -447,10 +450,6 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
   .jp-dock { position: absolute; right: 0; top: 42px; bottom: 0; z-index: 40; background: #1c0f09; border-left: 3px solid #ffb300; box-shadow: -6px 0 14px rgba(0,0,0,0.5); padding: 8px 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; color: #f1e3c8; }
   .jp-dock .jp-row { flex-wrap: wrap; } .jp-dock .jp-row > div { flex: 1 1 100%; } .jp-dock .jp-row .jp-btn { flex: 1 1 auto; }
   .jp-dock h3 { margin: 0; font: 400 17px/1.1 'Fredoka One', 'Fredoka', sans-serif; color: #ffe082; display: flex; justify-content: space-between; align-items: center; gap: 6px; }
-  .jp-cloud { animation: jpCloud 38s linear infinite; opacity: 0.85; } .jp-cloud.c2 { animation-duration: 55s; animation-delay: -20s; } @keyframes jpCloud { from { transform: translateX(-80px); } to { transform: translateX(680px); } }
-  .jp-wave { animation: jpWave 4s ease-in-out infinite; } @keyframes jpWave { 50% { transform: translateX(10px); } }
-  .jp-boat { animation: jpBoat 22s linear infinite; } @keyframes jpBoat { from { transform: translateX(0); } to { transform: translateX(120px); } }
-  .jp-pin.owned circle, .jp-pin.done circle { animation: jpPin 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; } @keyframes jpPin { 50% { transform: scale(1.25); } }
   .jp-opts { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; } .jp-opt { flex: 1 1 110px; background: #2a1a10; border: 2px solid #0e0805; border-radius: 10px; padding: 5px 8px; cursor: pointer; display: flex; flex-direction: column; gap: 1px; position: relative; box-shadow: 0 2px 0 rgba(0,0,0,.5); } .jp-opt b { font-size: 13px; color: #f1e3c8; } .jp-opt small { font-size: 10px; color: #cdb892; font-weight: 600; } .jp-opt em { position: absolute; top: 4px; right: 7px; font-style: normal; font-weight: 900; font-size: 12px; color: #ff8a65; }
   .jp-opt.sel { border-color: #fff0a8; background: linear-gradient(135deg, #7a4a00, #4a2a00); box-shadow: 0 0 0 2px #ffb300, 0 2px 0 rgba(0,0,0,.5); } .jp-opt.off { opacity: 0.5; cursor: default; }
   .jp-resultbox { position: fixed; inset: 0; z-index: 9500; background: rgba(0,0,0,0.65); display: flex; align-items: center; justify-content: center; padding: 10px; font-family: 'Fredoka', 'Nunito', system-ui, sans-serif; color: #f1e3c8; } .jp-resultbox .jp-card { width: 100%; }
@@ -458,26 +457,27 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
   .jp-stats { display: flex; gap: 6px; } .jp-stats div { flex: 1; background: rgba(255,255,255,.07); border-radius: 10px; padding: 5px; text-align: center; } .jp-stats b { display: block; font-size: 16px; color: #ffe9b0; } .jp-stats small { font-size: 10px; color: #cdb892; font-weight: 700; }
   .jp-foot { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; padding: 0 8px 6px; flex-shrink: 0; }
   .jp-note { background: rgba(255, 213, 79, .15); border: 2px solid #c9a24a; border-radius: 10px; padding: 4px 8px; font-size: 12px; font-weight: 800; margin: 0 8px; color: #ffe9b0; }
-  @media (max-height: 420px) { .jp-ccard { width: 96px; } .jp-ccard .ar { height: 42px; } .jp-ccard .ar img { width: 38px; height: 38px; } .jp-side { width: 250px; } }
+  @media (max-height: 420px) { .jp-side { width: 250px; } }
   `;
   function css() { if (document.getElementById('jp-css')) return; const s = document.createElement('style'); s.id = 'jp-css'; s.textContent = CSS; document.head.appendChild(s); }
 
   const AI = (id, fb) => (window.ArteUI ? ArteUI.icon(id, fb) : fb);
-  function mapSvg() {
-    const pins = CITIES.map(c => {
+  /** Marcadores de las ciudades sobre la ilustración del mapa (posición en % de la imagen: x, y de CITIES). */
+  function mapPins() {
+    return CITIES.map(c => {
       const open = !!S.open[c.id], done = open && mastery(c, S.rest[c.id]).complete;
-      return `<g class="jp-pin ${done ? 'done' : (open ? 'owned' : 'locked')} ${S.sel === c.id ? 'sel' : ''}" onclick="JP.sel('${c.id}')"><circle cx="${c.x}" cy="${c.y}" r="9"/><text x="${c.x + 12}" y="${c.y + 4}">${c.name}</text></g>`;
+      return `<button class="jp-mpin ${done ? 'done' : (open ? 'owned' : 'locked')} ${S.sel === c.id ? 'sel' : ''}" style="left:${c.x}%;top:${c.y}%" onclick="JP.sel('${c.id}')" aria-label="${c.name}"><i></i><span>${c.name}</span></button>`;
     }).join('');
-    return `<svg viewBox="0 0 600 300" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-      <rect width="600" height="300" fill="#9fd0e8"/><g class="jp-wave"><path d="M20,100 q20,-8 40,0 t40,0 M470,230 q20,-8 40,0 t40,0 M30,150 q20,-8 40,0 t40,0" fill="none" stroke="#c8e8f6" stroke-width="3"/></g><path d="M0,40 q60,10 120,0 t120,0 t120,0 t120,0 t120,0" fill="none" stroke="#b9e0f2" stroke-width="3" opacity="0.7"/><path d="M0,280 q60,-10 120,0 t120,0 t120,0 t120,0 t120,0" fill="none" stroke="#b9e0f2" stroke-width="3" opacity="0.7"/>
-      <path class="jp-land" d="M 500,30 L 545,22 L 585,45 L 570,72 L 535,68 L 515,82 L 495,62 Z"/>
-      <path class="jp-land" d="M 160,214 L 205,196 L 252,196 L 292,178 L 318,146 L 330,122 L 372,138 L 398,126 L 418,98 L 432,70 L 452,66 L 456,92 L 446,128 L 424,162 L 392,176 L 352,190 L 318,200 L 270,214 L 220,226 Z"/>
-      <path class="jp-land" d="M 232,232 L 275,224 L 290,238 L 262,252 L 238,248 Z"/>
-      <path class="jp-land" d="M 80,236 L 118,214 L 150,226 L 146,258 L 118,278 L 92,270 L 78,252 Z"/>
-      <g class="jp-boat"><path d="M180,262 h22 l-4,8 h-14 Z" fill="#8a5a2b"/><path d="M190,262 v-12 l9,10 Z" fill="#fff"/></g>
-      <g class="jp-cloud"><ellipse cx="60" cy="40" rx="26" ry="9" fill="#fff"/><ellipse cx="78" cy="34" rx="16" ry="8" fill="#fff"/></g><g class="jp-cloud c2"><ellipse cx="40" cy="190" rx="22" ry="8" fill="#fff"/><ellipse cx="56" cy="185" rx="14" ry="7" fill="#fff"/></g>
-      ${pins}</svg>`;
   }
+  const MAP_RATIO = 2912 / 1440;                 // proporción de assets/ui/mapa_japon.webp
+  /** Ajusta el recuadro de la ilustración al espacio libre sin deformarla (los marcadores van en % de ese recuadro). */
+  function fitMap() {
+    const box = document.getElementById('jp-mapbox'); if (!box || !box.parentElement) return;
+    const W = box.parentElement.clientWidth, H = box.parentElement.clientHeight; if (!W || !H) return;
+    let w = W, h = W / MAP_RATIO; if (h > H) { h = H; w = H * MAP_RATIO; }
+    box.style.width = Math.floor(w) + 'px'; box.style.height = Math.floor(h) + 'px';
+  }
+  window.addEventListener('resize', () => { try { fitMap(); } catch (e) {} });
 
   function renderMap() {
     const sel = CITY[S.sel || 'tokio'], open = !!S.open[sel.id], m = open ? mastery(sel, S.rest[sel.id]) : null;
@@ -486,7 +486,7 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
       return `<div class="jp-dish ${un ? '' : ''}"><b>${({ ramen: '🍜', salteados: '🥘', frituras: '🍤', makis: '🍣' })[d[1]]} ${d[0]}</b><span>${d[2]}</span></div>`;
     }).join('');
     const net = open ? netOf(sel, S.rest[sel.id]) : 0;
-    return `<div class="jp-body"><div class="jp-map">${mapSvg()}</div>
+    return `<div class="jp-body"><div class="jp-map"><div class="jp-mapbox" id="jp-mapbox"><img src="assets/ui/mapa_japon.webp" alt="Mapa de Japón" draggable="false">${mapPins()}</div></div>
       <div class="jp-side"><h3>${sel.name} <small>· ${sel.region}</small></h3><small>${sel.story}</small>
         ${dishes}
         <small>${open ? `Local abierto · neto ${net >= 0 ? '+' : ''}${fmt1(net * 60)}/h · Maestría ${m.done}/${m.total}${m.complete ? ' ✅ mejoras de platos ganadas' : ''}` : 'Al completar la Maestría de este local ganas la mejora de cada uno de estos platos (+8 % de pago al servirlo). Los platos están disponibles en el juego igualmente.'}</small>
@@ -496,8 +496,8 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
   /** Tarjeta de ciudad del carrusel lateral (mismo formato que en Modos de juego): ilustración, nombre, región y estado. */
   function cityCard(c) {
     const open = !!S.open[c.id], done = open && mastery(c, S.rest[c.id]).complete;
-    return `<button class="jp-ccard ${open ? 'open' : 'locked'} ${S.sel === c.id ? 'sel' : ''}" data-id="${c.id}" onclick="JP.sel('${c.id}')" aria-label="${c.name}"><div class="hd">${c.name.toUpperCase()}<small>${c.region}</small></div>
-      <div class="ar">${AI(c.id, `<span>${open ? '🏯' : '🔒'}</span>`)}</div><div class="st">${done ? '⭐ Maestría' : (open ? '✔ Abierta' : '🔒 S/ ' + fmt(c.cost))}</div></button>`;
+    return `<button class="jp-ccard ${open ? 'open' : 'locked'} ${S.sel === c.id ? 'sel' : ''}" data-id="${c.id}" onclick="JP.sel('${c.id}')" aria-label="${c.name}">
+      <div class="ar">${AI(c.id, `<span>${open ? '🏯' : '🔒'}</span>`)}</div><div class="tx"><b>${c.name.toUpperCase()}</b><small>${c.region}</small><em>${done ? '⭐ Maestría' : (open ? '✔ Abierta' : '🔒 S/ ' + fmt(c.cost))}</em></div></button>`;
   }
 
   function renderRest() {
@@ -594,6 +594,7 @@ const MIN_LIVE = 2;                                   // minutos: por debajo se 
       const c = strip.querySelector('.jp-ccard.sel');                // si la ciudad elegida (p. ej. desde el mapa) queda fuera de vista, se centra
       if (c && (c.offsetLeft < strip.scrollLeft || c.offsetLeft + c.offsetWidth > strip.scrollLeft + strip.clientWidth)) strip.scrollLeft = c.offsetLeft - (strip.clientWidth - c.offsetWidth) / 2;
     }
+    fitMap();
     syncUi();
     if (inRest && window.JPScene) window.JPScene.mount(document.getElementById('jp-scene-host'), sceneState);
     else if (window.JPScene) window.JPScene.destroy();

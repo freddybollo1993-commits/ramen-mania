@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ramen-mania-v231';
+const CACHE_NAME = 'ramen-mania-v232';
 
 // Shell del juego para instalar y abrir sin conexión: la página y todos sus scripts (js/ + archivos de apoyo)
 const CORE_SHELL = [
@@ -119,6 +119,7 @@ self.addEventListener('activate', event => {
           './assets/ui/escena_retos.webp',
           './assets/ui/escena_repaso.webp',
           './assets/ui/escena_camp.webp',
+          './assets/ui/mapa_japon.webp',
           './assets/ui/ui_arco_ramen.webp',
           './assets/ui/ui_arco_salteado.webp',
           './assets/ui/ui_arco_makis.webp',
