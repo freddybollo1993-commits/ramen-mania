@@ -1,10 +1,29 @@
-/* Modo «Reconocer ingredientes»: practica qué lleva cada plato, sin reloj en contra.
+/* Modo «Reconocer ingredientes»: practica qué lleva cada plato, sin reloj en contra. Tiene 3 niveles de dificultad (Aprendiz, Cocinero y Maestro):
+   cada nivel elige los platos según cuántos ingredientes llevan y cambia lo parecidos que son los señuelos. Incluye la carta ampliada (reconocer-carta.js).
    Un contador SUBE y mide cuánto demoras en reconocer los ingredientes de cada plato (y en total).
    Se elige el área y cuántos platos; para cada plato se marcan sus ingredientes entre varios (incluye distractores). */
 (function () {
   'use strict';
   const KEY = 'ramen_recon_v1';
-  const AREAS = [['todas', '🍱', 'Todas'], ['ramen', '🍜', 'Ramen'], ['salteados', '🥘', 'Salteado'], ['frituras', '🍤', 'Frituras'], ['makis', '🍣', 'Makis']];
+  const CARTA = window.ReconCarta || { groups: [], dishes: [], pool: () => [], ing: () => null };
+  const AREAS = [['todas', '🍱', 'Todas'], ['ramen', '🍜', 'Ramen'], ['salteados', '🥘', 'Salteado'], ['frituras', '🍤', 'Frituras'], ['makis', '🍣', 'Makis']]
+    .concat(CARTA.dishes.length ? [['carta', '📜', 'Carta']].concat(CARTA.groups) : []);
+  const IS_CARTA = a => a === 'carta' || CARTA.groups.some(g => g[0] === a);
+  // Niveles: [id, nombre, color, descripción]
+  const LEVELS = [[1, 'APRENDIZ', '#43a047', 'Los platos más cortos de cada cocina; señuelos muy distintos, fáciles de descartar.'],
+    [2, 'COCINERO', '#fb8c00', 'Platos medianos; señuelos de su misma cocina.'],
+    [3, 'MAESTRO', '#e53935', 'Los platos más largos; señuelos casi idénticos, tomados de platos parecidos.']];
+  // El nivel de un plato depende de cuántos ingredientes lleva COMPARADO con los demás platos de su cocina: se reparten en tercios exactos (los más cortos = 1,
+  // los medianos = 2, los más largos = 3; si dos llevan lo mismo, desempata el nombre), así cada cocina tiene platos en los tres niveles.
+  const lvlMaps = {};
+  function levelMap(area) {
+    if (!lvlMaps[area]) {
+      const sorted = poolFor(area).map(it => ({ name: it.r.name, n: ingredientsOf(it).length })).sort((a, b) => a.n - b.n || a.name.localeCompare(b.name)), k = sorted.length, m = new Map();
+      sorted.forEach((d, i) => m.set(d.name, Math.min(3, Math.floor(i * 3 / k) + 1)));
+      lvlMaps[area] = m;
+    }
+    return lvlMaps[area];
+  }
   const COUNTS = [[5, '5 platos'], [10, '10 platos'], [0, 'Todos']];
   const store = () => (typeof safeStorage !== 'undefined' ? safeStorage : localStorage);
   let rec = null, R = null, timer = 0;
@@ -13,9 +32,10 @@
   const fmtT = s => { s = Math.max(0, s); const m = Math.floor(s / 60); return m + ':' + (s % 60 < 10 ? '0' : '') + (s % 60).toFixed(1); };
   const pick = a => a[Math.floor(Math.random() * a.length)];
   const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
-  const ing = id => INGREDIENTES.find(i => i.id === id);
+  const ing = id => INGREDIENTES.find(i => i.id === id) || CARTA.ing(id);
 
   function poolFor(area) {
+    if (IS_CARTA(area)) return CARTA.pool(area).map(d => ({ r: { name: d.name, ingredients: d.ids }, area: d.group, ids: d.ids }));
     const cat = { ramen: ['ramen', RECETAS_RAMEN], salteados: ['salteados', RECETAS_SALTEADOS], frituras: ['frituras', RECETAS_FRITURAS.filter(r => r.metodo !== 'hervido')], makis: ['makis', RECETAS_MAKIS] };
     const keys = area === 'todas' ? Object.keys(cat) : [area];
     return keys.flatMap(k => cat[k][1].map(r => ({ r, area: k })));
@@ -24,6 +44,7 @@
   // En Salteado manda el guion de la Campaña (SAL_STAGED: cocción + emplatado) y NO la lista base antigua: cada plato lleva SU corte de pollo
   // (cuadrado, en tiras, teriyaki, yakitori), que son ingredientes distintos y no se pueden confundir con el «Pollo» crudo.
   function ingredientsOf(item) {
+    if (item.ids) return item.ids.filter(id => ing(id));
     const r = item.r;
     try {
       if (item.area === 'salteados' && typeof SAL_STAGED !== 'undefined' && SAL_STAGED[r.name]) return [...new Set([...salCookIds(r.name), ...SAL_STAGED[r.name].plate])].filter(id => ing(id));
@@ -33,10 +54,30 @@
       return [...s].filter(id => ing(id) && !(item.area === 'makis' && (id === 96 || id === 97)));      // gari y wasabi son opcionales
     } catch (e) { return [...new Set(r.ingredients)]; }
   }
+  const lvlOf = item => levelMap(item.area).get(item.r.name) || 2;
+  /** Opciones de un plato: sus ingredientes + señuelos. Aprendiz: señuelos de OTRA cocina (muy distintos); Cocinero: de su misma cocina; Maestro: los de platos parecidos. */
   function options(item) {
-    const need = ingredientsOf(item), all = INGREDIENTES.filter(i => i.areas && i.areas.includes(item.area) && !need.includes(i.id));
-    const extra = shuffle(all).slice(0, Math.min(all.length, Math.max(6, Math.round(need.length * 0.8))));
-    return shuffle([...need, ...extra.map(i => i.id)]).filter(id => ing(id));
+    const need = ingredientsOf(item), needSet = new Set(need), level = sel.level;
+    let same, other;
+    if (item.ids) {                                                   // carta: «misma cocina» = su grupo
+      const ofGroup = g => [...new Set(CARTA.dishes.filter(d => (g === 'same' ? d.group === item.area : d.group !== item.area)).flatMap(d => d.ids))];
+      same = ofGroup('same').filter(id => !needSet.has(id)); other = ofGroup('other').filter(id => !needSet.has(id) && !same.includes(id));
+    } else {
+      same = INGREDIENTES.filter(i => i.areas && i.areas.includes(item.area) && !needSet.has(i.id)).map(i => i.id);
+      other = INGREDIENTES.filter(i => !(i.areas && i.areas.includes(item.area)) && !needSet.has(i.id) && (i.img || i.icon)).map(i => i.id);
+    }
+    let extra;
+    if (level === 1) extra = shuffle(other.length >= 4 ? other : same).slice(0, Math.max(4, Math.round(need.length * 0.5)));
+    else if (level === 3) {
+      const near = new Map();                                         // platos de su grupo que comparten buena parte de sus ingredientes: sus otros ingredientes son los señuelos más traicioneros
+      poolFor(item.area).filter(o => o.r.name !== item.r.name).forEach(o => {
+        const ids = ingredientsOf(o), shared = ids.filter(id => needSet.has(id)).length;
+        if (shared >= Math.max(2, need.length * 0.35)) ids.filter(id => !needSet.has(id)).forEach(id => near.set(id, (near.get(id) || 0) + shared));
+      });
+      const ranked = [...near.entries()].sort((a, b) => b[1] - a[1] || Math.random() - 0.5).map(e => e[0]), cnt = Math.max(8, need.length);
+      extra = ranked.slice(0, cnt); if (extra.length < cnt) extra = extra.concat(shuffle(same.filter(id => !extra.includes(id))).slice(0, cnt - extra.length));
+    } else extra = shuffle(same).slice(0, Math.max(6, Math.round(need.length * 0.8)));
+    return shuffle([...need, ...extra]).filter(id => ing(id));
   }
   const CSS = `
   #rc-screen { position: fixed; inset: 0; z-index: 9000; background: linear-gradient(180deg, #3a2012, #1c0f09); color: #f1e3c8; font-family: 'Fredoka','Nunito',system-ui,sans-serif; display: flex; flex-direction: column; overflow: hidden; }
@@ -70,10 +111,10 @@
   .rc-menu { flex: 1; min-height: 0; display: flex; gap: 10px; padding: 8px 10px 8px max(10px, env(safe-area-inset-left, 0px)); }
   .rc-feat { position: relative; width: 252px; flex: none; border: 3px solid #0e0805; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; padding: 8px 10px 10px; box-shadow: 0 4px 0 rgba(0,0,0,.5); background: var(--bg, #0b1f40); }
   .rc-feat::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(0,0,0,.05), rgba(0,0,0,.6)); } .rc-feat > * { position: relative; }
-  .rc-feat .ft { margin: 2px 0 6px; font: 400 23px/1 'Fredoka One','Fredoka',sans-serif; font-style: italic; color: #ffe94d; text-shadow: 0 3px 0 #1a0e07, 2px 2px 0 #1a0e07, -2px 0 0 #1a0e07; transform: rotate(-3deg); transform-origin: left center; }
-  .rc-feat .pn { background: rgba(0,0,0,.82); border-bottom: 3px solid #ffe94d; padding: 6px 9px; margin: 4px 0; font: 800 11px/1.25 'Fredoka',sans-serif; color: #fff; transform: skewX(-6deg); max-width: 95%; } .rc-feat .pn span { display: block; transform: skewX(6deg); }
+  .rc-feat .ft { margin: 0 0 4px; font: 400 21px/1 'Fredoka One','Fredoka',sans-serif; font-style: italic; color: #ffe94d; text-shadow: 0 3px 0 #1a0e07, 2px 2px 0 #1a0e07, -2px 0 0 #1a0e07; transform: rotate(-3deg); transform-origin: left center; }
+  .rc-feat .pn { background: rgba(0,0,0,.82); border-bottom: 3px solid #ffe94d; padding: 4px 8px; margin: 3px 0; font: 800 10.5px/1.2 'Fredoka',sans-serif; color: #fff; transform: skewX(-6deg); max-width: 95%; } .rc-feat .pn span { display: block; transform: skewX(6deg); }
   .rc-feat .best { align-self: flex-start; font: 900 10px 'Fredoka',sans-serif; background: rgba(0,0,0,.65); border-radius: 9px; padding: 2px 8px; color: #ffe9b0; max-width: 100%; }
-  .rc-feat .rc-btn { width: 100%; padding: 9px 10px; font-size: 14px; }
+  .rc-feat .rc-btn { width: 100%; padding: 7px 10px; font-size: 14px; }
   .rc-side { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; justify-content: center; }
   .rc-side h4 { margin: 0; font: 900 11px/1 'Fredoka',sans-serif; color: #ffb300; letter-spacing: .6px; text-transform: uppercase; }
   .rc-strip { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 6px; scroll-snap-type: x proximity; scrollbar-width: none; -webkit-overflow-scrolling: touch; } .rc-strip::-webkit-scrollbar { display: none; }
@@ -89,26 +130,30 @@
   const top = (title, clock) => `<div class="rc-top"><button class="rc-btn ghost" onclick="Recon.exit()" aria-label="Volver al menú">◀</button><h2>${title}</h2>${clock ? '<div class="rc-clock" id="rc-clock">0:00.0<small>TIEMPO TOTAL</small></div>' : ''}</div>`;
 
   // ---------- pantalla de inicio del modo ----------
-  const sel = { area: 'todas', count: 5 };
-  const AREA_COL = { todas: '#8e24aa', ramen: '#ff9800', salteados: '#ef5350', frituras: '#ffca28', makis: '#26a69a' };
-  const AREA_ART = { todas: 'reconocer', ramen: 'libre_ramen', salteados: 'libre_salteado', frituras: 'libre_frituras', makis: 'libre_makis' };
+  const sel = { area: 'todas', count: 5, level: 1 };
+  const AREA_COL = { todas: '#8e24aa', ramen: '#ff9800', salteados: '#ef5350', frituras: '#ffca28', makis: '#26a69a', carta: '#5e35b1', cmakis: '#00897b', cbowls: '#7cb342', centradas: '#f9a825', cfondos: '#d84315', calitas: '#e53935' };
+  const DISH_EMOJI = { ramen: '🍜', salteados: '🥘', frituras: '🍤', makis: '🍣', cmakis: '🍣', cbowls: '🥗', centradas: '🥟', cfondos: '🍛', calitas: '🍗' };
+  const AREA_ART = { todas: 'reconocer', ramen: 'libre_ramen', salteados: 'libre_salteado', frituras: 'libre_frituras', makis: 'libre_makis', cmakis: 'libre_makis', centradas: 'libre_frituras', calitas: 'libre_frituras', cfondos: 'libre_salteado', cbowls: 'libre_makis', carta: 'reconocer' };
+  const levelCount = (area, lv) => poolFor(area).filter(it => lvlOf(it) === lv).length;
   function renderMenu() {
     load(); css();
-    const best = rec.best[sel.area + ':' + sel.count];
+    const best = rec.best[sel.area + ':' + sel.count + ':' + sel.level], nLv = levelCount(sel.area, sel.level), lv = LEVELS[sel.level - 1];
     const AI = (id, fb) => (window.ArteUI ? ArteUI.icon(id, fb) : fb);
     const bgFb = 'linear-gradient(160deg, #80cbc4 0%, #00796b 55%, #072a25 100%)';
     const bg = window.ArteUI ? ArteUI.bg('repaso', bgFb) : bgFb;
     root().innerHTML = top('RECONOCER INGREDIENTES', false) + `<div class="rc-menu">
-      <div class="rc-feat" style="--bg:${bg}; background:${bg}"><span class="best">${best ? `🏆 Mejor marca: ${fmtT(best.t)} · ${(best.t / best.n).toFixed(1)} s por plato · ${Math.round(best.acc * 100)} % a la primera` : 'Aún no tienes marca con esta combinación'}</span>
-        <div><h3 class="ft">¿QUÉ LLEVA CADA PLATO?</h3><div class="pn"><span>Sin reloj en contra: un contador mide cuánto demoras en reconocer los ingredientes de cada plato.</span></div><div class="pn"><span>Marca los correctos entre varios (hay de más) y toca Confirmar.</span></div>
-        <button class="rc-btn green" onclick="Recon.start()">▶ EMPEZAR</button></div></div>
+      <div class="rc-feat" style="--bg:${bg}; background:${bg}"><span class="best">${best ? `🏆 ${fmtT(best.t)} · ${(best.t / best.n).toFixed(1)} s por plato · ${Math.round(best.acc * 100)} % a la primera` : 'Sin marca en esta combinación'}</span>
+        <div><h3 class="ft">¿QUÉ LLEVA CADA PLATO?</h3><div class="pn"><span>Marca los ingredientes correctos entre varios (hay de más) y toca Confirmar. Un contador mide tu tiempo.</span></div><div class="pn" style="border-bottom-color:${lv[2]}"><span><b>${lv[1]}</b> · ${nLv} ${nLv === 1 ? 'plato' : 'platos'}<br>${lv[3]}</span></div>
+        <button class="rc-btn green" ${nLv ? '' : 'disabled'} onclick="Recon.start()">${nLv ? '▶ EMPEZAR' : 'Sin platos en este nivel'}</button></div></div>
       <div class="rc-side"><h4>Área</h4><div class="rc-strip">${AREAS.map(a => `<button class="rc-opt ${sel.area === a[0] ? 'sel' : ''}" style="--c:${AREA_COL[a[0]]}" onclick="Recon.set('area','${a[0]}')"><div class="hd">${a[2].toUpperCase()}</div><div class="ar">${AI(AREA_ART[a[0]], `<span>${a[1]}</span>`)}</div></button>`).join('')}</div>
+        <h4>Dificultad</h4><div class="rc-strip">${LEVELS.map(l => { const n = levelCount(sel.area, l[0]); return `<button class="rc-opt ${sel.level === l[0] ? 'sel' : ''}" style="--c:${l[2]}" onclick="Recon.set('level',${l[0]})"><div class="hd">${l[0]} · ${l[1]}</div><div class="ar"><span>${n}</span></div></button>`; }).join('')}</div>
         <h4>Cantidad</h4><div class="rc-strip">${COUNTS.map(c => `<button class="rc-opt ${sel.count === c[0] ? 'sel' : ''}" style="--c:#43a047" onclick="Recon.set('count',${c[0]})"><div class="hd">${c[0] ? c[0] + ' PLATOS' : 'TODOS'}</div><div class="ar"><span>${c[0] || '∞'}</span></div></button>`).join('')}</div></div></div>`;
   }
 
   // ---------- partida ----------
   function begin() {
-    const pool = shuffle(poolFor(sel.area)), n = sel.count || pool.length;
+    const pool = shuffle(poolFor(sel.area).filter(it => lvlOf(it) === sel.level)), n = sel.count || pool.length;
+    if (!pool.length) return;
     R = { queue: pool.slice(0, n), idx: 0, t0: performance.now(), tStart: performance.now(), paused: false, pausedAt: 0, pauseTotal: 0, picks: new Set(), tries: 0, wrongTotal: 0, results: [], opts: [], locked: false };
     nextDish();
     clearInterval(timer); timer = setInterval(tick, 100);
@@ -122,7 +167,7 @@
   function renderPlay(msg) {
     css(); const item = R.item, need = ingredientsOf(item).length;
     const tiles = R.opts.map(id => { const i = ing(id), src = i.img; return `<div class="rc-tile ${R.picks.has(id) ? 'sel' : ''}" data-id="${id}" onclick="Recon.toggle(${id})">${src ? `<img src="${src}" alt="" draggable="false">` : `<div class="ic">${i.icon}</div>`}<small>${i.short || i.display}</small></div>`; }).join('');
-    root().innerHTML = top(`🔍 Plato ${R.idx + 1} de ${R.queue.length}`, true) + `<div class="rc-body"><div class="rc-dish"><b>${({ ramen: '🍜', salteados: '🥘', frituras: '🍤', makis: '🍣' })[item.area]} ${item.r.name}</b><span>Marca los <span class="rc-chip">${need}</span> ingredientes que lleva · tiempo de este plato: <span id="rc-dishclock">0.0 s</span></span></div><div class="rc-grid">${tiles}</div></div>
+    root().innerHTML = top(`🔍 Plato ${R.idx + 1} de ${R.queue.length}`, true) + `<div class="rc-body"><div class="rc-dish"><b>${DISH_EMOJI[item.area] || '🍽️'} ${item.r.name}</b><span>Marca los <span class="rc-chip">${need}</span> ingredientes que lleva · tiempo de este plato: <span id="rc-dishclock">0.0 s</span></span></div><div class="rc-grid">${tiles}</div></div>
       <div class="rc-foot"><div class="rc-msg" id="rc-msg">${msg || `Seleccionados: ${R.picks.size} de ${need}`}</div><button class="rc-btn ghost" onclick="Recon.pause()">${R.paused ? '▶ Seguir' : '⏸ Pausa'}</button><button class="rc-btn green" onclick="Recon.confirm()">✔ Confirmar</button></div>`;
     tick();
   }
@@ -162,12 +207,12 @@
   };
   function finish() {
     clearInterval(timer); load();
-    const total = elapsed(), n = R.results.length, firstTry = R.results.filter(r => r.tries === 1).length, acc = n ? firstTry / n : 0, key = sel.area + ':' + sel.count;
+    const total = elapsed(), n = R.results.length, firstTry = R.results.filter(r => r.tries === 1).length, acc = n ? firstTry / n : 0, key = sel.area + ':' + sel.count + ':' + sel.level;
     const prev = rec.best[key], isBest = !prev || total < prev.t; rec.runs++;
     if (isBest) rec.best[key] = { t: total, n, acc }; save();
     const rows = R.results.map(r => `<tr><td>${r.name}</td><td>${r.t.toFixed(1)} s</td><td>${r.tries === 1 ? '✅' : '↻ ' + r.tries}</td></tr>`).join('');
     const slow = [...R.results].sort((a, b) => b.t - a.t).slice(0, 3).map(r => r.name).join(', ');
-    root().innerHTML = top('🔍 Resultado', false) + `<div class="rc-body"><div class="rc-card"><h3>${isBest ? '🏆 ¡Nueva mejor marca!' : '¡Listo!'}</h3>
+    root().innerHTML = top('🔍 Resultado', false) + `<div class="rc-body"><div class="rc-card"><h3>${isBest ? '🏆 ¡Nueva mejor marca!' : '¡Listo!'} <span class="rc-chip" style="background:${LEVELS[sel.level - 1][2]};color:#fff!important">${LEVELS[sel.level - 1][1]}</span></h3>
       <div class="rc-stat"><div><b>${fmtT(total)}</b><small>Tiempo total</small></div><div><b>${(total / n).toFixed(1)} s</b><small>Por plato</small></div><div><b>${Math.round(acc * 100)} %</b><small>A la primera</small></div><div><b>${R.wrongTotal}</b><small>Errores</small></div></div>
       ${slow ? `<div style="font-size:12px;font-weight:700">🐢 Los que más te costaron: ${slow}</div>` : ''}
       ${prev ? `<div style="font-size:12px;color:#cdb892">Marca anterior: ${fmtT(prev.t)}</div>` : ''}
