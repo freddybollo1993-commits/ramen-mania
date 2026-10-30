@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Platos e ingredientes · Shimaya</title>
+<!-- Documento imprimible con TODOS los platos y sus ingredientes (36 del juego + 58 de la carta ampliada).
+     Lee los datos reales del juego (index.html en un iframe del mismo origen) y los dibuja como tablas.
+     Para sacar el PDF:  msedge --headless --print-to-pdf=platos.pdf --virtual-time-budget=15000 http://localhost:3100/tools/platos-doc.html -->
+<style>
+  @page { size: A4; margin: 14mm 12mm; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 10pt/1.35 'Segoe UI', Arial, sans-serif; color: #2b1810; }
+  h1 { margin: 0 0 2mm; font-size: 20pt; color: #7a2a14; }
+  .by { margin: 0 0 5mm; color: #6b5646; font-size: 9pt; }
+  h2 { margin: 6mm 0 1.5mm; padding-bottom: 1mm; border-bottom: 2px solid #e0a000; font-size: 13pt; color: #7a2a14; break-after: avoid; }
+  h3 { margin: 3mm 0 1mm; font-size: 10.5pt; color: #7a2a14; break-after: avoid; }
+  p { margin: 0 0 2mm; } p.nota { color: #5b4a3d; font-size: 9pt; }
+  table { width: 100%; border-collapse: collapse; margin: 0 0 3mm; font-size: 9pt; }
+  th { background: #7a2a14; color: #fff; text-align: left; padding: 1.5mm 2mm; }
+  td { vertical-align: top; padding: 1.4mm 2mm; border-bottom: 1px solid #e6d7c2; }
+  tr { break-inside: avoid; } tr:nth-child(even) td { background: #fbf4e6; }
+  td:first-child { width: 26mm; font-weight: 700; }
+  .c2 td:nth-child(2) { width: 62mm; }
+  #estado { font-size: 9pt; color: #a33; }
+</style>
+</head>
+<body>
+<h1>Platos e ingredientes · Shimaya</h1>
+<p class="by" id="by"></p>
+<div id="estado">Cargando datos del juego…</div>
+<div id="doc"></div>
+<iframe id="g" src="/" style="position:absolute; left:-9999px; width:900px; height:400px; border:0"></iframe>
+<script>
+  const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  const fr = document.getElementById('g');
+  let tries = 0;
+  const t = setInterval(() => {
+    const w = fr.contentWindow;
+    if (++tries > 120) { clearInterval(t); document.getElementById('estado').textContent = 'No cargó el juego'; return; }
+    // INGREDIENTES, RECETAS_*, SAL_STAGED… son `const` de scripts clásicos: no cuelgan de window, se leen con eval dentro del juego
+    let G;
+    try { G = n => w.eval(n); if (!(w.ReconCarta && w.stParts && w.eval('typeof salCookIds') === 'function' && ['INGREDIENTES', 'RECETAS_RAMEN', 'RECETAS_SALTEADOS', 'RECETAS_MAKIS', 'RECETAS_FRITURAS', 'SAL_STAGED', 'ST_OPTIONAL', 'FRY_PLATING'].every(n => w.eval('typeof ' + n) === 'object'))) return; } catch (e) { return; }
+    clearInterval(t); build(w, G);
+  }, 150);
+  function build(w, G) {
+    const nm = id => { const i = G('INGREDIENTES').find(x => x.id === id) || w.ReconCarta.ing(id); return i ? i.display : '#' + id; };
+    const areas = [['ramen', 'Ramen', G('RECETAS_RAMEN'), 'Todos llevan fideo y un caldo; cambian la salsa y los toppings.'],
+      ['salteados', 'Salteados', G('RECETAS_SALTEADOS'), 'La cocción se hace en wok o sartén; el emplatado añade guarniciones y salsas finales.'],
+      ['makis', 'Makis', G('RECETAS_MAKIS'), 'Todos se arman con arroz shari y nori; el gari y el wasabi son opcionales y no se cuentan.'],
+      ['frituras', 'Frituras', G('RECETAS_FRITURAS'), 'Los empanizados llevan harina, huevo y panko. Las gyozas hervidas no tienen emplatado aparte: todo se prepara en la cocción.']];
+    let h = '', total = 0;
+    areas.forEach(([a, titulo, list, nota]) => {
+      h += `<h2>Platos del juego · ${titulo} (${list.length})</h2><p class="nota">${nota}</p><table class="c2"><tr><th>Plato</th><th>Cocción (qué se prepara)</th><th>Emplatado (qué se agrega)</th></tr>`;
+      list.forEach(r => {
+        let plate; try { plate = w.stParts(a, r); } catch (e) { plate = []; }
+        let cook;
+        if (a === 'salteados' && G('SAL_STAGED')[r.name]) { cook = G('salCookIds')(r.name); plate = G('SAL_STAGED')[r.name].plate; } else cook = r.ingredients.filter(id => !plate.includes(id));
+        const fp = G('FRY_PLATING')[r.name]; if (a === 'frituras' && fp && fp.protein && !cook.includes(fp.protein) && !plate.includes(fp.protein)) cook = [fp.protein, ...cook];
+        const opt = a === 'makis' ? (G('ST_OPTIONAL').makis || []) : [];
+        const f = l => [...new Set(l)].filter(id => !opt.includes(id)).map(nm).join(', ') || '—';
+        h += `<tr><td>${esc(r.name)}</td><td>${esc(f(cook))}</td><td>${esc(f(plate))}</td></tr>`; total++;
+      });
+      h += '</table>';
+    });
+    // carta ampliada: los nombres tal como están escritos en el PDF (reconocer-carta.js)
+    fetch('/reconocer-carta.js').then(r => r.text()).then(src => {
+      const D = eval(src.match(/const DISHES = (\[[\s\S]*?\n  \]);/)[1].replace(/\/\/[^\n]*/g, ''));
+      const cap = x => x.charAt(0).toUpperCase() + x.slice(1);
+      const grupos = [['cmakis', 'Makis', 'Todos llevan shari y nori. La mayoría suma palta y langostino; lo que cambia es la cobertura y la salsa.'], ['cbowls', 'Bowls', 'En tu PDF vienen mezclados con los makis; aquí van aparte.'], ['centradas', 'Entradas', ''], ['cfondos', 'Fondos', ''], ['calitas', 'Alitas', '']];
+      grupos.forEach(([g, titulo, nota]) => {
+        const l = D.filter(d => d[1] === g); total += l.length;
+        h += `<h2>Carta ampliada · ${titulo} (${l.length})</h2>${nota ? `<p class="nota">${nota}</p>` : ''}<table><tr><th>Plato</th><th>Ingredientes</th></tr>` + l.map(d => `<tr><td>${esc(d[0])}</td><td>${esc(d[2].split(',').map(x => cap(x.trim())).join(', '))}</td></tr>`).join('') + '</table>';
+      });
+      document.getElementById('by').textContent = `${total} platos · generado el ${new Date().toLocaleDateString('es-PE')} · Ramen Mania / Shimaya`;
+      document.getElementById('doc').innerHTML = `<p>El juego tiene <b>36 platos</b> en sus cuatro cocinas y la carta ampliada suma <b>58 más</b> (solo para el modo Reconocer): <b>${total} platos</b> con su lista de ingredientes. Los nombres de ingredientes son los del juego (por ejemplo, «Beterraga» y «Betarraga» son el mismo).</p>` + h;
+      document.getElementById('estado').remove(); document.title = 'Platos e ingredientes · Shimaya';
+    });
+  }
+</script>
+</body>
+</html>
